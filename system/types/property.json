@@ -1,0 +1,29 @@
+{
+	"description": "This is a property of a type",
+	"type": "type",
+	"id": "property",
+	"properties": {
+		"optional": {
+			"description": "This specifies that the field is optional",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@bool",
+				"default": false
+			}
+		},
+		"item": {
+			"description": "This is a rule object, defining the type and restrictions on the value of the this property",
+			"type": "property",
+			"item": {
+				"type": "@rule"
+			}
+		}
+	},
+	"rule": {
+		"description": "Restriction rules for properties",
+		"type": "type",
+		"id": "@property",
+		"is": ["rule"]
+	}
+}

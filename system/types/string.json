@@ -1,0 +1,68 @@
+{
+	"description": "This is the native json string data type",
+	"type": "type",
+	"id": "string",
+	"native": "string",
+	"rule": {
+		"description": "Restriction rules for strings",
+		"type": "type",
+		"id": "@string",
+		"is": ["rule"],
+		"properties": {
+			"default": {
+				"description": "Default value of this is missing or null",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@string"
+				}
+			},
+			"enum": {
+				"description": "The value of this string is restricted to one of the provided values",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@array",
+					"items": {
+						"type": "@string"
+					}
+				}
+			},
+			"minLength": {
+				"description": "The value must be longer or equal to the provided minimum length",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number",
+					"multipleOf": 1
+				}
+			},
+			"maxLength": {
+				"description": "The value must be shorter or equal to the provided maximum length",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number",
+					"multipleOf": 1
+				}
+			},
+			"pattern": {
+				"description": "This is a regex to match the value to",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@string"
+				}
+			},
+			"format": {
+				"description": "This restricts the value to one of several built-in formats",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@string",
+					"enum": ["date-time", "email", "hostname", "ipv4", "ipv6", "uri"]
+				}
+			}
+		}
+	}
+}

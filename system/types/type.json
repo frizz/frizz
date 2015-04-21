@@ -1,0 +1,71 @@
+{
+	"description": "This is the most basic type.",
+	"type": "type",
+	"id": "type",
+	"properties": {
+		"extends": {
+			"description": "Type which this should extend",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@reference",
+				"default": "github.com/kego/system:object"
+			}
+		},
+		"is": {
+			"description": "Array of interface types that this type should support",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@array",
+				"items": {
+					"type": "@reference"
+				}
+			}
+		},
+		"native": {
+			"description": "This is the native json type that represents this type. If omitted, default is object.",
+			"type": "property",
+			"optional": true,
+            "item": {
+				"type": "@string",
+				"enum": ["string", "number", "bool", "array", "object", "map"],
+				"default": "object"
+			}
+		},
+		"interface": {
+			"description": "Is this type an interface?",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@bool",
+				"default": false
+			}
+		},
+		"properties": {
+			"description": "Each field is listed with it's type",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@map",
+				"items": {
+					"type": "@property"
+				}
+			}
+		},
+		"rule": {
+			"description": "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.",
+			"optional": true,
+			"type": "property",
+			"item": {
+				"type": "@type"
+			}
+		}
+	},
+	"rule": {
+		"description": "Restriction rules for types",
+		"type": "type",
+		"id": "@type",
+		"is": ["rule"]
+	}
+}

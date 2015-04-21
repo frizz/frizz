@@ -1,0 +1,50 @@
+{
+	"description": "This is the native json array data type",
+	"type": "type",
+	"id": "array",
+	"native": "array",
+	"rule": {
+		"description": "Restriction rules for arrays",
+		"type": "type",
+		"id": "@array",
+		"is": ["rule"],
+		"properties": {
+			"items": {
+				"description": "This is a rule object, defining the type and restrictions on the value of the items",
+				"type": "property",
+				"item": {
+					"type": "@rule"
+				}
+			},
+			"minItems": {
+				"description": "This is the minimum number of items alowed in the array",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number", 
+					"minimum": 0.0,
+					"multipleOf": 1.0
+				}
+			},
+			"maxItems": {
+				"description": "This is the maximum number of items alowed in the array",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number", 
+					"minimum": 0.0,
+					"multipleOf": 1.0
+				}
+			},
+			"uniqueItems": {
+				"description": "If this is true, each item must be unique",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@bool",
+					"default": false
+				}
+			}
+		}
+	}
+}

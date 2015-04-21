@@ -1,0 +1,22 @@
+{
+	"description": "This is a reference to another object, of the form: [local id] or [import name]:[id] or [full package path]:[id]",
+	"type": "type",
+	"id": "reference",
+	"native": "string",
+	"rule": {
+		"description": "Restriction rules for references",
+		"type": "type",
+		"id": "@reference",
+		"is": ["rule"],
+		"properties": {
+			"default": {
+				"description": "Default value of this is missing or null",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@reference"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,41 @@
+{
+	"description": "This is the native json object data type.",
+	"type": "type",
+	"id": "map",
+	"native": "map",
+	"rule": {
+		"description": "Restriction rules for maps",
+		"type": "type",
+		"id": "@map",
+		"is": ["rule"],
+		"properties": {
+			"items": {
+				"description": "This is a rule object, defining the type and restrictions on the value of the items.",
+				"type": "property",
+				"item": {
+					"type": "@rule"
+				}
+			},
+			"minItems": {
+				"description": "This is the minimum number of items alowed in the array",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number", 
+					"minimum": 0.0,
+					"multipleOf": 1.0
+				}
+			},
+			"maxItems": {
+				"description": "This is the maximum number of items alowed in the array",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number", 
+					"minimum": 0.0,
+					"multipleOf": 1.0
+				}
+			}
+		}
+	}
+}

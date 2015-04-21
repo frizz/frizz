@@ -1,0 +1,66 @@
+{
+	"description": "This is the native json number data type",
+	"type": "type",
+	"id": "number",
+	"native": "number",
+	"rule": {
+		"description": "Restriction rules for numbers",
+		"type": "type",
+		"id": "@number",
+		"is": ["rule"],
+		"properties": {
+			"default": {
+				"description": "Default value if this property is omitted",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number"
+				}
+			},
+			"multipleOf": {
+				"description": "This restricts the number to be a multiple of the given number",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number",
+					"minimum": 1,
+					"multipleOf": 1
+				}
+			},
+			"minimum": {
+				"description": "This provides a lower bound for the restriction",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number"
+				}
+			},
+			"exclusiveMinimum": {
+				"description": "If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@bool",
+					"default": false
+				}
+			},
+			"maximum": {
+				"description": "This provides an upper bound for the restriction",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@number"
+				}
+			},
+			"exclusiveMaximum": {
+				"description": "If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@bool",
+					"default": false
+				}
+			}
+		}
+	}
+}

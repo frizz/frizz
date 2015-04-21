@@ -1,0 +1,12 @@
+{
+	"description": "This is one of several rule types, derived from the rules property of other types",
+	"type": "type",
+	"id": "rule",
+	"interface": true,
+	"rule": {
+		"description": "Restriction rules for rules",
+		"type": "type",
+		"id": "@rule",
+		"is": ["rule"]
+	}
+}

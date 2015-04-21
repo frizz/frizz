@@ -1,0 +1,37 @@
+{
+	"description": "This is the most basic type.",
+	"type": "type",
+	"id": "object",
+	"extends": "",
+	"properties": {
+		"type": {
+			"description": "Type of the object.",
+			"type": "property",
+			"item": {
+				"type": "@reference"
+			}
+		},
+		"id": {
+			"description": "All global objects should have an id.",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@string"
+			}
+		},
+		"description": {
+			"description": "Description for the developer",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@string"
+			}
+		}
+	},
+	"rule": {
+		"description": "Restriction rules for objects",
+		"type": "type",
+		"id": "@object",
+		"is": ["rule"]
+	}
+}
