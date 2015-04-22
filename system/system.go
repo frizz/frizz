@@ -108,6 +108,10 @@ func (out *Bool) UnmarshalJSON(in []byte, context *json.Context) error {
 	return nil
 }
 
+type Bool_rule struct {
+	Default Bool
+}
+
 // This is the most basic type.
 type Object struct {
 	// Description for the developer
@@ -118,21 +122,31 @@ type Object struct {
 	Type Reference
 }
 
+type Property struct {
+	Object
+	Optional Bool `kego:"{\"default\": false}"`
+	Item     Rule
+}
+
+type Rule interface{}
+
 // This is the most basic type.
 type Type struct {
 	Object
 	// Type which this should extend
-	Extends Reference
+	Extends Reference `kego:"{\"default\": \"github.com/kego/system:object\"}"`
 	// Is this type an interface?
-	Interface Bool
+	Interface Bool `kego:"{\"default\": false}"`
 	// Array of interface types that this type should support
-	Is  []Reference
-	Foo map[string]string
+	Is []Reference
 	// This is the native json type that represents this type. If omitted, default is object.
-	Native String
+	Native     String `kego:"{\"default\": \"object\"}"`
+	Properties map[string]*Property
+	Rule       *Type
 }
 
 func init() {
 	json.RegisterType("github.com/kego/system:object", reflect.TypeOf(&Object{}))
 	json.RegisterType("github.com/kego/system:type", reflect.TypeOf(&Type{}))
+	json.RegisterType("github.com/kego/system:@bool", reflect.TypeOf(&Bool_rule{}))
 }
