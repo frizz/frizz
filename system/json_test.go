@@ -9,6 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var defaultJsonContext = &json.Context{
+	PackageName: "system",
+	PackagePath: "github.com/kego/system",
+	Imports:     map[string]string{},
+}
+
 func TestDecodeSimple(t *testing.T) {
 
 	test := func(data string) {
@@ -21,14 +27,8 @@ func TestDecodeSimple(t *testing.T) {
 
 		json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 
-		context := &json.Context{
-			PackageName: "system",
-			PackagePath: "github.com/kego/system",
-			Imports:     map[string]string{},
-		}
-
 		var i interface{}
-		err := json.UnmarshalTyped([]byte(data), &i, context)
+		err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -81,14 +81,8 @@ func TestDecodeDefaults(t *testing.T) {
 
 		json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 
-		context := &json.Context{
-			PackageName: "system",
-			PackagePath: "github.com/kego/system",
-			Imports:     map[string]string{},
-		}
-
 		var i interface{}
-		err := json.UnmarshalTyped([]byte(data), &i, context)
+		err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -137,7 +131,7 @@ func TestDecodeCollections(t *testing.T) {
 		BoolArray   []bool
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"stringMap": {"a": "aa", "b": "bb", "c": "cc"},
 		"numberMap": {"d": 1, "e": 1.5, "f": 2},
@@ -145,18 +139,12 @@ func TestDecodeCollections(t *testing.T) {
 		"stringArray": ["a", "b", "c"],
 		"numberArray": [1, 1.5, 2],
 		"boolArray": [true, false, true]
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -196,14 +184,8 @@ func TestDecodeEmbed(t *testing.T) {
 		json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 		json.RegisterType("github.com/kego/system:bar", reflect.TypeOf(&Bar{}))
 
-		context := &json.Context{
-			PackageName: "system",
-			PackagePath: "github.com/kego/system",
-			Imports:     map[string]string{},
-		}
-
 		var i interface{}
-		err := json.UnmarshalTyped([]byte(data), &i, context)
+		err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -252,7 +234,7 @@ func TestDecodeEmbedCollections(t *testing.T) {
 		ArrayEmbed []Bar
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"mapEmbed": {
 			"a": {
@@ -274,19 +256,13 @@ func TestDecodeEmbedCollections(t *testing.T) {
 				"string": "d"
 			}
 		]
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 	json.RegisterType("github.com/kego/system:bar", reflect.TypeOf(&Bar{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -313,23 +289,17 @@ func TestDecodeComposition(t *testing.T) {
 		FooString string
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"baseString": "a",
 		"fooString": "b"
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 	json.RegisterType("github.com/kego/system:base", reflect.TypeOf(&Base{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -367,26 +337,20 @@ func TestInterface(t *testing.T) {
 		Img Image
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"img": {
 			"type": "photo",
 			"id": "a"
 		}
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
 	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -410,26 +374,20 @@ func TestNilInterface(t *testing.T) {
 		Iface interface{}
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"iface": {
 			"type": "photo",
 			"id": "a"
 		}
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
 	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -456,7 +414,7 @@ func TestInterfaceCollections(t *testing.T) {
 		ImageMap   map[string]Image
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"imageArray": [
 			{
@@ -478,20 +436,14 @@ func TestInterfaceCollections(t *testing.T) {
 				"key": "d"
 			}
 		}
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
 	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -518,7 +470,7 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 		ImageMap map[string][]Image
 	}
 
-	data := []byte(`{
+	data := `{
 		"type": "foo",
 		"imageMap": {
 			"a": [
@@ -542,20 +494,14 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 				}
 			]
 		}
-	}`)
+	}`
 
 	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
 	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
 	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
 
-	context := &json.Context{
-		PackageName: "system",
-		PackagePath: "github.com/kego/system",
-		Imports:     map[string]string{},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, context)
+	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
