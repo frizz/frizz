@@ -3,13 +3,13 @@ package system
 import (
 	"testing"
 
-	"github.com/kego/json"
+	"kego.io/json"
 	"github.com/stretchr/testify/assert"
 )
 
 var defaultTypeContext = &json.Context{
 	PackageName: "system",
-	PackagePath: "github.com/kego/system",
+	PackagePath: "kego.io/system",
 	Imports:     map[string]string{},
 }
 
@@ -63,7 +63,7 @@ func TestType(t *testing.T) {
 				"optional": true,
 				"item": {
 					"type": "@reference",
-					"default": "github.com/kego/system:object"
+					"default": "kego.io/system:object"
 				}
 			},
 			"is": {

@@ -5,13 +5,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/kego/json"
+	"kego.io/json"
 	"github.com/stretchr/testify/assert"
 )
 
 var defaultJsonContext = &json.Context{
 	PackageName: "system",
-	PackagePath: "github.com/kego/system",
+	PackagePath: "kego.io/system",
 	Imports:     map[string]string{},
 }
 
@@ -25,7 +25,7 @@ func TestDecodeSimple(t *testing.T) {
 			Baz bool
 		}
 
-		json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
+		json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 		var i interface{}
 		err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -38,7 +38,7 @@ func TestDecodeSimple(t *testing.T) {
 		assert.Equal(t, f.Baz, true)
 
 		// Clean up for the tests - don't normally need to unregister types
-		json.UnregisterType("github.com/kego/system:foo")
+		json.UnregisterType("kego.io/system:foo")
 
 	}
 
@@ -79,7 +79,7 @@ func TestDecodeDefaults(t *testing.T) {
 			Baz bool    `kego:"{\"default\": true}"`
 		}
 
-		json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
+		json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 		var i interface{}
 		err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -92,7 +92,7 @@ func TestDecodeDefaults(t *testing.T) {
 		assert.Equal(t, f.Baz, boolExpected)
 
 		// Clean up for the tests - don't normally need to unregister types
-		json.UnregisterType("github.com/kego/system:foo")
+		json.UnregisterType("kego.io/system:foo")
 
 	}
 
@@ -141,7 +141,7 @@ func TestDecodeCollections(t *testing.T) {
 		"boolArray": [true, false, true]
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -163,7 +163,7 @@ func TestDecodeCollections(t *testing.T) {
 	assert.Equal(t, f.BoolArray, []bool{true, false, true})
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
+	json.UnregisterType("kego.io/system:foo")
 
 }
 
@@ -181,8 +181,8 @@ func TestDecodeEmbed(t *testing.T) {
 			Embed Bar
 		}
 
-		json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-		json.RegisterType("github.com/kego/system:bar", reflect.TypeOf(&Bar{}))
+		json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+		json.RegisterType("kego.io/system:bar", reflect.TypeOf(&Bar{}))
 
 		var i interface{}
 		err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -195,8 +195,8 @@ func TestDecodeEmbed(t *testing.T) {
 		assert.Equal(t, f.Embed.Bool, true)
 
 		// Clean up for the tests - don't normally need to unregister types
-		json.UnregisterType("github.com/kego/system:foo")
-		json.UnregisterType("github.com/kego/system:bar")
+		json.UnregisterType("kego.io/system:foo")
+		json.UnregisterType("kego.io/system:bar")
 	}
 
 	// Standard
@@ -258,8 +258,8 @@ func TestDecodeEmbedCollections(t *testing.T) {
 		]
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-	json.RegisterType("github.com/kego/system:bar", reflect.TypeOf(&Bar{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:bar", reflect.TypeOf(&Bar{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -273,8 +273,8 @@ func TestDecodeEmbedCollections(t *testing.T) {
 	assert.Equal(t, f.ArrayEmbed[1].String, "d")
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
-	json.UnregisterType("github.com/kego/system:bar")
+	json.UnregisterType("kego.io/system:foo")
+	json.UnregisterType("kego.io/system:bar")
 
 }
 
@@ -295,8 +295,8 @@ func TestDecodeComposition(t *testing.T) {
 		"fooString": "b"
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-	json.RegisterType("github.com/kego/system:base", reflect.TypeOf(&Base{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:base", reflect.TypeOf(&Base{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -308,8 +308,8 @@ func TestDecodeComposition(t *testing.T) {
 	assert.Equal(t, f.FooString, "b")
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
-	json.UnregisterType("github.com/kego/system:base")
+	json.UnregisterType("kego.io/system:foo")
+	json.UnregisterType("kego.io/system:base")
 
 }
 
@@ -345,9 +345,9 @@ func TestInterface(t *testing.T) {
 		}
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
-	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:photo", reflect.TypeOf(&Photo{}))
+	json.RegisterType("kego.io/system:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -358,9 +358,9 @@ func TestInterface(t *testing.T) {
 	assert.Equal(t, f.Img.Url(), "http://www.photos.com/a.jpg")
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
-	json.UnregisterType("github.com/kego/system:photo")
-	json.UnregisterType("github.com/kego/system:diagram")
+	json.UnregisterType("kego.io/system:foo")
+	json.UnregisterType("kego.io/system:photo")
+	json.UnregisterType("kego.io/system:diagram")
 
 }
 
@@ -382,9 +382,9 @@ func TestNilInterface(t *testing.T) {
 		}
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
-	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:photo", reflect.TypeOf(&Photo{}))
+	json.RegisterType("kego.io/system:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -397,9 +397,9 @@ func TestNilInterface(t *testing.T) {
 	assert.Equal(t, p.Url(), "http://www.photos.com/a.jpg")
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
-	json.UnregisterType("github.com/kego/system:photo")
-	json.UnregisterType("github.com/kego/system:diagram")
+	json.UnregisterType("kego.io/system:foo")
+	json.UnregisterType("kego.io/system:photo")
+	json.UnregisterType("kego.io/system:diagram")
 
 }
 
@@ -438,9 +438,9 @@ func TestInterfaceCollections(t *testing.T) {
 		}
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
-	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:photo", reflect.TypeOf(&Photo{}))
+	json.RegisterType("kego.io/system:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -454,9 +454,9 @@ func TestInterfaceCollections(t *testing.T) {
 	assert.Equal(t, f.ImageMap["d"].Url(), "http://www.diagrams.com/d.jpg")
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
-	json.UnregisterType("github.com/kego/system:photo")
-	json.UnregisterType("github.com/kego/system:diagram")
+	json.UnregisterType("kego.io/system:foo")
+	json.UnregisterType("kego.io/system:photo")
+	json.UnregisterType("kego.io/system:diagram")
 
 }
 
@@ -496,9 +496,9 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 		}
 	}`
 
-	json.RegisterType("github.com/kego/system:foo", reflect.TypeOf(&Foo{}))
-	json.RegisterType("github.com/kego/system:photo", reflect.TypeOf(&Photo{}))
-	json.RegisterType("github.com/kego/system:diagram", reflect.TypeOf(&Diagram{}))
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system:photo", reflect.TypeOf(&Photo{}))
+	json.RegisterType("kego.io/system:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
 	err := json.UnmarshalTyped([]byte(data), &i, defaultJsonContext)
@@ -512,8 +512,8 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	assert.Equal(t, f.ImageMap["b"][1].Url(), "http://www.diagrams.com/f.jpg")
 
 	// Clean up for the tests - don't normally need to unregister types
-	json.UnregisterType("github.com/kego/system:foo")
-	json.UnregisterType("github.com/kego/system:photo")
-	json.UnregisterType("github.com/kego/system:diagram")
+	json.UnregisterType("kego.io/system:foo")
+	json.UnregisterType("kego.io/system:photo")
+	json.UnregisterType("kego.io/system:diagram")
 
 }

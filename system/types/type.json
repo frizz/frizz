@@ -9,7 +9,7 @@
 			"optional": true,
 			"item": {
 				"type": "@reference",
-				"default": "github.com/kego/system:object"
+				"default": "kego.io/system:object"
 			}
 		},
 		"is": {

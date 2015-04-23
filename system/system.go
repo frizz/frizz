@@ -1,11 +1,11 @@
-package system
+package system // import "kego.io/system"
 
 import (
 	"fmt"
 	"reflect"
 	"strings"
 
-	"github.com/kego/json"
+	"kego.io/json"
 )
 
 type Reference struct {
@@ -26,7 +26,7 @@ func (out *Reference) UnmarshalJSON(in []byte, context *json.Context) error {
 		out.Exists = true
 		if strings.Contains(*s, "/") {
 			// If the type name contains a slash, I'm assuming it's a fully qualified type name of
-			// the form "github.com/kego/system:type".
+			// the form "kego.io/system:type".
 			// TODO: Improve this with a regex?
 			parts := strings.Split(*s, ":")
 			out.Package = parts[0]
@@ -134,7 +134,7 @@ type Rule interface{}
 type Type struct {
 	Object
 	// Type which this should extend
-	Extends Reference `kego:"{\"default\": \"github.com/kego/system:object\"}"`
+	Extends Reference `kego:"{\"default\": \"kego.io/system:object\"}"`
 	// Is this type an interface?
 	Interface Bool `kego:"{\"default\": false}"`
 	// Array of interface types that this type should support
@@ -146,7 +146,7 @@ type Type struct {
 }
 
 func init() {
-	json.RegisterType("github.com/kego/system:object", reflect.TypeOf(&Object{}))
-	json.RegisterType("github.com/kego/system:type", reflect.TypeOf(&Type{}))
-	json.RegisterType("github.com/kego/system:@bool", reflect.TypeOf(&Bool_rule{}))
+	json.RegisterType("kego.io/system:object", reflect.TypeOf(&Object{}))
+	json.RegisterType("kego.io/system:type", reflect.TypeOf(&Type{}))
+	json.RegisterType("kego.io/system:@bool", reflect.TypeOf(&Bool_rule{}))
 }
