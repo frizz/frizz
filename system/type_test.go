@@ -3,8 +3,8 @@ package system
 import (
 	"testing"
 
-	"kego.io/json"
 	"github.com/stretchr/testify/assert"
+	"kego.io/json"
 )
 
 var defaultTypeContext = &json.Context{

@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/json"
 	"github.com/stretchr/testify/assert"
+	"kego.io/json"
 )
 
 var defaultJsonContext = &json.Context{
@@ -285,7 +285,7 @@ func TestDecodeComposition(t *testing.T) {
 	}
 
 	type Foo struct {
-		Base
+		*Base
 		FooString string
 	}
 

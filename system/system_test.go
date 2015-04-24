@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/json"
 	"github.com/stretchr/testify/assert"
+	"kego.io/json"
 )
 
 var defaultSystemContext = &json.Context{
@@ -256,6 +256,44 @@ func TestReferenceDefault(t *testing.T) {
 	assert.Equal(t, f.RefDefault.Value, "kego.io/pkgb:typb")
 	assert.Equal(t, f.RefDefault.Package, "kego.io/pkgb")
 	assert.Equal(t, f.RefDefault.Type, "typb")
+
+	// Clean up for the tests - don't normally need to unregister types
+	json.UnregisterType("kego.io/system:foo")
+
+}
+
+func TestContext(t *testing.T) {
+
+	type Foo struct {
+		*Object
+		Bar string
+	}
+
+	data := `{
+		"type": "foo",
+		"bar": "a"
+	}`
+
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+
+	var newContext = &json.Context{
+		PackageName: "system",
+		PackagePath: "kego.io/system",
+		Imports: map[string]string{
+			"d": "e.f/g",
+		},
+	}
+
+	var i interface{}
+	err := json.UnmarshalTyped([]byte(data), &i, newContext)
+	assert.NoError(t, err)
+	f, ok := i.(*Foo)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, f)
+	assert.Equal(t, f.Bar, "a")
+	assert.Equal(t, f.Context.PackageName, "system")
+	assert.Equal(t, f.Context.PackagePath, "kego.io/system")
+	assert.Equal(t, f.Context.Imports["d"], "e.f/g")
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
