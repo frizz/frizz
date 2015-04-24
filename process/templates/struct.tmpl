@@ -1,0 +1,16 @@
+{{ $package := .package }}
+{{ $imports := .imports }}
+{{ if not .type.IsNativeValue }}
+{{ if .type.Description.Exists }}// {{ .type.Description.Value }}{{ end }}
+type {{ .go }} struct {
+
+	{{ if .type.HasExtends }}
+		*{{ .type.Extends.GoReference $imports $package }}
+	{{ end }}
+
+	{{ range $propertyName, $property := .type.Properties }}
+	{{ if $property.Description.Exists }}// {{ $property.Description.Value }}{{ end }}
+	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $imports $package }} {{ $property.GoTag }}
+	{{ end }}
+}
+{{ end }}

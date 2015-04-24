@@ -1,0 +1,5 @@
+{{ if .type.ShouldImplementBasic }}
+	func (o *{{ .go }}) Base() *Object {
+		return o.Object
+	}
+{{ end }}

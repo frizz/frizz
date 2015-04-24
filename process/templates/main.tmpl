@@ -1,0 +1,41 @@
+{{ $systemBool := .System }}
+{{ $packageName := .PackageName }}
+{{ $packagePath := .PackagePath }}
+{{ $imports := .Imports }}
+package {{ $packageName }}
+
+import (
+	"reflect"
+
+	{{ range $importName, $importPath := $imports }}
+		{{ import $importName $importPath $packagePath }}
+	{{ end }}
+)
+
+{{ range $typeName, $type := .Types }}
+
+	{{ $name := $type.Id.Value }}
+	{{ $full := $typeName }}
+	{{ $go := $type.GoName }}
+	{{ $system := ternary $systemBool "" "system." }}
+
+	{{ $vars := map "type" $type "name" $name "full" $full "go" $go "system" $system "package" $packagePath "imports" $imports }}
+
+	/***********************************************************
+	*** {{ $name }} ***
+	***********************************************************/
+
+	{{ if not $type.Interface.Value }}
+		{{/* We don't need these bits for interface types */}}
+		{{ template "struct.tmpl" $vars }}
+		{{ template "base.tmpl" $vars }}
+	{{ end }}
+{{ end }}
+
+func init() {
+	{{ range $typeName, $type := .Types }}
+		{{ if not $type.Interface.Value }}
+			json.RegisterType({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
+		{{ end }}
+	{{ end }}
+}
