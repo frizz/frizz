@@ -1,3 +1,6 @@
+// This is a minimal generated.go that I created manually to get the generator
+// working
+
 package system
 
 import (

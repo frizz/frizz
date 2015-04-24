@@ -357,6 +357,9 @@ type Type struct {
 	// This is the native json type that represents this type. If omitted, default is object.
 	Native String `kego:"{\"default\": \"object\"}"`
 
+	// Link from rule types to the parent type. This should not be added to the json, it gets wired up when the json is unmarshaled.
+	Parent *Type
+
 	// Each field is listed with it's type
 	Properties map[string]*Property
 

@@ -60,6 +60,14 @@
 			"item": {
 				"type": "@type"
 			}
+		},
+		"parent": {
+			"description": "Link from rule types to the parent type. This should not be added to the json, it gets wired up when the json is unmarshaled.",
+			"optional": true,
+			"type": "property",
+			"item": {
+				"type": "@type"
+			}
 		}
 	},
 	"rule": {

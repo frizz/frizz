@@ -1,3 +1,6 @@
+// This is a backup you can use if you mess up the generated
+// code and lose the automatic backup
+
 package system
 
 import (
@@ -31,10 +34,6 @@ func (o *Array_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@array", reflect.TypeOf(&Array_rule{}))
-}
-
 /***********************************************************
 *** @bool ***
 ***********************************************************/
@@ -51,10 +50,6 @@ func (o *Bool_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@bool", reflect.TypeOf(&Bool_rule{}))
-}
-
 /***********************************************************
 *** @import ***
 ***********************************************************/
@@ -68,10 +63,6 @@ func (o *Import_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@import", reflect.TypeOf(&Import_rule{}))
-}
-
 /***********************************************************
 *** @imports ***
 ***********************************************************/
@@ -83,10 +74,6 @@ type Imports_rule struct {
 
 func (o *Imports_rule) Base() *Object {
 	return o.Object
-}
-
-func init() {
-	json.RegisterType("kego.io/system:@imports", reflect.TypeOf(&Imports_rule{}))
 }
 
 /***********************************************************
@@ -109,10 +96,6 @@ type Map_rule struct {
 
 func (o *Map_rule) Base() *Object {
 	return o.Object
-}
-
-func init() {
-	json.RegisterType("kego.io/system:@map", reflect.TypeOf(&Map_rule{}))
 }
 
 /***********************************************************
@@ -146,10 +129,6 @@ func (o *Number_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@number", reflect.TypeOf(&Number_rule{}))
-}
-
 /***********************************************************
 *** @object ***
 ***********************************************************/
@@ -163,10 +142,6 @@ func (o *Object_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@object", reflect.TypeOf(&Object_rule{}))
-}
-
 /***********************************************************
 *** @property ***
 ***********************************************************/
@@ -178,10 +153,6 @@ type Property_rule struct {
 
 func (o *Property_rule) Base() *Object {
 	return o.Object
-}
-
-func init() {
-	json.RegisterType("kego.io/system:@property", reflect.TypeOf(&Property_rule{}))
 }
 
 /***********************************************************
@@ -200,10 +171,6 @@ func (o *Reference_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@reference", reflect.TypeOf(&Reference_rule{}))
-}
-
 /***********************************************************
 *** @rule ***
 ***********************************************************/
@@ -215,10 +182,6 @@ type Rule_rule struct {
 
 func (o *Rule_rule) Base() *Object {
 	return o.Object
-}
-
-func init() {
-	json.RegisterType("kego.io/system:@rule", reflect.TypeOf(&Rule_rule{}))
 }
 
 /***********************************************************
@@ -252,10 +215,6 @@ func (o *String_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@string", reflect.TypeOf(&String_rule{}))
-}
-
 /***********************************************************
 *** @type ***
 ***********************************************************/
@@ -269,10 +228,6 @@ func (o *Type_rule) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:@type", reflect.TypeOf(&Type_rule{}))
-}
-
 /***********************************************************
 *** array ***
 ***********************************************************/
@@ -282,17 +237,9 @@ type Array struct {
 	*Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:array", reflect.TypeOf(&Array{}))
-}
-
 /***********************************************************
 *** bool ***
 ***********************************************************/
-
-func init() {
-	json.RegisterType("kego.io/system:bool", reflect.TypeOf(&Bool{}))
-}
 
 /***********************************************************
 *** import ***
@@ -313,10 +260,6 @@ func (o *Import) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:import", reflect.TypeOf(&Import{}))
-}
-
 /***********************************************************
 *** imports ***
 ***********************************************************/
@@ -333,10 +276,6 @@ func (o *Imports) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:imports", reflect.TypeOf(&Imports{}))
-}
-
 /***********************************************************
 *** map ***
 ***********************************************************/
@@ -346,17 +285,9 @@ type Map struct {
 	*Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:map", reflect.TypeOf(&Map{}))
-}
-
 /***********************************************************
 *** number ***
 ***********************************************************/
-
-func init() {
-	json.RegisterType("kego.io/system:number", reflect.TypeOf(&Number{}))
-}
 
 /***********************************************************
 *** object ***
@@ -378,10 +309,6 @@ type Object struct {
 	Type Reference
 }
 
-func init() {
-	json.RegisterType("kego.io/system:object", reflect.TypeOf(&Object{}))
-}
-
 /***********************************************************
 *** property ***
 ***********************************************************/
@@ -401,17 +328,9 @@ func (o *Property) Base() *Object {
 	return o.Object
 }
 
-func init() {
-	json.RegisterType("kego.io/system:property", reflect.TypeOf(&Property{}))
-}
-
 /***********************************************************
 *** reference ***
 ***********************************************************/
-
-func init() {
-	json.RegisterType("kego.io/system:reference", reflect.TypeOf(&Reference{}))
-}
 
 /***********************************************************
 *** rule ***
@@ -420,10 +339,6 @@ func init() {
 /***********************************************************
 *** string ***
 ***********************************************************/
-
-func init() {
-	json.RegisterType("kego.io/system:string", reflect.TypeOf(&String{}))
-}
 
 /***********************************************************
 *** type ***
@@ -445,6 +360,9 @@ type Type struct {
 	// This is the native json type that represents this type. If omitted, default is object.
 	Native String `kego:"{\"default\": \"object\"}"`
 
+	// Link from rule types to the parent type. This should not be added to the json, it gets wired up when the json is unmarshaled.
+	Parent *Type
+
 	// Each field is listed with it's type
 	Properties map[string]*Property
 
@@ -457,5 +375,51 @@ func (o *Type) Base() *Object {
 }
 
 func init() {
+
+	json.RegisterType("kego.io/system:@array", reflect.TypeOf(&Array_rule{}))
+
+	json.RegisterType("kego.io/system:@bool", reflect.TypeOf(&Bool_rule{}))
+
+	json.RegisterType("kego.io/system:@import", reflect.TypeOf(&Import_rule{}))
+
+	json.RegisterType("kego.io/system:@imports", reflect.TypeOf(&Imports_rule{}))
+
+	json.RegisterType("kego.io/system:@map", reflect.TypeOf(&Map_rule{}))
+
+	json.RegisterType("kego.io/system:@number", reflect.TypeOf(&Number_rule{}))
+
+	json.RegisterType("kego.io/system:@object", reflect.TypeOf(&Object_rule{}))
+
+	json.RegisterType("kego.io/system:@property", reflect.TypeOf(&Property_rule{}))
+
+	json.RegisterType("kego.io/system:@reference", reflect.TypeOf(&Reference_rule{}))
+
+	json.RegisterType("kego.io/system:@rule", reflect.TypeOf(&Rule_rule{}))
+
+	json.RegisterType("kego.io/system:@string", reflect.TypeOf(&String_rule{}))
+
+	json.RegisterType("kego.io/system:@type", reflect.TypeOf(&Type_rule{}))
+
+	json.RegisterType("kego.io/system:array", reflect.TypeOf(&Array{}))
+
+	json.RegisterType("kego.io/system:bool", reflect.TypeOf(&Bool{}))
+
+	json.RegisterType("kego.io/system:import", reflect.TypeOf(&Import{}))
+
+	json.RegisterType("kego.io/system:imports", reflect.TypeOf(&Imports{}))
+
+	json.RegisterType("kego.io/system:map", reflect.TypeOf(&Map{}))
+
+	json.RegisterType("kego.io/system:number", reflect.TypeOf(&Number{}))
+
+	json.RegisterType("kego.io/system:object", reflect.TypeOf(&Object{}))
+
+	json.RegisterType("kego.io/system:property", reflect.TypeOf(&Property{}))
+
+	json.RegisterType("kego.io/system:reference", reflect.TypeOf(&Reference{}))
+
+	json.RegisterType("kego.io/system:string", reflect.TypeOf(&String{}))
+
 	json.RegisterType("kego.io/system:type", reflect.TypeOf(&Type{}))
+
 }
