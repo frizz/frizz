@@ -138,3 +138,33 @@ func TestType(t *testing.T) {
 	assert.Equal(t, r.Default.Value, false)
 
 }
+
+/*
+func TestUnknownRule(t *testing.T) {
+	data := `{
+		"description": "This represents a gallery - it's just a list of images",
+		"type": "system:type",
+		"id": "gallery",
+		"properties": {
+			"image": {
+				"type": "system:property",
+				"item": {
+					"type": "@image"
+				}
+			}
+		}
+	}`
+
+	var i interface{}
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/gallery", map[string]string{"system": "kego.io/system"})
+	assert.NoError(t, err)
+	f, ok := i.(*Type)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, f)
+
+	s, err := f.Properties["image"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
+	assert.NoError(t, err)
+	assert.Equal(t, s, "*Image")
+
+}
+*/

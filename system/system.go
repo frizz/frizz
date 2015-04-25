@@ -1,6 +1,5 @@
+//go:generate kego
 package system // import "kego.io/system"
-
-// Removed temp: //go:generate kego
 
 import (
 	"fmt"

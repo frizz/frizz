@@ -19,17 +19,46 @@ func (p *Property) GoTypeDescriptor(localImports map[string]string, localPackage
 	if !isNative && !isInterface {
 		pointer = "*"
 	}
+	var typeReference Reference
 	b, ok := rule.(Basic)
-	if !ok {
+	if ok {
+		typeReference = b.Base().Type
+	} else {
 		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: rule %#v is not Basic\n", rule)
+		/*
+			// I've disabled this code until we're less reliant on code and more reliant on
+			// unmarshaled json type definitions
+
+			// Looks like we unmarshaled a type that isn't registered. We should give out
+			// best guess at a type name.
+			i, ok := rule.(map[string]interface{})
+			if !ok {
+				return "", fmt.Errorf("Error in Property.GoTypeDescriptor: unknown type rule is not map[string]interface{}: %T\n", rule)
+			}
+			t, ok := i["type"]
+			if !ok {
+				return "", fmt.Errorf("Error in Property.GoTypeDescriptor: unknown type rule has no type\n")
+			}
+			s, ok := t.(string)
+			if !ok {
+				return "", fmt.Errorf("Error in Property.GoTypeDescriptor: unknown type rule type is not string: %T\n", t)
+			}
+			r := &Reference{}
+			fmt.Printf("s: %s\n", s)
+			err := r.UnmarshalJSON([]byte(strconv.Quote(s)), localPackagePath, localImports)
+			if err != nil {
+				return "", fmt.Errorf("Error in Property.GoTypeDescriptor: r.UnmarshalJSON returned an error:\n%v\n", err)
+			}
+			typeReference = *r
+		*/
 	}
-	parentType, err := b.Base().Type.RuleToParentType()
+	parentTypeReference, err := typeReference.RuleToParentType()
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: b.Base().Type.RuleToParentType returned an error:\n%v\n", err)
+		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: typeReference.RuleToParentType returned an error:\n%v\n", err)
 	}
-	name, err := parentType.GoReference(localImports, localPackagePath)
+	name, err := parentTypeReference.GoReference(localImports, localPackagePath)
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: parentType.GoReference returned an error:\n%v\n", err)
+		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: parentTypeReference.GoReference returned an error:\n%v\n", err)
 	}
 	return fmt.Sprintf("%s%s%s", prefix, pointer, name), nil
 }
