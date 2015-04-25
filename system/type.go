@@ -1,6 +1,10 @@
 package system
 
-import "fmt"
+import (
+	"fmt"
+
+	kegofmt "kego.io/fmt"
+)
 
 func (t *Type) HasExtends() bool {
 	// Only the actual system:object type should have an empty string here.
@@ -66,4 +70,8 @@ func (t *Type) GoTypeReference(localImports map[string]string, localPackagePath 
 
 func (t *Type) ShouldImplementBasic() bool {
 	return t.IsNativeType() && t.Extends.Exists && t.Extends.Value == "kego.io/system:object"
+}
+
+func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {
+	return kegofmt.GoSyntax(localPackage, imports, *t)
 }
