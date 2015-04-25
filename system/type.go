@@ -65,7 +65,7 @@ func (t *Type) GoName() string {
 // it looks up the alias of the package in the imports and appends that to the start.
 // e.g. "system.Object".
 func (t *Type) GoTypeReference(localImports map[string]string, localPackagePath string) (string, error) {
-	return IdToGoReference(t.Id.Value, t.Context.PackagePath, localImports, localPackagePath)
+	return IdToGoReference(t.Id.Value, t.Context.Package.Value, localImports, localPackagePath)
 }
 
 func (t *Type) ShouldImplementBasic() bool {

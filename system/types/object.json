@@ -32,7 +32,7 @@
 			"type": "property",
 			"optional": true,
 			"item": {
-				"type": "kego.io/json:@context"
+				"type": "@context"
 			}
 		}
 	},

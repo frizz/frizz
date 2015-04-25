@@ -8,12 +8,6 @@ import (
 	"kego.io/json"
 )
 
-var defaultSystemContext = &json.Context{
-	PackageName: "system",
-	PackagePath: "kego.io/system",
-	Imports:     map[string]string{},
-}
-
 func TestNative(t *testing.T) {
 
 	type Foo struct {
@@ -41,7 +35,7 @@ func TestNative(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultSystemContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -85,7 +79,7 @@ func TestNativeDefaults(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultSystemContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -122,7 +116,7 @@ func TestReferenceType(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultSystemContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -150,7 +144,7 @@ func TestReferenceEmpty(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultSystemContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -176,7 +170,7 @@ func TestReferencePath(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultSystemContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -204,16 +198,8 @@ func TestReferenceImport(t *testing.T) {
 
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
-	contextWithImport := &json.Context{
-		PackageName: "system",
-		PackagePath: "kego.io/system",
-		Imports: map[string]string{
-			"pkg": "kego.io/pkg",
-		},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, contextWithImport)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -243,7 +229,7 @@ func TestReferenceDefault(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultSystemContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -276,24 +262,15 @@ func TestContext(t *testing.T) {
 
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
-	var newContext = &json.Context{
-		PackageName: "system",
-		PackagePath: "kego.io/system",
-		Imports: map[string]string{
-			"d": "e.f/g",
-		},
-	}
-
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, newContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, f.Bar, "a")
-	assert.Equal(t, f.Context.PackageName, "system")
-	assert.Equal(t, f.Context.PackagePath, "kego.io/system")
-	assert.Equal(t, f.Context.Imports["d"], "e.f/g")
+	assert.Equal(t, f.Context.Package.Value, "kego.io/system")
+	assert.Equal(t, f.Context.Imports["d"].Value, "e.f/g")
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")

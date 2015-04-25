@@ -7,12 +7,6 @@ import (
 	"kego.io/json"
 )
 
-var defaultTypeContext = &json.Context{
-	PackageName: "system",
-	PackagePath: "kego.io/system",
-	Imports:     map[string]string{},
-}
-
 func TestBool(t *testing.T) {
 	data := `{
 		"description": "This is the native json bool data type",
@@ -38,7 +32,7 @@ func TestBool(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultTypeContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -125,7 +119,7 @@ func TestType(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, defaultTypeContext)
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)

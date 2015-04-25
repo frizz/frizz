@@ -1,0 +1,31 @@
+{
+	"description": "Unmarshal context.",
+	"type": "type",
+	"id": "context",
+	"extends": "",
+	"properties": {
+		"package": {
+			"description": "The path of the local package.",
+			"type": "property",
+			"item": {
+				"type": "@string"
+			}
+		},
+		"imports": {
+			"description": "A list of imports.",
+			"type": "property",
+			"item": {
+				"type": "@map",
+				"items": {
+					"type": "@string"
+				}
+			}
+		}
+	},
+	"rule": {
+		"description": "Restriction rules for context",
+		"type": "type",
+		"id": "@context",
+		"is": ["rule"]
+	}
+}

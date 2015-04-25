@@ -11,9 +11,9 @@ type Bool struct {
 	Exists bool
 }
 
-func (out *Bool) UnmarshalJSON(in []byte, context *json.Context) error {
+func (out *Bool) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var b *bool
-	if err := json.Unmarshal(in, &b, context); err != nil {
+	if err := json.Unmarshal(in, &b, path, imports); err != nil {
 		return err
 	}
 	if b == nil {

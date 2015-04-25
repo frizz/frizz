@@ -33,9 +33,9 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 	return newRef, nil
 }
 
-func (out *Reference) UnmarshalJSON(in []byte, context *json.Context) error {
+func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
-	if err := json.Unmarshal(in, &s, context); err != nil {
+	if err := json.Unmarshal(in, &s, path, imports); err != nil {
 		return err
 	}
 	if s == nil {
@@ -45,7 +45,7 @@ func (out *Reference) UnmarshalJSON(in []byte, context *json.Context) error {
 		out.Exists = false
 	} else {
 		out.Exists = true
-		path, name, err := json.GetReferencePartsFromTypeString(*s, context)
+		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
 		if err != nil {
 			return fmt.Errorf("Error in Reference.UnmarshalJSON: getReferencePartsFromTypeString returned an error: \n%v\n", err)
 		}

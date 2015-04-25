@@ -11,9 +11,9 @@ type Number struct {
 	Exists bool
 }
 
-func (out *Number) UnmarshalJSON(in []byte, context *json.Context) error {
+func (out *Number) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var f *float64
-	if err := json.Unmarshal(in, &f, context); err != nil {
+	if err := json.Unmarshal(in, &f, path, imports); err != nil {
 		return err
 	}
 	if f == nil {

@@ -1,13 +1,11 @@
-//go:generate kego
 package system // import "kego.io/system"
+
+// Removed temp: //go:generate kego
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"sync"
-
-	"kego.io/json"
 )
 
 type Defaulter interface {
@@ -22,8 +20,12 @@ type Basic interface {
 
 // SetContext satisfies the json.Contexter interface, which allows the json unmarshal
 // function to store the unmarshal context in every object.
-func (o *Object) SetContext(context *json.Context) {
-	o.Context = context
+func (o *Object) SetContext(path string, imports map[string]string) {
+	o.Context = &Context{Package: NewString(path), Imports: NewStringMap(imports)}
+}
+
+func (o *Object) GetType() (*Type, bool) {
+	return GetType(o.Type.Value)
 }
 
 func IdToGoReference(id string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {
@@ -58,19 +60,6 @@ func IdToGoName(id string) string {
 	} else {
 		return fmt.Sprintf("%v%v", strings.ToUpper(id[0:1]), id[1:])
 	}
-}
-
-type Context_rule struct {
-	*Object
-}
-
-func (r *Context_rule) Base() *Object {
-	return r.Object
-}
-
-func init() {
-	json.RegisterType("kego.io/json:context", reflect.TypeOf(&json.Context{}))
-	json.RegisterType("kego.io/json:@context", reflect.TypeOf(&Context_rule{}))
 }
 
 var types struct {

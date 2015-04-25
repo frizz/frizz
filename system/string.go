@@ -11,9 +11,20 @@ type String struct {
 	Exists bool
 }
 
-func (out *String) UnmarshalJSON(in []byte, context *json.Context) error {
+func NewString(s string) String {
+	return String{Value: s, Exists: true}
+}
+func NewStringMap(m map[string]string) map[string]String {
+	var o = make(map[string]String, len(m))
+	for name, value := range m {
+		o[name] = NewString(value)
+	}
+	return o
+}
+
+func (out *String) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
-	if err := json.Unmarshal(in, &s, context); err != nil {
+	if err := json.Unmarshal(in, &s, path, imports); err != nil {
 		return err
 	}
 	if s == nil {
