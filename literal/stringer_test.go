@@ -5,8 +5,9 @@
 package fmt_test
 
 import (
-	. "fmt"
 	"testing"
+
+	. "kego.io/fmt"
 )
 
 type TI int

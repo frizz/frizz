@@ -119,9 +119,37 @@ type pp struct {
 	// reordered records whether the format string used argument reordering.
 	reordered bool
 	// goodArgNum records whether the most recent reordering directive was valid.
-	goodArgNum bool
-	runeBuf    [utf8.UTFMax]byte
-	fmt        fmt
+	goodArgNum   bool
+	runeBuf      [utf8.UTFMax]byte
+	fmt          fmt
+	imports      map[string]string
+	localPackage string
+}
+
+func (p *pp) WriteName(t reflect.Type) {
+	//Printf("%v %v\n", t.Name(), t.PkgPath())
+	if t.Kind() == reflect.Map {
+		p.buf.WriteString("map[string]")
+		p.WriteName(t.Elem())
+	} else if t.Kind() == reflect.Slice {
+		p.buf.WriteString("[]")
+		p.WriteName(t.Elem())
+	} else if t.Kind() == reflect.Ptr {
+		p.buf.WriteString("*")
+		p.WriteName(t.Elem())
+	} else if p.localPackage == t.PkgPath() {
+		p.buf.WriteString(t.Name())
+	} else {
+		for alias, path := range p.imports {
+			if t.PkgPath() == path {
+				p.buf.WriteString(alias)
+				p.buf.WriteString(".")
+				p.buf.WriteString(t.Name())
+				return
+			}
+		}
+		p.buf.WriteString(t.String())
+	}
 }
 
 var ppFree = sync.Pool{
@@ -201,6 +229,17 @@ func Printf(format string, a ...interface{}) (n int, err error) {
 func Sprintf(format string, a ...interface{}) string {
 	p := newPrinter()
 	p.doPrintf(format, a)
+	s := string(p.buf)
+	p.free()
+	return s
+}
+
+// Sprintf formats according to a format specifier and returns the resulting string.
+func GoSyntax(localPackage string, imports map[string]string, a ...interface{}) string {
+	p := newPrinter()
+	p.localPackage = localPackage
+	p.imports = imports
+	p.doPrintf("%#v", a)
 	s := string(p.buf)
 	p.free()
 	return s
@@ -303,7 +342,7 @@ func (p *pp) unknownType(v reflect.Value) {
 		return
 	}
 	p.buf.WriteByte('?')
-	p.buf.WriteString(v.Type().String())
+	p.WriteName(v.Type())
 	p.buf.WriteByte('?')
 }
 
@@ -315,11 +354,11 @@ func (p *pp) badVerb(verb rune) {
 	p.add('(')
 	switch {
 	case p.arg != nil:
-		p.buf.WriteString(reflect.TypeOf(p.arg).String())
+		p.WriteName(reflect.TypeOf(p.arg))
 		p.add('=')
 		p.printArg(p.arg, 'v', 0)
 	case p.value.IsValid():
-		p.buf.WriteString(p.value.Type().String())
+		p.WriteName(p.value.Type())
 		p.add('=')
 		p.printValue(p.value, 'v', 0)
 	default:
@@ -527,7 +566,7 @@ func (p *pp) fmtBytes(v []byte, verb rune, typ reflect.Type, depth int) {
 				if typ == nil {
 					p.buf.WriteString("[]byte(nil)")
 				} else {
-					p.buf.WriteString(typ.String())
+					p.WriteName(typ)
 					p.buf.Write(nilParenBytes)
 				}
 				return
@@ -535,7 +574,7 @@ func (p *pp) fmtBytes(v []byte, verb rune, typ reflect.Type, depth int) {
 			if typ == nil {
 				p.buf.Write(bytesBytes)
 			} else {
-				p.buf.WriteString(typ.String())
+				p.WriteName(typ)
 				p.buf.WriteByte('{')
 			}
 		} else {
@@ -596,7 +635,7 @@ func (p *pp) fmtPointer(value reflect.Value, verb rune) {
 
 	if p.fmt.sharpV {
 		p.add('(')
-		p.buf.WriteString(value.Type().String())
+		p.WriteName(value.Type())
 		p.add(')')
 		p.add('(')
 		if u == 0 {
@@ -867,7 +906,7 @@ BigSwitch:
 		p.fmtString(f.String(), verb)
 	case reflect.Map:
 		if p.fmt.sharpV {
-			p.buf.WriteString(f.Type().String())
+			p.WriteName(f.Type())
 			if f.IsNil() {
 				p.buf.WriteString("(nil)")
 				break
@@ -896,7 +935,7 @@ BigSwitch:
 		}
 	case reflect.Struct:
 		if p.fmt.sharpV {
-			p.buf.WriteString(value.Type().String())
+			p.WriteName(value.Type())
 		}
 		p.add('{')
 		v := f
@@ -922,7 +961,7 @@ BigSwitch:
 		value := f.Elem()
 		if !value.IsValid() {
 			if p.fmt.sharpV {
-				p.buf.WriteString(f.Type().String())
+				p.WriteName(f.Type())
 				p.buf.Write(nilParenBytes)
 			} else {
 				p.buf.Write(nilAngleBytes)
@@ -956,7 +995,7 @@ BigSwitch:
 			break
 		}
 		if p.fmt.sharpV {
-			p.buf.WriteString(value.Type().String())
+			p.WriteName(value.Type())
 			if f.Kind() == reflect.Slice && f.IsNil() {
 				p.buf.WriteString("(nil)")
 				break
@@ -984,7 +1023,9 @@ BigSwitch:
 		v := f.Pointer()
 		// pointer to array or slice or struct?  ok at top level
 		// but not embedded (avoid loops)
-		if v != 0 && depth == 0 {
+		// kego changes: this is removed. Watch out for infinate
+		// loops!
+		if v != 0 {
 			switch a := f.Elem(); a.Kind() {
 			case reflect.Array, reflect.Slice:
 				p.buf.WriteByte('&')

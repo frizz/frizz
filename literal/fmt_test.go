@@ -6,7 +6,6 @@ package fmt_test
 
 import (
 	"bytes"
-	. "fmt"
 	"io"
 	"math"
 	"runtime"
@@ -14,6 +13,8 @@ import (
 	"testing"
 	"time"
 	"unicode"
+
+	. "kego.io/fmt"
 )
 
 type (

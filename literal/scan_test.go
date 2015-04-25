@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	. "fmt"
 	"io"
 	"math"
 	"reflect"
@@ -16,6 +15,8 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	. "kego.io/fmt"
 )
 
 type ScanTest struct {
