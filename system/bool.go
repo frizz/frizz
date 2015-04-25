@@ -31,11 +31,3 @@ func (b *Bool) MarshalJSON() ([]byte, error) {
 	}
 	return []byte(fmt.Sprintf("%v", b.Value)), nil
 }
-
-func (r *Bool_rule) HasDefault() bool {
-	return r.Default.Exists
-}
-
-func (r *Bool_rule) GetDefault() ([]byte, error) {
-	return json.Marshal(&r.Default)
-}

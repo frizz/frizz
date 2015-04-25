@@ -71,10 +71,9 @@ func (r *Reference) GoReference(localImports map[string]string, localPackagePath
 	return s, nil
 }
 
-func (r *Reference_rule) HasDefault() bool {
-	return r.Default.Exists
-}
-
-func (r *Reference_rule) GetDefault() ([]byte, error) {
-	return json.Marshal(&r.Default)
+func (r *Reference) GetType() (*Type, bool) {
+	if !r.Exists {
+		return nil, false
+	}
+	return GetType(r.Value)
 }

@@ -7,24 +7,9 @@ import (
 	"sync"
 )
 
-type Defaulter interface {
-	HasDefault() bool
-	GetDefault() ([]byte, error)
-}
-
 // Basic interface implemented by everything that is composed of an Object
 type Basic interface {
 	Base() *Object
-}
-
-// SetContext satisfies the json.Contexter interface, which allows the json unmarshal
-// function to store the unmarshal context in every object.
-func (o *Object) SetContext(path string, imports map[string]string) {
-	o.Context = &Context{Package: NewString(path), Imports: NewStringMap(imports)}
-}
-
-func (o *Object) GetType() (*Type, bool) {
-	return GetType(o.Type.Value)
 }
 
 func IdToGoReference(id string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {

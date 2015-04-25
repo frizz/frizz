@@ -13,6 +13,7 @@
 				"description": "Default value if this property is omitted",
 				"type": "property",
 				"optional": true,
+				"defaulter": true,
 				"item": {
 					"type": "@number"
 				}

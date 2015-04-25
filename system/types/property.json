@@ -12,6 +12,15 @@
 				"default": false
 			}
 		},
+		"defaulter": {
+			"description": "This specifies that the field is the default value for a rule",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@bool",
+				"default": false
+			}
+		},
 		"item": {
 			"description": "This is a rule object, defining the type and restrictions on the value of the this property",
 			"type": "property",

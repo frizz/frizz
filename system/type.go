@@ -75,3 +75,12 @@ func (t *Type) ShouldImplementBasic() bool {
 func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {
 	return kegofmt.GoSyntax(localPackage, imports, *t)
 }
+
+func (t *Type) Defaulter() (name string, property *Property, ok bool) {
+	for name, prop := range t.Properties {
+		if prop.Defaulter.Value {
+			return name, prop, true
+		}
+	}
+	return "", nil, false
+}

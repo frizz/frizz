@@ -31,11 +31,3 @@ func (n *Number) MarshalJSON() ([]byte, error) {
 	}
 	return []byte(strconv.FormatFloat(n.Value, 'f', -1, 64)), nil
 }
-
-func (r *Number_rule) HasDefault() bool {
-	return r.Default.Exists
-}
-
-func (r *Number_rule) GetDefault() ([]byte, error) {
-	return json.Marshal(&r.Default)
-}

@@ -42,11 +42,3 @@ func (s *String) MarshalJSON() ([]byte, error) {
 	}
 	return []byte(strconv.Quote(s.Value)), nil
 }
-
-func (r *String_rule) HasDefault() bool {
-	return r.Default.Exists
-}
-
-func (r *String_rule) GetDefault() ([]byte, error) {
-	return json.Marshal(&r.Default)
-}

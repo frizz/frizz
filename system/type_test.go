@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -139,8 +140,58 @@ func TestType(t *testing.T) {
 
 }
 
-/*
+func unmarshalDiagram(t *testing.T) {
+	diagram := `{
+		"description": "This is a type of image, which just contains the url of the image",
+		"type": "system:type",
+		"id": "diagram",
+		"properties": {
+			"url": {
+				"type": "system:property",
+				"item": {
+					"type": "system:@string"
+				}
+			}
+		},
+		"rule": {
+			"description": "Restriction rules for diagram",
+			"type": "system:type",
+			"id": "@diagram",
+			"is": ["system:rule"],
+			"properties": {
+				"default": {
+					"description": "Default value",
+					"type": "system:property",
+					"optional": true,
+					"defaulter": true,
+					"item": {
+						"type": "@diagram"
+					}
+				}
+			}
+		}
+	}`
+
+	var i interface{}
+	err := json.UnmarshalTyped([]byte(diagram), &i, "kego.io/gallery", map[string]string{"system": "kego.io/system"})
+	assert.NoError(t, err)
+	d, ok := i.(*Type)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, d)
+
+	fullname := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Id.Value)
+	RegisterType(fullname, d)
+	if d.Rule != nil {
+		rulename := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Rule.Id.Value)
+		RegisterType(rulename, d.Rule)
+	}
+
+}
+
 func TestUnknownRule(t *testing.T) {
+
+	unmarshalDiagram(t)
+
 	data := `{
 		"description": "This represents a gallery - it's just a list of images",
 		"type": "system:type",
@@ -148,8 +199,29 @@ func TestUnknownRule(t *testing.T) {
 		"properties": {
 			"image": {
 				"type": "system:property",
+				"optional": true,
 				"item": {
-					"type": "@image"
+					"type": "@diagram",
+					"default": {
+						"type": "diagram",
+						"url": "def"
+					}
+				}
+			},
+			"foo": {
+				"type": "system:property",
+				"optional": true,
+				"item": {
+					"type": "system:@bool",
+					"default": true
+				}
+			},
+			"ref": {
+				"type": "system:property",
+				"optional": true,
+				"item": {
+					"type": "system:@reference",
+					"default": "image"
 				}
 			}
 		}
@@ -164,7 +236,13 @@ func TestUnknownRule(t *testing.T) {
 
 	s, err := f.Properties["image"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
 	assert.NoError(t, err)
-	assert.Equal(t, s, "*Image")
+	assert.Equal(t, s, "*Diagram `kego:\"{\\\"default\\\": {\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"}}\"`")
 
+	b, err := f.Properties["foo"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
+	assert.NoError(t, err)
+	assert.Equal(t, b, "system.Bool `kego:\"{\\\"default\\\": true}\"`")
+
+	r, err := f.Properties["ref"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
+	assert.NoError(t, err)
+	assert.Equal(t, r, "system.Reference `kego:\"{\\\"default\\\": \\\"kego.io/gallery:image\\\"}\"`")
 }
-*/

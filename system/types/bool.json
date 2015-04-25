@@ -13,6 +13,7 @@
 				"description": "Default value of this is missing or null",
 				"type": "property",
 				"optional": true,
+				"defaulter": true,
 				"item": {
 					"type": "@bool"
 				}
