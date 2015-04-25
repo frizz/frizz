@@ -93,7 +93,7 @@ func TestStringTag(t *testing.T) {
 
 	// Verify that it round-trips.
 	var s2 StringTag
-	err = NewDecoder(bytes.NewReader(got)).Decode(&s2)
+	err = NewDecoder(bytes.NewReader(got)).Decode(&s2, "", map[string]string{})
 	if err != nil {
 		t.Fatalf("Decode: %v", err)
 	}
@@ -152,7 +152,7 @@ func (*Ref) MarshalJSON() ([]byte, error) {
 	return []byte(`"ref"`), nil
 }
 
-func (r *Ref) UnmarshalJSON([]byte) error {
+func (r *Ref) UnmarshalJSON([]byte, string, map[string]string) error {
 	*r = 12
 	return nil
 }
@@ -467,7 +467,7 @@ func TestEncodePointerString(t *testing.T) {
 		t.Errorf("Marshal = %s, want %s", got, want)
 	}
 	var back stringPointer
-	err = Unmarshal(b, &back)
+	err = Unmarshal(b, &back, "", map[string]string{})
 	if err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}

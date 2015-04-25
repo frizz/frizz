@@ -36,7 +36,7 @@ func (dec *Decoder) UseNumber() { dec.d.useNumber = true }
 //
 // See the documentation for Unmarshal for details about
 // the conversion of JSON into a Go value.
-func (dec *Decoder) Decode(v interface{}) error {
+func (dec *Decoder) Decode(v interface{}, path string, imports map[string]string) error {
 	if dec.err != nil {
 		return dec.err
 	}
@@ -50,7 +50,30 @@ func (dec *Decoder) Decode(v interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err = dec.d.unmarshal(v)
+	err = dec.d.unmarshal(v, &ctx{path, imports}, true)
+
+	// Slide rest of data down.
+	rest := copy(dec.buf, dec.buf[n:])
+	dec.buf = dec.buf[0:rest]
+
+	return err
+}
+
+func (dec *Decoder) DecodeWithoutCustomUnmarshalers(v interface{}, path string, imports map[string]string) error {
+	if dec.err != nil {
+		return dec.err
+	}
+
+	n, err := dec.readValue()
+	if err != nil {
+		return err
+	}
+
+	// Don't save err from unmarshal into dec.err:
+	// the connection is still usable since we read a complete JSON
+	// object from it before the error happened.
+	dec.d.init(dec.buf[0:n])
+	err = dec.d.unmarshal(v, &ctx{path, imports}, false)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -188,7 +211,7 @@ func (m *RawMessage) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON sets *m to a copy of data.
-func (m *RawMessage) UnmarshalJSON(data []byte) error {
+func (m *RawMessage) UnmarshalJSON(data []byte, path string, imports map[string]string) error {
 	if m == nil {
 		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
 	}

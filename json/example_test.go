@@ -6,12 +6,13 @@ package json_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	"kego.io/json"
 )
 
 func ExampleMarshal() {
@@ -44,7 +45,7 @@ func ExampleUnmarshal() {
 		Order string
 	}
 	var animals []Animal
-	err := json.Unmarshal(jsonBlob, &animals)
+	err := json.Unmarshal(jsonBlob, &animals, "", map[string]string{})
 	if err != nil {
 		fmt.Println("error:", err)
 	}
@@ -68,7 +69,7 @@ func ExampleDecoder() {
 	dec := json.NewDecoder(strings.NewReader(jsonStream))
 	for {
 		var m Message
-		if err := dec.Decode(&m); err == io.EOF {
+		if err := dec.Decode(&m, "", map[string]string{}); err == io.EOF {
 			break
 		} else if err != nil {
 			log.Fatal(err)
@@ -105,7 +106,7 @@ func ExampleRawMessage() {
 		{"Space": "RGB",   "Point": {"R": 98, "G": 218, "B": 255}}
 	]`)
 	var colors []Color
-	err := json.Unmarshal(j, &colors)
+	err := json.Unmarshal(j, &colors, "", map[string]string{})
 	if err != nil {
 		log.Fatalln("error:", err)
 	}
@@ -118,7 +119,7 @@ func ExampleRawMessage() {
 		case "YCbCr":
 			dst = new(YCbCr)
 		}
-		err := json.Unmarshal(c.Point, dst)
+		err := json.Unmarshal(c.Point, dst, "", map[string]string{})
 		if err != nil {
 			log.Fatalln("error:", err)
 		}

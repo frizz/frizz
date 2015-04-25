@@ -98,6 +98,28 @@ type scanner struct {
 	bytes int64
 }
 
+// backup clones the scanner state, so we can
+// remember where we were before scanning for
+// the type json key, and restore afterwards.
+func (s *scanner) backup() scanner {
+	return scanner{
+		step:       s.step,
+		endTop:     s.endTop,
+		parseState: cloneIntArray(s.parseState),
+		err:        s.err,
+		redo:       s.redo,
+		redoCode:   s.redoCode,
+		redoState:  s.redoState,
+		bytes:      s.bytes,
+	}
+}
+
+func cloneIntArray(in []int) []int {
+	out := make([]int, len(in))
+	copy(out, in)
+	return out
+}
+
 // These values are returned by the state transition functions
 // assigned to scanner.state and the method scanner.eof.
 // They give details about the current state of the scan that

@@ -944,6 +944,7 @@ type field struct {
 	typ       reflect.Type
 	omitEmpty bool
 	quoted    bool
+	kego      *kego
 }
 
 func fillField(f field) field {
@@ -993,6 +994,10 @@ func (x byIndex) Less(i, j int) bool {
 	return len(x[i].index) < len(x[j].index)
 }
 
+type kego struct {
+	Default *RawMessage
+}
+
 // typeFields returns a list of fields that JSON should recognize for the given type.
 // The algorithm is breadth-first search over the set of structs to include - the top struct
 // and then any reachable anonymous structs.
@@ -1035,6 +1040,19 @@ func typeFields(t reflect.Type) []field {
 				if !isValidTag(name) {
 					name = ""
 				}
+
+				s := sf.Tag.Get("kego")
+				k := &kego{}
+				if s != "" {
+					context := &ctx{
+						Package: "kego.io/json",
+						Imports: map[string]string{},
+					}
+					err := Unmarshal([]byte(s), k, context.Package, context.Imports)
+					if err != nil {
+						panic(err)
+					}
+				}
 				index := make([]int, len(f.index)+1)
 				copy(index, f.index)
 				index[len(f.index)] = i
@@ -1058,6 +1076,7 @@ func typeFields(t reflect.Type) []field {
 						typ:       ft,
 						omitEmpty: opts.Contains("omitempty"),
 						quoted:    opts.Contains("string"),
+						kego:      k,
 					}))
 					if count[f.typ] > 1 {
 						// If there were multiple instances, add a second,

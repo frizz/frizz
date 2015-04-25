@@ -53,7 +53,7 @@ func codeInit() {
 
 	codeJSON = data
 
-	if err := Unmarshal(codeJSON, &codeStruct); err != nil {
+	if err := Unmarshal(codeJSON, &codeStruct, "", map[string]string{}); err != nil {
 		panic("unmarshal code.json: " + err.Error())
 	}
 
@@ -119,7 +119,7 @@ func BenchmarkCodeDecoder(b *testing.B) {
 		buf.WriteByte('\n')
 		buf.WriteByte('\n')
 		buf.WriteByte('\n')
-		if err := dec.Decode(&r); err != nil {
+		if err := dec.Decode(&r, "", map[string]string{}); err != nil {
 			b.Fatal("Decode:", err)
 		}
 	}
@@ -134,7 +134,7 @@ func BenchmarkCodeUnmarshal(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		var r codeResponse
-		if err := Unmarshal(codeJSON, &r); err != nil {
+		if err := Unmarshal(codeJSON, &r, "", map[string]string{}); err != nil {
 			b.Fatal("Unmmarshal:", err)
 		}
 	}
@@ -149,7 +149,7 @@ func BenchmarkCodeUnmarshalReuse(b *testing.B) {
 	}
 	var r codeResponse
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(codeJSON, &r); err != nil {
+		if err := Unmarshal(codeJSON, &r, "", map[string]string{}); err != nil {
 			b.Fatal("Unmmarshal:", err)
 		}
 	}
@@ -160,7 +160,7 @@ func BenchmarkUnmarshalString(b *testing.B) {
 	var s string
 
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(data, &s); err != nil {
+		if err := Unmarshal(data, &s, "", map[string]string{}); err != nil {
 			b.Fatal("Unmarshal:", err)
 		}
 	}
@@ -171,7 +171,7 @@ func BenchmarkUnmarshalFloat64(b *testing.B) {
 	data := []byte(`3.14`)
 
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(data, &f); err != nil {
+		if err := Unmarshal(data, &f, "", map[string]string{}); err != nil {
 			b.Fatal("Unmarshal:", err)
 		}
 	}
@@ -182,7 +182,7 @@ func BenchmarkUnmarshalInt64(b *testing.B) {
 	data := []byte(`3`)
 
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(data, &x); err != nil {
+		if err := Unmarshal(data, &x, "", map[string]string{}); err != nil {
 			b.Fatal("Unmarshal:", err)
 		}
 	}
