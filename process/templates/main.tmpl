@@ -1,4 +1,3 @@
-{{ $systemBool := .System }}
 {{ $packageName := .PackageName }}
 {{ $packagePath := .PackagePath }}
 {{ $imports := .Imports }}
@@ -17,13 +16,12 @@ import (
 	{{ $name := $type.Id.Value }}
 	{{ $full := $typeName }}
 	{{ $go := $type.GoName }}
-	{{ $system := ternary $systemBool "" "system." }}
 
-	{{ $vars := map "type" $type "name" $name "full" $full "go" $go "system" $system "package" $packagePath "imports" $imports }}
+	{{ $vars := map "type" $type "name" $name "full" $full "go" $go "package" $packagePath "imports" $imports }}
 
-	/***********************************************************
-	*** {{ $name }} ***
-	***********************************************************/
+	//***********************************************************
+	//*** {{ $name }} ***
+	//***********************************************************
 
 	{{ if not $type.Interface.Value }}
 		{{/* We don't need these bits for interface types */}}
@@ -35,7 +33,8 @@ import (
 func init() {
 	{{ range $typeName, $type := .Types }}
 		{{ if not $type.Interface.Value }}
-			json.RegisterType({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
+			{{ reference "RegisterType" "kego.io/json" $imports $packagePath }}({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
+			{{ reference "RegisterType" "kego.io/system" $imports $packagePath }}({{ $typeName | quote }}, &{{ $type.GoSyntax $packagePath $imports }})
 		{{ end }}
 	{{ end }}
 }

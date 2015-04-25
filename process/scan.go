@@ -39,7 +39,6 @@ func Scan(dir string, packageName string, packagePath string, imports map[string
 				if t.Rule != nil {
 					rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id.Value)
 					types[rulename] = t.Rule
-					t.Rule.Parent = t
 				}
 			}
 

@@ -1,5 +1,7 @@
+{{ $package := .package }}
+{{ $imports := .imports }}
 {{ if .type.ShouldImplementBasic }}
-	func (o *{{ .go }}) Base() *Object {
+	func (o *{{ .go }}) Base() *{{ reference "Object" "kego.io/system" $imports $package }} {
 		return o.Object
 	}
 {{ end }}

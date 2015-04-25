@@ -20,10 +20,11 @@ var (
 
 func init() {
 	funcMap := template.FuncMap{
-		"quote":   strconv.Quote,
-		"import":  importStatement,
-		"ternary": ternary,
-		"map":     mapHelper,
+		"quote":     strconv.Quote,
+		"import":    importStatement,
+		"ternary":   ternary,
+		"map":       mapHelper,
+		"reference": makeReference,
 	}
 	tpl = template.New("foo.tmpl").Funcs(funcMap)
 	for templateName, templateAssetUnpackerFunction := range _bindata {
@@ -46,8 +47,7 @@ func Generate(dir string, packageName string, packagePath string, imports map[st
 		PackagePath string
 		Types       map[string]*system.Type
 		Imports     map[string]string
-		System      bool
-	}{PackageName: packageName, PackagePath: packagePath, Types: types, Imports: imports, System: packagePath == "kego.io/system"}
+	}{PackageName: packageName, PackagePath: packagePath, Types: types, Imports: imports}
 
 	var rendered bytes.Buffer
 	if err := tpl.ExecuteTemplate(&rendered, "main.tmpl", data); err != nil {
@@ -59,27 +59,30 @@ func Generate(dir string, packageName string, packagePath string, imports map[st
 		return fmt.Errorf("Error formatting generated source:\n%v\n%s\n", err, rendered.Bytes())
 	}
 
-	//fmt.Printf(string(formatted))
-	filename := "generated.go"
-	typesPath := filepath.Join(dir, filename)
-	backupPath := filepath.Join(dir, fmt.Sprintf("%v.backup", filename))
+	print := true
+	if print {
+		fmt.Printf(string(formatted))
+	} else {
+		filename := "generated.go"
+		typesPath := filepath.Join(dir, filename)
+		backupPath := filepath.Join(dir, fmt.Sprintf("%v.backup", filename))
 
-	if _, err := os.Stat(backupPath); err == nil {
-		os.Remove(backupPath)
+		if _, err := os.Stat(backupPath); err == nil {
+			os.Remove(backupPath)
+		}
+
+		if _, err := os.Stat(typesPath); err == nil {
+			os.Rename(typesPath, backupPath)
+		}
+
+		output, err := os.OpenFile(typesPath, os.O_WRONLY|os.O_CREATE, 0600)
+		if err != nil {
+			return fmt.Errorf("Could not open output file: %s", err)
+		}
+		defer output.Close()
+
+		output.Write(formatted)
 	}
-
-	if _, err := os.Stat(typesPath); err == nil {
-		os.Rename(typesPath, backupPath)
-	}
-
-	output, err := os.OpenFile(typesPath, os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		return fmt.Errorf("Could not open output file: %s", err)
-	}
-	defer output.Close()
-
-	output.Write(formatted)
-
 	return nil
 }
 
@@ -115,4 +118,16 @@ func mapHelper(values ...interface{}) (map[string]interface{}, error) {
 		dict[key] = values[i+1]
 	}
 	return dict, nil
+}
+
+func makeReference(name string, path string, imports map[string]string, localPath string) (string, error) {
+	if path == localPath {
+		return name, nil
+	}
+	for alias, importPath := range imports {
+		if path == importPath {
+			return fmt.Sprintf("%s.%s", alias, name), nil
+		}
+	}
+	return "", fmt.Errorf("Error in process.makeReference: Can't find %v in imports.\n", path)
 }
