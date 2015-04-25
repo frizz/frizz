@@ -21,14 +21,8 @@ func Scan(dir string, packageName string, packagePath string, imports map[string
 				return fmt.Errorf("Error reading file %v in %v:\n%v\n", path, packageName, err)
 			}
 
-			context := &json.Context{
-				PackageName: packageName,
-				PackagePath: packagePath,
-				Imports:     imports,
-			}
-
 			var i interface{}
-			if err := json.UnmarshalTyped(file, &i, context); err != nil {
+			if err := json.UnmarshalTyped(file, &i, packagePath, imports); err != nil {
 				return fmt.Errorf("Error when processing %v:\n%v\n", path, err)
 			}
 
