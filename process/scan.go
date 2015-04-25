@@ -30,9 +30,11 @@ func Scan(dir string, packageName string, packagePath string, imports map[string
 			if ok {
 				fullname := fmt.Sprintf("%s:%s", packagePath, t.Id.Value)
 				types[fullname] = t
+				system.RegisterType(fullname, t)
 				if t.Rule != nil {
 					rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id.Value)
 					types[rulename] = t.Rule
+					system.RegisterType(rulename, t.Rule)
 				}
 			}
 

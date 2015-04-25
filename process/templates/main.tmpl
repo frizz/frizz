@@ -34,7 +34,7 @@ func init() {
 	{{ range $typeName, $type := .Types }}
 		{{ if not $type.Interface.Value }}
 			{{ reference "RegisterType" "kego.io/json" $imports $packagePath }}({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
-			{{ reference "RegisterType" "kego.io/system" $imports $packagePath }}({{ $typeName | quote }}, &{{ $type.GoSyntax $packagePath $imports }})
 		{{ end }}
+		{{ reference "RegisterType" "kego.io/system" $imports $packagePath }}({{ $typeName | quote }}, &{{ $type.GoSyntax $packagePath $imports }})
 	{{ end }}
 }

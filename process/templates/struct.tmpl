@@ -10,7 +10,7 @@ type {{ .go }} struct {
 
 	{{ range $propertyName, $property := .type.Properties }}
 	{{ if $property.Description.Exists }}// {{ $property.Description.Value }}{{ end }}
-	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $imports $package }} {{ $property.GoTag }}
+	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $imports $package }}
 	{{ end }}
 }
 {{ end }}
