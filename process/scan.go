@@ -22,7 +22,7 @@ func Scan(dir string, packageName string, packagePath string, imports map[string
 			}
 
 			var i interface{}
-			if err := json.UnmarshalTyped(file, &i, packagePath, imports); err != nil {
+			if err := json.Unmarshal(file, &i, packagePath, imports); err != nil {
 				return fmt.Errorf("Error when processing %v:\n%v\n", path, err)
 			}
 
