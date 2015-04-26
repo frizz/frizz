@@ -36,7 +36,7 @@ func init() {
 	}
 }
 
-func Generate(dir string, packageName string, packagePath string, imports map[string]string, types map[string]*system.Type) error {
+func Generate(dir string, packageName string, packagePath string, imports map[string]string, types map[string]*system.Type, testMode bool) error {
 
 	if len(types) == 0 {
 		return fmt.Errorf("Error generating types: No types found.")
@@ -59,30 +59,31 @@ func Generate(dir string, packageName string, packagePath string, imports map[st
 		return fmt.Errorf("Error formatting generated source:\n%v\n%s\n", err, rendered.Bytes())
 	}
 
-	print := true
-	if print {
+	if testMode {
 		fmt.Printf(string(formatted))
-	} else {
-		filename := "generated.go"
-		typesPath := filepath.Join(dir, filename)
-		backupPath := filepath.Join(dir, fmt.Sprintf("%v.backup", filename))
-
-		if _, err := os.Stat(backupPath); err == nil {
-			os.Remove(backupPath)
-		}
-
-		if _, err := os.Stat(typesPath); err == nil {
-			os.Rename(typesPath, backupPath)
-		}
-
-		output, err := os.OpenFile(typesPath, os.O_WRONLY|os.O_CREATE, 0600)
-		if err != nil {
-			return fmt.Errorf("Could not open output file: %s", err)
-		}
-		defer output.Close()
-
-		output.Write(formatted)
+		return nil
 	}
+
+	filename := "generated.go"
+	typesPath := filepath.Join(dir, filename)
+	backupPath := filepath.Join(dir, fmt.Sprintf("%v.backup", filename))
+
+	if _, err := os.Stat(backupPath); err == nil {
+		os.Remove(backupPath)
+	}
+
+	if _, err := os.Stat(typesPath); err == nil {
+		os.Rename(typesPath, backupPath)
+	}
+
+	output, err := os.OpenFile(typesPath, os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return fmt.Errorf("Could not open output file: %s", err)
+	}
+	defer output.Close()
+
+	output.Write(formatted)
+
 	return nil
 }
 

@@ -13,9 +13,11 @@ import (
 )
 
 func main() {
+	var testFlag = flag.Bool("test", false, "test mode? e.g. don't write the files")
 	var systemFlag = flag.String("system", "system", "system package prefix")
 	var pathFlag = flag.String("path", "", "full package path")
 	flag.Parse()
+	testMode := *testFlag
 	systemName := *systemFlag
 	packagePath := *pathFlag
 
@@ -43,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := process.Generate(currentDir, packageName, packagePath, imports, types); err != nil {
+	if err := process.Generate(currentDir, packageName, packagePath, imports, types, testMode); err != nil {
 		panic(err)
 	}
 }
