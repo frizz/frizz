@@ -695,6 +695,9 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		// the form "system:type". We should look the package name up in the imports map.
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
+		if parts[0] == "system" {
+			return "kego.io/system", parts[1], nil
+		}
 		packagePath, ok := imports[parts[0]]
 		if !ok {
 			return "", "", fmt.Errorf("Error in system.getReferencePartsFromTypeString: package name %v not found in imports.\n", parts[0])
