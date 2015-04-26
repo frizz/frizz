@@ -35,6 +35,23 @@ func Scan(dir string, packageName string, packagePath string, imports map[string
 					rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id.Value)
 					types[rulename] = t.Rule
 					system.RegisterType(rulename, t.Rule)
+				} else {
+					// If the rule is missing, automatically create a default.
+					id := fmt.Sprintf("@%s", t.Id.Value)
+					rulename := fmt.Sprintf("%s:%s", packagePath, id)
+					rule := &system.Type{
+						Object: &system.Object{
+							Description: system.NewString(fmt.Sprintf("Automatically created basic rule for %s", t.Id.Value)),
+							Type:        system.NewReference("kego.io/system", "type"),
+							Id:          system.NewString(id),
+						},
+						Is:        []system.Reference{system.NewReference("kego.io/system", "rule")},
+						Extends:   system.NewReference("kego.io/system", "object"),
+						Native:    system.NewString("object"),
+						Interface: system.NewBool(false),
+					}
+					types[rulename] = rule
+					system.RegisterType(rulename, rule)
 				}
 			}
 
