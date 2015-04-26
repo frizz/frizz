@@ -140,6 +140,11 @@ func (p *pp) WriteName(t reflect.Type) {
 	} else if p.localPackage == t.PkgPath() {
 		p.buf.WriteString(t.Name())
 	} else {
+		if t.PkgPath() == "kego.io/system" {
+			p.buf.WriteString("system.")
+			p.buf.WriteString(t.Name())
+			return
+		}
 		for alias, path := range p.imports {
 			if t.PkgPath() == path {
 				p.buf.WriteString(alias)
