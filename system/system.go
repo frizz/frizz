@@ -12,6 +12,9 @@ func IdToGoReference(id string, packagePath string, localImports map[string]stri
 	if packagePath == localPackagePath {
 		return typeName, nil
 	} else {
+		if packagePath == "kego.io/system" {
+			return fmt.Sprintf("system.%v", typeName), nil
+		}
 		for alias, path := range localImports {
 			if packagePath == path {
 				return fmt.Sprintf("%v.%v", alias, typeName), nil
