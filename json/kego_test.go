@@ -67,9 +67,9 @@ func TestDecodeDefaults(t *testing.T) {
 	test := func(data string, strExpected string, numExpected float64, boolExpected bool) {
 
 		type Foo struct {
-			Foo string  `kego:"{\"default\": \"a\"}"`
-			Bar float64 `kego:"{\"default\": 2}"`
-			Baz bool    `kego:"{\"default\": true}"`
+			Foo string  `kego:"{\"default\":{\"value\":\"a\"}}"`
+			Bar float64 `kego:"{\"default\":{\"value\":2}}"`
+			Baz bool    `kego:"{\"default\":{\"value\":true}}"`
 		}
 
 		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
