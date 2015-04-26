@@ -28,11 +28,5 @@
 				"type": "@rule"
 			}
 		}
-	},
-	"rule": {
-		"description": "Restriction rules for properties",
-		"type": "type",
-		"id": "@property",
-		"is": ["rule"]
 	}
 }

@@ -11,6 +11,10 @@ type Bool struct {
 	Exists bool
 }
 
+func NewBool(b bool) Bool {
+	return Bool{Value: b, Exists: true}
+}
+
 func (out *Bool) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var b *bool
 	if err := json.UnmarshalPlain(in, &b, path, imports); err != nil {

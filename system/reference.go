@@ -16,6 +16,15 @@ type Reference struct {
 	Exists  bool
 }
 
+func NewReference(packagePath string, typeName string) Reference {
+	r := Reference{}
+	r.Exists = true
+	r.Package = packagePath
+	r.Type = typeName
+	r.Value = fmt.Sprintf("%s:%s", r.Package, r.Type)
+	return r
+}
+
 func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
 		return nil, fmt.Errorf("Error in Reference.RuleToParentType: Reference is nil.\n")
@@ -47,7 +56,7 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 		out.Exists = true
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
 		if err != nil {
-			return fmt.Errorf("Error in Reference.UnmarshalJSON: getReferencePartsFromTypeString returned an error: \n%v\n", err)
+			return fmt.Errorf("Error in Reference.UnmarshalJSON: json.GetReferencePartsFromTypeString returned an error: \n%v\n", err)
 		}
 		out.Package = path
 		out.Type = name

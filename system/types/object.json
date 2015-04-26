@@ -35,11 +35,5 @@
 				"type": "@context"
 			}
 		}
-	},
-	"rule": {
-		"description": "Restriction rules for objects",
-		"type": "type",
-		"id": "@object",
-		"is": ["rule"]
 	}
 }

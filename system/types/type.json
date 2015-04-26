@@ -61,11 +61,5 @@
 				"type": "@type"
 			}
 		}
-	},
-	"rule": {
-		"description": "Restriction rules for types",
-		"type": "type",
-		"id": "@type",
-		"is": ["rule"]
 	}
 }
