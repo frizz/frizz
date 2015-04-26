@@ -125,6 +125,9 @@ func makeReference(name string, path string, imports map[string]string, localPat
 	if path == localPath {
 		return name, nil
 	}
+	if path == "kego.io/system" {
+		return fmt.Sprintf("system.%s", name), nil
+	}
 	for alias, importPath := range imports {
 		if path == importPath {
 			return fmt.Sprintf("%s.%s", alias, name), nil

@@ -35,7 +35,7 @@ func main() {
 	parts := strings.Split(packagePath, string(os.PathSeparator))
 	packageName := parts[len(parts)-1]
 
-	imports := map[string]string{"system": "kego.io/system", "json": "kego.io/json"}
+	imports := map[string]string{}
 
 	types := map[string]*system.Type{}
 
