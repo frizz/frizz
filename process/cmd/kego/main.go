@@ -14,11 +14,9 @@ import (
 
 func main() {
 	var testFlag = flag.Bool("test", false, "test mode? e.g. don't write the files")
-	var systemFlag = flag.String("system", "system", "system package prefix")
-	var pathFlag = flag.String("path", "", "full package path")
+	var pathFlag = flag.String("path", "", "full package path e.g. github.com/foo/bar")
 	flag.Parse()
 	testMode := *testFlag
-	systemName := *systemFlag
 	packagePath := *pathFlag
 
 	currentDir, err := filepath.Abs("")
@@ -37,7 +35,7 @@ func main() {
 	parts := strings.Split(packagePath, string(os.PathSeparator))
 	packageName := parts[len(parts)-1]
 
-	imports := map[string]string{systemName: "kego.io/system", "json": "kego.io/json"}
+	imports := map[string]string{"system": "kego.io/system", "json": "kego.io/json"}
 
 	types := map[string]*system.Type{}
 
