@@ -53,7 +53,7 @@ func codeInit() {
 
 	codeJSON = data
 
-	if err := Unmarshal(codeJSON, &codeStruct, "", map[string]string{}); err != nil {
+	if err := UnmarshalPlain(codeJSON, &codeStruct, "", map[string]string{}); err != nil {
 		panic("unmarshal code.json: " + err.Error())
 	}
 
@@ -111,7 +111,7 @@ func BenchmarkCodeDecoder(b *testing.B) {
 		b.StartTimer()
 	}
 	var buf bytes.Buffer
-	dec := NewDecoder(&buf)
+	dec := NewDecoder(&buf, "", map[string]string{})
 	var r codeResponse
 	for i := 0; i < b.N; i++ {
 		buf.Write(codeJSON)
@@ -119,7 +119,7 @@ func BenchmarkCodeDecoder(b *testing.B) {
 		buf.WriteByte('\n')
 		buf.WriteByte('\n')
 		buf.WriteByte('\n')
-		if err := dec.Decode(&r, "", map[string]string{}); err != nil {
+		if err := dec.DecodePlain(&r); err != nil {
 			b.Fatal("Decode:", err)
 		}
 	}
@@ -134,7 +134,7 @@ func BenchmarkCodeUnmarshal(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		var r codeResponse
-		if err := Unmarshal(codeJSON, &r, "", map[string]string{}); err != nil {
+		if err := UnmarshalPlain(codeJSON, &r, "", map[string]string{}); err != nil {
 			b.Fatal("Unmmarshal:", err)
 		}
 	}
@@ -149,7 +149,7 @@ func BenchmarkCodeUnmarshalReuse(b *testing.B) {
 	}
 	var r codeResponse
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(codeJSON, &r, "", map[string]string{}); err != nil {
+		if err := UnmarshalPlain(codeJSON, &r, "", map[string]string{}); err != nil {
 			b.Fatal("Unmmarshal:", err)
 		}
 	}
@@ -160,8 +160,8 @@ func BenchmarkUnmarshalString(b *testing.B) {
 	var s string
 
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(data, &s, "", map[string]string{}); err != nil {
-			b.Fatal("Unmarshal:", err)
+		if err := UnmarshalPlain(data, &s, "", map[string]string{}); err != nil {
+			b.Fatal("UnmarshalPlain:", err)
 		}
 	}
 }
@@ -171,8 +171,8 @@ func BenchmarkUnmarshalFloat64(b *testing.B) {
 	data := []byte(`3.14`)
 
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(data, &f, "", map[string]string{}); err != nil {
-			b.Fatal("Unmarshal:", err)
+		if err := UnmarshalPlain(data, &f, "", map[string]string{}); err != nil {
+			b.Fatal("UnmarshalPlain:", err)
 		}
 	}
 }
@@ -182,8 +182,8 @@ func BenchmarkUnmarshalInt64(b *testing.B) {
 	data := []byte(`3`)
 
 	for i := 0; i < b.N; i++ {
-		if err := Unmarshal(data, &x, "", map[string]string{}); err != nil {
-			b.Fatal("Unmarshal:", err)
+		if err := UnmarshalPlain(data, &x, "", map[string]string{}); err != nil {
+			b.Fatal("UnmarshalPlain:", err)
 		}
 	}
 }

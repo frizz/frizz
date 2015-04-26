@@ -21,7 +21,7 @@ func TestDecodeSimple(t *testing.T) {
 		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 
 		var i interface{}
-		err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -75,7 +75,7 @@ func TestDecodeDefaults(t *testing.T) {
 		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 
 		var i interface{}
-		err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -137,7 +137,7 @@ func TestDecodeCollections(t *testing.T) {
 	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -178,7 +178,7 @@ func TestDecodeEmbed(t *testing.T) {
 		RegisterType("kego.io/json:bar", reflect.TypeOf(&Bar{}))
 
 		var i interface{}
-		err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -255,7 +255,7 @@ func TestDecodeEmbedCollections(t *testing.T) {
 	RegisterType("kego.io/json:bar", reflect.TypeOf(&Bar{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -292,7 +292,7 @@ func TestDecodeComposition(t *testing.T) {
 	RegisterType("kego.io/json:base", reflect.TypeOf(&Base{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -343,7 +343,7 @@ func TestInterface(t *testing.T) {
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -380,7 +380,7 @@ func TestNilInterface(t *testing.T) {
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -436,7 +436,7 @@ func TestInterfaceCollections(t *testing.T) {
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -494,7 +494,7 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
 	var i interface{}
-	err := UnmarshalTyped([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)

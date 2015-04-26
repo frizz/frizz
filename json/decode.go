@@ -66,7 +66,7 @@ import (
 // Instead, they are replaced by the Unicode replacement
 // character U+FFFD.
 //
-func Unmarshal(data []byte, v interface{}, path string, imports map[string]string) error {
+func UnmarshalPlain(data []byte, v interface{}, path string, imports map[string]string) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
@@ -80,7 +80,7 @@ func Unmarshal(data []byte, v interface{}, path string, imports map[string]strin
 	return d.unmarshal(v, &ctx{path, imports}, true)
 }
 
-func UnmarshalTyped(data []byte, v *interface{}, path string, imports map[string]string) error {
+func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
@@ -675,7 +675,7 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, un
 				v.Set(reflect.New(typ.Elem()))
 			} else if v.Elem().CanSet() {
 				// This is where a pointer to a nil interface has been provided
-				// to the UnmarshalTyped function. We can't set the value of v
+				// to the Unmarshal function. We can't set the value of v
 				// directly, but we can set v.Elem()
 				v.Elem().Set(reflect.New(typ.Elem()))
 			}

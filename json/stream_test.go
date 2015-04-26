@@ -67,9 +67,9 @@ func TestDecoder(t *testing.T) {
 			}
 		}
 		out := make([]interface{}, i)
-		dec := NewDecoder(&buf)
+		dec := NewDecoder(&buf, "", map[string]string{})
 		for j := range out {
-			if err := dec.Decode(&out[j], "", map[string]string{}); err != nil {
+			if err := dec.DecodePlain(&out[j]); err != nil {
 				t.Fatalf("decode #%d/%d: %v", j, i, err)
 			}
 		}
@@ -90,8 +90,8 @@ func TestDecoderBuffered(t *testing.T) {
 	var m struct {
 		Name string
 	}
-	d := NewDecoder(r)
-	err := d.Decode(&m, "", map[string]string{})
+	d := NewDecoder(r, "", map[string]string{})
+	err := d.DecodePlain(&m)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,9 +130,9 @@ func TestRawMessage(t *testing.T) {
 	}
 	const raw = `["\u0056",null]`
 	const msg = `{"X":0.1,"Id":["\u0056",null],"Y":0.2}`
-	err := Unmarshal([]byte(msg), &data, "", map[string]string{})
+	err := UnmarshalPlain([]byte(msg), &data, "", map[string]string{})
 	if err != nil {
-		t.Fatalf("Unmarshal: %v", err)
+		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	if string([]byte(*data.Id)) != raw {
 		t.Fatalf("Raw mismatch: have %#q want %#q", []byte(*data.Id), raw)
@@ -155,9 +155,9 @@ func TestNullRawMessage(t *testing.T) {
 	}
 	data.Id = new(RawMessage)
 	const msg = `{"X":0.1,"Id":null,"Y":0.2}`
-	err := Unmarshal([]byte(msg), &data, "", map[string]string{})
+	err := UnmarshalPlain([]byte(msg), &data, "", map[string]string{})
 	if err != nil {
-		t.Fatalf("Unmarshal: %v", err)
+		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	if data.Id != nil {
 		t.Fatalf("Raw mismatch: have non-nil, want nil")
@@ -184,7 +184,7 @@ func TestBlocking(t *testing.T) {
 
 		// If Decode reads beyond what w.Write writes above,
 		// it will block, and the test will deadlock.
-		if err := NewDecoder(r).Decode(&val, "", map[string]string{}); err != nil {
+		if err := NewDecoder(r, "", map[string]string{}).DecodePlain(&val); err != nil {
 			t.Errorf("decoding %s: %v", enc, err)
 		}
 		r.Close()
