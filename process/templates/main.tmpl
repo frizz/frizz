@@ -26,7 +26,6 @@ import (
 	{{ if not $type.Interface.Value }}
 		{{/* We don't need these bits for interface types */}}
 		{{ template "struct.tmpl" $vars }}
-		{{ template "base.tmpl" $vars }}
 	{{ end }}
 {{ end }}
 

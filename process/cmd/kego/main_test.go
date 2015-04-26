@@ -15,7 +15,7 @@ func TestGetPackage(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	assert.Equal(t, pkg, "github.com/foo/bar")
+	assert.Equal(t, "github.com/foo/bar", pkg)
 }
 
 func TestGetPackageMultiplePath(t *testing.T) {
@@ -25,5 +25,5 @@ func TestGetPackageMultiplePath(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	assert.Equal(t, pkg, "github.com/foo/bar")
+	assert.Equal(t, "github.com/foo/bar", pkg)
 }
