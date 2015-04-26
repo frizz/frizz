@@ -366,7 +366,7 @@ func (d *decodeState) value(v reflect.Value, context *ctx, unmarshalers bool, ty
 		d.array(v, context, unmarshalers)
 
 	case scanBeginObject:
-		d.object(v, context, unmarshalers, true)
+		d.object(v, context, unmarshalers, typed)
 
 	case scanBeginLiteral:
 		d.literal(v, context, unmarshalers)
@@ -652,28 +652,32 @@ func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bo
 	d.restore(stateBackup)
 
 	if typeName != "" {
-		path, name, err := GetReferencePartsFromTypeString(typeName, context.Package, context.Imports)
-		if err != nil {
-			d.error(err)
-		}
-		// We should look the type up in the type resolver
-		fullTypeName := fmt.Sprintf("%s:%s", path, name)
-		if typ, ok := GetType(fullTypeName); ok {
-			// If we find a type, we should update v with the new type. However, if we are
-			// unmarshaling into a known type, we don't usually need to change the type
-			// of v. In this case v.Type() will be something like system.Foo and typ will be
-			// something like *system.Foo, so typ.Elem() will be system.Foo.
-			if v.Type() != typ.Elem() {
-				if v.CanSet() {
-					// This is where a we are internally unmarshaling into an interface,
-					// and we can set the value of v directly.
-					v.Set(reflect.New(typ.Elem()))
-				} else if v.Elem().CanSet() {
-					// This is where a pointer to a nil interface has been provided
-					// to the UnmarshalTyped function. We can't set the value of v
-					// directly, but we can set v.Elem()
-					v.Elem().Set(reflect.New(typ.Elem()))
-				}
+		d.setType(typeName, v, context, unmarshalers)
+	}
+}
+
+func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, unmarshalers bool) {
+	path, name, err := GetReferencePartsFromTypeString(typeName, context.Package, context.Imports)
+	if err != nil {
+		d.error(err)
+	}
+	// We should look the type up in the type resolver
+	fullTypeName := fmt.Sprintf("%s:%s", path, name)
+	if typ, ok := GetType(fullTypeName); ok {
+		// If we find a type, we should update v with the new type. However, if we are
+		// unmarshaling into a known type, we don't usually need to change the type
+		// of v. In this case v.Type() will be something like system.Foo and typ will be
+		// something like *system.Foo, so typ.Elem() will be system.Foo.
+		if v.Type() != typ.Elem() {
+			if v.CanSet() {
+				// This is where a we are internally unmarshaling into an interface,
+				// and we can set the value of v directly.
+				v.Set(reflect.New(typ.Elem()))
+			} else if v.Elem().CanSet() {
+				// This is where a pointer to a nil interface has been provided
+				// to the UnmarshalTyped function. We can't set the value of v
+				// directly, but we can set v.Elem()
+				v.Elem().Set(reflect.New(typ.Elem()))
 			}
 		}
 	}
@@ -715,7 +719,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 			// If needed, this sets the value of v to the correct type based on the "type" attribute.
 			d.scanForType(v, context, unmarshalers)
 		} else {
-			//fmt.Printf("Skipping a json object because we're unmarshaling into a map\n")
+			// Skipping a json object because we're unmarshaling into a map
 		}
 	}
 
@@ -848,7 +852,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 				d.saveError(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal unquoted value into %v", item, v.Type()))
 			}
 		} else {
-			d.value(subv, context, true, true)
+			d.value(subv, context, true, typed)
 		}
 
 		// Write value back to map;
@@ -896,16 +900,24 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 					}
 					subv = subv.Field(i)
 				}
+				def := f.kego.Default
+				path := def.Path
+				if path == "" {
+					path = "kego.io/json"
+				}
 				context := &ctx{
-					Package: "kego.io/json",
-					Imports: map[string]string{},
+					Package: path,
+					Imports: def.Imports,
 				}
 				var d decodeState
-				err := checkValid(*f.kego.Default, &d.scan)
+				err := checkValid(*def.Value, &d.scan)
 				if err != nil {
 					d.error(err)
 				}
-				d.init(*f.kego.Default)
+				d.init(*def.Value)
+				if def.Type != "" {
+					d.setType(def.Type, subv, context, unmarshalers)
+				}
 				err = d.unmarshalValue(subv.Addr(), context, unmarshalers, true)
 				if err != nil {
 					d.error(err)

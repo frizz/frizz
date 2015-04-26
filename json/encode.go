@@ -944,7 +944,7 @@ type field struct {
 	typ       reflect.Type
 	omitEmpty bool
 	quoted    bool
-	kego      *kego
+	kego      *KegoTag
 }
 
 func fillField(f field) field {
@@ -994,8 +994,14 @@ func (x byIndex) Less(i, j int) bool {
 	return len(x[i].index) < len(x[j].index)
 }
 
-type kego struct {
-	Default *RawMessage
+type KegoTag struct {
+	Default *KegoDefault `json:"default,omitempty"`
+}
+type KegoDefault struct {
+	Type    string            `json:"type,omitempty"`
+	Value   *RawMessage       `json:"value,omitempty"`
+	Path    string            `json:"path,omitempty"`
+	Imports map[string]string `json:"imports,omitempty"`
 }
 
 // typeFields returns a list of fields that JSON should recognize for the given type.
@@ -1042,13 +1048,12 @@ func typeFields(t reflect.Type) []field {
 				}
 
 				s := sf.Tag.Get("kego")
-				k := &kego{}
+				k := &KegoTag{}
 				if s != "" {
-					context := &ctx{
-						Package: "kego.io/json",
-						Imports: map[string]string{},
-					}
-					err := Unmarshal([]byte(s), k, context.Package, context.Imports)
+					// We don't need to worry about context here, because the default
+					// value we're unmarshaling is wrapped in a *RawMessage. Later we
+					// will unmarshal with the provided type and context.
+					err := Unmarshal([]byte(s), k, "", map[string]string{})
 					if err != nil {
 						panic(err)
 					}

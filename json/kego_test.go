@@ -26,9 +26,9 @@ func TestDecodeSimple(t *testing.T) {
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
 		assert.NotNil(t, f)
-		assert.Equal(t, f.Foo, "a")
-		assert.Equal(t, f.Bar, 2.0)
-		assert.Equal(t, f.Baz, true)
+		assert.Equal(t, "a", f.Foo)
+		assert.Equal(t, 2.0, f.Bar)
+		assert.Equal(t, true, f.Baz)
 
 		// Clean up for the tests - don't normally need to unregister types
 		UnregisterType("kego.io/json:foo")
@@ -80,9 +80,9 @@ func TestDecodeDefaults(t *testing.T) {
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
 		assert.NotNil(t, f)
-		assert.Equal(t, f.Foo, strExpected)
-		assert.Equal(t, f.Bar, numExpected)
-		assert.Equal(t, f.Baz, boolExpected)
+		assert.Equal(t, strExpected, f.Foo)
+		assert.Equal(t, numExpected, f.Bar)
+		assert.Equal(t, boolExpected, f.Baz)
 
 		// Clean up for the tests - don't normally need to unregister types
 		UnregisterType("kego.io/json:foo")
@@ -142,18 +142,18 @@ func TestDecodeCollections(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.StringMap["a"], "aa")
-	assert.Equal(t, f.StringMap["b"], "bb")
-	assert.Equal(t, f.StringMap["c"], "cc")
-	assert.Equal(t, f.NumberMap["d"], 1.0)
-	assert.Equal(t, f.NumberMap["e"], 1.5)
-	assert.Equal(t, f.NumberMap["f"], 2.0)
-	assert.Equal(t, f.BoolMap["g"], true)
-	assert.Equal(t, f.BoolMap["h"], false)
-	assert.Equal(t, f.BoolMap["i"], true)
-	assert.Equal(t, f.StringArray, []string{"a", "b", "c"})
-	assert.Equal(t, f.NumberArray, []float64{1.0, 1.5, 2.0})
-	assert.Equal(t, f.BoolArray, []bool{true, false, true})
+	assert.Equal(t, "aa", f.StringMap["a"])
+	assert.Equal(t, "bb", f.StringMap["b"])
+	assert.Equal(t, "cc", f.StringMap["c"])
+	assert.Equal(t, 1.0, f.NumberMap["d"])
+	assert.Equal(t, 1.5, f.NumberMap["e"])
+	assert.Equal(t, 2.0, f.NumberMap["f"])
+	assert.Equal(t, true, f.BoolMap["g"])
+	assert.Equal(t, false, f.BoolMap["h"])
+	assert.Equal(t, true, f.BoolMap["i"])
+	assert.Equal(t, []string{"a", "b", "c"}, f.StringArray)
+	assert.Equal(t, []float64{1.0, 1.5, 2.0}, f.NumberArray)
+	assert.Equal(t, []bool{true, false, true}, f.BoolArray)
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
@@ -183,9 +183,9 @@ func TestDecodeEmbed(t *testing.T) {
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
 		assert.NotNil(t, f)
-		assert.Equal(t, f.Embed.String, "a")
-		assert.Equal(t, f.Embed.Number, 2.0)
-		assert.Equal(t, f.Embed.Bool, true)
+		assert.Equal(t, "a", f.Embed.String)
+		assert.Equal(t, 2.0, f.Embed.Number)
+		assert.Equal(t, true, f.Embed.Bool)
 
 		// Clean up for the tests - don't normally need to unregister types
 		UnregisterType("kego.io/json:foo")
@@ -260,10 +260,10 @@ func TestDecodeEmbedCollections(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.MapEmbed["a"].String, "a")
-	assert.Equal(t, f.MapEmbed["b"].String, "b")
-	assert.Equal(t, f.ArrayEmbed[0].String, "c")
-	assert.Equal(t, f.ArrayEmbed[1].String, "d")
+	assert.Equal(t, "a", f.MapEmbed["a"].String)
+	assert.Equal(t, "b", f.MapEmbed["b"].String)
+	assert.Equal(t, "c", f.ArrayEmbed[0].String)
+	assert.Equal(t, "d", f.ArrayEmbed[1].String)
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
@@ -297,8 +297,8 @@ func TestDecodeComposition(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.BaseString, "a")
-	assert.Equal(t, f.FooString, "b")
+	assert.Equal(t, "a", f.BaseString)
+	assert.Equal(t, "b", f.FooString)
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
@@ -348,7 +348,7 @@ func TestInterface(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.Img.Url(), "http://www.photos.com/a.jpg")
+	assert.Equal(t, "http://www.photos.com/a.jpg", f.Img.Url())
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
@@ -387,7 +387,7 @@ func TestNilInterface(t *testing.T) {
 	assert.NotNil(t, f)
 	p, ok := f.Iface.(*Photo)
 	assert.True(t, ok, "Type %T not correct", f.Iface)
-	assert.Equal(t, p.Url(), "http://www.photos.com/a.jpg")
+	assert.Equal(t, "http://www.photos.com/a.jpg", p.Url())
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
@@ -441,10 +441,10 @@ func TestInterfaceCollections(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.ImageArray[0].Url(), "http://www.photos.com/a.jpg")
-	assert.Equal(t, f.ImageArray[1].Url(), "http://www.diagrams.com/b.jpg")
-	assert.Equal(t, f.ImageMap["c"].Url(), "http://www.photos.com/c.jpg")
-	assert.Equal(t, f.ImageMap["d"].Url(), "http://www.diagrams.com/d.jpg")
+	assert.Equal(t, "http://www.photos.com/a.jpg", f.ImageArray[0].Url())
+	assert.Equal(t, "http://www.diagrams.com/b.jpg", f.ImageArray[1].Url())
+	assert.Equal(t, "http://www.photos.com/c.jpg", f.ImageMap["c"].Url())
+	assert.Equal(t, "http://www.diagrams.com/d.jpg", f.ImageMap["d"].Url())
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
@@ -499,10 +499,10 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.ImageMap["a"][0].Url(), "http://www.photos.com/c.jpg")
-	assert.Equal(t, f.ImageMap["a"][1].Url(), "http://www.diagrams.com/d.jpg")
-	assert.Equal(t, f.ImageMap["b"][0].Url(), "http://www.photos.com/e.jpg")
-	assert.Equal(t, f.ImageMap["b"][1].Url(), "http://www.diagrams.com/f.jpg")
+	assert.Equal(t, "http://www.photos.com/c.jpg", f.ImageMap["a"][0].Url())
+	assert.Equal(t, "http://www.diagrams.com/d.jpg", f.ImageMap["a"][1].Url())
+	assert.Equal(t, "http://www.photos.com/e.jpg", f.ImageMap["b"][0].Url())
+	assert.Equal(t, "http://www.diagrams.com/f.jpg", f.ImageMap["b"][1].Url())
 
 	// Clean up for the tests - don't normally need to unregister types
 	UnregisterType("kego.io/json:foo")
