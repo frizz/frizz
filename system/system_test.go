@@ -49,9 +49,9 @@ func TestNative(t *testing.T) {
 	assert.False(t, f.StrNull.Exists)
 	assert.False(t, f.NumNull.Exists)
 	assert.False(t, f.BolNull.Exists)
-	assert.Equal(t, f.StrHere.Value, "a")
-	assert.Equal(t, f.NumHere.Value, 2.0)
-	assert.Equal(t, f.BolHere.Value, true)
+	assert.Equal(t, "a", f.StrHere.Value)
+	assert.Equal(t, 2.0, f.NumHere.Value)
+	assert.Equal(t, true, f.BolHere.Value)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
@@ -61,12 +61,12 @@ func TestNative(t *testing.T) {
 func TestNativeDefaults(t *testing.T) {
 
 	type Foo struct {
-		StrHere    String `kego:"{\"default\": \"a\"}"`
-		NumHere    Number `kego:"{\"default\": 2}"`
-		BolHere    Bool   `kego:"{\"default\": true}"`
-		StrDefault String `kego:"{\"default\": \"b\"}"`
-		NumDefault Number `kego:"{\"default\": 3}"`
-		BolDefault Bool   `kego:"{\"default\": true}"`
+		StrHere    String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		NumHere    Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":2,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		BolHere    Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		StrDefault String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"b\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		NumDefault Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":3,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		BolDefault Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
 	}
 
 	data := `{
@@ -90,12 +90,58 @@ func TestNativeDefaults(t *testing.T) {
 	assert.True(t, f.StrDefault.Exists)
 	assert.True(t, f.NumDefault.Exists)
 	assert.True(t, f.BolDefault.Exists)
-	assert.Equal(t, f.StrHere.Value, "c")
-	assert.Equal(t, f.NumHere.Value, 4.0)
-	assert.Equal(t, f.BolHere.Value, false)
-	assert.Equal(t, f.StrDefault.Value, "b")
-	assert.Equal(t, f.NumDefault.Value, 3.0)
-	assert.Equal(t, f.BolDefault.Value, true)
+	assert.Equal(t, "c", f.StrHere.Value)
+	assert.Equal(t, 4.0, f.NumHere.Value)
+	assert.Equal(t, false, f.BolHere.Value)
+	assert.Equal(t, "b", f.StrDefault.Value)
+	assert.Equal(t, 3.0, f.NumDefault.Value)
+	assert.Equal(t, true, f.BolDefault.Value)
+
+	// Clean up for the tests - don't normally need to unregister types
+	json.UnregisterType("kego.io/system:foo")
+
+}
+
+func TestDefaultCustomUnmarshal(t *testing.T) {
+
+	// If we're generating the type structs, we probably don't have the
+	// custom marshal function, so we add the type and context data in
+	// the default tag. When the code actually executes, it will have
+	// the custom unmarshal function, which will be called along with the
+	// context data.
+
+	type Foo struct {
+
+		// The value is just a, so we should be picking up the package
+		// kego.io/b from the local package path
+		Ref1 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+
+		// The value is a:b, so a is the package alias for kego.io/d
+		// which we find in the package imports, and b is the type.
+		Ref2 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"imports\":{\"json\":\"kego.io/json\",\"a\":\"kego.io/d\",\"system\":\"kego.io/system\"}}}"`
+
+		// The value is a full type with package path.
+		Ref3 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+	}
+
+	data := `{
+		"type": "foo"
+	}`
+
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+
+	var i interface{}
+	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	f, ok := i.(*Foo)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, f)
+	assert.True(t, f.Ref1.Exists)
+	assert.Equal(t, "kego.io/b:a", f.Ref1.Value)
+	assert.True(t, f.Ref2.Exists)
+	assert.Equal(t, "kego.io/d:b", f.Ref2.Value)
+	assert.True(t, f.Ref3.Exists)
+	assert.Equal(t, "a.b/c:d", f.Ref3.Value)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
@@ -122,9 +168,9 @@ func TestReferenceType(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref.Exists)
-	assert.Equal(t, f.Ref.Value, "kego.io/system:typ")
-	assert.Equal(t, f.Ref.Package, "kego.io/system")
-	assert.Equal(t, f.Ref.Type, "typ")
+	assert.Equal(t, "kego.io/system:typ", f.Ref.Value)
+	assert.Equal(t, "kego.io/system", f.Ref.Package)
+	assert.Equal(t, "typ", f.Ref.Type)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
@@ -176,9 +222,9 @@ func TestReferencePath(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref.Exists)
-	assert.Equal(t, f.Ref.Value, "kego.io/pkg:typ")
-	assert.Equal(t, f.Ref.Package, "kego.io/pkg")
-	assert.Equal(t, f.Ref.Type, "typ")
+	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value)
+	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
+	assert.Equal(t, "typ", f.Ref.Type)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
@@ -205,9 +251,9 @@ func TestReferenceImport(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref.Exists)
-	assert.Equal(t, f.Ref.Value, "kego.io/pkg:typ")
-	assert.Equal(t, f.Ref.Package, "kego.io/pkg")
-	assert.Equal(t, f.Ref.Type, "typ")
+	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value)
+	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
+	assert.Equal(t, "typ", f.Ref.Type)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
@@ -217,8 +263,8 @@ func TestReferenceImport(t *testing.T) {
 func TestReferenceDefault(t *testing.T) {
 
 	type Foo struct {
-		RefHere    Reference `kego:"{\"default\": \"kego.io/pkga:typa\"}"`
-		RefDefault Reference `kego:"{\"default\": \"kego.io/pkgb:typb\"}"`
+		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		RefDefault Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
 	}
 
 	data := `{
@@ -236,12 +282,12 @@ func TestReferenceDefault(t *testing.T) {
 	assert.NotNil(t, f)
 	assert.True(t, f.RefHere.Exists)
 	assert.True(t, f.RefDefault.Exists)
-	assert.Equal(t, f.RefHere.Value, "kego.io/system:typc")
-	assert.Equal(t, f.RefHere.Package, "kego.io/system")
-	assert.Equal(t, f.RefHere.Type, "typc")
-	assert.Equal(t, f.RefDefault.Value, "kego.io/pkgb:typb")
-	assert.Equal(t, f.RefDefault.Package, "kego.io/pkgb")
-	assert.Equal(t, f.RefDefault.Type, "typb")
+	assert.Equal(t, "kego.io/system:typc", f.RefHere.Value)
+	assert.Equal(t, "kego.io/system", f.RefHere.Package)
+	assert.Equal(t, "typc", f.RefHere.Type)
+	assert.Equal(t, "kego.io/pkgb:typb", f.RefDefault.Value)
+	assert.Equal(t, "kego.io/pkgb", f.RefDefault.Package)
+	assert.Equal(t, "typb", f.RefDefault.Type)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")
@@ -268,9 +314,9 @@ func TestContext(t *testing.T) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.Equal(t, f.Bar, "a")
-	assert.Equal(t, f.Context.Package.Value, "kego.io/system")
-	assert.Equal(t, f.Context.Imports["d"].Value, "e.f/g")
+	assert.Equal(t, "a", f.Bar)
+	assert.Equal(t, "kego.io/system", f.Context.Package.Value)
+	assert.Equal(t, "e.f/g", f.Context.Imports["d"].Value)
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")

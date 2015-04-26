@@ -39,10 +39,10 @@ func TestBool(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Description.Exists)
-	assert.Equal(t, f.Description.Value, "This is the native json bool data type")
+	assert.Equal(t, "This is the native json bool data type", f.Description.Value)
 	assert.True(t, f.Native.Exists)
-	assert.Equal(t, f.Native.Value, "bool")
-	assert.Equal(t, f.Rule.Id.Value, "@bool")
+	assert.Equal(t, "bool", f.Native.Value)
+	assert.Equal(t, "@bool", f.Rule.Id.Value)
 
 }
 
@@ -126,17 +126,17 @@ func TestType(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Description.Exists)
-	assert.Equal(t, f.Description.Value, "This is the most basic type.")
+	assert.Equal(t, "This is the most basic type.", f.Description.Value)
 	assert.True(t, f.Native.Exists)
-	assert.Equal(t, f.Native.Value, "object")
-	assert.Equal(t, f.Rule.Id.Value, "@type")
+	assert.Equal(t, "object", f.Native.Value)
+	assert.Equal(t, "@type", f.Rule.Id.Value)
 	assert.True(t, f.Properties["interface"].Description.Exists)
-	assert.Equal(t, f.Properties["interface"].Description.Value, "Is this type an interface?")
-	assert.Equal(t, f.Properties["interface"].Optional.Value, true)
+	assert.Equal(t, "Is this type an interface?", f.Properties["interface"].Description.Value)
+	assert.Equal(t, true, f.Properties["interface"].Optional.Value)
 	r, ok := f.Properties["interface"].Item.(*Bool_rule)
 	assert.True(t, ok, "Wrong type %T\n", f.Properties["interface"].Item)
 	assert.True(t, r.Default.Exists)
-	assert.Equal(t, r.Default.Value, false)
+	assert.Equal(t, false, r.Default.Value)
 
 }
 
@@ -234,15 +234,16 @@ func TestUnknownRule(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 
-	s, err := f.Properties["image"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
+	s, err := f.Properties["image"].GoTypeDescriptor("kego.io/gallery", map[string]string{"system": "kego.io/system"})
 	assert.NoError(t, err)
-	assert.Equal(t, s, "*Diagram `kego:\"{\\\"default\\\": {\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"}}\"`")
+	assert.Equal(t, "*Diagram `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/gallery:diagram\\\",\\\"value\\\":{\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"},\\\"path\\\":\\\"kego.io/gallery\\\",\\\"imports\\\":{\\\"system\\\":\\\"kego.io/system\\\"}}}\"`", s)
 
-	b, err := f.Properties["foo"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
+	b, err := f.Properties["foo"].GoTypeDescriptor("kego.io/gallery", map[string]string{"system": "kego.io/system"})
 	assert.NoError(t, err)
-	assert.Equal(t, b, "system.Bool `kego:\"{\\\"default\\\": true}\"`")
+	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:bool\\\",\\\"value\\\":true,\\\"path\\\":\\\"kego.io/gallery\\\",\\\"imports\\\":{\\\"system\\\":\\\"kego.io/system\\\"}}}\"`", b)
+	//
 
-	r, err := f.Properties["ref"].GoTypeDescriptor(map[string]string{"system": "kego.io/system"}, "kego.io/gallery")
+	r, err := f.Properties["ref"].GoTypeDescriptor("kego.io/gallery", map[string]string{"system": "kego.io/system"})
 	assert.NoError(t, err)
-	assert.Equal(t, r, "system.Reference `kego:\"{\\\"default\\\": \\\"kego.io/gallery:image\\\"}\"`")
+	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\",\\\"path\\\":\\\"kego.io/gallery\\\",\\\"imports\\\":{\\\"system\\\":\\\"kego.io/system\\\"}}}\"`", r)
 }

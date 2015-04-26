@@ -7,32 +7,17 @@ import (
 	"sync"
 )
 
-// Basic interface implemented by everything that is composed of an Object
-type Basic interface {
-	Base() *Object
-}
-
 func IdToGoReference(id string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {
 	typeName := IdToGoName(id)
 	if packagePath == localPackagePath {
 		return typeName, nil
 	} else {
-
-		// TODO: move this to a util package
-		searchMapForValue := func(in map[string]string, value string) (key string, found bool) {
-			for k, v := range in {
-				if v == value {
-					return k, true
-				}
+		for alias, path := range localImports {
+			if packagePath == path {
+				return fmt.Sprintf("%v.%v", alias, typeName), nil
 			}
-			return "", false
 		}
-
-		localPackageName, ok := searchMapForValue(localImports, packagePath)
-		if !ok {
-			return "", fmt.Errorf("Error in system.IdToGoReference: package path %v not found in local context imports.\n", packagePath)
-		}
-		return fmt.Sprintf("%v.%v", localPackageName, typeName), nil
+		return "", fmt.Errorf("Error in system.IdToGoReference: package path %v not found in local context imports.\n", packagePath)
 	}
 }
 

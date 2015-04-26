@@ -60,16 +60,16 @@ func (t *Type) GoName() string {
 	return IdToGoName(t.Id.Value)
 }
 
+func (t *Type) FullName() string {
+	return fmt.Sprintf("%s:%s", t.Context.Package.Value, t.Id.Value)
+}
+
 // GoTypeReference outputs a Go source code reference to the name of this type. If we're in
 // the local package, it just outputs the name e.g. "Object". If we're in a different package,
 // it looks up the alias of the package in the imports and appends that to the start.
 // e.g. "system.Object".
-func (t *Type) GoTypeReference(localImports map[string]string, localPackagePath string) (string, error) {
-	return IdToGoReference(t.Id.Value, t.Context.Package.Value, localImports, localPackagePath)
-}
-
-func (t *Type) ShouldImplementBasic() bool {
-	return t.IsNativeType() && t.Extends.Exists && t.Extends.Value == "kego.io/system:object"
+func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
+	return IdToGoReference(t.Id.Value, t.Context.Package.Value, imports, path)
 }
 
 func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {
