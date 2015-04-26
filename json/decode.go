@@ -700,7 +700,7 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		}
 		packagePath, ok := imports[parts[0]]
 		if !ok {
-			return "", "", fmt.Errorf("Error in system.getReferencePartsFromTypeString: package name %v not found in imports.\n", parts[0])
+			return "", "", fmt.Errorf("Error in json.GetReferencePartsFromTypeString: package name %v not found in imports.\n", parts[0])
 		}
 		return packagePath, parts[1], nil
 	} else {
