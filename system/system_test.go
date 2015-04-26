@@ -35,7 +35,7 @@ func TestNative(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -79,7 +79,7 @@ func TestNativeDefaults(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -131,7 +131,7 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -162,7 +162,7 @@ func TestReferenceType(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -190,7 +190,7 @@ func TestReferenceEmpty(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -216,7 +216,7 @@ func TestReferencePath(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -245,7 +245,7 @@ func TestReferenceImport(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -275,7 +275,7 @@ func TestReferenceDefault(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -309,7 +309,7 @@ func TestContext(t *testing.T) {
 	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)

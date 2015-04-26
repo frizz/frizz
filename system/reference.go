@@ -35,7 +35,7 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 
 func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
-	if err := json.Unmarshal(in, &s, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
 		return err
 	}
 	if s == nil {

@@ -33,7 +33,7 @@ func TestBool(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -120,7 +120,7 @@ func TestType(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -173,7 +173,7 @@ func unmarshalDiagram(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
+	err := json.Unmarshal([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
 	d, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -228,7 +228,7 @@ func TestUnknownRule(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.UnmarshalTyped([]byte(data), &i, "kego.io/gallery", map[string]string{})
+	err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -236,14 +236,14 @@ func TestUnknownRule(t *testing.T) {
 
 	s, err := f.Properties["image"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, "*Diagram `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/gallery:diagram\\\",\\\"value\\\":{\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"},\\\"path\\\":\\\"kego.io/gallery\\\",\\\"imports\\\":{\\\"system\\\":\\\"kego.io/system\\\"}}}\"`", s)
+	assert.Equal(t, "*Diagram `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/gallery:diagram\\\",\\\"value\\\":{\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"},\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", s)
 
 	b, err := f.Properties["foo"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:bool\\\",\\\"value\\\":true,\\\"path\\\":\\\"kego.io/gallery\\\",\\\"imports\\\":{\\\"system\\\":\\\"kego.io/system\\\"}}}\"`", b)
+	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:bool\\\",\\\"value\\\":true,\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", b)
 	//
 
 	r, err := f.Properties["ref"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\",\\\"path\\\":\\\"kego.io/gallery\\\",\\\"imports\\\":{\\\"system\\\":\\\"kego.io/system\\\"}}}\"`", r)
+	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\",\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", r)
 }

@@ -24,7 +24,7 @@ func NewStringMap(m map[string]string) map[string]String {
 
 func (out *String) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
-	if err := json.Unmarshal(in, &s, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
 		return err
 	}
 	if s == nil {

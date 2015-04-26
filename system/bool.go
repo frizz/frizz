@@ -13,7 +13,7 @@ type Bool struct {
 
 func (out *Bool) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var b *bool
-	if err := json.Unmarshal(in, &b, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &b, path, imports); err != nil {
 		return err
 	}
 	if b == nil {
