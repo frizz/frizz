@@ -405,10 +405,10 @@ func (d *decodeState) valueQuoted(context *ctx, unmarshalers bool) interface{} {
 // if decodingNull is true, indirect stops at the last pointer so it can be set to nil.
 func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers bool) (Unmarshaler, encoding.TextUnmarshaler, Contexter, reflect.Value) {
 
+	var c Contexter
 	// If v is a named type and is addressable,
 	// start with its address, so that if the type has pointer methods,
 	// we find them.
-	var c Contexter
 	if v.Kind() != reflect.Ptr && v.Type().Name() != "" && v.CanAddr() {
 		v = v.Addr()
 	}
@@ -449,6 +449,20 @@ func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers 
 		v = v.Elem()
 	}
 	return nil, nil, c, v
+}
+
+// getValue walks down v allocating pointers as needed.
+func (d *decodeState) getValue(v reflect.Value) reflect.Value {
+	for {
+		if v.Kind() != reflect.Ptr {
+			break
+		}
+		if v.IsNil() {
+			v.Set(reflect.New(v.Type().Elem()))
+		}
+		v = v.Elem()
+	}
+	return v
 }
 
 // array consumes an array from d.data[d.off-1:], decoding into the value v.
@@ -713,16 +727,12 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, typed bool) {
 
 	if typed {
-		// Check for unmarshaler.
-		u, ut, _, pv := d.indirect(v, false, unmarshalers)
-
-		// If the type we're unmarshaling into is not a map, then we should scan for a "type"
+		// If the type we're unmarshaling into is an interface, we should scan for a "type"
 		// attribute and initialise the correct type.
-		if u != nil || ut != nil || pv.Kind() != reflect.Map {
+		val := d.getValue(v)
+		if val.Kind() == reflect.Interface {
 			// If needed, this sets the value of v to the correct type based on the "type" attribute.
 			d.scanForType(v, context, unmarshalers)
-		} else {
-			// Skipping a json object because we're unmarshaling into a map
 		}
 	}
 
