@@ -28,7 +28,7 @@ type U struct {
 type V struct {
 	F1 interface{}
 	F2 int32
-	F3 Number
+	F3 NumberLiteral
 }
 
 // ifaceNumAsFloat64/ifaceNumAsNumber are used to test unmarshaling with and
@@ -41,10 +41,10 @@ var ifaceNumAsFloat64 = map[string]interface{}{
 }
 
 var ifaceNumAsNumber = map[string]interface{}{
-	"k1": Number("1"),
+	"k1": NumberLiteral("1"),
 	"k2": "s",
-	"k3": []interface{}{Number("1"), Number("2.0"), Number("3e-3")},
-	"k4": map[string]interface{}{"kk1": "s", "kk2": Number("2")},
+	"k3": []interface{}{NumberLiteral("1"), NumberLiteral("2.0"), NumberLiteral("3e-3")},
+	"k4": map[string]interface{}{"kk1": "s", "kk2": NumberLiteral("2")},
 }
 
 type tx struct {
@@ -222,10 +222,10 @@ var unmarshalTests = []unmarshalTest{
 	{in: `1`, ptr: new(int), out: 1},
 	{in: `1.2`, ptr: new(float64), out: 1.2},
 	{in: `-5`, ptr: new(int16), out: int16(-5)},
-	{in: `2`, ptr: new(Number), out: Number("2"), useNumber: true},
-	{in: `2`, ptr: new(Number), out: Number("2")},
+	{in: `2`, ptr: new(NumberLiteral), out: NumberLiteral("2"), useNumber: true},
+	{in: `2`, ptr: new(NumberLiteral), out: NumberLiteral("2")},
 	{in: `2`, ptr: new(interface{}), out: float64(2.0)},
-	{in: `2`, ptr: new(interface{}), out: Number("2"), useNumber: true},
+	{in: `2`, ptr: new(interface{}), out: NumberLiteral("2"), useNumber: true},
 	{in: `"a\u1234"`, ptr: new(string), out: "a\u1234"},
 	{in: `"http:\/\/"`, ptr: new(string), out: "http://"},
 	{in: `"g-clef: \uD834\uDD1E"`, ptr: new(string), out: "g-clef: \U0001D11E"},
@@ -233,8 +233,8 @@ var unmarshalTests = []unmarshalTest{
 	{in: "null", ptr: new(interface{}), out: nil},
 	{in: `{"X": [1,2,3], "Y": 4}`, ptr: new(T), out: T{Y: 4}, err: &UnmarshalTypeError{"array", reflect.TypeOf("")}},
 	{in: `{"x": 1}`, ptr: new(tx), out: tx{}},
-	{in: `{"F1":1,"F2":2,"F3":3}`, ptr: new(V), out: V{F1: float64(1), F2: int32(2), F3: Number("3")}},
-	{in: `{"F1":1,"F2":2,"F3":3}`, ptr: new(V), out: V{F1: Number("1"), F2: int32(2), F3: Number("3")}, useNumber: true},
+	{in: `{"F1":1,"F2":2,"F3":3}`, ptr: new(V), out: V{F1: float64(1), F2: int32(2), F3: NumberLiteral("3")}},
+	{in: `{"F1":1,"F2":2,"F3":3}`, ptr: new(V), out: V{F1: NumberLiteral("1"), F2: int32(2), F3: NumberLiteral("3")}, useNumber: true},
 	{in: `{"k1":1,"k2":"s","k3":[1,2.0,3e-3],"k4":{"kk1":"s","kk2":2}}`, ptr: new(interface{}), out: ifaceNumAsFloat64},
 	{in: `{"k1":1,"k2":"s","k3":[1,2.0,3e-3],"k4":{"kk1":"s","kk2":2}}`, ptr: new(interface{}), out: ifaceNumAsNumber, useNumber: true},
 
@@ -458,14 +458,14 @@ func TestMarshalBadUTF8(t *testing.T) {
 }
 
 func TestMarshalNumberZeroVal(t *testing.T) {
-	var n Number
+	var n NumberLiteral
 	out, err := Marshal(n)
 	if err != nil {
 		t.Fatal(err)
 	}
 	outStr := string(out)
 	if outStr != "0" {
-		t.Fatalf("Invalid zero val for Number: %q", outStr)
+		t.Fatalf("Invalid zero val for NumberLiteral: %q", outStr)
 	}
 }
 
@@ -598,22 +598,22 @@ var numberTests = []struct {
 	{in: "1e1000", intErr: "strconv.ParseInt: parsing \"1e1000\": invalid syntax", floatErr: "strconv.ParseFloat: parsing \"1e1000\": value out of range"},
 }
 
-// Independent of Decode, basic coverage of the accessors in Number
+// Independent of Decode, basic coverage of the accessors in NumberLiteral
 func TestNumberAccessors(t *testing.T) {
 	for _, tt := range numberTests {
-		n := Number(tt.in)
+		n := NumberLiteral(tt.in)
 		if s := n.String(); s != tt.in {
-			t.Errorf("Number(%q).String() is %q", tt.in, s)
+			t.Errorf("NumberLiteral(%q).String() is %q", tt.in, s)
 		}
 		if i, err := n.Int64(); err == nil && tt.intErr == "" && i != tt.i {
-			t.Errorf("Number(%q).Int64() is %d", tt.in, i)
+			t.Errorf("NumberLiteral(%q).Int64() is %d", tt.in, i)
 		} else if (err == nil && tt.intErr != "") || (err != nil && err.Error() != tt.intErr) {
-			t.Errorf("Number(%q).Int64() wanted error %q but got: %v", tt.in, tt.intErr, err)
+			t.Errorf("NumberLiteral(%q).Int64() wanted error %q but got: %v", tt.in, tt.intErr, err)
 		}
 		if f, err := n.Float64(); err == nil && tt.floatErr == "" && f != tt.f {
-			t.Errorf("Number(%q).Float64() is %g", tt.in, f)
+			t.Errorf("NumberLiteral(%q).Float64() is %g", tt.in, f)
 		} else if (err == nil && tt.floatErr != "") || (err != nil && err.Error() != tt.floatErr) {
-			t.Errorf("Number(%q).Float64() wanted error %q but got: %v", tt.in, tt.floatErr, err)
+			t.Errorf("NumberLiteral(%q).Float64() wanted error %q but got: %v", tt.in, tt.floatErr, err)
 		}
 	}
 }

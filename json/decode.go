@@ -207,19 +207,19 @@ func (d *decodeState) unmarshalValue(rv reflect.Value, context *ctx, unmarshaler
 	return d.savedError
 }
 
-// A Number represents a JSON number literal.
-type Number string
+// A NumberLiteral represents a JSON number literal.
+type NumberLiteral string
 
 // String returns the literal text of the number.
-func (n Number) String() string { return string(n) }
+func (n NumberLiteral) String() string { return string(n) }
 
 // Float64 returns the number as a float64.
-func (n Number) Float64() (float64, error) {
+func (n NumberLiteral) Float64() (float64, error) {
 	return strconv.ParseFloat(string(n), 64)
 }
 
 // Int64 returns the number as an int64.
-func (n Number) Int64() (int64, error) {
+func (n NumberLiteral) Int64() (int64, error) {
 	return strconv.ParseInt(string(n), 10, 64)
 }
 
@@ -955,11 +955,11 @@ func (d *decodeState) literal(v reflect.Value, context *ctx, unmarshalers bool) 
 	d.literalStore(d.data[start:d.off], v, false, context, unmarshalers)
 }
 
-// convertNumber converts the number literal s to a float64 or a Number
+// convertNumber converts the number literal s to a float64 or a NumberLiteral
 // depending on the setting of d.useNumber.
 func (d *decodeState) convertNumber(s string) (interface{}, error) {
 	if d.useNumber {
-		return Number(s), nil
+		return NumberLiteral(s), nil
 	}
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
@@ -968,7 +968,7 @@ func (d *decodeState) convertNumber(s string) (interface{}, error) {
 	return f, nil
 }
 
-var numberType = reflect.TypeOf(Number(""))
+var numberType = reflect.TypeOf(NumberLiteral(""))
 
 // literalStore decodes a literal stored in item into v.
 //

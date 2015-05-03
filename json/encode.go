@@ -38,7 +38,7 @@ import (
 //
 // Boolean values encode as JSON booleans.
 //
-// Floating point, integer, and Number values encode as JSON numbers.
+// Floating point, integer, and NumberLiteral values encode as JSON numbers.
 //
 // String values encode as JSON strings coerced to valid UTF-8,
 // replacing invalid bytes with the Unicode replacement rune.
@@ -533,7 +533,7 @@ func stringEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	if v.Type() == numberType {
 		numStr := v.String()
 		if numStr == "" {
-			numStr = "0" // Number's zero-val
+			numStr = "0" // NumberLiteral's zero-val
 		}
 		e.WriteString(numStr)
 		return
