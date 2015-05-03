@@ -711,6 +711,8 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		parts := strings.Split(typeString, ":")
 		if parts[0] == "system" {
 			return "kego.io/system", parts[1], nil
+		} else if parts[0] == "json" {
+			return "kego.io/json", parts[1], nil
 		}
 		packagePath, ok := imports[parts[0]]
 		if !ok {
