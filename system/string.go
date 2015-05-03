@@ -14,13 +14,6 @@ type String struct {
 func NewString(s string) String {
 	return String{Value: s, Exists: true}
 }
-func NewStringMap(m map[string]string) map[string]String {
-	var o = make(map[string]String, len(m))
-	for name, value := range m {
-		o[name] = NewString(value)
-	}
-	return o
-}
 
 func (out *String) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
@@ -29,6 +22,7 @@ func (out *String) UnmarshalJSON(in []byte, path string, imports map[string]stri
 	}
 	if s == nil {
 		out.Exists = false
+		out.Value = ""
 	} else {
 		out.Exists = true
 		out.Value = *s
