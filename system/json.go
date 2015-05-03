@@ -61,7 +61,7 @@ func init() {
 			Extends:    or,
 			Interface:  false,
 			Is:         []Reference(nil),
-			Native:     NewString("bool"),
+			Native:     NewString(name),
 			Properties: map[string]*Property(nil),
 			Rule:       makeRule(name)}
 	}
