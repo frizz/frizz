@@ -315,8 +315,8 @@ func TestContext(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, "a", f.Bar)
-	assert.Equal(t, "kego.io/system", f.Context.Package.Value)
-	assert.Equal(t, "e.f/g", f.Context.Imports["d"].Value)
+	assert.Equal(t, "kego.io/system", f.Context.Package)
+	assert.Equal(t, "e.f/g", f.Context.Imports["d"])
 
 	// Clean up for the tests - don't normally need to unregister types
 	json.UnregisterType("kego.io/system:foo")

@@ -26,7 +26,7 @@ func init() {
 	json.RegisterType("kego.io/json:@string", reflect.TypeOf(&JsonString_rule{}))
 	json.RegisterType("kego.io/json:@bool", reflect.TypeOf(&JsonBool_rule{}))
 
-	c := Context{Imports: map[string]String{}, Package: String{Value: "kego.io/json", Exists: true}}
+	c := Context{Imports: map[string]string{}, Package: "kego.io/json"}
 	t := Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}
 	o := Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}
 	rule := func(name string) *Type {

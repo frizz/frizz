@@ -8,7 +8,7 @@
 			"description": "The path of the local package.",
 			"type": "property",
 			"item": {
-				"type": "@string"
+				"type": "json:@string"
 			}
 		},
 		"imports": {
@@ -17,7 +17,7 @@
 			"item": {
 				"type": "@map",
 				"items": {
-					"type": "@string"
+					"type": "json:@string"
 				}
 			}
 		}
