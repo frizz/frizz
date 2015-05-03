@@ -24,7 +24,7 @@ func init() {
 		"import":    importStatement,
 		"ternary":   ternary,
 		"map":       mapHelper,
-		"reference": makeReference,
+		"reference": system.GoReference,
 	}
 	tpl = template.New("foo.tmpl").Funcs(funcMap)
 	for templateName, templateAssetUnpackerFunction := range _bindata {
@@ -119,19 +119,4 @@ func mapHelper(values ...interface{}) (map[string]interface{}, error) {
 		dict[key] = values[i+1]
 	}
 	return dict, nil
-}
-
-func makeReference(name string, path string, imports map[string]string, localPath string) (string, error) {
-	if path == localPath {
-		return name, nil
-	}
-	if path == "kego.io/system" {
-		return fmt.Sprintf("system.%s", name), nil
-	}
-	for alias, importPath := range imports {
-		if path == importPath {
-			return fmt.Sprintf("%s.%s", alias, name), nil
-		}
-	}
-	return "", fmt.Errorf("Error in process.makeReference: Can't find %v in imports.\n", path)
 }
