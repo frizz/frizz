@@ -237,8 +237,7 @@ func TestUnknownRule(t *testing.T) {
 
 	b, err := f.Properties["foo"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:bool\\\",\\\"value\\\":true,\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", b)
-	//
+	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"value\\\":true}}\"`", b)
 
 	r, err := f.Properties["ref"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)

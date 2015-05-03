@@ -29,13 +29,26 @@ func getTag(r *RuleHolder) (string, error) {
 		}
 
 		defaultRaw := json.RawMessage(defaultBytes)
-		tag := json.KegoTag{
-			Default: &json.KegoDefault{
-				Value:   &defaultRaw,
-				Path:    r.path,
-				Imports: r.imports,
-				Type:    r.parentType.FullName(),
-			},
+		t := r.parentType.FullName()
+		var tag json.KegoTag
+		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
+			// If our default is one of the basic system native types, we know we can unmarshal it without
+			// the extra context, so we omit type, path and imports. This makes the generated code easier to
+			// understand.
+			tag = json.KegoTag{
+				Default: &json.KegoDefault{
+					Value: &defaultRaw,
+				},
+			}
+		} else {
+			tag = json.KegoTag{
+				Default: &json.KegoDefault{
+					Value:   &defaultRaw,
+					Path:    r.path,
+					Imports: r.imports,
+					Type:    t,
+				},
+			}
 		}
 
 		jsonBytes, err := json.Marshal(tag)

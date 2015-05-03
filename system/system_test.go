@@ -61,12 +61,56 @@ func TestNative(t *testing.T) {
 func TestNativeDefaults(t *testing.T) {
 
 	type Foo struct {
-		StrHere    String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
-		NumHere    Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":2,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
-		BolHere    Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
-		StrDefault String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"b\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
-		NumDefault Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":3,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
-		BolDefault Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		StrHere    String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\"}}"`
+		NumHere    Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":2,\"path\":\"kego.io/system\"}}"`
+		BolHere    Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
+		StrDefault String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"b\",\"path\":\"kego.io/system\"}}"`
+		NumDefault Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":3,\"path\":\"kego.io/system\"}}"`
+		BolDefault Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
+	}
+
+	data := `{
+		"type": "foo",
+		"strHere": "c",
+		"numHere": 4,
+		"bolHere": false
+	}`
+
+	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+
+	var i interface{}
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	f, ok := i.(*Foo)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, f)
+	assert.True(t, f.StrHere.Exists)
+	assert.True(t, f.NumHere.Exists)
+	assert.True(t, f.BolHere.Exists)
+	assert.True(t, f.StrDefault.Exists)
+	assert.True(t, f.NumDefault.Exists)
+	assert.True(t, f.BolDefault.Exists)
+	assert.Equal(t, "c", f.StrHere.Value)
+	assert.Equal(t, 4.0, f.NumHere.Value)
+	assert.Equal(t, false, f.BolHere.Value)
+	assert.Equal(t, "b", f.StrDefault.Value)
+	assert.Equal(t, 3.0, f.NumDefault.Value)
+	assert.Equal(t, true, f.BolDefault.Value)
+
+	// Clean up for the tests - don't normally need to unregister types
+	json.UnregisterType("kego.io/system:foo")
+
+}
+
+func TestNativeDefaultsShort(t *testing.T) {
+
+	type Foo struct {
+		StrHere    String `kego:"{\"default\":{\"value\":\"a\"}}"`
+		NumHere    Number `kego:"{\"default\":{\"value\":2}}"`
+		BolHere    Bool   `kego:"{\"default\":{\"value\":true}}"`
+		StrDefault String `kego:"{\"default\":{\"value\":\"b\"}}"`
+		NumDefault Number `kego:"{\"default\":{\"value\":3}}"`
+		BolDefault Bool   `kego:"{\"default\":{\"value\":true}}"`
 	}
 
 	data := `{
