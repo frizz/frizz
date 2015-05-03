@@ -85,7 +85,7 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !r.parentType.IsNativeCollection() {
-		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: parentType %s is not a collection\n", r.parentType.Id.Value)
+		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: parentType %s is not a collection\n", r.parentType.Id)
 	}
 	items, _, ok, err := ruleFieldByReflection(r.rule, "Items")
 	if err != nil {

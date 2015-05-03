@@ -16,7 +16,7 @@
 			"type": "property",
 			"optional": true,
 			"item": {
-				"type": "@string"
+				"type": "json:@string"
 			}
 		},
 		"description": {
@@ -24,7 +24,7 @@
 			"type": "property",
 			"optional": true,
 			"item": {
-				"type": "@string"
+				"type": "json:@string"
 			}
 		},
 		"context": {

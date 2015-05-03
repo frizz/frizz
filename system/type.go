@@ -57,11 +57,11 @@ func (t *Type) NativeValueGolangType() (string, error) {
 }
 
 func (t *Type) GoName() string {
-	return IdToGoName(t.Id.Value)
+	return IdToGoName(t.Id)
 }
 
 func (t *Type) FullName() string {
-	return fmt.Sprintf("%s:%s", t.Context.Package, t.Id.Value)
+	return fmt.Sprintf("%s:%s", t.Context.Package, t.Id)
 }
 
 // GoTypeReference outputs a Go source code reference to the name of this type. If we're in
@@ -69,7 +69,7 @@ func (t *Type) FullName() string {
 // it looks up the alias of the package in the imports and appends that to the start.
 // e.g. "system.Object".
 func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
-	return IdToGoReference(t.Id.Value, t.Context.Package, imports, path)
+	return IdToGoReference(t.Id, t.Context.Package, imports, path)
 }
 
 func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {

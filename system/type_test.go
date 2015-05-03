@@ -38,11 +38,10 @@ func TestBool(t *testing.T) {
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.Description.Exists)
-	assert.Equal(t, "This is the native json bool data type", f.Description.Value)
+	assert.Equal(t, "This is the native json bool data type", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "bool", f.Native.Value)
-	assert.Equal(t, "@bool", f.Rule.Id.Value)
+	assert.Equal(t, "@bool", f.Rule.Id)
 
 }
 
@@ -125,13 +124,11 @@ func TestType(t *testing.T) {
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.Description.Exists)
-	assert.Equal(t, "This is the most basic type.", f.Description.Value)
+	assert.Equal(t, "This is the most basic type.", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "object", f.Native.Value)
-	assert.Equal(t, "@type", f.Rule.Id.Value)
-	assert.True(t, f.Properties["interface"].Description.Exists)
-	assert.Equal(t, "Is this type an interface?", f.Properties["interface"].Description.Value)
+	assert.Equal(t, "@type", f.Rule.Id)
+	assert.Equal(t, "Is this type an interface?", f.Properties["interface"].Description)
 	assert.Equal(t, true, f.Properties["interface"].Optional.Value)
 	r, ok := f.Properties["interface"].Item.(*Bool_rule)
 	assert.True(t, ok, "Wrong type %T\n", f.Properties["interface"].Item)
@@ -179,10 +176,10 @@ func unmarshalDiagram(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, d)
 
-	fullname := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Id.Value)
+	fullname := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Id)
 	RegisterType(fullname, d)
 	if d.Rule != nil {
-		rulename := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Rule.Id.Value)
+		rulename := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Rule.Id)
 		RegisterType(rulename, d.Rule)
 	}
 

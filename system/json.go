@@ -33,7 +33,7 @@ func init() {
 		return &Type{
 			Object: &Object{
 				Context: &c,
-				Id:      String{Value: fmt.Sprintf("@%s", name), Exists: true},
+				Id:      fmt.Sprintf("@%s", name),
 				Type:    t},
 			Extends:    o,
 			Interface:  Bool{Value: false, Exists: true},
@@ -46,7 +46,7 @@ func init() {
 		return &Type{
 			Object: &Object{
 				Context: &c,
-				Id:      String{Value: name, Exists: true},
+				Id:      name,
 				Type:    t},
 			Extends:    o,
 			Interface:  Bool{Value: false, Exists: true},
