@@ -48,7 +48,7 @@ func Scan(dir string, packageName string, packagePath string, imports map[string
 						Is:        []system.Reference{system.NewReference("kego.io/system", "rule")},
 						Extends:   system.NewReference("kego.io/system", "object"),
 						Native:    system.NewString("object"),
-						Interface: system.NewBool(false),
+						Interface: false,
 					}
 					types[rulename] = rule
 					system.RegisterType(rulename, rule)

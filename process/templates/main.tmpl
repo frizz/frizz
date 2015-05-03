@@ -29,7 +29,7 @@ import (
 	//*** {{ $name }} ***
 	//***********************************************************
 
-	{{ if not $type.Interface.Value }}
+	{{ if not $type.Interface }}
 		{{/* We don't need these bits for interface types */}}
 		{{ template "struct.tmpl" $vars }}
 	{{ end }}
@@ -37,7 +37,7 @@ import (
 
 func init() {
 	{{ range $typeName, $type := .Types }}
-		{{ if not $type.Interface.Value }}
+		{{ if not $type.Interface }}
 			json.RegisterType({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
 		{{ end }}
 		{{ reference "RegisterType" "kego.io/system" $imports $packagePath }}({{ $typeName | quote }}, &{{ $type.GoSyntax $packagePath $imports }})
