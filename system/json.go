@@ -8,6 +8,14 @@ import (
 	"kego.io/json"
 )
 
+/*
+	This file simulates the json package having minimal native types for number,
+	string and bool types. They can't actually be in the json package because it
+	would cause an import loop to be able to use the system types object,
+	property, reference etc. This is a special case to support native json types,
+	and a kluge like this shouldn't be needed in normal usage.
+*/
+
 type JsonNumber_rule struct {
 	*Object
 }
@@ -19,48 +27,50 @@ type JsonBool_rule struct {
 }
 
 func init() {
-	json.RegisterType("kego.io/json:number", reflect.TypeOf(1.1))
-	json.RegisterType("kego.io/json:string", reflect.TypeOf(""))
-	json.RegisterType("kego.io/json:bool", reflect.TypeOf(true))
+	json.RegisterType("kego.io/json:number", reflect.TypeOf(float64(1.1)))
+	json.RegisterType("kego.io/json:string", reflect.TypeOf(string("")))
+	json.RegisterType("kego.io/json:bool", reflect.TypeOf(bool(true)))
 	json.RegisterType("kego.io/json:@number", reflect.TypeOf(&JsonNumber_rule{}))
 	json.RegisterType("kego.io/json:@string", reflect.TypeOf(&JsonString_rule{}))
 	json.RegisterType("kego.io/json:@bool", reflect.TypeOf(&JsonBool_rule{}))
 
 	c := Context{Imports: map[string]string{}, Package: "kego.io/json"}
-	t := Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}
-	o := Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}
-	rule := func(name string) *Type {
+	tr := NewReference("kego.io/system", "type")
+	or := NewReference("kego.io/system", "object")
+
+	makeRule := func(name string) *Type {
 		return &Type{
 			Object: &Object{
 				Context: &c,
 				Id:      fmt.Sprintf("@%s", name),
-				Type:    t},
-			Extends:    o,
+				Type:    tr},
+			Extends:    or,
 			Interface:  false,
-			Is:         []Reference{Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}},
-			Native:     String{Value: "object", Exists: true},
+			Is:         []Reference{NewReference("kego.io/system", "rule")},
+			Native:     NewString("object"),
 			Properties: map[string]*Property{},
 			Rule:       (*Type)(nil)}
 	}
-	minimal := func(name string) *Type {
+
+	makeType := func(name string) *Type {
 		return &Type{
 			Object: &Object{
 				Context: &c,
 				Id:      name,
-				Type:    t},
-			Extends:    o,
+				Type:    tr},
+			Extends:    or,
 			Interface:  false,
 			Is:         []Reference(nil),
-			Native:     String{Value: "bool", Exists: true},
+			Native:     NewString("bool"),
 			Properties: map[string]*Property(nil),
-			Rule:       rule(name)}
+			Rule:       makeRule(name)}
 	}
 
-	RegisterType("kego.io/json:string", minimal("string"))
-	RegisterType("kego.io/json:number", minimal("number"))
-	RegisterType("kego.io/json:bool", minimal("bool"))
-	RegisterType("kego.io/json:@string", rule("string"))
-	RegisterType("kego.io/json:@number", rule("number"))
-	RegisterType("kego.io/json:@bool", rule("bool"))
+	RegisterType("kego.io/json:string", makeType("string"))
+	RegisterType("kego.io/json:number", makeType("number"))
+	RegisterType("kego.io/json:bool", makeType("bool"))
+	RegisterType("kego.io/json:@string", makeRule("string"))
+	RegisterType("kego.io/json:@number", makeRule("number"))
+	RegisterType("kego.io/json:@bool", makeRule("bool"))
 
 }
