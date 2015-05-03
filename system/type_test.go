@@ -129,7 +129,7 @@ func TestType(t *testing.T) {
 	assert.Equal(t, "object", f.Native.Value)
 	assert.Equal(t, "@type", f.Rule.Id)
 	assert.Equal(t, "Is this type an interface?", f.Properties["interface"].Description)
-	assert.Equal(t, true, f.Properties["interface"].Optional.Value)
+	assert.Equal(t, true, f.Properties["interface"].Optional)
 	r, ok := f.Properties["interface"].Item.(*Bool_rule)
 	assert.True(t, ok, "Wrong type %T\n", f.Properties["interface"].Item)
 	assert.True(t, r.Default.Exists)

@@ -78,7 +78,7 @@ func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {
 
 func (t *Type) Defaulter() (name string, property *Property, ok bool) {
 	for name, prop := range t.Properties {
-		if prop.Defaulter.Value {
+		if prop.Defaulter {
 			return name, prop, true
 		}
 	}
