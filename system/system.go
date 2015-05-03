@@ -9,19 +9,36 @@ import (
 
 func IdToGoReference(id string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {
 	typeName := IdToGoName(id)
+	return GoReference(typeName, packagePath, localImports, localPackagePath)
+}
+func GoReference(typeName string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {
 	if packagePath == localPackagePath {
 		return typeName, nil
-	} else {
-		if packagePath == "kego.io/system" {
-			return fmt.Sprintf("system.%v", typeName), nil
-		}
-		for alias, path := range localImports {
-			if packagePath == path {
-				return fmt.Sprintf("%v.%v", alias, typeName), nil
-			}
-		}
-		return "", fmt.Errorf("Error in system.IdToGoReference: package path %v not found in local context imports.\n", packagePath)
 	}
+	if packagePath == "kego.io/json" {
+		if typeName == "String" {
+			// Built-in native json string type
+			return "string", nil
+		}
+		if typeName == "Number" {
+			// Built-in native json number type
+			return "float64", nil
+		}
+		if typeName == "Bool" {
+			// Built-in native json bool type
+			return "bool", nil
+		}
+		return fmt.Sprintf("json.%v", typeName), nil
+	}
+	if packagePath == "kego.io/system" {
+		return fmt.Sprintf("system.%v", typeName), nil
+	}
+	for alias, path := range localImports {
+		if packagePath == path {
+			return fmt.Sprintf("%v.%v", alias, typeName), nil
+		}
+	}
+	return "", fmt.Errorf("Error in system.IdToGoReference: package path %v not found in local context imports.\n", packagePath)
 }
 
 func IdToGoName(id string) string {
