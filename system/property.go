@@ -13,7 +13,7 @@ func (p *Property) GoName(name string) string {
 
 func getPointer(t *Type) string {
 	isNative := t.IsNativeValue()
-	isInterface := t.Interface.Value
+	isInterface := t.Interface
 	if !isNative && !isInterface {
 		return "*"
 	}

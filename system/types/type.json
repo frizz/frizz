@@ -38,8 +38,7 @@
 			"type": "property",
 			"optional": true,
 			"item": {
-				"type": "@bool",
-				"default": false
+				"type": "json:@bool"
 			}
 		},
 		"properties": {
