@@ -11,6 +11,10 @@ type Number struct {
 	Exists bool
 }
 
+func NewNumber(n float64) Number {
+	return Number{Value: n, Exists: true}
+}
+
 func (out *Number) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var f *float64
 	if err := json.UnmarshalPlain(in, &f, path, imports); err != nil {
@@ -18,6 +22,7 @@ func (out *Number) UnmarshalJSON(in []byte, path string, imports map[string]stri
 	}
 	if f == nil {
 		out.Exists = false
+		out.Value = 0.0
 	} else {
 		out.Exists = true
 		out.Value = *f
