@@ -19,7 +19,7 @@ import (
 
 {{ range $typeName, $type := .Types }}
 
-	{{ $name := $type.Id.Value }}
+	{{ $name := $type.Id }}
 	{{ $full := $typeName }}
 	{{ $go := $type.GoName }}
 

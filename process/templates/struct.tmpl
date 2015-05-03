@@ -1,7 +1,7 @@
 {{ $package := .package }}
 {{ $imports := .imports }}
 {{ if not .type.IsNativeValue }}
-{{ if .type.Description.Exists }}// {{ .type.Description.Value }}{{ end }}
+{{ if not (eq .type.Description "") }}// {{ .type.Description }}{{ end }}
 type {{ .go }} struct {
 
 	{{ if .type.HasExtends }}
@@ -9,7 +9,7 @@ type {{ .go }} struct {
 	{{ end }}
 
 	{{ range $propertyName, $property := .type.Properties }}
-	{{ if $property.Description.Exists }}// {{ $property.Description.Value }}{{ end }}
+	{{ if not (eq $property.Description "") }}// {{ $property.Description }}{{ end }}
 	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $package $imports }}
 	{{ end }}
 }
