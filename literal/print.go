@@ -148,8 +148,11 @@ func GetName(t reflect.Type, path string, imports map[string]string) string {
 	} else if path == t.PkgPath() {
 		// Types in the local package
 		return t.Name()
+	} else if t.PkgPath() == "kego.io/json" {
+		// Types in the built in json package
+		return Sprintf("json.%s", t.Name())
 	} else if t.PkgPath() == "kego.io/system" {
-		// Types in the system package
+		// Types in the built in system package
 		return Sprintf("system.%s", t.Name())
 	} else {
 		// Types in an imported package
