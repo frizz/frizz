@@ -49,7 +49,13 @@ func main() {
 }
 
 func GetPackage(dir string) (string, error) {
-	return getPackage(dir, os.Getenv("GOPATH"))
+	gopath := os.Getenv("GOPATH")
+	if strings.HasPrefix(gopath, "file://") {
+		// This is to fix a bug when running the code in IntelliJ. This can be removed when the
+		// bug is fixed: https://github.com/go-lang-plugin-org/go-lang-idea-plugin/issues/1600
+		gopath = gopath[7:]
+	}
+	return getPackage(dir, gopath)
 }
 func getPackage(dir string, gopathEnv string) (string, error) {
 	gopaths := filepath.SplitList(gopathEnv)
