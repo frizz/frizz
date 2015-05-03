@@ -127,34 +127,40 @@ type pp struct {
 }
 
 func (p *pp) WriteName(t reflect.Type) {
-	//Printf("%v %v\n", t.Name(), t.PkgPath())
-	if t.Kind() == reflect.Map {
-		p.buf.WriteString("map[string]")
-		p.WriteName(t.Elem())
+	p.buf.WriteString(GetName(t, p.localPackage, p.imports))
+}
+func GetName(t reflect.Type, path string, imports map[string]string) string {
+	if path == "" {
+		// If we haven't provided a local package, just print the name using Stringer.
+		return t.String()
+	} else if t.Kind() == reflect.Map {
+		// Slices get brackets and we recursively call GetName for the key type and elem type
+		return Sprintf("map[%s]%s", GetName(t.Key(), path, imports), GetName(t.Elem(), path, imports))
 	} else if t.Kind() == reflect.Slice {
-		p.buf.WriteString("[]")
-		p.WriteName(t.Elem())
+		// Slices get brackets and we recursively call GetName
+		return Sprintf("[]%s", GetName(t.Elem(), path, imports))
 	} else if t.Kind() == reflect.Ptr {
-		p.buf.WriteString("*")
-		p.WriteName(t.Elem())
-	} else if p.localPackage == t.PkgPath() {
-		p.buf.WriteString(t.Name())
+		// Pointers get an asterisk and we recursively call GetName
+		return Sprintf("*%s", GetName(t.Elem(), path, imports))
+	} else if t.PkgPath() == "" {
+		// Native types: string, float64, bool etc.
+		return t.String()
+	} else if path == t.PkgPath() {
+		// Types in the local package
+		return t.Name()
+	} else if t.PkgPath() == "kego.io/system" {
+		// Types in the system package
+		return Sprintf("system.%s", t.Name())
 	} else {
-		if t.PkgPath() == "kego.io/system" {
-			p.buf.WriteString("system.")
-			p.buf.WriteString(t.Name())
-			return
-		}
-		for alias, path := range p.imports {
+		// Types in an imported package
+		for alias, path := range imports {
 			if t.PkgPath() == path {
-				p.buf.WriteString(alias)
-				p.buf.WriteString(".")
-				p.buf.WriteString(t.Name())
-				return
+				return Sprintf("%s.%s", alias, t.Name())
 			}
 		}
-		p.buf.WriteString(t.String())
 	}
+	// Anything else panics
+	panic(Errorf("Package %s not found in imports!", t.PkgPath()))
 }
 
 var ppFree = sync.Pool{
@@ -166,6 +172,8 @@ func newPrinter() *pp {
 	p := ppFree.Get().(*pp)
 	p.panicking = false
 	p.erroring = false
+	p.localPackage = ""
+	p.imports = nil
 	p.fmt.init(&p.buf)
 	return p
 }
