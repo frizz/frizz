@@ -22,6 +22,7 @@ func (out *Bool) UnmarshalJSON(in []byte, path string, imports map[string]string
 	}
 	if b == nil {
 		out.Exists = false
+		out.Value = false
 	} else {
 		out.Exists = true
 		out.Value = *b
