@@ -42,3 +42,10 @@ func (s *String) MarshalJSON() ([]byte, error) {
 	}
 	return []byte(strconv.Quote(s.Value)), nil
 }
+
+func (s *String) String() string {
+	if !s.Exists {
+		return ""
+	}
+	return s.Value
+}

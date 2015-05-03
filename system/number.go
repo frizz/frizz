@@ -29,5 +29,16 @@ func (n *Number) MarshalJSON() ([]byte, error) {
 	if !n.Exists {
 		return []byte("null"), nil
 	}
-	return []byte(strconv.FormatFloat(n.Value, 'f', -1, 64)), nil
+	return []byte(formatFloat(n.Value)), nil
+}
+
+func (n *Number) String() string {
+	if !n.Exists {
+		return ""
+	}
+	return formatFloat(n.Value)
+}
+
+func formatFloat(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }

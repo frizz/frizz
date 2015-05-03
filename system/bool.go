@@ -33,5 +33,16 @@ func (b *Bool) MarshalJSON() ([]byte, error) {
 	if !b.Exists {
 		return []byte("null"), nil
 	}
-	return []byte(fmt.Sprintf("%v", b.Value)), nil
+	return []byte(formatBool(b.Value)), nil
+}
+
+func (b *Bool) String() string {
+	if !b.Exists {
+		return ""
+	}
+	return formatBool(b.Value)
+}
+
+func formatBool(b bool) string {
+	return fmt.Sprintf("%v", b)
 }
