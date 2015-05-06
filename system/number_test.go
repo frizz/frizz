@@ -26,6 +26,9 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 	assert.False(t, n.Exists)
 	assert.Equal(t, 0.0, n.Value)
 
+	err = n.UnmarshalJSON([]byte("foo"), "", map[string]string{})
+	assert.Error(t, err)
+
 }
 
 func TestNumberMarshalJSON(t *testing.T) {

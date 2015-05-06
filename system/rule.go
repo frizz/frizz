@@ -120,5 +120,25 @@ func ruleFieldByReflection(object interface{}, name string) (value interface{}, 
 		return nil, nil, false, nil
 		//return nil, fmt.Errorf("Error in FieldByReflection(%s): val.Elem() does not have field.\n", name)
 	}
-	return field.Interface(), field.Addr().Interface(), true, nil
+	if field.Kind() == reflect.Ptr {
+		// If it's a pointer we should only return not found if
+		// it's nil:
+		if field.IsNil() {
+			return nil, nil, false, nil
+		}
+	} else {
+		// If it's not a pointer, we return not found if it's an
+		// zero value
+		nilValue := reflect.Zero(field.Type())
+		if field.Interface() == nilValue.Interface() {
+			return nil, nil, false, nil
+		}
+	}
+	// This prevents **Foo being returned for pointer when value is already *Foo
+	if field.Kind() == reflect.Ptr {
+		pointer = field.Interface()
+	} else {
+		pointer = field.Addr().Interface()
+	}
+	return field.Interface(), pointer, true, nil
 }

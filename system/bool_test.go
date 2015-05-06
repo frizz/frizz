@@ -31,6 +31,9 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 	assert.False(t, b.Exists)
 	assert.False(t, b.Value)
 
+	err = b.UnmarshalJSON([]byte("foo"), "", map[string]string{})
+	assert.Error(t, err)
+
 }
 func TestBoolMarshalJSON(t *testing.T) {
 

@@ -20,44 +20,44 @@ func getPointer(t *Type) string {
 	return ""
 }
 
-func getTag(r *RuleHolder) (string, error) {
+func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 
-	formatTag := func(defaultBytes []byte) (string, error) {
-
-		if string(defaultBytes) == "null" {
-			return "", nil
-		}
-
-		defaultRaw := json.RawMessage(defaultBytes)
-		t := r.parentType.FullName()
-		var tag json.KegoTag
-		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
-			// If our default is one of the basic system native types, we know we can unmarshal it without
-			// the extra context, so we omit type, path and imports. This makes the generated code easier to
-			// understand.
-			tag = json.KegoTag{
-				Default: &json.KegoDefault{
-					Value: &defaultRaw,
-				},
-			}
-		} else {
-			tag = json.KegoTag{
-				Default: &json.KegoDefault{
-					Value:   &defaultRaw,
-					Path:    r.path,
-					Imports: r.imports,
-					Type:    t,
-				},
-			}
-		}
-
-		jsonBytes, err := json.Marshal(tag)
-		if err != nil {
-			return "", fmt.Errorf("Error in property.getTag: json.Marshal(tag) returned an error:\n%v\n", err)
-		}
-
-		return fmt.Sprintf("`kego:%s`", strconv.Quote(string(jsonBytes))), nil
+	if string(defaultBytes) == "null" {
+		return "", nil
 	}
+
+	defaultRaw := json.RawMessage(defaultBytes)
+	t := r.parentType.FullName()
+	var tag json.KegoTag
+	if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
+		// If our default is one of the basic system native types, we know we can unmarshal it without
+		// the extra context, so we omit type, path and imports. This makes the generated code easier to
+		// understand.
+		tag = json.KegoTag{
+			Default: &json.KegoDefault{
+				Value: &defaultRaw,
+			},
+		}
+	} else {
+		tag = json.KegoTag{
+			Default: &json.KegoDefault{
+				Value:   &defaultRaw,
+				Path:    r.path,
+				Imports: r.imports,
+				Type:    t,
+			},
+		}
+	}
+
+	jsonBytes, err := json.Marshal(tag)
+	if err != nil {
+		return "", fmt.Errorf("Error in property.getTag: json.Marshal(tag) returned an error:\n%v\n", err)
+	}
+
+	return fmt.Sprintf("`kego:%s`", strconv.Quote(string(jsonBytes))), nil
+}
+
+func getTag(r *RuleHolder) (string, error) {
 
 	name, _, ok := r.ruleType.Defaulter()
 	if !ok {
@@ -77,7 +77,7 @@ func getTag(r *RuleHolder) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("Error in Property.getTag: json.Marshal (interface) returned an error:\n%v\n", err)
 		}
-		return formatTag(defaultBytes)
+		return formatTag(defaultBytes, r)
 	}
 
 	value, pointer, ok, err := ruleFieldByReflection(r.rule, IdToGoName(name))
@@ -87,19 +87,20 @@ func getTag(r *RuleHolder) (string, error) {
 	}
 
 	// If we have a marshaler, we have to call it manually
-	if um, ok := pointer.(json.Marshaler); ok {
-		defaultBytes, err := um.MarshalJSON()
+	if m, ok := pointer.(json.Marshaler); ok {
+		defaultBytes, err := m.MarshalJSON()
 		if err != nil {
 			return "", fmt.Errorf("Error in Property.getTag: um.MarshalJSON returned an error:\n%v\n", err)
 		}
-		return formatTag(defaultBytes)
+		return formatTag(defaultBytes, r)
 	}
 
 	defaultBytes, err := json.Marshal(value)
 	if err != nil {
 		return "", fmt.Errorf("Error in Property.getTag: json.Marshal (typed) returned an error:\n%v\n", err)
 	}
-	return formatTag(defaultBytes)
+
+	return formatTag(defaultBytes, r)
 }
 
 // GoTypeDescriptor returns the Go source for the definition of the type of this property
