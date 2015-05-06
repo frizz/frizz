@@ -20,6 +20,9 @@ func TestDecodeSimple(t *testing.T) {
 
 		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 
+		// Clean up for the tests - don't normally need to unregister types
+		defer UnregisterType("kego.io/json:foo")
+
 		var i interface{}
 		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
@@ -29,9 +32,6 @@ func TestDecodeSimple(t *testing.T) {
 		assert.Equal(t, "a", f.Foo)
 		assert.Equal(t, 2.0, f.Bar)
 		assert.Equal(t, true, f.Baz)
-
-		// Clean up for the tests - don't normally need to unregister types
-		UnregisterType("kego.io/json:foo")
 
 	}
 
@@ -72,7 +72,10 @@ func TestDecodeDefaults(t *testing.T) {
 			Baz bool    `kego:"{\"default\":{\"value\":true}}"`
 		}
 
-		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
+		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{})
+
+		// Clean up for the tests - don't normally need to unregister types
+		defer UnregisterType("kego.io/json:foo")
 
 		var i interface{}
 		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -83,9 +86,6 @@ func TestDecodeDefaults(t *testing.T) {
 		assert.Equal(t, strExpected, f.Foo)
 		assert.Equal(t, numExpected, f.Bar)
 		assert.Equal(t, boolExpected, f.Baz)
-
-		// Clean up for the tests - don't normally need to unregister types
-		UnregisterType("kego.io/json:foo")
 
 	}
 
@@ -136,6 +136,9 @@ func TestDecodeCollections(t *testing.T) {
 
 	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -154,9 +157,6 @@ func TestDecodeCollections(t *testing.T) {
 	assert.Equal(t, []string{"a", "b", "c"}, f.StringArray)
 	assert.Equal(t, []float64{1.0, 1.5, 2.0}, f.NumberArray)
 	assert.Equal(t, []bool{true, false, true}, f.BoolArray)
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
 
 }
 
@@ -177,6 +177,10 @@ func TestDecodeEmbed(t *testing.T) {
 		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 		RegisterType("kego.io/json:bar", reflect.TypeOf(&Bar{}))
 
+		// Clean up for the tests - don't normally need to unregister types
+		defer UnregisterType("kego.io/json:foo")
+		defer UnregisterType("kego.io/json:bar")
+
 		var i interface{}
 		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
@@ -187,9 +191,6 @@ func TestDecodeEmbed(t *testing.T) {
 		assert.Equal(t, 2.0, f.Embed.Number)
 		assert.Equal(t, true, f.Embed.Bool)
 
-		// Clean up for the tests - don't normally need to unregister types
-		UnregisterType("kego.io/json:foo")
-		UnregisterType("kego.io/json:bar")
 	}
 
 	// Standard
@@ -254,6 +255,10 @@ func TestDecodeEmbedCollections(t *testing.T) {
 	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 	RegisterType("kego.io/json:bar", reflect.TypeOf(&Bar{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json:bar")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -264,10 +269,6 @@ func TestDecodeEmbedCollections(t *testing.T) {
 	assert.Equal(t, "b", f.MapEmbed["b"].String)
 	assert.Equal(t, "c", f.ArrayEmbed[0].String)
 	assert.Equal(t, "d", f.ArrayEmbed[1].String)
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
-	UnregisterType("kego.io/json:bar")
 
 }
 
@@ -291,6 +292,10 @@ func TestDecodeComposition(t *testing.T) {
 	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 	RegisterType("kego.io/json:base", reflect.TypeOf(&Base{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json:base")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -299,10 +304,6 @@ func TestDecodeComposition(t *testing.T) {
 	assert.NotNil(t, f)
 	assert.Equal(t, "a", f.BaseString)
 	assert.Equal(t, "b", f.FooString)
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
-	UnregisterType("kego.io/json:base")
 
 }
 
@@ -342,6 +343,11 @@ func TestInterface(t *testing.T) {
 	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json:photo")
+	defer UnregisterType("kego.io/json:diagram")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -349,11 +355,6 @@ func TestInterface(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, "http://www.photos.com/a.jpg", f.Img.Url())
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
-	UnregisterType("kego.io/json:photo")
-	UnregisterType("kego.io/json:diagram")
 
 }
 
@@ -379,6 +380,11 @@ func TestNilInterface(t *testing.T) {
 	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json:photo")
+	defer UnregisterType("kego.io/json:diagram")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -388,11 +394,6 @@ func TestNilInterface(t *testing.T) {
 	p, ok := f.Iface.(*Photo)
 	assert.True(t, ok, "Type %T not correct", f.Iface)
 	assert.Equal(t, "http://www.photos.com/a.jpg", p.Url())
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
-	UnregisterType("kego.io/json:photo")
-	UnregisterType("kego.io/json:diagram")
 
 }
 
@@ -435,6 +436,11 @@ func TestInterfaceCollections(t *testing.T) {
 	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json:photo")
+	defer UnregisterType("kego.io/json:diagram")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -445,11 +451,6 @@ func TestInterfaceCollections(t *testing.T) {
 	assert.Equal(t, "http://www.diagrams.com/b.jpg", f.ImageArray[1].Url())
 	assert.Equal(t, "http://www.photos.com/c.jpg", f.ImageMap["c"].Url())
 	assert.Equal(t, "http://www.diagrams.com/d.jpg", f.ImageMap["d"].Url())
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
-	UnregisterType("kego.io/json:photo")
-	UnregisterType("kego.io/json:diagram")
 
 }
 
@@ -493,6 +494,11 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
 	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
 
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json:photo")
+	defer UnregisterType("kego.io/json:diagram")
+
 	var i interface{}
 	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
@@ -503,10 +509,5 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	assert.Equal(t, "http://www.diagrams.com/d.jpg", f.ImageMap["a"][1].Url())
 	assert.Equal(t, "http://www.photos.com/e.jpg", f.ImageMap["b"][0].Url())
 	assert.Equal(t, "http://www.diagrams.com/f.jpg", f.ImageMap["b"][1].Url())
-
-	// Clean up for the tests - don't normally need to unregister types
-	UnregisterType("kego.io/json:foo")
-	UnregisterType("kego.io/json:photo")
-	UnregisterType("kego.io/json:diagram")
 
 }
