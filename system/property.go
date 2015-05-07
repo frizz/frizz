@@ -109,24 +109,24 @@ func (p *Property) GoTypeDescriptor(path string, imports map[string]string) (str
 
 	outer, err := NewRuleHolder(p.Item, path, imports)
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: NewRuleHolder returned an error:\n%v\n", err)
+		return "", Err(err, "Property.GoTypeDescriptor", "NewRuleHolder")
 	}
 
 	prefix, inner, err := collectionPrefixInnerRule("", outer)
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: collectionPrefixInnerRule returned an error:\n%v\n", err)
+		return "", Err(err, "Property.GoTypeDescriptor", "collectionPrefixInnerRule")
 	}
 
 	pointer := getPointer(inner.parentType)
 
 	name, err := inner.parentType.GoTypeReference(path, imports)
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: inner.parentType.GoTypeReference returned an error:\n%v\n", err)
+		return "", Err(err, "Property.GoTypeDescriptor", "inner.parentType.GoTypeReference")
 	}
 
 	tag, err := getTag(inner)
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.GoTypeDescriptor: getTag returned an error:\n%v\n", err)
+		return "", Err(err, "Property.GoTypeDescriptor", "getTag")
 	}
 	if tag != "" {
 		tag = " " + tag
