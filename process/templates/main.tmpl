@@ -40,6 +40,6 @@ func init() {
 		{{ if not $type.Interface }}
 			json.RegisterType({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
 		{{ end }}
-		{{ reference "RegisterType" "kego.io/system" $imports $packagePath }}({{ $typeName | quote }}, &{{ $type.GoSyntax $packagePath $imports }})
+		{{ reference "RegisterType" "kego.io/system" $packagePath $imports }}({{ $typeName | quote }}, &{{ $type.GoSyntax $packagePath $imports }})
 	{{ end }}
 }

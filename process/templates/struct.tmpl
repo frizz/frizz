@@ -5,7 +5,7 @@
 type {{ .go }} struct {
 
 	{{ if .type.HasExtends }}
-		*{{ .type.Extends.GoReference $imports $package }}
+		*{{ .type.Extends.GoReference $package $imports }}
 	{{ end }}
 
 	{{ range $propertyName, $property := .type.Properties }}
