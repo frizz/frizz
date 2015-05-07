@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"kego.io/json"
+	"kego.io/uerr"
 )
 
 func (p *Property) GoName(name string) string {
@@ -51,7 +52,7 @@ func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 
 	jsonBytes, err := json.Marshal(tag)
 	if err != nil {
-		return "", Err(err, "property.formatTag", "json.Marshal(tag)")
+		return "", uerr.New("LKBWJTMJCF", err, "property.formatTag", "json.Marshal(tag)")
 	}
 
 	return fmt.Sprintf("`kego:%s`", strconv.Quote(string(jsonBytes))), nil
@@ -75,7 +76,7 @@ func getTag(r *RuleHolder) (string, error) {
 		}
 		defaultBytes, err := json.Marshal(di)
 		if err != nil {
-			return "", Err(err, "Property.getTag", "json.Marshal (interface)")
+			return "", uerr.New("FYMGUTAOCR", err, "Property.getTag", "json.Marshal (interface)")
 		}
 		return formatTag(defaultBytes, r)
 	}
@@ -90,14 +91,14 @@ func getTag(r *RuleHolder) (string, error) {
 	if m, ok := pointer.(json.Marshaler); ok {
 		defaultBytes, err := m.MarshalJSON()
 		if err != nil {
-			return "", Err(err, "Property.getTag", "m.MarshalJSON")
+			return "", uerr.New("YIEMHYFVCD", err, "Property.getTag", "m.MarshalJSON")
 		}
 		return formatTag(defaultBytes, r)
 	}
 
 	defaultBytes, err := json.Marshal(value)
 	if err != nil {
-		return "", Err(err, "Property.getTag", "json.Marshal (typed)")
+		return "", uerr.New("QQDOLAJKLU", err, "Property.getTag", "json.Marshal (typed)")
 	}
 
 	return formatTag(defaultBytes, r)
@@ -109,24 +110,24 @@ func (p *Property) GoTypeDescriptor(path string, imports map[string]string) (str
 
 	outer, err := NewRuleHolder(p.Item, path, imports)
 	if err != nil {
-		return "", Err(err, "Property.GoTypeDescriptor", "NewRuleHolder")
+		return "", uerr.New("QKCXSRPMOQ", err, "Property.GoTypeDescriptor", "NewRuleHolder")
 	}
 
 	prefix, inner, err := collectionPrefixInnerRule("", outer)
 	if err != nil {
-		return "", Err(err, "Property.GoTypeDescriptor", "collectionPrefixInnerRule")
+		return "", uerr.New("SNATGPVLAS", err, "Property.GoTypeDescriptor", "collectionPrefixInnerRule")
 	}
 
 	pointer := getPointer(inner.parentType)
 
 	name, err := inner.parentType.GoTypeReference(path, imports)
 	if err != nil {
-		return "", Err(err, "Property.GoTypeDescriptor", "inner.parentType.GoTypeReference")
+		return "", uerr.New("CGNYBDFUNP", err, "Property.GoTypeDescriptor", "inner.parentType.GoTypeReference")
 	}
 
 	tag, err := getTag(inner)
 	if err != nil {
-		return "", Err(err, "Property.GoTypeDescriptor", "getTag")
+		return "", uerr.New("LKIXCKRCYG", err, "Property.GoTypeDescriptor", "getTag")
 	}
 	if tag != "" {
 		tag = " " + tag
@@ -149,7 +150,7 @@ func collectionPrefixInnerRule(prefix string, outer *RuleHolder) (fullPrefix str
 		}
 		items, err := outer.ItemsRule()
 		if err != nil {
-			return "", nil, Err(err, "property.collectionPrefixInnerRule", "outer.ItemsRule")
+			return "", nil, uerr.New("SUTYJEGBKW", err, "property.collectionPrefixInnerRule", "outer.ItemsRule")
 		}
 		return collectionPrefixInnerRule(prefix, items)
 	} else {

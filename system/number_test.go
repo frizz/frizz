@@ -3,6 +3,8 @@ package system
 import (
 	"testing"
 
+	"kego.io/uerr"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +29,7 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 	assert.Equal(t, 0.0, n.Value)
 
 	err = n.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	assert.Error(t, err)
+	uerr.Assert(t, err, "GXNBRBELFA")
 
 }
 

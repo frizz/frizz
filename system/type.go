@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	kegofmt "kego.io/fmt"
+	"kego.io/uerr"
 )
 
 func (t *Type) HasExtends() bool {
@@ -39,7 +40,7 @@ func nativeGoType(jsonNativeType string) (string, error) {
 	case "bool":
 		return "bool", nil
 	default:
-		return "", Err(nil, "nativeGoType", "Native type not found: %v", jsonNativeType)
+		return "", uerr.New("TXQIDRBJRH", nil, "nativeGoType", "Native type not found: %v", jsonNativeType)
 	}
 }
 
@@ -69,7 +70,7 @@ func (t *Type) FullName() string {
 // it looks up the alias of the package in the imports and appends that to the start.
 // e.g. "system.Object".
 func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
-	return IdToGoReference(t.Id, t.Context.Package, imports, path)
+	return IdToGoReference(t.Id, t.Context.Package, path, imports)
 }
 
 func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {

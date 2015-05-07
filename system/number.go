@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"kego.io/json"
+	"kego.io/uerr"
 )
 
 type Number struct {
@@ -18,7 +19,7 @@ func NewNumber(n float64) Number {
 func (out *Number) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var f *float64
 	if err := json.UnmarshalPlain(in, &f, path, imports); err != nil {
-		return err
+		return uerr.New("GXNBRBELFA", err, "Number.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if f == nil {
 		out.Exists = false

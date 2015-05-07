@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"kego.io/json"
+	"kego.io/uerr"
 )
 
 func TestPropertyGetPointer(t *testing.T) {
@@ -65,7 +66,7 @@ func TestPropertyFormatTag(t *testing.T) {
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
 
 	_, err = formatTag([]byte(`foo`), r)
-	assert.Error(t, err)
+	uerr.Assert(t, err, "LKBWJTMJCF")
 }
 
 type structWithCustomMarshaler struct {
@@ -87,6 +88,8 @@ func TestMarshaler(t *testing.T) {
 	assert.Equal(t, []byte(`"foo"`), s)
 }
 
+// Json marshaling throws an error when fed a chan, so
+// it's a convenient way to force an error.
 type typeThatWillCauseJsonMarshalToError chan string
 
 func TestPropertyGetTag(t *testing.T) {
@@ -154,7 +157,7 @@ func TestPropertyGetTag(t *testing.T) {
 
 	r.rule = map[string]interface{}{"b": make(typeThatWillCauseJsonMarshalToError)}
 	s, err = getTag(r)
-	assert.Error(t, err)
+	uerr.Assert(t, err, "FYMGUTAOCR")
 
 	r.rule = &ruleStruct{B: NewString("c")}
 
@@ -174,7 +177,7 @@ func TestPropertyGetTag(t *testing.T) {
 
 	r.rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}, throwError: true}}
 	s, err = getTag(r)
-	assert.Error(t, err)
+	uerr.Assert(t, err, "YIEMHYFVCD")
 
 	ruleType.Properties = map[string]*Property{
 		"d": &Property{
@@ -183,7 +186,7 @@ func TestPropertyGetTag(t *testing.T) {
 	}
 	r.rule = &ruleStruct{D: make(typeThatWillCauseJsonMarshalToError)}
 	s, err = getTag(r)
-	assert.Error(t, err)
+	uerr.Assert(t, err, "QQDOLAJKLU")
 
 	ruleType.Properties = map[string]*Property{
 		"e": &Property{
@@ -421,7 +424,7 @@ func TestGoTypeDescriptorErrors(t *testing.T) {
 	}
 	_, err := p.GoTypeDescriptor("kego.io/system", map[string]string{})
 	// Item is an unregistered type, so errors at NewRuleHolder
-	assert.Error(t, err)
+	uerr.Assert(t, err, "QKCXSRPMOQ")
 
 	p = &Property{
 		Object: &Object{
@@ -435,7 +438,7 @@ func TestGoTypeDescriptorErrors(t *testing.T) {
 	}
 	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
 	// Collection item @map doesn't have Items field, so errors at collectionPrefixInnerRule
-	assert.Error(t, err)
+	uerr.Assert(t, err, "SNATGPVLAS")
 
 	type a struct{}
 	type a_rule struct{ *Object }
@@ -464,7 +467,7 @@ func TestGoTypeDescriptorErrors(t *testing.T) {
 	// Item a_rule is a valid type but package b.c/d is not in the final
 	// imports specified to GoTypeDescriptor, so we get an error at
 	// inner.parentType.GoTypeReference
-	assert.Error(t, err)
+	uerr.Assert(t, err, "CGNYBDFUNP")
 
 	p = &Property{
 		Object: &Object{
@@ -477,6 +480,6 @@ func TestGoTypeDescriptorErrors(t *testing.T) {
 	}
 	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
 	// Item default is a chan, so errors at getTag
-	assert.Error(t, err)
+	uerr.Assert(t, err, "LKIXCKRCYG")
 
 }

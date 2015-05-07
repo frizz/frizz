@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"kego.io/uerr"
 )
 
-func IdToGoReference(id string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {
+func IdToGoReference(id string, packagePath string, localPackagePath string, localImports map[string]string) (string, error) {
 	typeName := IdToGoName(id)
-	return GoReference(typeName, packagePath, localImports, localPackagePath)
+	return GoReference(typeName, packagePath, localPackagePath, localImports)
 }
-func GoReference(typeName string, packagePath string, localImports map[string]string, localPackagePath string) (string, error) {
+func GoReference(typeName string, packagePath string, localPackagePath string, localImports map[string]string) (string, error) {
 	if packagePath == localPackagePath {
 		return typeName, nil
 	}
@@ -38,7 +40,7 @@ func GoReference(typeName string, packagePath string, localImports map[string]st
 			return fmt.Sprintf("%v.%v", alias, typeName), nil
 		}
 	}
-	return "", Err(nil, "GoReference", "package path %v not found in local context imports", packagePath)
+	return "", uerr.New("HXHJIHQDBE", nil, "GoReference", "package path %v not found in local context imports", packagePath)
 }
 
 func IdToGoName(id string) string {
