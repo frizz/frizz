@@ -10,21 +10,21 @@ func Err(inner error, location string, descriptionFormat string, descriptionArgs
 		return inner
 	}
 	return Error{
-		Error:       inner,
+		Inner:       inner,
 		Location:    location,
 		Description: fmt.Sprintf(descriptionFormat, descriptionArgs...),
 	}
 }
 
 type Error struct {
-	Error       error
+	Inner       error
 	Location    string
 	Description string
 }
 
 func (e Error) Error() string {
-	if e.Error == nil {
+	if e.Inner == nil {
 		return fmt.Sprintf("Error in %s: %s.", e.Location, e.Description)
 	}
-	return fmt.Sprintf("Error in %s: %s returned an error: \n%v\n", e.Location, e.Description, e.Error)
+	return fmt.Sprintf("Error in %s: %s returned an error: \n%v\n", e.Location, e.Description, e.Inner)
 }

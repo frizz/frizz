@@ -51,7 +51,7 @@ func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 
 	jsonBytes, err := json.Marshal(tag)
 	if err != nil {
-		return "", fmt.Errorf("Error in property.getTag: json.Marshal(tag) returned an error:\n%v\n", err)
+		return "", Err(err, "property.formatTag", "json.Marshal(tag)")
 	}
 
 	return fmt.Sprintf("`kego:%s`", strconv.Quote(string(jsonBytes))), nil
@@ -75,7 +75,7 @@ func getTag(r *RuleHolder) (string, error) {
 		}
 		defaultBytes, err := json.Marshal(di)
 		if err != nil {
-			return "", fmt.Errorf("Error in Property.getTag: json.Marshal (interface) returned an error:\n%v\n", err)
+			return "", Err(err, "Property.getTag", "json.Marshal (interface)")
 		}
 		return formatTag(defaultBytes, r)
 	}
@@ -90,14 +90,14 @@ func getTag(r *RuleHolder) (string, error) {
 	if m, ok := pointer.(json.Marshaler); ok {
 		defaultBytes, err := m.MarshalJSON()
 		if err != nil {
-			return "", fmt.Errorf("Error in Property.getTag: um.MarshalJSON returned an error:\n%v\n", err)
+			return "", Err(err, "Property.getTag", "m.MarshalJSON")
 		}
 		return formatTag(defaultBytes, r)
 	}
 
 	defaultBytes, err := json.Marshal(value)
 	if err != nil {
-		return "", fmt.Errorf("Error in Property.getTag: json.Marshal (typed) returned an error:\n%v\n", err)
+		return "", Err(err, "Property.getTag", "json.Marshal (typed)")
 	}
 
 	return formatTag(defaultBytes, r)
@@ -149,7 +149,7 @@ func collectionPrefixInnerRule(prefix string, outer *RuleHolder) (fullPrefix str
 		}
 		items, err := outer.ItemsRule()
 		if err != nil {
-			return "", nil, fmt.Errorf("Error in property.collectionPrefixInnerRule: outer.ItemsRule returned an error: \n%v\n", err)
+			return "", nil, Err(err, "property.collectionPrefixInnerRule", "outer.ItemsRule")
 		}
 		return collectionPrefixInnerRule(prefix, items)
 	} else {

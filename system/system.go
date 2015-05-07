@@ -38,7 +38,7 @@ func GoReference(typeName string, packagePath string, localImports map[string]st
 			return fmt.Sprintf("%v.%v", alias, typeName), nil
 		}
 	}
-	return "", fmt.Errorf("Error in system.IdToGoReference: package path %v not found in local context imports.\n", packagePath)
+	return "", Err(nil, "GoReference", "package path %v not found in local context imports", packagePath)
 }
 
 func IdToGoName(id string) string {

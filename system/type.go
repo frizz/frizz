@@ -39,7 +39,7 @@ func nativeGoType(jsonNativeType string) (string, error) {
 	case "bool":
 		return "bool", nil
 	default:
-		return "", fmt.Errorf("Native type not found: %v\n", jsonNativeType)
+		return "", Err(nil, "nativeGoType", "Native type not found: %v", jsonNativeType)
 	}
 }
 

@@ -27,10 +27,10 @@ func NewReference(packagePath string, typeName string) Reference {
 
 func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
-		return nil, fmt.Errorf("Error in Reference.RuleToParentType: Reference is nil.\n")
+		return nil, Err(nil, "Reference.RuleToParentType", "Reference is nil")
 	}
 	if !strings.HasPrefix(r.Type, "@") {
-		return nil, fmt.Errorf("Error in Reference.RuleToParentType: Type %s is not a rule type.\n", r.Type)
+		return nil, Err(nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Type)
 	}
 	newType := r.Type[1:]
 	newRef := &Reference{
@@ -56,7 +56,7 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 		out.Exists = true
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
 		if err != nil {
-			return fmt.Errorf("Error in Reference.UnmarshalJSON: json.GetReferencePartsFromTypeString returned an error: \n%v\n", err)
+			return Err(err, "Reference.UnmarshalJSON", "json.GetReferencePartsFromTypeString")
 		}
 		out.Package = path
 		out.Type = name
@@ -75,7 +75,7 @@ func (r *Reference) MarshalJSON() ([]byte, error) {
 func (r *Reference) GoReference(localImports map[string]string, localPackagePath string) (string, error) {
 	s, err := IdToGoReference(r.Type, r.Package, localImports, localPackagePath)
 	if err != nil {
-		return "", fmt.Errorf("Error in Reference.GoReference: IdToGoReference returned an error: \n%v\n", err)
+		return "", Err(err, "Reference.GoReference", "IdToGoReference")
 	}
 	return s, nil
 }

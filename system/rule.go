@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"reflect"
 	"strconv"
 )
@@ -19,7 +18,7 @@ type RuleHolder struct {
 func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r, path, imports)
 	if err != nil {
-		return nil, fmt.Errorf("Error in NewRuleHolder: ruleTypes returned an error:\n%v\n", err)
+		return nil, Err(err, "NewRuleHolder", "ruleTypes")
 	}
 	return &RuleHolder{rule: r, ruleType: rt, parentType: pt, path: path, imports: imports}, nil
 }
@@ -27,19 +26,19 @@ func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder,
 func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, parentType *Type, err error) {
 	ruleReference, err := ruleTypeReference(r, path, imports)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error in RuleHolder.Types: r.TypeReference returned an error:\n%v\n", err)
+		return nil, nil, Err(err, "ruleTypes", "ruleTypeReference")
 	}
 	rt, ok := ruleReference.GetType()
 	if !ok {
-		return nil, nil, fmt.Errorf("Error in RuleHolder.Types: type %v not found\n", ruleReference.Value)
+		return nil, nil, Err(nil, "ruleTypes", "ruleReference.GetType: type %v not found", ruleReference.Value)
 	}
 	typeReference, err := ruleReference.RuleToParentType()
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error in RuleHolder.Types: ruleReference.RuleToParentType returned an error:\n%v\n", err)
+		return nil, nil, Err(err, "ruleTypes", "ruleReference.RuleToParentType")
 	}
 	pt, ok := typeReference.GetType()
 	if !ok {
-		return nil, nil, fmt.Errorf("Error in RuleHolder.Types: type %v not found\n", typeReference.Value)
+		return nil, nil, Err(nil, "ruleTypes", "typeReference.GetType: type %v not found", typeReference.Value)
 	}
 	return rt, pt, nil
 }
@@ -53,16 +52,16 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 		// from the "type" field.
 		t, ok := i["type"]
 		if !ok {
-			return nil, fmt.Errorf("Error in RuleHolder.TypeReference: unknown type rule has no type\n")
+			return nil, Err(nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
 		}
 		s, ok := t.(string)
 		if !ok {
-			return nil, fmt.Errorf("Error in RuleHolder.TypeReference: unknown type rule type is not string: %T\n", t)
+			return nil, Err(nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", t)
 		}
 		ref := &Reference{}
 		err := ref.UnmarshalJSON([]byte(strconv.Quote(s)), path, imports)
 		if err != nil {
-			return nil, fmt.Errorf("Error in RuleHolder.TypeReference: ref.UnmarshalJSON returned an error:\n%v\n", err)
+			return nil, Err(err, "ruleTypeReference", "ref.UnmarshalJSON")
 		}
 		return ref, nil
 	}
@@ -70,14 +69,14 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 	// Looks like we have a standard rule. We can get the type by reflection "Type" field.
 	ti, _, ok, err := ruleFieldByReflection(r, "Type")
 	if err != nil {
-		return nil, fmt.Errorf("Error in RuleHolder.TypeReference: ruleFieldByReflection returned an error:\n%v\n", err)
+		return nil, Err(err, "ruleTypeReference", "ruleFieldByReflection")
 	}
 	if !ok {
-		return nil, fmt.Errorf("Error in RuleHolder.TypeReference: ruleFieldByReflection did not find Type field.\n")
+		return nil, Err(nil, "ruleTypeReference", "ruleFieldByReflection did not find Type field")
 	}
 	tr, ok := ti.(Reference)
 	if !ok {
-		return nil, fmt.Errorf("Error in RuleHolder.TypeReference: Type field is not a reference.\n")
+		return nil, Err(nil, "ruleTypeReference", "Type field is not a reference")
 	}
 	return &tr, nil
 }
@@ -85,22 +84,22 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !r.parentType.IsNativeCollection() {
-		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: parentType %s is not a collection\n", r.parentType.Id)
+		return nil, Err(nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.parentType.Id)
 	}
 	items, _, ok, err := ruleFieldByReflection(r.rule, "Items")
 	if err != nil {
-		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: ruleFieldByReflection returned an error:\n%v\n", err)
+		return nil, Err(err, "RuleHolder.ItemsRule", "ruleFieldByReflection")
 	}
 	if !ok {
-		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: ruleFieldByReflection could not find Items field.\n")
+		return nil, Err(nil, "RuleHolder.ItemsRule", "ruleFieldByReflection could not find Items field")
 	}
 	rule, ok := items.(Rule)
 	if !ok {
-		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: items is not a rule.\n")
+		return nil, Err(nil, "RuleHolder.ItemsRule", "items is not a rule")
 	}
 	rh, err := NewRuleHolder(rule, r.path, r.imports)
 	if err != nil {
-		return nil, fmt.Errorf("Error in RuleHolder.ItemsRule: NewRuleHolder returned an error:\n%v\n", err)
+		return nil, Err(err, "RuleHolder.ItemsRule", "NewRuleHolder")
 	}
 	return rh, nil
 }
@@ -108,17 +107,16 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 func ruleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
 	val := reflect.ValueOf(object)
 	if val.Kind() != reflect.Ptr {
-		return nil, nil, false, fmt.Errorf("Error in FieldByReflection(%s): val.Kind is not a Ptr: %v\n", name, val.Kind())
+		return nil, nil, false, Err(nil, "ruleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, val.Kind())
 	}
 	if val.Elem().Kind() != reflect.Struct {
-		return nil, nil, false, fmt.Errorf("Error in FieldByReflection(%s): val.Elem().Kind is not a Struct: %v\n", name, val.Elem().Kind())
+		return nil, nil, false, Err(nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, val.Elem().Kind())
 	}
 	field := val.Elem().FieldByName(name)
 	empty := reflect.Value{}
 	if field == empty {
 		// Doesn't have an items
 		return nil, nil, false, nil
-		//return nil, fmt.Errorf("Error in FieldByReflection(%s): val.Elem() does not have field.\n", name)
 	}
 	if field.Kind() == reflect.Ptr {
 		// If it's a pointer we should only return not found if

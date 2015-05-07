@@ -142,6 +142,20 @@ func TestPropertyGetTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "", s)
 
+	r.rule = map[string]interface{}{"b": "c"}
+	s, err = getTag(r)
+	assert.NoError(t, err)
+	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
+
+	r.rule = map[string]interface{}{"d": "e"}
+	s, err = getTag(r)
+	assert.NoError(t, err)
+	assert.Equal(t, "", s)
+
+	r.rule = map[string]interface{}{"b": make(typeThatWillCauseJsonMarshalToError)}
+	s, err = getTag(r)
+	assert.Error(t, err)
+
 	r.rule = &ruleStruct{B: NewString("c")}
 
 	s, err = getTag(r)
