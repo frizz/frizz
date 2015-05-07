@@ -206,16 +206,277 @@ func TestGoName(t *testing.T) {
 }
 
 func TestGoTypeDescriptor(t *testing.T) {
-	var i interface{}
-	json.Unmarshal([]byte(`{
-			"type": "system:property",
-			"item": {
-				"type": "json:@string"
-			}
-		}`), &i, "kego.io/system", map[string]string{})
-	p, ok := i.(*Property)
-	assert.True(t, ok, "Wrong type")
+	p := &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &JsonString_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/json", "@string"),
+			},
+		},
+	}
 	s, err := p.GoTypeDescriptor("kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "string", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &String_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@string"),
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "String", s)
+
+	s, err = p.GoTypeDescriptor("kego.io/a", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "system.String", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		// We're just using property here because it's a handy
+		// non-native type in the system package
+		Item: &Property_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@property"),
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "*Property", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		// We're just using property here because it's a handy
+		// non-native type in the system package
+		Item: &Property_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@property"),
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/a", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "*system.Property", s)
+
+	type a struct{}
+	type a_rule struct{ *Object }
+	tyr := &Type{Object: &Object{Id: "@a"}}
+	ty := &Type{Object: &Object{Id: "a", Context: &Context{Package: "b.c/d"}}}
+	json.RegisterType("b.c/d:a", reflect.TypeOf(&a{}))
+	json.RegisterType("b.c/d:@a", reflect.TypeOf(&a_rule{}))
+	RegisterType("b.c/d:a", ty)
+	RegisterType("b.c/d:@a", tyr)
+	defer json.UnregisterType("b.c/d:a")
+	defer json.UnregisterType("b.c/d:@a")
+	defer UnregisterType("b.c/d:a")
+	defer UnregisterType("b.c/d:@a")
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &a_rule{
+			Object: &Object{
+				Type: NewReference("b.c/d", "@a"),
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{
+		"d": "b.c/d",
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "*d.A", s)
+
+	s, err = p.GoTypeDescriptor("b.c/d", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "*A", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &String_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@string"),
+			},
+			Default: NewString("a"),
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &Map_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@map"),
+			},
+			Items: &String_rule{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@string"),
+				},
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "map[string]String", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &Array_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@array"),
+			},
+			Items: &String_rule{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@string"),
+				},
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "[]String", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &Map_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@map"),
+			},
+			Items: &Array_rule{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@array"),
+				},
+				Items: &String_rule{
+					Object: &Object{
+						Type: NewReference("kego.io/system", "@string"),
+					},
+				},
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "map[string][]String", s)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &Map_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@map"),
+			},
+			Items: &Array_rule{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@array"),
+				},
+				Items: &String_rule{
+					Object: &Object{
+						Type: NewReference("kego.io/system", "@string"),
+					},
+					Default: NewString("a"),
+				},
+			},
+		},
+	}
+	s, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "map[string][]String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
+
+}
+
+func TestGoTypeDescriptorErrors(t *testing.T) {
+
+	p := &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &JsonString_rule{
+			Object: &Object{
+				Type: NewReference("a.b/c", "notFoundType"),
+			},
+		},
+	}
+	_, err := p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	// Item is an unregistered type, so errors at NewRuleHolder
+	assert.Error(t, err)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &Map_rule{
+			Object: &Object{
+				Type: NewReference("kego.io/system", "@map"),
+			},
+		},
+	}
+	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	// Collection item @map doesn't have Items field, so errors at collectionPrefixInnerRule
+	assert.Error(t, err)
+
+	type a struct{}
+	type a_rule struct{ *Object }
+	tyr := &Type{Object: &Object{Id: "@a"}}
+	ty := &Type{Object: &Object{Id: "a", Context: &Context{Package: "b.c/d"}}}
+	json.RegisterType("b.c/d:a", reflect.TypeOf(&a{}))
+	json.RegisterType("b.c/d:@a", reflect.TypeOf(&a_rule{}))
+	RegisterType("b.c/d:a", ty)
+	RegisterType("b.c/d:@a", tyr)
+	defer json.UnregisterType("b.c/d:a")
+	defer json.UnregisterType("b.c/d:@a")
+	defer UnregisterType("b.c/d:a")
+	defer UnregisterType("b.c/d:@a")
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: &a_rule{
+			Object: &Object{
+				Type: NewReference("b.c/d", "@a"),
+			},
+		},
+	}
+	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	// Item a_rule is a valid type but package b.c/d is not in the final
+	// imports specified to GoTypeDescriptor, so we get an error at
+	// inner.parentType.GoTypeReference
+	assert.Error(t, err)
+
+	p = &Property{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "property"),
+		},
+		Item: map[string]interface{}{
+			"type":    "kego.io/system:@string",
+			"default": make(typeThatWillCauseJsonMarshalToError),
+		},
+	}
+	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+	// Item default is a chan, so errors at getTag
+	assert.Error(t, err)
+
 }
