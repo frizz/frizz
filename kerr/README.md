@@ -1,0 +1,2 @@
+[![Build Status](https://drone.io/github.com/kego/uerr/status.png)](https://drone.io/github.com/kego/uerr/latest)
+[![Coverage Status](https://coveralls.io/repos/kego/uerr/badge.svg)](https://coveralls.io/r/kego/uerr)
