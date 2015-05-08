@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"strings"
+
 	"github.com/stretchr/testify/assert"
 	"kego.io/json"
+	"kego.io/uerr"
 )
 
 func TestBool(t *testing.T) {
@@ -242,4 +245,75 @@ func TestUnknownRule(t *testing.T) {
 	r, err := f.Properties["ref"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\",\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", r)
+}
+
+func TestUnregisterType(t *testing.T) {
+	UnregisterType("")
+}
+
+func TestTypeHasExtends(t *testing.T) {
+	y := &Type{}
+	h := y.HasExtends()
+	assert.False(t, h)
+
+	y = &Type{Extends: NewReference("a.b/c", "d")}
+	h = y.HasExtends()
+	assert.True(t, h)
+}
+
+func TestNativeGoType(t *testing.T) {
+	n, err := nativeGoType("string")
+	assert.NoError(t, err)
+	assert.Equal(t, "string", n)
+
+	n, err = nativeGoType("number")
+	assert.NoError(t, err)
+	assert.Equal(t, "float64", n)
+
+	n, err = nativeGoType("bool")
+	assert.NoError(t, err)
+	assert.Equal(t, "bool", n)
+
+	_, err = nativeGoType("a")
+	uerr.Assert(t, err, "TXQIDRBJRH")
+}
+
+func TestTypeIsNativeType(t *testing.T) {
+	y := &Type{Native: NewString("bool")}
+	n := y.IsNativeType()
+	assert.False(t, n)
+
+	y = &Type{Native: NewString("array")}
+	n = y.IsNativeType()
+	assert.False(t, n)
+
+	y = &Type{Native: NewString("object")}
+	n = y.IsNativeType()
+	assert.True(t, n)
+
+	// Will also return true for any other value
+	y = &Type{Native: NewString("a")}
+	n = y.IsNativeType()
+	assert.True(t, n)
+}
+
+func TestTypeNativeValueGolangType(t *testing.T) {
+	y := &Type{Native: NewString("bool")}
+	n, err := y.NativeValueGolangType()
+	assert.NoError(t, err)
+	assert.Equal(t, "bool", n)
+}
+
+func TestTypeGoName(t *testing.T) {
+	y := &Type{Object: &Object{Id: "aa"}}
+	n := y.GoName()
+	assert.Equal(t, "Aa", n)
+}
+
+func TestTypeGoSyntax(t *testing.T) {
+	y := &Type{Object: &Object{Id: "aa"}}
+	g := y.GoSyntax("", map[string]string{})
+	// I'm going to make this test less brittle by just looking at
+	// the start of the string
+	assert.True(t, strings.HasPrefix(g, "system.Type{"))
 }

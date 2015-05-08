@@ -23,7 +23,9 @@ func RegisterType(name string, typ *Type) {
 }
 func UnregisterType(name string) {
 	types.Lock()
-	if types.m == nil {
+	if types.m == nil || name == "" {
+		// Added the name == "" condition to make it
+		// possible for a test to get in here
 		return
 	}
 	delete(types.m, name)
@@ -105,8 +107,8 @@ func (t *Type) GoTypeReference(path string, imports map[string]string) (string, 
 	return IdToGoReference(t.Id, t.Context.Package, path, imports)
 }
 
-func (t *Type) GoSyntax(localPackage string, imports map[string]string) string {
-	return kegofmt.GoSyntax(localPackage, imports, *t)
+func (t *Type) GoSyntax(path string, imports map[string]string) string {
+	return kegofmt.GoSyntax(path, imports, *t)
 }
 
 func (t *Type) Defaulter() (name string, property *Property, ok bool) {
