@@ -59,7 +59,3 @@ func TestRuleTypes(t *testing.T) {
 	uerr.Assert(t, err, "KYCTDXKFYR")
 
 }
-
-func TestRuleTypeReference(t testing.T) {
-
-}
