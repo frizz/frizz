@@ -1,9 +1,11 @@
 package system
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"kego.io/json"
 	"kego.io/uerr"
 )
 
@@ -113,4 +115,54 @@ func TestRuleTypeReference(t *testing.T) {
 	}
 	r, err = ruleTypeReference(rwi, "", map[string]string{})
 	uerr.Assert(t, err, "FHUPSRTRFE")
+}
+
+func TestRuleHolderItemsRule(t *testing.T) {
+	type parentStruct struct {
+		*Object
+	}
+	type ruleStruct struct {
+		*Object
+	}
+	parentType := &Type{
+		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+	}
+	ruleType := &Type{
+		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+	}
+	json.RegisterType("a.b/c:a", reflect.TypeOf(&parentStruct{}))
+	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStruct{}))
+	RegisterType("a.b/c:a", parentType)
+	RegisterType("a.b/c:@a", ruleType)
+	defer json.UnregisterType("a.b/c:a")
+	defer json.UnregisterType("a.b/c:@a")
+	defer UnregisterType("a.b/c:a")
+	defer UnregisterType("a.b/c:@a")
+
+	rh := &RuleHolder{
+		rule:       &ruleStruct{},
+		ruleType:   ruleType,
+		parentType: parentType,
+		path:       "d.e/f",
+		imports:    map[string]string{},
+	}
+	_, err := rh.ItemsRule()
+	uerr.Assert(t, err, "VPAGXSTQHM")
+
+	parentType.Native = NewString("array")
+	rh.rule = "a"
+	_, err = rh.ItemsRule()
+	// rh.rule must be a pointer or ruleFieldByReflection will error
+	uerr.Assert(t, err, "LIDXIQYGJD")
+
+	rh.rule = &struct{}{}
+	_, err = rh.ItemsRule()
+	// rh.rule needs an Items field
+	uerr.Assert(t, err, "VYTHGJTSNJ")
+
+	rh.rule = &struct{ Items int }{Items: 1}
+	_, err = rh.ItemsRule()
+	// Items must be a rule or NewRuleHolder will error
+	uerr.Assert(t, err, "FGYMQPNBQJ")
+
 }

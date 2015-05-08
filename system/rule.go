@@ -96,10 +96,11 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !ok {
 		return nil, uerr.New("VYTHGJTSNJ", nil, "RuleHolder.ItemsRule", "ruleFieldByReflection could not find Items field")
 	}
-	rule, ok := items.(Rule)
-	if !ok {
-		return nil, uerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
-	}
+	rule, _ := items.(Rule)
+	// Rule is interface{} so everything is a rule... Maybe this will change in future?
+	//if !ok {
+	//	return nil, uerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
+	//}
 	rh, err := NewRuleHolder(rule, r.path, r.imports)
 	if err != nil {
 		return nil, uerr.New("FGYMQPNBQJ", err, "RuleHolder.ItemsRule", "NewRuleHolder")
