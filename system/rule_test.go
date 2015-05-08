@@ -59,3 +59,58 @@ func TestRuleTypes(t *testing.T) {
 	uerr.Assert(t, err, "KYCTDXKFYR")
 
 }
+
+func TestRuleTypeReference(t *testing.T) {
+
+	type ruleStruct struct {
+		*Object
+	}
+	rs := &ruleStruct{
+		&Object{Type: NewReference("a.b/c", "@a")},
+	}
+	r, err := ruleTypeReference(rs, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "a.b/c:@a", r.Value)
+
+	ri := map[string]interface{}{}
+	r, err = ruleTypeReference(ri, "", map[string]string{})
+	uerr.Assert(t, err, "OLHOVKXEXN")
+
+	ri = map[string]interface{}{
+		"type": 1, //not a string
+	}
+	r, err = ruleTypeReference(ri, "", map[string]string{})
+	uerr.Assert(t, err, "IILEXGQDXL")
+
+	ri = map[string]interface{}{
+		"type": "a:b", // package will not be registered so UnmarshalJSON will error
+	}
+	r, err = ruleTypeReference(ri, "", map[string]string{})
+	uerr.Assert(t, err, "QBTHPRVBWN")
+
+	ri = map[string]interface{}{
+		"type": "a.b/c:@a",
+	}
+	r, err = ruleTypeReference(rs, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "a.b/c:@a", r.Value)
+
+	rsp := ruleStruct{}
+	r, err = ruleTypeReference(rsp, "", map[string]string{})
+	// rsp is not a pointer so ruleFieldByReflection will error
+	uerr.Assert(t, err, "QJQAIGPYXC")
+
+	type structWithoutType struct{}
+	rwt := &structWithoutType{}
+	r, err = ruleTypeReference(rwt, "", map[string]string{})
+	uerr.Assert(t, err, "NXYRAJITEV")
+
+	type structWithIntType struct {
+		Type int
+	}
+	rwi := &structWithIntType{
+		Type: 1,
+	}
+	r, err = ruleTypeReference(rwi, "", map[string]string{})
+	uerr.Assert(t, err, "FHUPSRTRFE")
+}
