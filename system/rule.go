@@ -50,8 +50,8 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 	i, ok := r.(map[string]interface{})
 
 	if ok {
-		// Looks like we unmarshaled a type that isn't registered. We can get the type information
-		// from the "type" field.
+		// Looks like we unmarshaled a type that isn't registered. We
+		// can get the type information from the "type" field.
 		t, ok := i["type"]
 		if !ok {
 			return nil, uerr.New("OLHOVKXEXN", nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
@@ -68,7 +68,8 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 		return ref, nil
 	}
 
-	// Looks like we have a standard rule. We can get the type by reflection "Type" field.
+	// Looks like we have a standard rule. We can get the type by
+	// reflection "Type" field.
 	ti, _, ok, err := ruleFieldByReflection(r, "Type")
 	if err != nil {
 		return nil, uerr.New("QJQAIGPYXC", err, "ruleTypeReference", "ruleFieldByReflection")
