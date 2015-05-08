@@ -72,7 +72,7 @@ func TestDecodeDefaults(t *testing.T) {
 			Baz bool    `kego:"{\"default\":{\"value\":true}}"`
 		}
 
-		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{})
+		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
 
 		// Clean up for the tests - don't normally need to unregister types
 		defer UnregisterType("kego.io/json:foo")
