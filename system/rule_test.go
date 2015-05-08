@@ -166,3 +166,64 @@ func TestRuleHolderItemsRule(t *testing.T) {
 	uerr.Assert(t, err, "FGYMQPNBQJ")
 
 }
+func TestRuleFieldByReflection(t *testing.T) {
+
+	_, _, _, err := ruleFieldByReflection(struct{}{}, "")
+	// Must be a pointer type
+	uerr.Assert(t, err, "QOYMWPXWUO")
+
+	i := 1
+	_, _, _, err = ruleFieldByReflection(&i, "")
+	// Must point to a struct type
+	uerr.Assert(t, err, "IGOUOBGXAN")
+
+	_, _, ok, err := ruleFieldByReflection(&struct{}{}, "A")
+	// Must have field called a, or it returns false
+	assert.NoError(t, err)
+	assert.False(t, ok)
+
+	_, _, ok, err = ruleFieldByReflection(&struct{ A *string }{A: nil}, "A")
+	// If field is a pointer, and nil, returns false
+	assert.NoError(t, err)
+	assert.False(t, ok)
+
+	_, _, ok, err = ruleFieldByReflection(&struct{ A string }{A: ""}, "A")
+	// If field is not a pointer, and equal to the zero value for that type, returns false
+	assert.NoError(t, err)
+	assert.False(t, ok)
+
+	_, _, ok, err = ruleFieldByReflection(&struct {
+		A struct {
+			B int
+			C string
+		}
+	}{A: struct {
+		B int
+		C string
+	}{B: 0, C: ""}}, "A")
+	// If field is not a pointer, and equal to the zero value for that type, returns false
+	assert.NoError(t, err)
+	assert.False(t, ok)
+
+	fi, fpi, ok, err := ruleFieldByReflection(&struct{ A string }{A: "b"}, "A")
+	assert.NoError(t, err)
+	assert.True(t, ok)
+	f, ok := fi.(string)
+	assert.True(t, ok)
+	assert.Equal(t, "b", f)
+	fp, ok := fpi.(*string)
+	assert.True(t, ok)
+	assert.Equal(t, "b", *fp)
+
+	b := "b"
+	fi, fpi, ok, err = ruleFieldByReflection(&struct{ A *string }{A: &b}, "A")
+	assert.NoError(t, err)
+	assert.True(t, ok)
+	fp, ok = fi.(*string)
+	assert.True(t, ok)
+	assert.Equal(t, "b", *fp)
+	fp, ok = fpi.(*string)
+	assert.True(t, ok)
+	assert.Equal(t, "b", *fp)
+
+}
