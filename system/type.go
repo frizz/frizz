@@ -2,10 +2,42 @@ package system
 
 import (
 	"fmt"
+	"sync"
 
 	kegofmt "kego.io/fmt"
 	"kego.io/uerr"
 )
+
+var types struct {
+	sync.RWMutex
+	m map[string]*Type
+}
+
+func RegisterType(name string, typ *Type) {
+	types.Lock()
+	if types.m == nil {
+		types.m = make(map[string]*Type)
+	}
+	types.m[name] = typ
+	types.Unlock()
+}
+func UnregisterType(name string) {
+	types.Lock()
+	if types.m == nil {
+		return
+	}
+	delete(types.m, name)
+	types.Unlock()
+}
+func GetType(name string) (*Type, bool) {
+	types.RLock()
+	t, ok := types.m[name]
+	types.RUnlock()
+	if !ok {
+		return nil, false
+	}
+	return t, true
+}
 
 func (t *Type) HasExtends() bool {
 	// Only the actual system:object type should have an empty string here.
