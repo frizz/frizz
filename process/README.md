@@ -1,0 +1,2 @@
+[![Build Status](https://drone.io/github.com/kego/process/status.png)](https://drone.io/github.com/kego/process/latest)
+[![Coverage Status](https://coveralls.io/repos/kego/process/badge.svg)](https://coveralls.io/r/kego/process)
