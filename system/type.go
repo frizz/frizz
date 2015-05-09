@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 
+	"strings"
+
 	kegofmt "kego.io/fmt"
 	"kego.io/uerr"
 )
@@ -39,6 +41,17 @@ func GetType(name string) (*Type, bool) {
 		return nil, false
 	}
 	return t, true
+}
+func GetAllTypesInPackage(path string) map[string]*Type {
+	out := map[string]*Type{}
+	types.RLock()
+	for k, t := range types.m {
+		if strings.HasPrefix(k, fmt.Sprintf("%s:", path)) {
+			out[k] = t
+		}
+	}
+	types.RUnlock()
+	return out
 }
 
 func (t *Type) HasExtends() bool {
