@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"kego.io/system"
+	"kego.io/uerr"
 )
 
 var (
@@ -36,10 +37,12 @@ func init() {
 	}
 }
 
-func Generate(dir string, packageName string, packagePath string, imports map[string]string, types map[string]*system.Type, testMode bool) error {
+func Generate(dir string, packageName string, packagePath string, imports map[string]string, testMode bool) error {
+
+	types := system.GetAllTypesInPackage(packagePath)
 
 	if len(types) == 0 {
-		return fmt.Errorf("Error generating types: No types found.")
+		return uerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 	}
 
 	data := struct {
@@ -51,12 +54,12 @@ func Generate(dir string, packageName string, packagePath string, imports map[st
 
 	var rendered bytes.Buffer
 	if err := tpl.ExecuteTemplate(&rendered, "main.tmpl", data); err != nil {
-		return fmt.Errorf("Error executing templates:\n%v\n", err)
+		return uerr.New("SGHJCEHQMF", err, "process.Generate", "tpl.ExecuteTemplate")
 	}
 
 	formatted, err := format.Source(rendered.Bytes())
 	if err != nil {
-		return fmt.Errorf("Error formatting generated source:\n%v\n%s\n", err, rendered.Bytes())
+		return uerr.New("XTKWMEDWKI", err, "process.Generate", "format.Source:\n%s\n", rendered.Bytes())
 	}
 
 	if testMode {
@@ -78,7 +81,7 @@ func Generate(dir string, packageName string, packagePath string, imports map[st
 
 	output, err := os.OpenFile(typesPath, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return fmt.Errorf("Could not open output file: %s", err)
+		return uerr.New("NWLWHSGJWP", err, "process.Generate", "os.OpenFile (could not open output file)")
 	}
 	defer output.Close()
 
@@ -108,13 +111,13 @@ func ternary(condition bool, valueIfTrue string, valueIfFalse string) string {
 }
 func mapHelper(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
-		return nil, fmt.Errorf("invalid dict call")
+		return nil, uerr.New("AHGBMCNALB", nil, "process.mapHelper", "Must be an even number of values. Got %v", len(values))
 	}
 	dict := make(map[string]interface{}, len(values)/2)
 	for i := 0; i < len(values); i += 2 {
 		key, ok := values[i].(string)
 		if !ok {
-			return nil, fmt.Errorf("dict keys must be strings")
+			return nil, uerr.New("WLHGIPIEUI", nil, "process.mapHelper", "All keys must be strings")
 		}
 		dict[key] = values[i+1]
 	}

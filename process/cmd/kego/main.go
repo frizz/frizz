@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"kego.io/process"
-	"kego.io/system"
+	"kego.io/uerr"
 )
 
 func main() {
@@ -37,13 +37,11 @@ func main() {
 
 	imports := map[string]string{}
 
-	types := map[string]*system.Type{}
-
-	if err := process.Scan(currentDir, packageName, packagePath, imports, types); err != nil {
+	if err := process.Scan(currentDir, packagePath, imports); err != nil {
 		panic(err)
 	}
 
-	if err := process.Generate(currentDir, packageName, packagePath, imports, types, testMode); err != nil {
+	if err := process.Generate(currentDir, packageName, packagePath, imports, testMode); err != nil {
 		panic(err)
 	}
 }
@@ -77,5 +75,5 @@ func getPackage(dir string, gopathEnv string) (string, error) {
 	if savedError != nil {
 		return "", savedError
 	}
-	return "", fmt.Errorf("Package not found for %s\n", dir)
+	return "", uerr.New("CXOETFPTGM", nil, "process/cmd/kego.getPackage", "Package not found for %s", dir)
 }
