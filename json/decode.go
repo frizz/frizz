@@ -579,6 +579,57 @@ var types struct {
 	m map[string]reflect.Type
 }
 
+var packages struct {
+	sync.RWMutex
+	m map[string]*packageInfo
+}
+
+type packageInfo struct {
+	getJsonTypes func() map[string]reflect.Type
+}
+
+var typesInit = false
+
+// initTypes initialises the json types that are needed for decoding json. We lazily
+// initialise them so they don't slow down.
+func initTypes() {
+	if typesInit {
+		return
+	}
+	packages := getPackages()
+	for _, p := range packages {
+		registerTypes(p.getJsonTypes())
+	}
+	typesInit = true
+}
+func getPackages() map[string]*packageInfo {
+	out := map[string]*packageInfo{}
+	packages.RLock()
+	for k, p := range packages.m {
+		out[k] = p
+	}
+	packages.RUnlock()
+	return out
+}
+func RegisterPackage(name string, getter func() map[string]reflect.Type) {
+	packages.Lock()
+	if packages.m == nil {
+		packages.m = make(map[string]*packageInfo)
+	}
+	packages.m[name] = &packageInfo{getJsonTypes: getter}
+	packages.Unlock()
+}
+func registerTypes(arr map[string]reflect.Type) {
+	types.Lock()
+	if types.m == nil {
+		types.m = make(map[string]reflect.Type)
+	}
+	for name, typ := range arr {
+		types.m[name] = typ
+	}
+	types.Unlock()
+}
+
 func RegisterType(name string, typ reflect.Type) {
 	types.Lock()
 	if types.m == nil {
@@ -596,6 +647,7 @@ func UnregisterType(name string) {
 	types.Unlock()
 }
 func GetType(name string) (reflect.Type, bool) {
+	initTypes()
 	types.RLock()
 	t, ok := types.m[name]
 	types.RUnlock()
