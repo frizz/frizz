@@ -32,16 +32,13 @@ func main() {
 		packagePath = path
 	}
 
-	parts := strings.Split(packagePath, string(os.PathSeparator))
-	packageName := parts[len(parts)-1]
-
 	imports := map[string]string{}
 
 	if err := process.Scan(currentDir, packagePath, imports); err != nil {
 		panic(err)
 	}
 
-	if err := process.Generate(currentDir, packageName, packagePath, imports, testMode); err != nil {
+	if err := process.Generate(currentDir, packagePath, imports, testMode); err != nil {
 		panic(err)
 	}
 }

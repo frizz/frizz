@@ -15,45 +15,45 @@ import (
 	"kego.io/uerr"
 )
 
-var (
-	tpl *template.Template
-)
-
-func init() {
-	funcMap := template.FuncMap{
+func functions() template.FuncMap {
+	return template.FuncMap{
 		"quote":     strconv.Quote,
 		"import":    importStatement,
 		"ternary":   ternary,
 		"map":       mapHelper,
 		"reference": system.GoReference,
+		"name":      getPackageNameFromPath,
 	}
-	tpl = template.New("foo.tmpl").Funcs(funcMap)
-	for templateName, templateAssetUnpackerFunction := range _bindata {
-		templateAsset, err := templateAssetUnpackerFunction()
+}
+func templates() *template.Template {
+	tpl := template.New("").Funcs(functions())
+	for name, unpacker := range _bindata {
+		asset, err := unpacker()
 		if err != nil {
 			panic(err)
 		}
-		tpl = template.Must(tpl.New(templateName).Parse(string(templateAsset.bytes)))
+		tpl = template.Must(tpl.New(name).Parse(string(asset.bytes)))
 	}
+	return tpl
 }
 
-func Generate(dir string, packageName string, packagePath string, imports map[string]string, testMode bool) error {
+type templateData struct {
+	Types   map[string]*system.Type
+	Path    string
+	Imports map[string]string
+}
+
+func Generate(dir string, packagePath string, imports map[string]string, test bool) error {
 
 	types := system.GetAllTypesInPackage(packagePath)
-
 	if len(types) == 0 {
 		return uerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 	}
 
-	data := struct {
-		PackageName string
-		PackagePath string
-		Types       map[string]*system.Type
-		Imports     map[string]string
-	}{PackageName: packageName, PackagePath: packagePath, Types: types, Imports: imports}
+	data := templateData{Types: types, Path: packagePath, Imports: imports}
 
 	var rendered bytes.Buffer
-	if err := tpl.ExecuteTemplate(&rendered, "main.tmpl", data); err != nil {
+	if err := templates().ExecuteTemplate(&rendered, "main.tmpl", data); err != nil {
 		return uerr.New("SGHJCEHQMF", err, "process.Generate", "tpl.ExecuteTemplate")
 	}
 
@@ -62,34 +62,50 @@ func Generate(dir string, packageName string, packagePath string, imports map[st
 		return uerr.New("XTKWMEDWKI", err, "process.Generate", "format.Source:\n%s\n", rendered.Bytes())
 	}
 
-	if testMode {
-		fmt.Printf(string(formatted))
+	if test {
+		fmt.Println(string(formatted))
 		return nil
 	}
 
-	filename := "generated.go"
-	typesPath := filepath.Join(dir, filename)
-	backupPath := filepath.Join(dir, fmt.Sprintf("%v.backup", filename))
-
-	if _, err := os.Stat(backupPath); err == nil {
-		os.Remove(backupPath)
+	if err := save(dir, formatted); err != nil {
+		return uerr.New("EKXNBDCASD", err, "process.Generate", "save")
 	}
-
-	if _, err := os.Stat(typesPath); err == nil {
-		os.Rename(typesPath, backupPath)
-	}
-
-	output, err := os.OpenFile(typesPath, os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		return uerr.New("NWLWHSGJWP", err, "process.Generate", "os.OpenFile (could not open output file)")
-	}
-	defer output.Close()
-
-	output.Write(formatted)
 
 	return nil
 }
 
+func save(dir string, contents []byte) error {
+
+	name := "generated.go"
+	file := filepath.Join(dir, name)
+
+	backup(file, filepath.Join(dir, fmt.Sprintf("%s.backup", name)))
+
+	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return uerr.New("NWLWHSGJWP", err, "process.save", "os.OpenFile (could not open output file)")
+	}
+	defer output.Close()
+
+	output.Write(contents)
+
+	return nil
+}
+
+func backup(file string, backup string) {
+
+	if _, err := os.Stat(backup); err == nil {
+		os.Remove(backup)
+	}
+
+	if _, err := os.Stat(file); err == nil {
+		os.Rename(file, backup)
+	}
+}
+func getPackageNameFromPath(path string) string {
+	parts := strings.Split(path, "/")
+	return parts[len(parts)-1]
+}
 func importStatement(name string, path string, currentPackage string) string {
 	if currentPackage == path {
 		return ""

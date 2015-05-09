@@ -1,16 +1,16 @@
-{{ $package := .package }}
+{{ $path := .path }}
 {{ $imports := .imports }}
 {{ if not .type.IsNativeValue }}
 {{ if not (eq .type.Description "") }}// {{ .type.Description }}{{ end }}
 type {{ .go }} struct {
 
 	{{ if .type.HasExtends }}
-		*{{ .type.Extends.GoReference $package $imports }}
+		*{{ .type.Extends.GoReference $path $imports }}
 	{{ end }}
 
 	{{ range $propertyName, $property := .type.Properties }}
 	{{ if not (eq $property.Description "") }}// {{ $property.Description }}{{ end }}
-	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $package $imports }}
+	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $path $imports }}
 	{{ end }}
 }
 {{ end }}
