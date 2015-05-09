@@ -16,11 +16,11 @@ func IdToGoName(id string) string {
 		return fmt.Sprintf("%v%v", strings.ToUpper(id[0:1]), id[1:])
 	}
 }
-func IdToGoReference(id string, packagePath string, localPackagePath string, localImports map[string]string) (string, error) {
+func IdToGoReference(packagePath string, id string, localPackagePath string, localImports map[string]string) (string, error) {
 	typeName := IdToGoName(id)
-	return GoReference(typeName, packagePath, localPackagePath, localImports)
+	return GoReference(packagePath, typeName, localPackagePath, localImports)
 }
-func GoReference(typeName string, packagePath string, localPackagePath string, localImports map[string]string) (string, error) {
+func GoReference(packagePath string, typeName string, localPackagePath string, localImports map[string]string) (string, error) {
 	if packagePath == localPackagePath {
 		return typeName, nil
 	}

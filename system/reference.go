@@ -80,7 +80,7 @@ func (r *Reference) MarshalJSON() ([]byte, error) {
 }
 
 func (r *Reference) GoReference(path string, imports map[string]string) (string, error) {
-	s, err := IdToGoReference(r.Type, r.Package, path, imports)
+	s, err := IdToGoReference(r.Package, r.Type, path, imports)
 	if err != nil {
 		return "", uerr.New("LVHAQUOQGR", err, "Reference.GoReference", "IdToGoReference")
 	}
