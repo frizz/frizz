@@ -618,6 +618,8 @@ func RegisterPackage(name string, getter func() map[string]reflect.Type) {
 	}
 	packages.m[name] = &packageInfo{getJsonTypes: getter}
 	packages.Unlock()
+	// Un-comment this line to disable lazy-loading:
+	//registerTypes(getter())
 }
 func registerTypes(arr map[string]reflect.Type) {
 	types.Lock()
