@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
-	"os"
-	"path/filepath"
 	"strconv"
 	"text/template"
 
@@ -14,6 +12,35 @@ import (
 	"kego.io/system"
 	"kego.io/uerr"
 )
+
+func Generate(path string, imports map[string]string) ([]byte, error) {
+
+	types := system.GetAllTypesInPackage(path)
+	if len(types) == 0 {
+		return nil, uerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
+	}
+
+	data := templateData{Types: types, Path: path, Imports: imports}
+
+	var rendered bytes.Buffer
+	if err := templates().ExecuteTemplate(&rendered, "main.tmpl", data); err != nil {
+		return nil, uerr.New("SGHJCEHQMF", err, "process.Generate", "tpl.ExecuteTemplate")
+	}
+
+	formatted, err := format.Source(rendered.Bytes())
+	if err != nil {
+		return nil, uerr.New("XTKWMEDWKI", err, "process.Generate", "format.Source:\n%s\n", rendered.Bytes())
+	}
+
+	return formatted, nil
+
+}
+
+type templateData struct {
+	Types   map[string]*system.Type
+	Path    string
+	Imports map[string]string
+}
 
 func functions() template.FuncMap {
 	return template.FuncMap{
@@ -25,6 +52,7 @@ func functions() template.FuncMap {
 		"name":      getPackageNameFromPath,
 	}
 }
+
 func templates() *template.Template {
 	tpl := template.New("").Funcs(functions())
 	for name, unpacker := range _bindata {
@@ -37,75 +65,17 @@ func templates() *template.Template {
 	return tpl
 }
 
-type templateData struct {
-	Types   map[string]*system.Type
-	Path    string
-	Imports map[string]string
-}
-
-func Generate(dir string, packagePath string, imports map[string]string, test bool) error {
-
-	types := system.GetAllTypesInPackage(packagePath)
-	if len(types) == 0 {
-		return uerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
-	}
-
-	data := templateData{Types: types, Path: packagePath, Imports: imports}
-
-	var rendered bytes.Buffer
-	if err := templates().ExecuteTemplate(&rendered, "main.tmpl", data); err != nil {
-		return uerr.New("SGHJCEHQMF", err, "process.Generate", "tpl.ExecuteTemplate")
-	}
-
-	formatted, err := format.Source(rendered.Bytes())
-	if err != nil {
-		return uerr.New("XTKWMEDWKI", err, "process.Generate", "format.Source:\n%s\n", rendered.Bytes())
-	}
-
-	if test {
-		fmt.Println(string(formatted))
-		return nil
-	}
-
-	if err := save(dir, formatted); err != nil {
-		return uerr.New("EKXNBDCASD", err, "process.Generate", "save")
-	}
-
-	return nil
-}
-
-func save(dir string, contents []byte) error {
-
-	name := "generated.go"
-	file := filepath.Join(dir, name)
-
-	backup(file, filepath.Join(dir, fmt.Sprintf("%s.backup", name)))
-
-	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		return uerr.New("NWLWHSGJWP", err, "process.save", "os.OpenFile (could not open output file)")
-	}
-	defer output.Close()
-
-	output.Write(contents)
-
-	return nil
-}
-
-func backup(file string, backup string) {
-
-	if _, err := os.Stat(backup); err == nil {
-		os.Remove(backup)
-	}
-
-	if _, err := os.Stat(file); err == nil {
-		os.Rename(file, backup)
-	}
-}
+// getPackageNameFromPath returns the name of the package, given the package
+// path. Note this is golang packages not file system paths, so we always use
+// forward slash instead of os.PathSeparator
 func getPackageNameFromPath(path string) string {
 	parts := strings.Split(path, "/")
 	return parts[len(parts)-1]
 }
+
+// importStatement generates the scoure code for an import statement. If the
+// package alias is different to the name from the package path, we specify the
+// alias. If we're trying to import the local package, we output nothing.
 func importStatement(name string, path string, currentPackage string) string {
 	if currentPackage == path {
 		return ""
@@ -118,6 +88,8 @@ func importStatement(name string, path string, currentPackage string) string {
 	}
 
 }
+
+// ternary is a helper for template logic
 func ternary(condition bool, valueIfTrue string, valueIfFalse string) string {
 	if condition {
 		return valueIfTrue
@@ -125,6 +97,8 @@ func ternary(condition bool, valueIfTrue string, valueIfFalse string) string {
 		return valueIfFalse
 	}
 }
+
+// mapHelper allows us to create a map inside a template
 func mapHelper(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
 		return nil, uerr.New("AHGBMCNALB", nil, "process.mapHelper", "Must be an even number of values. Got %v", len(values))

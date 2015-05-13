@@ -38,8 +38,48 @@ func main() {
 		panic(err)
 	}
 
-	if err := process.Generate(currentDir, packagePath, imports, testMode); err != nil {
+	source, err := process.Generate(packagePath, imports)
+	if err != nil {
 		panic(err)
+	}
+
+	if testMode {
+		fmt.Printf(string(source))
+		return
+	}
+
+	if err = save(currentDir, source); err != nil {
+		panic(err)
+	}
+
+}
+
+func save(dir string, contents []byte) error {
+
+	name := "generated.go"
+	file := filepath.Join(dir, name)
+
+	backup(file, filepath.Join(dir, fmt.Sprintf("%s.backup", name)))
+
+	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return uerr.New("NWLWHSGJWP", err, "process.save", "os.OpenFile (could not open output file)")
+	}
+	defer output.Close()
+
+	output.Write(contents)
+
+	return nil
+}
+
+func backup(file string, backup string) {
+
+	if _, err := os.Stat(backup); err == nil {
+		os.Remove(backup)
+	}
+
+	if _, err := os.Stat(file); err == nil {
+		os.Rename(file, backup)
 	}
 }
 

@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"io"
+
 	"kego.io/json"
 	"kego.io/system"
 	"kego.io/uerr"
@@ -14,6 +16,9 @@ import (
 func Scan(root string, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
+		if err != nil {
+			return uerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
+		}
 		if err := processScannedFile(filePath, packagePath, imports); err != nil {
 			return uerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
@@ -38,25 +43,38 @@ func processScannedFile(filePath string, packagePath string, imports map[string]
 	}
 	defer file.Close()
 
+	if err = processReader(file, packagePath, imports); err != nil {
+		return uerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
+	}
+	return nil
+}
+
+func processReader(file io.Reader, packagePath string, imports map[string]string) error {
+
 	var i interface{}
-	if err = json.NewDecoder(file, packagePath, imports).Decode(&i); err != nil {
-		return uerr.New("DSMDNTCPOQ", err, "process.processScannedFile", "json.NewDecoder.Decode (%s)", filePath)
+	if err := json.NewDecoder(file, packagePath, imports).Decode(&i); err != nil {
+		return uerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
 	}
 
 	processScannedObject(i, packagePath, imports)
-
 	return nil
 }
 
 func processScannedObject(i interface{}, packagePath string, imports map[string]string) {
+
 	t, ok := i.(*system.Type)
 	if ok {
+
 		fullname := fmt.Sprintf("%s:%s", packagePath, t.Id)
 		system.RegisterType(fullname, t)
+
 		if t.Rule != nil {
+
 			rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id)
 			system.RegisterType(rulename, t.Rule)
+
 		} else {
+
 			// If the rule is missing, automatically create a default.
 			id := fmt.Sprintf("@%s", t.Id)
 			rulename := fmt.Sprintf("%s:%s", packagePath, id)
