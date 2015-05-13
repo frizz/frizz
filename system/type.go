@@ -53,6 +53,8 @@ func RegisterPackage(name string, getter func() map[string]*Type) {
 	}
 	packages.m[name] = &packageInfo{getSystemTypes: getter}
 	packages.Unlock()
+	// Un-comment this line to disable lazy-loading:
+	//registerTypes(getter())
 }
 func registerTypes(arr map[string]*Type) {
 	types.Lock()

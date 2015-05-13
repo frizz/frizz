@@ -11,9 +11,16 @@ import (
 /*
 	This file simulates the json package having minimal native types for number,
 	string and bool types. They can't actually be in the json package because it
-	would cause an import loop to be able to use the system types object,
-	property, reference etc. This is a special case to support native json types,
+	would cause an import loop to be able to use the system types (object,
+	property, reference etc). This is a special case to support native json types,
 	and a kluge like this shouldn't be needed in normal usage.
+
+	These types (json:string, json:bool and json:number) are not recommended for
+	high-level usage, because the lack the ability to tell if the json attribute
+	is null or missing. In that case they just get the golang zero value ("", 0
+	or false). Additionally their rule types don't have any of the validation
+	properties. Best to use the native system types as much as possible:
+	system:string, system:bool and system:number.
 */
 
 type JsonNumber_rule struct {
