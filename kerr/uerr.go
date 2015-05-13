@@ -25,6 +25,22 @@ func Assert(t assert.TestingT, theError error, expectedId string, msgAndArgs ...
 	return assert.Equal(t, expectedId, i.Unique(), "Expected %s but got %s. %s", expectedId, i.Unique(), message)
 
 }
+func Stack(t assert.TestingT, theError error, expectedId string, msgAndArgs ...interface{}) bool {
+	message := messageFromMsgAndArgs(msgAndArgs...)
+	if !assert.NotNil(t, theError, "An error is expected but got nil. %s", message) {
+		return false
+	}
+	u, ok := theError.(UniqueError)
+	if !assert.True(t, ok, "Error should be UniqueError", message) {
+		return false
+	}
+	for _, i := range u.Stack {
+		if i == expectedId {
+			return true
+		}
+	}
+	return assert.Fail(t, fmt.Sprintf("Didn't find error %s on stack.", expectedId), msgAndArgs...)
+}
 func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
 	if len(msgAndArgs) == 0 || msgAndArgs == nil {
 		return ""
@@ -40,11 +56,16 @@ func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
 
 // New creates a new uerr.Error
 func New(id string, inner error, location string, descriptionFormat string, descriptionArgs ...interface{}) UniqueError {
+	stack := []string{id}
+	if ui, ok := inner.(UniqueError); ok {
+		stack = append(ui.Stack, id)
+	}
 	return UniqueError{
 		Id:          id,
 		Inner:       inner,
 		Location:    location,
 		Description: fmt.Sprintf(descriptionFormat, descriptionArgs...),
+		Stack:       stack,
 	}
 }
 
@@ -54,6 +75,7 @@ type UniqueError struct {
 	Inner       error
 	Location    string
 	Description string
+	Stack       []string
 }
 
 // Unique returns the unique Id of the error
