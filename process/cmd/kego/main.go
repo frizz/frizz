@@ -44,7 +44,7 @@ func main() {
 	}
 
 	if testMode {
-		fmt.Printf(string(source))
+		fmt.Print("%s", string(source))
 		return
 	}
 

@@ -51,23 +51,12 @@ import (
 type A struct {
 }
 
-func jsonTypes() map[string]reflect.Type {
-	return map[string]reflect.Type{
-
-		"b.c/d:a": reflect.TypeOf(&A{}),
-	}
-}
-
-func systemTypes() map[string]*system.Type {
-	return map[string]*system.Type{
-
-		"b.c/d:a": &system.Type{Object: &system.Object{Context: (*system.Context)(nil), Description: "", Id: "a", Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "", Exists: false}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)},
-	}
-}
-
 func init() {
-	json.RegisterPackage("b.c/d", jsonTypes)
-	system.RegisterPackage("b.c/d", systemTypes)
+
+	json.RegisterType("b.c/d:a", reflect.TypeOf(&A{}))
+
+	system.RegisterType("b.c/d:a", &system.Type{Object: &system.Object{Context: (*system.Context)(nil), Description: "", Id: "a", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "", Exists: false}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)})
+
 }
 `, string(b))
 

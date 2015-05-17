@@ -34,25 +34,14 @@ import (
 	{{ end }}
 {{ end }}
 
-func jsonTypes() map[string]reflect.Type {
-	return map[string]reflect.Type{
-		{{ range $typeName, $type := .Types }}
-			{{ if not $type.Interface }}
-				{{ $typeName | quote }}: reflect.TypeOf(&{{ $type.GoName }}{}),
-			{{ end }}
-		{{ end }}
-	}
-}
-
-func systemTypes() map[string]*{{ reference "kego.io/system" "Type" $path $imports }} {
-	return map[string]*{{ reference "kego.io/system" "Type" $path $imports }}{
-		{{ range $typeName, $type := .Types }}
-			{{ $typeName | quote }}: &{{ $type.GoSyntax $path $imports }},
-		{{ end }}
-	}
-}
-
 func init() {
-	{{ reference "kego.io/json" "RegisterPackage" $path $imports }}({{ $path | quote }}, jsonTypes)
-	{{ reference "kego.io/system" "RegisterPackage" $path $imports }}({{ $path | quote }}, systemTypes)
+	{{ range $typeName, $type := .Types }}
+		{{ if not $type.Interface }}
+			{{ reference "kego.io/json" "RegisterType" $path $imports }}({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
+		{{ end }}
+	{{ end }}
+
+	{{ range $typeName, $type := .Types }}
+		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $typeName | quote }}, &{{ $type.GoSyntax $path $imports }})
+	{{ end }}
 }
