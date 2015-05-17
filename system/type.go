@@ -14,58 +14,7 @@ var types struct {
 	sync.RWMutex
 	m map[string]*Type
 }
-var packages struct {
-	sync.RWMutex
-	m map[string]*packageInfo
-}
 
-type packageInfo struct {
-	getSystemTypes func() map[string]*Type
-}
-
-var typesInit = false
-
-// initTypes initialises the system types that are needed for code generation and validation.
-// They aren't needed to simply unmarshal data, so we don't initialise them on init().
-func initTypes() {
-	if typesInit {
-		return
-	}
-	packages := getPackages()
-	for _, p := range packages {
-		registerTypes(p.getSystemTypes())
-	}
-	typesInit = true
-}
-func getPackages() map[string]*packageInfo {
-	out := map[string]*packageInfo{}
-	packages.RLock()
-	for k, p := range packages.m {
-		out[k] = p
-	}
-	packages.RUnlock()
-	return out
-}
-func RegisterPackage(name string, getter func() map[string]*Type) {
-	packages.Lock()
-	if packages.m == nil {
-		packages.m = make(map[string]*packageInfo)
-	}
-	packages.m[name] = &packageInfo{getSystemTypes: getter}
-	packages.Unlock()
-	// Un-comment this line to disable lazy-loading:
-	//registerTypes(getter())
-}
-func registerTypes(arr map[string]*Type) {
-	types.Lock()
-	if types.m == nil {
-		types.m = make(map[string]*Type)
-	}
-	for name, typ := range arr {
-		types.m[name] = typ
-	}
-	types.Unlock()
-}
 func RegisterType(name string, typ *Type) {
 	types.Lock()
 	if types.m == nil {
@@ -85,7 +34,6 @@ func UnregisterType(name string) {
 	types.Unlock()
 }
 func GetType(name string) (*Type, bool) {
-	initTypes()
 	types.RLock()
 	t, ok := types.m[name]
 	types.RUnlock()
@@ -95,7 +43,6 @@ func GetType(name string) (*Type, bool) {
 	return t, true
 }
 func GetAllTypesInPackage(path string) map[string]*Type {
-	initTypes()
 	out := map[string]*Type{}
 	types.RLock()
 	for k, t := range types.m {

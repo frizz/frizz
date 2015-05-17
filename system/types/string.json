@@ -47,6 +47,14 @@
 					"multipleOf": 1
 				}
 			},
+			"equal": {
+				"description": "This is a string that the value must match",
+				"type": "property",
+				"optional": true,
+				"item": {
+					"type": "@string"
+				}
+			},
 			"pattern": {
 				"description": "This is a regex to match the value to",
 				"type": "property",

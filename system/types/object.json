@@ -34,6 +34,17 @@
 			"item": {
 				"type": "@context"
 			}
+		},
+		"rules": {
+			"description": "Extra validation rules for this object or descendants",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@map",
+				"items": {
+					"type": "@rule"
+				}
+			}
 		}
 	}
 }
