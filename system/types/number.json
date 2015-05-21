@@ -23,9 +23,7 @@
 				"type": "property",
 				"optional": true,
 				"item": {
-					"type": "@number",
-					"minimum": 1,
-					"multipleOf": 1
+					"type": "@number"
 				}
 			},
 			"minimum": {

@@ -21,9 +21,8 @@
 				"type": "property",
 				"optional": true,
 				"item": {
-					"type": "@number", 
-					"minimum": 0.0,
-					"multipleOf": 1.0
+					"type": "@int",
+					"minimum": 0
 				}
 			},
 			"maxItems": {
@@ -31,9 +30,8 @@
 				"type": "property",
 				"optional": true,
 				"item": {
-					"type": "@number", 
-					"minimum": 0.0,
-					"multipleOf": 1.0
+					"type": "@int",
+					"minimum": 0
 				}
 			},
 			"uniqueItems": {

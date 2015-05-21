@@ -34,8 +34,7 @@
 				"type": "property",
 				"optional": true,
 				"item": {
-					"type": "@number",
-					"multipleOf": 1
+					"type": "@int"
 				}
 			},
 			"maxLength": {
@@ -43,8 +42,7 @@
 				"type": "property",
 				"optional": true,
 				"item": {
-					"type": "@number",
-					"multipleOf": 1
+					"type": "@int"
 				}
 			},
 			"equal": {
