@@ -9,3 +9,7 @@ func (o *Object) SetContext(path string, imports map[string]string) {
 func (o *Object) GetType() (*Type, bool) {
 	return o.Type.GetType()
 }
+
+type Typer interface {
+	GetType() (*Type, bool)
+}

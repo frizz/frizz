@@ -28,7 +28,7 @@ func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 	}
 
 	defaultRaw := json.RawMessage(defaultBytes)
-	t := r.parentType.FullName()
+	t := r.ParentType.FullName()
 	var tag json.KegoTag
 	if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
 		// If our default is one of the basic system native types, we know we can unmarshal it without
@@ -43,8 +43,8 @@ func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 		tag = json.KegoTag{
 			Default: &json.KegoDefault{
 				Value:   &defaultRaw,
-				Path:    r.path,
-				Imports: r.imports,
+				Path:    r.Path,
+				Imports: r.Imports,
 				Type:    t,
 			},
 		}
@@ -60,13 +60,13 @@ func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 
 func getTag(r *RuleHolder) (string, error) {
 
-	name, _, ok := r.ruleType.Defaulter()
+	name, _, ok := r.RuleType.Defaulter()
 	if !ok {
 		// This rule type doesn't support defaulters
 		return "", nil
 	}
 
-	if i, ok := r.rule.(map[string]interface{}); ok {
+	if i, ok := r.Rule.(map[string]interface{}); ok {
 		// This rule is an unknown type, so we have to extract the default
 		// value manually
 		di, ok := i[name]
@@ -81,7 +81,7 @@ func getTag(r *RuleHolder) (string, error) {
 		return formatTag(defaultBytes, r)
 	}
 
-	value, pointer, ok, err := ruleFieldByReflection(r.rule, IdToGoName(name))
+	value, pointer, ok, err := ruleFieldByReflection(r.Rule, IdToGoName(name))
 	if !ok {
 		// Doesn't have a default field
 		return "", nil
@@ -118,9 +118,9 @@ func (p *Property) GoTypeDescriptor(path string, imports map[string]string) (str
 		return "", uerr.New("SNATGPVLAS", err, "Property.GoTypeDescriptor", "collectionPrefixInnerRule")
 	}
 
-	pointer := getPointer(inner.parentType)
+	pointer := getPointer(inner.ParentType)
 
-	name, err := inner.parentType.GoTypeReference(path, imports)
+	name, err := inner.ParentType.GoTypeReference(path, imports)
 	if err != nil {
 		return "", uerr.New("CGNYBDFUNP", err, "Property.GoTypeDescriptor", "inner.parentType.GoTypeReference")
 	}
@@ -141,7 +141,7 @@ func (p *Property) GoTypeDescriptor(path string, imports map[string]string) (str
 // the full collection prefix (e.g. any number of appended [] and map[string]'s)
 // and the inner (non collection) rule.
 func collectionPrefixInnerRule(prefix string, outer *RuleHolder) (fullPrefix string, inner *RuleHolder, err error) {
-	p := outer.parentType
+	p := outer.ParentType
 	if p.IsNativeCollection() {
 		if p.Native.Value == "array" {
 			prefix += "[]"

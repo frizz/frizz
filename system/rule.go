@@ -10,11 +10,11 @@ import (
 type Rule interface{}
 
 type RuleHolder struct {
-	rule       Rule
-	ruleType   *Type
-	parentType *Type
-	path       string
-	imports    map[string]string
+	Rule       Rule
+	RuleType   *Type
+	ParentType *Type
+	Path       string
+	Imports    map[string]string
 }
 
 func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder, error) {
@@ -22,7 +22,7 @@ func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder,
 	if err != nil {
 		return nil, uerr.New("VRCWUGOTMA", err, "NewRuleHolder", "ruleTypes")
 	}
-	return &RuleHolder{rule: r, ruleType: rt, parentType: pt, path: path, imports: imports}, nil
+	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Imports: imports}, nil
 }
 
 func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, parentType *Type, err error) {
@@ -86,10 +86,10 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
-	if !r.parentType.IsNativeCollection() {
-		return nil, uerr.New("VPAGXSTQHM", nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.parentType.Id)
+	if !r.ParentType.IsNativeCollection() {
+		return nil, uerr.New("VPAGXSTQHM", nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.ParentType.Id)
 	}
-	items, _, ok, err := ruleFieldByReflection(r.rule, "Items")
+	items, _, ok, err := ruleFieldByReflection(r.Rule, "Items")
 	if err != nil {
 		return nil, uerr.New("LIDXIQYGJD", err, "RuleHolder.ItemsRule", "ruleFieldByReflection")
 	}
@@ -101,7 +101,7 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	//if !ok {
 	//	return nil, uerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
 	//}
-	rh, err := NewRuleHolder(rule, r.path, r.imports)
+	rh, err := NewRuleHolder(rule, r.Path, r.Imports)
 	if err != nil {
 		return nil, uerr.New("FGYMQPNBQJ", err, "RuleHolder.ItemsRule", "NewRuleHolder")
 	}
@@ -109,38 +109,51 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 }
 
 func ruleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
-	val := reflect.ValueOf(object)
-	if val.Kind() != reflect.Ptr {
-		return nil, nil, false, uerr.New("QOYMWPXWUO", nil, "ruleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, val.Kind())
+	v := reflect.ValueOf(object)
+	if v.Kind() != reflect.Ptr {
+		return nil, nil, false, uerr.New("QOYMWPXWUO", nil, "ruleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
 	}
-	if val.Elem().Kind() != reflect.Struct {
-		return nil, nil, false, uerr.New("IGOUOBGXAN", nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, val.Elem().Kind())
+	if v.Elem().Kind() != reflect.Struct {
+		return nil, nil, false, uerr.New("IGOUOBGXAN", nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
 	}
-	field := val.Elem().FieldByName(name)
+	value, pointer, found, zero, err := GetField(v.Elem(), name)
+
+	// zero => !ok
+	return value, pointer, found && !zero, err
+}
+func GetField(v reflect.Value, name string) (value interface{}, pointer interface{}, found bool, zero bool, err error) {
+	field := v.FieldByName(name)
 	empty := reflect.Value{}
 	if field == empty {
-		// Doesn't have an items
-		return nil, nil, false, nil
+		// Field does not exist
+		return
 	}
 	if field.Kind() == reflect.Ptr {
 		// If it's a pointer we should only return not found if
 		// it's nil:
 		if field.IsNil() {
-			return nil, nil, false, nil
+			zero = true
+			return
+		}
+	} else if field.Kind() == reflect.Map || field.Kind() == reflect.Slice {
+		if field.Len() == 0 {
+			zero = true
 		}
 	} else {
 		// If it's not a pointer, we return not found if it's an
 		// zero value
 		nilValue := reflect.Zero(field.Type())
 		if field.Interface() == nilValue.Interface() {
-			return nil, nil, false, nil
+			zero = true
 		}
 	}
+	found = true
+	value = field.Interface()
 	// This prevents **Foo being returned for pointer when value is already *Foo
 	if field.Kind() == reflect.Ptr {
 		pointer = field.Interface()
 	} else {
 		pointer = field.Addr().Interface()
 	}
-	return field.Interface(), pointer, true, nil
+	return
 }

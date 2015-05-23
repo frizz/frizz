@@ -140,27 +140,27 @@ func TestRuleHolderItemsRule(t *testing.T) {
 	defer UnregisterType("a.b/c:@a")
 
 	rh := &RuleHolder{
-		rule:       &ruleStruct{},
-		ruleType:   ruleType,
-		parentType: parentType,
-		path:       "d.e/f",
-		imports:    map[string]string{},
+		Rule:       &ruleStruct{},
+		RuleType:   ruleType,
+		ParentType: parentType,
+		Path:       "d.e/f",
+		Imports:    map[string]string{},
 	}
 	_, err := rh.ItemsRule()
 	uerr.Assert(t, err, "VPAGXSTQHM")
 
 	parentType.Native = NewString("array")
-	rh.rule = "a"
+	rh.Rule = "a"
 	_, err = rh.ItemsRule()
 	// rh.rule must be a pointer or ruleFieldByReflection will error
 	uerr.Assert(t, err, "LIDXIQYGJD")
 
-	rh.rule = &struct{}{}
+	rh.Rule = &struct{}{}
 	_, err = rh.ItemsRule()
 	// rh.rule needs an Items field
 	uerr.Assert(t, err, "VYTHGJTSNJ")
 
-	rh.rule = &struct{ Items int }{Items: 1}
+	rh.Rule = &struct{ Items int }{Items: 1}
 	_, err = rh.ItemsRule()
 	// Items must be a rule or NewRuleHolder will error
 	uerr.Assert(t, err, "FGYMQPNBQJ")

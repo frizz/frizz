@@ -45,11 +45,11 @@ func TestPropertyFormatTag(t *testing.T) {
 	defer UnregisterType("a.b/c:@a")
 
 	r := &RuleHolder{
-		rule:       &ruleStruct{},
-		ruleType:   ruleType,
-		parentType: parentType,
-		path:       "d.e/f",
-		imports:    map[string]string{},
+		Rule:       &ruleStruct{},
+		RuleType:   ruleType,
+		ParentType: parentType,
+		Path:       "d.e/f",
+		Imports:    map[string]string{},
 	}
 	s, err := formatTag([]byte("null"), r)
 	assert.NoError(t, err)
@@ -122,11 +122,11 @@ func TestPropertyGetTag(t *testing.T) {
 	defer UnregisterType("a.b/c:@a")
 
 	r := &RuleHolder{
-		rule:       &ruleStruct{},
-		ruleType:   ruleType,
-		parentType: parentType,
-		path:       "d.e/f",
-		imports:    map[string]string{},
+		Rule:       &ruleStruct{},
+		RuleType:   ruleType,
+		ParentType: parentType,
+		Path:       "d.e/f",
+		Imports:    map[string]string{},
 	}
 
 	// ruleType has no defaulter property
@@ -145,21 +145,21 @@ func TestPropertyGetTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "", s)
 
-	r.rule = map[string]interface{}{"b": "c"}
+	r.Rule = map[string]interface{}{"b": "c"}
 	s, err = getTag(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	r.rule = map[string]interface{}{"d": "e"}
+	r.Rule = map[string]interface{}{"d": "e"}
 	s, err = getTag(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "", s)
 
-	r.rule = map[string]interface{}{"b": make(typeThatWillCauseJsonMarshalToError)}
+	r.Rule = map[string]interface{}{"b": make(typeThatWillCauseJsonMarshalToError)}
 	s, err = getTag(r)
 	uerr.Assert(t, err, "FYMGUTAOCR")
 
-	r.rule = &ruleStruct{B: NewString("c")}
+	r.Rule = &ruleStruct{B: NewString("c")}
 
 	s, err = getTag(r)
 	assert.NoError(t, err)
@@ -170,12 +170,12 @@ func TestPropertyGetTag(t *testing.T) {
 			Defaulter: true,
 		},
 	}
-	r.rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}}}
+	r.Rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}}}
 	s, err = getTag(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	r.rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}, throwError: true}}
+	r.Rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}, throwError: true}}
 	s, err = getTag(r)
 	uerr.Assert(t, err, "YIEMHYFVCD")
 
@@ -184,7 +184,7 @@ func TestPropertyGetTag(t *testing.T) {
 			Defaulter: true,
 		},
 	}
-	r.rule = &ruleStruct{D: make(typeThatWillCauseJsonMarshalToError)}
+	r.Rule = &ruleStruct{D: make(typeThatWillCauseJsonMarshalToError)}
 	s, err = getTag(r)
 	uerr.Assert(t, err, "QQDOLAJKLU")
 
@@ -193,7 +193,7 @@ func TestPropertyGetTag(t *testing.T) {
 			Defaulter: true,
 		},
 	}
-	r.rule = &ruleStruct{E: structWithoutCustomMarshaler{A: "b"}}
+	r.Rule = &ruleStruct{E: structWithoutCustomMarshaler{A: "b"}}
 	s, err = getTag(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":{\\\"A\\\":\\\"b\\\"},\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
