@@ -7,52 +7,7 @@ import (
 	"fmt"
 
 	"strings"
-
-	"kego.io/assert"
 )
-
-// Assert works with the assert package to test for a specific error
-func Assert(t assert.TestingT, theError error, expectedId string, msgAndArgs ...interface{}) bool {
-
-	message := messageFromMsgAndArgs(msgAndArgs...)
-	if !assert.NotNil(t, theError, "An error is expected but got nil. %s", message) {
-		return false
-	}
-	i, ok := theError.(Unique)
-	if !assert.True(t, ok, "Error should implement uerr.Unique", message) {
-		return false
-	}
-	return assert.Equal(t, expectedId, i.Unique(), "Expected %s but got %s. %s", expectedId, i.Unique(), message)
-
-}
-func Stack(t assert.TestingT, theError error, expectedId string, msgAndArgs ...interface{}) bool {
-	message := messageFromMsgAndArgs(msgAndArgs...)
-	if !assert.NotNil(t, theError, "An error is expected but got nil. %s", message) {
-		return false
-	}
-	u, ok := theError.(UniqueError)
-	if !assert.True(t, ok, "Error should be UniqueError", message) {
-		return false
-	}
-	for _, i := range u.Stack {
-		if i == expectedId {
-			return true
-		}
-	}
-	return assert.Fail(t, fmt.Sprintf("Didn't find error %s on stack.", expectedId), msgAndArgs...)
-}
-func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
-	if len(msgAndArgs) == 0 || msgAndArgs == nil {
-		return ""
-	}
-	if len(msgAndArgs) == 1 {
-		return msgAndArgs[0].(string)
-	}
-	if len(msgAndArgs) > 1 {
-		return fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
-	}
-	return ""
-}
 
 // New creates a new uerr.Error
 func New(id string, inner error, location string, descriptionFormat string, descriptionArgs ...interface{}) UniqueError {
