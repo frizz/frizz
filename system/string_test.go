@@ -3,11 +3,10 @@ package system
 import (
 	"testing"
 
+	"kego.io/assert"
 	"kego.io/uerr"
 
 	"strconv"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewString(t *testing.T) {

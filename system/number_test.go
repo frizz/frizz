@@ -3,9 +3,8 @@ package system
 import (
 	"testing"
 
+	"kego.io/assert"
 	"kego.io/uerr"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewNumber(t *testing.T) {

@@ -3,7 +3,7 @@ package system
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 )
 
 func TestObjectSetContext(t *testing.T) {

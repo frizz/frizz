@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 	"kego.io/json"
 	"kego.io/uerr"
 )
