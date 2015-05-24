@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"kego.io/assert"
-	"kego.io/uerr"
 
 	"strconv"
 )
@@ -30,7 +29,7 @@ func TestStringUnmarshalJSON(t *testing.T) {
 	assert.Equal(t, "", s.Value)
 
 	err = s.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	uerr.Assert(t, err, "ACHMRKVFAB")
+	assert.IsError(t, err, "ACHMRKVFAB")
 
 }
 

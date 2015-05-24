@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"kego.io/assert"
-	"kego.io/uerr"
 )
 
 func TestNewBool(t *testing.T) {
@@ -33,7 +32,7 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 	assert.False(t, b.Value)
 
 	err = b.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	uerr.Assert(t, err, "CJMOICJGJG")
+	assert.IsError(t, err, "CJMOICJGJG")
 
 }
 func TestBoolMarshalJSON(t *testing.T) {

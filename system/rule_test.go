@@ -6,7 +6,6 @@ import (
 
 	"kego.io/assert"
 	"kego.io/json"
-	"kego.io/uerr"
 )
 
 func TestRuleTypes(t *testing.T) {
@@ -36,21 +35,21 @@ func TestRuleTypes(t *testing.T) {
 	r1 := ruleStruct{}
 	rt, pt, err = ruleTypes(r1, "", map[string]string{})
 	// A non pointer rule will cause ruleTypeReference to return an error
-	uerr.Assert(t, err, "BNEKIFYDDL")
+	assert.IsError(t, err, "BNEKIFYDDL")
 
 	r = &ruleStruct{
 		&Object{Type: NewReference("a.b/c", "unregistered")},
 	}
 	rt, pt, err = ruleTypes(r, "", map[string]string{})
 	// An unregistered type will cause ruleReference.GetType to return an error
-	uerr.Assert(t, err, "PFGWISOHRR")
+	assert.IsError(t, err, "PFGWISOHRR")
 
 	r = &ruleStruct{
 		&Object{Type: NewReference("a.b/c", "a")},
 	}
 	rt, pt, err = ruleTypes(r, "", map[string]string{})
 	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
-	uerr.Assert(t, err, "NXRCPQMUIE")
+	assert.IsError(t, err, "NXRCPQMUIE")
 
 	RegisterType("a.b/c:@b", ruleType)
 	r = &ruleStruct{
@@ -58,7 +57,7 @@ func TestRuleTypes(t *testing.T) {
 	}
 	rt, pt, err = ruleTypes(r, "", map[string]string{})
 	// An rule type with an unregistered parent type typeReference.GetType to return an error
-	uerr.Assert(t, err, "KYCTDXKFYR")
+	assert.IsError(t, err, "KYCTDXKFYR")
 
 }
 
@@ -76,19 +75,19 @@ func TestRuleTypeReference(t *testing.T) {
 
 	ri := map[string]interface{}{}
 	r, err = ruleTypeReference(ri, "", map[string]string{})
-	uerr.Assert(t, err, "OLHOVKXEXN")
+	assert.IsError(t, err, "OLHOVKXEXN")
 
 	ri = map[string]interface{}{
 		"type": 1, //not a string
 	}
 	r, err = ruleTypeReference(ri, "", map[string]string{})
-	uerr.Assert(t, err, "IILEXGQDXL")
+	assert.IsError(t, err, "IILEXGQDXL")
 
 	ri = map[string]interface{}{
 		"type": "a:b", // package will not be registered so UnmarshalJSON will error
 	}
 	r, err = ruleTypeReference(ri, "", map[string]string{})
-	uerr.Assert(t, err, "QBTHPRVBWN")
+	assert.IsError(t, err, "QBTHPRVBWN")
 
 	ri = map[string]interface{}{
 		"type": "a.b/c:@a",
@@ -100,12 +99,12 @@ func TestRuleTypeReference(t *testing.T) {
 	rsp := ruleStruct{}
 	r, err = ruleTypeReference(rsp, "", map[string]string{})
 	// rsp is not a pointer so ruleFieldByReflection will error
-	uerr.Assert(t, err, "QJQAIGPYXC")
+	assert.IsError(t, err, "QJQAIGPYXC")
 
 	type structWithoutType struct{}
 	rwt := &structWithoutType{}
 	r, err = ruleTypeReference(rwt, "", map[string]string{})
-	uerr.Assert(t, err, "NXYRAJITEV")
+	assert.IsError(t, err, "NXYRAJITEV")
 
 	type structWithIntType struct {
 		Type int
@@ -114,7 +113,7 @@ func TestRuleTypeReference(t *testing.T) {
 		Type: 1,
 	}
 	r, err = ruleTypeReference(rwi, "", map[string]string{})
-	uerr.Assert(t, err, "FHUPSRTRFE")
+	assert.IsError(t, err, "FHUPSRTRFE")
 }
 
 func TestRuleHolderItemsRule(t *testing.T) {
@@ -147,35 +146,35 @@ func TestRuleHolderItemsRule(t *testing.T) {
 		Imports:    map[string]string{},
 	}
 	_, err := rh.ItemsRule()
-	uerr.Assert(t, err, "VPAGXSTQHM")
+	assert.IsError(t, err, "VPAGXSTQHM")
 
 	parentType.Native = NewString("array")
 	rh.Rule = "a"
 	_, err = rh.ItemsRule()
 	// rh.rule must be a pointer or ruleFieldByReflection will error
-	uerr.Assert(t, err, "LIDXIQYGJD")
+	assert.IsError(t, err, "LIDXIQYGJD")
 
 	rh.Rule = &struct{}{}
 	_, err = rh.ItemsRule()
 	// rh.rule needs an Items field
-	uerr.Assert(t, err, "VYTHGJTSNJ")
+	assert.IsError(t, err, "VYTHGJTSNJ")
 
 	rh.Rule = &struct{ Items int }{Items: 1}
 	_, err = rh.ItemsRule()
 	// Items must be a rule or NewRuleHolder will error
-	uerr.Assert(t, err, "FGYMQPNBQJ")
+	assert.IsError(t, err, "FGYMQPNBQJ")
 
 }
 func TestRuleFieldByReflection(t *testing.T) {
 
 	_, _, _, err := ruleFieldByReflection(struct{}{}, "")
 	// Must be a pointer type
-	uerr.Assert(t, err, "QOYMWPXWUO")
+	assert.IsError(t, err, "QOYMWPXWUO")
 
 	i := 1
 	_, _, _, err = ruleFieldByReflection(&i, "")
 	// Must point to a struct type
-	uerr.Assert(t, err, "IGOUOBGXAN")
+	assert.IsError(t, err, "IGOUOBGXAN")
 
 	_, _, ok, err := ruleFieldByReflection(&struct{}{}, "A")
 	// Must have field called a, or it returns false

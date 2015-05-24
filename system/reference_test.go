@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"kego.io/assert"
-	"kego.io/uerr"
 )
 
 func TestReferenceRuleToParentType(t *testing.T) {
@@ -18,11 +17,11 @@ func TestReferenceRuleToParentType(t *testing.T) {
 
 	r = Reference{}
 	rp, err = r.RuleToParentType()
-	uerr.Assert(t, err, "OSQKOWGVWX")
+	assert.IsError(t, err, "OSQKOWGVWX")
 
 	r = NewReference("a.b/c", "d")
 	rp, err = r.RuleToParentType()
-	uerr.Assert(t, err, "HBKCDXQBYG")
+	assert.IsError(t, err, "HBKCDXQBYG")
 
 }
 
@@ -37,7 +36,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 
 	r := reset()
 	err := r.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	uerr.Assert(t, err, "BBWVFPNNTT")
+	assert.IsError(t, err, "BBWVFPNNTT")
 
 	r = reset()
 	err = r.UnmarshalJSON([]byte("null"), "", map[string]string{})
@@ -73,7 +72,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 
 	r = reset()
 	err = r.UnmarshalJSON([]byte("\"a:b\""), "", map[string]string{})
-	uerr.Assert(t, err, "DBQPULKKUH")
+	assert.IsError(t, err, "DBQPULKKUH")
 }
 
 func TestReferenceMarshalJson(t *testing.T) {
@@ -96,7 +95,7 @@ func TestReferenceGoReference(t *testing.T) {
 
 	r = NewReference("a.b/c", "d")
 	_, err = r.GoReference("", map[string]string{})
-	uerr.Assert(t, err, "LVHAQUOQGR")
+	assert.IsError(t, err, "LVHAQUOQGR")
 
 	r = NewReference("kego.io/json", "string")
 	s, err = r.GoReference("", map[string]string{})

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"kego.io/assert"
-	"kego.io/uerr"
 )
 
 func TestNewInt(t *testing.T) {
@@ -33,10 +32,10 @@ func TestIntUnmarshalJSON(t *testing.T) {
 	assert.Equal(t, 0, i.Value)
 
 	err = i.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	uerr.Assert(t, err, "WCXYWVMOTT")
+	assert.IsError(t, err, "WCXYWVMOTT")
 
 	err = i.UnmarshalJSON([]byte("1.2"), "", map[string]string{})
-	uerr.Assert(t, err, "KVEOETSIJY")
+	assert.IsError(t, err, "KVEOETSIJY")
 
 }
 

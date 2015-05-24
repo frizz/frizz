@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"kego.io/assert"
-	"kego.io/uerr"
 )
 
 func TestStringRule_Enforce(t *testing.T) {
@@ -25,7 +24,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.False(t, ok)
 
 	ok, message, err = r.Enforce("a", "", map[string]string{})
-	uerr.Assert(t, err, "SXFBXGQSEA")
+	assert.IsError(t, err, "SXFBXGQSEA")
 
 	r = String_rule{MaxLength: NewInt(1)}
 	ok, message, err = r.Enforce(NewString("ab"), "", map[string]string{})

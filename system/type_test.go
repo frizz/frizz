@@ -8,7 +8,6 @@ import (
 
 	"kego.io/assert"
 	"kego.io/json"
-	"kego.io/uerr"
 )
 
 func TestBool(t *testing.T) {
@@ -275,7 +274,7 @@ func TestNativeGoType(t *testing.T) {
 	assert.Equal(t, "bool", n)
 
 	_, err = nativeGoType("a")
-	uerr.Assert(t, err, "TXQIDRBJRH")
+	assert.IsError(t, err, "TXQIDRBJRH")
 }
 
 func TestTypeIsNativeType(t *testing.T) {
