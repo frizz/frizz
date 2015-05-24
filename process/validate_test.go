@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 	"kego.io/uerr"
 )
 

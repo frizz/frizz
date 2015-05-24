@@ -4,14 +4,13 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"kego.io/assert"
 	"kego.io/system"
 	"kego.io/uerr"
 
 	"os"
 
 	"path/filepath"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestScan(t *testing.T) {

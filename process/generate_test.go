@@ -3,7 +3,7 @@ package process
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 	"kego.io/system"
 	"kego.io/uerr"
 )
