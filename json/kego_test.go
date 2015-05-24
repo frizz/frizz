@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 )
 
 func TestDecodeSimple(t *testing.T) {
