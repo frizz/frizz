@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 )
 
 func TestErr(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 
 	"strings"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 )
 
 // Assert works with the assert package to test for a specific error
