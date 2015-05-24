@@ -1,6 +1,5 @@
-
-[![Build Status](https://travis-ci.org/coddingtonbear/go-jsonselect.png?branch=master)](https://travis-ci.org/coddingtonbear/go-jsonselect)
-[![GoDoc](https://godoc.org/github.com/coddingtonbear/go-jsonselect?status.png)](http://godoc.org/github.com/coddingtonbear/go-jsonselect)
+[![Build Status](https://drone.io/github.com/kego/jsonselect/status.png)](https://drone.io/github.com/kego/jsonselect/latest)
+[![Coverage Status](https://coveralls.io/repos/kego/jsonselect/badge.svg)](https://coveralls.io/r/kego/jsonselect)
 
 go-jsonselect
 =============
