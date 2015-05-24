@@ -8,16 +8,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/coddingtonbear/go-simplejson"
+	"kego.io/json"
 )
 
 type Parser struct {
-	Data  *simplejson.Json
+	Data  *json.Json
 	nodes []*jsonNode
 }
 
 func CreateParserFromString(body string) (*Parser, error) {
-	json, err := simplejson.NewJson([]byte(body))
+	json, err := json.NewJson([]byte(body))
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func CreateParserFromString(body string) (*Parser, error) {
 	return &parser, err
 }
 
-func CreateParser(json *simplejson.Json) (*Parser, error) {
+func CreateParser(json *json.Json) (*Parser, error) {
 	log.SetOutput(ioutil.Discard)
 	parser := Parser{json, nil}
 	parser.mapDocument()
@@ -49,13 +49,13 @@ func (p *Parser) evaluateSelector(selector string) ([]*jsonNode, error) {
 	return nodes, nil
 }
 
-func (p *Parser) GetJsonElements(selector string) ([]*simplejson.Json, error) {
+func (p *Parser) GetJsonElements(selector string) ([]*json.Json, error) {
 	nodes, err := p.evaluateSelector(selector)
 	if err != nil {
 		return nil, err
 	}
 
-	var results = make([]*simplejson.Json, 0, len(nodes))
+	var results = make([]*json.Json, 0, len(nodes))
 	for _, node := range nodes {
 		results = append(
 			results,
@@ -90,9 +90,9 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*jsonNode, re
 	var validators = make([]func(*jsonNode) bool, 0, 10)
 	logger.Print("selectorProduction(", recursionDepth, ") starting with ", tokens[0], " - ", len(tokens), " tokens remaining.")
 
-	_, matched, _ = p.peek(tokens, S_TYPE)
+	_, matched, _ = p.peek(tokens, S_JSON_TYPE)
 	if matched {
-		value, tokens, _ = p.match(tokens, S_TYPE)
+		value, tokens, _ = p.match(tokens, S_JSON_TYPE)
 		validators = append(
 			validators,
 			p.typeProduction(value),
@@ -435,7 +435,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 			rvals, _ := p.selectorProduction(args, newMap, -100)
 			logger.DecreaseDepth()
 			logger.Print("pclassFuncProduction resursion completed with ", len(rvals), " results.")
-			ancestors := make(map[*simplejson.Json]*jsonNode, len(rvals))
+			ancestors := make(map[*json.Json]*jsonNode, len(rvals))
 			for _, node := range rvals {
 				if node.parent != nil {
 					ancestors[node.parent.json] = node.parent

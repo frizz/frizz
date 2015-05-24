@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coddingtonbear/go-simplejson"
+	"kego.io/json"
 )
 
 // Used for storing the results of the benchmarking tests below
@@ -14,13 +14,13 @@ import (
 var parser *Parser
 var values []interface{}
 
-func getTestParser(testDocuments map[string]*simplejson.Json, testName string) (*Parser, error) {
+func getTestParser(testDocuments map[string]*json.Json, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
 	return CreateParser(jsonDocument)
 }
 
 func runTestsInDirectory(t *testing.T, baseDirectory string) {
-	var testDocuments = make(map[string]*simplejson.Json)
+	var testDocuments = make(map[string]*json.Json)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
 
@@ -37,7 +37,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				t.Error("Error encountered while reading ", name, ": ", err)
 				continue
 			}
-			parsed_document, err := simplejson.NewJson(json_document)
+			parsed_document, err := json.NewJson(json_document)
 			if err != nil {
 				t.Error("Error encountered while deserializing ", name, ": ", err)
 				continue
@@ -116,21 +116,21 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 			t.Error("Test ", testName, " failed due to number of results being mismatched; ", len(stringResults), " != ", len(expectedOutput), ": [Actual] ", stringResults, " != [Expected] ", expectedOutput)
 			passed = false
 		} else {
-			var expected = make([]*simplejson.Json, 0, 10)
-			var actual = make([]*simplejson.Json, 0, 10)
+			var expected = make([]*json.Json, 0, 10)
+			var actual = make([]*json.Json, 0, 10)
 			matchType := "string"
 
 			for idx, result := range stringResults {
 				expectedEncoded := expectedOutput[idx]
 
-				expectedJson, err := simplejson.NewJson([]byte(expectedEncoded))
+				expectedJson, err := json.NewJson([]byte(expectedEncoded))
 				if err != nil {
 					t.Error(
 						"Test ", testName, " failed due to a JSON decoding error while decoding expectation: ", err,
 					)
 					passed = false
 				}
-				resultJson, err := simplejson.NewJson([]byte(result))
+				resultJson, err := json.NewJson([]byte(result))
 				if err != nil {
 					t.Error(
 						"Test ", testName, " failed due to a JSON decoding error while decoding result: ", err,

@@ -21,7 +21,8 @@ type scannerItem struct {
 }
 
 const (
-	S_TYPE              tokenType = "type"
+	S_JSON_TYPE         tokenType = "json_type"
+	S_KEGO_TYPE         tokenType = "kego_type"
 	S_IDENTIFIER        tokenType = "identifier"
 	S_QUOTED_IDENTIFIER tokenType = "quoted_identifier"
 	S_PCLASS            tokenType = "pclass"
@@ -62,7 +63,15 @@ var selectorScanner = []scannerItem{
 	},
 	scannerItem{
 		regexp.MustCompile(`^string|boolean|null|array|object|number`),
-		S_TYPE,
+		S_JSON_TYPE,
+	},
+	scannerItem{
+		// Kego type syntax must be surrounded by curly braces, and contain:
+		// Any character apart from {, }, \
+		// Escape sequences: \{ \} \\ \b \f \n \r \t \/
+		// Hex encoded characters: \uXXXX where X is a lower case hex digit.
+		regexp.MustCompile(`^\{([^\{\}\\]*|\\[\{\}\\bfnrt\/]|\\u[0-9a-f]{4})*\}`),
+		S_KEGO_TYPE,
 	},
 	scannerItem{
 		regexp.MustCompile(`^\"([_a-zA-Z]|\\[^\s0-9a-fA-F])([_a-zA-Z0-9\-]|(\\[^\s0-9a-fA-F]))*\"`),

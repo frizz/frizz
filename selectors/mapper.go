@@ -1,7 +1,7 @@
 package jsonselect
 
 import (
-	"github.com/coddingtonbear/go-simplejson"
+	"kego.io/json"
 )
 
 type jsonType string
@@ -21,7 +21,7 @@ const (
 type jsonNode struct {
 	value      interface{}
 	typ        jsonType
-	json       *simplejson.Json
+	json       *json.Json
 	parent     *jsonNode
 	parent_key string
 	idx        int
@@ -39,7 +39,7 @@ func (p *Parser) getFlooredDocumentMap(node *jsonNode) []*jsonNode {
 	return newMap
 }
 
-func (p *Parser) findSubordinatejsonNodes(jdoc *simplejson.Json, nodes []*jsonNode, parent *jsonNode, parent_key string, idx int, siblings int) []*jsonNode {
+func (p *Parser) findSubordinatejsonNodes(jdoc *json.Json, nodes []*jsonNode, parent *jsonNode, parent_key string, idx int, siblings int) []*jsonNode {
 	node := jsonNode{}
 	node.parent = parent
 	node.json = jdoc

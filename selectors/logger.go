@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/coddingtonbear/go-simplejson"
+	"kego.io/json"
 )
 
 type logHandler struct {
@@ -80,7 +80,7 @@ func EnableLogger() {
 	logger.Enabled = true
 }
 
-func getFormattedNodeMap(nodes map[*simplejson.Json]*jsonNode) []string {
+func getFormattedNodeMap(nodes map[*json.Json]*jsonNode) []string {
 	output := make([]*jsonNode, 0, len(nodes))
 	for _, val := range nodes {
 		output = append(output, val)

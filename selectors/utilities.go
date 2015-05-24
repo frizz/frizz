@@ -1,14 +1,13 @@
 package jsonselect
 
 import (
-	"encoding/json"
 	"log"
 	"strconv"
 
-	"github.com/coddingtonbear/go-simplejson"
+	"kego.io/json"
 )
 
-func nodeIsMemberOfHaystack(needle *jsonNode, haystack map[*simplejson.Json]*jsonNode) bool {
+func nodeIsMemberOfHaystack(needle *jsonNode, haystack map[*json.Json]*jsonNode) bool {
 	_, ok := haystack[needle.json]
 	return ok
 }
@@ -22,14 +21,14 @@ func nodeIsMemberOfList(needle *jsonNode, haystack []*jsonNode) bool {
 	return false
 }
 
-func appendAncestorsToHaystack(node *jsonNode, haystack map[*simplejson.Json]*jsonNode) {
+func appendAncestorsToHaystack(node *jsonNode, haystack map[*json.Json]*jsonNode) {
 	if node.parent != nil {
 		haystack[node.parent.json] = node.parent
 		appendAncestorsToHaystack(node.parent, haystack)
 	}
 }
 
-func nodeIsChildOfHaystackMember(needle *jsonNode, haystack map[*simplejson.Json]*jsonNode) bool {
+func nodeIsChildOfHaystackMember(needle *jsonNode, haystack map[*json.Json]*jsonNode) bool {
 	if nodeIsMemberOfHaystack(needle, haystack) {
 		return true
 	}
@@ -68,7 +67,7 @@ func ancestors(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
 
 func siblings(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
 	var results []*jsonNode
-	parents := make(map[*simplejson.Json]*jsonNode, len(lhs))
+	parents := make(map[*json.Json]*jsonNode, len(lhs))
 
 	for _, element := range lhs {
 		parents[element.parent.json] = element.parent
@@ -156,8 +155,8 @@ func exprElementsMatch(lhs exprElement, rhs exprElement) bool {
 	return lhs.typ == rhs.typ
 }
 
-func getHaystackFromNodeList(nodes []*jsonNode) map[*simplejson.Json]*jsonNode {
-	hashmap := make(map[*simplejson.Json]*jsonNode, len(nodes))
+func getHaystackFromNodeList(nodes []*jsonNode) map[*json.Json]*jsonNode {
+	hashmap := make(map[*json.Json]*jsonNode, len(nodes))
 	for _, node := range nodes {
 		hashmap[node.json] = node
 	}
