@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 )
 
 func TestGetName(t *testing.T) {
@@ -35,7 +35,7 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/fmt", imp))
 	assert.Equal(t, "*h.MyType", GetName(reflect.TypeOf(&m), "a.b/c", impk))
 
-	asp := "github.com/stretchr/testify/assert"
+	asp := "kego.io/assert"
 	impa := map[string]string{"d": "e.f/g", "as": asp}
 	ass := assert.Assertions{} // Just using a random struct from a non system package
 

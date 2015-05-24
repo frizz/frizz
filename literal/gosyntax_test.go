@@ -3,7 +3,7 @@ package fmt
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/assert"
 )
 
 func TestGoSyntax(t *testing.T) {
