@@ -6,7 +6,6 @@ import (
 
 	"kego.io/assert"
 	"kego.io/system"
-	"kego.io/uerr"
 
 	"os"
 
@@ -97,7 +96,7 @@ func TestScan_rule(t *testing.T) {
 func TestScan_errors(t *testing.T) {
 
 	err := Scan("/this-folder-doesnt-exist", "", map[string]string{})
-	uerr.Assert(t, err, "XHHQSAVCKK")
+	assert.IsError(t, err, "XHHQSAVCKK")
 
 	d, err := ioutil.TempDir("", "")
 	assert.NoError(t, err)
@@ -109,12 +108,12 @@ func TestScan_errors(t *testing.T) {
 	defer os.Remove(f)
 
 	err = Scan(d, "d.e/f", map[string]string{})
-	uerr.Assert(t, err, "XHHQSAVCKK")
-	uerr.Stack(t, err, "DHTURNTIXE")
+	assert.IsError(t, err, "XHHQSAVCKK")
+	assert.HasError(t, err, "DHTURNTIXE")
 
 }
 
 func TestProcessScannedFile(t *testing.T) {
 	err := processScannedFile("/this-file-doesnt-exist.json", "", map[string]string{})
-	uerr.Assert(t, err, "NMWROTKPLJ")
+	assert.IsError(t, err, "NMWROTKPLJ")
 }

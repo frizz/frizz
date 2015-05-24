@@ -5,14 +5,13 @@ import (
 
 	"kego.io/assert"
 	"kego.io/system"
-	"kego.io/uerr"
 )
 
 func TestGenerate_errors(t *testing.T) {
 
 	_, err := Generate("a.b/c", map[string]string{})
 	// No types
-	uerr.Assert(t, err, "HQLAEMCHBM")
+	assert.IsError(t, err, "HQLAEMCHBM")
 
 	ty := &system.Type{
 		Object: &system.Object{Id: "a corrupt", Type: system.NewReference("kego.io/system", "type")},
@@ -22,7 +21,7 @@ func TestGenerate_errors(t *testing.T) {
 
 	_, err = Generate("b.c/d", map[string]string{})
 	// Corrupt type ID causes error from source formatter
-	uerr.Assert(t, err, "XTKWMEDWKI")
+	assert.IsError(t, err, "XTKWMEDWKI")
 }
 func TestGenerate(t *testing.T) {
 
@@ -98,8 +97,8 @@ func TestMapHelper(t *testing.T) {
 	assert.Equal(t, 2, m["c"])
 
 	_, err = mapHelper("a", "b", "c")
-	uerr.Assert(t, err, "AHGBMCNALB")
+	assert.IsError(t, err, "AHGBMCNALB")
 
 	_, err = mapHelper(1, "a")
-	uerr.Assert(t, err, "WLHGIPIEUI")
+	assert.IsError(t, err, "WLHGIPIEUI")
 }
