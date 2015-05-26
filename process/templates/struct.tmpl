@@ -1,6 +1,6 @@
 {{ $path := .path }}
 {{ $imports := .imports }}
-{{ if not .type.IsNativeValue }}
+{{ if and (not .type.IsNativeValue) (not .type.Exclude) }}
 {{ if not (eq .type.Description "") }}// {{ .type.Description }}{{ end }}
 type {{ .go }} struct {
 
