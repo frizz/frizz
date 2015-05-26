@@ -41,6 +41,14 @@
 				"type": "json:@bool"
 			}
 		},
+		"exclude": {
+			"description": "Exclude this type from the generated json?",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "json:@bool"
+			}
+		},
 		"properties": {
 			"description": "Each field is listed with it's type",
 			"type": "property",

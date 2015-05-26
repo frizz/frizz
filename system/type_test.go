@@ -279,20 +279,20 @@ func TestNativeGoType(t *testing.T) {
 
 func TestTypeIsNativeType(t *testing.T) {
 	y := &Type{Native: NewString("bool")}
-	n := y.IsNativeType()
+	n := y.IsNativeObject()
 	assert.False(t, n)
 
 	y = &Type{Native: NewString("array")}
-	n = y.IsNativeType()
+	n = y.IsNativeObject()
 	assert.False(t, n)
 
 	y = &Type{Native: NewString("object")}
-	n = y.IsNativeType()
+	n = y.IsNativeObject()
 	assert.True(t, n)
 
 	// Will also return true for any other value
 	y = &Type{Native: NewString("a")}
-	n = y.IsNativeType()
+	n = y.IsNativeObject()
 	assert.True(t, n)
 }
 

@@ -33,6 +33,9 @@ func UnregisterType(name string) {
 	delete(types.m, name)
 	types.Unlock()
 }
+
+// TODO: Perhaps this should not return a pointer if it will
+// TODO: be used concurrently?
 func GetType(name string) (*Type, bool) {
 	types.RLock()
 	t, ok := types.m[name]
@@ -42,6 +45,9 @@ func GetType(name string) (*Type, bool) {
 	}
 	return t, true
 }
+
+// TODO: Perhaps this should not return pointers if it will
+// TODO: be used concurrently?
 func GetAllTypesInPackage(path string) map[string]*Type {
 	out := map[string]*Type{}
 	types.RLock()
@@ -59,12 +65,12 @@ func (t *Type) HasExtends() bool {
 	return t.Extends.Value != ""
 }
 
-type nativeTypeClasses int
+type nativeTypeClasses string
 
 const (
-	nativeValue nativeTypeClasses = iota
-	nativeCollection
-	nativeType
+	nativeValue      nativeTypeClasses = "value"
+	nativeCollection nativeTypeClasses = "collection"
+	nativeObject     nativeTypeClasses = "object"
 )
 
 func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
@@ -74,7 +80,7 @@ func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
 	case "map", "array":
 		return nativeCollection
 	default:
-		return nativeType
+		return nativeObject
 	}
 }
 
@@ -97,8 +103,8 @@ func (t *Type) IsNativeValue() bool {
 func (t *Type) IsNativeCollection() bool {
 	return nativeTypeClass(t.Native.Value) == nativeCollection
 }
-func (t *Type) IsNativeType() bool {
-	return nativeTypeClass(t.Native.Value) == nativeType
+func (t *Type) IsNativeObject() bool {
+	return nativeTypeClass(t.Native.Value) == nativeObject
 }
 func (t *Type) NativeValueGolangType() (string, error) {
 	return nativeGoType(t.Native.Value)

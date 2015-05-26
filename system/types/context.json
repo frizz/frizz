@@ -3,23 +3,5 @@
 	"type": "type",
 	"id": "context",
 	"extends": "",
-	"properties": {
-		"package": {
-			"description": "The path of the local package.",
-			"type": "property",
-			"item": {
-				"type": "json:@string"
-			}
-		},
-		"imports": {
-			"description": "A list of imports.",
-			"type": "property",
-			"item": {
-				"type": "@map",
-				"items": {
-					"type": "json:@string"
-				}
-			}
-		}
-	}
+	"exclude": true
 }
