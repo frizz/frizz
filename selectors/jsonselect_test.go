@@ -6,8 +6,21 @@ import (
 	"strings"
 	"testing"
 
+	"fmt"
+
+	"kego.io/assert"
 	"kego.io/json"
 )
+
+func TestFoo(t *testing.T) {
+	s := `{"a": "b", "c": {"d": "e"}, "f": ["g", "h", "i"]}`
+	p, err := CreateParserFromString(s)
+	assert.NoError(t, err)
+	for i, node := range p.nodes {
+		fmt.Printf("%d) parent_key:%s idx:%d value:%#v\n", i, node.parent_key, node.idx, node.value)
+	}
+
+}
 
 // Used for storing the results of the benchmarking tests below
 // to avoid compiler optimizations.
