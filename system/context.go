@@ -9,3 +9,13 @@ type Context struct {
 	// The path of the local package.
 	Package string
 }
+
+func (c *Context) Clone() *Context {
+	new := &Context{}
+	new.Package = c.Package
+	new.Imports = map[string]string{}
+	for k, v := range c.Imports {
+		new.Imports[k] = v
+	}
+	return new
+}

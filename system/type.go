@@ -17,29 +17,29 @@ var types struct {
 
 func RegisterType(name string, typ *Type) {
 	types.Lock()
+	defer types.Unlock()
 	if types.m == nil {
 		types.m = make(map[string]*Type)
 	}
 	types.m[name] = typ
-	types.Unlock()
 }
 func UnregisterType(name string) {
 	types.Lock()
+	defer types.Unlock()
 	if types.m == nil || name == "" {
 		// Added the name == "" condition to make it
 		// possible for a test to get in here
 		return
 	}
 	delete(types.m, name)
-	types.Unlock()
 }
 
 // TODO: Perhaps this should not return a pointer if it will
 // TODO: be used concurrently?
 func GetType(name string) (*Type, bool) {
 	types.RLock()
+	defer types.RUnlock()
 	t, ok := types.m[name]
-	types.RUnlock()
 	if !ok {
 		return nil, false
 	}
@@ -51,12 +51,12 @@ func GetType(name string) (*Type, bool) {
 func GetAllTypesInPackage(path string) map[string]*Type {
 	out := map[string]*Type{}
 	types.RLock()
+	defer types.RUnlock()
 	for k, t := range types.m {
 		if strings.HasPrefix(k, fmt.Sprintf("%s:", path)) {
 			out[k] = t
 		}
 	}
-	types.RUnlock()
 	return out
 }
 

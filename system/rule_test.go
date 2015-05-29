@@ -84,7 +84,9 @@ func TestRuleTypeReference(t *testing.T) {
 	assert.IsError(t, err, "IILEXGQDXL")
 
 	ri = map[string]interface{}{
-		"type": "a:b", // package will not be registered so UnmarshalJSON will error
+		"type":     "a:b", // package will not be registered so UnmarshalJSON will error
+		"_path":    "a.b/c",
+		"_imports": map[string]string{},
 	}
 	r, err = ruleTypeReference(ri, "", map[string]string{})
 	assert.IsError(t, err, "QBTHPRVBWN")

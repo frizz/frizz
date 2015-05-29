@@ -409,7 +409,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 
 }
 
-func TestGoTypeDescriptorErrors(t *testing.T) {
+func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 
 	p := &Property{
 		Object: &Object{
@@ -473,8 +473,10 @@ func TestGoTypeDescriptorErrors(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: map[string]interface{}{
-			"type":    "kego.io/system:@string",
-			"default": make(typeThatWillCauseJsonMarshalToError),
+			"type":     "kego.io/system:@string",
+			"default":  make(typeThatWillCauseJsonMarshalToError),
+			"_path":    "kego.io/system",
+			"_imports": map[string]string{},
 		},
 	}
 	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})

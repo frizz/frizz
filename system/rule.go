@@ -47,21 +47,39 @@ func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, 
 
 func ruleTypeReference(r Rule, path string, imports map[string]string) (*Reference, error) {
 
-	i, ok := r.(map[string]interface{})
-
+	m, ok := r.(map[string]interface{})
 	if ok {
 		// Looks like we unmarshaled a type that isn't registered. We
 		// can get the type information from the "type" field.
-		t, ok := i["type"]
+		i, ok := m["type"]
 		if !ok {
 			return nil, uerr.New("OLHOVKXEXN", nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
 		}
-		s, ok := t.(string)
+		s, ok := i.(string)
 		if !ok {
-			return nil, uerr.New("IILEXGQDXL", nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", t)
+			return nil, uerr.New("IILEXGQDXL", nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", i)
 		}
+
+		i, ok = m["_path"]
+		if !ok {
+			return nil, uerr.New("FUMLBULJCP", nil, "ruleTypeReference", "map[string]interface{} rule has no _path attribute")
+		}
+		innerPath, ok := i.(string)
+		if !ok {
+			return nil, uerr.New("ERIHIYYQYL", nil, "ruleTypeReference", "map[string]interface{} rule _path attribute is not string: %T", i)
+		}
+
+		i, ok = m["_imports"]
+		if !ok {
+			return nil, uerr.New("PJJYHJMPUI", nil, "ruleTypeReference", "map[string]interface{} rule has no _imports attribute")
+		}
+		innerImports, ok := i.(map[string]string)
+		if !ok {
+			return nil, uerr.New("KSVRLDNLTL", nil, "ruleTypeReference", "map[string]interface{} rule _imports attribute is not map[string]string: %T", i)
+		}
+
 		ref := &Reference{}
-		err := ref.UnmarshalJSON([]byte(strconv.Quote(s)), path, imports)
+		err := ref.UnmarshalJSON([]byte(strconv.Quote(s)), innerPath, innerImports)
 		if err != nil {
 			return nil, uerr.New("QBTHPRVBWN", err, "ruleTypeReference", "ref.UnmarshalJSON")
 		}
