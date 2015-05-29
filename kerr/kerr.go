@@ -1,7 +1,7 @@
 /*
-uerr is an error with a unique ID
+kerr is an error with a unique ID
 */
-package uerr // import "kego.io/uerr"
+package kerr // import "kego.io/kerr"
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// New creates a new uerr.Error
+// New creates a new kerr.Error
 func New(id string, inner error, location string, descriptionFormat string, descriptionArgs ...interface{}) UniqueError {
 	stack := []string{id}
 	if ui, ok := inner.(UniqueError); ok {
