@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"kego.io/process"
+	_ "kego.io/system/types"
 	"kego.io/uerr"
 )
 
@@ -23,6 +24,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error getting the current working directory:\n%v\n", err.Error())
 	}
+	typesDir := filepath.Join(currentDir, "types")
 
 	if packagePath == "" {
 		path, err := GetPackage(currentDir)
@@ -38,17 +40,21 @@ func main() {
 		panic(err)
 	}
 
-	source, err := process.Generate(packagePath, imports)
+	mainSource, typesSource, err := process.Generate(packagePath, imports)
 	if err != nil {
 		panic(err)
 	}
 
 	if testMode {
-		fmt.Print("%s", string(source))
+		fmt.Printf("######## Main ########\n%s######## Types ########\n%s", mainSource, typesSource)
 		return
 	}
 
-	if err = save(currentDir, source); err != nil {
+	if err = save(currentDir, mainSource); err != nil {
+		panic(err)
+	}
+
+	if err = save(typesDir, typesSource); err != nil {
 		panic(err)
 	}
 
@@ -56,14 +62,19 @@ func main() {
 
 func save(dir string, contents []byte) error {
 
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err = os.MkdirAll(dir, 0777); err != nil {
+			return uerr.New("BPGOUIYPXO", err, "process/cmd/kego.save", "os.MkdirAll")
+		}
+	}
+
 	name := "generated.go"
 	file := filepath.Join(dir, name)
-
 	backup(file, filepath.Join(dir, fmt.Sprintf("%s.backup", name)))
 
 	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return uerr.New("NWLWHSGJWP", err, "process.save", "os.OpenFile (could not open output file)")
+		return uerr.New("NWLWHSGJWP", err, "process/cmd/kego.save", "os.OpenFile (could not open output file)")
 	}
 	defer output.Close()
 

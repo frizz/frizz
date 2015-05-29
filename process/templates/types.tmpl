@@ -1,0 +1,21 @@
+{{ $path := .Path }}
+{{ $imports := .Imports }}
+package {{ $path | name }}
+
+import (
+	"kego.io/json"
+
+	{{ if not (eq $path "kego.io/system") }}
+		"kego.io/system"
+	{{ end }}
+
+	{{ range $importName, $importPath := $imports }}
+		{{ import $importName $importPath $path }}
+	{{ end }}
+)
+
+func init() {
+	{{ range $typeName, $type := .Types }}
+		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $typeName | quote }}, &{{ $type.GoSyntax $path $imports }})
+	{{ end }}
+}

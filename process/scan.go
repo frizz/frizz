@@ -83,6 +83,7 @@ func processScannedObject(i interface{}, packagePath string, imports map[string]
 					Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id),
 					Type:        system.NewReference("kego.io/system", "type"),
 					Id:          id,
+					Context:     t.Object.Context.Clone(),
 				},
 				Is:        []system.Reference{system.NewReference("kego.io/system", "rule")},
 				Extends:   system.NewReference("kego.io/system", "object"),

@@ -9,7 +9,7 @@ import (
 	"kego.io/assert"
 )
 
-func TestValidate(t *testing.T) {
+func Validate_NeedsTypes(t *testing.T) {
 
 	d, err := ioutil.TempDir("", "")
 	assert.NoError(t, err)
