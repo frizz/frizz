@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"kego.io/json"
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 type Reference struct {
@@ -28,10 +28,10 @@ func NewReference(packagePath string, typeName string) Reference {
 
 func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
-		return nil, uerr.New("OSQKOWGVWX", nil, "Reference.RuleToParentType", "Reference is nil")
+		return nil, kerr.New("OSQKOWGVWX", nil, "Reference.RuleToParentType", "Reference is nil")
 	}
 	if !strings.HasPrefix(r.Type, "@") {
-		return nil, uerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Type)
+		return nil, kerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Type)
 	}
 	newType := r.Type[1:]
 	newRef := &Reference{
@@ -46,7 +46,7 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
 	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
-		return uerr.New("BBWVFPNNTT", err, "Reference.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("BBWVFPNNTT", err, "Reference.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if s == nil {
 		out.Exists = false
@@ -63,7 +63,7 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 		out.Exists = true
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
 		if err != nil {
-			return uerr.New("DBQPULKKUH", err, "Reference.UnmarshalJSON", "json.GetReferencePartsFromTypeString")
+			return kerr.New("DBQPULKKUH", err, "Reference.UnmarshalJSON", "json.GetReferencePartsFromTypeString")
 		}
 		out.Package = path
 		out.Type = name
@@ -82,7 +82,7 @@ func (r *Reference) MarshalJSON() ([]byte, error) {
 func (r *Reference) GoReference(path string, imports map[string]string) (string, error) {
 	s, err := IdToGoReference(r.Package, r.Type, path, imports)
 	if err != nil {
-		return "", uerr.New("LVHAQUOQGR", err, "Reference.GoReference", "IdToGoReference")
+		return "", kerr.New("LVHAQUOQGR", err, "Reference.GoReference", "IdToGoReference")
 	}
 	return s, nil
 }

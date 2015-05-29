@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"kego.io/json"
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 type String struct {
@@ -19,7 +19,7 @@ func NewString(s string) String {
 func (out *String) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
 	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
-		return uerr.New("ACHMRKVFAB", err, "String.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("ACHMRKVFAB", err, "String.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if s == nil {
 		out.Exists = false

@@ -6,8 +6,8 @@ import (
 
 	"strings"
 
+	"kego.io/kerr"
 	"kego.io/kfmt"
-	"kego.io/uerr"
 )
 
 var types struct {
@@ -93,7 +93,7 @@ func nativeGoType(jsonNativeType string) (string, error) {
 	case "bool":
 		return "bool", nil
 	default:
-		return "", uerr.New("TXQIDRBJRH", nil, "nativeGoType", "Native type not found: %v", jsonNativeType)
+		return "", kerr.New("TXQIDRBJRH", nil, "nativeGoType", "Native type not found: %v", jsonNativeType)
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 type Rule interface{}
@@ -20,7 +20,7 @@ type RuleHolder struct {
 func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r, path, imports)
 	if err != nil {
-		return nil, uerr.New("VRCWUGOTMA", err, "NewRuleHolder", "ruleTypes")
+		return nil, kerr.New("VRCWUGOTMA", err, "NewRuleHolder", "ruleTypes")
 	}
 	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Imports: imports}, nil
 }
@@ -28,19 +28,19 @@ func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder,
 func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, parentType *Type, err error) {
 	ruleReference, err := ruleTypeReference(r, path, imports)
 	if err != nil {
-		return nil, nil, uerr.New("BNEKIFYDDL", err, "ruleTypes", "ruleTypeReference")
+		return nil, nil, kerr.New("BNEKIFYDDL", err, "ruleTypes", "ruleTypeReference")
 	}
 	rt, ok := ruleReference.GetType()
 	if !ok {
-		return nil, nil, uerr.New("PFGWISOHRR", nil, "ruleTypes", "ruleReference.GetType: type %v not found", ruleReference.Value)
+		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleTypes", "ruleReference.GetType: type %v not found", ruleReference.Value)
 	}
 	typeReference, err := ruleReference.RuleToParentType()
 	if err != nil {
-		return nil, nil, uerr.New("NXRCPQMUIE", err, "ruleTypes", "ruleReference.RuleToParentType")
+		return nil, nil, kerr.New("NXRCPQMUIE", err, "ruleTypes", "ruleReference.RuleToParentType")
 	}
 	pt, ok := typeReference.GetType()
 	if !ok {
-		return nil, nil, uerr.New("KYCTDXKFYR", nil, "ruleTypes", "typeReference.GetType: type %v not found", typeReference.Value)
+		return nil, nil, kerr.New("KYCTDXKFYR", nil, "ruleTypes", "typeReference.GetType: type %v not found", typeReference.Value)
 	}
 	return rt, pt, nil
 }
@@ -53,35 +53,35 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 		// can get the type information from the "type" field.
 		i, ok := m["type"]
 		if !ok {
-			return nil, uerr.New("OLHOVKXEXN", nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
+			return nil, kerr.New("OLHOVKXEXN", nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
 		}
 		s, ok := i.(string)
 		if !ok {
-			return nil, uerr.New("IILEXGQDXL", nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", i)
+			return nil, kerr.New("IILEXGQDXL", nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", i)
 		}
 
 		i, ok = m["_path"]
 		if !ok {
-			return nil, uerr.New("FUMLBULJCP", nil, "ruleTypeReference", "map[string]interface{} rule has no _path attribute")
+			return nil, kerr.New("FUMLBULJCP", nil, "ruleTypeReference", "map[string]interface{} rule has no _path attribute")
 		}
 		innerPath, ok := i.(string)
 		if !ok {
-			return nil, uerr.New("ERIHIYYQYL", nil, "ruleTypeReference", "map[string]interface{} rule _path attribute is not string: %T", i)
+			return nil, kerr.New("ERIHIYYQYL", nil, "ruleTypeReference", "map[string]interface{} rule _path attribute is not string: %T", i)
 		}
 
 		i, ok = m["_imports"]
 		if !ok {
-			return nil, uerr.New("PJJYHJMPUI", nil, "ruleTypeReference", "map[string]interface{} rule has no _imports attribute")
+			return nil, kerr.New("PJJYHJMPUI", nil, "ruleTypeReference", "map[string]interface{} rule has no _imports attribute")
 		}
 		innerImports, ok := i.(map[string]string)
 		if !ok {
-			return nil, uerr.New("KSVRLDNLTL", nil, "ruleTypeReference", "map[string]interface{} rule _imports attribute is not map[string]string: %T", i)
+			return nil, kerr.New("KSVRLDNLTL", nil, "ruleTypeReference", "map[string]interface{} rule _imports attribute is not map[string]string: %T", i)
 		}
 
 		ref := &Reference{}
 		err := ref.UnmarshalJSON([]byte(strconv.Quote(s)), innerPath, innerImports)
 		if err != nil {
-			return nil, uerr.New("QBTHPRVBWN", err, "ruleTypeReference", "ref.UnmarshalJSON")
+			return nil, kerr.New("QBTHPRVBWN", err, "ruleTypeReference", "ref.UnmarshalJSON")
 		}
 		return ref, nil
 	}
@@ -90,14 +90,14 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 	// reflection "Type" field.
 	ti, _, ok, err := ruleFieldByReflection(r, "Type")
 	if err != nil {
-		return nil, uerr.New("QJQAIGPYXC", err, "ruleTypeReference", "ruleFieldByReflection")
+		return nil, kerr.New("QJQAIGPYXC", err, "ruleTypeReference", "ruleFieldByReflection")
 	}
 	if !ok {
-		return nil, uerr.New("NXYRAJITEV", nil, "ruleTypeReference", "ruleFieldByReflection did not find Type field")
+		return nil, kerr.New("NXYRAJITEV", nil, "ruleTypeReference", "ruleFieldByReflection did not find Type field")
 	}
 	tr, ok := ti.(Reference)
 	if !ok {
-		return nil, uerr.New("FHUPSRTRFE", nil, "ruleTypeReference", "Type field is not a reference")
+		return nil, kerr.New("FHUPSRTRFE", nil, "ruleTypeReference", "Type field is not a reference")
 	}
 	return &tr, nil
 }
@@ -105,23 +105,23 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !r.ParentType.IsNativeCollection() {
-		return nil, uerr.New("VPAGXSTQHM", nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.ParentType.Id)
+		return nil, kerr.New("VPAGXSTQHM", nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.ParentType.Id)
 	}
 	items, _, ok, err := ruleFieldByReflection(r.Rule, "Items")
 	if err != nil {
-		return nil, uerr.New("LIDXIQYGJD", err, "RuleHolder.ItemsRule", "ruleFieldByReflection")
+		return nil, kerr.New("LIDXIQYGJD", err, "RuleHolder.ItemsRule", "ruleFieldByReflection")
 	}
 	if !ok {
-		return nil, uerr.New("VYTHGJTSNJ", nil, "RuleHolder.ItemsRule", "ruleFieldByReflection could not find Items field")
+		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleHolder.ItemsRule", "ruleFieldByReflection could not find Items field")
 	}
 	rule, _ := items.(Rule)
 	// Rule is interface{} so everything is a rule... Maybe this will change in future?
 	//if !ok {
-	//	return nil, uerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
+	//	return nil, kerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
 	//}
 	rh, err := NewRuleHolder(rule, r.Path, r.Imports)
 	if err != nil {
-		return nil, uerr.New("FGYMQPNBQJ", err, "RuleHolder.ItemsRule", "NewRuleHolder")
+		return nil, kerr.New("FGYMQPNBQJ", err, "RuleHolder.ItemsRule", "NewRuleHolder")
 	}
 	return rh, nil
 }
@@ -129,10 +129,10 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 func ruleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
 	v := reflect.ValueOf(object)
 	if v.Kind() != reflect.Ptr {
-		return nil, nil, false, uerr.New("QOYMWPXWUO", nil, "ruleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
+		return nil, nil, false, kerr.New("QOYMWPXWUO", nil, "ruleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
 	}
 	if v.Elem().Kind() != reflect.Struct {
-		return nil, nil, false, uerr.New("IGOUOBGXAN", nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
+		return nil, nil, false, kerr.New("IGOUOBGXAN", nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
 	}
 	value, pointer, found, zero, err := GetField(v.Elem(), name)
 

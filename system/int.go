@@ -6,7 +6,7 @@ import (
 	"math"
 
 	"kego.io/json"
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 type Int struct {
@@ -21,7 +21,7 @@ func NewInt(n int) Int {
 func (out *Int) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var f *float64
 	if err := json.UnmarshalPlain(in, &f, path, imports); err != nil {
-		return uerr.New("WCXYWVMOTT", err, "Int.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("WCXYWVMOTT", err, "Int.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if f == nil {
 		out.Exists = false
@@ -29,7 +29,7 @@ func (out *Int) UnmarshalJSON(in []byte, path string, imports map[string]string)
 	} else {
 		i := math.Floor(*f)
 		if i != *f {
-			return uerr.New("KVEOETSIJY", nil, "Int.UnmarshalJSON", "%v is not an integer", *f)
+			return kerr.New("KVEOETSIJY", nil, "Int.UnmarshalJSON", "%v is not an integer", *f)
 		}
 		out.Exists = true
 		out.Value = int(i)

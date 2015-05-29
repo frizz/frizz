@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"kego.io/json"
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 type Bool struct {
@@ -19,7 +19,7 @@ func NewBool(b bool) Bool {
 func (out *Bool) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var b *bool
 	if err := json.UnmarshalPlain(in, &b, path, imports); err != nil {
-		return uerr.New("CJMOICJGJG", err, "Bool.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("CJMOICJGJG", err, "Bool.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if b == nil {
 		out.Exists = false

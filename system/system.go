@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 func IdToGoName(id string) string {
@@ -47,5 +47,5 @@ func GoReference(packagePath string, typeName string, localPackagePath string, l
 			return fmt.Sprintf("%v.%v", alias, typeName), nil
 		}
 	}
-	return "", uerr.New("HXHJIHQDBE", nil, "GoReference", "package path %v not found in local context imports", packagePath)
+	return "", kerr.New("HXHJIHQDBE", nil, "GoReference", "package path %v not found in local context imports", packagePath)
 }

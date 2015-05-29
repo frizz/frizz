@@ -3,7 +3,7 @@ package system
 import (
 	"fmt"
 
-	"kego.io/uerr"
+	"kego.io/kerr"
 )
 
 // Enforcer is a rule with properties that need to be enforced against data.
@@ -14,7 +14,7 @@ type Enforcer interface {
 func (r *String_rule) Enforce(data interface{}, path string, imports map[string]string) (bool, string, error) {
 	s, ok := data.(String)
 	if !ok {
-		return false, "", uerr.New("SXFBXGQSEA", nil, "String_rule.Enforce", "data %T should be system.String.", data)
+		return false, "", kerr.New("SXFBXGQSEA", nil, "String_rule.Enforce", "data %T should be system.String.", data)
 	}
 	if r.Equal.Exists {
 		if !s.Exists {
