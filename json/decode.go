@@ -757,7 +757,12 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 
 	// Decoding into nil interface?  Switch to non-reflect code.
 	if v.Kind() == reflect.Interface && v.NumMethod() == 0 {
-		v.Set(reflect.ValueOf(d.objectInterface()))
+		m := d.objectInterface()
+		if typed {
+			m["_path"] = context.Package
+			m["_imports"] = context.Imports
+		}
+		v.Set(reflect.ValueOf(m))
 		return
 	}
 
