@@ -1,4 +1,4 @@
-package fmt
+package literal
 
 import (
 	"reflect"
@@ -26,13 +26,13 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "*int", GetName(reflect.TypeOf(&i), "a.b/c", imp))
 	assert.Equal(t, "*float64", GetName(reflect.TypeOf(&f), "a.b/c", imp))
 
-	impk := map[string]string{"d": "e.f/g", "h": "kego.io/fmt"}
+	impk := map[string]string{"d": "e.f/g", "h": "kego.io/literal"}
 	type MyType struct{}
 	m := MyType{}
 
-	assert.Equal(t, "MyType", GetName(reflect.TypeOf(m), "kego.io/fmt", imp))
+	assert.Equal(t, "MyType", GetName(reflect.TypeOf(m), "kego.io/literal", imp))
 	assert.Equal(t, "h.MyType", GetName(reflect.TypeOf(m), "a.b/c", impk))
-	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/fmt", imp))
+	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/literal", imp))
 	assert.Equal(t, "*h.MyType", GetName(reflect.TypeOf(&m), "a.b/c", impk))
 
 	asp := "kego.io/assert"
@@ -77,9 +77,9 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "map[bool]string", GetName(reflect.TypeOf(map[bool]string{}), "a.b/c", imp))
 	assert.Equal(t, "map[*int]string", GetName(reflect.TypeOf(map[*int]string{}), "a.b/c", imp))
 
-	assert.Equal(t, "map[MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "kego.io/fmt", imp))
+	assert.Equal(t, "map[MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "kego.io/literal", imp))
 	assert.Equal(t, "map[h.MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "a.b/c", impk))
-	assert.Equal(t, "map[*MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "kego.io/fmt", imp))
+	assert.Equal(t, "map[*MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "kego.io/literal", imp))
 	assert.Equal(t, "map[*h.MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "a.b/c", impk))
 
 	assert.Equal(t, "map[Assertions]string", GetName(reflect.TypeOf(map[assert.Assertions]string{}), asp, imp))

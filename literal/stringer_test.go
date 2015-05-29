@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package fmt_test
+package literal_test
 
 import (
 	"testing"
 
-	. "kego.io/fmt"
+	. "kego.io/literal"
 )
 
 type TI int

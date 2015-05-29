@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package fmt_test
+package literal_test
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode"
 
-	. "kego.io/fmt"
+	. "kego.io/literal"
 )
 
 type (
@@ -292,7 +292,7 @@ var fmtTests = []struct {
 	{"", 2, "%!(EXTRA int=2)"},
 	{"%d", "hello", "%!d(string=hello)"},
 
-	// old test/fmt_test.go
+	// old test/literal_test.go
 	{"%d", 1234, "1234"},
 	{"%d", -1234, "-1234"},
 	{"%d", uint(1234), "1234"},
@@ -412,16 +412,16 @@ var fmtTests = []struct {
 	{"%d", I(23), `23`}, // Stringer applies only to string formats.
 
 	// go syntax
-	{"%#v", A{1, 2, "a", []int{1, 2}}, `fmt_test.A{i:1, j:0x2, s:"a", x:[]int{1, 2}}`},
+	{"%#v", A{1, 2, "a", []int{1, 2}}, `literal_test.A{i:1, j:0x2, s:"a", x:[]int{1, 2}}`},
 	{"%#v", &b, "(*uint8)(0xPTR)"},
 	//{"%#v", TestFmtInterface, "(func(*testing.T))(0xPTR)"},
 	//{"%#v", make(chan int), "(chan int)(0xPTR)"},
 	{"%#v", uint64(1<<64 - 1), "0xffffffffffffffff"},
 	{"%#v", 1000000000, "1000000000"},
 	{"%#v", map[string]int{"a": 1}, `map[string]int{"a":1}`},
-	{"%#v", map[string]B{"a": {1, 2}}, `map[string]fmt_test.B{"a":fmt_test.B{I:1, j:2}}`},
+	{"%#v", map[string]B{"a": {1, 2}}, `map[string]literal_test.B{"a":literal_test.B{I:1, j:2}}`},
 	{"%#v", []string{"a", "b"}, `[]string{"a", "b"}`},
-	//{"%#v", SI{}, `fmt_test.SI{I:interface {}(nil)}`},
+	//{"%#v", SI{}, `literal_test.SI{I:interface {}(nil)}`},
 	{"%#v", []int(nil), `[]int(nil)`},
 	{"%#v", []int{}, `[]int{}`},
 	//{"%#v", array, `[5]int{1, 2, 3, 4, 5}`},
@@ -431,8 +431,8 @@ var fmtTests = []struct {
 	//{"%#v", map[int]byte(nil), `map[int]uint8(nil)`},
 	//{"%#v", map[int]byte{}, `map[int]uint8{}`},
 	{"%#v", "foo", `"foo"`},
-	//{"%#v", barray, `[5]fmt_test.renamedUint8{0x1, 0x2, 0x3, 0x4, 0x5}`},
-	{"%#v", bslice, `[]fmt_test.renamedUint8{0x1, 0x2, 0x3, 0x4, 0x5}`},
+	//{"%#v", barray, `[5]literal_test.renamedUint8{0x1, 0x2, 0x3, 0x4, 0x5}`},
+	{"%#v", bslice, `[]literal_test.renamedUint8{0x1, 0x2, 0x3, 0x4, 0x5}`},
 	{"%#v", []byte(nil), "[]byte(nil)"},
 	{"%#v", []int32(nil), "[]int32(nil)"},
 
@@ -445,7 +445,7 @@ var fmtTests = []struct {
 
 	// renamings
 	{"%v", renamedBool(true), "true"},
-	{"%d", renamedBool(true), "%!d(fmt_test.renamedBool=true)"},
+	{"%d", renamedBool(true), "%!d(literal_test.renamedBool=true)"},
 	{"%o", renamedInt(8), "10"},
 	{"%d", renamedInt8(-9), "-9"},
 	{"%v", renamedInt16(10), "10"},
@@ -475,11 +475,11 @@ var fmtTests = []struct {
 
 	// GoStringer
 	{"%#v", G(6), "GoString(6)"},
-	{"%#v", S{F(7), G(8)}, "fmt_test.S{F:<v=F(7)>, G:GoString(8)}"},
+	{"%#v", S{F(7), G(8)}, "literal_test.S{F:<v=F(7)>, G:GoString(8)}"},
 
 	// %T
 	{"%T", (4 - 3i), "complex128"},
-	{"%T", renamedComplex128(4 - 3i), "fmt_test.renamedComplex128"},
+	{"%T", renamedComplex128(4 - 3i), "literal_test.renamedComplex128"},
 	{"%T", intVal, "int"},
 	{"%6T", &intVal, "  *int"},
 	{"%10T", nil, "     <nil>"},
@@ -657,7 +657,7 @@ var fmtTests = []struct {
 	{"%s", byteStringerSlice, "abcd"},
 	{"%q", byteStringerSlice, "\"abcd\""},
 	{"%x", byteStringerSlice, "61626364"},
-	{"%#v", byteStringerSlice, "[]fmt_test.byteStringer{0x61, 0x62, 0x63, 0x64}"},
+	{"%#v", byteStringerSlice, "[]literal_test.byteStringer{0x61, 0x62, 0x63, 0x64}"},
 
 	// And the same for Formatter.
 	{"%v", byteFormatterSlice, "[X X X X]"},
@@ -665,7 +665,7 @@ var fmtTests = []struct {
 	{"%q", byteFormatterSlice, "\"abcd\""},
 	{"%x", byteFormatterSlice, "61626364"},
 	// This next case seems wrong, but the docs say the Formatter wins here.
-	{"%#v", byteFormatterSlice, "[]fmt_test.byteFormatter{X, X, X, X}"},
+	{"%#v", byteFormatterSlice, "[]literal_test.byteFormatter{X, X, X, X}"},
 }
 
 // zeroFill generates zero-filled strings of the specified width. The length
@@ -981,7 +981,7 @@ func TestStructPrinter(t *testing.T) {
 	}{
 		{"%v", "{abc def 123}"},
 		{"%+v", "{a:abc b:def c:123}"},
-		{"%#v", `fmt_test.T{a:"abc", b:"def", c:123}`},
+		{"%#v", `literal_test.T{a:"abc", b:"def", c:123}`},
 	}
 	for _, tt := range tests {
 		out := Sprintf(tt.fmt, s)
@@ -1233,7 +1233,7 @@ func TestNilDoesNotBecomeTyped(t *testing.T) {
 	var a *A = nil
 	var b B = B{}
 	got := Sprintf("%s %s %s %s %s", nil, a, nil, b, nil)
-	const expect = "%!s(<nil>) %!s(*fmt_test.A=<nil>) %!s(<nil>) {} %!s(<nil>)"
+	const expect = "%!s(<nil>) %!s(*literal_test.A=<nil>) %!s(<nil>) {} %!s(<nil>)"
 	if got != expect {
 		t.Errorf("expected:\n\t%q\ngot:\n\t%q", expect, got)
 	}
@@ -1290,7 +1290,7 @@ var formatterFlagTests = []struct {
 	{"%v", [1]flagPrinter{}, "[[%v]]"},
 	{"%-v", [1]flagPrinter{}, "[[%-v]]"},
 	{"%+v", [1]flagPrinter{}, "[[%+v]]"},
-	//{"%#v", [1]flagPrinter{}, "[1]fmt_test.flagPrinter{[%#v]}"},
+	//{"%#v", [1]flagPrinter{}, "[1]literal_test.flagPrinter{[%#v]}"},
 	{"% v", [1]flagPrinter{}, "[[% v]]"},
 	{"%0v", [1]flagPrinter{}, "[[%0v]]"},
 	{"%1.2v", [1]flagPrinter{}, "[[%1.2v]]"},

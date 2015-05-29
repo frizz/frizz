@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-	Package fmt implements formatted I/O with functions analogous
+	Package literal implements formatted I/O with functions analogous
 	to C's printf and scanf.  The format 'verbs' are derived from C's but
 	are simpler.
 
@@ -292,4 +292,4 @@
 	methods to a reader without that capability, use
 	bufio.NewReader.
 */
-package fmt
+package literal
