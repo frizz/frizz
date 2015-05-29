@@ -9,27 +9,27 @@ import (
 
 	"strings"
 
+	"kego.io/kerr"
 	"kego.io/system"
-	"kego.io/uerr"
 )
 
 func Generate(path string, imports map[string]string) (mainSource []byte, typesSource []byte, err error) {
 
 	types := system.GetAllTypesInPackage(path)
 	if len(types) == 0 {
-		return nil, nil, uerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
+		return nil, nil, kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 	}
 
 	mainData := templateData{Types: types, Path: path, Imports: imports}
 	mainSource, err = executeTemplateAndFormat(mainData, "main.tmpl")
 	if err != nil {
-		return nil, nil, uerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
+		return nil, nil, kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
 	}
 
 	typesData := getTypesDataFromMainData(mainData)
 	typesSource, err = executeTemplateAndFormat(typesData, "types.tmpl")
 	if err != nil {
-		return nil, nil, uerr.New("LALVUAPGSP", err, "process.Generate", "executeTemplateAndFormat (types)")
+		return nil, nil, kerr.New("LALVUAPGSP", err, "process.Generate", "executeTemplateAndFormat (types)")
 	}
 
 	return
@@ -63,12 +63,12 @@ func executeTemplateAndFormat(data templateData, templateName string) ([]byte, e
 
 	var rendered bytes.Buffer
 	if err := templates().ExecuteTemplate(&rendered, templateName, data); err != nil {
-		return nil, uerr.New("SGHJCEHQMF", err, "process.executeTemplateAndFormat", "tpl.ExecuteTemplate")
+		return nil, kerr.New("SGHJCEHQMF", err, "process.executeTemplateAndFormat", "tpl.ExecuteTemplate")
 	}
 
 	formatted, err := format.Source(rendered.Bytes())
 	if err != nil {
-		return nil, uerr.New("XTKWMEDWKI", err, "process.executeTemplateAndFormat", "format.Source:\n%s\n", rendered.Bytes())
+		return nil, kerr.New("XTKWMEDWKI", err, "process.executeTemplateAndFormat", "format.Source:\n%s\n", rendered.Bytes())
 	}
 
 	return formatted, nil
@@ -140,13 +140,13 @@ func ternary(condition bool, valueIfTrue string, valueIfFalse string) string {
 // mapHelper allows us to create a map inside a template
 func mapHelper(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
-		return nil, uerr.New("AHGBMCNALB", nil, "process.mapHelper", "Must be an even number of values. Got %v", len(values))
+		return nil, kerr.New("AHGBMCNALB", nil, "process.mapHelper", "Must be an even number of values. Got %v", len(values))
 	}
 	dict := make(map[string]interface{}, len(values)/2)
 	for i := 0; i < len(values); i += 2 {
 		key, ok := values[i].(string)
 		if !ok {
-			return nil, uerr.New("WLHGIPIEUI", nil, "process.mapHelper", "All keys must be strings")
+			return nil, kerr.New("WLHGIPIEUI", nil, "process.mapHelper", "All keys must be strings")
 		}
 		dict[key] = values[i+1]
 	}

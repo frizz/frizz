@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"kego.io/kerr"
 	"kego.io/process"
 	_ "kego.io/system/types"
-	"kego.io/uerr"
 )
 
 func main() {
@@ -64,7 +64,7 @@ func save(dir string, contents []byte) error {
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err = os.MkdirAll(dir, 0777); err != nil {
-			return uerr.New("BPGOUIYPXO", err, "process/cmd/kego.save", "os.MkdirAll")
+			return kerr.New("BPGOUIYPXO", err, "process/cmd/kego.save", "os.MkdirAll")
 		}
 	}
 
@@ -74,7 +74,7 @@ func save(dir string, contents []byte) error {
 
 	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return uerr.New("NWLWHSGJWP", err, "process/cmd/kego.save", "os.OpenFile (could not open output file)")
+		return kerr.New("NWLWHSGJWP", err, "process/cmd/kego.save", "os.OpenFile (could not open output file)")
 	}
 	defer output.Close()
 
@@ -123,5 +123,5 @@ func getPackage(dir string, gopathEnv string) (string, error) {
 	if savedError != nil {
 		return "", savedError
 	}
-	return "", uerr.New("CXOETFPTGM", nil, "process/cmd/kego.getPackage", "Package not found for %s", dir)
+	return "", kerr.New("CXOETFPTGM", nil, "process/cmd/kego.getPackage", "Package not found for %s", dir)
 }

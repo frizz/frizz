@@ -9,24 +9,24 @@ import (
 	"io"
 
 	"kego.io/json"
+	"kego.io/kerr"
 	"kego.io/system"
-	"kego.io/uerr"
 )
 
 func Scan(root string, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
-			return uerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
+			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
 		if err := processScannedFile(filePath, packagePath, imports); err != nil {
-			return uerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
+			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
 	}
 
 	if err := filepath.Walk(root, walker); err != nil {
-		return uerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
+		return kerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
 	}
 	return nil
 }
@@ -39,12 +39,12 @@ func processScannedFile(filePath string, packagePath string, imports map[string]
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return uerr.New("NMWROTKPLJ", err, "process.processScannedFile", "os.Open (%s)", filePath)
+		return kerr.New("NMWROTKPLJ", err, "process.processScannedFile", "os.Open (%s)", filePath)
 	}
 	defer file.Close()
 
 	if err = processReader(file, packagePath, imports); err != nil {
-		return uerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
+		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
@@ -53,7 +53,7 @@ func processReader(file io.Reader, packagePath string, imports map[string]string
 
 	var i interface{}
 	if err := json.NewDecoder(file, packagePath, imports).Decode(&i); err != nil {
-		return uerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
+		return kerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
 	}
 
 	processScannedObject(i, packagePath, imports)
