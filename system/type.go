@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"kego.io/kerr"
-	"kego.io/kfmt"
+	"kego.io/literal"
 )
 
 var types struct {
@@ -127,7 +127,7 @@ func (t *Type) GoTypeReference(path string, imports map[string]string) (string, 
 }
 
 func (t *Type) GoSyntax(path string, imports map[string]string) string {
-	return kfmt.GoSyntax(path, imports, *t)
+	return literal.GoSyntax(path, imports, *t)
 }
 
 func (t *Type) Defaulter() (name string, property *Property, ok bool) {
