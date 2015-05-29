@@ -1,7 +1,5 @@
 package system
 
-import "kego.io/json"
-
 // Unmarshal context.
 type Context struct {
 
@@ -10,7 +8,4 @@ type Context struct {
 
 	// The path of the local package.
 	Package string
-
-	// The Json node
-	Json *json.Json
 }
