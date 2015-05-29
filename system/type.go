@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	kegofmt "kego.io/fmt"
+	"kego.io/kfmt"
 	"kego.io/uerr"
 )
 
@@ -127,7 +127,7 @@ func (t *Type) GoTypeReference(path string, imports map[string]string) (string, 
 }
 
 func (t *Type) GoSyntax(path string, imports map[string]string) string {
-	return kegofmt.GoSyntax(path, imports, *t)
+	return kfmt.GoSyntax(path, imports, *t)
 }
 
 func (t *Type) Defaulter() (name string, property *Property, ok bool) {
