@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"kego.io/kerr"
-	"kego.io/literal"
 )
 
 var types struct {
@@ -124,10 +123,6 @@ func (t *Type) FullName() string {
 // e.g. "system.Object".
 func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
 	return IdToGoReference(t.Context.Package, t.Id, path, imports)
-}
-
-func (t *Type) GoSyntax(path string, imports map[string]string) string {
-	return literal.GoSyntax(path, imports, *t)
 }
 
 func (t *Type) Defaulter() (name string, property *Property, ok bool) {

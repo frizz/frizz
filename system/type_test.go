@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"strings"
-
 	"kego.io/assert"
 	"kego.io/json"
 )
@@ -307,12 +305,4 @@ func TestTypeGoName(t *testing.T) {
 	y := &Type{Object: &Object{Id: "aa"}}
 	n := y.GoName()
 	assert.Equal(t, "Aa", n)
-}
-
-func TestTypeGoSyntax(t *testing.T) {
-	y := &Type{Object: &Object{Id: "aa"}}
-	g := y.GoSyntax("", map[string]string{})
-	// I'm going to make this test less brittle by just looking at
-	// the start of the string
-	assert.True(t, strings.HasPrefix(g, "system.Type{"))
 }
