@@ -119,15 +119,17 @@ type pp struct {
 	// reordered records whether the format string used argument reordering.
 	reordered bool
 	// goodArgNum records whether the most recent reordering directive was valid.
-	goodArgNum   bool
-	runeBuf      [utf8.UTFMax]byte
-	fmt          fmt
-	imports      map[string]string
-	localPackage string
+	goodArgNum bool
+	runeBuf    [utf8.UTFMax]byte
+	fmt        fmtr
+	path       string
+	imports    map[string]string
+	pointers   map[string]string
+	order      *[]string
 }
 
 func (p *pp) WriteName(t reflect.Type) {
-	p.buf.WriteString(GetName(t, p.localPackage, p.imports))
+	p.buf.WriteString(GetName(t, p.path, p.imports))
 }
 func GetName(t reflect.Type, path string, imports map[string]string) string {
 	if path == "" {
@@ -175,7 +177,7 @@ func newPrinter() *pp {
 	p := ppFree.Get().(*pp)
 	p.panicking = false
 	p.erroring = false
-	p.localPackage = ""
+	p.path = ""
 	p.imports = nil
 	p.fmt.init(&p.buf)
 	return p
@@ -245,17 +247,6 @@ func Printf(format string, a ...interface{}) (n int, err error) {
 func Sprintf(format string, a ...interface{}) string {
 	p := newPrinter()
 	p.doPrintf(format, a)
-	s := string(p.buf)
-	p.free()
-	return s
-}
-
-// Sprintf formats according to a format specifier and returns the resulting string.
-func GoSyntax(localPackage string, imports map[string]string, a ...interface{}) string {
-	p := newPrinter()
-	p.localPackage = localPackage
-	p.imports = imports
-	p.doPrintf("%#v", a)
 	s := string(p.buf)
 	p.free()
 	return s
@@ -1037,11 +1028,9 @@ BigSwitch:
 		}
 	case reflect.Ptr:
 		v := f.Pointer()
-		// pointer to array or slice or struct?  ok at top level
-		// but not embedded (avoid loops)
-		// kego changes: this is removed. Watch out for infinate
-		// loops!
-		if v != 0 {
+		// pointer to array or slice or struct? ok at top level
+		// but for embedded we add to pointers map and rebuild
+		if v != 0 && depth == 0 {
 			switch a := f.Elem(); a.Kind() {
 			case reflect.Array, reflect.Slice:
 				p.buf.WriteByte('&')
@@ -1056,6 +1045,13 @@ BigSwitch:
 				p.printValue(a, verb, depth+1)
 				break BigSwitch
 			}
+		} else if v != 0 && depth > 0 {
+			name := pointerLiteralName(value.Pointer())
+			if p.pointers[string(name)] == "" {
+				Build(value.Interface(), p.pointers, p.order, p.path, p.imports)
+			}
+			p.Write([]byte(name))
+			break BigSwitch
 		}
 		fallthrough
 	case reflect.Chan, reflect.Func, reflect.UnsafePointer:
