@@ -15,7 +15,11 @@ import (
 )
 
 func init() {
-	{{ range $typeName, $type := .Types }}
-		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $typeName | quote }}, &{{ $type.GoSyntax $path $imports }})
+	{{ range $pointer := .Pointers }}
+		{{ $pointer }}
+	{{ end }}
+
+	{{ range $typeName, $source := .Types }}
+		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $typeName | quote }}, {{ $source }})
 	{{ end }}
 }

@@ -56,22 +56,7 @@ func init() {
 
 }
 `, string(main))
-	assert.Equal(t, `package types
-
-import (
-	"kego.io/json"
-
-	"kego.io/system"
-
-	"b.c/d"
-)
-
-func init() {
-
-	system.RegisterType("b.c/d:a", &system.Type{Object: &system.Object{Context: (*system.Context)(nil), Description: "", Id: "a", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}, Exclude: false, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "", Exists: false}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)})
-
-}
-`, string(types))
+	assert.Contains(t, string(types), "package types")
 
 }
 

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"kego.io/kerr"
+	"kego.io/literal"
 	"kego.io/system"
 )
 
@@ -20,7 +21,7 @@ func Generate(path string, imports map[string]string) (mainSource []byte, typesS
 		return nil, nil, kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 	}
 
-	mainData := templateData{Types: types, Path: path, Imports: imports}
+	mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
 	mainSource, err = executeTemplateAndFormat(mainData, "main.tmpl")
 	if err != nil {
 		return nil, nil, kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
@@ -36,13 +37,9 @@ func Generate(path string, imports map[string]string) (mainSource []byte, typesS
 
 }
 
-func getTypesDataFromMainData(data templateData) (new templateData) {
+func getTypesDataFromMainData(data mainDataStruct) (new typesDataStruct) {
 
 	new.Path = fmt.Sprintf("%s/types", data.Path)
-
-	// Don't really need to clone the types map because we're not
-	// changing it
-	new.Types = data.Types
 
 	// Clone the imports map because we have to add the base package
 	new.Imports = map[string]string{}
@@ -56,10 +53,24 @@ func getTypesDataFromMainData(data templateData) (new templateData) {
 		new.Imports[name] = data.Path
 	}
 
+	new.Types = map[string]string{}
+	order := []string{}
+	pointersMap := map[string]string{}
+	for n, t := range data.Types {
+		new.Types[n] = literal.Build(t, pointersMap, &order, new.Path, new.Imports)
+	}
+
+	pointers := []string{}
+	for _, n := range order {
+		pointers = append(pointers, fmt.Sprintf("%s := %s", n, pointersMap[n]))
+	}
+
+	new.Pointers = pointers
+
 	return
 }
 
-func executeTemplateAndFormat(data templateData, templateName string) ([]byte, error) {
+func executeTemplateAndFormat(data interface{}, templateName string) ([]byte, error) {
 
 	var rendered bytes.Buffer
 	if err := templates().ExecuteTemplate(&rendered, templateName, data); err != nil {
@@ -75,10 +86,16 @@ func executeTemplateAndFormat(data templateData, templateName string) ([]byte, e
 
 }
 
-type templateData struct {
+type mainDataStruct struct {
 	Types   map[string]*system.Type
 	Path    string
 	Imports map[string]string
+}
+type typesDataStruct struct {
+	Pointers []string
+	Types    map[string]string
+	Path     string
+	Imports  map[string]string
 }
 
 func functions() template.FuncMap {
