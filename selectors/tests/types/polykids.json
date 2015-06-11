@@ -1,0 +1,15 @@
+{
+	"type": "system:type",
+	"id": "polykids",
+	"properties": {
+		"a": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@array",
+				"items": {
+					"type": "@kid"
+				}
+			}
+		}
+	}
+}

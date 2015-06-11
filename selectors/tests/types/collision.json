@@ -1,0 +1,15 @@
+{
+	"type": "system:type",
+	"id": "collision",
+	"properties": {
+		"number": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@map",
+				"items": {
+					"type": "system:@string"
+				}
+			}
+		}
+	}
+}

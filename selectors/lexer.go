@@ -21,7 +21,7 @@ type scannerItem struct {
 }
 
 const (
-	S_JSON_TYPE         tokenType = "json_type"
+	S_NATIVE_TYPE       tokenType = "native_type"
 	S_KEGO_TYPE         tokenType = "kego_type"
 	S_IDENTIFIER        tokenType = "identifier"
 	S_QUOTED_IDENTIFIER tokenType = "quoted_identifier"
@@ -62,8 +62,8 @@ var selectorScanner = []scannerItem{
 		S_FLOAT,
 	},
 	scannerItem{
-		regexp.MustCompile(`^string|boolean|null|array|object|number`),
-		S_JSON_TYPE,
+		regexp.MustCompile(`^string|boolean|null|array|object|map|number`),
+		S_NATIVE_TYPE,
 	},
 	scannerItem{
 		// Kego type syntax must be surrounded by curly braces, and contain:

@@ -6,34 +6,27 @@ import (
 	"strings"
 	"testing"
 
-	"fmt"
+	"encoding/json"
 
 	"kego.io/assert"
-	"kego.io/json"
+	_ "kego.io/jsonselect/types"
+	"kego.io/kego"
+	"kego.io/kerr"
+	"kego.io/system"
 )
-
-func TestFoo(t *testing.T) {
-	s := `{"a": "b", "c": {"d": "e"}, "f": ["g", "h", "i"]}`
-	p, err := CreateParserFromString(s)
-	assert.NoError(t, err)
-	for i, node := range p.nodes {
-		fmt.Printf("%d) parent_key:%s idx:%d value:%#v\n", i, node.parent_key, node.idx, node.value)
-	}
-
-}
 
 // Used for storing the results of the benchmarking tests below
 // to avoid compiler optimizations.
 var parser *Parser
 var values []interface{}
 
-func getTestParser(testDocuments map[string]*json.Json, testName string) (*Parser, error) {
+func getTestParser(testDocuments map[string]*Json, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
-	return CreateParser(jsonDocument)
+	return CreateParser(jsonDocument, "kego.io/jsonselect", map[string]string{})
 }
 
-func runTestsInDirectory(t *testing.T, baseDirectory string) {
-	var testDocuments = make(map[string]*json.Json)
+func runTestsInDirectory(t *testing.T, baseDirectory string, path string, imports map[string]string) {
+	var testDocuments = make(map[string]*Json)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
 
@@ -50,12 +43,26 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				t.Error("Error encountered while reading ", name, ": ", err)
 				continue
 			}
-			parsed_document, err := json.NewJson(json_document)
+			var i interface{}
+			kego.Unmarshal(json_document, &i, "kego.io/jsonselect", map[string]string{})
+
+			typer, ok := i.(system.Typer)
+			assert.True(t, ok)
+
+			ty, ok := typer.GetType()
+
+			r := system.NewMinimalRuleHolder(ty, "kego.io/jsonselect", map[string]string{})
+
+			j := &Json{
+				Data:  i,
+				Value: reflect.ValueOf(i),
+				Rule:  r,
+			}
 			if err != nil {
 				t.Error("Error encountered while deserializing ", name, ": ", err)
 				continue
 			}
-			testDocuments[name[0:len(name)-len(".json")]] = parsed_document
+			testDocuments[name[0:len(name)-len(".json")]] = j
 		} else if strings.HasSuffix(name, ".output") {
 			output_document, err := ioutil.ReadFile(baseDirectory + name)
 			if err != nil {
@@ -101,7 +108,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 
 	for testName := range testOutput {
 		var passed bool = true
-		t.Log("Running test ", testName)
+		//t.Log("Running test ", testName)
 		parser, err := getTestParser(testDocuments, testName)
 		if err != nil {
 			t.Error("Test ", testName, "failed: ", err)
@@ -115,52 +122,45 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 			t.Error("Test ", testName, "failed: ", err)
 			passed = false
 		}
-		var stringResults []string
-		for _, result := range results {
-			encoded, err := result.Encode()
-			if err != nil {
-				t.Error("Test ", testName, "failed: ", err)
-				passed = false
-			}
-			stringResults = append(stringResults, string(encoded))
-		}
-
-		if len(stringResults) != len(expectedOutput) {
-			t.Error("Test ", testName, " failed due to number of results being mismatched; ", len(stringResults), " != ", len(expectedOutput), ": [Actual] ", stringResults, " != [Expected] ", expectedOutput)
+		if len(results) != len(expectedOutput) {
+			t.Error("Test ", testName, " failed due to number of results being mismatched; ", len(results), " != ", len(expectedOutput), ": [Actual] ", results, " != [Expected] ", expectedOutput)
 			passed = false
 		} else {
-			var expected = make([]*json.Json, 0, 10)
-			var actual = make([]*json.Json, 0, 10)
-			matchType := "string"
+			var expected = make([]interface{}, 0, 10)
+			var actual = make([]*Json, 0, 10)
+			//matchType := "string"
 
-			for idx, result := range stringResults {
+			for idx, result := range results {
 				expectedEncoded := expectedOutput[idx]
 
-				expectedJson, err := json.NewJson([]byte(expectedEncoded))
-				if err != nil {
+				var expectedJson interface{}
+				if err := json.Unmarshal([]byte(expectedEncoded), &expectedJson); err != nil {
 					t.Error(
 						"Test ", testName, " failed due to a JSON decoding error while decoding expectation: ", err,
 					)
 					passed = false
 				}
-				resultJson, err := json.NewJson([]byte(result))
-				if err != nil {
-					t.Error(
-						"Test ", testName, " failed due to a JSON decoding error while decoding result: ", err,
-					)
-					passed = false
-				}
+				//resultJson := &Json{Data: result}
+				/*
+					if err != nil {
+						t.Error(
+							"Test ", testName, " failed due to a JSON decoding error while decoding result: ", err,
+						)
+						passed = false
+					}*/
 
 				expected = append(expected, expectedJson)
-				actual = append(actual, resultJson)
+				actual = append(actual, result)
 
-				if strings.Index(strings.TrimSpace(expectedEncoded), "{") == 0 {
-					matchType = "map"
-				} else if strings.Index(strings.TrimSpace(expectedEncoded), "[") == 0 {
-					matchType = "array"
-				} else if expectedEncoded != result {
-					matchType = "string"
-				}
+				/*
+					if strings.Index(strings.TrimSpace(expectedEncoded), "{") == 0 {
+						matchType = "map"
+					} else if strings.Index(strings.TrimSpace(expectedEncoded), "[") == 0 {
+						matchType = "array"
+						//} else if expectedEncoded != result {
+					} else {
+						matchType = "string"
+					}*/
 			}
 
 			// Iterate over each of the actual elements; if:
@@ -169,22 +169,33 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 			for _, actualElement := range actual {
 				var matched bool = false
 				for expectedIdx, expectedElement := range expected {
-					if matchType == "map" {
-						matched = reflect.DeepEqual(
-							expectedElement.MustMap(),
-							actualElement.MustMap(),
-						)
-					} else if matchType == "array" {
-						matched = reflect.DeepEqual(
-							expectedElement.MustArray(),
-							actualElement.MustArray(),
-						)
-					} else if matchType == "string" {
-						matched = reflect.DeepEqual(
-							expectedElement.MustString(),
-							actualElement.MustString(),
-						)
-					}
+					// TODO: Should we ignore the error here? I guess so...
+					matched, _ = comparison(actualElement, expectedElement, path, imports)
+					/*
+						if matchType == "map" {
+							// TODO: fix this
+							fmt.Printf("expected:%#v\n", expectedElement)
+							fmt.Printf("actual: %#v\n", actualElement.Rule)
+							fmt.Println("Bodged test")
+							matched = reflect.DeepEqual(
+								expectedElement.MustMap(),
+								actualElement.MustMap(),
+							)
+						} else if matchType == "array" {
+							// TODO: fix this
+							fmt.Println("Bodged test")
+							matched = reflect.DeepEqual(
+								expectedElement.MustArray(),
+								actualElement.MustArray(),
+							)
+						} else if matchType == "string" {
+							// TODO: fix this
+							fmt.Println("Bodged test")
+							matched = reflect.DeepEqual(
+								expectedElement.MustString(),
+								actualElement.MustString(),
+							)
+						}*/
 					if matched {
 						expected = append(
 							expected[:expectedIdx],
@@ -207,65 +218,214 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 			}
 		}
 		if passed {
-			t.Log("Test ", testName, " PASSED")
+			//t.Log("Test ", testName, " PASSED")
 		} else {
 			t.Error("Test ", testName, " FAILED")
 		}
 	}
 }
 
+func comparison(actual *Json, expected interface{}, path string, imports map[string]string) (bool, error) {
+	switch actual.Rule.ParentType.Native.Value {
+	case "string":
+		ns, ok := actual.Data.(system.NativeString)
+		if !ok {
+			return false, kerr.New("ENXGPAJVYL", nil, "jsonselect.comparison", "actual.Data %T does not implement system.NativeString", actual.Data)
+		}
+		actualString, ok := ns.NativeString()
+		if !ok {
+			// If we're expecting null, return true
+			if expected == nil {
+				return true, nil
+			}
+			return false, kerr.New("IKMQTDAKSM", nil, "jsonselect.comparison", "ns.NativeString returned false")
+		}
+		expectedString, ok := expected.(string)
+		if !ok {
+			return false, kerr.New("MPXARMUVPH", nil, "jsonselect.comparison", "expected %T is not a string", expected)
+		}
+		return expectedString == actualString, nil
+		break
+	case "number":
+		nn, ok := actual.Data.(system.NativeNumber)
+		if !ok {
+			return false, kerr.New("LWVOBVJLAS", nil, "jsonselect.comparison", "actual.Data %T does not implement system.NativeNumber", actual.Data)
+		}
+		actualNumber, ok := nn.NativeNumber()
+		if !ok {
+			// If we're expecting null, return true
+			if expected == nil {
+				return true, nil
+			}
+			return false, kerr.New("TIESASEDYJ", nil, "jsonselect.comparison", "ns.NativeNumber returned false")
+		}
+		expectedNumber, ok := expected.(float64)
+		if !ok {
+			return false, kerr.New("GPOPXFJQSA", nil, "jsonselect.comparison", "expected %T is not a float64", expected)
+		}
+		return expectedNumber == actualNumber, nil
+		break
+	case "bool":
+		nb, ok := actual.Data.(system.NativeBool)
+		if !ok {
+			return false, kerr.New("IKIBAMGJSG", nil, "jsonselect.comparison", "actual.Data %T does not implement system.NativeBool", actual.Data)
+		}
+		actualBool, ok := nb.NativeBool()
+		if !ok {
+			// If we're expecting null, return true
+			if expected == nil {
+				return true, nil
+			}
+			return false, kerr.New("AAWULQRLHA", nil, "jsonselect.comparison", "ns.NativeBool returned false")
+		}
+		expectedBool, ok := expected.(bool)
+		if !ok {
+			return false, kerr.New("YEVEBUIQUH", nil, "jsonselect.comparison", "expected %T is not a bool", expected)
+		}
+		return expectedBool == actualBool, nil
+		break
+	case "array":
+		expectedArray, ok := expected.([]interface{})
+		if !ok {
+			return false, kerr.New("AIHXLBFOQA", nil, "jsonselect.comparison", "expected %T is not []interface{}", expected)
+		}
+
+		length := actual.Value.Len()
+		expectedLength := len(expectedArray)
+		if length != expectedLength {
+			return false, nil
+		}
+
+		itemsRule, err := actual.Rule.ItemsRule()
+		if err != nil {
+			return false, kerr.New("IAOMSWSSGR", err, "jsonselect.comparison", "actual.Rule.ItemsRule (array)")
+		}
+
+		for i := 0; i < length; i++ {
+			object, _, value, found, _, err := system.GetArrayMember(actual.Value, i)
+			if err != nil {
+				return false, kerr.New("YLYWUVDEXX", err, "jsonselect.comparison", "system.GetArrayMember")
+			}
+			if !found {
+				return false, nil
+			}
+			child := &Json{Data: object, Rule: itemsRule, Value: value}
+			match, err := comparison(child, expectedArray[i], path, imports)
+			if err != nil {
+				return false, kerr.New("CTHINNYIRI", err, "jsonselect.comparison", "comparison (array)")
+			}
+			if !match {
+				return false, nil
+			}
+		}
+		break
+	case "map":
+		expectedMap, ok := expected.(map[string]interface{})
+		if !ok {
+			return false, kerr.New("CCIRAQFFSR", nil, "jsonselect.comparison", "expected %T is not map[string]interface{} (map)", expected)
+		}
+		itemsRule, err := actual.Rule.ItemsRule()
+		if err != nil {
+			return false, kerr.New("XOBKDDGNQR", err, "jsonselect.comparison", "actual.Rule.ItemsRule (map)")
+		}
+		compareChild := func(key string) (bool, error) {
+			object, _, value, found, _, err := system.GetMapMember(actual.Value, key)
+			if err != nil {
+				return false, kerr.New("LVRSXLXCIJ", err, "jsonselect.comparison", "system.GetMapMember")
+			}
+			if !found {
+				return false, nil
+			}
+			child := &Json{Data: object, Rule: itemsRule, Value: value}
+			match, err := comparison(child, expectedMap[key], path, imports)
+			if err != nil {
+				return false, kerr.New("QTVTEIETXV", err, "jsonselect.comparison", "getNodes (map)")
+			}
+			return match, nil
+		}
+		for _, k := range actual.Value.MapKeys() {
+			key, ok := k.Interface().(string)
+			if !ok {
+				return false, kerr.New("GLUYWFLJTN", nil, "jsonselect.comparison", "Map nodes must be strings, not %T", k.Interface())
+			}
+			matched, err := compareChild(key)
+			if err != nil {
+				return false, kerr.New("EAQCUKTFBW", err, "jsonselect.comparison", "compareChild map (actual)")
+			}
+			if !matched {
+				return false, nil
+			}
+		}
+		for key, _ := range expectedMap {
+			matched, err := compareChild(key)
+			if err != nil {
+				return false, kerr.New("YGCQDYMOEA", err, "jsonselect.comparison", "compareChild map (expected)")
+			}
+			if !matched {
+				return false, nil
+			}
+		}
+		break
+	case "object":
+		expectedMap, ok := expected.(map[string]interface{})
+		if !ok {
+			return false, kerr.New("OJEQQPYXJP", nil, "jsonselect.comparison", "expected %T is not map[string]interface{} (object)", expected)
+		}
+		compareChild := func(key string) (bool, error) {
+			object, _, value, found, _, err := system.GetObjectField(actual.Value, system.IdToGoName(key))
+			if err != nil {
+				return false, kerr.New("KOLTDOJSJY", err, "jsonselect.comparison", "system.GetObjectField")
+			}
+			if !found {
+				return false, nil
+			}
+			property, ok := actual.Rule.ParentType.Properties[key]
+			if !ok {
+				return false, kerr.New("DXRELESKCB", nil, "jsonselect.comparison", "property %s not found in %s", key, actual.Rule.ParentType.Id)
+			}
+			itemRule, err := system.NewRuleHolder(property.Item, path, imports)
+			if err != nil {
+				return false, kerr.New("ERPYTUODXO", err, "jsonselect.comparison", "system.NewRuleHolder")
+			}
+			child := &Json{Data: object, Rule: itemRule, Value: value}
+			match, err := comparison(child, expectedMap[key], path, imports)
+			if err != nil {
+				return false, kerr.New("NNCBWVRAJC", err, "jsonselect.comparison", "comparison (object)")
+			}
+			return match, nil
+		}
+		for key, _ := range actual.Rule.ParentType.Properties {
+			matched, err := compareChild(key)
+			if err != nil {
+				return false, kerr.New("DIUQUBQAJN", err, "jsonselect.comparison", "compareChild object (actual)")
+			}
+			if !matched {
+				return false, nil
+			}
+		}
+		for key, _ := range expectedMap {
+			matched, err := compareChild(key)
+			if err != nil {
+				return false, kerr.New("GXBHGSNDFO", err, "jsonselect.comparison", "compareChild object (expected)")
+			}
+			if !matched {
+				return false, nil
+			}
+		}
+		break
+	}
+
+	return true, nil
+}
+
 func TestLevel1(t *testing.T) {
-	runTestsInDirectory(t, "./conformance_tests/level_1/")
+	runTestsInDirectory(t, "./tests/level_1/", "kego.io/jsonselect", map[string]string{})
 }
 
 func TestLevel2(t *testing.T) {
-	runTestsInDirectory(t, "./conformance_tests/level_2/")
+	runTestsInDirectory(t, "./tests/level_2/", "kego.io/jsonselect", map[string]string{})
 }
 
 func TestLevel3(t *testing.T) {
-	runTestsInDirectory(t, "./conformance_tests/level_3/")
-}
-
-func BenchmarkParseDocument(b *testing.B) {
-	json_ast, _ := ioutil.ReadFile("./test_data/example_json_ast.json")
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		parser, _ = CreateParserFromString(string(json_ast))
-	}
-}
-
-func BenchmarkBasicSelector(b *testing.B) {
-	json_ast, _ := ioutil.ReadFile("./test_data/example_json_ast.json")
-	parser, _ = CreateParserFromString(string(json_ast))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		values, _ = parser.GetValues(`.Link`)
-	}
-}
-
-func BenchmarkComplexSelector(b *testing.B) {
-	json_ast, _ := ioutil.ReadFile("./test_data/example_json_ast.json")
-	parser, _ = CreateParserFromString(string(json_ast))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		values, _ = parser.GetValues(`.Link object:has(.Str:val("News"))`)
-	}
-}
-
-func BenchmarkAncestorSelector(b *testing.B) {
-	json_ast, _ := ioutil.ReadFile("./test_data/example_json_ast.json")
-	parser, _ = CreateParserFromString(string(json_ast))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		values, _ = parser.GetValues(`.Link object`)
-	}
-}
-
-func BenchmarkHasExpression(b *testing.B) {
-	json_ast, _ := ioutil.ReadFile("./test_data/example_json_ast.json")
-	parser, _ = CreateParserFromString(string(json_ast))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		values, _ = parser.GetValues(`object:has(.Str:val("News"))`)
-	}
+	runTestsInDirectory(t, "./tests/level_3/", "kego.io/jsonselect", map[string]string{})
 }

@@ -1,0 +1,48 @@
+{
+	"type": "system:type",
+	"id": "expr",
+	"properties": {
+		"int": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		},
+		"float": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		},
+		"string": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		},
+		"string2": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		},
+		"null": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		},
+		"true": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@bool"
+			}
+		},
+		"false": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@bool"
+			}
+		}
+	}
+}

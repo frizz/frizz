@@ -1,6 +1,7 @@
 {
-    "object": {
-      "string": "some string",
-      "stringTwo": "some other string"
-    }
+	"type": "collision",
+	"number": {
+		"string": "some string",
+		"stringTwo": "some other string"
+	}
 }

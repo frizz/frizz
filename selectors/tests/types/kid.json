@@ -1,0 +1,25 @@
+{
+	"type": "system:type",
+	"id": "kid",
+	"properties": {
+		"language": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		},
+		"level": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		},
+		"preferred": {
+			"type": "system:property",
+			"optional": true,
+			"item": {
+				"type": "system:@bool"
+			}
+		}
+	}
+}

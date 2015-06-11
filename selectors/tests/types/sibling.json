@@ -1,0 +1,42 @@
+{
+	"type": "system:type",
+	"id": "sibling",
+	"properties": {
+		"a": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		},
+		"b": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		},
+		"c": {
+			"type": "system:property",
+			"item": {
+				"type": "@c"
+			}
+		},
+		"d": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@map",
+				"items": {
+					"type": "system:@number"
+				}
+			}
+		},
+		"e": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@map",
+				"items": {
+					"type": "system:@number"
+				}
+			}
+		}
+	}
+}

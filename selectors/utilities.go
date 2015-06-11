@@ -1,13 +1,12 @@
 package jsonselect
 
 import (
+	"encoding/json"
 	"log"
 	"strconv"
-
-	"kego.io/json"
 )
 
-func nodeIsMemberOfHaystack(needle *jsonNode, haystack map[*json.Json]*jsonNode) bool {
+func nodeIsMemberOfHaystack(needle *jsonNode, haystack map[*Json]*jsonNode) bool {
 	_, ok := haystack[needle.json]
 	return ok
 }
@@ -21,14 +20,14 @@ func nodeIsMemberOfList(needle *jsonNode, haystack []*jsonNode) bool {
 	return false
 }
 
-func appendAncestorsToHaystack(node *jsonNode, haystack map[*json.Json]*jsonNode) {
+func appendAncestorsToHaystack(node *jsonNode, haystack map[*Json]*jsonNode) {
 	if node.parent != nil {
 		haystack[node.parent.json] = node.parent
 		appendAncestorsToHaystack(node.parent, haystack)
 	}
 }
 
-func nodeIsChildOfHaystackMember(needle *jsonNode, haystack map[*json.Json]*jsonNode) bool {
+func nodeIsChildOfHaystackMember(needle *jsonNode, haystack map[*Json]*jsonNode) bool {
 	if nodeIsMemberOfHaystack(needle, haystack) {
 		return true
 	}
@@ -67,7 +66,7 @@ func ancestors(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
 
 func siblings(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
 	var results []*jsonNode
-	parents := make(map[*json.Json]*jsonNode, len(lhs))
+	parents := make(map[*Json]*jsonNode, len(lhs))
 
 	for _, element := range lhs {
 		parents[element.parent.json] = element.parent
@@ -132,22 +131,24 @@ func getJsonString(in interface{}) string {
 	return result
 }
 
-func exprElementIsTruthy(e exprElement) bool {
+func exprElementIsTruthy(e exprElement) (bool, error) {
 	switch e.typ {
 	case J_STRING:
-		return len(e.value.(string)) > 0
+		return len(e.value.(string)) > 0, nil
 	case J_NUMBER:
-		return e.value.(float64) > 0
-	case J_OBJECT:
-		return true
+		return e.value.(float64) > 0, nil
+	case J_OBJ:
+		return true, nil
+	case J_MAP:
+		return true, nil
 	case J_ARRAY:
-		return true
+		return true, nil
 	case J_BOOLEAN:
-		return e.value.(bool)
+		return e.value.(bool), nil
 	case J_NULL:
-		return false
+		return false, nil
 	default:
-		return false
+		return false, nil
 	}
 }
 
@@ -155,8 +156,8 @@ func exprElementsMatch(lhs exprElement, rhs exprElement) bool {
 	return lhs.typ == rhs.typ
 }
 
-func getHaystackFromNodeList(nodes []*jsonNode) map[*json.Json]*jsonNode {
-	hashmap := make(map[*json.Json]*jsonNode, len(nodes))
+func getHaystackFromNodeList(nodes []*jsonNode) map[*Json]*jsonNode {
+	hashmap := make(map[*Json]*jsonNode, len(nodes))
 	for _, node := range nodes {
 		hashmap[node.json] = node
 	}

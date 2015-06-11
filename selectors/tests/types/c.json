@@ -1,0 +1,27 @@
+{
+	"type": "system:type",
+	"id": "c",
+	"properties": {
+		"a": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		},
+		"b": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		},
+		"c": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@map",
+				"items": {
+					"type": "system:@number"
+				}
+			}
+		}
+	}
+}

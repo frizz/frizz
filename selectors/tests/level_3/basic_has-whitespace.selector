@@ -1,1 +1,1 @@
-.languagesSpoken object:has       (       .language       ) 
+.languagesSpoken map:has       (       .language       )
