@@ -102,6 +102,7 @@ func functions() template.FuncMap {
 	return template.FuncMap{
 		"quote":     strconv.Quote,
 		"import":    importStatement,
+		"types":     typesImportStatement,
 		"ternary":   ternary,
 		"map":       mapHelper,
 		"reference": system.GoReference,
@@ -143,6 +144,11 @@ func importStatement(name string, path string, currentPackage string) string {
 		return fmt.Sprintf("%s %s", name, strconv.Quote(path))
 	}
 
+}
+
+func typesImportStatement(path string) string {
+	newPath := fmt.Sprintf("%s/types", path)
+	return fmt.Sprintf("_ %s", strconv.Quote(newPath))
 }
 
 // ternary is a helper for template logic

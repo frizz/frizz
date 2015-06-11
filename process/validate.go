@@ -144,7 +144,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 	}
 
 	for name, property := range itemsRule.ParentType.Properties {
-		child, _, found, _, err := system.GetField(value, system.IdToGoName(name))
+		child, _, _, found, _, err := system.GetObjectField(value, system.IdToGoName(name))
 		if err != nil {
 			return kerr.New("XTUKWWRDHH", err, "process.validateObjectChildren", "system.GetField (%s)", name)
 		}

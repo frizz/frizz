@@ -9,8 +9,13 @@ import (
 		"kego.io/system"
 	{{ end }}
 
+	{{ if not (eq $path "kego.io/system/types") }}
+		_ "kego.io/system/types"
+	{{ end }}
+
 	{{ range $importName, $importPath := $imports }}
 		{{ import $importName $importPath $path }}
+		{{ types $importPath }}
 	{{ end }}
 )
 
