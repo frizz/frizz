@@ -52,7 +52,3 @@ type NativeString interface {
 func (s String) NativeString() (value string, exists bool) {
 	return s.Value, s.Exists
 }
-
-func (s String) NativeExists() bool {
-	return s.Exists
-}

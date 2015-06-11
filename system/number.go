@@ -56,7 +56,3 @@ type NativeNumber interface {
 func (n Number) NativeNumber() (value float64, exists bool) {
 	return n.Value, n.Exists
 }
-
-func (n Number) NativeExists() bool {
-	return n.Exists
-}

@@ -8,10 +8,6 @@ import (
 	"kego.io/kerr"
 )
 
-type Native interface {
-	NativeExists() bool
-}
-
 func IdToGoName(id string) string {
 	if strings.HasPrefix(id, "@") {
 		// Rules are prefixed with @ in the json ID, and suffixed with _rule in the

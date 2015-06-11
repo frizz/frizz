@@ -4,712 +4,712 @@ import "kego.io/system"
 
 func init() {
 
-	ptr8728352512 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728346112 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728672160 := &system.Object{Context: ptr8728352512, Description: "This is one of several rule types, derived from the rules property of other types", Id: "rule", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728631872 := &system.Object{Context: ptr8728346112, Description: "Automatically created basic rule for context", Id: "@context", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728694000 := &system.Type{Object: ptr8728672160, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: true, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728650448 := &system.Type{Object: ptr8728631872, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728653568 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728343584 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728708752 := &system.Object{Context: ptr8728653568, Description: "Restriction rules for maps", Id: "@map", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728631200 := &system.Object{Context: ptr8728343584, Description: "This is the native json array data type", Id: "array", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728652736 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728343104 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728708864 := &system.Object{Context: ptr8728652736, Description: "This is a rule object, defining the type and restrictions on the value of the items.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728631312 := &system.Object{Context: ptr8728343104, Description: "Restriction rules for arrays", Id: "@array", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728652704 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728342880 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728709088 := &system.Object{Context: ptr8728652704, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
+	ptr8728632768 := &system.Object{Context: ptr8728342880, Description: "If this is true, each item must be unique", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728437312 := &system.Rule_rule{Object: ptr8728709088}
+	ptr8728342848 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728504048 := &system.Property{Object: ptr8728708864, Defaulter: false, Item: ptr8728437312, Optional: false}
+	ptr8728630752 := &system.Object{Context: ptr8728342848, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
 
-	ptr8728653088 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728258192 := &system.Bool_rule{Object: ptr8728630752, Default: system.Bool{Value: false, Exists: true}}
 
-	ptr8728710544 := &system.Object{Context: ptr8728653088, Description: "This is the minimum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728497920 := &system.Property{Object: ptr8728632768, Defaulter: false, Item: ptr8728258192, Optional: true}
 
-	ptr8728653056 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728343872 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728710656 := &system.Object{Context: ptr8728653056, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728631648 := &system.Object{Context: ptr8728343872, Description: "This is a rule object, defining the type and restrictions on the value of the items", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728446928 := &system.Int_rule{Object: ptr8728710656, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728343840 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728504144 := &system.Property{Object: ptr8728710544, Defaulter: false, Item: ptr8728446928, Optional: true}
+	ptr8728631984 := &system.Object{Context: ptr8728343840, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
 
-	ptr8728653440 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728428976 := &system.Rule_rule{Object: ptr8728631984}
 
-	ptr8728710768 := &system.Object{Context: ptr8728653440, Description: "This is the maximum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728496912 := &system.Property{Object: ptr8728631648, Defaulter: false, Item: ptr8728428976, Optional: false}
 
-	ptr8728653408 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728344288 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728710880 := &system.Object{Context: ptr8728653408, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728632096 := &system.Object{Context: ptr8728344288, Description: "This is the minimum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728447008 := &system.Int_rule{Object: ptr8728710880, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728344256 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728504240 := &system.Property{Object: ptr8728710768, Defaulter: false, Item: ptr8728447008, Optional: true}
+	ptr8728632432 := &system.Object{Context: ptr8728344256, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728691696 := &system.Type{Object: ptr8728708752, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"items": ptr8728504048, "minItems": ptr8728504144, "maxItems": ptr8728504240}, Rule: (*system.Type)(nil)}
+	ptr8728442496 := &system.Int_rule{Object: ptr8728632432, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728353248 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728497488 := &system.Property{Object: ptr8728632096, Defaulter: false, Item: ptr8728442496, Optional: true}
 
-	ptr8728707072 := &system.Object{Context: ptr8728353248, Description: "This is the native json array data type", Id: "array", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728344640 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728352928 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728632544 := &system.Object{Context: ptr8728344640, Description: "This is the maximum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728707184 := &system.Object{Context: ptr8728352928, Description: "Restriction rules for arrays", Id: "@array", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728344608 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728351616 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728632656 := &system.Object{Context: ptr8728344608, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728707520 := &system.Object{Context: ptr8728351616, Description: "This is a rule object, defining the type and restrictions on the value of the items", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728442576 := &system.Int_rule{Object: ptr8728632656, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728351584 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728497824 := &system.Property{Object: ptr8728632544, Defaulter: false, Item: ptr8728442576, Optional: true}
 
-	ptr8728707856 := &system.Object{Context: ptr8728351584, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
+	ptr8728655632 := &system.Type{Object: ptr8728631312, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"uniqueItems": ptr8728497920, "items": ptr8728496912, "minItems": ptr8728497488, "maxItems": ptr8728497824}, Rule: (*system.Type)(nil)}
 
-	ptr8728437136 := &system.Rule_rule{Object: ptr8728707856}
+	ptr8728655488 := &system.Type{Object: ptr8728631200, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "array", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728655632}
 
-	ptr8728503760 := &system.Property{Object: ptr8728707520, Defaulter: false, Item: ptr8728437136, Optional: false}
+	ptr8728614688 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728352032 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728744768 := &system.Object{Context: ptr8728614688, Description: "This is the native json string data type", Id: "string", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728707968 := &system.Object{Context: ptr8728352032, Description: "This is the minimum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728614240 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728352000 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728745440 := &system.Object{Context: ptr8728614240, Description: "Restriction rules for strings", Id: "@string", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728708304 := &system.Object{Context: ptr8728352000, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728614048 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728446528 := &system.Int_rule{Object: ptr8728708304, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728747904 := &system.Object{Context: ptr8728614048, Description: "This restricts the value to one of several built-in formats", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728504336 := &system.Property{Object: ptr8728707968, Defaulter: false, Item: ptr8728446528, Optional: true}
+	ptr8728613984 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728352384 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728625600 := &system.Object{Context: ptr8728613984, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
 
-	ptr8728708416 := &system.Object{Context: ptr8728352384, Description: "This is the maximum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728561536 := &system.String_rule{Object: ptr8728625600, Default: system.String{Value: "", Exists: false}, Enum: []system.String{system.String{Value: "date-time", Exists: true}, system.String{Value: "email", Exists: true}, system.String{Value: "hostname", Exists: true}, system.String{Value: "ipv4", Exists: true}, system.String{Value: "ipv6", Exists: true}, system.String{Value: "uri", Exists: true}}, Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
 
-	ptr8728352352 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728500464 := &system.Property{Object: ptr8728747904, Defaulter: false, Item: ptr8728561536, Optional: true}
 
-	ptr8728708528 := &system.Object{Context: ptr8728352352, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728346432 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728446688 := &system.Int_rule{Object: ptr8728708528, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728745552 := &system.Object{Context: ptr8728346432, Description: "Default value of this is missing or null", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728504720 := &system.Property{Object: ptr8728708416, Defaulter: false, Item: ptr8728446688, Optional: true}
+	ptr8728346368 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728352800 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728746336 := &system.Object{Context: ptr8728346368, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
 
-	ptr8728708640 := &system.Object{Context: ptr8728352800, Description: "If this is true, each item must be unique", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728560576 := &system.String_rule{Object: ptr8728746336, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
 
-	ptr8728352768 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728498448 := &system.Property{Object: ptr8728745552, Defaulter: true, Item: ptr8728560576, Optional: true}
 
-	ptr8728708976 := &system.Object{Context: ptr8728352768, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
+	ptr8728610144 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728268704 := &system.Bool_rule{Object: ptr8728708976, Default: system.Bool{Value: false, Exists: true}}
+	ptr8728746448 := &system.Object{Context: ptr8728610144, Description: "The value of this string is restricted to one of the provided values", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728504912 := &system.Property{Object: ptr8728708640, Defaulter: false, Item: ptr8728268704, Optional: true}
+	ptr8728609856 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728690688 := &system.Type{Object: ptr8728707184, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"items": ptr8728503760, "minItems": ptr8728504336, "maxItems": ptr8728504720, "uniqueItems": ptr8728504912}, Rule: (*system.Type)(nil)}
+	ptr8728746784 := &system.Object{Context: ptr8728609856, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@array", Package: "kego.io/system", Type: "@array", Exists: true}}
 
-	ptr8728698464 := &system.Type{Object: ptr8728707072, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "array", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728690688}
+	ptr8728609760 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728653472 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728746896 := &system.Object{Context: ptr8728609760, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
 
-	ptr8728670368 := &system.Object{Context: ptr8728653472, Description: "This is the most basic type.", Id: "type", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728561056 := &system.String_rule{Object: ptr8728746896, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
 
-	ptr8728652960 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728602496 := &system.Array_rule{Object: ptr8728746784, Items: ptr8728561056, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
 
-	ptr8728666448 := &system.Object{Context: ptr8728652960, Description: "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728498928 := &system.Property{Object: ptr8728746448, Defaulter: false, Item: ptr8728602496, Optional: true}
 
-	ptr8728652928 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728610816 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728666784 := &system.Object{Context: ptr8728652928, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@type", Package: "kego.io/system", Type: "@type", Exists: true}}
+	ptr8728747008 := &system.Object{Context: ptr8728610816, Description: "The value must be longer or equal to the provided minimum length", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728436784 := &system.Type_rule{Object: ptr8728666784}
+	ptr8728610784 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728502416 := &system.Property{Object: ptr8728666448, Defaulter: false, Item: ptr8728436784, Optional: true}
+	ptr8728747120 := &system.Object{Context: ptr8728610784, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728652288 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728439616 := &system.Int_rule{Object: ptr8728747120, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728670480 := &system.Object{Context: ptr8728652288, Description: "Type which this should extend", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728499600 := &system.Property{Object: ptr8728747008, Defaulter: false, Item: ptr8728439616, Optional: true}
 
-	ptr8728652224 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728611584 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728670592 := &system.Object{Context: ptr8728652224, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
+	ptr8728747232 := &system.Object{Context: ptr8728611584, Description: "The value must be shorter or equal to the provided maximum length", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728626496 := &system.Reference_rule{Object: ptr8728670592, Default: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}}
+	ptr8728611456 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728507792 := &system.Property{Object: ptr8728670480, Defaulter: false, Item: ptr8728626496, Optional: true}
+	ptr8728747344 := &system.Object{Context: ptr8728611456, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728653504 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728437856 := &system.Int_rule{Object: ptr8728747344, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728671264 := &system.Object{Context: ptr8728653504, Description: "Array of interface types that this type should support", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728499984 := &system.Property{Object: ptr8728747232, Defaulter: false, Item: ptr8728437856, Optional: true}
 
-	ptr8728653312 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612288 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728672384 := &system.Object{Context: ptr8728653312, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@array", Package: "kego.io/system", Type: "@array", Exists: true}}
+	ptr8728747456 := &system.Object{Context: ptr8728612288, Description: "This is a string that the value must match", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728653280 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612192 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728672496 := &system.Object{Context: ptr8728653280, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
+	ptr8728747568 := &system.Object{Context: ptr8728612192, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
 
-	ptr8728626752 := &system.Reference_rule{Object: ptr8728672496, Default: system.Reference{Value: "", Package: "", Type: "", Exists: false}}
+	ptr8728561216 := &system.String_rule{Object: ptr8728747568, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
 
-	ptr8728626624 := &system.Array_rule{Object: ptr8728672384, Items: ptr8728626752, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
+	ptr8728500080 := &system.Property{Object: ptr8728747456, Defaulter: false, Item: ptr8728561216, Optional: true}
 
-	ptr8728507840 := &system.Property{Object: ptr8728671264, Defaulter: false, Item: ptr8728626624, Optional: true}
+	ptr8728612960 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728655008 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728747680 := &system.Object{Context: ptr8728612960, Description: "This is a regex to match the value to", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728672608 := &system.Object{Context: ptr8728655008, Description: "This is the native json type that represents this type. If omitted, default is object.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728612928 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728654816 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728747792 := &system.Object{Context: ptr8728612928, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
 
-	ptr8728672720 := &system.Object{Context: ptr8728654816, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
+	ptr8728561376 := &system.String_rule{Object: ptr8728747792, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
 
-	ptr8728602656 := &system.String_rule{Object: ptr8728672720, Default: system.String{Value: "object", Exists: true}, Enum: []system.String{system.String{Value: "string", Exists: true}, system.String{Value: "number", Exists: true}, system.String{Value: "bool", Exists: true}, system.String{Value: "array", Exists: true}, system.String{Value: "object", Exists: true}, system.String{Value: "map", Exists: true}}, Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8728500320 := &system.Property{Object: ptr8728747680, Defaulter: false, Item: ptr8728561376, Optional: true}
 
-	ptr8728508080 := &system.Property{Object: ptr8728672608, Defaulter: false, Item: ptr8728602656, Optional: true}
+	ptr8728653184 := &system.Type{Object: ptr8728745440, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"format": ptr8728500464, "default": ptr8728498448, "enum": ptr8728498928, "minLength": ptr8728499600, "maxLength": ptr8728499984, "equal": ptr8728500080, "pattern": ptr8728500320}, Rule: (*system.Type)(nil)}
 
-	ptr8728655936 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728653040 := &system.Type{Object: ptr8728744768, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "string", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728653184}
 
-	ptr8728672832 := &system.Object{Context: ptr8728655936, Description: "Is this type an interface?", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728616448 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728655840 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728742864 := &system.Object{Context: ptr8728616448, Description: "This is the most basic type.", Id: "object", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728672944 := &system.Object{Context: ptr8728655840, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
+	ptr8728615776 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728438144 := &system.JsonBool_rule{Object: ptr8728672944}
+	ptr8728744096 := &system.Object{Context: ptr8728615776, Description: "Unmarshaling context. This should not be in the json - it's added by the unmarshaler.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728508128 := &system.Property{Object: ptr8728672832, Defaulter: false, Item: ptr8728438144, Optional: true}
+	ptr8728615744 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728656960 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728744432 := &system.Object{Context: ptr8728615744, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@context", Package: "kego.io/system", Type: "@context", Exists: true}}
 
-	ptr8728673056 := &system.Object{Context: ptr8728656960, Description: "Exclude this type from the generated json?", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728429512 := &system.Context_rule{Object: ptr8728744432}
 
-	ptr8728656928 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728499024 := &system.Property{Object: ptr8728744096, Defaulter: false, Item: ptr8728429512, Optional: true}
 
-	ptr8728673168 := &system.Object{Context: ptr8728656928, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
+	ptr8728616320 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728438168 := &system.JsonBool_rule{Object: ptr8728673168}
+	ptr8728744544 := &system.Object{Context: ptr8728616320, Description: "Extra validation rules for this object or descendants", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728508320 := &system.Property{Object: ptr8728673056, Defaulter: false, Item: ptr8728438168, Optional: true}
+	ptr8728616288 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728651360 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728744880 := &system.Object{Context: ptr8728616288, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@map", Package: "kego.io/system", Type: "@map", Exists: true}}
 
-	ptr8728673280 := &system.Object{Context: ptr8728651360, Description: "Each field is listed with it's type", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728616256 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728651104 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728744992 := &system.Object{Context: ptr8728616256, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
 
-	ptr8728673392 := &system.Object{Context: ptr8728651104, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@map", Package: "kego.io/system", Type: "@map", Exists: true}}
+	ptr8728429696 := &system.Rule_rule{Object: ptr8728744992}
 
-	ptr8728650944 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728601152 := &system.Map_rule{Object: ptr8728744880, Items: ptr8728429696, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
 
-	ptr8728673728 := &system.Object{Context: ptr8728650944, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@property", Package: "kego.io/system", Type: "@property", Exists: true}}
+	ptr8728499312 := &system.Property{Object: ptr8728744544, Defaulter: false, Item: ptr8728601152, Optional: true}
 
-	ptr8728438200 := &system.Property_rule{Object: ptr8728673728}
+	ptr8728614432 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728626880 := &system.Map_rule{Object: ptr8728673392, Items: ptr8728438200, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
+	ptr8728742976 := &system.Object{Context: ptr8728614432, Description: "Type of the object.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728508416 := &system.Property{Object: ptr8728673280, Defaulter: false, Item: ptr8728626880, Optional: true}
+	ptr8728614400 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728693856 := &system.Type{Object: ptr8728670368, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"rule": ptr8728502416, "extends": ptr8728507792, "is": ptr8728507840, "native": ptr8728508080, "interface": ptr8728508128, "exclude": ptr8728508320, "properties": ptr8728508416}, Rule: (*system.Type)(nil)}
+	ptr8728743312 := &system.Object{Context: ptr8728614400, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
 
-	ptr8728351200 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728601024 := &system.Reference_rule{Object: ptr8728743312, Default: system.Reference{Value: "", Package: "", Type: "", Exists: false}}
 
-	ptr8728671824 := &system.Object{Context: ptr8728351200, Description: "Restriction rules for references", Id: "@reference", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728497536 := &system.Property{Object: ptr8728742976, Defaulter: false, Item: ptr8728601024, Optional: false}
 
-	ptr8728351040 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728614912 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728671936 := &system.Object{Context: ptr8728351040, Description: "Default value of this is missing or null", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728743424 := &system.Object{Context: ptr8728614912, Description: "All global objects should have an id.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728351008 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728614880 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728672048 := &system.Object{Context: ptr8728351008, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
+	ptr8728743760 := &system.Object{Context: ptr8728614880, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@string", Package: "kego.io/json", Type: "@string", Exists: true}}
 
-	ptr8728627136 := &system.Reference_rule{Object: ptr8728672048, Default: system.Reference{Value: "", Package: "", Type: "", Exists: false}}
+	ptr8728429408 := &system.JsonString_rule{Object: ptr8728743760}
 
-	ptr8728507936 := &system.Property{Object: ptr8728671936, Defaulter: true, Item: ptr8728627136, Optional: true}
+	ptr8728498208 := &system.Property{Object: ptr8728743424, Defaulter: false, Item: ptr8728429408, Optional: true}
 
-	ptr8728693712 := &system.Type{Object: ptr8728671824, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728507936}, Rule: (*system.Type)(nil)}
+	ptr8728615360 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728650304 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728743872 := &system.Object{Context: ptr8728615360, Description: "Description for the developer", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728709872 := &system.Object{Context: ptr8728650304, Description: "Automatically created basic rule for context", Id: "@context", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728615328 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728691552 := &system.Type{Object: ptr8728709872, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728743984 := &system.Object{Context: ptr8728615328, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@string", Package: "kego.io/json", Type: "@string", Exists: true}}
 
-	ptr8728650688 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728429488 := &system.JsonString_rule{Object: ptr8728743984}
 
-	ptr8728711104 := &system.Object{Context: ptr8728650688, Description: "Restriction rules for numbers", Id: "@number", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728498976 := &system.Property{Object: ptr8728743872, Defaulter: false, Item: ptr8728429488, Optional: true}
 
-	ptr8728655296 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728650736 := &system.Type{Object: ptr8728742864, Exclude: false, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"context": ptr8728499024, "rules": ptr8728499312, "type": ptr8728497536, "id": ptr8728498208, "description": ptr8728498976}, Rule: (*system.Type)(nil)}
 
-	ptr8728711216 := &system.Object{Context: ptr8728655296, Description: "Default value if this property is omitted", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728342304 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728655136 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728743536 := &system.Object{Context: ptr8728342304, Description: "Restriction rules for references", Id: "@reference", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728711552 := &system.Object{Context: ptr8728655136, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
+	ptr8728341344 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728447168 := &system.Number_rule{Object: ptr8728711552, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8728743648 := &system.Object{Context: ptr8728341344, Description: "Default value of this is missing or null", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728504576 := &system.Property{Object: ptr8728711216, Defaulter: true, Item: ptr8728447168, Optional: true}
+	ptr8728341312 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728655744 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728744208 := &system.Object{Context: ptr8728341312, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
 
-	ptr8728711664 := &system.Object{Context: ptr8728655744, Description: "This restricts the number to be a multiple of the given number", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728601728 := &system.Reference_rule{Object: ptr8728744208, Default: system.Reference{Value: "", Package: "", Type: "", Exists: false}}
 
-	ptr8728655584 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728496288 := &system.Property{Object: ptr8728743648, Defaulter: true, Item: ptr8728601728, Optional: true}
 
-	ptr8728711776 := &system.Object{Context: ptr8728655584, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
+	ptr8728652320 := &system.Type{Object: ptr8728743536, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728496288}, Rule: (*system.Type)(nil)}
 
-	ptr8728447248 := &system.Number_rule{Object: ptr8728711776, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8728616640 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728505584 := &system.Property{Object: ptr8728711664, Defaulter: false, Item: ptr8728447248, Optional: true}
+	ptr8728745104 := &system.Object{Context: ptr8728616640, Description: "Automatically created basic rule for object", Id: "@object", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728656192 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728650880 := &system.Type{Object: ptr8728745104, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728711888 := &system.Object{Context: ptr8728656192, Description: "This provides a lower bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728610112 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728656032 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728632320 := &system.Object{Context: ptr8728610112, Description: "Restriction rules for integers", Id: "@int", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728712000 := &system.Object{Context: ptr8728656032, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
+	ptr8728609024 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728452128 := &system.Number_rule{Object: ptr8728712000, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8728632880 := &system.Object{Context: ptr8728609024, Description: "Default value if this property is omitted", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728505872 := &system.Property{Object: ptr8728711888, Defaulter: false, Item: ptr8728452128, Optional: true}
+	ptr8728608992 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728656544 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728632992 := &system.Object{Context: ptr8728608992, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728712112 := &system.Object{Context: ptr8728656544, Description: "If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728439056 := &system.Int_rule{Object: ptr8728632992, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728656512 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728496960 := &system.Property{Object: ptr8728632880, Defaulter: true, Item: ptr8728439056, Optional: true}
 
-	ptr8728712224 := &system.Object{Context: ptr8728656512, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
+	ptr8728609344 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728271760 := &system.Bool_rule{Object: ptr8728712224, Default: system.Bool{Value: false, Exists: true}}
+	ptr8728633104 := &system.Object{Context: ptr8728609344, Description: "This restricts the number to be a multiple of the given number", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728506496 := &system.Property{Object: ptr8728712112, Defaulter: false, Item: ptr8728271760, Optional: true}
+	ptr8728609312 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728656992 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728633216 := &system.Object{Context: ptr8728609312, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728712336 := &system.Object{Context: ptr8728656992, Description: "This provides an upper bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728439136 := &system.Int_rule{Object: ptr8728633216, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728656832 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728497104 := &system.Property{Object: ptr8728633104, Defaulter: false, Item: ptr8728439136, Optional: true}
 
-	ptr8728712448 := &system.Object{Context: ptr8728656832, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
+	ptr8728609664 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728447488 := &system.Number_rule{Object: ptr8728712448, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8728281200 := &system.Object{Context: ptr8728609664, Description: "This provides a lower bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728506688 := &system.Property{Object: ptr8728712336, Defaulter: false, Item: ptr8728447488, Optional: true}
+	ptr8728609632 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728650432 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728739840 := &system.Object{Context: ptr8728609632, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728712560 := &system.Object{Context: ptr8728650432, Description: "If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728439216 := &system.Int_rule{Object: ptr8728739840, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728650400 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728497200 := &system.Property{Object: ptr8728281200, Defaulter: false, Item: ptr8728439216, Optional: true}
 
-	ptr8728712672 := &system.Object{Context: ptr8728650400, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
+	ptr8728609984 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728272176 := &system.Bool_rule{Object: ptr8728712672, Default: system.Bool{Value: false, Exists: true}}
+	ptr8728739952 := &system.Object{Context: ptr8728609984, Description: "This provides an upper bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728506832 := &system.Property{Object: ptr8728712560, Defaulter: false, Item: ptr8728272176, Optional: true}
+	ptr8728609952 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728692416 := &system.Type{Object: ptr8728711104, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728504576, "multipleOf": ptr8728505584, "minimum": ptr8728505872, "exclusiveMinimum": ptr8728506496, "maximum": ptr8728506688, "exclusiveMaximum": ptr8728506832}, Rule: (*system.Type)(nil)}
+	ptr8728740064 := &system.Object{Context: ptr8728609952, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728347328 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728439296 := &system.Int_rule{Object: ptr8728740064, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728714912 := &system.Object{Context: ptr8728347328, Description: "This is a property of a type", Id: "property", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728497344 := &system.Property{Object: ptr8728739952, Defaulter: false, Item: ptr8728439296, Optional: true}
 
-	ptr8728657600 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728651168 := &system.Type{Object: ptr8728632320, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728496960, "multipleOf": ptr8728497104, "minimum": ptr8728497200, "maximum": ptr8728497344}, Rule: (*system.Type)(nil)}
 
-	ptr8728670816 := &system.Object{Context: ptr8728657600, Description: "This specifies that the field is the default value for a rule", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728345376 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728657568 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728630864 := &system.Object{Context: ptr8728345376, Description: "This is the native json bool data type", Id: "bool", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728670928 := &system.Object{Context: ptr8728657568, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
+	ptr8728345056 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728437864 := &system.JsonBool_rule{Object: ptr8728670928}
+	ptr8728631088 := &system.Object{Context: ptr8728345056, Description: "Restriction rules for bools", Id: "@bool", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728507600 := &system.Property{Object: ptr8728670816, Defaulter: false, Item: ptr8728437864, Optional: true}
+	ptr8728344928 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728347200 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728631424 := &system.Object{Context: ptr8728344928, Description: "Default value of this is missing or null", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728671040 := &system.Object{Context: ptr8728347200, Description: "This is a rule object, defining the type and restrictions on the value of the this property", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728344896 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728347168 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728631536 := &system.Object{Context: ptr8728344896, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
 
-	ptr8728671376 := &system.Object{Context: ptr8728347168, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
+	ptr8728260720 := &system.Bool_rule{Object: ptr8728631536, Default: system.Bool{Value: false, Exists: false}}
 
-	ptr8728437888 := &system.Rule_rule{Object: ptr8728671376}
+	ptr8728496192 := &system.Property{Object: ptr8728631424, Defaulter: true, Item: ptr8728260720, Optional: true}
 
-	ptr8728507648 := &system.Property{Object: ptr8728671040, Defaulter: false, Item: ptr8728437888, Optional: false}
+	ptr8728650016 := &system.Type{Object: ptr8728631088, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728496192}, Rule: (*system.Type)(nil)}
 
-	ptr8728657184 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728649872 := &system.Type{Object: ptr8728630864, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "bool", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728650016}
 
-	ptr8728715024 := &system.Object{Context: ptr8728657184, Description: "This specifies that the field is optional", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728345024 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728657120 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728744656 := &system.Object{Context: ptr8728345024, Description: "Automatically created basic rule for rule", Id: "@rule", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728670704 := &system.Object{Context: ptr8728657120, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
+	ptr8728652752 := &system.Type{Object: ptr8728744656, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728437792 := &system.JsonBool_rule{Object: ptr8728670704}
+	ptr8728344128 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728507264 := &system.Property{Object: ptr8728715024, Defaulter: false, Item: ptr8728437792, Optional: true}
+	ptr8728744320 := &system.Object{Context: ptr8728344128, Description: "This is one of several rule types, derived from the rules property of other types", Id: "rule", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728693136 := &system.Type{Object: ptr8728714912, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"defaulter": ptr8728507600, "item": ptr8728507648, "optional": ptr8728507264}, Rule: (*system.Type)(nil)}
+	ptr8728652608 := &system.Type{Object: ptr8728744320, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: true, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728651456 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728341152 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728710096 := &system.Object{Context: ptr8728651456, Description: "Restriction rules for integers", Id: "@int", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728629520 := &system.Object{Context: ptr8728341152, Description: "Automatically created basic rule for type", Id: "@type", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728651072 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728652896 := &system.Type{Object: ptr8728629520, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728710208 := &system.Object{Context: ptr8728651072, Description: "Default value if this property is omitted", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728345920 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728651040 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728631760 := &system.Object{Context: ptr8728345920, Description: "Unmarshal context.", Id: "context", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728710320 := &system.Object{Context: ptr8728651040, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728650304 := &system.Type{Object: ptr8728631760, Exclude: true, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728447408 := &system.Int_rule{Object: ptr8728710320, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728612992 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728506208 := &system.Property{Object: ptr8728710208, Defaulter: true, Item: ptr8728447408, Optional: true}
+	ptr8728741184 := &system.Object{Context: ptr8728612992, Description: "Restriction rules for numbers", Id: "@number", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728650176 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612256 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728710432 := &system.Object{Context: ptr8728650176, Description: "This restricts the number to be a multiple of the given number", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728742416 := &system.Object{Context: ptr8728612256, Description: "This provides an upper bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728650144 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728611968 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728707296 := &system.Object{Context: ptr8728650144, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728742528 := &system.Object{Context: ptr8728611968, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
 
-	ptr8728445408 := &system.Int_rule{Object: ptr8728707296, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728437216 := &system.Number_rule{Object: ptr8728742528, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
 
-	ptr8728506352 := &system.Property{Object: ptr8728710432, Defaulter: false, Item: ptr8728445408, Optional: true}
+	ptr8728496336 := &system.Property{Object: ptr8728742416, Defaulter: false, Item: ptr8728437216, Optional: true}
 
-	ptr8728650880 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612736 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728707408 := &system.Object{Context: ptr8728650880, Description: "This provides a lower bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728742640 := &system.Object{Context: ptr8728612736, Description: "If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728650816 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612672 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728707632 := &system.Object{Context: ptr8728650816, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728742752 := &system.Object{Context: ptr8728612672, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
 
-	ptr8728445488 := &system.Int_rule{Object: ptr8728707632, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728855904 := &system.Bool_rule{Object: ptr8728742752, Default: system.Bool{Value: false, Exists: true}}
 
-	ptr8728502560 := &system.Property{Object: ptr8728707408, Defaulter: false, Item: ptr8728445488, Optional: true}
+	ptr8728496672 := &system.Property{Object: ptr8728742640, Defaulter: false, Item: ptr8728855904, Optional: true}
 
-	ptr8728651328 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728609536 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728707744 := &system.Object{Context: ptr8728651328, Description: "This provides an upper bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728741296 := &system.Object{Context: ptr8728609536, Description: "Default value if this property is omitted", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728651296 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728609248 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728708080 := &system.Object{Context: ptr8728651296, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728741632 := &system.Object{Context: ptr8728609248, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
 
-	ptr8728446768 := &system.Int_rule{Object: ptr8728708080, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728439696 := &system.Number_rule{Object: ptr8728741632, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
 
-	ptr8728502704 := &system.Property{Object: ptr8728707744, Defaulter: false, Item: ptr8728446768, Optional: true}
+	ptr8728498256 := &system.Property{Object: ptr8728741296, Defaulter: true, Item: ptr8728439696, Optional: true}
 
-	ptr8728692272 := &system.Type{Object: ptr8728710096, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728506208, "multipleOf": ptr8728506352, "minimum": ptr8728502560, "maximum": ptr8728502704}, Rule: (*system.Type)(nil)}
+	ptr8728610240 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728651776 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728741744 := &system.Object{Context: ptr8728610240, Description: "This restricts the number to be a multiple of the given number", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728709984 := &system.Object{Context: ptr8728651776, Description: "This is the int data type", Id: "int", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728610048 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728692128 := &system.Type{Object: ptr8728709984, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "number", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728692272}
+	ptr8728741856 := &system.Object{Context: ptr8728610048, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
 
-	ptr8728354080 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728437056 := &system.Number_rule{Object: ptr8728741856, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
 
-	ptr8728666224 := &system.Object{Context: ptr8728354080, Description: "Restriction rules for strings", Id: "@string", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728495808 := &system.Property{Object: ptr8728741744, Defaulter: false, Item: ptr8728437056, Optional: true}
 
-	ptr8728352608 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728610944 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728669920 := &system.Object{Context: ptr8728352608, Description: "This is a regex to match the value to", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728741968 := &system.Object{Context: ptr8728610944, Description: "This provides a lower bound for the restriction", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728352576 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728610752 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728670032 := &system.Object{Context: ptr8728352576, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
+	ptr8728742080 := &system.Object{Context: ptr8728610752, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@number", Package: "kego.io/system", Type: "@number", Exists: true}}
 
-	ptr8728602336 := &system.String_rule{Object: ptr8728670032, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8728437136 := &system.Number_rule{Object: ptr8728742080, Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
 
-	ptr8728506976 := &system.Property{Object: ptr8728669920, Defaulter: false, Item: ptr8728602336, Optional: true}
+	ptr8728495904 := &system.Property{Object: ptr8728741968, Defaulter: false, Item: ptr8728437136, Optional: true}
 
-	ptr8728353888 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728611520 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728670144 := &system.Object{Context: ptr8728353888, Description: "This restricts the value to one of several built-in formats", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728742192 := &system.Object{Context: ptr8728611520, Description: "If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728353824 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728611488 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728670256 := &system.Object{Context: ptr8728353824, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
+	ptr8728742304 := &system.Object{Context: ptr8728611488, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
 
-	ptr8728602496 := &system.String_rule{Object: ptr8728670256, Default: system.String{Value: "", Exists: false}, Enum: []system.String{system.String{Value: "date-time", Exists: true}, system.String{Value: "email", Exists: true}, system.String{Value: "hostname", Exists: true}, system.String{Value: "ipv4", Exists: true}, system.String{Value: "ipv6", Exists: true}, system.String{Value: "uri", Exists: true}}, Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8728855488 := &system.Bool_rule{Object: ptr8728742304, Default: system.Bool{Value: false, Exists: true}}
 
-	ptr8728507360 := &system.Property{Object: ptr8728670144, Defaulter: false, Item: ptr8728602496, Optional: true}
+	ptr8728496048 := &system.Property{Object: ptr8728742192, Defaulter: false, Item: ptr8728855488, Optional: true}
 
-	ptr8728348672 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728652032 := &system.Type{Object: ptr8728741184, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"maximum": ptr8728496336, "exclusiveMaximum": ptr8728496672, "default": ptr8728498256, "multipleOf": ptr8728495808, "minimum": ptr8728495904, "exclusiveMinimum": ptr8728496048}, Rule: (*system.Type)(nil)}
 
-	ptr8728666336 := &system.Object{Context: ptr8728348672, Description: "Default value of this is missing or null", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728610432 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728348640 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728632208 := &system.Object{Context: ptr8728610432, Description: "This is the int data type", Id: "int", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728668576 := &system.Object{Context: ptr8728348640, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
+	ptr8728651024 := &system.Type{Object: ptr8728632208, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "number", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728651168}
 
-	ptr8728601536 := &system.String_rule{Object: ptr8728668576, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8728343072 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728502512 := &system.Property{Object: ptr8728666336, Defaulter: true, Item: ptr8728601536, Optional: true}
+	ptr8728743088 := &system.Object{Context: ptr8728343072, Description: "This is a reference to another object, of the form: [local id] or [import name]:[id] or [full package path]:[id]", Id: "reference", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728349856 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728652176 := &system.Type{Object: ptr8728743088, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "string", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728652320}
 
-	ptr8728668688 := &system.Object{Context: ptr8728349856, Description: "The value of this string is restricted to one of the provided values", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728613472 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728349760 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728741072 := &system.Object{Context: ptr8728613472, Description: "This is the native json number data type", Id: "number", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728669024 := &system.Object{Context: ptr8728349760, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@array", Package: "kego.io/system", Type: "@array", Exists: true}}
+	ptr8728651888 := &system.Type{Object: ptr8728741072, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "number", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728652032}
 
-	ptr8728349728 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612544 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728669136 := &system.Object{Context: ptr8728349728, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
+	ptr8728740176 := &system.Object{Context: ptr8728612544, Description: "This is the native json object data type.", Id: "map", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728602016 := &system.String_rule{Object: ptr8728669136, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8728612224 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728625472 := &system.Array_rule{Object: ptr8728669024, Items: ptr8728602016, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
+	ptr8728740288 := &system.Object{Context: ptr8728612224, Description: "Restriction rules for maps", Id: "@map", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728504384 := &system.Property{Object: ptr8728668688, Defaulter: false, Item: ptr8728625472, Optional: true}
+	ptr8728611392 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728350176 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728740400 := &system.Object{Context: ptr8728611392, Description: "This is a rule object, defining the type and restrictions on the value of the items.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728669248 := &system.Object{Context: ptr8728350176, Description: "The value must be longer or equal to the provided minimum length", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728611360 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728350144 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728740512 := &system.Object{Context: ptr8728611360, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
 
-	ptr8728669360 := &system.Object{Context: ptr8728350144, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728429432 := &system.Rule_rule{Object: ptr8728740512}
 
-	ptr8728445328 := &system.Int_rule{Object: ptr8728669360, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728497728 := &system.Property{Object: ptr8728740400, Defaulter: false, Item: ptr8728429432, Optional: false}
 
-	ptr8728506304 := &system.Property{Object: ptr8728669248, Defaulter: false, Item: ptr8728445328, Optional: true}
+	ptr8728611744 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728351072 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728740624 := &system.Object{Context: ptr8728611744, Description: "This is the minimum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728669472 := &system.Object{Context: ptr8728351072, Description: "The value must be shorter or equal to the provided maximum length", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728611712 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728350848 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728740736 := &system.Object{Context: ptr8728611712, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728669584 := &system.Object{Context: ptr8728350848, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
+	ptr8728439456 := &system.Int_rule{Object: ptr8728740736, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728445648 := &system.Int_rule{Object: ptr8728669584, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: false}, MultipleOf: system.Int{Value: 0, Exists: false}}
+	ptr8728498016 := &system.Property{Object: ptr8728740624, Defaulter: false, Item: ptr8728439456, Optional: true}
 
-	ptr8728506592 := &system.Property{Object: ptr8728669472, Defaulter: false, Item: ptr8728445648, Optional: true}
+	ptr8728612096 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728351840 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728740848 := &system.Object{Context: ptr8728612096, Description: "This is the maximum number of items alowed in the array", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728669696 := &system.Object{Context: ptr8728351840, Description: "This is a string that the value must match", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728612064 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728351744 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728740960 := &system.Object{Context: ptr8728612064, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@int", Package: "kego.io/system", Type: "@int", Exists: true}}
 
-	ptr8728669808 := &system.Object{Context: ptr8728351744, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
+	ptr8728439536 := &system.Int_rule{Object: ptr8728740960, Default: system.Int{Value: 0, Exists: false}, Maximum: system.Int{Value: 0, Exists: false}, Minimum: system.Int{Value: 0, Exists: true}, MultipleOf: system.Int{Value: 0, Exists: false}}
 
-	ptr8728602176 := &system.String_rule{Object: ptr8728669808, Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8728497968 := &system.Property{Object: ptr8728740848, Defaulter: false, Item: ptr8728439536, Optional: true}
 
-	ptr8728506784 := &system.Property{Object: ptr8728669696, Defaulter: false, Item: ptr8728602176, Optional: true}
+	ptr8728651600 := &system.Type{Object: ptr8728740288, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"items": ptr8728497728, "minItems": ptr8728498016, "maxItems": ptr8728497968}, Rule: (*system.Type)(nil)}
 
-	ptr8728691840 := &system.Type{Object: ptr8728666224, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"pattern": ptr8728506976, "format": ptr8728507360, "default": ptr8728502512, "enum": ptr8728504384, "minLength": ptr8728506304, "maxLength": ptr8728506592, "equal": ptr8728506784}, Rule: (*system.Type)(nil)}
+	ptr8728651456 := &system.Type{Object: ptr8728740176, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "map", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728651600}
 
-	ptr8728353120 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728339840 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728672272 := &system.Object{Context: ptr8728353120, Description: "Automatically created basic rule for rule", Id: "@rule", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728741520 := &system.Object{Context: ptr8728339840, Description: "Automatically created basic rule for property", Id: "@property", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728694144 := &system.Type{Object: ptr8728672272, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728650592 := &system.Type{Object: ptr8728741520, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
 
-	ptr8728653888 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728339328 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728708192 := &system.Object{Context: ptr8728653888, Description: "This is the native json object data type.", Id: "map", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728745216 := &system.Object{Context: ptr8728339328, Description: "This is a property of a type", Id: "property", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728691264 := &system.Type{Object: ptr8728708192, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "map", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728691696}
+	ptr8728339776 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728650112 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728745328 := &system.Object{Context: ptr8728339776, Description: "This specifies that the field is optional", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728709760 := &system.Object{Context: ptr8728650112, Description: "Unmarshal context.", Id: "context", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728339744 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728691408 := &system.Type{Object: ptr8728709760, Exclude: true, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728745664 := &system.Object{Context: ptr8728339744, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
 
-	ptr8728354336 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728429752 := &system.JsonBool_rule{Object: ptr8728745664}
 
-	ptr8728709312 := &system.Object{Context: ptr8728354336, Description: "Restriction rules for bools", Id: "@bool", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728499888 := &system.Property{Object: ptr8728745328, Defaulter: false, Item: ptr8728429752, Optional: true}
 
-	ptr8728354208 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728340768 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728709424 := &system.Object{Context: ptr8728354208, Description: "Default value of this is missing or null", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728745776 := &system.Object{Context: ptr8728340768, Description: "This specifies that the field is the default value for a rule", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728354176 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728340736 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728709648 := &system.Object{Context: ptr8728354176, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@bool", Package: "kego.io/system", Type: "@bool", Exists: true}}
+	ptr8728745888 := &system.Object{Context: ptr8728340736, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
 
-	ptr8728269744 := &system.Bool_rule{Object: ptr8728709648, Default: system.Bool{Value: false, Exists: false}}
+	ptr8728429824 := &system.JsonBool_rule{Object: ptr8728745888}
 
-	ptr8728505728 := &system.Property{Object: ptr8728709424, Defaulter: true, Item: ptr8728269744, Optional: true}
+	ptr8728500224 := &system.Property{Object: ptr8728745776, Defaulter: false, Item: ptr8728429824, Optional: true}
 
-	ptr8728691120 := &system.Type{Object: ptr8728709312, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"default": ptr8728505728}, Rule: (*system.Type)(nil)}
+	ptr8728339136 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728654656 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728746000 := &system.Object{Context: ptr8728339136, Description: "This is a rule object, defining the type and restrictions on the value of the this property", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728666896 := &system.Object{Context: ptr8728654656, Description: "Automatically created basic rule for type", Id: "@type", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728339104 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728694576 := &system.Type{Object: ptr8728666896, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728741408 := &system.Object{Context: ptr8728339104, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
 
-	ptr8728346656 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728428584 := &system.Rule_rule{Object: ptr8728741408}
 
-	ptr8728671488 := &system.Object{Context: ptr8728346656, Description: "Automatically created basic rule for property", Id: "@property", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728500272 := &system.Property{Object: ptr8728746000, Defaulter: false, Item: ptr8728428584, Optional: false}
 
-	ptr8728693280 := &system.Type{Object: ptr8728671488, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728655344 := &system.Type{Object: ptr8728745216, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"optional": ptr8728499888, "defaulter": ptr8728500224, "item": ptr8728500272}, Rule: (*system.Type)(nil)}
 
-	ptr8728351808 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728339616 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728671600 := &system.Object{Context: ptr8728351808, Description: "This is a reference to another object, of the form: [local id] or [import name]:[id] or [full package path]:[id]", Id: "reference", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728625152 := &system.Object{Context: ptr8728339616, Description: "This is the most basic type.", Id: "type", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
 
-	ptr8728693568 := &system.Type{Object: ptr8728671600, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "string", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728693712}
+	ptr8728611008 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728354656 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728625264 := &system.Object{Context: ptr8728611008, Description: "Type which this should extend", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728709200 := &system.Object{Context: ptr8728354656, Description: "This is the native json bool data type", Id: "bool", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728610880 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728690976 := &system.Type{Object: ptr8728709200, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "bool", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728691120}
+	ptr8728625376 := &system.Object{Context: ptr8728610880, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
 
-	ptr8728651424 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728600704 := &system.Reference_rule{Object: ptr8728625376, Default: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}}
 
-	ptr8728710992 := &system.Object{Context: ptr8728651424, Description: "This is the native json number data type", Id: "number", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728494272 := &system.Property{Object: ptr8728625264, Defaulter: false, Item: ptr8728600704, Optional: true}
 
-	ptr8728698320 := &system.Type{Object: ptr8728710992, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "number", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728692416}
+	ptr8728613120 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728354592 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728625488 := &system.Object{Context: ptr8728613120, Description: "Array of interface types that this type should support", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728666112 := &system.Object{Context: ptr8728354592, Description: "This is the native json string data type", Id: "string", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728612640 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728690832 := &system.Type{Object: ptr8728666112, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "string", Exists: true}, Properties: map[string]*system.Property(nil), Rule: ptr8728691840}
+	ptr8728627616 := &system.Object{Context: ptr8728612640, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@array", Package: "kego.io/system", Type: "@array", Exists: true}}
 
-	ptr8728655872 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728612512 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728711328 := &system.Object{Context: ptr8728655872, Description: "This is the most basic type.", Id: "object", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728627728 := &system.Object{Context: ptr8728612512, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
 
-	ptr8728654336 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728601216 := &system.Reference_rule{Object: ptr8728627728, Default: system.Reference{Value: "", Package: "", Type: "", Exists: false}}
 
-	ptr8728713568 := &system.Object{Context: ptr8728654336, Description: "Description for the developer", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728600896 := &system.Array_rule{Object: ptr8728627616, Items: ptr8728601216, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
 
-	ptr8728654304 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728494320 := &system.Property{Object: ptr8728625488, Defaulter: false, Item: ptr8728600896, Optional: true}
 
-	ptr8728713680 := &system.Object{Context: ptr8728654304, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@string", Package: "kego.io/json", Type: "@string", Exists: true}}
+	ptr8728614528 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728437464 := &system.JsonString_rule{Object: ptr8728713680}
+	ptr8728627840 := &system.Object{Context: ptr8728614528, Description: "This is the native json type that represents this type. If omitted, default is object.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728505296 := &system.Property{Object: ptr8728713568, Defaulter: false, Item: ptr8728437464, Optional: true}
+	ptr8728614464 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728654944 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728627952 := &system.Object{Context: ptr8728614464, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@string", Package: "kego.io/system", Type: "@string", Exists: true}}
 
-	ptr8728713792 := &system.Object{Context: ptr8728654944, Description: "Unmarshaling context. This should not be in the json - it's added by the unmarshaler.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728559616 := &system.String_rule{Object: ptr8728627952, Default: system.String{Value: "object", Exists: true}, Enum: []system.String{system.String{Value: "string", Exists: true}, system.String{Value: "number", Exists: true}, system.String{Value: "bool", Exists: true}, system.String{Value: "array", Exists: true}, system.String{Value: "object", Exists: true}, system.String{Value: "map", Exists: true}}, Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
 
-	ptr8728654912 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728494464 := &system.Property{Object: ptr8728627840, Defaulter: false, Item: ptr8728559616, Optional: true}
 
-	ptr8728714128 := &system.Object{Context: ptr8728654912, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@context", Package: "kego.io/system", Type: "@context", Exists: true}}
+	ptr8728615392 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728437496 := &system.Context_rule{Object: ptr8728714128}
+	ptr8728628064 := &system.Object{Context: ptr8728615392, Description: "Is this type an interface?", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728505344 := &system.Property{Object: ptr8728713792, Defaulter: false, Item: ptr8728437496, Optional: true}
+	ptr8728615264 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728655712 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728628176 := &system.Object{Context: ptr8728615264, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
 
-	ptr8728714240 := &system.Object{Context: ptr8728655712, Description: "Extra validation rules for this object or descendants", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728429208 := &system.JsonBool_rule{Object: ptr8728628176}
 
-	ptr8728655680 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728494512 := &system.Property{Object: ptr8728628064, Defaulter: false, Item: ptr8728429208, Optional: true}
 
-	ptr8728714576 := &system.Object{Context: ptr8728655680, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@map", Package: "kego.io/system", Type: "@map", Exists: true}}
+	ptr8728615968 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728655648 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728628288 := &system.Object{Context: ptr8728615968, Description: "Exclude this type from the generated json?", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728714688 := &system.Object{Context: ptr8728655648, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@rule", Package: "kego.io/system", Type: "@rule", Exists: true}}
+	ptr8728615904 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728437736 := &system.Rule_rule{Object: ptr8728714688}
+	ptr8728628400 := &system.Object{Context: ptr8728615904, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@bool", Package: "kego.io/json", Type: "@bool", Exists: true}}
 
-	ptr8728626048 := &system.Map_rule{Object: ptr8728714576, Items: ptr8728437736, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
+	ptr8728429232 := &system.JsonBool_rule{Object: ptr8728628400}
 
-	ptr8728506400 := &system.Property{Object: ptr8728714240, Defaulter: false, Item: ptr8728626048, Optional: true}
+	ptr8728494560 := &system.Property{Object: ptr8728628288, Defaulter: false, Item: ptr8728429232, Optional: true}
 
-	ptr8728652864 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728338528 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728711440 := &system.Object{Context: ptr8728652864, Description: "Type of the object.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728628512 := &system.Object{Context: ptr8728338528, Description: "Each field is listed with it's type", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728652832 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728338496 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728713008 := &system.Object{Context: ptr8728652832, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@reference", Package: "kego.io/system", Type: "@reference", Exists: true}}
+	ptr8728628624 := &system.Object{Context: ptr8728338496, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@map", Package: "kego.io/system", Type: "@map", Exists: true}}
 
-	ptr8728625728 := &system.Reference_rule{Object: ptr8728713008, Default: system.Reference{Value: "", Package: "", Type: "", Exists: false}}
+	ptr8728338464 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728503856 := &system.Property{Object: ptr8728711440, Defaulter: false, Item: ptr8728625728, Optional: false}
+	ptr8728628960 := &system.Object{Context: ptr8728338464, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@property", Package: "kego.io/system", Type: "@property", Exists: true}}
 
-	ptr8728653632 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728429264 := &system.Property_rule{Object: ptr8728628960}
 
-	ptr8728713120 := &system.Object{Context: ptr8728653632, Description: "All global objects should have an id.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
+	ptr8728601536 := &system.Map_rule{Object: ptr8728628624, Items: ptr8728429264, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
 
-	ptr8728653600 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728494656 := &system.Property{Object: ptr8728628512, Defaulter: false, Item: ptr8728601536, Optional: true}
 
-	ptr8728713456 := &system.Object{Context: ptr8728653600, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/json:@string", Package: "kego.io/json", Type: "@string", Exists: true}}
+	ptr8728339424 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728437336 := &system.JsonString_rule{Object: ptr8728713456}
+	ptr8728629072 := &system.Object{Context: ptr8728339424, Description: "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:property", Package: "kego.io/system", Type: "property", Exists: true}}
 
-	ptr8728504768 := &system.Property{Object: ptr8728713120, Defaulter: false, Item: ptr8728437336, Optional: true}
+	ptr8728339392 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
 
-	ptr8728691984 := &system.Type{Object: ptr8728711328, Exclude: false, Extends: system.Reference{Value: "", Package: "", Type: "", Exists: false}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"description": ptr8728505296, "context": ptr8728505344, "rules": ptr8728506400, "type": ptr8728503856, "id": ptr8728504768}, Rule: (*system.Type)(nil)}
+	ptr8728629408 := &system.Object{Context: ptr8728339392, Description: "", Id: "", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:@type", Package: "kego.io/system", Type: "@type", Exists: true}}
 
-	ptr8728656160 := &system.Context{Imports: map[string]string{}, Package: "kego.io/system"}
+	ptr8728429760 := &system.Type_rule{Object: ptr8728629408}
 
-	ptr8728714800 := &system.Object{Context: ptr8728656160, Description: "Automatically created basic rule for object", Id: "@object", Rules: map[string]system.Rule(nil), Type: system.Reference{Value: "kego.io/system:type", Package: "kego.io/system", Type: "type", Exists: true}}
+	ptr8728497872 := &system.Property{Object: ptr8728629072, Defaulter: false, Item: ptr8728429760, Optional: true}
 
-	ptr8728692848 := &system.Type{Object: ptr8728714800, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference{system.Reference{Value: "kego.io/system:rule", Package: "kego.io/system", Type: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property(nil), Rule: (*system.Type)(nil)}
+	ptr8728651312 := &system.Type{Object: ptr8728625152, Exclude: false, Extends: system.Reference{Value: "kego.io/system:object", Package: "kego.io/system", Type: "object", Exists: true}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Properties: map[string]*system.Property{"extends": ptr8728494272, "is": ptr8728494320, "native": ptr8728494464, "interface": ptr8728494512, "exclude": ptr8728494560, "properties": ptr8728494656, "rule": ptr8728497872}, Rule: (*system.Type)(nil)}
 
-	system.RegisterType("kego.io/system:@array", ptr8728690688)
+	system.RegisterType("kego.io/system:@array", ptr8728655632)
 
-	system.RegisterType("kego.io/system:@bool", ptr8728691120)
+	system.RegisterType("kego.io/system:@bool", ptr8728650016)
 
-	system.RegisterType("kego.io/system:@context", ptr8728691552)
+	system.RegisterType("kego.io/system:@context", ptr8728650448)
 
-	system.RegisterType("kego.io/system:@int", ptr8728692272)
+	system.RegisterType("kego.io/system:@int", ptr8728651168)
 
-	system.RegisterType("kego.io/system:@map", ptr8728691696)
+	system.RegisterType("kego.io/system:@map", ptr8728651600)
 
-	system.RegisterType("kego.io/system:@number", ptr8728692416)
+	system.RegisterType("kego.io/system:@number", ptr8728652032)
 
-	system.RegisterType("kego.io/system:@object", ptr8728692848)
+	system.RegisterType("kego.io/system:@object", ptr8728650880)
 
-	system.RegisterType("kego.io/system:@property", ptr8728693280)
+	system.RegisterType("kego.io/system:@property", ptr8728650592)
 
-	system.RegisterType("kego.io/system:@reference", ptr8728693712)
+	system.RegisterType("kego.io/system:@reference", ptr8728652320)
 
-	system.RegisterType("kego.io/system:@rule", ptr8728694144)
+	system.RegisterType("kego.io/system:@rule", ptr8728652752)
 
-	system.RegisterType("kego.io/system:@string", ptr8728691840)
+	system.RegisterType("kego.io/system:@string", ptr8728653184)
 
-	system.RegisterType("kego.io/system:@type", ptr8728694576)
+	system.RegisterType("kego.io/system:@type", ptr8728652896)
 
-	system.RegisterType("kego.io/system:array", ptr8728698464)
+	system.RegisterType("kego.io/system:array", ptr8728655488)
 
-	system.RegisterType("kego.io/system:bool", ptr8728690976)
+	system.RegisterType("kego.io/system:bool", ptr8728649872)
 
-	system.RegisterType("kego.io/system:context", ptr8728691408)
+	system.RegisterType("kego.io/system:context", ptr8728650304)
 
-	system.RegisterType("kego.io/system:int", ptr8728692128)
+	system.RegisterType("kego.io/system:int", ptr8728651024)
 
-	system.RegisterType("kego.io/system:map", ptr8728691264)
+	system.RegisterType("kego.io/system:map", ptr8728651456)
 
-	system.RegisterType("kego.io/system:number", ptr8728698320)
+	system.RegisterType("kego.io/system:number", ptr8728651888)
 
-	system.RegisterType("kego.io/system:object", ptr8728691984)
+	system.RegisterType("kego.io/system:object", ptr8728650736)
 
-	system.RegisterType("kego.io/system:property", ptr8728693136)
+	system.RegisterType("kego.io/system:property", ptr8728655344)
 
-	system.RegisterType("kego.io/system:reference", ptr8728693568)
+	system.RegisterType("kego.io/system:reference", ptr8728652176)
 
-	system.RegisterType("kego.io/system:rule", ptr8728694000)
+	system.RegisterType("kego.io/system:rule", ptr8728652608)
 
-	system.RegisterType("kego.io/system:string", ptr8728690832)
+	system.RegisterType("kego.io/system:string", ptr8728653040)
 
-	system.RegisterType("kego.io/system:type", ptr8728693856)
+	system.RegisterType("kego.io/system:type", ptr8728651312)
 
 }

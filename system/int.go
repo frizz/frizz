@@ -58,7 +58,3 @@ func formatInt(i int) string {
 func (i Int) NativeNumber() (value float64, exists bool) {
 	return float64(i.Value), i.Exists
 }
-
-func (i Int) NativeExists() bool {
-	return i.Exists
-}

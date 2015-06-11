@@ -56,7 +56,3 @@ type NativeBool interface {
 func (b Bool) NativeBool() (value bool, exists bool) {
 	return b.Value, b.Exists
 }
-
-func (b Bool) NativeExists() bool {
-	return b.Exists
-}

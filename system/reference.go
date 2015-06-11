@@ -55,7 +55,7 @@ func NewReferenceFromString(in string, path string, imports map[string]string) (
 func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
 	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
-		return kerr.New("BBWVFPNNTT", err, "Reference.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("BBWVFPNNTT", err, "Reference.UnmarshalJSON", "json.UnmarshalPlain: %s", in)
 	}
 	if s == nil {
 		out.Exists = false
@@ -105,8 +105,4 @@ func (r *Reference) GetType() (*Type, bool) {
 
 func (s Reference) NativeString() (value string, exists bool) {
 	return s.Value, s.Exists
-}
-
-func (s Reference) NativeExists() bool {
-	return s.Exists
 }
