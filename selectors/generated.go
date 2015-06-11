@@ -72,6 +72,15 @@ type Sibling_rule struct {
 }
 
 //***********************************************************
+//*** @typed ***
+//***********************************************************
+
+// Automatically created basic rule for typed
+type Typed_rule struct {
+	*system.Object
+}
+
+//***********************************************************
 //*** basic ***
 //***********************************************************
 
@@ -179,6 +188,26 @@ type Sibling struct {
 	E map[string]system.Number
 }
 
+//***********************************************************
+//*** typed ***
+//***********************************************************
+
+type Typed struct {
+	*system.Object
+
+	DrinkPreference []system.String
+
+	FavoriteColor system.String
+
+	Kids map[string]*Kid
+
+	Name map[string]system.String
+
+	SeatingPreference []system.String
+
+	Weight system.Number
+}
+
 func init() {
 
 	json.RegisterType("kego.io/jsonselect:@basic", reflect.TypeOf(&Basic_rule{}))
@@ -195,6 +224,8 @@ func init() {
 
 	json.RegisterType("kego.io/jsonselect:@sibling", reflect.TypeOf(&Sibling_rule{}))
 
+	json.RegisterType("kego.io/jsonselect:@typed", reflect.TypeOf(&Typed_rule{}))
+
 	json.RegisterType("kego.io/jsonselect:basic", reflect.TypeOf(&Basic{}))
 
 	json.RegisterType("kego.io/jsonselect:c", reflect.TypeOf(&C{}))
@@ -208,5 +239,7 @@ func init() {
 	json.RegisterType("kego.io/jsonselect:polykids", reflect.TypeOf(&Polykids{}))
 
 	json.RegisterType("kego.io/jsonselect:sibling", reflect.TypeOf(&Sibling{}))
+
+	json.RegisterType("kego.io/jsonselect:typed", reflect.TypeOf(&Typed{}))
 
 }

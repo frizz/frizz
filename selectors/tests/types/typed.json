@@ -1,0 +1,54 @@
+{
+	"type": "system:type",
+	"id": "typed",
+	"properties": {
+		"name": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@map",
+				"items": {
+					"type": "system:@string"
+				}
+			}
+		},
+		"favoriteColor": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		},
+		"kids": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@map",
+				"items": {
+					"type": "@kid"
+				}
+			}
+		},
+		"seatingPreference": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@array",
+				"items": {
+					"type": "system:@string"
+				}
+			}
+		},
+		"drinkPreference": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@array",
+				"items": {
+					"type": "system:@string"
+				}
+			}
+		},
+		"weight": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@number"
+			}
+		}
+	}
+}

@@ -253,7 +253,9 @@ func (p *Parser) nativeProduction(value interface{}) func(*jsonNode) (bool, erro
 func (p *Parser) kegoProduction(value interface{}) func(*jsonNode) (bool, error) {
 	logger.Print("Creating kegoProduction validator ", value)
 	return func(node *jsonNode) (bool, error) {
-		r, err := system.NewReferenceFromString(value.(string), p.path, p.imports)
+		tokenString := value.(string)
+		kegoType := tokenString[1 : len(tokenString)-1]
+		r, err := system.NewReferenceFromString(strconv.Quote(kegoType), p.path, p.imports)
 		if err != nil {
 			return false, kerr.New("RWDOYBBDVK", err, "jsonselect.kegoProduction", "NewReferenceFromString")
 		}

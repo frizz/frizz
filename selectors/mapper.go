@@ -59,7 +59,7 @@ func (p *Parser) getNodes(jdoc *Json, nodes []*jsonNode, parent *jsonNode, paren
 		node.siblings = siblings
 	}
 
-	node.ktype = jdoc.Rule.ParentType.Type
+	node.ktype = system.NewReference(jdoc.Rule.ParentType.Context.Package, jdoc.Rule.ParentType.Id)
 
 	switch jdoc.Rule.ParentType.Native.Value {
 	case "bool":

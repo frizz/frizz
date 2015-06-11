@@ -1,0 +1,36 @@
+{
+	"type": "typed",
+	"name": {
+		"first": "Lloyd",
+		"last": "Hilaiel"
+	},
+	"favoriteColor": "yellow",
+	"kids": {
+		"dave": {
+			"type": "kid",
+			"language": "Bulgarian",
+			"level": "advanced"
+		},
+		"john": {
+			"type": "kid",
+			"language": "English",
+			"level": "native"
+		},
+		"peter": {
+			"type": "kid",
+			"language": "Spanish",
+			"level": "beginner",
+			"preferred": true
+		}
+	},
+	"seatingPreference": [
+		"window",
+		"aisle"
+	],
+	"drinkPreference": [
+		"beer",
+		"whiskey",
+		"wine"
+	],
+	"weight": 172
+}

@@ -429,3 +429,7 @@ func TestLevel2(t *testing.T) {
 func TestLevel3(t *testing.T) {
 	runTestsInDirectory(t, "./tests/level_3/", "kego.io/jsonselect", map[string]string{})
 }
+
+func TestKego(t *testing.T) {
+	runTestsInDirectory(t, "./tests/kego/", "kego.io/jsonselect", map[string]string{})
+}
