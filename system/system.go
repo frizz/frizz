@@ -1,11 +1,16 @@
 //go:generate kego
 package system // import "kego.io/system"
+
 import (
 	"fmt"
 	"strings"
 
 	"kego.io/kerr"
 )
+
+type Native interface {
+	NativeExists() bool
+}
 
 func IdToGoName(id string) string {
 	if strings.HasPrefix(id, "@") {

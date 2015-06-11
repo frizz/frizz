@@ -19,3 +19,16 @@ func (c *Context) Clone() *Context {
 	}
 	return new
 }
+
+/*
+type Node struct {
+	Value    interface{}
+	Object   *Object
+	Parent   *Node
+	Key      string
+	Idx      int
+	Siblings int
+	// Do we need the json?
+	//json   *json.Json
+}
+*/

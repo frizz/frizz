@@ -54,3 +54,11 @@ func (n *Int) String() string {
 func formatInt(i int) string {
 	return strconv.FormatInt(int64(i), 10)
 }
+
+func (i Int) NativeNumber() (value float64, exists bool) {
+	return float64(i.Value), i.Exists
+}
+
+func (i Int) NativeExists() bool {
+	return i.Exists
+}

@@ -44,3 +44,15 @@ func (s *String) String() string {
 	}
 	return s.Value
 }
+
+type NativeString interface {
+	NativeString() (string, bool)
+}
+
+func (s String) NativeString() (value string, exists bool) {
+	return s.Value, s.Exists
+}
+
+func (s String) NativeExists() bool {
+	return s.Exists
+}

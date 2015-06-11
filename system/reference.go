@@ -43,6 +43,15 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 	return newRef, nil
 }
 
+func NewReferenceFromString(in string, path string, imports map[string]string) (*Reference, error) {
+	r := &Reference{}
+	err := r.UnmarshalJSON([]byte(in), path, imports)
+	if err != nil {
+		return nil, kerr.New("VXRGOQHWNB", err, "system.NewReferenceFromString", "UnmarshalJSON")
+	}
+	return r, nil
+}
+
 func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
 	var s *string
 	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
@@ -92,4 +101,12 @@ func (r *Reference) GetType() (*Type, bool) {
 		return nil, false
 	}
 	return GetType(r.Value)
+}
+
+func (s Reference) NativeString() (value string, exists bool) {
+	return s.Value, s.Exists
+}
+
+func (s Reference) NativeExists() bool {
+	return s.Exists
 }

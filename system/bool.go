@@ -48,3 +48,15 @@ func (b *Bool) String() string {
 func formatBool(b bool) string {
 	return fmt.Sprintf("%v", b)
 }
+
+type NativeBool interface {
+	NativeBool() (bool, bool)
+}
+
+func (b Bool) NativeBool() (value bool, exists bool) {
+	return b.Value, b.Exists
+}
+
+func (b Bool) NativeExists() bool {
+	return b.Exists
+}

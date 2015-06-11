@@ -17,6 +17,9 @@ type RuleHolder struct {
 	Imports    map[string]string
 }
 
+func NewMinimalRuleHolder(t *Type, path string, imports map[string]string) *RuleHolder {
+	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t, Path: path, Imports: imports}
+}
 func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r, path, imports)
 	if err != nil {
@@ -134,44 +137,65 @@ func ruleFieldByReflection(object interface{}, name string) (value interface{}, 
 	if v.Elem().Kind() != reflect.Struct {
 		return nil, nil, false, kerr.New("IGOUOBGXAN", nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
 	}
-	value, pointer, found, zero, err := GetField(v.Elem(), name)
+	value, pointer, _, found, zero, err := GetObjectField(v.Elem(), name)
 
 	// zero => !ok
 	return value, pointer, found && !zero, err
 }
-func GetField(v reflect.Value, name string) (value interface{}, pointer interface{}, found bool, zero bool, err error) {
+func GetMapMember(v reflect.Value, name string) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	member := v.MapIndex(reflect.ValueOf(name))
+	return returnValue(member)
+}
+func GetArrayMember(v reflect.Value, index int) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	member := v.Index(index)
+	return returnValue(member)
+}
+func GetObjectField(v reflect.Value, name string) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
 	field := v.FieldByName(name)
+	return returnValue(field)
+}
+func returnValue(v reflect.Value) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
+	value = v
 	empty := reflect.Value{}
-	if field == empty {
+	if v == empty {
 		// Field does not exist
 		return
 	}
-	if field.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Ptr {
 		// If it's a pointer we should only return not found if
 		// it's nil:
-		if field.IsNil() {
+		if v.IsNil() {
 			zero = true
 			return
 		}
-	} else if field.Kind() == reflect.Map || field.Kind() == reflect.Slice {
-		if field.Len() == 0 {
+	} else if v.Kind() == reflect.Map || v.Kind() == reflect.Slice {
+		if v.Len() == 0 {
 			zero = true
 		}
 	} else {
 		// If it's not a pointer, we return not found if it's an
 		// zero value
-		nilValue := reflect.Zero(field.Type())
-		if field.Interface() == nilValue.Interface() {
+		nilValue := reflect.Zero(v.Type())
+		if v.Interface() == nilValue.Interface() {
 			zero = true
 		}
 	}
 	found = true
-	value = field.Interface()
+	object = v.Interface()
 	// This prevents **Foo being returned for pointer when value is already *Foo
-	if field.Kind() == reflect.Ptr {
-		pointer = field.Interface()
-	} else {
-		pointer = field.Addr().Interface()
+	if v.Kind() == reflect.Ptr {
+		pointer = v.Interface()
+	} else if v.CanAddr() {
+		pointer = v.Addr().Interface()
 	}
 	return
 }

@@ -102,6 +102,12 @@ func (t *Type) IsNativeValue() bool {
 func (t *Type) IsNativeCollection() bool {
 	return nativeTypeClass(t.Native.Value) == nativeCollection
 }
+func (t *Type) IsNativeMap() bool {
+	return t.Native.Value == "map"
+}
+func (t *Type) IsNativeArray() bool {
+	return t.Native.Value == "array"
+}
 func (t *Type) IsNativeObject() bool {
 	return nativeTypeClass(t.Native.Value) == nativeObject
 }

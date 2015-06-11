@@ -48,3 +48,15 @@ func (n *Number) String() string {
 func formatFloat(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
+
+type NativeNumber interface {
+	NativeNumber() (float64, bool)
+}
+
+func (n Number) NativeNumber() (value float64, exists bool) {
+	return n.Value, n.Exists
+}
+
+func (n Number) NativeExists() bool {
+	return n.Exists
+}
