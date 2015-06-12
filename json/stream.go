@@ -38,14 +38,14 @@ func (dec *Decoder) UseNumber() { dec.d.useNumber = true }
 //
 // See the documentation for Unmarshal for details about
 // the conversion of JSON into a Go value.
-func (dec *Decoder) Decode(v *interface{}) error {
+func (dec *Decoder) Decode(v *interface{}) (unknown bool, err error) {
 	if dec.err != nil {
-		return dec.err
+		return false, dec.err
 	}
 
-	n, err := dec.readValue()
-	if err != nil {
-		return err
+	n, err1 := dec.readValue()
+	if err1 != nil {
+		return false, err1
 	}
 
 	// Don't save err from unmarshal into dec.err:
@@ -58,7 +58,7 @@ func (dec *Decoder) Decode(v *interface{}) error {
 	rest := copy(dec.buf, dec.buf[n:])
 	dec.buf = dec.buf[0:rest]
 
-	return err
+	return dec.d.unknown, err
 }
 
 func (dec *Decoder) DecodePlain(v interface{}) error {
@@ -76,29 +76,6 @@ func (dec *Decoder) DecodePlain(v interface{}) error {
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
 	err = dec.d.unmarshal(v, &ctx{dec.path, dec.imports}, true)
-
-	// Slide rest of data down.
-	rest := copy(dec.buf, dec.buf[n:])
-	dec.buf = dec.buf[0:rest]
-
-	return err
-}
-
-func (dec *Decoder) DecodeWithoutCustomUnmarshalers(v interface{}) error {
-	if dec.err != nil {
-		return dec.err
-	}
-
-	n, err := dec.readValue()
-	if err != nil {
-		return err
-	}
-
-	// Don't save err from unmarshal into dec.err:
-	// the connection is still usable since we read a complete JSON
-	// object from it before the error happened.
-	dec.d.init(dec.buf[0:n])
-	err = dec.d.unmarshal(v, &ctx{dec.path, dec.imports}, false)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])

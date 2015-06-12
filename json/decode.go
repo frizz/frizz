@@ -80,32 +80,19 @@ func UnmarshalPlain(data []byte, v interface{}, path string, imports map[string]
 	return d.unmarshal(v, &ctx{path, imports}, true)
 }
 
-func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) error {
+func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) (unknown bool, err error) {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
 	var d decodeState
-	err := checkValid(data, &d.scan)
+	err = checkValid(data, &d.scan)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	d.init(data)
-	return d.unmarshalTyped(v, &ctx{path, imports}, true)
-}
-
-func UnmarshalWithoutCustomUnmarshalers(data []byte, v interface{}, path string, imports map[string]string) error {
-	// Check for well-formedness.
-	// Avoids filling out half a data structure
-	// before discovering a JSON syntax error.
-	var d decodeState
-	err := checkValid(data, &d.scan)
-	if err != nil {
-		return err
-	}
-
-	d.init(data)
-	return d.unmarshal(v, &ctx{path, imports}, false)
+	err = d.unmarshalTyped(v, &ctx{path, imports}, true)
+	return d.unknown, err
 }
 
 type ctx struct {
@@ -231,6 +218,7 @@ type decodeState struct {
 	nextscan   scanner // for calls to nextValue
 	savedError error
 	useNumber  bool
+	unknown    bool // have we encountered an unknown type?
 }
 
 // backup saves the exact state of the decoder so we
@@ -243,6 +231,7 @@ func (d *decodeState) backup() decodeState {
 		useNumber:  d.useNumber,
 		scan:       d.scan.backup(),
 		nextscan:   d.nextscan.backup(),
+		unknown:    d.unknown,
 	}
 }
 
@@ -255,6 +244,7 @@ func (d *decodeState) restore(from decodeState) {
 	d.useNumber = from.useNumber
 	d.scan = from.scan
 	d.nextscan = from.nextscan
+	d.unknown = from.unknown
 }
 
 // errPhase is used for errors that should not happen unless
@@ -266,6 +256,7 @@ func (d *decodeState) init(data []byte) *decodeState {
 	d.data = data
 	d.off = 0
 	d.savedError = nil
+	d.unknown = false
 	return d
 }
 
@@ -694,6 +685,8 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, un
 				v.Elem().Set(reflect.New(typ.Elem()))
 			}
 		}
+	} else {
+		d.unknown = true
 	}
 }
 
