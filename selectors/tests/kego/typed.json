@@ -23,10 +23,10 @@
 			"preferred": true
 		}
 	},
-	"seatingPreference": [
-		"window",
-		"aisle"
-	],
+	"avatar": {
+		"type": "photo",
+		"url": "http://a.com/b.jpg"
+	},
 	"drinkPreference": [
 		"beer",
 		"whiskey",

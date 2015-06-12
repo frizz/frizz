@@ -45,11 +45,29 @@ type Expr_rule struct {
 }
 
 //***********************************************************
+//*** @image ***
+//***********************************************************
+
+// Automatically created basic rule for image
+type Image_rule struct {
+	*system.Object
+}
+
+//***********************************************************
 //*** @kid ***
 //***********************************************************
 
 // Automatically created basic rule for kid
 type Kid_rule struct {
+	*system.Object
+}
+
+//***********************************************************
+//*** @photo ***
+//***********************************************************
+
+// Automatically created basic rule for photo
+type Photo_rule struct {
 	*system.Object
 }
 
@@ -147,6 +165,10 @@ type Expr struct {
 }
 
 //***********************************************************
+//*** image ***
+//***********************************************************
+
+//***********************************************************
 //*** kid ***
 //***********************************************************
 
@@ -158,6 +180,16 @@ type Kid struct {
 	Level system.String
 
 	Preferred system.Bool
+}
+
+//***********************************************************
+//*** photo ***
+//***********************************************************
+
+type Photo struct {
+	*system.Object
+
+	Url system.String
 }
 
 //***********************************************************
@@ -195,6 +227,8 @@ type Sibling struct {
 type Typed struct {
 	*system.Object
 
+	Avatar Image
+
 	DrinkPreference []system.String
 
 	FavoriteColor system.String
@@ -202,8 +236,6 @@ type Typed struct {
 	Kids map[string]*Kid
 
 	Name map[string]system.String
-
-	SeatingPreference []system.String
 
 	Weight system.Number
 }
@@ -218,7 +250,11 @@ func init() {
 
 	json.RegisterType("kego.io/jsonselect:@expr", reflect.TypeOf(&Expr_rule{}))
 
+	json.RegisterType("kego.io/jsonselect:@image", reflect.TypeOf(&Image_rule{}))
+
 	json.RegisterType("kego.io/jsonselect:@kid", reflect.TypeOf(&Kid_rule{}))
+
+	json.RegisterType("kego.io/jsonselect:@photo", reflect.TypeOf(&Photo_rule{}))
 
 	json.RegisterType("kego.io/jsonselect:@polykids", reflect.TypeOf(&Polykids_rule{}))
 
@@ -235,6 +271,8 @@ func init() {
 	json.RegisterType("kego.io/jsonselect:expr", reflect.TypeOf(&Expr{}))
 
 	json.RegisterType("kego.io/jsonselect:kid", reflect.TypeOf(&Kid{}))
+
+	json.RegisterType("kego.io/jsonselect:photo", reflect.TypeOf(&Photo{}))
 
 	json.RegisterType("kego.io/jsonselect:polykids", reflect.TypeOf(&Polykids{}))
 

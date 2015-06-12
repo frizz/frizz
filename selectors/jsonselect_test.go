@@ -107,6 +107,9 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 	}
 
 	for testName := range testOutput {
+		//if testName != "typed_interface" {
+		//	continue
+		//}
 		var passed bool = true
 		//t.Log("Running test ", testName)
 		parser, err := getTestParser(testDocuments, testName)
@@ -140,27 +143,8 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 					)
 					passed = false
 				}
-				//resultJson := &Json{Data: result}
-				/*
-					if err != nil {
-						t.Error(
-							"Test ", testName, " failed due to a JSON decoding error while decoding result: ", err,
-						)
-						passed = false
-					}*/
-
 				expected = append(expected, expectedJson)
 				actual = append(actual, result)
-
-				/*
-					if strings.Index(strings.TrimSpace(expectedEncoded), "{") == 0 {
-						matchType = "map"
-					} else if strings.Index(strings.TrimSpace(expectedEncoded), "[") == 0 {
-						matchType = "array"
-						//} else if expectedEncoded != result {
-					} else {
-						matchType = "string"
-					}*/
 			}
 
 			// Iterate over each of the actual elements; if:
@@ -171,31 +155,6 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 				for expectedIdx, expectedElement := range expected {
 					// TODO: Should we ignore the error here? I guess so...
 					matched, _ = comparison(actualElement, expectedElement, path, imports)
-					/*
-						if matchType == "map" {
-							// TODO: fix this
-							fmt.Printf("expected:%#v\n", expectedElement)
-							fmt.Printf("actual: %#v\n", actualElement.Rule)
-							fmt.Println("Bodged test")
-							matched = reflect.DeepEqual(
-								expectedElement.MustMap(),
-								actualElement.MustMap(),
-							)
-						} else if matchType == "array" {
-							// TODO: fix this
-							fmt.Println("Bodged test")
-							matched = reflect.DeepEqual(
-								expectedElement.MustArray(),
-								actualElement.MustArray(),
-							)
-						} else if matchType == "string" {
-							// TODO: fix this
-							fmt.Println("Bodged test")
-							matched = reflect.DeepEqual(
-								expectedElement.MustString(),
-								actualElement.MustString(),
-							)
-						}*/
 					if matched {
 						expected = append(
 							expected[:expectedIdx],
@@ -371,6 +330,14 @@ func comparison(actual *Json, expected interface{}, path string, imports map[str
 		if !ok {
 			return false, kerr.New("OJEQQPYXJP", nil, "jsonselect.comparison", "expected %T is not map[string]interface{} (object)", expected)
 		}
+		typer, ok := actual.Data.(system.Typer)
+		if !ok {
+			return false, kerr.New("KQJCVJSTKH", nil, "jsonselect.comparison", "actual %T does not implement system.Typer")
+		}
+		parentType, ok := typer.GetType()
+		if !ok {
+			return false, kerr.New("TWVUMUFLST", nil, "jsonselect.comparison", "typer.GetType couldn't find type")
+		}
 		compareChild := func(key string) (bool, error) {
 			object, _, value, found, _, err := system.GetObjectField(actual.Value, system.IdToGoName(key))
 			if err != nil {
@@ -379,7 +346,7 @@ func comparison(actual *Json, expected interface{}, path string, imports map[str
 			if !found {
 				return false, nil
 			}
-			property, ok := actual.Rule.ParentType.Properties[key]
+			property, ok := parentType.Properties[key]
 			if !ok {
 				return false, kerr.New("DXRELESKCB", nil, "jsonselect.comparison", "property %s not found in %s", key, actual.Rule.ParentType.Id)
 			}
@@ -394,7 +361,7 @@ func comparison(actual *Json, expected interface{}, path string, imports map[str
 			}
 			return match, nil
 		}
-		for key, _ := range actual.Rule.ParentType.Properties {
+		for key, _ := range parentType.Properties {
 			matched, err := compareChild(key)
 			if err != nil {
 				return false, kerr.New("DIUQUBQAJN", err, "jsonselect.comparison", "compareChild object (actual)")

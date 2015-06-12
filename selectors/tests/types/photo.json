@@ -1,0 +1,13 @@
+{
+	"type": "system:type",
+	"id": "photo",
+	"is": ["image"],
+	"properties": {
+		"url": {
+			"type": "system:property",
+			"item": {
+				"type": "system:@string"
+			}
+		}
+	}
+}

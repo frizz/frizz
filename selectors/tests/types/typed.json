@@ -26,13 +26,10 @@
 				}
 			}
 		},
-		"seatingPreference": {
+		"avatar": {
 			"type": "system:property",
 			"item": {
-				"type": "system:@array",
-				"items": {
-					"type": "system:@string"
-				}
+				"type": "@image"
 			}
 		},
 		"drinkPreference": {

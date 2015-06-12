@@ -10,6 +10,9 @@ import (
 	"kego.io/system"
 )
 
+// for tests
+type Image interface{}
+
 type Parser struct {
 	Data    *Json
 	nodes   []*jsonNode
@@ -260,7 +263,18 @@ func (p *Parser) kegoProduction(value interface{}) func(*jsonNode) (bool, error)
 			return false, kerr.New("RWDOYBBDVK", err, "jsonselect.kegoProduction", "NewReferenceFromString")
 		}
 		logger.Print("kegoProduction ? ", node.ktype.Value, " == ", r.Value)
-		return node.ktype.Value == r.Value, nil
+
+		if node.ktype.Value == r.Value {
+			return true, nil
+		}
+
+		for _, ref := range node.json.Rule.ParentType.Is {
+			if ref.Value == r.Value {
+				return true, nil
+			}
+		}
+
+		return false, nil
 	}
 }
 
