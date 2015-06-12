@@ -70,10 +70,7 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "Type not found")
 	}
 
-	// We construct a partial RuleHolder because we don't actually have a Rule object for the
-	// main object in a file
-
-	partialRuleHolder := &system.RuleHolder{ParentType: t, Path: path, Imports: imports}
+	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
 
 	return validateObject(partialRuleHolder, data, path, imports)
 
