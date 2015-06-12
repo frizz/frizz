@@ -7,7 +7,7 @@ import (
 	_ "kego.io/system"
 )
 
-func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) error {
+func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) (unknown bool, err error) {
 	return json.Unmarshal(data, v, path, imports)
 }
 
