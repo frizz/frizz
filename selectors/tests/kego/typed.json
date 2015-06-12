@@ -24,7 +24,7 @@
 		}
 	},
 	"avatar": {
-		"type": "photo",
+		"type": "diagram",
 		"url": "http://a.com/b.jpg"
 	},
 	"drinkPreference": [

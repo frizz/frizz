@@ -34,6 +34,14 @@ func (p *Parser) evaluateSelector(selector string) ([]*jsonNode, error) {
 		return nil, err
 	}
 
+	//for _, t := range tokens {
+	//	fmt.Println("Token:", t)
+	//}
+
+	//for _, n := range p.nodes {
+	//	fmt.Printf("Node: %#v\n", n)
+	//}
+
 	nodes, err := p.selectorProduction(tokens, p.nodes, 1)
 	if err != nil {
 		return nil, err
@@ -262,13 +270,13 @@ func (p *Parser) kegoProduction(value interface{}) func(*jsonNode) (bool, error)
 		if err != nil {
 			return false, kerr.New("RWDOYBBDVK", err, "jsonselect.kegoProduction", "NewReferenceFromString")
 		}
-		logger.Print("kegoProduction ? ", node.ktype.Value, " == ", r.Value)
+		logger.Print("kegoProduction ? ", node.ktyperef.Value, " == ", r.Value)
 
-		if node.ktype.Value == r.Value {
+		if node.ktyperef.Value == r.Value {
 			return true, nil
 		}
 
-		for _, ref := range node.json.Rule.ParentType.Is {
+		for _, ref := range node.ktype.Is {
 			if ref.Value == r.Value {
 				return true, nil
 			}

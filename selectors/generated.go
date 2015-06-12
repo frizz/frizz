@@ -36,11 +36,29 @@ type Collision_rule struct {
 }
 
 //***********************************************************
+//*** @diagram ***
+//***********************************************************
+
+// Automatically created basic rule for diagram
+type Diagram_rule struct {
+	*system.Object
+}
+
+//***********************************************************
 //*** @expr ***
 //***********************************************************
 
 // Automatically created basic rule for expr
 type Expr_rule struct {
+	*system.Object
+}
+
+//***********************************************************
+//*** @gallery ***
+//***********************************************************
+
+// Automatically created basic rule for gallery
+type Gallery_rule struct {
 	*system.Object
 }
 
@@ -143,6 +161,16 @@ type Collision struct {
 }
 
 //***********************************************************
+//*** diagram ***
+//***********************************************************
+
+type Diagram struct {
+	*system.Object
+
+	Url system.String
+}
+
+//***********************************************************
 //*** expr ***
 //***********************************************************
 
@@ -162,6 +190,17 @@ type Expr struct {
 	String2 system.String
 
 	True system.Bool
+}
+
+//***********************************************************
+//*** gallery ***
+//***********************************************************
+
+// This represents a gallery - it's just a list of images
+type Gallery struct {
+	*system.Object
+
+	Images map[string]Image
 }
 
 //***********************************************************
@@ -186,10 +225,18 @@ type Kid struct {
 //*** photo ***
 //***********************************************************
 
+// This represents an image, and contains path, server and protocol separately
 type Photo struct {
 	*system.Object
 
-	Url system.String
+	// The path for the url - e.g. /foo/bar.jpg
+	Path system.String
+
+	// The protocol for the url - e.g. http or https
+	Protocol system.String `kego:"{\"default\":{\"value\":\"http\"}}"`
+
+	// The server for the url - e.g. www.google.com
+	Server system.String
 }
 
 //***********************************************************
@@ -248,7 +295,11 @@ func init() {
 
 	json.RegisterType("kego.io/jsonselect:@collision", reflect.TypeOf(&Collision_rule{}))
 
+	json.RegisterType("kego.io/jsonselect:@diagram", reflect.TypeOf(&Diagram_rule{}))
+
 	json.RegisterType("kego.io/jsonselect:@expr", reflect.TypeOf(&Expr_rule{}))
+
+	json.RegisterType("kego.io/jsonselect:@gallery", reflect.TypeOf(&Gallery_rule{}))
 
 	json.RegisterType("kego.io/jsonselect:@image", reflect.TypeOf(&Image_rule{}))
 
@@ -268,7 +319,11 @@ func init() {
 
 	json.RegisterType("kego.io/jsonselect:collision", reflect.TypeOf(&Collision{}))
 
+	json.RegisterType("kego.io/jsonselect:diagram", reflect.TypeOf(&Diagram{}))
+
 	json.RegisterType("kego.io/jsonselect:expr", reflect.TypeOf(&Expr{}))
+
+	json.RegisterType("kego.io/jsonselect:gallery", reflect.TypeOf(&Gallery{}))
 
 	json.RegisterType("kego.io/jsonselect:kid", reflect.TypeOf(&Kid{}))
 

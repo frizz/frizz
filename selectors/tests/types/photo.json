@@ -1,12 +1,32 @@
 {
+	"description": "This represents an image, and contains path, server and protocol separately",
 	"type": "system:type",
 	"id": "photo",
 	"is": ["image"],
 	"properties": {
-		"url": {
+		"protocol": {
+			"description": "The protocol for the url - e.g. http or https",
+			"type": "system:property",
+			"optional": true,
+			"item": {
+				"type": "system:@string",
+				"default": "http"
+			}
+		},
+		"server": {
+			"description": "The server for the url - e.g. www.google.com",
 			"type": "system:property",
 			"item": {
 				"type": "system:@string"
+			}
+		},
+		"path": {
+			"description": "The path for the url - e.g. /foo/bar.jpg",
+			"type": "system:property",
+			"item": {
+				"type": "system:@string",
+                "maxLength": 1,
+				"pattern": "^/.*$"
 			}
 		}
 	}

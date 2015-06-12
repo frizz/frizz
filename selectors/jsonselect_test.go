@@ -1,4 +1,4 @@
-package jsonselect
+package jsonselect_test
 
 import (
 	"io/ioutil"
@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 
 	"kego.io/assert"
+	. "kego.io/jsonselect"
 	_ "kego.io/jsonselect/types"
 	"kego.io/kego"
 	"kego.io/kerr"
@@ -44,7 +45,9 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 				continue
 			}
 			var i interface{}
-			kego.Unmarshal(json_document, &i, "kego.io/jsonselect", map[string]string{})
+			unknown, err := kego.Unmarshal(json_document, &i, "kego.io/jsonselect", map[string]string{})
+			assert.False(t, unknown)
+			assert.NoError(t, err)
 
 			typer, ok := i.(system.Typer)
 			assert.True(t, ok)
@@ -137,7 +140,8 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 				expectedEncoded := expectedOutput[idx]
 
 				var expectedJson interface{}
-				if err := json.Unmarshal([]byte(expectedEncoded), &expectedJson); err != nil {
+				err := json.Unmarshal([]byte(expectedEncoded), &expectedJson)
+				if err != nil {
 					t.Error(
 						"Test ", testName, " failed due to a JSON decoding error while decoding expectation: ", err,
 					)
@@ -399,4 +403,8 @@ func TestLevel3(t *testing.T) {
 
 func TestKego(t *testing.T) {
 	runTestsInDirectory(t, "./tests/kego/", "kego.io/jsonselect", map[string]string{})
+}
+
+func TestGallery(t *testing.T) {
+	runTestsInDirectory(t, "./tests/gallery/", "kego.io/jsonselect", map[string]string{})
 }

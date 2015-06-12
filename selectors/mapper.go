@@ -23,7 +23,8 @@ const (
 type jsonNode struct {
 	value      interface{}
 	native     nativeType
-	ktype      system.Reference
+	ktyperef   system.Reference
+	ktype      *system.Type
 	json       *Json
 	parent     *jsonNode
 	parent_key string
@@ -59,9 +60,19 @@ func (p *Parser) getNodes(jdoc *Json, nodes []*jsonNode, parent *jsonNode, paren
 		node.siblings = siblings
 	}
 
-	node.ktype = system.NewReference(jdoc.Rule.ParentType.Context.Package, jdoc.Rule.ParentType.Id)
+	typer, ok := jdoc.Data.(system.Typer)
+	if ok {
+		node.ktyperef = typer.GetTypeReference()
+		node.ktype, ok = node.ktyperef.GetType()
+		if !ok {
+			return nil, kerr.New("HGENTDRWHL", nil, "jsonselect.getNodes", "node.ktyperef.GetType not found")
+		}
+	} else {
+		node.ktyperef = system.NewReference(jdoc.Rule.ParentType.Context.Package, jdoc.Rule.ParentType.Id)
+		node.ktype = jdoc.Rule.ParentType
+	}
 
-	switch jdoc.Rule.ParentType.Native.Value {
+	switch node.ktype.Native.Value {
 	case "bool":
 		value, exists := jdoc.Data.(system.NativeBool).NativeBool()
 		if !exists {
@@ -145,7 +156,7 @@ func (p *Parser) getNodes(jdoc *Json, nodes []*jsonNode, parent *jsonNode, paren
 	case "object":
 		node.value = jdoc.Data
 		node.native = J_OBJ
-		for key, property := range jdoc.Rule.ParentType.Properties {
+		for key, property := range node.ktype.Properties {
 			object, _, value, found, _, err := system.GetObjectField(jdoc.Value, system.IdToGoName(key))
 			if err != nil {
 				return nil, kerr.New("JMUJMBBLWU", err, "jsonselect.getNodes", "system.GetMapMember")
