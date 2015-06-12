@@ -13,3 +13,11 @@ func (o *Object) GetType() (*Type, bool) {
 type Typer interface {
 	GetType() (*Type, bool)
 }
+
+type Ruler interface {
+	GetRules() map[string]Rule
+}
+
+func (o *Object) GetRules() map[string]Rule {
+	return o.Rules
+}
