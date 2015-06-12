@@ -9,9 +9,13 @@ func (o *Object) SetContext(path string, imports map[string]string) {
 func (o *Object) GetType() (*Type, bool) {
 	return o.Type.GetType()
 }
+func (o *Object) GetTypeReference() Reference {
+	return o.Type
+}
 
 type Typer interface {
 	GetType() (*Type, bool)
+	GetTypeReference() Reference
 }
 
 type Ruler interface {

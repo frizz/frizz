@@ -29,6 +29,11 @@ func (r *String_rule) Enforce(data interface{}, path string, imports map[string]
 			return false, fmt.Sprintf("MaxLength: Length must not be greater than %d", r.MaxLength.Value), nil
 		}
 	}
+	if r.Equal.Exists {
+		if !s.Exists || s.Value != r.Equal.Value {
+			return false, fmt.Sprintf("Equal: String must equal '%s'", r.Equal), nil
+		}
+	}
 	// TODO: Implement rules
 	return true, "", nil
 }

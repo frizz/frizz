@@ -33,7 +33,8 @@ func TestBool(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -119,7 +120,8 @@ func TestType(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -170,7 +172,8 @@ func unmarshalDiagram(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
+	assert.True(t, unknown)
 	assert.NoError(t, err)
 	d, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -225,7 +228,8 @@ func TestUnknownRule(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
+	assert.True(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)

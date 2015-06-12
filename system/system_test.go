@@ -38,7 +38,8 @@ func TestNative(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -82,7 +83,8 @@ func TestNativeDefaults(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -126,7 +128,8 @@ func TestNativeDefaultsShort(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -178,7 +181,8 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -209,7 +213,8 @@ func TestReferenceType(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -237,7 +242,8 @@ func TestReferenceEmpty(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -263,7 +269,8 @@ func TestReferencePath(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -292,7 +299,8 @@ func TestReferenceImport(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -322,7 +330,8 @@ func TestReferenceDefault(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -356,7 +365,8 @@ func TestContext(t *testing.T) {
 	defer json.UnregisterType("kego.io/system:foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})
+	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
