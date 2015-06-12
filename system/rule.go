@@ -142,22 +142,23 @@ func ruleFieldByReflection(object interface{}, name string) (value interface{}, 
 	// zero => !ok
 	return value, pointer, found && !zero, err
 }
+
 func GetMapMember(v reflect.Value, name string) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
-	if v.Kind() == reflect.Ptr {
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
 		v = v.Elem()
 	}
 	member := v.MapIndex(reflect.ValueOf(name))
 	return returnValue(member)
 }
 func GetArrayMember(v reflect.Value, index int) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
-	if v.Kind() == reflect.Ptr {
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
 		v = v.Elem()
 	}
 	member := v.Index(index)
 	return returnValue(member)
 }
 func GetObjectField(v reflect.Value, name string) (object interface{}, pointer interface{}, value reflect.Value, found bool, zero bool, err error) {
-	if v.Kind() == reflect.Ptr {
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
 		v = v.Elem()
 	}
 	field := v.FieldByName(name)
