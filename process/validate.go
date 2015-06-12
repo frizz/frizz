@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"kego.io/json"
+	"kego.io/jsonselect"
 	"kego.io/kerr"
 	"kego.io/system"
 )
@@ -63,20 +64,20 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 
 	tp, ok := data.(system.Typer)
 	if !ok {
-		return kerr.New("RSSFIFHCOF", nil, "process.validateUnknown", "Input %T is not *system.Object", data)
+		return kerr.New("RSSFIFHCOF", nil, "process.validateUnknown", "data %T does not implement system.Typer", data)
 	}
 	t, ok := tp.GetType()
 	if !ok {
-		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "Type not found")
+		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "tp.GetType not found")
 	}
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
 
-	return validateObject(partialRuleHolder, data, path, imports)
+	return validateObject(partialRuleHolder, nil, data, path, imports)
 
 }
 
-func validateObject(rule *system.RuleHolder, data interface{}, path string, imports map[string]string) error {
+func validateObject(rule *system.RuleHolder, rules map[string]system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	// Validate the actual object
 	if v, ok := data.(system.Validator); ok {
@@ -89,23 +90,48 @@ func validateObject(rule *system.RuleHolder, data interface{}, path string, impo
 		}
 	}
 
-	// TODO: Get selectors working
-	/*
-		for selector, rule := range rules {
-			if selector == "doesnt apply to the current object" {
-				continue
+	if rule.Rule != nil {
+		e, ok := rule.Rule.(system.Enforcer)
+		if ok {
+			ok, message, err := e.Enforce(data, path, imports)
+			if err != nil {
+				return kerr.New("EBEMISLGDX", err, "process.validateObject", "e.Enforce (main)")
 			}
-			if e, ok := rule.(system.Enforcer); ok {
-				ok, message, err := e.Enforce(data, path, imports)
+			if !ok {
+				return kerr.New("KKOFBHILXM", nil, "process.validateObject", "Broken rule. %s. %#v", message, data)
+			}
+		}
+	}
+
+	if rules != nil && len(rules) > 0 {
+
+		j := &jsonselect.Json{Data: data, Value: reflect.ValueOf(data), Rule: rule}
+		p, err := jsonselect.CreateParser(j, path, imports)
+		if err != nil {
+			return kerr.New("AIWLGYGGAY", err, "process.validateObject", "jsonselect.CreateParser")
+		}
+
+		for selector, rule := range rules {
+			e, ok := rule.(system.Enforcer)
+			if !ok {
+				return kerr.New("ABVWHMMXGG", nil, "process.validateObject", "rule %T does not implement system.Enforcer", rule)
+			}
+			matches, err := p.GetJsonElements(selector)
+			if err != nil {
+				return kerr.New("UKOCCFJWAB", err, "process.validateObject", "p.GetJsonElements (%s)", selector)
+			}
+			for _, match := range matches {
+				ok, message, err := e.Enforce(match.Data, path, imports)
 				if err != nil {
 					kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
 				}
 				if !ok {
 					return kerr.New("FRXEXSTARP", nil, "process.validateObject", "Broken rule. %s. %#v", message, data)
 				}
+
 			}
 		}
-	*/
+	}
 
 	// Validate the children
 	switch rule.ParentType.Native.Value {
@@ -116,13 +142,15 @@ func validateObject(rule *system.RuleHolder, data interface{}, path string, impo
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "process.validateObject", "rule.ItemsRule (array)")
 		}
-		return validateArrayChildren(items, data, path, imports)
+		rules := rule.Rule.(system.Ruler).GetRules()
+		return validateArrayChildren(items, rules, data, path, imports)
 	case "map":
 		items, err := rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "process.validateObject", "rule.ItemsRule (map)")
 		}
-		return validateMapChildren(items, data, path, imports)
+		rules := rule.Rule.(system.Ruler).GetRules()
+		return validateMapChildren(items, rules, data, path, imports)
 	}
 
 	return nil
@@ -152,7 +180,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if err != nil {
 			return kerr.New("IQOXVXBLRO", err, "process.validateObjectChildren", "system.NewRuleHolder (%s)", name)
 		}
-		if err = validateObject(childRule, child, path, imports); err != nil {
+		if err = validateObject(childRule, property.Rules, child, path, imports); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "process.validateObjectChildren", "validateObject (%s)", name)
 		}
 	}
@@ -160,7 +188,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateArrayChildren(itemsRule *system.RuleHolder, data interface{}, path string, imports map[string]string) error {
+func validateArrayChildren(itemsRule *system.RuleHolder, rules map[string]system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Slice {
@@ -169,7 +197,7 @@ func validateArrayChildren(itemsRule *system.RuleHolder, data interface{}, path 
 
 	for i := 0; i < value.Len(); i++ {
 		child := value.Index(i).Interface()
-		if err := validateObject(itemsRule, child, path, imports); err != nil {
+		if err := validateObject(itemsRule, rules, child, path, imports); err != nil {
 			return kerr.New("DKVEPIWTPI", err, "process.validateArrayChildren", "validateObject")
 		}
 	}
@@ -177,7 +205,7 @@ func validateArrayChildren(itemsRule *system.RuleHolder, data interface{}, path 
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateMapChildren(itemsRule *system.RuleHolder, data interface{}, path string, imports map[string]string) error {
+func validateMapChildren(itemsRule *system.RuleHolder, rules map[string]system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Map {
@@ -189,7 +217,7 @@ func validateMapChildren(itemsRule *system.RuleHolder, data interface{}, path st
 
 	for _, key := range value.MapKeys() {
 		child := value.MapIndex(key).Interface()
-		if err := validateObject(itemsRule, child, path, imports); err != nil {
+		if err := validateObject(itemsRule, rules, child, path, imports); err != nil {
 			return kerr.New("YLONAMFUAG", err, "process.validateMapChildren", "validateObject")
 		}
 	}
