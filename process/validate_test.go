@@ -70,7 +70,7 @@ func TestValidate_error1(t *testing.T) {
 
 func TestValidate_error2(t *testing.T) {
 
-	err := Scan("/this-folder-doesnt-exist", "", map[string]string{})
+	err := Scan("/this-folder-doesnt-exist", false, "", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
 	d, err := ioutil.TempDir("", "")
@@ -82,13 +82,13 @@ func TestValidate_error2(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(f)
 
-	err = Scan(d, "d.e/f", map[string]string{})
+	err = Scan(d, false, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
 	assert.HasError(t, err, "DHTURNTIXE")
 
 }
 
 func TestValidateReader(t *testing.T) {
-	err := processScannedFile("/this-file-doesnt-exist.json", "", map[string]string{})
+	err := processScannedFile("/this-file-doesnt-exist.json", false, "", map[string]string{})
 	assert.IsError(t, err, "NMWROTKPLJ")
 }

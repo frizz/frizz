@@ -14,23 +14,35 @@ import (
 	"kego.io/system"
 )
 
-func Generate(path string, imports map[string]string) (mainSource []byte, typesSource []byte, err error) {
+func Generate(file fileType, path string, imports map[string]string) (source []byte, err error) {
+
+	if file == F_CMD {
+		cmdData := cmdDataStruct{Path: path, Imports: imports}
+		source, err = executeTemplateAndFormat(cmdData, "cmd.tmpl")
+		if err != nil {
+			return nil, kerr.New("NXIWSECRLL", err, "process.Generate", "executeTemplateAndFormat (cmd)")
+		}
+		return
+	}
 
 	types := system.GetAllTypesInPackage(path)
 	if len(types) == 0 {
-		return nil, nil, kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
+		return nil, kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 	}
 
 	mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
-	mainSource, err = executeTemplateAndFormat(mainData, "main.tmpl")
-	if err != nil {
-		return nil, nil, kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
-	}
 
-	typesData := getTypesDataFromMainData(mainData)
-	typesSource, err = executeTemplateAndFormat(typesData, "types.tmpl")
-	if err != nil {
-		return nil, nil, kerr.New("LALVUAPGSP", err, "process.Generate", "executeTemplateAndFormat (types)")
+	if file == F_MAIN {
+		source, err = executeTemplateAndFormat(mainData, "main.tmpl")
+		if err != nil {
+			return nil, kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
+		}
+	} else if file == F_TYPES {
+		typesData := getTypesDataFromMainData(mainData)
+		source, err = executeTemplateAndFormat(typesData, "types.tmpl")
+		if err != nil {
+			return nil, kerr.New("UURNHCUYAI", err, "process.Generate", "executeTemplateAndFormat (types)")
+		}
 	}
 
 	return
@@ -97,6 +109,10 @@ type typesDataStruct struct {
 	Path     string
 	Imports  map[string]string
 }
+type cmdDataStruct struct {
+	Path    string
+	Imports map[string]string
+}
 
 func functions() template.FuncMap {
 	return template.FuncMap{
@@ -146,7 +162,10 @@ func importStatement(name string, path string, currentPackage string) string {
 
 }
 
-func typesImportStatement(path string) string {
+func typesImportStatement(path string, currentPackage string) string {
+	if path != currentPackage {
+		return ""
+	}
 	newPath := fmt.Sprintf("%s/types", path)
 	return fmt.Sprintf("_ %s", strconv.Quote(newPath))
 }

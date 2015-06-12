@@ -51,8 +51,12 @@ func validateFile(filePath string, packagePath string, imports map[string]string
 
 func validateReader(file io.Reader, packagePath string, imports map[string]string) error {
 	var i interface{}
-	if err := json.NewDecoder(file, packagePath, imports).Decode(&i); err != nil {
+	unknown, err := json.NewDecoder(file, packagePath, imports).Decode(&i)
+	if err != nil {
 		return kerr.New("QIVNOQKCQF", err, "process.validateReader", "json.NewDecoder.Decode")
+	}
+	if unknown {
+		return kerr.New("PJABFRVFLF", nil, "process.validateReader", "json.NewDecoder: unknown type")
 	}
 	if err := validateUnknown(i, packagePath, imports); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "process.validateReader", "validateUnknown")
@@ -123,10 +127,10 @@ func validateObject(rule *system.RuleHolder, rules map[string]system.Rule, data 
 			for _, match := range matches {
 				ok, message, err := e.Enforce(match.Data, path, imports)
 				if err != nil {
-					kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
+					return kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
 				}
 				if !ok {
-					return kerr.New("FRXEXSTARP", nil, "process.validateObject", "Broken rule. %s. %#v", message, data)
+					return kerr.New("FRXEXSTARP", nil, "process.validateObject", "Broken rule. %s. %#v", message, match.Data)
 				}
 
 			}

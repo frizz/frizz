@@ -15,7 +15,7 @@ import (
 
 	{{ range $importName, $importPath := $imports }}
 		{{ import $importName $importPath $path }}
-		{{ types $importPath }}
+		{{ types $importPath $path }}
 	{{ end }}
 )
 

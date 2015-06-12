@@ -13,13 +13,13 @@ import (
 	"kego.io/system"
 )
 
-func Scan(root string, packagePath string, imports map[string]string) error {
+func Scan(root string, ignoreUnknownTypes bool, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := processScannedFile(filePath, packagePath, imports); err != nil {
+		if err := processScannedFile(filePath, ignoreUnknownTypes, packagePath, imports); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
@@ -28,10 +28,11 @@ func Scan(root string, packagePath string, imports map[string]string) error {
 	if err := filepath.Walk(root, walker); err != nil {
 		return kerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
 	}
+
 	return nil
 }
 
-func processScannedFile(filePath string, packagePath string, imports map[string]string) error {
+func processScannedFile(filePath string, ignoreUnknownTypes bool, packagePath string, imports map[string]string) error {
 
 	if !strings.HasSuffix(filePath, ".json") {
 		return nil
@@ -43,17 +44,21 @@ func processScannedFile(filePath string, packagePath string, imports map[string]
 	}
 	defer file.Close()
 
-	if err = processReader(file, packagePath, imports); err != nil {
+	if err = processReader(file, ignoreUnknownTypes, packagePath, imports); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-func processReader(file io.Reader, packagePath string, imports map[string]string) error {
+func processReader(file io.Reader, ignoreUnknownTypes bool, packagePath string, imports map[string]string) error {
 
 	var i interface{}
-	if err := json.NewDecoder(file, packagePath, imports).Decode(&i); err != nil {
+	unknown, err := json.NewDecoder(file, packagePath, imports).Decode(&i)
+	if err != nil {
 		return kerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
+	}
+	if unknown && !ignoreUnknownTypes {
+		return kerr.New("KWNPDUJNYP", nil, "process.processReader", "json.NewDecoder.Decode: unknown types")
 	}
 
 	processScannedObject(i, packagePath, imports)

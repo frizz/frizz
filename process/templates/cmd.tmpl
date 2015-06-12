@@ -1,0 +1,25 @@
+{{ $path := .Path }}
+{{ $imports := .Imports }}
+package main
+
+import (
+	"kego.io/process"
+
+	_ "kego.io/system"
+    _ "kego.io/system/types"
+
+	{{ if not (eq $path "kego.io/system") }}
+		_ "{{ $path }}"
+        _ "{{ $path }}/types"
+	{{ end }}
+
+	{{ range $importName, $importPath := $imports }}
+		_ "{{ $importPath }}"
+		_ "{{ $importPath }}/types"
+	{{ end }}
+)
+
+func main() {
+	process.GeneratorInit()
+	process.GenerateFiles(process.F_TYPES)
+}

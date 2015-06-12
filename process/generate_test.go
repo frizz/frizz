@@ -9,7 +9,7 @@ import (
 
 func TestGenerate_errors(t *testing.T) {
 
-	_, _, err := Generate("a.b/c", map[string]string{})
+	_, err := Generate(F_MAIN, "a.b/c", map[string]string{})
 	// No types
 	assert.IsError(t, err, "HQLAEMCHBM")
 
@@ -19,7 +19,7 @@ func TestGenerate_errors(t *testing.T) {
 	system.RegisterType("b.c/d:a", ty)
 	defer system.UnregisterType("b.c/d:a")
 
-	_, _, err = Generate("b.c/d", map[string]string{})
+	_, err = Generate(F_MAIN, "b.c/d", map[string]string{})
 	// Corrupt type ID causes error from source formatter
 	assert.IsError(t, err, "XTIEALKSXN")
 }
@@ -31,7 +31,7 @@ func TestGenerate(t *testing.T) {
 	system.RegisterType("b.c/d:a", ty)
 	defer system.UnregisterType("b.c/d:a")
 
-	main, types, err := Generate("b.c/d", map[string]string{})
+	source, err := Generate(F_MAIN, "b.c/d", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, `package d
 
@@ -55,8 +55,7 @@ func init() {
 	json.RegisterType("b.c/d:a", reflect.TypeOf(&A{}))
 
 }
-`, string(main))
-	assert.Contains(t, string(types), "package types")
+`, string(source))
 
 }
 
