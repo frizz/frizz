@@ -11,6 +11,5 @@ import (
 )
 
 func main() {
-	process.GeneratorInit()
 	process.GenerateFiles(process.F_TYPES)
 }
