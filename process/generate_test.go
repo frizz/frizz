@@ -75,7 +75,6 @@ func TestGenerate(t *testing.T) {
 	source, err = Generate(F_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package types")
-	assert.Contains(t, string(source), "\t\"kego.io/json\"\n")
 	assert.Contains(t, string(source), "\t\"kego.io/system\"\n")
 	assert.Contains(t, string(source), "_ \"kego.io/system/types\"\n")
 	assert.Contains(t, string(source), "\t\"b.c/d\"\n")
