@@ -30,12 +30,11 @@ func TestScan(t *testing.T) {
 
 	d, err := ioutil.TempDir("", "")
 	assert.NoError(t, err)
-	defer os.Remove(d)
+	defer os.RemoveAll(d)
 
 	f := filepath.Join(d, "a.json")
 	err = ioutil.WriteFile(f, []byte(test), 0644)
 	assert.NoError(t, err)
-	defer os.Remove(f)
 
 	err = Scan(d, false, "d.e/f", map[string]string{})
 	assert.NoError(t, err)

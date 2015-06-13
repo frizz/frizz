@@ -86,7 +86,7 @@ func executeTemplateAndFormat(data interface{}, templateName string) ([]byte, er
 
 	var rendered bytes.Buffer
 	if err := templates().ExecuteTemplate(&rendered, templateName, data); err != nil {
-		return nil, kerr.New("SGHJCEHQMF", err, "process.executeTemplateAndFormat", "tpl.ExecuteTemplate")
+		return nil, kerr.New("SGHJCEHQMF", err, "process.executeTemplateAndFormat", "templates.ExecuteTemplate")
 	}
 
 	formatted, err := format.Source(rendered.Bytes())
@@ -141,12 +141,14 @@ func templates() *template.Template {
 // getPackageNameFromPath returns the name of the package, given the package
 // path. Note this is golang packages not file system paths, so we always use
 // forward slash instead of os.PathSeparator
+// TODO: Lots of packages have a different name to the path...
+// TODO: Work out what to do here.
 func getPackageNameFromPath(path string) string {
 	parts := strings.Split(path, "/")
 	return parts[len(parts)-1]
 }
 
-// importStatement generates the scoure code for an import statement. If the
+// importStatement generates the source code for an import statement. If the
 // package alias is different to the name from the package path, we specify the
 // alias. If we're trying to import the local package, we output nothing.
 func importStatement(name string, path string, currentPackage string) string {
@@ -162,11 +164,13 @@ func importStatement(name string, path string, currentPackage string) string {
 
 }
 
+// typesImportStatement generates the source code for an import statement
+// for the types sub-package.
 func typesImportStatement(path string, currentPackage string) string {
-	if path != currentPackage {
+	newPath := fmt.Sprintf("%s/types", path)
+	if currentPackage == newPath {
 		return ""
 	}
-	newPath := fmt.Sprintf("%s/types", path)
 	return fmt.Sprintf("_ %s", strconv.Quote(newPath))
 }
 

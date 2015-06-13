@@ -56,7 +56,7 @@ func validateReader(file io.Reader, packagePath string, imports map[string]strin
 		return kerr.New("QIVNOQKCQF", err, "process.validateReader", "json.NewDecoder.Decode")
 	}
 	if unknown {
-		return kerr.New("PJABFRVFLF", nil, "process.validateReader", "json.NewDecoder: unknown type")
+		return kerr.New("PJABFRVFLF", nil, "process.validateReader", "json.NewDecoder: unknown types")
 	}
 	if err := validateUnknown(i, packagePath, imports); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "process.validateReader", "validateUnknown")

@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	process.GeneratorInit()
 	process.GenerateFiles(process.F_MAIN)
 	process.GenerateAndRunCmd()
 }
