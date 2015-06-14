@@ -18,12 +18,9 @@ func TestScan(t *testing.T) {
 	"description": "a",
 	"type": "system:type",
 	"id": "b",
-	"properties": {
+	"fields": {
 		"c": {
-			"type": "system:property",
-			"item": {
-				"type": "system:@string"
-			}
+			"type": "system:@string"
 		}
 	}
 }`
@@ -50,12 +47,9 @@ func TestScan_rule(t *testing.T) {
 	"description": "a",
 	"type": "system:type",
 	"id": "b",
-	"properties": {
+	"fields": {
 		"c": {
-			"type": "system:property",
-			"item": {
-				"type": "system:@string"
-			}
+			"type": "system:@string"
 		}
 	},
 	"rule": {
@@ -64,13 +58,10 @@ func TestScan_rule(t *testing.T) {
 		"id": "@b",
 		"is": ["system:rule"],
 		"embed": ["system:ruleBase"],
-		"properties": {
+		"fields": {
 			"e": {
 				"description": "f",
-				"type": "system:property",
-				"item": {
-					"type": "system:@string"
-				}
+				"type": "system:@string"
 			}
 		}
 	}

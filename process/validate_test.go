@@ -20,12 +20,9 @@ func Validate_NeedsTypes(t *testing.T) {
 			"description": "a",
 			"type": "system:type",
 			"id": "a",
-			"properties": {
+			"fields": {
 				"a": {
-					"type": "system:property",
-					"item": {
-						"type": "system:@string"
-					}
+					"type": "system:@string"
 				}
 			}
 		}`
@@ -47,14 +44,11 @@ func TestValidate_error1(t *testing.T) {
 		"description": "b",
 		"type": "system:type",
 		"id": "b",
-		"properties": {
+		"fields": {
 			"b": {
-				"type": "system:property",
-				"item": {
-					"type": "system:@string",
-					"minLength": 10,
-					"maxLength": 5
-				}
+				"type": "system:@string",
+				"minLength": 10,
+				"maxLength": 5
 			}
 		}
 	}`

@@ -128,7 +128,22 @@ func functions() template.FuncMap {
 		"reference":    system.GoReference,
 		"reference_id": system.IdToGoReference,
 		"name":         getPackageNameFromPath,
+		"description":  description,
+		"goname":       system.IdToGoName,
+		"gotype":       system.GoTypeDescriptor,
 	}
+}
+
+func description(i interface{}) (string, error) {
+	o, ok := i.(system.Object)
+	if !ok {
+		return "", kerr.New("HQIOAQBDAX", nil, "process.description", "input does not implement system.Object")
+	}
+	b := o.GetBase()
+	if b.Description == "" {
+		return "", nil
+	}
+	return fmt.Sprintf("// %s", b.Description), nil
 }
 
 func templates() *template.Template {

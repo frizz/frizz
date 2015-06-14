@@ -1,7 +1,7 @@
 {{ $path := .path }}
 {{ $imports := .imports }}
 {{ if and (not .type.IsNativeValue) (not .type.Exclude) }}
-{{ if not (eq .type.Description "") }}// {{ .type.Description }}{{ end }}
+{{ .type | description }}
 type {{ .go }} struct {
 
 	{{ if not .type.Basic }}
@@ -11,9 +11,9 @@ type {{ .go }} struct {
 		*{{ $embed.GoReference $path $imports }}
 	{{ end }}
 
-	{{ range $propertyName, $property := .type.Properties }}
-	{{ if not (eq $property.Description "") }}// {{ $property.Description }}{{ end }}
-	{{ $property.GoName $propertyName }} {{ $property.GoTypeDescriptor $path $imports }}
+	{{ range $fieldName, $field := .type.Fields }}
+	{{ $field | description }}
+	{{ $fieldName | goname }} {{ gotype $field $path $imports }}
 	{{ end }}
 }
 {{ end }}

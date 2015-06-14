@@ -190,19 +190,23 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		rules = data.(system.Ruler).GetRules()
 	}
 
-	for name, property := range itemsRule.ParentType.Properties {
+	for name, field := range itemsRule.ParentType.Fields {
 		child, _, _, found, _, err := system.GetObjectField(value, system.IdToGoName(name))
 		if err != nil {
 			return kerr.New("XTUKWWRDHH", err, "process.validateObjectChildren", "system.GetField (%s)", name)
 		}
-		if !property.Optional && !found {
+		if !field.GetRuleBase().Optional && !found {
 			return kerr.New("ETODESNSET", nil, "process.validateObjectChildren", "Field %s is missing and not optional", name)
 		}
-		childRule, err := system.NewRuleHolder(property.Item, path, imports)
+		childRule, err := system.NewRuleHolder(field, path, imports)
 		if err != nil {
 			return kerr.New("IQOXVXBLRO", err, "process.validateObjectChildren", "system.NewRuleHolder (%s)", name)
 		}
-		allRules := append(rules, property.Rules...)
+		ob, ok := field.(system.Object)
+		if !ok {
+			return kerr.New("XRTVWVUAMP", nil, "process.validateObjectChildren", "field does not implement system.Object")
+		}
+		allRules := append(rules, ob.GetBase().Rules...)
 		if err = validateObject(childRule, allRules, child, path, imports); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "process.validateObjectChildren", "validateObject (%s)", name)
 		}
@@ -241,7 +245,7 @@ func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data
 	for _, key := range value.MapKeys() {
 		child := value.MapIndex(key).Interface()
 		if err := validateObject(itemsRule, rules, child, path, imports); err != nil {
-			return kerr.New("YLONAMFUAG", err, "process.validateMapChildren", "validateObject")
+			return kerr.New("YLONAMFUAG", err, "process.validateMapChildren", "validateObject key %s %#v", key, child)
 		}
 	}
 	return nil
