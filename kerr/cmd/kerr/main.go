@@ -14,15 +14,12 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		f := get()
-		clipboard.WriteAll(f)
-		fmt.Print(f)
+	for {
+		f := randomString(10)
+		clipboard.WriteAll(fmt.Sprintf("\"%s\", ", f))
+		fmt.Print(fmt.Sprintf("%s (copied to clipboard)", f))
+		scanner.Scan()
 	}
-}
-
-func get() string {
-	return fmt.Sprintf("\"%s\", ", randomString(10))
 }
 
 func randomString(l int) string {
