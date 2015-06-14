@@ -14,7 +14,7 @@ import (
 
 // Automatically created basic rule for basic
 type Basic_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -23,7 +23,7 @@ type Basic_rule struct {
 
 // Automatically created basic rule for c
 type C_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -32,7 +32,7 @@ type C_rule struct {
 
 // Automatically created basic rule for collision
 type Collision_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -41,7 +41,7 @@ type Collision_rule struct {
 
 // Automatically created basic rule for diagram
 type Diagram_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -50,7 +50,7 @@ type Diagram_rule struct {
 
 // Automatically created basic rule for expr
 type Expr_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -59,7 +59,7 @@ type Expr_rule struct {
 
 // Automatically created basic rule for gallery
 type Gallery_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -68,7 +68,7 @@ type Gallery_rule struct {
 
 // Automatically created basic rule for image
 type Image_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -77,7 +77,7 @@ type Image_rule struct {
 
 // Automatically created basic rule for kid
 type Kid_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -86,7 +86,7 @@ type Kid_rule struct {
 
 // Automatically created basic rule for photo
 type Photo_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -95,7 +95,7 @@ type Photo_rule struct {
 
 // Automatically created basic rule for polykids
 type Polykids_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -104,7 +104,7 @@ type Polykids_rule struct {
 
 // Automatically created basic rule for sibling
 type Sibling_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
@@ -113,7 +113,7 @@ type Sibling_rule struct {
 
 // Automatically created basic rule for typed
 type Typed_rule struct {
-	*system.Object
+	*system.Selector
 }
 
 //***********************************************************
