@@ -3,6 +3,25 @@
 	"type": "type",
 	"id": "type",
 	"properties": {
+		"basic": {
+			"description": "Basic types don't have system:object added by default to the embedded types.",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "json:@bool"
+			}
+		},
+		"embed": {
+			"description": "Types which this should embed - system:object is always added unless base = true.",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "@array",
+				"items": {
+					"type": "@reference"
+				}
+			}
+		},
 		"extends": {
 			"description": "Type which this should extend",
 			"type": "property",

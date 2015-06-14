@@ -11,13 +11,14 @@ import (
 func TestRuleTypes(t *testing.T) {
 
 	type ruleStruct struct {
-		*Object
+		*Base
+		*RuleBase
 	}
 	parentType := &Type{
-		Object: &Object{Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: "a", Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Object: &Object{Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: "@a", Type: NewReference("kego.io/system", "type")},
 	}
 	RegisterType("a.b/c:a", parentType)
 	RegisterType("a.b/c:@a", ruleType)
@@ -25,7 +26,7 @@ func TestRuleTypes(t *testing.T) {
 	defer UnregisterType("a.b/c:@a")
 
 	r := &ruleStruct{
-		&Object{Type: NewReference("a.b/c", "@a")},
+		Base: &Base{Type: NewReference("a.b/c", "@a")},
 	}
 	rt, pt, err := ruleTypes(r, "", map[string]string{})
 	assert.NoError(t, err)
@@ -38,14 +39,14 @@ func TestRuleTypes(t *testing.T) {
 	assert.IsError(t, err, "BNEKIFYDDL")
 
 	r = &ruleStruct{
-		&Object{Type: NewReference("a.b/c", "unregistered")},
+		Base: &Base{Type: NewReference("a.b/c", "unregistered")},
 	}
 	rt, pt, err = ruleTypes(r, "", map[string]string{})
 	// An unregistered type will cause ruleReference.GetType to return an error
 	assert.IsError(t, err, "PFGWISOHRR")
 
 	r = &ruleStruct{
-		&Object{Type: NewReference("a.b/c", "a")},
+		Base: &Base{Type: NewReference("a.b/c", "a")},
 	}
 	rt, pt, err = ruleTypes(r, "", map[string]string{})
 	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
@@ -53,7 +54,7 @@ func TestRuleTypes(t *testing.T) {
 
 	RegisterType("a.b/c:@b", ruleType)
 	r = &ruleStruct{
-		&Object{Type: NewReference("a.b/c", "@b")},
+		Base: &Base{Type: NewReference("a.b/c", "@b")},
 	}
 	rt, pt, err = ruleTypes(r, "", map[string]string{})
 	// An rule type with an unregistered parent type typeReference.GetType to return an error
@@ -64,72 +65,78 @@ func TestRuleTypes(t *testing.T) {
 func TestRuleTypeReference(t *testing.T) {
 
 	type ruleStruct struct {
-		*Object
+		*Base
+		*RuleBase
 	}
 	rs := &ruleStruct{
-		&Object{Type: NewReference("a.b/c", "@a")},
+		Base: &Base{Type: NewReference("a.b/c", "@a")},
 	}
 	r, err := ruleTypeReference(rs, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "a.b/c:@a", r.Value)
 
-	ri := map[string]interface{}{}
-	r, err = ruleTypeReference(ri, "", map[string]string{})
-	assert.IsError(t, err, "OLHOVKXEXN")
+	/*
+		ri := map[string]interface{}{}
+		r, err = ruleTypeReference(ri, "", map[string]string{})
+		assert.IsError(t, err, "OLHOVKXEXN")
 
-	ri = map[string]interface{}{
-		"type": 1, //not a string
-	}
-	r, err = ruleTypeReference(ri, "", map[string]string{})
-	assert.IsError(t, err, "IILEXGQDXL")
+		ri = map[string]interface{}{
+			"type": 1, //not a string
+		}
+		r, err = ruleTypeReference(ri, "", map[string]string{})
+		assert.IsError(t, err, "IILEXGQDXL")
 
-	ri = map[string]interface{}{
-		"type":     "a:b", // package will not be registered so UnmarshalJSON will error
-		"_path":    "a.b/c",
-		"_imports": map[string]string{},
-	}
-	r, err = ruleTypeReference(ri, "", map[string]string{})
-	assert.IsError(t, err, "QBTHPRVBWN")
+		ri = map[string]interface{}{
+			"type":     "a:b", // package will not be registered so UnmarshalJSON will error
+			"_path":    "a.b/c",
+			"_imports": map[string]string{},
+		}
+		r, err = ruleTypeReference(ri, "", map[string]string{})
+		assert.IsError(t, err, "QBTHPRVBWN")
 
-	ri = map[string]interface{}{
-		"type": "a.b/c:@a",
-	}
-	r, err = ruleTypeReference(rs, "", map[string]string{})
-	assert.NoError(t, err)
-	assert.Equal(t, "a.b/c:@a", r.Value)
+		ri = map[string]interface{}{
+			"type": "a.b/c:@a",
+		}
+		r, err = ruleTypeReference(rs, "", map[string]string{})
+		assert.NoError(t, err)
+		assert.Equal(t, "a.b/c:@a", r.Value)
+	*/
 
 	rsp := ruleStruct{}
 	r, err = ruleTypeReference(rsp, "", map[string]string{})
-	// rsp is not a pointer so ruleFieldByReflection will error
-	assert.IsError(t, err, "QJQAIGPYXC")
+	// rsp has no base, so ruleTypeReference will error
+	assert.IsError(t, err, "YIESHVJPMW")
 
-	type structWithoutType struct{}
-	rwt := &structWithoutType{}
-	r, err = ruleTypeReference(rwt, "", map[string]string{})
-	assert.IsError(t, err, "NXYRAJITEV")
+	/*
+		type structWithoutType struct{}
+		rwt := &structWithoutType{}
+		r, err = ruleTypeReference(rwt, "", map[string]string{})
+		assert.IsError(t, err, "NXYRAJITEV")
 
-	type structWithIntType struct {
-		Type int
-	}
-	rwi := &structWithIntType{
-		Type: 1,
-	}
-	r, err = ruleTypeReference(rwi, "", map[string]string{})
-	assert.IsError(t, err, "FHUPSRTRFE")
+		type structWithIntType struct {
+			Type int
+		}
+		rwi := &structWithIntType{
+			Type: 1,
+		}
+		r, err = ruleTypeReference(rwi, "", map[string]string{})
+		assert.IsError(t, err, "FHUPSRTRFE")
+	*/
 }
 
 func TestRuleHolderItemsRule(t *testing.T) {
 	type parentStruct struct {
-		*Object
+		*Base
 	}
 	type ruleStruct struct {
-		*Object
+		*Base
+		*RuleBase
 	}
 	parentType := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
 	}
 	json.RegisterType("a.b/c:a", reflect.TypeOf(&parentStruct{}))
 	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStruct{}))
@@ -151,21 +158,22 @@ func TestRuleHolderItemsRule(t *testing.T) {
 	assert.IsError(t, err, "VPAGXSTQHM")
 
 	parentType.Native = NewString("array")
-	rh.Rule = "a"
-	_, err = rh.ItemsRule()
-	// rh.rule must be a pointer or ruleFieldByReflection will error
-	assert.IsError(t, err, "LIDXIQYGJD")
+	/*
+		rh.Rule = "a"
+		_, err = rh.ItemsRule()
+		// rh.rule must be a pointer or ruleFieldByReflection will error
+		assert.IsError(t, err, "LIDXIQYGJD")
 
-	rh.Rule = &struct{}{}
-	_, err = rh.ItemsRule()
-	// rh.rule needs an Items field
-	assert.IsError(t, err, "VYTHGJTSNJ")
+		rh.Rule = &struct{}{}
+		_, err = rh.ItemsRule()
+		// rh.rule needs an Items field
+		assert.IsError(t, err, "VYTHGJTSNJ")
 
-	rh.Rule = &struct{ Items int }{Items: 1}
-	_, err = rh.ItemsRule()
-	// Items must be a rule or NewRuleHolder will error
-	assert.IsError(t, err, "FGYMQPNBQJ")
-
+		rh.Rule = &struct{ Items int }{Items: 1}
+		_, err = rh.ItemsRule()
+		// Items must be a rule or NewRuleHolder will error
+		assert.IsError(t, err, "FGYMQPNBQJ")
+	*/
 }
 func TestRuleFieldByReflection(t *testing.T) {
 

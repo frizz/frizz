@@ -1,7 +1,8 @@
 {
 	"description": "This is the most basic type.",
 	"type": "type",
-	"id": "object",
+	"id": "base",
+	"base": true,
 	"extends": "",
 	"properties": {
 		"type": {

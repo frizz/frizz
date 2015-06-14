@@ -1,0 +1,24 @@
+{
+	"description": "All rules should embed this type.",
+	"type": "type",
+	"id": "ruleBase",
+	"basic": true,
+	"properties": {
+		"optional": {
+			"description": "If this rule is a field, this specifies that the field is optional",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "json:@bool"
+			}
+		},
+		"selector": {
+			"description": "Json selector defining what nodes this rule should be applied to.",
+			"type": "property",
+			"optional": true,
+			"item": {
+				"type": "json:@string"
+			}
+		}
+	}
+}

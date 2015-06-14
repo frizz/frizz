@@ -2,19 +2,27 @@ package system
 
 import (
 	"reflect"
-	"strconv"
 
+	"kego.io/json"
 	"kego.io/kerr"
 )
 
-type Rule interface{}
-
-type HasSelector interface {
-	GetSelector() String
+type Rule interface {
+	GetRuleBase() *RuleBase
 }
 
-func (s *Selector) GetSelector() String {
-	return s.Selector
+func (b *RuleBase) GetRuleBase() *RuleBase {
+	return b
+}
+
+func init() {
+	json.RegisterInterface(reflect.TypeOf((*Rule)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
+}
+
+type DummyRule struct {
+	*Base
+	*RuleBase
+	Default interface{}
 }
 
 type RuleHolder struct {
@@ -58,59 +66,73 @@ func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, 
 
 func ruleTypeReference(r Rule, path string, imports map[string]string) (*Reference, error) {
 
-	m, ok := r.(map[string]interface{})
-	if ok {
-		// Looks like we unmarshaled a type that isn't registered. We
-		// can get the type information from the "type" field.
-		i, ok := m["type"]
-		if !ok {
-			return nil, kerr.New("OLHOVKXEXN", nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
-		}
-		s, ok := i.(string)
-		if !ok {
-			return nil, kerr.New("IILEXGQDXL", nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", i)
-		}
+	/*
+		m, ok := r.(map[string]interface{})
+		if ok {
+			// Looks like we unmarshaled a type that isn't registered. We
+			// can get the type information from the "type" field.
+			i, ok := m["type"]
+			if !ok {
+				return nil, kerr.New("OLHOVKXEXN", nil, "ruleTypeReference", "map[string]interface{} rule has no type attribute")
+			}
+			s, ok := i.(string)
+			if !ok {
+				return nil, kerr.New("IILEXGQDXL", nil, "ruleTypeReference", "map[string]interface{} rule type attribute is not string: %T", i)
+			}
 
-		i, ok = m["_path"]
-		if !ok {
-			return nil, kerr.New("FUMLBULJCP", nil, "ruleTypeReference", "map[string]interface{} rule has no _path attribute")
-		}
-		innerPath, ok := i.(string)
-		if !ok {
-			return nil, kerr.New("ERIHIYYQYL", nil, "ruleTypeReference", "map[string]interface{} rule _path attribute is not string: %T", i)
-		}
+			i, ok = m["_path"]
+			if !ok {
+				return nil, kerr.New("FUMLBULJCP", nil, "ruleTypeReference", "map[string]interface{} rule has no _path attribute")
+			}
+			innerPath, ok := i.(string)
+			if !ok {
+				return nil, kerr.New("ERIHIYYQYL", nil, "ruleTypeReference", "map[string]interface{} rule _path attribute is not string: %T", i)
+			}
 
-		i, ok = m["_imports"]
-		if !ok {
-			return nil, kerr.New("PJJYHJMPUI", nil, "ruleTypeReference", "map[string]interface{} rule has no _imports attribute")
-		}
-		innerImports, ok := i.(map[string]string)
-		if !ok {
-			return nil, kerr.New("KSVRLDNLTL", nil, "ruleTypeReference", "map[string]interface{} rule _imports attribute is not map[string]string: %T", i)
-		}
+			i, ok = m["_imports"]
+			if !ok {
+				return nil, kerr.New("PJJYHJMPUI", nil, "ruleTypeReference", "map[string]interface{} rule has no _imports attribute")
+			}
+			innerImports, ok := i.(map[string]string)
+			if !ok {
+				return nil, kerr.New("KSVRLDNLTL", nil, "ruleTypeReference", "map[string]interface{} rule _imports attribute is not map[string]string: %T", i)
+			}
 
-		ref := &Reference{}
-		err := ref.UnmarshalJSON([]byte(strconv.Quote(s)), innerPath, innerImports)
+			ref := &Reference{}
+			err := ref.UnmarshalJSON([]byte(strconv.Quote(s)), innerPath, innerImports)
+			if err != nil {
+				return nil, kerr.New("QBTHPRVBWN", err, "ruleTypeReference", "ref.UnmarshalJSON")
+			}
+			return ref, nil
+		}
+	*/
+
+	/*
+		// Looks like we have a standard rule. We can get the type by
+		// reflection "Type" field.
+		ti, _, ok, err := ruleFieldByReflection(r, "Type")
 		if err != nil {
-			return nil, kerr.New("QBTHPRVBWN", err, "ruleTypeReference", "ref.UnmarshalJSON")
+			return nil, kerr.New("QJQAIGPYXC", err, "ruleTypeReference", "ruleFieldByReflection")
 		}
-		return ref, nil
-	}
+		if !ok {
+			return nil, kerr.New("NXYRAJITEV", nil, "ruleTypeReference", "ruleFieldByReflection did not find Type field")
+		}
+		tr, ok := ti.(Reference)
+		if !ok {
+			return nil, kerr.New("FHUPSRTRFE", nil, "ruleTypeReference", "Type field is not a reference")
+		}
+		return &tr, nil*/
 
-	// Looks like we have a standard rule. We can get the type by
-	// reflection "Type" field.
-	ti, _, ok, err := ruleFieldByReflection(r, "Type")
-	if err != nil {
-		return nil, kerr.New("QJQAIGPYXC", err, "ruleTypeReference", "ruleFieldByReflection")
-	}
+	ob, ok := r.(Object)
 	if !ok {
-		return nil, kerr.New("NXYRAJITEV", nil, "ruleTypeReference", "ruleFieldByReflection did not find Type field")
+		return nil, kerr.New("VKFNPJDNVB", nil, "system.ruleTypeReference", "r does not implement Object")
 	}
-	tr, ok := ti.(Reference)
-	if !ok {
-		return nil, kerr.New("FHUPSRTRFE", nil, "ruleTypeReference", "Type field is not a reference")
+	base := ob.GetBase()
+	if base == nil {
+		return nil, kerr.New("YIESHVJPMW", nil, "system.ruleTypeReference", "base is nil")
 	}
-	return &tr, nil
+	return &base.Type, nil
+
 }
 
 // ItemsRule returns Items rule for a collection Rule.

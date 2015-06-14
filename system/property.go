@@ -65,22 +65,22 @@ func getTag(r *RuleHolder) (string, error) {
 		// This rule type doesn't support defaulters
 		return "", nil
 	}
-
-	if i, ok := r.Rule.(map[string]interface{}); ok {
-		// This rule is an unknown type, so we have to extract the default
-		// value manually
-		di, ok := i[name]
-		if !ok {
-			// This rule instance doesn't have a default
-			return "", nil
+	/*
+		if i, ok := r.Rule.(map[string]interface{}); ok {
+			// This rule is an unknown type, so we have to extract the default
+			// value manually
+			di, ok := i[name]
+			if !ok {
+				// This rule instance doesn't have a default
+				return "", nil
+			}
+			defaultBytes, err := json.Marshal(di)
+			if err != nil {
+				return "", kerr.New("FYMGUTAOCR", err, "Property.getTag", "json.Marshal (interface)")
+			}
+			return formatTag(defaultBytes, r)
 		}
-		defaultBytes, err := json.Marshal(di)
-		if err != nil {
-			return "", kerr.New("FYMGUTAOCR", err, "Property.getTag", "json.Marshal (interface)")
-		}
-		return formatTag(defaultBytes, r)
-	}
-
+	*/
 	value, pointer, ok, err := ruleFieldByReflection(r.Rule, IdToGoName(name))
 	if !ok {
 		// Doesn't have a default field

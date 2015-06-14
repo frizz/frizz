@@ -62,12 +62,6 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 		out.Value = ""
 		out.Type = ""
 		out.Package = ""
-	} else if *s == "" {
-		// Special case for Object
-		out.Exists = false
-		out.Value = ""
-		out.Type = ""
-		out.Package = ""
 	} else {
 		out.Exists = true
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)

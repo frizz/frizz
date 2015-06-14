@@ -6,8 +6,8 @@ import (
 	"kego.io/assert"
 )
 
-func TestObjectSetContext(t *testing.T) {
-	o := &Object{
+func TestBaseSetContext(t *testing.T) {
+	o := &Base{
 		Context:     &Context{Package: "a.b/c", Imports: map[string]string{"d": "e.f/g"}},
 		Description: "h",
 		Id:          "i",
@@ -19,14 +19,14 @@ func TestObjectSetContext(t *testing.T) {
 }
 
 func TestObjectGetType(t *testing.T) {
-	ty := &Type{Object: &Object{Id: "foo"}}
+	ty := &Type{Base: &Base{Id: "foo"}}
 
 	RegisterType("a.b/c:t", ty)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer UnregisterType("a.b/c:t")
 
-	o := &Object{Type: NewReference("a.b/c", "t")}
+	o := &Base{Type: NewReference("a.b/c", "t")}
 
 	gt, ok := o.GetType()
 	assert.True(t, ok)

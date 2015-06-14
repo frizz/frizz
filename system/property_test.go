@@ -23,16 +23,17 @@ func TestPropertyGetPointer(t *testing.T) {
 
 func TestPropertyFormatTag(t *testing.T) {
 	type parentStruct struct {
-		*Object
+		*Base
 	}
 	type ruleStruct struct {
-		*Object
+		*Base
+		*RuleBase
 	}
 	parentType := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
 	}
 	json.RegisterType("a.b/c:a", reflect.TypeOf(&parentStruct{}))
 	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStruct{}))
@@ -69,7 +70,7 @@ func TestPropertyFormatTag(t *testing.T) {
 }
 
 type structWithCustomMarshaler struct {
-	*Object
+	*Base
 	throwError bool
 }
 
@@ -93,23 +94,24 @@ type typeThatWillCauseJsonMarshalToError chan string
 
 func TestPropertyGetTag(t *testing.T) {
 	type parentStruct struct {
-		*Object
+		*Base
 	}
 	type structWithoutCustomMarshaler struct {
 		A string
 	}
 	type ruleStruct struct {
-		*Object
+		*Base
+		*RuleBase
 		B String
 		C *structWithCustomMarshaler
 		D typeThatWillCauseJsonMarshalToError
 		E structWithoutCustomMarshaler
 	}
 	parentType := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
 	}
 	json.RegisterType("a.b/c:a", reflect.TypeOf(&parentStruct{}))
 	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStruct{}))
@@ -144,19 +146,21 @@ func TestPropertyGetTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "", s)
 
-	r.Rule = map[string]interface{}{"b": "c"}
-	s, err = getTag(r)
-	assert.NoError(t, err)
-	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
+	/*
+		r.Rule = map[string]interface{}{"b": "c"}
+		s, err = getTag(r)
+		assert.NoError(t, err)
+		assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	r.Rule = map[string]interface{}{"d": "e"}
-	s, err = getTag(r)
-	assert.NoError(t, err)
-	assert.Equal(t, "", s)
+		r.Rule = map[string]interface{}{"d": "e"}
+		s, err = getTag(r)
+		assert.NoError(t, err)
+		assert.Equal(t, "", s)
 
-	r.Rule = map[string]interface{}{"b": make(typeThatWillCauseJsonMarshalToError)}
-	s, err = getTag(r)
-	assert.IsError(t, err, "FYMGUTAOCR")
+		r.Rule = map[string]interface{}{"b": make(typeThatWillCauseJsonMarshalToError)}
+		s, err = getTag(r)
+		assert.IsError(t, err, "FYMGUTAOCR")
+	*/
 
 	r.Rule = &ruleStruct{B: NewString("c")}
 
@@ -169,12 +173,12 @@ func TestPropertyGetTag(t *testing.T) {
 			Defaulter: true,
 		},
 	}
-	r.Rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}}}
+	r.Rule = &ruleStruct{C: &structWithCustomMarshaler{Base: &Base{Id: "f"}}}
 	s, err = getTag(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	r.Rule = &ruleStruct{C: &structWithCustomMarshaler{Object: &Object{Id: "f"}, throwError: true}}
+	r.Rule = &ruleStruct{C: &structWithCustomMarshaler{Base: &Base{Id: "f"}, throwError: true}}
 	s, err = getTag(r)
 	assert.IsError(t, err, "YIEMHYFVCD")
 
@@ -209,11 +213,11 @@ func TestGoName(t *testing.T) {
 
 func TestGoTypeDescriptor(t *testing.T) {
 	p := &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &JsonString_rule{
-			Object: &Object{
+			Base: &Base{
 				Type: NewReference("kego.io/json", "@string"),
 			},
 		},
@@ -223,14 +227,12 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "string", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &String_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@string"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@string"),
 			},
 		},
 	}
@@ -243,16 +245,14 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "system.String", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		// We're just using property here because it's a handy
 		// non-native type in the system package
 		Item: &Property_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@property"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@property"),
 			},
 		},
 	}
@@ -261,16 +261,14 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "*Property", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		// We're just using property here because it's a handy
 		// non-native type in the system package
 		Item: &Property_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@property"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@property"),
 			},
 		},
 	}
@@ -279,9 +277,12 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "*system.Property", s)
 
 	type a struct{}
-	type a_rule struct{ *Object }
-	tyr := &Type{Object: &Object{Id: "@a"}}
-	ty := &Type{Object: &Object{Id: "a", Context: &Context{Package: "b.c/d"}}}
+	type a_rule struct {
+		*Base
+		*RuleBase
+	}
+	tyr := &Type{Base: &Base{Id: "@a"}}
+	ty := &Type{Base: &Base{Id: "a", Context: &Context{Package: "b.c/d"}}}
 	json.RegisterType("b.c/d:a", reflect.TypeOf(&a{}))
 	json.RegisterType("b.c/d:@a", reflect.TypeOf(&a_rule{}))
 	RegisterType("b.c/d:a", ty)
@@ -292,11 +293,11 @@ func TestGoTypeDescriptor(t *testing.T) {
 	defer UnregisterType("b.c/d:@a")
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &a_rule{
-			Object: &Object{
+			Base: &Base{
 				Type: NewReference("b.c/d", "@a"),
 			},
 		},
@@ -312,14 +313,12 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "*A", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &String_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@string"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@string"),
 			},
 			Default: NewString("a"),
 		},
@@ -329,20 +328,16 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@map"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@map"),
 			},
 			Items: &String_rule{
-				Selector: &Selector{
-					Object: &Object{
-						Type: NewReference("kego.io/system", "@string"),
-					},
+				Base: &Base{
+					Type: NewReference("kego.io/system", "@string"),
 				},
 			},
 		},
@@ -352,20 +347,16 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "map[string]String", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Array_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@array"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@array"),
 			},
 			Items: &String_rule{
-				Selector: &Selector{
-					Object: &Object{
-						Type: NewReference("kego.io/system", "@string"),
-					},
+				Base: &Base{
+					Type: NewReference("kego.io/system", "@string"),
 				},
 			},
 		},
@@ -375,26 +366,20 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "[]String", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@map"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@map"),
 			},
 			Items: &Array_rule{
-				Selector: &Selector{
-					Object: &Object{
-						Type: NewReference("kego.io/system", "@array"),
-					},
+				Base: &Base{
+					Type: NewReference("kego.io/system", "@array"),
 				},
 				Items: &String_rule{
-					Selector: &Selector{
-						Object: &Object{
-							Type: NewReference("kego.io/system", "@string"),
-						},
+					Base: &Base{
+						Type: NewReference("kego.io/system", "@string"),
 					},
 				},
 			},
@@ -405,26 +390,20 @@ func TestGoTypeDescriptor(t *testing.T) {
 	assert.Equal(t, "map[string][]String", s)
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@map"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@map"),
 			},
 			Items: &Array_rule{
-				Selector: &Selector{
-					Object: &Object{
-						Type: NewReference("kego.io/system", "@array"),
-					},
+				Base: &Base{
+					Type: NewReference("kego.io/system", "@array"),
 				},
 				Items: &String_rule{
-					Selector: &Selector{
-						Object: &Object{
-							Type: NewReference("kego.io/system", "@string"),
-						},
+					Base: &Base{
+						Type: NewReference("kego.io/system", "@string"),
 					},
 					Default: NewString("a"),
 				},
@@ -440,11 +419,11 @@ func TestGoTypeDescriptor(t *testing.T) {
 func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 
 	p := &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &JsonString_rule{
-			Object: &Object{
+			Base: &Base{
 				Type: NewReference("a.b/c", "notFoundType"),
 			},
 		},
@@ -454,14 +433,12 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 	assert.IsError(t, err, "QKCXSRPMOQ")
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Selector: &Selector{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@map"),
-				},
+			Base: &Base{
+				Type: NewReference("kego.io/system", "@map"),
 			},
 		},
 	}
@@ -470,9 +447,12 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 	assert.IsError(t, err, "SNATGPVLAS")
 
 	type a struct{}
-	type a_rule struct{ *Object }
-	tyr := &Type{Object: &Object{Id: "@a"}}
-	ty := &Type{Object: &Object{Id: "a", Context: &Context{Package: "b.c/d"}}}
+	type a_rule struct {
+		*Base
+		*RuleBase
+	}
+	tyr := &Type{Base: &Base{Id: "@a"}}
+	ty := &Type{Base: &Base{Id: "a", Context: &Context{Package: "b.c/d"}}}
 	json.RegisterType("b.c/d:a", reflect.TypeOf(&a{}))
 	json.RegisterType("b.c/d:@a", reflect.TypeOf(&a_rule{}))
 	RegisterType("b.c/d:a", ty)
@@ -483,11 +463,11 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 	defer UnregisterType("b.c/d:@a")
 
 	p = &Property{
-		Object: &Object{
+		Base: &Base{
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &a_rule{
-			Object: &Object{
+			Base: &Base{
 				Type: NewReference("b.c/d", "@a"),
 			},
 		},
@@ -498,19 +478,20 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 	// inner.parentType.GoTypeReference
 	assert.IsError(t, err, "CGNYBDFUNP")
 
-	p = &Property{
-		Object: &Object{
-			Type: NewReference("kego.io/system", "property"),
-		},
-		Item: map[string]interface{}{
-			"type":     "kego.io/system:@string",
-			"default":  make(typeThatWillCauseJsonMarshalToError),
-			"_path":    "kego.io/system",
-			"_imports": map[string]string{},
-		},
-	}
-	_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
-	// Item default is a chan, so errors at getTag
-	assert.IsError(t, err, "LKIXCKRCYG")
-
+	/*
+		p = &Property{
+			Base: &Base{
+				Type: NewReference("kego.io/system", "property"),
+			},
+			Item: map[string]interface{}{
+				"type":     "kego.io/system:@string",
+				"default":  make(typeThatWillCauseJsonMarshalToError),
+				"_path":    "kego.io/system",
+				"_imports": map[string]string{},
+			},
+		}
+		_, err = p.GoTypeDescriptor("kego.io/system", map[string]string{})
+		// Item default is a chan, so errors at getTag
+		assert.IsError(t, err, "LKIXCKRCYG")
+	*/
 }

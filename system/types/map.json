@@ -8,6 +8,7 @@
 		"type": "type",
 		"id": "@map",
 		"is": ["rule"],
+		"embed": ["ruleBase"],
 		"extends": "selector",
 		"properties": {
 			"items": {

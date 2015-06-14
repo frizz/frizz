@@ -8,6 +8,7 @@
 		"type": "type",
 		"id": "@int",
 		"is": ["rule"],
+		"embed": ["ruleBase"],
 		"extends": "selector",
 		"properties": {
 			"default": {

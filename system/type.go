@@ -124,9 +124,9 @@ func (t *Type) FullName() string {
 }
 
 // GoTypeReference outputs a Go source code reference to the name of this type. If we're in
-// the local package, it just outputs the name e.g. "Object". If we're in a different package,
+// the local package, it just outputs the name e.g. "String". If we're in a different package,
 // it looks up the alias of the package in the imports and appends that to the start.
-// e.g. "system.Object".
+// e.g. "system.String".
 func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
 	return IdToGoReference(t.Context.Package, t.Id, path, imports)
 }

@@ -24,13 +24,16 @@ import (
 */
 
 type JsonNumber_rule struct {
-	*Object
+	*Base
+	*RuleBase
 }
 type JsonString_rule struct {
-	*Object
+	*Base
+	*RuleBase
 }
 type JsonBool_rule struct {
-	*Object
+	*Base
+	*RuleBase
 }
 
 func init() {
@@ -47,7 +50,7 @@ func init() {
 
 	makeRule := func(name string) *Type {
 		return &Type{
-			Object: &Object{
+			Base: &Base{
 				Context: &c,
 				Id:      fmt.Sprintf("@%s", name),
 				Type:    tr},
@@ -61,7 +64,7 @@ func init() {
 
 	makeType := func(name string) *Type {
 		return &Type{
-			Object: &Object{
+			Base: &Base{
 				Context: &c,
 				Id:      name,
 				Type:    tr},

@@ -1,15 +1,23 @@
 package system
 
+type Object interface {
+	GetBase() *Base
+}
+
+func (b *Base) GetBase() *Base {
+	return b
+}
+
 // SetContext satisfies the json.Contexter interface, which allows the json unmarshal
 // function to store the unmarshal context in every object.
-func (o *Object) SetContext(path string, imports map[string]string) {
+func (o *Base) SetContext(path string, imports map[string]string) {
 	o.Context = &Context{Package: path, Imports: imports}
 }
 
-func (o *Object) GetType() (*Type, bool) {
+func (o *Base) GetType() (*Type, bool) {
 	return o.Type.GetType()
 }
-func (o *Object) GetTypeReference() Reference {
+func (o *Base) GetTypeReference() Reference {
 	return o.Type
 }
 
@@ -23,11 +31,11 @@ type Ruler interface {
 	RulesApply() rulesApplication
 }
 
-func (o *Object) GetRules() []Rule {
+func (o *Base) GetRules() []Rule {
 	return []Rule{}
 }
 
-func (o *Object) RulesApply() rulesApplication {
+func (o *Base) RulesApply() rulesApplication {
 	if o.Type.Value == "kego.io/system:type" || o.Type.Value == "kego.io/system:property" {
 		return RULES_APPLY_TO_TYPES
 	} else if o.Type.Type[0:0] == "@" {
@@ -39,6 +47,6 @@ func (o *Object) RulesApply() rulesApplication {
 type rulesApplication string
 
 const (
-	RULES_APPLY_TO_TYPES rulesApplication = "types"
-	RULES_APPLY_TO_OBJECTS 				  = "objects"
+	RULES_APPLY_TO_TYPES   rulesApplication = "types"
+	RULES_APPLY_TO_OBJECTS                  = "objects"
 )

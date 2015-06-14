@@ -12,7 +12,9 @@ import (
 
 // Restriction rules for arrays
 type Array_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// This is a rule object, defining the type and restrictions on the value of the items
 	Items Rule
@@ -28,12 +30,25 @@ type Array_rule struct {
 }
 
 //***********************************************************
+//*** @base ***
+//***********************************************************
+
+// Automatically created basic rule for base
+type Base_rule struct {
+	*Base
+
+	*RuleBase
+}
+
+//***********************************************************
 //*** @bool ***
 //***********************************************************
 
 // Restriction rules for bools
 type Bool_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// Default value of this is missing or null
 	Default Bool
@@ -45,7 +60,9 @@ type Bool_rule struct {
 
 // Automatically created basic rule for context
 type Context_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 }
 
 //***********************************************************
@@ -54,7 +71,9 @@ type Context_rule struct {
 
 // Restriction rules for integers
 type Int_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// Default value if this property is omitted
 	Default Int
@@ -75,7 +94,9 @@ type Int_rule struct {
 
 // Restriction rules for maps
 type Map_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// This is a rule object, defining the type and restrictions on the value of the items.
 	Items Rule
@@ -93,7 +114,9 @@ type Map_rule struct {
 
 // Restriction rules for numbers
 type Number_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// Default value if this property is omitted
 	Default Number
@@ -115,21 +138,14 @@ type Number_rule struct {
 }
 
 //***********************************************************
-//*** @object ***
-//***********************************************************
-
-// Automatically created basic rule for object
-type Object_rule struct {
-	*Selector
-}
-
-//***********************************************************
 //*** @property ***
 //***********************************************************
 
 // Automatically created basic rule for property
 type Property_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 }
 
 //***********************************************************
@@ -138,7 +154,9 @@ type Property_rule struct {
 
 // Restriction rules for references
 type Reference_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// Default value of this is missing or null
 	Default Reference
@@ -150,7 +168,20 @@ type Reference_rule struct {
 
 // Automatically created basic rule for rule
 type Rule_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
+}
+
+//***********************************************************
+//*** @ruleBase ***
+//***********************************************************
+
+// Automatically created basic rule for ruleBase
+type RuleBase_rule struct {
+	*Base
+
+	*RuleBase
 }
 
 //***********************************************************
@@ -159,7 +190,9 @@ type Rule_rule struct {
 
 // Automatically created basic rule for selector
 type Selector_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 }
 
 //***********************************************************
@@ -168,7 +201,9 @@ type Selector_rule struct {
 
 // Restriction rules for strings
 type String_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 
 	// Default value of this is missing or null
 	Default String
@@ -198,7 +233,9 @@ type String_rule struct {
 
 // Automatically created basic rule for type
 type Type_rule struct {
-	*Selector
+	*Base
+
+	*RuleBase
 }
 
 //***********************************************************
@@ -207,7 +244,31 @@ type Type_rule struct {
 
 // This is the native json array data type
 type Array struct {
-	*Object
+	*Base
+}
+
+//***********************************************************
+//*** base ***
+//***********************************************************
+
+// This is the most basic type.
+type Base struct {
+	*Base
+
+	// Unmarshaling context. This should not be in the json - it's added by the unmarshaler.
+	Context *Context
+
+	// Description for the developer
+	Description string
+
+	// All global objects should have an id.
+	Id string
+
+	// Extra validation rules for this object or descendants
+	Rules []Rule
+
+	// Type of the object.
+	Type Reference
 }
 
 //***********************************************************
@@ -228,7 +289,7 @@ type Array struct {
 
 // This is the native json object data type.
 type Map struct {
-	*Object
+	*Base
 }
 
 //***********************************************************
@@ -236,35 +297,12 @@ type Map struct {
 //***********************************************************
 
 //***********************************************************
-//*** object ***
-//***********************************************************
-
-// This is the most basic type.
-type Object struct {
-
-	// Unmarshaling context. This should not be in the json - it's added by the unmarshaler.
-	Context *Context
-
-	// Description for the developer
-	Description string
-
-	// All global objects should have an id.
-	Id string
-
-	// Extra validation rules for this object or descendants
-	Rules []Rule
-
-	// Type of the object.
-	Type Reference
-}
-
-//***********************************************************
 //*** property ***
 //***********************************************************
 
 // This is a property of a type
 type Property struct {
-	*Object
+	*Base
 
 	// This specifies that the field is the default value for a rule
 	Defaulter bool
@@ -285,12 +323,26 @@ type Property struct {
 //***********************************************************
 
 //***********************************************************
+//*** ruleBase ***
+//***********************************************************
+
+// All rules should embed this type.
+type RuleBase struct {
+
+	// If this rule is a field, this specifies that the field is optional
+	Optional bool
+
+	// Json selector defining what nodes this rule should be applied to.
+	Selector string
+}
+
+//***********************************************************
 //*** selector ***
 //***********************************************************
 
 // All rules should extend this type.
 type Selector struct {
-	*Object
+	*Base
 
 	// Json selector defining what nodes this rule should be applied to.
 	Selector String `kego:"{\"default\":{\"value\":\":root\"}}"`
@@ -306,7 +358,13 @@ type Selector struct {
 
 // This is the most basic type.
 type Type struct {
-	*Object
+	*Base
+
+	// Basic types don't have system:object added by default to the embedded types.
+	Basic bool
+
+	// Types which this should embed - system:object is always added unless base = true.
+	Embed []Reference
 
 	// Exclude this type from the generated json?
 	Exclude bool
@@ -334,6 +392,8 @@ func init() {
 
 	json.RegisterType("kego.io/system:@array", reflect.TypeOf(&Array_rule{}))
 
+	json.RegisterType("kego.io/system:@base", reflect.TypeOf(&Base_rule{}))
+
 	json.RegisterType("kego.io/system:@bool", reflect.TypeOf(&Bool_rule{}))
 
 	json.RegisterType("kego.io/system:@context", reflect.TypeOf(&Context_rule{}))
@@ -344,13 +404,13 @@ func init() {
 
 	json.RegisterType("kego.io/system:@number", reflect.TypeOf(&Number_rule{}))
 
-	json.RegisterType("kego.io/system:@object", reflect.TypeOf(&Object_rule{}))
-
 	json.RegisterType("kego.io/system:@property", reflect.TypeOf(&Property_rule{}))
 
 	json.RegisterType("kego.io/system:@reference", reflect.TypeOf(&Reference_rule{}))
 
 	json.RegisterType("kego.io/system:@rule", reflect.TypeOf(&Rule_rule{}))
+
+	json.RegisterType("kego.io/system:@ruleBase", reflect.TypeOf(&RuleBase_rule{}))
 
 	json.RegisterType("kego.io/system:@selector", reflect.TypeOf(&Selector_rule{}))
 
@@ -359,6 +419,8 @@ func init() {
 	json.RegisterType("kego.io/system:@type", reflect.TypeOf(&Type_rule{}))
 
 	json.RegisterType("kego.io/system:array", reflect.TypeOf(&Array{}))
+
+	json.RegisterType("kego.io/system:base", reflect.TypeOf(&Base{}))
 
 	json.RegisterType("kego.io/system:bool", reflect.TypeOf(&Bool{}))
 
@@ -370,11 +432,11 @@ func init() {
 
 	json.RegisterType("kego.io/system:number", reflect.TypeOf(&Number{}))
 
-	json.RegisterType("kego.io/system:object", reflect.TypeOf(&Object{}))
-
 	json.RegisterType("kego.io/system:property", reflect.TypeOf(&Property{}))
 
 	json.RegisterType("kego.io/system:reference", reflect.TypeOf(&Reference{}))
+
+	json.RegisterType("kego.io/system:ruleBase", reflect.TypeOf(&RuleBase{}))
 
 	json.RegisterType("kego.io/system:selector", reflect.TypeOf(&Selector{}))
 

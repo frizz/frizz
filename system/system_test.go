@@ -350,7 +350,7 @@ func TestReferenceDefault(t *testing.T) {
 func TestContext(t *testing.T) {
 
 	type Foo struct {
-		*Object
+		*Base
 		Bar string
 	}
 

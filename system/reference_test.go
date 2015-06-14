@@ -47,14 +47,6 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "", r.Value)
 
 	r = reset()
-	err = r.UnmarshalJSON([]byte("\"\""), "", map[string]string{})
-	assert.NoError(t, err)
-	assert.False(t, r.Exists)
-	assert.Equal(t, "", r.Package)
-	assert.Equal(t, "", r.Type)
-	assert.Equal(t, "", r.Value)
-
-	r = reset()
 	err = r.UnmarshalJSON([]byte("\"a.b/c:d\""), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
@@ -121,7 +113,7 @@ func TestReferenceGoReference(t *testing.T) {
 func TestReferenceGetType(t *testing.T) {
 
 	ty := &Type{
-		Object: &Object{Context: &Context{Package: "a.b/c"}, Id: "d", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "d", Type: NewReference("kego.io/system", "type")},
 	}
 	RegisterType("a.b/c:d", ty)
 	defer UnregisterType("a.b/c:d")
