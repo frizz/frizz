@@ -14,7 +14,9 @@ import (
 
 // Automatically created basic rule for basic
 type Basic_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -23,7 +25,9 @@ type Basic_rule struct {
 
 // Automatically created basic rule for c
 type C_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -32,7 +36,9 @@ type C_rule struct {
 
 // Automatically created basic rule for collision
 type Collision_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -41,7 +47,9 @@ type Collision_rule struct {
 
 // Automatically created basic rule for diagram
 type Diagram_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -50,7 +58,9 @@ type Diagram_rule struct {
 
 // Automatically created basic rule for expr
 type Expr_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -59,7 +69,9 @@ type Expr_rule struct {
 
 // Automatically created basic rule for gallery
 type Gallery_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -68,7 +80,9 @@ type Gallery_rule struct {
 
 // Automatically created basic rule for image
 type Image_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -77,7 +91,9 @@ type Image_rule struct {
 
 // Automatically created basic rule for kid
 type Kid_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -86,7 +102,9 @@ type Kid_rule struct {
 
 // Automatically created basic rule for photo
 type Photo_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -95,7 +113,9 @@ type Photo_rule struct {
 
 // Automatically created basic rule for polykids
 type Polykids_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -104,7 +124,9 @@ type Polykids_rule struct {
 
 // Automatically created basic rule for sibling
 type Sibling_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -113,7 +135,9 @@ type Sibling_rule struct {
 
 // Automatically created basic rule for typed
 type Typed_rule struct {
-	*system.Selector
+	*system.Base
+
+	*system.RuleBase
 }
 
 //***********************************************************
@@ -121,7 +145,7 @@ type Typed_rule struct {
 //***********************************************************
 
 type Basic struct {
-	*system.Object
+	*system.Base
 
 	DrinkPreference []system.String
 
@@ -141,7 +165,7 @@ type Basic struct {
 //***********************************************************
 
 type C struct {
-	*system.Object
+	*system.Base
 
 	A system.Number
 
@@ -155,7 +179,7 @@ type C struct {
 //***********************************************************
 
 type Collision struct {
-	*system.Object
+	*system.Base
 
 	Number map[string]system.String
 }
@@ -165,7 +189,7 @@ type Collision struct {
 //***********************************************************
 
 type Diagram struct {
-	*system.Object
+	*system.Base
 
 	Url system.String
 }
@@ -175,7 +199,7 @@ type Diagram struct {
 //***********************************************************
 
 type Expr struct {
-	*system.Object
+	*system.Base
 
 	False system.Bool
 
@@ -198,7 +222,7 @@ type Expr struct {
 
 // This represents a gallery - it's just a list of images
 type Gallery struct {
-	*system.Object
+	*system.Base
 
 	Images map[string]Image
 }
@@ -212,7 +236,7 @@ type Gallery struct {
 //***********************************************************
 
 type Kid struct {
-	*system.Object
+	*system.Base
 
 	Language system.String
 
@@ -227,7 +251,7 @@ type Kid struct {
 
 // This represents an image, and contains path, server and protocol separately
 type Photo struct {
-	*system.Object
+	*system.Base
 
 	// The path for the url - e.g. /foo/bar.jpg
 	Path system.String
@@ -244,7 +268,7 @@ type Photo struct {
 //***********************************************************
 
 type Polykids struct {
-	*system.Object
+	*system.Base
 
 	A []*Kid
 }
@@ -254,7 +278,7 @@ type Polykids struct {
 //***********************************************************
 
 type Sibling struct {
-	*system.Object
+	*system.Base
 
 	A system.Number
 
@@ -272,7 +296,7 @@ type Sibling struct {
 //***********************************************************
 
 type Typed struct {
-	*system.Object
+	*system.Base
 
 	Avatar Image
 
