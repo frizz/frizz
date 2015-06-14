@@ -6,28 +6,28 @@ import (
 	"strconv"
 )
 
-func nodeIsMemberOfHaystack(needle *jsonNode, haystack map[*Json]*jsonNode) bool {
-	_, ok := haystack[needle.json]
+func nodeIsMemberOfHaystack(needle *node, haystack map[*Element]*node) bool {
+	_, ok := haystack[needle.element]
 	return ok
 }
 
-func nodeIsMemberOfList(needle *jsonNode, haystack []*jsonNode) bool {
+func nodeIsMemberOfList(needle *node, haystack []*node) bool {
 	for _, element := range haystack {
-		if element.json == needle.json {
+		if element.element == needle.element {
 			return true
 		}
 	}
 	return false
 }
 
-func appendAncestorsToHaystack(node *jsonNode, haystack map[*Json]*jsonNode) {
-	if node.parent != nil {
-		haystack[node.parent.json] = node.parent
-		appendAncestorsToHaystack(node.parent, haystack)
+func appendAncestorsToHaystack(n *node, haystack map[*Element]*node) {
+	if n.parent != nil {
+		haystack[n.parent.element] = n.parent
+		appendAncestorsToHaystack(n.parent, haystack)
 	}
 }
 
-func nodeIsChildOfHaystackMember(needle *jsonNode, haystack map[*Json]*jsonNode) bool {
+func nodeIsChildOfHaystackMember(needle *node, haystack map[*Element]*node) bool {
 	if nodeIsMemberOfHaystack(needle, haystack) {
 		return true
 	}
@@ -37,8 +37,8 @@ func nodeIsChildOfHaystackMember(needle *jsonNode, haystack map[*Json]*jsonNode)
 	return nodeIsChildOfHaystackMember(needle.parent, haystack)
 }
 
-func parents(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
-	var results []*jsonNode
+func parents(lhs []*node, rhs []*node) []*node {
+	var results []*node
 
 	lhsHaystack := getHaystackFromNodeList(lhs)
 
@@ -51,8 +51,8 @@ func parents(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
 	return results
 }
 
-func ancestors(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
-	var results []*jsonNode
+func ancestors(lhs []*node, rhs []*node) []*node {
+	var results []*node
 	haystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
@@ -64,12 +64,12 @@ func ancestors(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
 	return results
 }
 
-func siblings(lhs []*jsonNode, rhs []*jsonNode) []*jsonNode {
-	var results []*jsonNode
-	parents := make(map[*Json]*jsonNode, len(lhs))
+func siblings(lhs []*node, rhs []*node) []*node {
+	var results []*node
+	parents := make(map[*Element]*node, len(lhs))
 
 	for _, element := range lhs {
-		parents[element.parent.json] = element.parent
+		parents[element.parent.element] = element.parent
 	}
 
 	for _, element := range rhs {
@@ -156,10 +156,10 @@ func exprElementsMatch(lhs exprElement, rhs exprElement) bool {
 	return lhs.typ == rhs.typ
 }
 
-func getHaystackFromNodeList(nodes []*jsonNode) map[*Json]*jsonNode {
-	hashmap := make(map[*Json]*jsonNode, len(nodes))
+func getHaystackFromNodeList(nodes []*node) map[*Element]*node {
+	hashmap := make(map[*Element]*node, len(nodes))
 	for _, node := range nodes {
-		hashmap[node.json] = node
+		hashmap[node.element] = node
 	}
 	return hashmap
 }

@@ -21,13 +21,13 @@ import (
 var parser *Parser
 var values []interface{}
 
-func getTestParser(testDocuments map[string]*Json, testName string) (*Parser, error) {
+func getTestParser(testDocuments map[string]*Element, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
 	return CreateParser(jsonDocument, "kego.io/jsonselect", map[string]string{})
 }
 
 func runTestsInDirectory(t *testing.T, baseDirectory string, path string, imports map[string]string) {
-	var testDocuments = make(map[string]*Json)
+	var testDocuments = make(map[string]*Element)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
 
@@ -56,7 +56,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 
 			r := system.NewMinimalRuleHolder(ty, "kego.io/jsonselect", map[string]string{})
 
-			j := &Json{
+			e := &Element{
 				Data:  i,
 				Value: reflect.ValueOf(i),
 				Rule:  r,
@@ -65,7 +65,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 				t.Error("Error encountered while deserializing ", name, ": ", err)
 				continue
 			}
-			testDocuments[name[0:len(name)-len(".json")]] = j
+			testDocuments[name[0:len(name)-len(".json")]] = e
 		} else if strings.HasSuffix(name, ".output") {
 			output_document, err := ioutil.ReadFile(baseDirectory + name)
 			if err != nil {
@@ -123,7 +123,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 		selectorString := testSelectors[testName]
 		expectedOutput := testOutput[testName]
 
-		results, err := parser.GetJsonElements(selectorString)
+		results, err := parser.GetElements(selectorString)
 		if err != nil {
 			t.Error("Test ", testName, "failed: ", err)
 			passed = false
@@ -133,7 +133,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 			passed = false
 		} else {
 			var expected = make([]interface{}, 0, 10)
-			var actual = make([]*Json, 0, 10)
+			var actual = make([]*Element, 0, 10)
 			//matchType := "string"
 
 			for idx, result := range results {
@@ -188,7 +188,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 	}
 }
 
-func comparison(actual *Json, expected interface{}, path string, imports map[string]string) (bool, error) {
+func comparison(actual *Element, expected interface{}, path string, imports map[string]string) (bool, error) {
 	switch actual.Rule.ParentType.Native.Value {
 	case "string":
 		ns, ok := actual.Data.(system.NativeString)
@@ -272,7 +272,7 @@ func comparison(actual *Json, expected interface{}, path string, imports map[str
 			if !found {
 				return false, nil
 			}
-			child := &Json{Data: object, Rule: itemsRule, Value: value}
+			child := &Element{Data: object, Rule: itemsRule, Value: value}
 			match, err := comparison(child, expectedArray[i], path, imports)
 			if err != nil {
 				return false, kerr.New("CTHINNYIRI", err, "jsonselect.comparison", "comparison (array)")
@@ -299,7 +299,7 @@ func comparison(actual *Json, expected interface{}, path string, imports map[str
 			if !found {
 				return false, nil
 			}
-			child := &Json{Data: object, Rule: itemsRule, Value: value}
+			child := &Element{Data: object, Rule: itemsRule, Value: value}
 			match, err := comparison(child, expectedMap[key], path, imports)
 			if err != nil {
 				return false, kerr.New("QTVTEIETXV", err, "jsonselect.comparison", "getNodes (map)")
@@ -358,7 +358,7 @@ func comparison(actual *Json, expected interface{}, path string, imports map[str
 			if err != nil {
 				return false, kerr.New("ERPYTUODXO", err, "jsonselect.comparison", "system.NewRuleHolder")
 			}
-			child := &Json{Data: object, Rule: itemRule, Value: value}
+			child := &Element{Data: object, Rule: itemRule, Value: value}
 			match, err := comparison(child, expectedMap[key], path, imports)
 			if err != nil {
 				return false, kerr.New("NNCBWVRAJC", err, "jsonselect.comparison", "comparison (object)")

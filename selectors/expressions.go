@@ -161,7 +161,7 @@ func (p *Parser) evaluateExpression(elements []*exprElement) exprElement {
 	return *elements[0]
 }
 
-func (p *Parser) parseExpression(tokens []*token, node *jsonNode) exprElement {
+func (p *Parser) parseExpression(tokens []*token, current *node) exprElement {
 	var finalTokens []*exprElement
 
 	logger.Print("Parsing expression ", getFormattedTokens(tokens))
@@ -188,13 +188,13 @@ func (p *Parser) parseExpression(tokens []*token, node *jsonNode) exprElement {
 					break
 				}
 			}
-			subexprResult := p.parseExpression(tokens[i:i+j+1], node)
+			subexprResult := p.parseExpression(tokens[i:i+j+1], current)
 			finalTokens = append(finalTokens, &subexprResult)
 			// Let's move the cursor to the end of the subexpression above.
 			i = i + j
 		} else if thisToken.typ == S_PVAR {
 			// This is for the value of the node being processed.
-			finalTokens = append(finalTokens, &exprElement{node.value, node.native})
+			finalTokens = append(finalTokens, &exprElement{current.value, current.native})
 		} else if thisToken.typ == S_STRING || thisToken.typ == S_BOOL || thisToken.typ == S_NIL || thisToken.typ == S_NUMBER {
 			// Let's copy these kinds of tokens down as expression elements.
 			var jType nativeType

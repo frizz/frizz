@@ -78,19 +78,19 @@ func EnableLogger() {
 	logger.Enabled = true
 }
 
-func getFormattedNodeMap(nodes map[*Json]*jsonNode) []string {
-	output := make([]*jsonNode, 0, len(nodes))
+func getFormattedNodeMap(nodes map[*Element]*node) []string {
+	output := make([]*node, 0, len(nodes))
 	for _, val := range nodes {
 		output = append(output, val)
 	}
 	return getFormattedNodeArray(output)
 }
 
-func getFormattedNodeArray(nodes []*jsonNode) []string {
+func getFormattedNodeArray(nodes []*node) []string {
 	var formatted []string
-	for _, node := range nodes {
-		if node != nil {
-			formatted = append(formatted, fmt.Sprint(*node))
+	for _, n := range nodes {
+		if n != nil {
+			formatted = append(formatted, fmt.Sprint(*n))
 		} else {
 			formatted = append(formatted, fmt.Sprint(nil))
 		}
