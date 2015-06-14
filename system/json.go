@@ -54,12 +54,12 @@ func init() {
 				Context: &c,
 				Id:      fmt.Sprintf("@%s", name),
 				Type:    tr},
-			Extends:    or,
-			Interface:  false,
-			Is:         []Reference{NewReference("kego.io/system", "rule")},
-			Native:     NewString("object"),
-			Properties: map[string]*Property{},
-			Rule:       (*Type)(nil)}
+			Extends:   or,
+			Interface: false,
+			Is:        []Reference{NewReference("kego.io/system", "rule")},
+			Native:    NewString("object"),
+			Fields:    map[string]Rule{},
+			Rule:      (*Type)(nil)}
 	}
 
 	makeType := func(name string) *Type {
@@ -68,12 +68,12 @@ func init() {
 				Context: &c,
 				Id:      name,
 				Type:    tr},
-			Extends:    or,
-			Interface:  false,
-			Is:         []Reference(nil),
-			Native:     NewString(name),
-			Properties: map[string]*Property(nil),
-			Rule:       makeRule(name)}
+			Extends:   or,
+			Interface: false,
+			Is:        []Reference(nil),
+			Native:    NewString(name),
+			Fields:    map[string]Rule(nil),
+			Rule:      makeRule(name)}
 	}
 
 	RegisterType("kego.io/json:string", makeType("string"))

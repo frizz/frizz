@@ -8,10 +8,6 @@ import (
 	"kego.io/kerr"
 )
 
-func (p *Property) GoName(name string) string {
-	return IdToGoName(name)
-}
-
 func getPointer(t *Type) string {
 	isNative := t.IsNativeValue()
 	isInterface := t.Interface
@@ -60,12 +56,13 @@ func formatTag(defaultBytes []byte, r *RuleHolder) (string, error) {
 
 func getTag(r *RuleHolder) (string, error) {
 
-	name, _, ok := r.RuleType.Defaulter()
-	if !ok {
-		// This rule type doesn't support defaulters
-		return "", nil
-	}
 	/*
+		name, _, ok := r.RuleType.Defaulter()
+		if !ok {
+			// This rule type doesn't support defaulters
+			return "", nil
+		}
+
 		if i, ok := r.Rule.(map[string]interface{}); ok {
 			// This rule is an unknown type, so we have to extract the default
 			// value manually
@@ -81,7 +78,7 @@ func getTag(r *RuleHolder) (string, error) {
 			return formatTag(defaultBytes, r)
 		}
 	*/
-	value, pointer, ok, err := ruleFieldByReflection(r.Rule, IdToGoName(name))
+	value, pointer, ok, err := ruleFieldByReflection(r.Rule, IdToGoName("default"))
 	if !ok {
 		// Doesn't have a default field
 		return "", nil
@@ -106,9 +103,9 @@ func getTag(r *RuleHolder) (string, error) {
 
 // GoTypeDescriptor returns the Go source for the definition of the type of this property
 // [collection prefix][optional pointer][type name]
-func (p *Property) GoTypeDescriptor(path string, imports map[string]string) (string, error) {
+func GoTypeDescriptor(field Rule, path string, imports map[string]string) (string, error) {
 
-	outer, err := NewRuleHolder(p.Item, path, imports)
+	outer, err := NewRuleHolder(field, path, imports)
 	if err != nil {
 		return "", kerr.New("QKCXSRPMOQ", err, "Property.GoTypeDescriptor", "NewRuleHolder")
 	}

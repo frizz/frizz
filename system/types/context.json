@@ -2,7 +2,7 @@
 	"description": "Unmarshal context.",
 	"type": "type",
 	"id": "context",
-	"base": true,
+	"basic": true,
 	"extends": "",
 	"exclude": true
 }

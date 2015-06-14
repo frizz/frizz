@@ -2,50 +2,34 @@
 	"description": "This is the most basic type.",
 	"type": "type",
 	"id": "base",
-	"base": true,
-	"extends": "",
-	"properties": {
+	"basic": true,
+	"fields": {
 		"type": {
 			"description": "Type of the object.",
-			"type": "property",
-			"item": {
-				"type": "@reference"
-			}
+			"type": "@reference"
 		},
 		"id": {
 			"description": "All global objects should have an id.",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@string"
-			}
+			"type": "json:@string",
+			"optional": true
 		},
 		"description": {
 			"description": "Description for the developer",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@string"
-			}
+			"type": "json:@string",
+			"optional": true
 		},
 		"context": {
 			"description": "Unmarshaling context. This should not be in the json - it's added by the unmarshaler.",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "@context"
-			}
+			"type": "@context",
+			"optional": true
 		},
 		"rules": {
 			"description": "Extra validation rules for this object or descendants",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "@array",
-				"items": {
-					"type": "@rule"
-				}
-			}
+			"type": "@array",
+			"items": {
+				"type": "@rule"
+			},
+			"optional": true
 		}
 	}
 }

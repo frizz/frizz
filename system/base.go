@@ -5,6 +5,9 @@ type Object interface {
 }
 
 func (b *Base) GetBase() *Base {
+	if b == nil {
+		return &Base{}
+	}
 	return b
 }
 
@@ -36,7 +39,7 @@ func (o *Base) GetRules() []Rule {
 }
 
 func (o *Base) RulesApply() rulesApplication {
-	if o.Type.Value == "kego.io/system:type" || o.Type.Value == "kego.io/system:property" {
+	if o.Type.Value == "kego.io/system:type" {
 		return RULES_APPLY_TO_TYPES
 	} else if o.Type.Type[0:0] == "@" {
 		return RULES_APPLY_TO_TYPES

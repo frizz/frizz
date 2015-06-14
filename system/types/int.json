@@ -9,40 +9,26 @@
 		"id": "@int",
 		"is": ["rule"],
 		"embed": ["ruleBase"],
-		"extends": "selector",
-		"properties": {
+		"fields": {
 			"default": {
 				"description": "Default value if this property is omitted",
-				"type": "property",
-				"optional": true,
-				"defaulter": true,
-				"item": {
-					"type": "@int"
-				}
+				"type": "@int",
+				"optional": true
 			},
 			"multipleOf": {
 				"description": "This restricts the number to be a multiple of the given number",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int"
-				}
+				"type": "@int",
+				"optional": true
 			},
 			"minimum": {
 				"description": "This provides a lower bound for the restriction",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int"
-				}
+				"type": "@int",
+				"optional": true
 			},
 			"maximum": {
 				"description": "This provides an upper bound for the restriction",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int"
-				}
+				"type": "@int",
+				"optional": true
 			}
 		}
 	}

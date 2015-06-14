@@ -12,6 +12,9 @@ type Rule interface {
 }
 
 func (b *RuleBase) GetRuleBase() *RuleBase {
+	if b == nil {
+		return &RuleBase{}
+	}
 	return b
 }
 
@@ -127,11 +130,7 @@ func ruleTypeReference(r Rule, path string, imports map[string]string) (*Referen
 	if !ok {
 		return nil, kerr.New("VKFNPJDNVB", nil, "system.ruleTypeReference", "r does not implement Object")
 	}
-	base := ob.GetBase()
-	if base == nil {
-		return nil, kerr.New("YIESHVJPMW", nil, "system.ruleTypeReference", "base is nil")
-	}
-	return &base.Type, nil
+	return &ob.GetBase().Type, nil
 
 }
 

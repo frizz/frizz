@@ -20,15 +20,11 @@ func TestBool(t *testing.T) {
 			"id": "@bool",
 			"is": ["rule"],
 			"embed": ["ruleBase"],
-			"extends": "selector",
-			"properties": {
+			"fields": {
 				"default": {
 					"description": "Default value of this is missing or null",
-					"type": "property",
-					"optional": true,
-					"item": {
-						"type": "@bool"
-					}
+					"type": "@bool",
+					"optional": true
 				}
 			}
 		}
@@ -53,64 +49,46 @@ func TestType(t *testing.T) {
 		"description": "This is the most basic type.",
 		"type": "type",
 		"id": "type",
-		"properties": {
+		"fields": {
 			"extends": {
 				"description": "Type which this should extend",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@reference",
-					"default": "kego.io/system:object"
-				}
+				"type": "@reference",
+				"default": "kego.io/system:object",
+				"optional": true
 			},
 			"is": {
 				"description": "Array of interface types that this type should support",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@array",
-					"items": {
-						"type": "@reference"
-					}
-				}
+				"type": "@array",
+				"items": {
+					"type": "@reference"
+				},
+				"optional": true
 			},
 			"native": {
 				"description": "This is the native json type that represents this type. If omitted, default is object.",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@string",
-					"enum": ["string", "number", "bool", "array", "object", "map"],
-					"default": "object"
-				}
+				"type": "@string",
+				"enum": ["string", "number", "bool", "array", "object", "map"],
+				"default": "object",
+				"optional": true
 			},
 			"interface": {
 				"description": "Is this type an interface?",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@bool",
-					"default": false
-				}
+				"type": "@bool",
+				"default": false,
+				"optional": true
 			},
-			"properties": {
+			"fields": {
 				"description": "Each field is listed with it's type",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@map",
-					"items": {
-						"type": "@property"
-					}
-				}
+				"type": "@map",
+				"items": {
+					"type": "@rule"
+				},
+				"optional": true
 			},
 			"rule": {
 				"description": "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.",
-				"optional": true,
-				"type": "property",
-				"item": {
-					"type": "@type"
-				}
+				"type": "@type",
+				"optional": true
 			}
 		},
 		"rule": {
@@ -118,8 +96,7 @@ func TestType(t *testing.T) {
 			"type": "type",
 			"id": "@type",
 			"is": ["rule"],
-			"embed": ["ruleBase"],
-			"extends": "selector"
+			"embed": ["ruleBase"]
 		}
 	}`
 
@@ -134,10 +111,10 @@ func TestType(t *testing.T) {
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "object", f.Native.Value)
 	assert.Equal(t, "@type", f.Rule.Id)
-	assert.Equal(t, "Is this type an interface?", f.Properties["interface"].Description)
-	assert.Equal(t, true, f.Properties["interface"].Optional)
-	r, ok := f.Properties["interface"].Item.(*Bool_rule)
-	assert.True(t, ok, "Wrong type %T\n", f.Properties["interface"].Item)
+	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(Object).GetBase().Description)
+	assert.Equal(t, true, f.Fields["interface"].GetRuleBase().Optional)
+	r, ok := f.Fields["interface"].(*Bool_rule)
+	assert.True(t, ok, "Wrong type %T\n", f.Fields["interface"])
 	assert.True(t, r.Default.Exists)
 	assert.Equal(t, false, r.Default.Value)
 
@@ -148,12 +125,9 @@ func unmarshalDiagram(t *testing.T) {
 		"description": "This is a type of image, which just contains the url of the image",
 		"type": "system:type",
 		"id": "diagram",
-		"properties": {
+		"fields": {
 			"url": {
-				"type": "system:property",
-				"item": {
-					"type": "system:@string"
-				}
+				"type": "system:@string"
 			}
 		},
 		"rule": {
@@ -162,15 +136,11 @@ func unmarshalDiagram(t *testing.T) {
 			"id": "@diagram",
 			"is": ["system:rule"],
 			"embed": ["system:ruleBase"],
-			"properties": {
+			"fields": {
 				"default": {
 					"description": "Default value",
-					"type": "system:property",
-					"optional": true,
-					"defaulter": true,
-					"item": {
-						"type": "@diagram"
-					}
+					"type": "@diagram",
+					"optional": true
 				}
 			}
 		}
@@ -201,33 +171,24 @@ func TestUnknownRule(t *testing.T) {
 		"description": "This represents a gallery - it's just a list of images",
 		"type": "system:type",
 		"id": "gallery",
-		"properties": {
+		"fields": {
 			"image": {
-				"type": "system:property",
-				"optional": true,
-				"item": {
-					"type": "@diagram",
-					"default": {
-						"type": "diagram",
-						"url": "def"
-					}
-				}
+				"type": "@diagram",
+				"default": {
+					"type": "diagram",
+					"url": "def"
+				},
+				"optional": true
 			},
 			"foo": {
-				"type": "system:property",
-				"optional": true,
-				"item": {
-					"type": "system:@bool",
-					"default": true
-				}
+				"type": "system:@bool",
+				"default": true,
+				"optional": true
 			},
 			"ref": {
-				"type": "system:property",
-				"optional": true,
-				"item": {
-					"type": "system:@reference",
-					"default": "image"
-				}
+				"type": "system:@reference",
+				"default": "image",
+				"optional": true
 			}
 		}
 	}`
@@ -240,18 +201,18 @@ func TestUnknownRule(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 
-	s, err := f.Properties["image"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
+	s, err := GoTypeDescriptor(f.Fields["image"], "kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "*Diagram `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/gallery:diagram\\\",\\\"value\\\":{\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"},\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", s)
-	/*
-		b, err := f.Properties["foo"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
-		assert.NoError(t, err)
-		assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"value\\\":true}}\"`", b)
 
-		r, err := f.Properties["ref"].GoTypeDescriptor("kego.io/gallery", map[string]string{})
-		assert.NoError(t, err)
-		assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\",\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", r)
-	*/
+	b, err := GoTypeDescriptor(f.Fields["foo"], "kego.io/gallery", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"value\\\":true}}\"`", b)
+
+	r, err := GoTypeDescriptor(f.Fields["ref"], "kego.io/gallery", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\",\\\"path\\\":\\\"kego.io/gallery\\\"}}\"`", r)
+
 }
 
 func TestUnregisterType(t *testing.T) {

@@ -2,29 +2,20 @@
 	"description": "This is a property of a type",
 	"type": "type",
 	"id": "property",
-	"properties": {
+	"fields": {
 		"optional": {
 			"description": "This specifies that the field is optional",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@bool"
-			}
+			"type": "json:@bool",
+			"optional": true
 		},
 		"defaulter": {
 			"description": "This specifies that the field is the default value for a rule",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@bool"
-			}
+			"type": "json:@bool",
+			"optional": true
 		},
 		"item": {
 			"description": "This is a rule object, defining the type and restrictions on the value of the this property",
-			"type": "property",
-			"item": {
-				"type": "@rule"
-			}
+			"type": "@rule"
 		}
 	}
 }

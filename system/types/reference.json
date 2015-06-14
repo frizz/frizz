@@ -9,16 +9,11 @@
 		"id": "@reference",
 		"is": ["rule"],
 		"embed": ["ruleBase"],
-		"extends": "selector",
-		"properties": {
+		"fields": {
 			"default": {
 				"description": "Default value of this is missing or null",
-				"type": "property",
-				"optional": true,
-				"defaulter": true,
-				"item": {
-					"type": "@reference"
-				}
+				"type": "@reference",
+				"optional": true
 			}
 		}
 	}

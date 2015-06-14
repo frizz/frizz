@@ -9,68 +9,45 @@
 		"id": "@string",
 		"is": ["rule"],
 		"embed": ["ruleBase"],
-		"extends": "selector",
-		"properties": {
+		"fields": {
 			"default": {
 				"description": "Default value of this is missing or null",
-				"type": "property",
-				"optional": true,
-				"defaulter": true,
-				"item": {
-					"type": "@string"
-				}
+				"type": "@string",
+				"optional": true
 			},
 			"enum": {
 				"description": "The value of this string is restricted to one of the provided values",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@array",
-					"items": {
-						"type": "@string"
-					}
-				}
+				"type": "@array",
+				"items": {
+					"type": "@string"
+				},
+				"optional": true
 			},
 			"minLength": {
 				"description": "The value must be longer or equal to the provided minimum length",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int"
-				}
+				"type": "@int",
+				"optional": true
 			},
 			"maxLength": {
 				"description": "The value must be shorter or equal to the provided maximum length",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int"
-				}
+				"type": "@int",
+				"optional": true
 			},
 			"equal": {
 				"description": "This is a string that the value must match",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@string"
-				}
+				"type": "@string",
+				"optional": true
 			},
 			"pattern": {
 				"description": "This is a regex to match the value to",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@string"
-				}
+				"type": "@string",
+				"optional": true
 			},
 			"format": {
 				"description": "This restricts the value to one of several built-in formats",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@string",
-					"enum": ["date-time", "email", "hostname", "ipv4", "ipv6", "uri"]
-				}
+				"type": "@string",
+				"enum": ["date-time", "email", "hostname", "ipv4", "ipv6", "uri"],
+				"optional": true
 			}
 		}
 	}

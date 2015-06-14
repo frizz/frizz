@@ -10,6 +10,9 @@ import (
 
 func TestRuleTypes(t *testing.T) {
 
+	type nonRuleStruct struct {
+		*RuleBase
+	}
 	type ruleStruct struct {
 		*Base
 		*RuleBase
@@ -33,9 +36,9 @@ func TestRuleTypes(t *testing.T) {
 	assert.Equal(t, "a", pt.Id)
 	assert.Equal(t, "@a", rt.Id)
 
-	r1 := ruleStruct{}
+	r1 := nonRuleStruct{}
 	rt, pt, err = ruleTypes(r1, "", map[string]string{})
-	// A non pointer rule will cause ruleTypeReference to return an error
+	// A non Object rule will cause ruleTypeReference to return an error
 	assert.IsError(t, err, "BNEKIFYDDL")
 
 	r = &ruleStruct{
@@ -104,8 +107,9 @@ func TestRuleTypeReference(t *testing.T) {
 
 	rsp := ruleStruct{}
 	r, err = ruleTypeReference(rsp, "", map[string]string{})
-	// rsp has no base, so ruleTypeReference will error
-	assert.IsError(t, err, "YIESHVJPMW")
+	// rsp has no base, so ruleTypeReference will return a zero base
+	assert.NoError(t, err)
+	assert.False(t, r.Exists)
 
 	/*
 		type structWithoutType struct{}

@@ -9,41 +9,28 @@
 		"id": "@array",
 		"is": ["rule"],
 		"embed": ["ruleBase"],
-		"extends": "selector",
-		"properties": {
+		"fields": {
 			"items": {
 				"description": "This is a rule object, defining the type and restrictions on the value of the items",
-				"type": "property",
-				"item": {
-					"type": "@rule"
-				}
+				"type": "@rule"
 			},
 			"minItems": {
-				"description": "This is the minimum number of items alowed in the array",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int",
-					"minimum": 0
-				}
+				"description": "This is the minimum number of items allowed in the array",
+				"type": "@int",
+				"minimum": 0,
+				"optional": true
 			},
 			"maxItems": {
-				"description": "This is the maximum number of items alowed in the array",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@int",
-					"minimum": 0
-				}
+				"description": "This is the maximum number of items allowed in the array",
+				"type": "@int",
+				"minimum": 0,
+				"optional": true
 			},
 			"uniqueItems": {
 				"description": "If this is true, each item must be unique",
-				"type": "property",
-				"optional": true,
-				"item": {
-					"type": "@bool",
-					"default": false
-				}
+				"type": "@bool",
+				"default": false,
+				"optional": true
 			}
 		}
 	}

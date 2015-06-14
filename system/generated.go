@@ -19,10 +19,10 @@ type Array_rule struct {
 	// This is a rule object, defining the type and restrictions on the value of the items
 	Items Rule
 
-	// This is the maximum number of items alowed in the array
+	// This is the maximum number of items allowed in the array
 	MaxItems Int
 
-	// This is the minimum number of items alowed in the array
+	// This is the minimum number of items allowed in the array
 	MinItems Int
 
 	// If this is true, each item must be unique
@@ -50,7 +50,7 @@ type Bool_rule struct {
 
 	*RuleBase
 
-	// Default value of this is missing or null
+	// Default value if this is missing or null
 	Default Bool
 }
 
@@ -185,17 +185,6 @@ type RuleBase_rule struct {
 }
 
 //***********************************************************
-//*** @selector ***
-//***********************************************************
-
-// Automatically created basic rule for selector
-type Selector_rule struct {
-	*Base
-
-	*RuleBase
-}
-
-//***********************************************************
 //*** @string ***
 //***********************************************************
 
@@ -253,7 +242,6 @@ type Array struct {
 
 // This is the most basic type.
 type Base struct {
-	*Base
 
 	// Unmarshaling context. This should not be in the json - it's added by the unmarshaler.
 	Context *Context
@@ -337,18 +325,6 @@ type RuleBase struct {
 }
 
 //***********************************************************
-//*** selector ***
-//***********************************************************
-
-// All rules should extend this type.
-type Selector struct {
-	*Base
-
-	// Json selector defining what nodes this rule should be applied to.
-	Selector String `kego:"{\"default\":{\"value\":\":root\"}}"`
-}
-
-//***********************************************************
 //*** string ***
 //***********************************************************
 
@@ -372,6 +348,9 @@ type Type struct {
 	// Type which this should extend
 	Extends Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/system:object\",\"path\":\"kego.io/system\"}}"`
 
+	// Each field is listed with it's type
+	Fields map[string]Rule
+
 	// Is this type an interface?
 	Interface bool
 
@@ -380,9 +359,6 @@ type Type struct {
 
 	// This is the native json type that represents this type. If omitted, default is object.
 	Native String `kego:"{\"default\":{\"value\":\"object\"}}"`
-
-	// Each field is listed with it's type
-	Properties map[string]*Property
 
 	// Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.
 	Rule *Type
@@ -412,8 +388,6 @@ func init() {
 
 	json.RegisterType("kego.io/system:@ruleBase", reflect.TypeOf(&RuleBase_rule{}))
 
-	json.RegisterType("kego.io/system:@selector", reflect.TypeOf(&Selector_rule{}))
-
 	json.RegisterType("kego.io/system:@string", reflect.TypeOf(&String_rule{}))
 
 	json.RegisterType("kego.io/system:@type", reflect.TypeOf(&Type_rule{}))
@@ -437,8 +411,6 @@ func init() {
 	json.RegisterType("kego.io/system:reference", reflect.TypeOf(&Reference{}))
 
 	json.RegisterType("kego.io/system:ruleBase", reflect.TypeOf(&RuleBase{}))
-
-	json.RegisterType("kego.io/system:selector", reflect.TypeOf(&Selector{}))
 
 	json.RegisterType("kego.io/system:string", reflect.TypeOf(&String{}))
 

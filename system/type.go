@@ -131,6 +131,7 @@ func (t *Type) GoTypeReference(path string, imports map[string]string) (string, 
 	return IdToGoReference(t.Context.Package, t.Id, path, imports)
 }
 
+/*
 func (t *Type) Defaulter() (name string, property *Property, ok bool) {
 	for name, prop := range t.Properties {
 		if prop.Defaulter {
@@ -139,3 +140,4 @@ func (t *Type) Defaulter() (name string, property *Property, ok bool) {
 	}
 	return "", nil, false
 }
+*/

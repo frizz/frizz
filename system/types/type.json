@@ -2,90 +2,63 @@
 	"description": "This is the most basic type.",
 	"type": "type",
 	"id": "type",
-	"properties": {
+	"fields": {
 		"basic": {
 			"description": "Basic types don't have system:object added by default to the embedded types.",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@bool"
-			}
+			"type": "json:@bool",
+			"optional": true
 		},
 		"embed": {
 			"description": "Types which this should embed - system:object is always added unless base = true.",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "@array",
-				"items": {
-					"type": "@reference"
-				}
-			}
+			"type": "@array",
+			"items": {
+				"type": "@reference"
+			},
+			"optional": true
 		},
 		"extends": {
 			"description": "Type which this should extend",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "@reference",
-				"default": "kego.io/system:object"
-			}
+			"type": "@reference",
+			"default": "kego.io/system:object",
+			"optional": true
 		},
 		"is": {
 			"description": "Array of interface types that this type should support",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "@array",
-				"items": {
-					"type": "@reference"
-				}
-			}
+			"type": "@array",
+			"items": {
+				"type": "@reference"
+			},
+			"optional": true
 		},
 		"native": {
 			"description": "This is the native json type that represents this type. If omitted, default is object.",
-			"type": "property",
-			"optional": true,
-            "item": {
-				"type": "@string",
-				"enum": ["string", "number", "bool", "array", "object", "map"],
-				"default": "object"
-			}
+			"type": "@string",
+			"enum": ["string", "number", "bool", "array", "object", "map"],
+			"default": "object",
+			"optional": true
 		},
 		"interface": {
 			"description": "Is this type an interface?",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@bool"
-			}
+			"type": "json:@bool",
+			"optional": true
 		},
 		"exclude": {
 			"description": "Exclude this type from the generated json?",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "json:@bool"
-			}
+			"type": "json:@bool",
+			"optional": true
 		},
-		"properties": {
+		"fields": {
 			"description": "Each field is listed with it's type",
-			"type": "property",
-			"optional": true,
-			"item": {
-				"type": "@map",
-				"items": {
-					"type": "@property"
-				}
-			}
+			"type": "@map",
+			"items": {
+				"type": "@rule"
+			},
+			"optional": true
 		},
 		"rule": {
 			"description": "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.",
-			"optional": true,
-			"type": "property",
-			"item": {
-				"type": "@type"
-			}
+			"type": "@type",
+			"optional": true
 		}
 	}
 }
