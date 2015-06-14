@@ -565,6 +565,37 @@ func (d *decodeState) array(v reflect.Value, context *ctx, unmarshalers bool) {
 	}
 }
 
+var interfaces struct {
+	sync.RWMutex
+	m map[reflect.Type]reflect.Type
+}
+
+func RegisterInterface(t reflect.Type, dummy reflect.Type) {
+	interfaces.Lock()
+	if interfaces.m == nil {
+		interfaces.m = make(map[reflect.Type]reflect.Type)
+	}
+	interfaces.m[t] = dummy
+	interfaces.Unlock()
+}
+func UnregisterInterface(t reflect.Type) {
+	interfaces.Lock()
+	if interfaces.m == nil {
+		return
+	}
+	delete(interfaces.m, t)
+	interfaces.Unlock()
+}
+func GetInterface(t reflect.Type) (reflect.Type, bool) {
+	interfaces.RLock()
+	dummy, ok := interfaces.m[t]
+	interfaces.RUnlock()
+	if !ok {
+		return nil, false
+	}
+	return dummy, true
+}
+
 var types struct {
 	sync.RWMutex
 	m map[string]reflect.Type
@@ -666,9 +697,21 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, un
 	if err != nil {
 		d.error(err)
 	}
-	// We should look the type up in the type resolver
+
 	fullTypeName := fmt.Sprintf("%s:%s", path, name)
-	if typ, ok := GetType(fullTypeName); ok {
+	var typ reflect.Type
+	var ok bool
+
+	// We should look the type up in the type resolver
+	typ, ok = GetType(fullTypeName)
+	if !ok && v.Kind() == reflect.Interface {
+		// If we can't find the type in the resolver, and
+		// we're unmarshaling into an interface, then look
+		// the interface in the dummy interface resolver.
+		typ, _ = GetInterface(v.Type())
+	}
+
+	if typ != nil {
 		// If we find a type, we should update v with the new type. However, if we are
 		// unmarshaling into a known type, we don't usually need to change the type
 		// of v. In this case v.Type() will be something like system.Foo and typ will be
@@ -751,10 +794,12 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 	// Decoding into nil interface?  Switch to non-reflect code.
 	if v.Kind() == reflect.Interface && v.NumMethod() == 0 {
 		m := d.objectInterface()
-		if typed {
-			m["_path"] = context.Package
-			m["_imports"] = context.Imports
-		}
+		/*
+			if typed {
+				m["_path"] = context.Package
+				m["_imports"] = context.Imports
+			}
+		*/
 		v.Set(reflect.ValueOf(m))
 		return
 	}
