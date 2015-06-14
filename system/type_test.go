@@ -19,6 +19,7 @@ func TestBool(t *testing.T) {
 			"type": "type",
 			"id": "@bool",
 			"is": ["rule"],
+			"extends": "selector",
 			"properties": {
 				"default": {
 					"description": "Default value of this is missing or null",
@@ -115,7 +116,8 @@ func TestType(t *testing.T) {
 			"description": "Restriction rules for types",
 			"type": "type",
 			"id": "@type",
-			"is": ["rule"]
+			"is": ["rule"],
+			"extends": "selector"
 		}
 	}`
 
@@ -157,6 +159,7 @@ func unmarshalDiagram(t *testing.T) {
 			"type": "system:type",
 			"id": "@diagram",
 			"is": ["system:rule"],
+			"extends": "system:selector",
 			"properties": {
 				"default": {
 					"description": "Default value",

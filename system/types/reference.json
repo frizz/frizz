@@ -8,6 +8,7 @@
 		"type": "type",
 		"id": "@reference",
 		"is": ["rule"],
+		"extends": "selector",
 		"properties": {
 			"default": {
 				"description": "Default value of this is missing or null",

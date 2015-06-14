@@ -8,6 +8,7 @@
 		"type": "type",
 		"id": "@number",
 		"is": ["rule"],
+		"extends": "selector",
 		"properties": {
 			"default": {
 				"description": "Default value if this property is omitted",

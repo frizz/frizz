@@ -227,8 +227,10 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &String_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@string"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@string"),
+				},
 			},
 		},
 	}
@@ -247,8 +249,10 @@ func TestGoTypeDescriptor(t *testing.T) {
 		// We're just using property here because it's a handy
 		// non-native type in the system package
 		Item: &Property_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@property"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@property"),
+				},
 			},
 		},
 	}
@@ -263,8 +267,10 @@ func TestGoTypeDescriptor(t *testing.T) {
 		// We're just using property here because it's a handy
 		// non-native type in the system package
 		Item: &Property_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@property"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@property"),
+				},
 			},
 		},
 	}
@@ -310,8 +316,10 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &String_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@string"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@string"),
+				},
 			},
 			Default: NewString("a"),
 		},
@@ -325,12 +333,16 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@map"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@map"),
+				},
 			},
 			Items: &String_rule{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@string"),
+				Selector: &Selector{
+					Object: &Object{
+						Type: NewReference("kego.io/system", "@string"),
+					},
 				},
 			},
 		},
@@ -344,12 +356,16 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Array_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@array"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@array"),
+				},
 			},
 			Items: &String_rule{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@string"),
+				Selector: &Selector{
+					Object: &Object{
+						Type: NewReference("kego.io/system", "@string"),
+					},
 				},
 			},
 		},
@@ -363,16 +379,22 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@map"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@map"),
+				},
 			},
 			Items: &Array_rule{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@array"),
+				Selector: &Selector{
+					Object: &Object{
+						Type: NewReference("kego.io/system", "@array"),
+					},
 				},
 				Items: &String_rule{
-					Object: &Object{
-						Type: NewReference("kego.io/system", "@string"),
+					Selector: &Selector{
+						Object: &Object{
+							Type: NewReference("kego.io/system", "@string"),
+						},
 					},
 				},
 			},
@@ -387,16 +409,22 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@map"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@map"),
+				},
 			},
 			Items: &Array_rule{
-				Object: &Object{
-					Type: NewReference("kego.io/system", "@array"),
+				Selector: &Selector{
+					Object: &Object{
+						Type: NewReference("kego.io/system", "@array"),
+					},
 				},
 				Items: &String_rule{
-					Object: &Object{
-						Type: NewReference("kego.io/system", "@string"),
+					Selector: &Selector{
+						Object: &Object{
+							Type: NewReference("kego.io/system", "@string"),
+						},
 					},
 					Default: NewString("a"),
 				},
@@ -430,8 +458,10 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 			Type: NewReference("kego.io/system", "property"),
 		},
 		Item: &Map_rule{
-			Object: &Object{
-				Type: NewReference("kego.io/system", "@map"),
+			Selector: &Selector{
+				Object: &Object{
+					Type: NewReference("kego.io/system", "@map"),
+				},
 			},
 		},
 	}

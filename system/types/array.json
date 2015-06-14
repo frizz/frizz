@@ -8,6 +8,7 @@
 		"type": "type",
 		"id": "@array",
 		"is": ["rule"],
+		"extends": "selector",
 		"properties": {
 			"items": {
 				"description": "This is a rule object, defining the type and restrictions on the value of the items",

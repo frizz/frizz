@@ -12,7 +12,7 @@ import (
 
 // Restriction rules for arrays
 type Array_rule struct {
-	*Object
+	*Selector
 
 	// This is a rule object, defining the type and restrictions on the value of the items
 	Items Rule
@@ -33,7 +33,7 @@ type Array_rule struct {
 
 // Restriction rules for bools
 type Bool_rule struct {
-	*Object
+	*Selector
 
 	// Default value of this is missing or null
 	Default Bool
@@ -45,7 +45,7 @@ type Bool_rule struct {
 
 // Automatically created basic rule for context
 type Context_rule struct {
-	*Object
+	*Selector
 }
 
 //***********************************************************
@@ -54,7 +54,7 @@ type Context_rule struct {
 
 // Restriction rules for integers
 type Int_rule struct {
-	*Object
+	*Selector
 
 	// Default value if this property is omitted
 	Default Int
@@ -75,7 +75,7 @@ type Int_rule struct {
 
 // Restriction rules for maps
 type Map_rule struct {
-	*Object
+	*Selector
 
 	// This is a rule object, defining the type and restrictions on the value of the items.
 	Items Rule
@@ -93,7 +93,7 @@ type Map_rule struct {
 
 // Restriction rules for numbers
 type Number_rule struct {
-	*Object
+	*Selector
 
 	// Default value if this property is omitted
 	Default Number
@@ -120,7 +120,7 @@ type Number_rule struct {
 
 // Automatically created basic rule for object
 type Object_rule struct {
-	*Object
+	*Selector
 }
 
 //***********************************************************
@@ -129,7 +129,7 @@ type Object_rule struct {
 
 // Automatically created basic rule for property
 type Property_rule struct {
-	*Object
+	*Selector
 }
 
 //***********************************************************
@@ -138,7 +138,7 @@ type Property_rule struct {
 
 // Restriction rules for references
 type Reference_rule struct {
-	*Object
+	*Selector
 
 	// Default value of this is missing or null
 	Default Reference
@@ -150,7 +150,16 @@ type Reference_rule struct {
 
 // Automatically created basic rule for rule
 type Rule_rule struct {
-	*Object
+	*Selector
+}
+
+//***********************************************************
+//*** @selector ***
+//***********************************************************
+
+// Automatically created basic rule for selector
+type Selector_rule struct {
+	*Selector
 }
 
 //***********************************************************
@@ -159,7 +168,7 @@ type Rule_rule struct {
 
 // Restriction rules for strings
 type String_rule struct {
-	*Object
+	*Selector
 
 	// Default value of this is missing or null
 	Default String
@@ -189,7 +198,7 @@ type String_rule struct {
 
 // Automatically created basic rule for type
 type Type_rule struct {
-	*Object
+	*Selector
 }
 
 //***********************************************************
@@ -243,7 +252,7 @@ type Object struct {
 	Id string
 
 	// Extra validation rules for this object or descendants
-	Rules map[string]Rule
+	Rules []Rule
 
 	// Type of the object.
 	Type Reference
@@ -274,6 +283,18 @@ type Property struct {
 //***********************************************************
 //*** rule ***
 //***********************************************************
+
+//***********************************************************
+//*** selector ***
+//***********************************************************
+
+// All rules should extend this type.
+type Selector struct {
+	*Object
+
+	// Json selector defining what nodes this rule should be applied to.
+	Selector String `kego:"{\"default\":{\"value\":\":root\"}}"`
+}
 
 //***********************************************************
 //*** string ***
@@ -331,6 +352,8 @@ func init() {
 
 	json.RegisterType("kego.io/system:@rule", reflect.TypeOf(&Rule_rule{}))
 
+	json.RegisterType("kego.io/system:@selector", reflect.TypeOf(&Selector_rule{}))
+
 	json.RegisterType("kego.io/system:@string", reflect.TypeOf(&String_rule{}))
 
 	json.RegisterType("kego.io/system:@type", reflect.TypeOf(&Type_rule{}))
@@ -352,6 +375,8 @@ func init() {
 	json.RegisterType("kego.io/system:property", reflect.TypeOf(&Property{}))
 
 	json.RegisterType("kego.io/system:reference", reflect.TypeOf(&Reference{}))
+
+	json.RegisterType("kego.io/system:selector", reflect.TypeOf(&Selector{}))
 
 	json.RegisterType("kego.io/system:string", reflect.TypeOf(&String{}))
 

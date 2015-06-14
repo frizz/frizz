@@ -19,9 +19,26 @@ type Typer interface {
 }
 
 type Ruler interface {
-	GetRules() map[string]Rule
+	GetRules() []Rule
+	RulesApply() rulesApplication
 }
 
-func (o *Object) GetRules() map[string]Rule {
-	return o.Rules
+func (o *Object) GetRules() []Rule {
+	return []Rule{}
 }
+
+func (o *Object) RulesApply() rulesApplication {
+	if o.Type.Value == "kego.io/system:type" || o.Type.Value == "kego.io/system:property" {
+		return RULES_APPLY_TO_TYPES
+	} else if o.Type.Type[0:0] == "@" {
+		return RULES_APPLY_TO_TYPES
+	}
+	return RULES_APPLY_TO_OBJECTS
+}
+
+type rulesApplication string
+
+const (
+	RULES_APPLY_TO_TYPES rulesApplication = "types"
+	RULES_APPLY_TO_OBJECTS 				  = "objects"
+)

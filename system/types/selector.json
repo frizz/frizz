@@ -1,0 +1,15 @@
+{
+	"description": "All rules should extend this type.",
+	"type": "type",
+	"id": "selector",
+	"properties": {
+		"selector": {
+			"description": "Json selector defining what nodes this rule should be applied to.",
+			"type": "property",
+			"item": {
+				"type": "@string",
+				"default": ":root"
+			}
+		}
+	}
+}

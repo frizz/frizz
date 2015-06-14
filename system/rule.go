@@ -9,6 +9,14 @@ import (
 
 type Rule interface{}
 
+type HasSelector interface {
+	GetSelector() String
+}
+
+func (s *Selector) GetSelector() String {
+	return s.Selector
+}
+
 type RuleHolder struct {
 	Rule       Rule
 	RuleType   *Type

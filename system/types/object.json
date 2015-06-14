@@ -40,7 +40,7 @@
 			"type": "property",
 			"optional": true,
 			"item": {
-				"type": "@map",
+				"type": "@array",
 				"items": {
 					"type": "@rule"
 				}
