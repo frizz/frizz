@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"kego.io/process"
 	_ "kego.io/system"
 	_ "kego.io/system/types"
-	"fmt"
-	"os"
 )
 
 func main() {

@@ -17,10 +17,10 @@ import (
 type fileType string
 
 const (
-	F_MAIN  fileType = "main"
-	F_TYPES          = "types"
-	F_CMD_TYPES      = "cmd_types"
-	F_CMD_VALIDATE   = "cmd_validate"
+	F_MAIN         fileType = "main"
+	F_TYPES                 = "types"
+	F_CMD_TYPES             = "cmd_types"
+	F_CMD_VALIDATE          = "cmd_validate"
 )
 
 var generatorTestFlag = flag.Bool("test", false, "test mode? e.g. don't write the files")
@@ -136,7 +136,7 @@ func GenerateAndRunCmd(file fileType) error {
 		fmt.Printf("%s\n", source)
 	}
 
-	outputDir, err := ioutil.TempDir(dir, "")
+	outputDir, err := ioutil.TempDir(dir, "temporary")
 	if err != nil {
 		return kerr.New("HWOPVXYMCT", err, "process.GenerateAndRunCmd", "ioutil.TempDir")
 	}

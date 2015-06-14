@@ -11,14 +11,13 @@ import (
 	"kego.io/assert"
 )
 
-
 func TestGenerateFiles_path(t *testing.T) {
 
 	currentDir, err := os.Getwd()
 	assert.NoError(t, err)
 	defer os.Chdir(currentDir)
 
-	dir, err := ioutil.TempDir(currentDir, "")
+	dir, err := ioutil.TempDir(currentDir, "temporary")
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -38,7 +37,7 @@ func TestGenerateFiles_path(t *testing.T) {
 	assert.NoError(t, err)
 
 	// we correct the path by setting the path flag
-	defer func(){ *generatorPathFlag = "" }()
+	defer func() { *generatorPathFlag = "" }()
 	*generatorPathFlag = "x.y/z"
 
 	err = GenerateFiles(F_MAIN)
@@ -48,7 +47,6 @@ func TestGenerateFiles_path(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "package z\n")
 
-
 }
 
 func TestGenerateAndRunCmd(t *testing.T) {
@@ -57,7 +55,7 @@ func TestGenerateAndRunCmd(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Chdir(currentDir)
 
-	dir, err := ioutil.TempDir(currentDir, "")
+	dir, err := ioutil.TempDir(currentDir, "temporary")
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -97,7 +95,7 @@ func TestGenerateFiles(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Chdir(currentDir)
 
-	dir, err := ioutil.TempDir(currentDir, "")
+	dir, err := ioutil.TempDir(currentDir, "temporary")
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -157,7 +155,7 @@ func Test_parseOptions(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Chdir(currentDir)
 
-	dir, err := ioutil.TempDir(currentDir, "")
+	dir, err := ioutil.TempDir(currentDir, "temporary")
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -177,13 +175,13 @@ func Test_parseOptions(t *testing.T) {
 	assert.Equal(t, "x.y/z", path)
 	assert.Equal(t, map[string]string{}, imports)
 
-	defer func(){ *generatorTestFlag = false }()
+	defer func() { *generatorTestFlag = false }()
 	*generatorTestFlag = true
 	test, _, _, _, err = parseOptions()
 	assert.NoError(t, err)
 	assert.Equal(t, true, test)
 
-	defer func(){ *generatorPathFlag = "" }()
+	defer func() { *generatorPathFlag = "" }()
 	*generatorPathFlag = "a.b/c"
 	_, _, path, _, err = parseOptions()
 	assert.NoError(t, err)

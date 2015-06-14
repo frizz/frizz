@@ -5,12 +5,12 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"strings"
-	"os"
-	"time"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 func bindata_read(data []byte, name string) ([]byte, error) {
@@ -36,9 +36,9 @@ type asset struct {
 }
 
 type bindata_file_info struct {
-	name string
-	size int64
-	mode os.FileMode
+	name    string
+	size    int64
+	mode    os.FileMode
 	modTime time.Time
 }
 
@@ -76,8 +76,8 @@ func cmd_types_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "cmd_types.tmpl", size: 518, mode: os.FileMode(420), modTime: time.Unix(1434200992, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindata_file_info{name: "cmd_types.tmpl", size: 518, mode: os.FileMode(420), modTime: time.Unix(1434278840, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -96,8 +96,8 @@ func cmd_validate_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "cmd_validate.tmpl", size: 464, mode: os.FileMode(420), modTime: time.Unix(1434200973, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindata_file_info{name: "cmd_validate.tmpl", size: 464, mode: os.FileMode(420), modTime: time.Unix(1434278836, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -117,11 +117,11 @@ func main_tmpl() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "main.tmpl", size: 1049, mode: os.FileMode(420), modTime: time.Unix(1432913174, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
-var _struct_tmpl = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x7c\x51\x4d\x6f\xc2\x30\x0c\x3d\xa7\xbf\xc2\x42\x1c\xd8\x34\x95\xfb\xa4\xdd\x86\xd8\x2e\x68\x9a\xa6\xdd\xa3\x62\x58\x24\x48\xb2\xc4\x9d\x40\x55\xff\xfb\x1c\xa7\x94\xb0\x0f\x6e\xce\x7b\xcf\xcf\x7e\x4e\xd7\xc1\xd4\x6b\xfa\x80\xfb\x07\xa8\xa5\xe8\xfb\x2a\x81\x66\xef\x5d\xa0\x28\xf8\xa9\xce\x94\xd9\x80\xb6\x6b\x98\x59\x47\x50\xd3\xd1\x63\xfd\x1c\x57\x9a\xcc\x17\xbe\xeb\x5d\x8b\x37\x25\xb3\x38\x34\xbb\x76\xcd\xd8\xd8\x9a\xb8\x19\x7e\x0e\xfc\x23\xc6\x26\x18\x4f\xc6\x59\x98\x4c\x92\x6c\x3e\x07\x16\xfe\x66\xfb\x9e\x61\xe4\xb9\xec\x94\x48\x51\x6d\x1d\x3f\x21\x52\x68\x1b\x82\xae\xaa\x54\x9e\x91\xbb\x9f\x74\x5c\x1c\x88\x5b\x64\x71\xa5\x6e\x47\xdf\x01\xae\x97\xee\x15\x37\x18\xd0\x36\x38\x5c\x61\x5a\x44\x55\xe7\x81\x52\x07\x6d\xb7\x49\x17\x9c\xc7\x40\xc7\x95\xde\xe3\xdd\xf9\x29\x87\x12\xf7\x97\x8c\x18\x1c\x5d\x8a\xd8\xa3\xfe\xdf\xe8\x7f\x2b\xca\xf8\xea\x42\xb5\x74\x69\x93\xcb\xbd\xd2\x55\x7e\x88\xde\x78\xb5\x93\xa1\x0b\xd7\xe3\xca\x5f\xe5\xfa\x3b\x00\x00\xff\xff\x9f\xbd\xf5\x7e\x20\x02\x00\x00")
+var _struct_tmpl = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x7c\x52\x4d\x4b\xc3\x40\x10\x3d\xa7\xbf\x62\x58\x72\xa8\x22\xc9\x5d\xf0\x22\x4a\xf1\x52\x44\xc4\xab\x6c\x93\x69\x5c\x6c\x32\xeb\xee\x44\x0c\x21\xff\xdd\xfd\x68\x3e\xea\x47\x6f\x33\xf3\xde\xbe\x37\xf3\xd8\xbe\x87\x54\x4b\x7e\x83\xeb\x1b\xc8\x42\x31\x0c\x2b\x3f\x54\xb5\x26\xc3\x36\xcc\xc7\x3a\x42\x6a\x0f\xb2\x29\x61\xdd\x10\x43\xc6\x9d\xc6\xec\xc1\x6e\x25\xab\x4f\x7c\x91\x87\x16\x2f\x96\xc8\xfd\x57\x71\x68\x4b\x37\x9b\x9e\x7a\x6c\x8d\x1f\x47\xfc\x0e\x6d\x61\x94\x66\x45\x0d\x08\xe1\x69\x79\x0e\x8e\xf8\x1b\x1d\x06\x37\x46\xe7\xeb\x94\x3c\x18\x58\x15\xb9\x16\x2c\x9b\xb6\x60\xe8\x57\xab\x64\xf6\x88\x0a\xb7\xd2\xaa\xc2\x3f\x49\x92\x4b\x87\x19\xdc\xa3\xc1\xa6\xc0\x57\x55\x82\x78\xc7\x8a\x32\x45\xb9\xed\x2c\x63\x2d\x40\xec\xa4\x45\x71\xcc\x23\x5d\x1c\x9d\xcc\xd6\xbe\x34\xb2\xa9\x10\x52\xac\x77\x58\x86\x7c\xe2\xa9\xa1\x9d\xac\x22\x9c\x6d\xe8\x69\xf4\x3c\x2f\xbc\x54\xd6\x86\x34\x1a\xee\xb6\xb2\xc6\xab\xb9\x9d\xbd\x1e\xe3\x44\xe1\xa4\xb2\x48\x76\xe2\xff\x9b\xee\xdf\x8c\x65\xc2\xc9\x09\x6b\x43\x7e\x93\xd3\xbd\x7c\xf0\x3f\x48\xcf\x6e\xb5\x51\x90\xcc\xf9\x73\xc3\x77\x88\xf5\x77\x00\x00\x00\xff\xff\xfd\x45\xa2\xbd\x83\x02\x00\x00")
 
 func struct_tmpl_bytes() ([]byte, error) {
 	return bindata_read(
@@ -136,8 +136,8 @@ func struct_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "struct.tmpl", size: 544, mode: os.FileMode(420), modTime: time.Unix(1434277480, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindata_file_info{name: "struct.tmpl", size: 643, mode: os.FileMode(420), modTime: time.Unix(1434294563, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -157,7 +157,7 @@ func types_tmpl() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "types.tmpl", size: 623, mode: os.FileMode(420), modTime: time.Unix(1434192299, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -180,7 +180,7 @@ func Asset(name string) ([]byte, error) {
 // It simplifies safe initialization of global variables.
 func MustAsset(name string) []byte {
 	a, err := Asset(name)
-	if (err != nil) {
+	if err != nil {
 		panic("asset: Asset(" + name + "): " + err.Error())
 	}
 
@@ -213,11 +213,11 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"cmd_types.tmpl": cmd_types_tmpl,
+	"cmd_types.tmpl":    cmd_types_tmpl,
 	"cmd_validate.tmpl": cmd_validate_tmpl,
-	"main.tmpl": main_tmpl,
-	"struct.tmpl": struct_tmpl,
-	"types.tmpl": types_tmpl,
+	"main.tmpl":         main_tmpl,
+	"struct.tmpl":       struct_tmpl,
+	"types.tmpl":        types_tmpl,
 }
 
 // AssetDir returns the file names below a certain
@@ -256,65 +256,60 @@ func AssetDir(name string) ([]string, error) {
 }
 
 type _bintree_t struct {
-	Func func() (*asset, error)
+	Func     func() (*asset, error)
 	Children map[string]*_bintree_t
 }
+
 var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
-	"cmd_types.tmpl": &_bintree_t{cmd_types_tmpl, map[string]*_bintree_t{
-	}},
-	"cmd_validate.tmpl": &_bintree_t{cmd_validate_tmpl, map[string]*_bintree_t{
-	}},
-	"main.tmpl": &_bintree_t{main_tmpl, map[string]*_bintree_t{
-	}},
-	"struct.tmpl": &_bintree_t{struct_tmpl, map[string]*_bintree_t{
-	}},
-	"types.tmpl": &_bintree_t{types_tmpl, map[string]*_bintree_t{
-	}},
+	"cmd_types.tmpl":    &_bintree_t{cmd_types_tmpl, map[string]*_bintree_t{}},
+	"cmd_validate.tmpl": &_bintree_t{cmd_validate_tmpl, map[string]*_bintree_t{}},
+	"main.tmpl":         &_bintree_t{main_tmpl, map[string]*_bintree_t{}},
+	"struct.tmpl":       &_bintree_t{struct_tmpl, map[string]*_bintree_t{}},
+	"types.tmpl":        &_bintree_t{types_tmpl, map[string]*_bintree_t{}},
 }}
 
 // Restore an asset under the given directory
 func RestoreAsset(dir, name string) error {
-        data, err := Asset(name)
-        if err != nil {
-                return err
-        }
-        info, err := AssetInfo(name)
-        if err != nil {
-                return err
-        }
-        err = os.MkdirAll(_filePath(dir, path.Dir(name)), os.FileMode(0755))
-        if err != nil {
-                return err
-        }
-        err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
-        if err != nil {
-                return err
-        }
-        err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
-        if err != nil {
-                return err
-        }
-        return nil
+	data, err := Asset(name)
+	if err != nil {
+		return err
+	}
+	info, err := AssetInfo(name)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(_filePath(dir, path.Dir(name)), os.FileMode(0755))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
+	if err != nil {
+		return err
+	}
+	err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Restore assets under the given directory recursively
 func RestoreAssets(dir, name string) error {
-        children, err := AssetDir(name)
-        if err != nil { // File
-                return RestoreAsset(dir, name)
-        } else { // Dir
-                for _, child := range children {
-                        err = RestoreAssets(dir, path.Join(name, child))
-                        if err != nil {
-                                return err
-                        }
-                }
-        }
-        return nil
+	children, err := AssetDir(name)
+	if err != nil { // File
+		return RestoreAsset(dir, name)
+	} else { // Dir
+		for _, child := range children {
+			err = RestoreAssets(dir, path.Join(name, child))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func _filePath(dir, name string) string {
-        cannonicalName := strings.Replace(name, "\\", "/", -1)
-        return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
+	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

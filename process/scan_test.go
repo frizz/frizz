@@ -28,7 +28,7 @@ func TestScan(t *testing.T) {
 	}
 }`
 
-	d, err := ioutil.TempDir("", "")
+	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
 	defer os.RemoveAll(d)
 
@@ -63,7 +63,7 @@ func TestScan_rule(t *testing.T) {
 		"type": "system:type",
 		"id": "@b",
 		"is": ["system:rule"],
-		"extends": "system:selector",
+		"embed": ["system:ruleBase"],
 		"properties": {
 			"e": {
 				"description": "f",
@@ -76,7 +76,7 @@ func TestScan_rule(t *testing.T) {
 	}
 }`
 
-	d, err := ioutil.TempDir("", "")
+	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
 	defer os.Remove(d)
 
@@ -98,7 +98,7 @@ func TestScan_errors(t *testing.T) {
 	err := Scan("/this-folder-doesnt-exist", false, "", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
-	d, err := ioutil.TempDir("", "")
+	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
 	defer os.Remove(d)
 

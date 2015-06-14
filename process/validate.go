@@ -121,10 +121,14 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 		}
 
 		for _, rule := range rules {
+
+			base := rule.GetRuleBase()
+
 			selector := ":root"
-			if sel, ok := rule.(system.HasSelector); ok {
-				selector = sel.GetSelector().Value
+			if base.Selector != "" {
+				selector = base.Selector
 			}
+
 			e, ok := rule.(system.Enforcer)
 			if !ok {
 				return kerr.New("ABVWHMMXGG", nil, "process.validateObject", "rule %T does not implement system.Enforcer", rule)

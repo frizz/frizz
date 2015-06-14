@@ -11,7 +11,7 @@ import (
 
 func Validate_NeedsTypes(t *testing.T) {
 
-	d, err := ioutil.TempDir("", "")
+	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
 	defer os.Remove(d)
 
@@ -38,7 +38,7 @@ func Validate_NeedsTypes(t *testing.T) {
 }
 func TestValidate_error1(t *testing.T) {
 
-	d, err := ioutil.TempDir("", "")
+	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
 	defer os.Remove(d)
 
@@ -73,7 +73,7 @@ func TestValidate_error2(t *testing.T) {
 	err := Scan("/this-folder-doesnt-exist", false, "", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
-	d, err := ioutil.TempDir("", "")
+	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
 	defer os.Remove(d)
 

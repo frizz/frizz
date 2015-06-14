@@ -40,7 +40,7 @@ func TestGenerate_errors(t *testing.T) {
 	assert.HasError(t, err, "XTKWMEDWKI")
 
 	ty := &system.Type{
-		Object: &system.Object{Id: "a corrupt", Type: system.NewReference("kego.io/system", "type")},
+		Base: &system.Base{Id: "a corrupt", Type: system.NewReference("kego.io/system", "type")},
 	}
 	system.RegisterType("b.c/d:a", ty)
 	defer system.UnregisterType("b.c/d:a")
@@ -57,7 +57,7 @@ func TestGenerate_errors(t *testing.T) {
 func TestGenerate(t *testing.T) {
 
 	ty := &system.Type{
-		Object: &system.Object{Id: "a", Type: system.NewReference("kego.io/system", "type")},
+		Base: &system.Base{Id: "a", Type: system.NewReference("kego.io/system", "type")},
 	}
 	system.RegisterType("b.c/d:a", ty)
 	defer system.UnregisterType("b.c/d:a")
@@ -69,7 +69,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "\t\"kego.io/json\"\n")
 	assert.Contains(t, string(source), "\t\"kego.io/system\"\n")
 	assert.Contains(t, string(source), "e \"f.g/h\"\n")
-	assert.Contains(t, string(source), "\ntype A struct {\n}\n")
+	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Base\n}\n")
 	assert.Contains(t, string(source), "json.RegisterType(\"b.c/d:a\", reflect.TypeOf(&A{}))\n")
 
 	source, err = Generate(F_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})

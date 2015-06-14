@@ -120,13 +120,14 @@ type cmdDataStruct struct {
 
 func functions() template.FuncMap {
 	return template.FuncMap{
-		"quote":     strconv.Quote,
-		"import":    importStatement,
-		"types":     typesImportStatement,
-		"ternary":   ternary,
-		"map":       mapHelper,
-		"reference": system.GoReference,
-		"name":      getPackageNameFromPath,
+		"quote":        strconv.Quote,
+		"import":       importStatement,
+		"types":        typesImportStatement,
+		"ternary":      ternary,
+		"map":          mapHelper,
+		"reference":    system.GoReference,
+		"reference_id": system.IdToGoReference,
+		"name":         getPackageNameFromPath,
 	}
 }
 

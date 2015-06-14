@@ -4,8 +4,11 @@
 {{ if not (eq .type.Description "") }}// {{ .type.Description }}{{ end }}
 type {{ .go }} struct {
 
-	{{ if .type.HasExtends }}
-		*{{ .type.Extends.GoReference $path $imports }}
+	{{ if not .type.Basic }}
+		*{{ reference_id "kego.io/system" "base" $path $imports }}
+	{{ end }}
+	{{ range $embed := .type.Embed }}
+		*{{ $embed.GoReference $path $imports }}
 	{{ end }}
 
 	{{ range $propertyName, $property := .type.Properties }}
