@@ -1,0 +1,30 @@
+{{ $path := .Path }}
+{{ $imports := .Imports }}
+package main
+
+import (
+	"os"
+	"fmt"
+	"kego.io/process"
+
+	_ "kego.io/system"
+    {{ if not (eq $path "kego.io/system") }}
+		_ "kego.io/system/types"
+	{{ end }}
+
+	{{ if not (eq $path "kego.io/system") }}
+		_ "{{ $path }}"
+	{{ end }}
+
+	{{ range $importName, $importPath := $imports }}
+		_ "{{ $importPath }}"
+		_ "{{ $importPath }}/types"
+	{{ end }}
+)
+
+func main() {
+	if err := process.GenerateFiles(process.F_TYPES); err != nil {
+		fmt.Println(err)
+        os.Exit(1)
+	}
+}

@@ -91,7 +91,7 @@ func processScannedObject(i interface{}, packagePath string, imports map[string]
 					Context:     t.Object.Context.Clone(),
 				},
 				Is:        []system.Reference{system.NewReference("kego.io/system", "rule")},
-				Extends:   system.NewReference("kego.io/system", "object"),
+				Extends:   system.NewReference("kego.io/system", "selector"),
 				Native:    system.NewString("object"),
 				Interface: false,
 			}

@@ -16,9 +16,13 @@ import (
 
 func Generate(file fileType, path string, imports map[string]string) (source []byte, err error) {
 
-	if file == F_CMD {
+	if file == F_CMD_TYPES || file == F_CMD_VALIDATE {
+		templateName := "cmd_types.tmpl"
+		if file == F_CMD_VALIDATE {
+			templateName = "cmd_validate.tmpl"
+		}
 		cmdData := cmdDataStruct{Path: path, Imports: imports}
-		source, err = executeTemplateAndFormat(cmdData, "cmd.tmpl")
+		source, err = executeTemplateAndFormat(cmdData, templateName)
 		if err != nil {
 			return nil, kerr.New("NXIWSECRLL", err, "process.Generate", "executeTemplateAndFormat (cmd)")
 		}

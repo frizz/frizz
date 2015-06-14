@@ -34,7 +34,7 @@ func TestGenerate_errors(t *testing.T) {
 	// No types
 	assert.IsError(t, err, "HQLAEMCHBM")
 
-	_, err = Generate(F_CMD, "\"", map[string]string{})
+	_, err = Generate(F_CMD_TYPES, "\"", map[string]string{})
 	// Quote in the path will generate malformed source
 	assert.IsError(t, err, "NXIWSECRLL")
 	assert.HasError(t, err, "XTKWMEDWKI")
@@ -81,7 +81,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "e \"f.g/h\"\n")
 	assert.Contains(t, string(source), "system.RegisterType(\"b.c/d:a\"")
 
-	source, err = Generate(F_CMD, "b.c/d", map[string]string{"e": "f.g/h"})
+	source, err = Generate(F_CMD_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package main\n")
 	assert.Contains(t, string(source), "\t\"kego.io/process\"\n")

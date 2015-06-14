@@ -19,7 +19,8 @@ type fileType string
 const (
 	F_MAIN  fileType = "main"
 	F_TYPES          = "types"
-	F_CMD            = "cmd"
+	F_CMD_TYPES      = "cmd_types"
+	F_CMD_VALIDATE   = "cmd_validate"
 )
 
 var generatorTestFlag = flag.Bool("test", false, "test mode? e.g. don't write the files")
@@ -36,14 +37,14 @@ func parseOptions() (test bool, dir string, path string, imports map[string]stri
 
 	dir, err = os.Getwd()
 	if err != nil {
-		err = kerr.New("OKOLXAMBSJ", err, "process.GenerateFiles", "os.Getwd")
+		err = kerr.New("OKOLXAMBSJ", err, "process.parseOptions", "os.Getwd")
 		return
 	}
 
 	if path == "" {
 		path, err = getPackage(dir, os.Getenv("GOPATH"))
 		if err != nil {
-			err = kerr.New("PSRAWHQCPV", err, "process.GenerateFiles", "getPackage")
+			err = kerr.New("PSRAWHQCPV", err, "process.parseOptions", "getPackage")
 			return
 		}
 	}
@@ -64,8 +65,11 @@ func parseOptions() (test bool, dir string, path string, imports map[string]stri
 // have the main generated.go compiled in, so we generate a temporary
 // command and run it with "go run".
 //
-// file == F_CMD: this is the temporary command that we create in order to
+// file == F_CMD_TYPES: this is the temporary command that we create in order to
 // generate the types source file
+//
+// file == F_CMD_VALIDATE: this is the temporary command that we create in order
+// to run the validation
 //
 func GenerateFiles(file fileType) error {
 
@@ -105,17 +109,25 @@ func GenerateFiles(file fileType) error {
 	return nil
 }
 
+func ValidateFiles() error {
+	_, dir, path, imports, err := parseOptions()
+	if err != nil {
+		return kerr.New("TYABVODNBG", err, "process.ValidateFiles", "parseOptions")
+	}
+	return Validate(dir, path, imports)
+}
+
 // This creates a temporary folder in the package, in which the go source
 // for a command is generated. This command is then compiled and run with
 // "go run". When run, this command generates the extra types data in
 // the "types" subpackage.
-func GenerateAndRunCmd() error {
+func GenerateAndRunCmd(file fileType) error {
 	test, dir, path, imports, err := parseOptions()
 	if err != nil {
 		return kerr.New("NGXAEJCFSA", err, "process.GenerateAndRunCmd", "parseOptions")
 	}
 
-	source, err := Generate(F_CMD, path, imports)
+	source, err := Generate(file, path, imports)
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, "process.GenerateAndRunCmd", "Generate")
 	}

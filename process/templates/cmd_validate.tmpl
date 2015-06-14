@@ -3,13 +3,16 @@
 package main
 
 import (
+	"os"
+	"fmt"
 	"kego.io/process"
 
 	_ "kego.io/system"
-    _ "kego.io/system/types"
+	_ "kego.io/system/types"
 
 	{{ if not (eq $path "kego.io/system") }}
 		_ "{{ $path }}"
+		_ "{{ $path }}/types"
 	{{ end }}
 
 	{{ range $importName, $importPath := $imports }}
@@ -19,7 +22,8 @@ import (
 )
 
 func main() {
-	if err := process.GenerateFiles(process.F_TYPES); err != nil {
-		panic(err)
+	if err := process.ValidateFiles(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

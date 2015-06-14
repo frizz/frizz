@@ -63,6 +63,7 @@ func TestScan_rule(t *testing.T) {
 		"type": "system:type",
 		"id": "@b",
 		"is": ["system:rule"],
+		"extends": "system:selector",
 		"properties": {
 			"e": {
 				"description": "f",

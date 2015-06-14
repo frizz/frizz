@@ -77,11 +77,16 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
 
-	return validateObject(partialRuleHolder, nil, data, path, imports)
+	rules := []system.Rule{}
+	if data.(system.Ruler).RulesApply() == system.RULES_APPLY_TO_OBJECTS {
+		rules = data.(system.Ruler).GetRules()
+	}
+
+	return validateObject(partialRuleHolder, rules, data, path, imports)
 
 }
 
-func validateObject(rule *system.RuleHolder, rules map[string]system.Rule, data interface{}, path string, imports map[string]string) error {
+func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	// Validate the actual object
 	if v, ok := data.(system.Validator); ok {
@@ -109,18 +114,22 @@ func validateObject(rule *system.RuleHolder, rules map[string]system.Rule, data 
 
 	if rules != nil && len(rules) > 0 {
 
-		j := &jsonselect.Json{Data: data, Value: reflect.ValueOf(data), Rule: rule}
+		j := &jsonselect.Element{Data: data, Value: reflect.ValueOf(data), Rule: rule}
 		p, err := jsonselect.CreateParser(j, path, imports)
 		if err != nil {
 			return kerr.New("AIWLGYGGAY", err, "process.validateObject", "jsonselect.CreateParser")
 		}
 
-		for selector, rule := range rules {
+		for _, rule := range rules {
+			selector := ":root"
+			if sel, ok := rule.(system.HasSelector); ok {
+				selector = sel.GetSelector().Value
+			}
 			e, ok := rule.(system.Enforcer)
 			if !ok {
 				return kerr.New("ABVWHMMXGG", nil, "process.validateObject", "rule %T does not implement system.Enforcer", rule)
 			}
-			matches, err := p.GetJsonElements(selector)
+			matches, err := p.GetElements(selector)
 			if err != nil {
 				return kerr.New("UKOCCFJWAB", err, "process.validateObject", "p.GetJsonElements (%s)", selector)
 			}
@@ -172,6 +181,11 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		return kerr.New("FJBEEDBLOK", nil, "process.validateObjectChildren", "value.Kind %s (%T) must be Struct", value.Kind(), data)
 	}
 
+	rules := []system.Rule{}
+	if data.(system.Ruler).RulesApply() == system.RULES_APPLY_TO_OBJECTS {
+		rules = data.(system.Ruler).GetRules()
+	}
+
 	for name, property := range itemsRule.ParentType.Properties {
 		child, _, _, found, _, err := system.GetObjectField(value, system.IdToGoName(name))
 		if err != nil {
@@ -184,7 +198,8 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if err != nil {
 			return kerr.New("IQOXVXBLRO", err, "process.validateObjectChildren", "system.NewRuleHolder (%s)", name)
 		}
-		if err = validateObject(childRule, property.Rules, child, path, imports); err != nil {
+		allRules := append(rules, property.Rules...)
+		if err = validateObject(childRule, allRules, child, path, imports); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "process.validateObjectChildren", "validateObject (%s)", name)
 		}
 	}
@@ -192,7 +207,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateArrayChildren(itemsRule *system.RuleHolder, rules map[string]system.Rule, data interface{}, path string, imports map[string]string) error {
+func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Slice {
@@ -209,7 +224,7 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules map[string]system
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateMapChildren(itemsRule *system.RuleHolder, rules map[string]system.Rule, data interface{}, path string, imports map[string]string) error {
+func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Map {

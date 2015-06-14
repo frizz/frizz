@@ -81,7 +81,7 @@ func TestGenerateAndRunCmd(t *testing.T) {
 	err = ioutil.WriteFile(filepath.Join(pkgDir, "d.go"), []byte("package d"), 0777)
 	assert.NoError(t, err)
 
-	err = GenerateAndRunCmd()
+	err = GenerateAndRunCmd(F_CMD_TYPES)
 	assert.NoError(t, err)
 
 	bytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "types", "generated.go"))
