@@ -1,26 +1,17 @@
 {
 	"type": "system:type",
 	"id": "c",
-	"properties": {
+	"fields": {
 		"a": {
-			"type": "system:property",
-			"item": {
-				"type": "system:@number"
-			}
+			"type": "system:@number"
 		},
 		"b": {
-			"type": "system:property",
-			"item": {
-				"type": "system:@number"
-			}
+			"type": "system:@number"
 		},
 		"c": {
-			"type": "system:property",
-			"item": {
-				"type": "system:@map",
-				"items": {
-					"type": "system:@number"
-				}
+			"type": "system:@map",
+			"items": {
+				"type": "system:@number"
 			}
 		}
 	}

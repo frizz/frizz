@@ -2,12 +2,9 @@
 	"type": "system:type",
 	"id": "diagram",
 	"is": ["image"],
-	"properties": {
+	"fields": {
 		"url": {
-			"type": "system:property",
-			"item": {
-				"type": "system:@string"
-			}
+			"type": "system:@string"
 		}
 	}
 }

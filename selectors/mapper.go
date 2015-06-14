@@ -156,7 +156,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 	case "object":
 		n.value = element.Data
 		n.native = J_OBJ
-		for key, property := range n.ktype.Properties {
+		for key, field := range n.ktype.Fields {
 			object, _, value, found, _, err := system.GetObjectField(element.Value, system.IdToGoName(key))
 			if err != nil {
 				return nil, kerr.New("JMUJMBBLWU", err, "jsonselect.getNodes", "system.GetMapMember")
@@ -164,7 +164,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 			if !found {
 				continue
 			}
-			itemRule, err := system.NewRuleHolder(property.Item, p.path, p.imports)
+			itemRule, err := system.NewRuleHolder(field, p.path, p.imports)
 			if err != nil {
 				return nil, kerr.New("WWQNGYIUKN", err, "jsonselect.getNodes", "system.NewRuleHolder")
 			}

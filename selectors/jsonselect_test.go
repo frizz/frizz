@@ -350,11 +350,11 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 			if !found {
 				return false, nil
 			}
-			property, ok := parentType.Properties[key]
+			field, ok := parentType.Fields[key]
 			if !ok {
-				return false, kerr.New("DXRELESKCB", nil, "jsonselect.comparison", "property %s not found in %s", key, actual.Rule.ParentType.Id)
+				return false, kerr.New("DXRELESKCB", nil, "jsonselect.comparison", "field %s not found in %s", key, actual.Rule.ParentType.Id)
 			}
-			itemRule, err := system.NewRuleHolder(property.Item, path, imports)
+			itemRule, err := system.NewRuleHolder(field, path, imports)
 			if err != nil {
 				return false, kerr.New("ERPYTUODXO", err, "jsonselect.comparison", "system.NewRuleHolder")
 			}
@@ -365,7 +365,7 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 			}
 			return match, nil
 		}
-		for key, _ := range parentType.Properties {
+		for key, _ := range parentType.Fields {
 			matched, err := compareChild(key)
 			if err != nil {
 				return false, kerr.New("DIUQUBQAJN", err, "jsonselect.comparison", "compareChild object (actual)")
