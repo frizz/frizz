@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/assert"
 	"kego.io/json"
+	"kego.io/kerr/assert"
 )
 
 func TestNative(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"kego.io/assert"
 	"kego.io/json"
+	"kego.io/kerr/assert"
 )
 
 func TestBool(t *testing.T) {

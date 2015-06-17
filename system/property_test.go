@@ -7,8 +7,8 @@ import (
 
 	"fmt"
 
-	"kego.io/assert"
 	"kego.io/json"
+	"kego.io/kerr/assert"
 )
 
 func TestGetPointer(t *testing.T) {

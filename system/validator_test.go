@@ -3,7 +3,7 @@ package system
 import (
 	"testing"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 )
 
 func TestStringRule_Validate(t *testing.T) {
