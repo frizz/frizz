@@ -3,7 +3,7 @@ package process
 import (
 	"testing"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 	"kego.io/system"
 )
 

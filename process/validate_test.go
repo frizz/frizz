@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 )
 
 func Validate_NeedsTypes(t *testing.T) {

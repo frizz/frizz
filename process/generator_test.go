@@ -8,7 +8,7 @@ import (
 
 	"path/filepath"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 )
 
 func TestGenerateFiles_path(t *testing.T) {
