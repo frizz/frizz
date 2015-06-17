@@ -1,4 +1,4 @@
-package jsonselect
+package selectors
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type logHandler struct {
 }
 
 var logger = logHandler{false, 0, nil}
-var handler = log.New(os.Stderr, "jsonselect: ", 0)
+var handler = log.New(os.Stderr, "selectors: ", 0)
 var recursionMarker = "⇢ "
 
 func (l *logHandler) formatPrefix(a ...interface{}) []interface{} {

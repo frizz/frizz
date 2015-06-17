@@ -1,4 +1,4 @@
-package jsonselect
+package selectors
 
 import (
 	"errors"
@@ -23,7 +23,7 @@ type Parser struct {
 func CreateParser(element *Element, path string, imports map[string]string) (*Parser, error) {
 	parser := Parser{Data: element, nodes: nil, path: path, imports: imports}
 	if err := parser.mapDocument(); err != nil {
-		return nil, kerr.New("SWLNNMSUTM", err, "jsonselect.CreateParser", "parser.mapDocument")
+		return nil, kerr.New("SWLNNMSUTM", err, "selectors.CreateParser", "parser.mapDocument")
 	}
 	return &parser, nil
 }
@@ -238,7 +238,7 @@ func (p *Parser) matchNodes(validators []func(*node) (bool, error), documentMap 
 		for _, validator := range validators {
 			result, err := validator(node)
 			if err != nil {
-				return nil, kerr.New("GUOFXMISKX", err, "jsonselect.matchNodes", "validator")
+				return nil, kerr.New("GUOFXMISKX", err, "selectors.matchNodes", "validator")
 			}
 			if !result {
 				passed = false
@@ -268,7 +268,7 @@ func (p *Parser) kegoProduction(value interface{}) func(*node) (bool, error) {
 		kegoType := tokenString[1 : len(tokenString)-1]
 		r, err := system.NewReferenceFromString(strconv.Quote(kegoType), p.path, p.imports)
 		if err != nil {
-			return false, kerr.New("RWDOYBBDVK", err, "jsonselect.kegoProduction", "NewReferenceFromString")
+			return false, kerr.New("RWDOYBBDVK", err, "selectors.kegoProduction", "NewReferenceFromString")
 		}
 		logger.Print("kegoProduction ? ", n.ktyperef.Value, " == ", r.Value)
 
@@ -505,7 +505,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		return func(n *node) (bool, error) {
 			newMap, err := p.getFlooredDocumentMap(n)
 			if err != nil {
-				return false, kerr.New("HFVKFIUIUT", err, "jsonselect.pclassFuncProduction", "getFlooredDocumentMap")
+				return false, kerr.New("HFVKFIUIUT", err, "selectors.pclassFuncProduction", "getFlooredDocumentMap")
 			}
 			logger.Print("pclassFuncProduction recursing into selectorProduction(-100) starting with ", args[0], "; ", len(args), " tokens remaining.")
 			logger.IncreaseDepth()

@@ -4,7 +4,7 @@ This repository contains conformance tests for the
 [JSONSelect](http://jsonselect.org) selector language.  The tests
 are divided among subdirectories which correspond to "level" supported
 by a particular implementation.  Levels are described more fully in the 
-jsonselect [documentation](http://jsonselect.org/#docs).
+selectors [documentation](http://selectors.org/#docs).
 
 ## Test organization
 

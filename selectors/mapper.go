@@ -1,4 +1,4 @@
-package jsonselect
+package selectors
 
 import (
 	"kego.io/kerr"
@@ -36,7 +36,7 @@ func (p *Parser) getFlooredDocumentMap(n *node) ([]*node, error) {
 	var newMap []*node
 	newMap, err := p.getNodes(n.element, newMap, nil, "", -1, -1)
 	if err != nil {
-		return nil, kerr.New("XDXAAIMPLH", err, "jsonselect.getFlooredDocumentMap", "getNodes")
+		return nil, kerr.New("XDXAAIMPLH", err, "selectors.getFlooredDocumentMap", "getNodes")
 	}
 
 	if logger.Enabled {
@@ -65,7 +65,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		n.ktyperef = typer.GetTypeReference()
 		n.ktype, ok = n.ktyperef.GetType()
 		if !ok {
-			return nil, kerr.New("HGENTDRWHL", nil, "jsonselect.getNodes", "node.ktyperef.GetType not found")
+			return nil, kerr.New("HGENTDRWHL", nil, "selectors.getNodes", "node.ktyperef.GetType not found")
 		}
 	} else {
 		n.ktyperef = system.NewReference(element.Rule.ParentType.Context.Package, element.Rule.ParentType.Id)
@@ -109,12 +109,12 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		length := element.Value.Len()
 		itemsRule, err := element.Rule.ItemsRule()
 		if err != nil {
-			return nil, kerr.New("PXGPNCVEFH", err, "jsonselect.getNodes", "jdoc.Rule.ItemsRule (array)")
+			return nil, kerr.New("PXGPNCVEFH", err, "selectors.getNodes", "jdoc.Rule.ItemsRule (array)")
 		}
 		for i := 0; i < length; i++ {
 			object, _, value, found, _, err := system.GetArrayMember(element.Value, i)
 			if err != nil {
-				return nil, kerr.New("UNSRRWKJTM", err, "jsonselect.getNodes", "system.GetArrayMember")
+				return nil, kerr.New("UNSRRWKJTM", err, "selectors.getNodes", "system.GetArrayMember")
 			}
 			if !found {
 				continue
@@ -123,7 +123,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 			// TODO: Why is the index i+1 here? Take time to understand this!
 			nodes, err = p.getNodes(child, nodes, &n, "", i+1, length)
 			if err != nil {
-				return nil, kerr.New("LFQQBAJXJU", err, "jsonselect.getNodes", "getNodes (array)")
+				return nil, kerr.New("LFQQBAJXJU", err, "selectors.getNodes", "getNodes (array)")
 			}
 		}
 		break
@@ -132,16 +132,16 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		n.native = J_MAP
 		itemsRule, err := element.Rule.ItemsRule()
 		if err != nil {
-			return nil, kerr.New("SYGEFDHBTO", err, "jsonselect.getNodes", "jdoc.Rule.ItemsRule (map)")
+			return nil, kerr.New("SYGEFDHBTO", err, "selectors.getNodes", "jdoc.Rule.ItemsRule (map)")
 		}
 		for _, k := range element.Value.MapKeys() {
 			key, ok := k.Interface().(string)
 			if !ok {
-				return nil, kerr.New("QYPJSPHNRN", nil, "jsonselect.getNodes", "Map nodes must be strings, not %T", k.Interface())
+				return nil, kerr.New("QYPJSPHNRN", nil, "selectors.getNodes", "Map nodes must be strings, not %T", k.Interface())
 			}
 			object, _, value, found, _, err := system.GetMapMember(element.Value, key)
 			if err != nil {
-				return nil, kerr.New("JMUJMBBLWU", err, "jsonselect.getNodes", "system.GetMapMember")
+				return nil, kerr.New("JMUJMBBLWU", err, "selectors.getNodes", "system.GetMapMember")
 			}
 			if !found {
 				continue
@@ -149,7 +149,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 			child := &Element{Data: object, Rule: itemsRule, Value: value}
 			nodes, err = p.getNodes(child, nodes, &n, key, -1, -1)
 			if err != nil {
-				return nil, kerr.New("HEMMRWSOEU", err, "jsonselect.getNodes", "getNodes (map)")
+				return nil, kerr.New("HEMMRWSOEU", err, "selectors.getNodes", "getNodes (map)")
 			}
 		}
 		break
@@ -159,19 +159,19 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		for key, field := range n.ktype.Fields {
 			object, _, value, found, _, err := system.GetObjectField(element.Value, system.IdToGoName(key))
 			if err != nil {
-				return nil, kerr.New("JMUJMBBLWU", err, "jsonselect.getNodes", "system.GetMapMember")
+				return nil, kerr.New("JMUJMBBLWU", err, "selectors.getNodes", "system.GetMapMember")
 			}
 			if !found {
 				continue
 			}
 			itemRule, err := system.NewRuleHolder(field, p.path, p.imports)
 			if err != nil {
-				return nil, kerr.New("WWQNGYIUKN", err, "jsonselect.getNodes", "system.NewRuleHolder")
+				return nil, kerr.New("WWQNGYIUKN", err, "selectors.getNodes", "system.NewRuleHolder")
 			}
 			child := &Element{Data: object, Rule: itemRule, Value: value}
 			nodes, err = p.getNodes(child, nodes, &n, key, -1, -1)
 			if err != nil {
-				return nil, kerr.New("NQWTHARJES", err, "jsonselect.getNodes", "p.getNodes")
+				return nil, kerr.New("NQWTHARJES", err, "selectors.getNodes", "p.getNodes")
 			}
 		}
 		break
@@ -184,7 +184,7 @@ func (p *Parser) mapDocument() error {
 	var nodes []*node
 	n, err := p.getNodes(p.Data, nodes, nil, "", -1, -1)
 	if err != nil {
-		return kerr.New("DBFKOECICC", err, "jsonselect.mapDocument", "p.getNodes")
+		return kerr.New("DBFKOECICC", err, "selectors.mapDocument", "p.getNodes")
 	}
 	p.nodes = n
 	return nil

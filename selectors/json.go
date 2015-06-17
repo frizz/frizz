@@ -1,4 +1,4 @@
-package jsonselect
+package selectors
 
 import (
 	"reflect"
