@@ -19,13 +19,12 @@ func (b *RuleBase) GetRuleBase() *RuleBase {
 }
 
 func init() {
-	json.RegisterInterface(reflect.TypeOf((*Rule)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
-}
-
-type DummyRule struct {
-	*Base
-	*RuleBase
-	Default interface{}
+	type dummyRule struct {
+		*Base
+		*RuleBase
+		Default interface{}
+	}
+	json.RegisterInterface(reflect.TypeOf((*Rule)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
 }
 
 type RuleHolder struct {
