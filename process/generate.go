@@ -55,6 +55,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 
 func getTypesDataFromMainData(data mainDataStruct) (new typesDataStruct) {
 
+	new.NonTypesPath = data.Path
 	new.Path = fmt.Sprintf("%s/types", data.Path)
 
 	// Clone the imports map because we have to add the base package
@@ -108,10 +109,11 @@ type mainDataStruct struct {
 	Imports map[string]string
 }
 type typesDataStruct struct {
-	Pointers []string
-	Types    map[string]string
-	Path     string
-	Imports  map[string]string
+	Pointers     []string
+	Types        map[string]string
+	Path         string
+	Imports      map[string]string
+	NonTypesPath string
 }
 type cmdDataStruct struct {
 	Path    string

@@ -1,5 +1,6 @@
 {{ $path := .Path }}
 {{ $imports := .Imports }}
+{{ $nonTypesPath := .NonTypesPath }}
 package {{ $path | name }}
 
 import (
@@ -25,4 +26,8 @@ func init() {
 	{{ range $typeName, $source := .Types }}
 		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $typeName | quote }}, {{ $source }})
 	{{ end }}
+
+	// If there's no references to the non types package in here we
+	// won't be able to compile, so we force it by calling a noop.
+	{{ reference $nonTypesPath "DoNothing" $path $imports }}()
 }
