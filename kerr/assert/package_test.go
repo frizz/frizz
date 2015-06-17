@@ -3,7 +3,7 @@ package assert_test
 import (
 	"testing"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 )
 
 func TestImports(t *testing.T) {

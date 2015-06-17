@@ -5,7 +5,7 @@
 // The following is a complete example using assert in a standard test function:
 //    import (
 //      "testing"
-//      "kego.io/assert"
+//      "kego.io/kerr/assert"
 //    )
 //
 //    func TestSomething(t *testing.T) {
@@ -21,7 +21,7 @@
 //
 //    import (
 //      "testing"
-//      "kego.io/assert"
+//      "kego.io/kerr/assert"
 //    )
 //
 //    func TestSomething(t *testing.T) {

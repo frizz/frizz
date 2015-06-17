@@ -22,7 +22,7 @@ Get started:
 
 
 
-[`assert`](http://godoc.org/kego.io/assert "API documentation") package
+[`assert`](http://godoc.org/kego.io/kerr/assert "API documentation") package
 -------------------------------------------------------------------------------------------
 
 The `assert` package provides some helpful methods that allow you to write better test code in Go.
@@ -38,7 +38,7 @@ package yours
 
 import (
   "testing"
-  "kego.io/assert"
+  "kego.io/kerr/assert"
 )
 
 func TestSomething(t *testing.T) {
@@ -74,7 +74,7 @@ package yours
 
 import (
   "testing"
-  "kego.io/assert"
+  "kego.io/kerr/assert"
 )
 
 func TestSomething(t *testing.T) {
@@ -191,7 +191,7 @@ An example suite is shown below:
 // Basic imports
 import (
     "testing"
-    "kego.io/assert"
+    "kego.io/kerr/assert"
     "github.com/stretchr/testify/suite"
 )
 
@@ -272,7 +272,7 @@ To install Testify, use `go get`:
 
 This will then make the following packages available to you:
 
-    kego.io/assert
+    kego.io/kerr/assert
     github.com/stretchr/testify/mock
     github.com/stretchr/testify/http
 
@@ -283,7 +283,7 @@ package yours
 
 import (
   "testing"
-  "kego.io/assert"
+  "kego.io/kerr/assert"
 )
 
 func TestSomething(t *testing.T) {

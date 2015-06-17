@@ -5,8 +5,8 @@ import (
 
 	"fmt"
 
-	"kego.io/assert"
 	"kego.io/kerr"
+	"kego.io/kerr/assert"
 )
 
 func TestErr(t *testing.T) {
