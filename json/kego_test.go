@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 )
 
 func TestDecodeSimple(t *testing.T) {
