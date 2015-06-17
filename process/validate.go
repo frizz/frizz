@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"kego.io/json"
-	"kego.io/jsonselect"
 	"kego.io/kerr"
+	"kego.io/selectors"
 	"kego.io/system"
 )
 
@@ -114,10 +114,10 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 
 	if rules != nil && len(rules) > 0 {
 
-		j := &jsonselect.Element{Data: data, Value: reflect.ValueOf(data), Rule: rule}
-		p, err := jsonselect.CreateParser(j, path, imports)
+		j := &selectors.Element{Data: data, Value: reflect.ValueOf(data), Rule: rule}
+		p, err := selectors.CreateParser(j, path, imports)
 		if err != nil {
-			return kerr.New("AIWLGYGGAY", err, "process.validateObject", "jsonselect.CreateParser")
+			return kerr.New("AIWLGYGGAY", err, "process.validateObject", "selectors.CreateParser")
 		}
 
 		for _, rule := range rules {
