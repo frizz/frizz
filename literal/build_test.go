@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"kego.io/assert"
+	"kego.io/kerr/assert"
 )
 
 func TestBuild(t *testing.T) {
