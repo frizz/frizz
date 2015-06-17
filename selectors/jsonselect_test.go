@@ -8,11 +8,11 @@ import (
 
 	"encoding/json"
 
-	"kego.io/assert"
 	. "kego.io/jsonselect"
 	_ "kego.io/jsonselect/types"
 	"kego.io/kego"
 	"kego.io/kerr"
+	"kego.io/kerr/assert"
 	"kego.io/system"
 )
 
