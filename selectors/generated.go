@@ -360,3 +360,5 @@ func init() {
 	json.RegisterType("kego.io/selectors:typed", reflect.TypeOf(&Typed{}))
 
 }
+
+func DoNothing() {}
