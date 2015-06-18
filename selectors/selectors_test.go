@@ -49,10 +49,10 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 			assert.False(t, unknown)
 			assert.NoError(t, err)
 
-			typer, ok := i.(system.Typer)
+			ob, ok := i.(system.Object)
 			assert.True(t, ok)
 
-			ty, ok := typer.GetType()
+			ty, ok := ob.GetBase().Type.GetType()
 
 			r := system.NewMinimalRuleHolder(ty, "kego.io/selectors", map[string]string{})
 
@@ -334,13 +334,13 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 		if !ok {
 			return false, kerr.New("OJEQQPYXJP", nil, "selectors.comparison", "expected %T is not map[string]interface{} (object)", expected)
 		}
-		typer, ok := actual.Data.(system.Typer)
+		ob, ok := actual.Data.(system.Object)
 		if !ok {
-			return false, kerr.New("KQJCVJSTKH", nil, "selectors.comparison", "actual %T does not implement system.Typer")
+			return false, kerr.New("KQJCVJSTKH", nil, "selectors.comparison", "actual %T does not implement system.Object")
 		}
-		parentType, ok := typer.GetType()
+		parentType, ok := ob.GetBase().Type.GetType()
 		if !ok {
-			return false, kerr.New("TWVUMUFLST", nil, "selectors.comparison", "typer.GetType couldn't find type")
+			return false, kerr.New("TWVUMUFLST", nil, "selectors.comparison", "Type.GetType couldn't find type")
 		}
 		compareChild := func(key string) (bool, error) {
 			object, _, value, found, _, err := system.GetObjectField(actual.Value, system.IdToGoName(key))

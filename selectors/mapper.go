@@ -60,12 +60,13 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		n.siblings = siblings
 	}
 
-	typer, ok := element.Data.(system.Typer)
+	ob, ok := element.Data.(system.Object)
 	if ok {
-		n.ktyperef = typer.GetTypeReference()
-		n.ktype, ok = n.ktyperef.GetType()
+		base := ob.GetBase()
+		n.ktyperef = base.Type
+		n.ktype, ok = base.Type.GetType()
 		if !ok {
-			return nil, kerr.New("HGENTDRWHL", nil, "selectors.getNodes", "node.ktyperef.GetType not found")
+			return nil, kerr.New("HGENTDRWHL", nil, "selectors.getNodes", "Type.GetType not found")
 		}
 	} else {
 		n.ktyperef = system.NewReference(element.Rule.ParentType.Context.Package, element.Rule.ParentType.Id)
