@@ -1,4 +1,4 @@
-package main
+package main // import "kego.io/kerr/cmd/kerr"
 
 import (
 	"bufio"
