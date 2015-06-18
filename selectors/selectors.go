@@ -1,4 +1,4 @@
-package selectors
+package selectors // import "kego.io/selectors"
 
 import (
 	"errors"
