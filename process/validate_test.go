@@ -30,7 +30,7 @@ func Validate_NeedsTypes(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(aFile)
 
-	err = Validate(d, "d.e/f", map[string]string{})
+	err = Validate(d, false, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 }
 func TestValidate_error1(t *testing.T) {
@@ -56,7 +56,7 @@ func TestValidate_error1(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(bFile)
 
-	err = Validate(d, "d.e/f", map[string]string{})
+	err = Validate(d, false, "d.e/f", map[string]string{})
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "DCIARXKRXN")
 
@@ -64,8 +64,11 @@ func TestValidate_error1(t *testing.T) {
 
 func TestValidate_error2(t *testing.T) {
 
-	err := Scan("/this-folder-doesnt-exist", false, "", map[string]string{})
+	err := Scan("/this-folder-doesnt-exist", false, true, "", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
+
+	err = Scan("/this-folder-doesnt-exist", false, false, "", map[string]string{})
+	assert.IsError(t, err, "CDYLDBLHKT")
 
 	d, err := ioutil.TempDir("", "temporary")
 	assert.NoError(t, err)
@@ -76,8 +79,12 @@ func TestValidate_error2(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(f)
 
-	err = Scan(d, false, "d.e/f", map[string]string{})
+	err = Scan(d, false, true, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
+	assert.HasError(t, err, "DHTURNTIXE")
+
+	err = Scan(d, false, false, "d.e/f", map[string]string{})
+	assert.IsError(t, err, "IAPRUHFTAD")
 	assert.HasError(t, err, "DHTURNTIXE")
 
 }

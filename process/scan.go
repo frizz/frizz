@@ -2,6 +2,7 @@ package process
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,7 +14,7 @@ import (
 	"kego.io/system"
 )
 
-func Scan(root string, ignoreUnknownTypes bool, packagePath string, imports map[string]string) error {
+func Scan(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -25,8 +26,20 @@ func Scan(root string, ignoreUnknownTypes bool, packagePath string, imports map[
 		return nil
 	}
 
-	if err := filepath.Walk(root, walker); err != nil {
-		return kerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
+	if recursive {
+		if err := filepath.Walk(root, walker); err != nil {
+			return kerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
+		}
+	} else {
+		files, err := ioutil.ReadDir(root)
+		if err != nil {
+			return kerr.New("CDYLDBLHKT", err, "process.Scan", "ioutil.ReadDir")
+		}
+		for _, f := range files {
+			if err := walker(filepath.Join(root, f.Name()), f, nil); err != nil {
+				return kerr.New("IAPRUHFTAD", err, "process.Scan", "walker")
+			}
+		}
 	}
 
 	return nil

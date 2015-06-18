@@ -168,29 +168,36 @@ func Test_parseOptions(t *testing.T) {
 
 	os.Chdir(pkgDir)
 
-	test, dir, path, imports, err := parseOptions()
+	test, dir, recursive, path, imports, err := parseOptions()
 	assert.NoError(t, err)
 	assert.Equal(t, pkgDir, dir)
 	assert.Equal(t, false, test)
+	assert.Equal(t, false, recursive)
 	assert.Equal(t, "x.y/z", path)
 	assert.Equal(t, map[string]string{}, imports)
 
 	defer func() { *generatorTestFlag = false }()
 	*generatorTestFlag = true
-	test, _, _, _, err = parseOptions()
+	test, _, _, _, _, err = parseOptions()
 	assert.NoError(t, err)
 	assert.Equal(t, true, test)
 
+	defer func() { *generatorRecursiveFlag = false }()
+	*generatorRecursiveFlag = true
+	_, _, recursive, _, _, err = parseOptions()
+	assert.NoError(t, err)
+	assert.Equal(t, true, recursive)
+
 	defer func() { *generatorPathFlag = "" }()
 	*generatorPathFlag = "a.b/c"
-	_, _, path, _, err = parseOptions()
+	_, _, _, path, _, err = parseOptions()
 	assert.NoError(t, err)
 	assert.Equal(t, "a.b/c", path)
 
 	*generatorPathFlag = ""
 	os.Chdir("/")
 	defer os.Chdir(currentDir)
-	_, _, _, _, err = parseOptions()
+	_, _, _, _, _, err = parseOptions()
 	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }

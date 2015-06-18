@@ -2,6 +2,7 @@ package process
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -13,7 +14,7 @@ import (
 	"kego.io/system"
 )
 
-func Validate(root string, packagePath string, imports map[string]string) error {
+func Validate(root string, recursive bool, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -25,9 +26,22 @@ func Validate(root string, packagePath string, imports map[string]string) error 
 		return nil
 	}
 
-	if err := filepath.Walk(root, walker); err != nil {
-		return kerr.New("GCKFJQJUXK", err, "process.Validate", "filepath.Walk")
+	if recursive {
+		if err := filepath.Walk(root, walker); err != nil {
+			return kerr.New("GCKFJQJUXK", err, "process.Validate", "filepath.Walk")
+		}
+	} else {
+		files, err := ioutil.ReadDir(root)
+		if err != nil {
+			return kerr.New("RJXRHBYVUW", err, "process.Validate", "ioutil.ReadDir")
+		}
+		for _, f := range files {
+			if err := walker(filepath.Join(root, f.Name()), f, nil); err != nil {
+				return kerr.New("UJBOWKFUMS", err, "process.Validate", "walker")
+			}
+		}
 	}
+
 	return nil
 }
 
@@ -78,8 +92,8 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
 
 	rules := []system.Rule{}
-	if data.(system.Ruler).RulesApply() == system.RULES_APPLY_TO_OBJECTS {
-		rules = data.(system.Ruler).GetRules()
+	if system.RulesApplyToObjects(data) {
+		rules = data.(system.Object).GetBase().Rules
 	}
 
 	return validateObject(partialRuleHolder, rules, data, path, imports)
@@ -159,14 +173,14 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "process.validateObject", "rule.ItemsRule (array)")
 		}
-		rules := rule.Rule.(system.Ruler).GetRules()
+		rules := rule.Rule.(system.Object).GetBase().Rules
 		return validateArrayChildren(items, rules, data, path, imports)
 	case "map":
 		items, err := rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "process.validateObject", "rule.ItemsRule (map)")
 		}
-		rules := rule.Rule.(system.Ruler).GetRules()
+		rules := rule.Rule.(system.Object).GetBase().Rules
 		return validateMapChildren(items, rules, data, path, imports)
 	}
 
@@ -186,8 +200,8 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 	}
 
 	rules := []system.Rule{}
-	if data.(system.Ruler).RulesApply() == system.RULES_APPLY_TO_OBJECTS {
-		rules = data.(system.Ruler).GetRules()
+	if system.RulesApplyToObjects(data) {
+		rules = data.(system.Object).GetBase().Rules
 	}
 
 	for name, field := range itemsRule.ParentType.Fields {

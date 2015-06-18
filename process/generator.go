@@ -25,8 +25,9 @@ const (
 
 var generatorTestFlag = flag.Bool("test", false, "test mode? e.g. don't write the files")
 var generatorPathFlag = flag.String("path", "", "full package path e.g. github.com/foo/bar")
+var generatorRecursiveFlag = flag.Bool("recursive", false, "recursive? e.g. scan subdirectories")
 
-func parseOptions() (test bool, dir string, path string, imports map[string]string, err error) {
+func parseOptions() (test bool, dir string, recursive bool, path string, imports map[string]string, err error) {
 
 	if !flag.Parsed() {
 		flag.Parse()
@@ -34,6 +35,7 @@ func parseOptions() (test bool, dir string, path string, imports map[string]stri
 
 	test = *generatorTestFlag
 	path = *generatorPathFlag
+	recursive = *generatorRecursiveFlag
 
 	dir, err = os.Getwd()
 	if err != nil {
@@ -73,7 +75,7 @@ func parseOptions() (test bool, dir string, path string, imports map[string]stri
 //
 func GenerateFiles(file fileType) error {
 
-	test, dir, path, imports, err := parseOptions()
+	test, dir, recursive, path, imports, err := parseOptions()
 	if err != nil {
 		return kerr.New("MHLOQTSAOX", err, "process.GenerateFiles", "parseOptions")
 	}
@@ -88,7 +90,7 @@ func GenerateFiles(file fileType) error {
 		ignoreUnknownTypes = false
 	}
 
-	if err := Scan(dir, ignoreUnknownTypes, path, imports); err != nil {
+	if err := Scan(dir, ignoreUnknownTypes, recursive, path, imports); err != nil {
 		return kerr.New("XYIUHERDHE", err, "process.GenerateFiles", "Scan")
 	}
 
@@ -110,11 +112,11 @@ func GenerateFiles(file fileType) error {
 }
 
 func ValidateFiles() error {
-	_, dir, path, imports, err := parseOptions()
+	_, dir, recursive, path, imports, err := parseOptions()
 	if err != nil {
 		return kerr.New("TYABVODNBG", err, "process.ValidateFiles", "parseOptions")
 	}
-	return Validate(dir, path, imports)
+	return Validate(dir, recursive, path, imports)
 }
 
 // This creates a temporary folder in the package, in which the go source
@@ -122,7 +124,7 @@ func ValidateFiles() error {
 // "go run". When run, this command generates the extra types data in
 // the "types" subpackage.
 func GenerateAndRunCmd(file fileType) error {
-	test, dir, path, imports, err := parseOptions()
+	test, dir, recursive, path, imports, err := parseOptions()
 	if err != nil {
 		return kerr.New("NGXAEJCFSA", err, "process.GenerateAndRunCmd", "parseOptions")
 	}
@@ -149,11 +151,14 @@ func GenerateAndRunCmd(file fileType) error {
 	}
 
 	params := []string{"run", outputPath}
-	if *generatorTestFlag {
-		params = append(params, "-test")
-	}
 	if *generatorPathFlag != "" {
 		params = append(params, fmt.Sprintf("-path=%s", strconv.Quote(*generatorPathFlag)))
+	}
+	if test {
+		params = append(params, "-test")
+	}
+	if recursive {
+		params = append(params, "-recursive")
 	}
 	cmd := exec.Command("go", params...)
 	cmd.Stdout = os.Stdout
