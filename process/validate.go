@@ -66,13 +66,13 @@ func validateReader(file io.Reader, packagePath string, imports map[string]strin
 
 func validateUnknown(data interface{}, path string, imports map[string]string) error {
 
-	tp, ok := data.(system.Typer)
+	ob, ok := data.(system.Object)
 	if !ok {
-		return kerr.New("RSSFIFHCOF", nil, "process.validateUnknown", "data %T does not implement system.Typer", data)
+		return kerr.New("RSSFIFHCOF", nil, "process.validateUnknown", "data %T does not implement system.Object", data)
 	}
-	t, ok := tp.GetType()
+	t, ok := ob.GetBase().Type.GetType()
 	if !ok {
-		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "tp.GetType not found")
+		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "Type.GetType not found")
 	}
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
