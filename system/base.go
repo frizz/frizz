@@ -17,27 +17,13 @@ func (o *Base) SetContext(path string, imports map[string]string) {
 	o.Context = &Context{Package: path, Imports: imports}
 }
 
-type Ruler interface {
-	GetRules() []Rule
-	RulesApply() rulesApplication
+// RulesApplyToObjects returns true if we should apply the rules collection to this object.
+// Rules on types apply to instances of that type, not to the actual type object.
+// Rules on rules apply to objects defined by that rule, not to the actual rule object.
+// Rules on other objects apply to that object.
+func RulesApplyToObjects(object interface{}) bool {
+	_, isRule := object.(Rule)
+	_, isType := object.(*Type)
+	_, isObject := object.(Object)
+	return !isRule && !isType && isObject
 }
-
-func (o *Base) GetRules() []Rule {
-	return []Rule{}
-}
-
-func (o *Base) RulesApply() rulesApplication {
-	if o.Type.Value == "kego.io/system:type" {
-		return RULES_APPLY_TO_TYPES
-	} else if o.Type.Type[0:0] == "@" {
-		return RULES_APPLY_TO_TYPES
-	}
-	return RULES_APPLY_TO_OBJECTS
-}
-
-type rulesApplication string
-
-const (
-	RULES_APPLY_TO_TYPES   rulesApplication = "types"
-	RULES_APPLY_TO_OBJECTS                  = "objects"
-)

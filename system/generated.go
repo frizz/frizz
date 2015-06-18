@@ -138,17 +138,6 @@ type Number_rule struct {
 }
 
 //***********************************************************
-//*** @property ***
-//***********************************************************
-
-// Automatically created basic rule for property
-type Property_rule struct {
-	*Base
-
-	*RuleBase
-}
-
-//***********************************************************
 //*** @reference ***
 //***********************************************************
 
@@ -285,24 +274,6 @@ type Map struct {
 //***********************************************************
 
 //***********************************************************
-//*** property ***
-//***********************************************************
-
-// This is a property of a type
-type Property struct {
-	*Base
-
-	// This specifies that the field is the default value for a rule
-	Defaulter bool
-
-	// This is a rule object, defining the type and restrictions on the value of the this property
-	Item Rule
-
-	// This specifies that the field is optional
-	Optional bool
-}
-
-//***********************************************************
 //*** reference ***
 //***********************************************************
 
@@ -380,8 +351,6 @@ func init() {
 
 	json.RegisterType("kego.io/system:@number", reflect.TypeOf(&Number_rule{}))
 
-	json.RegisterType("kego.io/system:@property", reflect.TypeOf(&Property_rule{}))
-
 	json.RegisterType("kego.io/system:@reference", reflect.TypeOf(&Reference_rule{}))
 
 	json.RegisterType("kego.io/system:@rule", reflect.TypeOf(&Rule_rule{}))
@@ -406,8 +375,6 @@ func init() {
 
 	json.RegisterType("kego.io/system:number", reflect.TypeOf(&Number{}))
 
-	json.RegisterType("kego.io/system:property", reflect.TypeOf(&Property{}))
-
 	json.RegisterType("kego.io/system:reference", reflect.TypeOf(&Reference{}))
 
 	json.RegisterType("kego.io/system:ruleBase", reflect.TypeOf(&RuleBase{}))
@@ -417,3 +384,5 @@ func init() {
 	json.RegisterType("kego.io/system:type", reflect.TypeOf(&Type{}))
 
 }
+
+func DoNothing() {}
