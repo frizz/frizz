@@ -17,18 +17,6 @@ func (o *Base) SetContext(path string, imports map[string]string) {
 	o.Context = &Context{Package: path, Imports: imports}
 }
 
-func (o *Base) GetType() (*Type, bool) {
-	return o.Type.GetType()
-}
-func (o *Base) GetTypeReference() Reference {
-	return o.Type
-}
-
-type Typer interface {
-	GetType() (*Type, bool)
-	GetTypeReference() Reference
-}
-
 type Ruler interface {
 	GetRules() []Rule
 	RulesApply() rulesApplication
