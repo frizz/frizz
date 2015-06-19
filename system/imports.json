@@ -1,0 +1,14 @@
+{
+	"description": "Lists imports used in this package.",
+	"type": "type",
+	"id": "imports",
+	"fields": {
+		"imports": {
+			"description": "Map of import name to path.",
+			"type": "@map",
+			"items": {
+				"type": "@string"
+			}
+		}
+	}
+}

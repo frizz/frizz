@@ -66,6 +66,17 @@ type Context_rule struct {
 }
 
 //***********************************************************
+//*** @imports ***
+//***********************************************************
+
+// Automatically created basic rule for imports
+type Imports_rule struct {
+	*Base
+
+	*RuleBase
+}
+
+//***********************************************************
 //*** @int ***
 //***********************************************************
 
@@ -257,6 +268,18 @@ type Base struct {
 //***********************************************************
 
 //***********************************************************
+//*** imports ***
+//***********************************************************
+
+// Lists imports used in this package.
+type Imports struct {
+	*Base
+
+	// Map of import name to path.
+	Imports map[string]String
+}
+
+//***********************************************************
 //*** int ***
 //***********************************************************
 
@@ -345,6 +368,8 @@ func init() {
 
 	json.RegisterType("kego.io/system:@context", reflect.TypeOf(&Context_rule{}))
 
+	json.RegisterType("kego.io/system:@imports", reflect.TypeOf(&Imports_rule{}))
+
 	json.RegisterType("kego.io/system:@int", reflect.TypeOf(&Int_rule{}))
 
 	json.RegisterType("kego.io/system:@map", reflect.TypeOf(&Map_rule{}))
@@ -369,6 +394,8 @@ func init() {
 
 	json.RegisterType("kego.io/system:context", reflect.TypeOf(&Context{}))
 
+	json.RegisterType("kego.io/system:imports", reflect.TypeOf(&Imports{}))
+
 	json.RegisterType("kego.io/system:int", reflect.TypeOf(&Int{}))
 
 	json.RegisterType("kego.io/system:map", reflect.TypeOf(&Map{}))
@@ -385,4 +412,4 @@ func init() {
 
 }
 
-func DoNothing() {}
+type Nothing struct{}

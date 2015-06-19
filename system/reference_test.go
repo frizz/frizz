@@ -64,7 +64,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 
 	r = reset()
 	err = r.UnmarshalJSON([]byte("\"a:b\""), "", map[string]string{})
-	assert.IsError(t, err, "DBQPULKKUH")
+	assert.False(t, r.Exists)
 }
 
 func TestReferenceMarshalJson(t *testing.T) {

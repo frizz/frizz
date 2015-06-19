@@ -63,11 +63,17 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 		out.Type = ""
 		out.Package = ""
 	} else {
-		out.Exists = true
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
 		if err != nil {
-			return kerr.New("DBQPULKKUH", err, "Reference.UnmarshalJSON", "json.GetReferencePartsFromTypeString")
+			// We don't want to throw an error here, because when we're scanning for
+			// imports we need to tolerate unknown imports
+			out.Exists = false
+			out.Value = ""
+			out.Type = ""
+			out.Package = ""
+			return nil
 		}
+		out.Exists = true
 		out.Package = path
 		out.Type = name
 		out.Value = fmt.Sprintf("%s:%s", out.Package, out.Type)

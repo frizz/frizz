@@ -25,9 +25,7 @@ func RegisterType(name string, typ *Type) {
 func UnregisterType(name string) {
 	types.Lock()
 	defer types.Unlock()
-	if types.m == nil || name == "" {
-		// Added the name == "" condition to make it
-		// possible for a test to get in here
+	if types.m == nil {
 		return
 	}
 	delete(types.m, name)
@@ -35,14 +33,11 @@ func UnregisterType(name string) {
 
 // TODO: Perhaps this should not return a pointer if it will
 // TODO: be used concurrently?
-func GetType(name string) (*Type, bool) {
+func GetType(name string) (t *Type, found bool) {
 	types.RLock()
 	defer types.RUnlock()
-	t, ok := types.m[name]
-	if !ok {
-		return nil, false
-	}
-	return t, true
+	t, found = types.m[name]
+	return
 }
 
 // TODO: Perhaps this should not return pointers if it will
