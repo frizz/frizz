@@ -266,18 +266,18 @@ func (p *Parser) kegoProduction(value interface{}) func(*node) (bool, error) {
 	return func(n *node) (bool, error) {
 		tokenString := value.(string)
 		kegoType := tokenString[1 : len(tokenString)-1]
-		r, err := system.NewReferenceFromString(strconv.Quote(kegoType), p.path, p.imports)
+		r, err := system.NewReferenceFromString(kegoType, p.path, p.imports)
 		if err != nil {
 			return false, kerr.New("RWDOYBBDVK", err, "selectors.kegoProduction", "NewReferenceFromString")
 		}
-		logger.Print("kegoProduction ? ", n.ktyperef.Value, " == ", r.Value)
+		logger.Print("kegoProduction ? ", n.ktyperef.Value(), " == ", r.Value())
 
-		if n.ktyperef.Value == r.Value {
+		if n.ktyperef.Value() == r.Value() {
 			return true, nil
 		}
 
 		for _, ref := range n.ktype.Is {
-			if ref.Value == r.Value {
+			if ref.Value() == r.Value() {
 				return true, nil
 			}
 		}
