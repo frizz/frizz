@@ -16,6 +16,8 @@ import (
 
 func Generate(file fileType, path string, imports map[string]string) (source []byte, err error) {
 
+	fmt.Printf("Generating %s\n", file)
+
 	switch file {
 	case F_CMD_TYPES, F_CMD_MAIN, F_CMD_VALIDATE:
 		var templateName string
