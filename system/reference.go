@@ -11,18 +11,23 @@ import (
 )
 
 type Reference struct {
-	Value   string
 	Package string
-	Type    string
+	Id      string
 	Exists  bool
+}
+
+func (r *Reference) Value() string {
+	if !r.Exists {
+		return ""
+	}
+	return fmt.Sprintf("%s:%s", r.Package, r.Id)
 }
 
 func NewReference(packagePath string, typeName string) Reference {
 	r := Reference{}
 	r.Exists = true
 	r.Package = packagePath
-	r.Type = typeName
-	r.Value = fmt.Sprintf("%s:%s", r.Package, r.Type)
+	r.Id = typeName
 	return r
 }
 
@@ -30,14 +35,13 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
 		return nil, kerr.New("OSQKOWGVWX", nil, "Reference.RuleToParentType", "Reference is nil")
 	}
-	if !strings.HasPrefix(r.Type, "@") {
-		return nil, kerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Type)
+	if !strings.HasPrefix(r.Id, "@") {
+		return nil, kerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Id)
 	}
-	newType := r.Type[1:]
+	newType := r.Id[1:]
 	newRef := &Reference{
-		Value:   fmt.Sprintf("%s:%s", r.Package, newType),
 		Package: r.Package,
-		Type:    newType,
+		Id:      newType,
 		Exists:  r.Exists,
 	}
 	return newRef, nil
@@ -45,7 +49,7 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 
 func NewReferenceFromString(in string, path string, imports map[string]string) (*Reference, error) {
 	r := &Reference{}
-	err := r.UnmarshalJSON([]byte(in), path, imports)
+	err := r.UnmarshalJSON([]byte(strconv.Quote(in)), path, imports)
 	if err != nil {
 		return nil, kerr.New("VXRGOQHWNB", err, "system.NewReferenceFromString", "UnmarshalJSON")
 	}
@@ -59,8 +63,7 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 	}
 	if s == nil {
 		out.Exists = false
-		out.Value = ""
-		out.Type = ""
+		out.Id = ""
 		out.Package = ""
 	} else {
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
@@ -68,15 +71,13 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 			// We don't want to throw an error here, because when we're scanning for
 			// imports we need to tolerate unknown imports
 			out.Exists = false
-			out.Value = ""
-			out.Type = ""
+			out.Id = ""
 			out.Package = ""
 			return nil
 		}
 		out.Exists = true
 		out.Package = path
-		out.Type = name
-		out.Value = fmt.Sprintf("%s:%s", out.Package, out.Type)
+		out.Id = name
 	}
 	return nil
 }
@@ -85,11 +86,11 @@ func (r *Reference) MarshalJSON() ([]byte, error) {
 	if !r.Exists {
 		return []byte("null"), nil
 	}
-	return []byte(strconv.Quote(r.Value)), nil
+	return []byte(strconv.Quote(r.Value())), nil
 }
 
 func (r *Reference) GoReference(path string, imports map[string]string) (string, error) {
-	s, err := IdToGoReference(r.Package, r.Type, path, imports)
+	s, err := IdToGoReference(r.Package, r.Id, path, imports)
 	if err != nil {
 		return "", kerr.New("LVHAQUOQGR", err, "Reference.GoReference", "IdToGoReference")
 	}
@@ -100,9 +101,9 @@ func (r *Reference) GetType() (*Type, bool) {
 	if !r.Exists {
 		return nil, false
 	}
-	return GetType(r.Value)
+	return GetType(r.Value())
 }
 
 func (s Reference) NativeString() (value string, exists bool) {
-	return s.Value, s.Exists
+	return s.Value(), s.Exists
 }

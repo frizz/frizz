@@ -53,7 +53,7 @@ func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, 
 	}
 	rt, ok := ruleReference.GetType()
 	if !ok {
-		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleTypes", "ruleReference.GetType: type %v not found", ruleReference.Value)
+		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleTypes", "ruleReference.GetType: type %v not found", ruleReference.Value())
 	}
 	typeReference, err := ruleReference.RuleToParentType()
 	if err != nil {
@@ -61,7 +61,7 @@ func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, 
 	}
 	pt, ok := typeReference.GetType()
 	if !ok {
-		return nil, nil, kerr.New("KYCTDXKFYR", nil, "ruleTypes", "typeReference.GetType: type %v not found", typeReference.Value)
+		return nil, nil, kerr.New("KYCTDXKFYR", nil, "ruleTypes", "typeReference.GetType: type %v not found", typeReference.Value())
 	}
 	return rt, pt, nil
 }

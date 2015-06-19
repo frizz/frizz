@@ -76,7 +76,7 @@ func TestRuleTypeReference(t *testing.T) {
 	}
 	r, err := ruleTypeReference(rs, "", map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, "a.b/c:@a", r.Value)
+	assert.Equal(t, "a.b/c:@a", r.Value())
 
 	/*
 		ri := map[string]interface{}{}

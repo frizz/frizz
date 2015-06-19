@@ -188,11 +188,11 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref1.Exists)
-	assert.Equal(t, "kego.io/b:a", f.Ref1.Value)
+	assert.Equal(t, "kego.io/b:a", f.Ref1.Value())
 	assert.True(t, f.Ref2.Exists)
-	assert.Equal(t, "kego.io/d:b", f.Ref2.Value)
+	assert.Equal(t, "kego.io/d:b", f.Ref2.Value())
 	assert.True(t, f.Ref3.Exists)
-	assert.Equal(t, "a.b/c:d", f.Ref3.Value)
+	assert.Equal(t, "a.b/c:d", f.Ref3.Value())
 
 }
 
@@ -220,9 +220,9 @@ func TestReferenceType(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref.Exists)
-	assert.Equal(t, "kego.io/system:typ", f.Ref.Value)
+	assert.Equal(t, "kego.io/system:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/system", f.Ref.Package)
-	assert.Equal(t, "typ", f.Ref.Type)
+	assert.Equal(t, "typ", f.Ref.Id)
 
 }
 
@@ -276,9 +276,9 @@ func TestReferencePath(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref.Exists)
-	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value)
+	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
-	assert.Equal(t, "typ", f.Ref.Type)
+	assert.Equal(t, "typ", f.Ref.Id)
 
 }
 
@@ -306,9 +306,9 @@ func TestReferenceImport(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.True(t, f.Ref.Exists)
-	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value)
+	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
-	assert.Equal(t, "typ", f.Ref.Type)
+	assert.Equal(t, "typ", f.Ref.Id)
 
 }
 
@@ -338,12 +338,12 @@ func TestReferenceDefault(t *testing.T) {
 	assert.NotNil(t, f)
 	assert.True(t, f.RefHere.Exists)
 	assert.True(t, f.RefDefault.Exists)
-	assert.Equal(t, "kego.io/system:typc", f.RefHere.Value)
+	assert.Equal(t, "kego.io/system:typc", f.RefHere.Value())
 	assert.Equal(t, "kego.io/system", f.RefHere.Package)
-	assert.Equal(t, "typc", f.RefHere.Type)
-	assert.Equal(t, "kego.io/pkgb:typb", f.RefDefault.Value)
+	assert.Equal(t, "typc", f.RefHere.Id)
+	assert.Equal(t, "kego.io/pkgb:typb", f.RefDefault.Value())
 	assert.Equal(t, "kego.io/pkgb", f.RefDefault.Package)
-	assert.Equal(t, "typb", f.RefDefault.Type)
+	assert.Equal(t, "typb", f.RefDefault.Id)
 
 }
 
