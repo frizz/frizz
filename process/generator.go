@@ -157,8 +157,6 @@ func GenerateAndRunCmd(file fileType, dir string, test bool, recursive bool, pat
 		return kerr.New("FRLCYFOWCJ", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "save")
 	}
 
-	fmt.Printf("Running %s\n", file)
-
 	params := []string{"run", outputPath}
 	if *generatorPathFlag != "" {
 		params = append(params, fmt.Sprintf("-path=%s", strconv.Quote(*generatorPathFlag)))
