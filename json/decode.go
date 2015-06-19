@@ -695,7 +695,9 @@ func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bo
 func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, unmarshalers bool) {
 	path, name, err := GetReferencePartsFromTypeString(typeName, context.Package, context.Imports)
 	if err != nil {
-		d.error(err)
+		// We don't want to throw an error here, because when we're scanning for
+		// imports we need to tolerate unknown imports
+		d.unknown = true
 	}
 
 	fullTypeName := fmt.Sprintf("%s:%s", path, name)
