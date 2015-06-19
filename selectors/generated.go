@@ -359,6 +359,8 @@ func init() {
 
 	json.RegisterType("kego.io/selectors:typed", reflect.TypeOf(&Typed{}))
 
+	var _ system.Nothing
+
 }
 
-func DoNothing() {}
+type Nothing struct{}
