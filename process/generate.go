@@ -64,12 +64,12 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		pointersMap := map[string]string{}
 		for n, g := range globals {
 			var r *system.Reference
-			r, err = system.NewReferenceFromString(strconv.Quote(n), path, imports)
+			r, err = system.NewReferenceFromString(n, path, imports)
 			if err != nil {
 				err = kerr.New("MHDPFJFMKC", err, "process.Generate", "system.NewReferenceFromString")
 				return
 			}
-			globalData.Globals[r.Type] = literal.Build(g, pointersMap, &order, path, imports)
+			globalData.Globals[r.Id] = literal.Build(g, pointersMap, &order, path, imports)
 		}
 		pointers := []string{}
 		for _, n := range order {

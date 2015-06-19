@@ -6,7 +6,7 @@ import (
 
 	"kego.io/process"
 	_ "kego.io/system"
-	_ "kego.io/system/types"
+	//_ "kego.io/system/types"
 )
 
 func main() {
