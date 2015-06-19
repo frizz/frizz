@@ -16,41 +16,73 @@ import (
 
 func Generate(file fileType, path string, imports map[string]string) (source []byte, err error) {
 
-	if file == F_CMD_TYPES || file == F_CMD_VALIDATE {
-		templateName := "cmd_types.tmpl"
-		if file == F_CMD_VALIDATE {
+	switch file {
+	case F_CMD_TYPES, F_CMD_MAIN, F_CMD_VALIDATE:
+		var templateName string
+		switch file {
+		case F_CMD_MAIN:
+			templateName = "cmd_main.tmpl"
+		case F_CMD_TYPES:
+			templateName = "cmd_types.tmpl"
+		case F_CMD_VALIDATE:
 			templateName = "cmd_validate.tmpl"
 		}
 		cmdData := cmdDataStruct{Path: path, Imports: imports}
 		source, err = executeTemplateAndFormat(cmdData, templateName)
 		if err != nil {
-			return nil, kerr.New("NXIWSECRLL", err, "process.Generate", "executeTemplateAndFormat (cmd)")
+			err = kerr.New("NXIWSECRLL", err, "process.Generate", "executeTemplateAndFormat (cmd)")
 		}
-		return
-	}
+	case F_MAIN, F_TYPES:
+		types := system.GetAllTypesInPackage(path)
+		if len(types) == 0 {
+			err = kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
+			return
+		}
+		mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
+		switch file {
+		case F_MAIN:
+			source, err = executeTemplateAndFormat(mainData, "main.tmpl")
+			if err != nil {
+				err = kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
+			}
+		case F_TYPES:
+			typesData := getTypesDataFromMainData(mainData)
+			source, err = executeTemplateAndFormat(typesData, "types.tmpl")
+			if err != nil {
+				err = kerr.New("UURNHCUYAI", err, "process.Generate", "executeTemplateAndFormat (types)")
+			}
+		}
+	case F_DATA:
+		globals := system.GetAllGlobalsInPackage(path)
+		if len(globals) == 0 {
+			return
+		}
 
-	types := system.GetAllTypesInPackage(path)
-	if len(types) == 0 {
-		return nil, kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
-	}
+		globalData := globalDataStruct{Path: path, Imports: imports}
+		globalData.Globals = map[string]string{}
+		order := []string{}
+		pointersMap := map[string]string{}
+		for n, g := range globals {
+			var r *system.Reference
+			r, err = system.NewReferenceFromString(strconv.Quote(n), path, imports)
+			if err != nil {
+				err = kerr.New("MHDPFJFMKC", err, "process.Generate", "system.NewReferenceFromString")
+				return
+			}
+			globalData.Globals[r.Type] = literal.Build(g, pointersMap, &order, path, imports)
+		}
+		pointers := []string{}
+		for _, n := range order {
+			pointers = append(pointers, fmt.Sprintf("var %s = %s", n, pointersMap[n]))
+		}
+		globalData.Pointers = pointers
 
-	mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
-
-	if file == F_MAIN {
-		source, err = executeTemplateAndFormat(mainData, "main.tmpl")
+		source, err = executeTemplateAndFormat(globalData, "global.tmpl")
 		if err != nil {
-			return nil, kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
-		}
-	} else if file == F_TYPES {
-		typesData := getTypesDataFromMainData(mainData)
-		source, err = executeTemplateAndFormat(typesData, "types.tmpl")
-		if err != nil {
-			return nil, kerr.New("UURNHCUYAI", err, "process.Generate", "executeTemplateAndFormat (types)")
+			err = kerr.New("GPDPVPHXCY", err, "process.Generate", "executeTemplateAndFormat (global)")
 		}
 	}
-
 	return
-
 }
 
 func getTypesDataFromMainData(data mainDataStruct) (new typesDataStruct) {
@@ -107,6 +139,12 @@ type mainDataStruct struct {
 	Types   map[string]*system.Type
 	Path    string
 	Imports map[string]string
+}
+type globalDataStruct struct {
+	Pointers []string
+	Globals  map[string]string
+	Path     string
+	Imports  map[string]string
 }
 type typesDataStruct struct {
 	Pointers     []string

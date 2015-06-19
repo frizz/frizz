@@ -1,0 +1,25 @@
+{{ $path := .Path }}
+{{ $imports := .Imports }}
+package {{ $path | name }}
+
+import (
+	{{ if not (eq $path "kego.io/system") }}
+		"kego.io/system"
+	{{ end }}
+
+	{{ range $importName, $importPath := $imports }}
+		{{ import $importName $importPath $path }}
+	{{ end }}
+)
+
+{{ range $pointer := .Pointers }}
+	{{ $pointer }}
+{{ end }}
+
+{{ range $name, $source := .Globals }}
+	var {{ $name | goname }} = {{ $source }}
+{{ end }}
+
+{{ range $importName, $importPath := $imports }}
+	var _ {{ $importName }}.Nothing
+{{ end }}

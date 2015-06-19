@@ -64,10 +64,10 @@ func TestValidate_error1(t *testing.T) {
 
 func TestValidate_error2(t *testing.T) {
 
-	err := Scan("/this-folder-doesnt-exist", false, true, "", map[string]string{})
+	err := ScanForTypes("/this-folder-doesnt-exist", false, true, "", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
-	err = Scan("/this-folder-doesnt-exist", false, false, "", map[string]string{})
+	err = ScanForTypes("/this-folder-doesnt-exist", false, false, "", map[string]string{})
 	assert.IsError(t, err, "CDYLDBLHKT")
 
 	d, err := ioutil.TempDir("", "temporary")
@@ -79,17 +79,17 @@ func TestValidate_error2(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(f)
 
-	err = Scan(d, false, true, "d.e/f", map[string]string{})
+	err = ScanForTypes(d, false, true, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "XHHQSAVCKK")
 	assert.HasError(t, err, "DHTURNTIXE")
 
-	err = Scan(d, false, false, "d.e/f", map[string]string{})
+	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "IAPRUHFTAD")
 	assert.HasError(t, err, "DHTURNTIXE")
 
 }
 
-func TestValidateReader(t *testing.T) {
-	err := processScannedFile("/this-file-doesnt-exist.json", false, "", map[string]string{})
-	assert.IsError(t, err, "NMWROTKPLJ")
-}
+//func TestValidateReader(t *testing.T) {
+//	err := processScannedFile("/this-file-doesnt-exist.json", false, "", map[string]string{})
+//	assert.IsError(t, err, "NMWROTKPLJ")
+//}

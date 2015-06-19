@@ -19,6 +19,8 @@ type fileType string
 const (
 	F_MAIN         fileType = "main"
 	F_TYPES                 = "types"
+	F_DATA                  = "data"
+	F_CMD_MAIN              = "cmd_main"
 	F_CMD_TYPES             = "cmd_types"
 	F_CMD_VALIDATE          = "cmd_validate"
 )
@@ -27,7 +29,7 @@ var generatorTestFlag = flag.Bool("test", false, "test mode? e.g. don't write th
 var generatorPathFlag = flag.String("path", "", "full package path e.g. github.com/foo/bar")
 var generatorRecursiveFlag = flag.Bool("recursive", false, "recursive? e.g. scan subdirectories")
 
-func parseOptions() (test bool, dir string, recursive bool, path string, imports map[string]string, err error) {
+func Initialise() (dir string, test bool, recursive bool, path string, imports map[string]string, err error) {
 
 	if !flag.Parsed() {
 		flag.Parse()
@@ -39,19 +41,23 @@ func parseOptions() (test bool, dir string, recursive bool, path string, imports
 
 	dir, err = os.Getwd()
 	if err != nil {
-		err = kerr.New("OKOLXAMBSJ", err, "process.parseOptions", "os.Getwd")
+		err = kerr.New("OKOLXAMBSJ", err, "process.Initialise", "os.Getwd")
 		return
 	}
 
 	if path == "" {
 		path, err = getPackage(dir, os.Getenv("GOPATH"))
 		if err != nil {
-			err = kerr.New("PSRAWHQCPV", err, "process.parseOptions", "getPackage")
+			err = kerr.New("PSRAWHQCPV", err, "process.Initialise", "getPackage")
 			return
 		}
 	}
 
-	imports = map[string]string{}
+	imports, err = ScanForImports(dir, recursive, path)
+	if err != nil {
+		err = kerr.New("IAAETYCHSW", err, "process.Initialise", "ScanForImports")
+		return
+	}
 
 	return
 
@@ -73,12 +79,7 @@ func parseOptions() (test bool, dir string, recursive bool, path string, imports
 // file == F_CMD_VALIDATE: this is the temporary command that we create in order
 // to run the validation
 //
-func GenerateFiles(file fileType) error {
-
-	test, dir, recursive, path, imports, err := parseOptions()
-	if err != nil {
-		return kerr.New("MHLOQTSAOX", err, "process.GenerateFiles", "parseOptions")
-	}
+func GenerateFiles(file fileType, dir string, test bool, recursive bool, path string, imports map[string]string) error {
 
 	outputDir := dir
 	if file == F_TYPES {
@@ -86,12 +87,21 @@ func GenerateFiles(file fileType) error {
 	}
 
 	ignoreUnknownTypes := true
-	if file == F_TYPES {
+	if file == F_TYPES || file == F_DATA {
 		ignoreUnknownTypes = false
 	}
 
-	if err := Scan(dir, ignoreUnknownTypes, recursive, path, imports); err != nil {
-		return kerr.New("XYIUHERDHE", err, "process.GenerateFiles", "Scan")
+	if file == F_MAIN || file == F_TYPES {
+		// If type == F_DATA, we have already generated and imported the types, so
+		// there is no need to scan.
+		if err := ScanForTypes(dir, ignoreUnknownTypes, recursive, path, imports); err != nil {
+			return kerr.New("XYIUHERDHE", err, "process.GenerateFiles", "ScanForTypes")
+		}
+	} else {
+		// However, we need to scan for the rest of the data.
+		if err := ScanForGlobals(dir, recursive, path, imports); err != nil {
+			return kerr.New("JQLAQVKLAN", err, "process.GenerateFiles", "ScanForGlobals")
+		}
 	}
 
 	source, err := Generate(file, path, imports)
@@ -104,34 +114,31 @@ func GenerateFiles(file fileType) error {
 		return nil
 	}
 
-	if err = save(outputDir, source, "generated.go", true); err != nil {
+	// We only backup in the system types because they are the only
+	// generated files you'll ever need to roll back
+	backup := path == "kego.io/system" || path == "kego.io/system/types"
+
+	filename := "generated.go"
+	if file == F_DATA {
+		filename = "globals.go"
+	}
+
+	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "process.GenerateFiles", "save")
 	}
 
 	return nil
 }
 
-func ValidateFiles() error {
-	_, dir, recursive, path, imports, err := parseOptions()
-	if err != nil {
-		return kerr.New("TYABVODNBG", err, "process.ValidateFiles", "parseOptions")
-	}
-	return Validate(dir, recursive, path, imports)
-}
-
 // This creates a temporary folder in the package, in which the go source
 // for a command is generated. This command is then compiled and run with
 // "go run". When run, this command generates the extra types data in
 // the "types" subpackage.
-func GenerateAndRunCmd(file fileType) error {
-	test, dir, recursive, path, imports, err := parseOptions()
-	if err != nil {
-		return kerr.New("NGXAEJCFSA", err, "process.GenerateAndRunCmd", "parseOptions")
-	}
+func GenerateAndRunCmd(file fileType, dir string, test bool, recursive bool, path string, imports map[string]string) error {
 
 	source, err := Generate(file, path, imports)
 	if err != nil {
-		return kerr.New("SPRFABSRWK", err, "process.GenerateAndRunCmd", "Generate")
+		return kerr.New("SPRFABSRWK", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "Generate")
 	}
 
 	if test {
@@ -140,14 +147,14 @@ func GenerateAndRunCmd(file fileType) error {
 
 	outputDir, err := ioutil.TempDir(dir, "temporary")
 	if err != nil {
-		return kerr.New("HWOPVXYMCT", err, "process.GenerateAndRunCmd", "ioutil.TempDir")
+		return kerr.New("HWOPVXYMCT", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "ioutil.TempDir")
 	}
 	defer os.RemoveAll(outputDir)
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
 	if err = save(outputDir, source, outputName, false); err != nil {
-		return kerr.New("FRLCYFOWCJ", err, "process.GenerateAndRunCmd", "save")
+		return kerr.New("FRLCYFOWCJ", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "save")
 	}
 
 	params := []string{"run", outputPath}
@@ -164,7 +171,7 @@ func GenerateAndRunCmd(file fileType) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return kerr.New("UDDSSMQRHA", err, "process.GenerateAndRunCmd", "cmd.Run")
+		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run")
 	}
 
 	return nil
@@ -188,6 +195,12 @@ func save(dir string, contents []byte, name string, backup bool) error {
 		if _, err := os.Stat(file); err == nil {
 			os.Rename(file, backupPath)
 		}
+	} else {
+		os.Remove(file)
+	}
+
+	if len(contents) == 0 {
+		return nil
 	}
 
 	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)

@@ -10,15 +10,20 @@ import (
 )
 
 func main() {
-	if err := process.GenerateFiles(process.F_MAIN); err != nil {
+	dir, test, recursive, path, imports, err := process.Initialise()
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if err := process.GenerateAndRunCmd(process.F_CMD_TYPES); err != nil {
+	if err := process.GenerateAndRunCmd(process.F_CMD_MAIN, dir, test, recursive, path, imports); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if err := process.GenerateAndRunCmd(process.F_CMD_VALIDATE); err != nil {
+	if err := process.GenerateAndRunCmd(process.F_CMD_TYPES, dir, test, recursive, path, imports); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if err := process.GenerateAndRunCmd(process.F_CMD_VALIDATE, dir, test, recursive, path, imports); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

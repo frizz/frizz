@@ -14,13 +14,89 @@ import (
 	"kego.io/system"
 )
 
-func Scan(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, imports map[string]string) error {
+func ScanForImports(root string, recursive bool, packagePath string) (imports map[string]string, err error) {
+
+	imports = map[string]string{}
+
+	scanner := func(ob interface{}) error {
+		if i, ok := ob.(*system.Imports); ok {
+			for name, imp := range i.Imports {
+				imports[name] = imp.Value
+			}
+		}
+		return nil
+	}
+	err = scanPath(root, true, recursive, scanner, packagePath, map[string]string{})
+	return
+}
+
+func ScanForGlobals(root string, recursive bool, packagePath string, imports map[string]string) error {
+	scanner := func(i interface{}) error {
+		if _, ok := i.(*system.Type); ok {
+			return nil
+		}
+		o, ok := i.(system.Object)
+		if !ok {
+			return nil
+		}
+		b := o.GetBase()
+		if b.Id == "" {
+			// Anything without an ID is not a global
+			return nil
+		}
+		fullname := fmt.Sprintf("%s:%s", packagePath, b.Id)
+		system.RegisterGlobal(fullname, o)
+		return nil
+	}
+	return scanPath(root, false, recursive, scanner, packagePath, imports)
+}
+
+func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, imports map[string]string) error {
+	scanner := func(ob interface{}) error {
+		if t, ok := ob.(*system.Type); ok {
+
+			fullname := fmt.Sprintf("%s:%s", packagePath, t.Id)
+			system.RegisterType(fullname, t)
+
+			if t.Rule != nil {
+
+				rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id)
+				system.RegisterType(rulename, t.Rule)
+
+			} else {
+
+				// If the rule is missing, automatically create a default.
+				id := fmt.Sprintf("@%s", t.Id)
+				rulename := fmt.Sprintf("%s:%s", packagePath, id)
+				rule := &system.Type{
+					Base: &system.Base{
+						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id),
+						Type:        system.NewReference("kego.io/system", "type"),
+						Id:          id,
+						Context:     t.Base.Context.Clone(),
+					},
+					Is: []system.Reference{system.NewReference("kego.io/system", "rule")},
+					Embed: []system.Reference{
+						system.NewReference("kego.io/system", "ruleBase"),
+					},
+					Native:    system.NewString("object"),
+					Interface: false,
+				}
+				system.RegisterType(rulename, rule)
+			}
+		}
+		return nil
+	}
+	return scanPath(root, ignoreUnknownTypes, recursive, scanner, packagePath, imports)
+}
+
+func scanPath(root string, ignoreUnknownTypes bool, recursive bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := processScannedFile(filePath, ignoreUnknownTypes, packagePath, imports); err != nil {
+		if err := processScannedFile(filePath, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
@@ -45,7 +121,7 @@ func Scan(root string, ignoreUnknownTypes bool, recursive bool, packagePath stri
 	return nil
 }
 
-func processScannedFile(filePath string, ignoreUnknownTypes bool, packagePath string, imports map[string]string) error {
+func processScannedFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	if !strings.HasSuffix(filePath, ".json") {
 		return nil
@@ -57,13 +133,13 @@ func processScannedFile(filePath string, ignoreUnknownTypes bool, packagePath st
 	}
 	defer file.Close()
 
-	if err = processReader(file, ignoreUnknownTypes, packagePath, imports); err != nil {
+	if err = processReader(file, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-func processReader(file io.Reader, ignoreUnknownTypes bool, packagePath string, imports map[string]string) error {
+func processReader(file io.Reader, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	var i interface{}
 	unknown, err := json.NewDecoder(file, packagePath, imports).Decode(&i)
@@ -74,43 +150,5 @@ func processReader(file io.Reader, ignoreUnknownTypes bool, packagePath string, 
 		return kerr.New("KWNPDUJNYP", nil, "process.processReader", "json.NewDecoder.Decode: unknown types")
 	}
 
-	processScannedObject(i, packagePath, imports)
-	return nil
-}
-
-func processScannedObject(i interface{}, packagePath string, imports map[string]string) {
-
-	t, ok := i.(*system.Type)
-	if ok {
-
-		fullname := fmt.Sprintf("%s:%s", packagePath, t.Id)
-		system.RegisterType(fullname, t)
-
-		if t.Rule != nil {
-
-			rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id)
-			system.RegisterType(rulename, t.Rule)
-
-		} else {
-
-			// If the rule is missing, automatically create a default.
-			id := fmt.Sprintf("@%s", t.Id)
-			rulename := fmt.Sprintf("%s:%s", packagePath, id)
-			rule := &system.Type{
-				Base: &system.Base{
-					Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id),
-					Type:        system.NewReference("kego.io/system", "type"),
-					Id:          id,
-					Context:     t.Base.Context.Clone(),
-				},
-				Is: []system.Reference{system.NewReference("kego.io/system", "rule")},
-				Embed: []system.Reference{
-					system.NewReference("kego.io/system", "ruleBase"),
-				},
-				Native:    system.NewString("object"),
-				Interface: false,
-			}
-			system.RegisterType(rulename, rule)
-		}
-	}
+	return scan(i)
 }

@@ -40,7 +40,10 @@ func TestGenerateFiles_path(t *testing.T) {
 	defer func() { *generatorPathFlag = "" }()
 	*generatorPathFlag = "x.y/z"
 
-	err = GenerateFiles(F_MAIN)
+	dir, test, recursive, path, imports, err := Initialise()
+	assert.NoError(t, err)
+
+	err = GenerateFiles(F_MAIN, dir, test, recursive, path, imports)
 	assert.NoError(t, err)
 
 	genBytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "generated.go"))
@@ -79,7 +82,10 @@ func TestGenerateAndRunCmd(t *testing.T) {
 	err = ioutil.WriteFile(filepath.Join(pkgDir, "d.go"), []byte("package d"), 0777)
 	assert.NoError(t, err)
 
-	err = GenerateAndRunCmd(F_CMD_TYPES)
+	dir, test, recursive, path, imports, err := Initialise()
+	assert.NoError(t, err)
+
+	err = GenerateAndRunCmd(F_CMD_TYPES, dir, test, recursive, path, imports)
 	assert.NoError(t, err)
 
 	bytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "types", "generated.go"))
@@ -108,12 +114,16 @@ func TestGenerateFiles(t *testing.T) {
 
 	os.Chdir("/")
 
-	err = GenerateFiles(F_MAIN)
-	assert.IsError(t, err, "MHLOQTSAOX")
+	dir, test, recursive, path, imports, err := Initialise()
+	assert.IsError(t, err, "PSRAWHQCPV")
+	assert.HasError(t, err, "CXOETFPTGM")
 
 	os.Chdir(pkgDir)
 
-	err = GenerateFiles(F_MAIN)
+	dir, test, recursive, path, imports, err = Initialise()
+	assert.NoError(t, err)
+
+	err = GenerateFiles(F_MAIN, dir, test, recursive, path, imports)
 	assert.IsError(t, err, "XFNESBLBTQ")
 	assert.HasError(t, err, "HQLAEMCHBM")
 
@@ -125,7 +135,7 @@ func TestGenerateFiles(t *testing.T) {
 	err = ioutil.WriteFile(filepath.Join(pkgDir, "b.json"), []byte(data), 0777)
 	assert.NoError(t, err)
 
-	err = GenerateFiles(F_MAIN)
+	err = GenerateFiles(F_MAIN, dir, test, recursive, path, imports)
 	assert.NoError(t, err)
 
 	genBytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "generated.go"))
@@ -133,13 +143,13 @@ func TestGenerateFiles(t *testing.T) {
 	assert.Contains(t, string(genBytes), "json.RegisterType")
 
 	// This will error because of unknown types in b.json
-	err = GenerateFiles(F_TYPES)
+	err = GenerateFiles(F_TYPES, dir, test, recursive, path, imports)
 	assert.IsError(t, err, "XYIUHERDHE")
 	assert.HasError(t, err, "KWNPDUJNYP")
 
 	os.Remove(filepath.Join(pkgDir, "b.json"))
 
-	err = GenerateFiles(F_TYPES)
+	err = GenerateFiles(F_TYPES, dir, test, recursive, path, imports)
 	assert.NoError(t, err)
 
 	bytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "types", "generated.go"))
@@ -168,7 +178,7 @@ func Test_parseOptions(t *testing.T) {
 
 	os.Chdir(pkgDir)
 
-	test, dir, recursive, path, imports, err := parseOptions()
+	dir, test, recursive, path, imports, err := Initialise()
 	assert.NoError(t, err)
 	assert.Equal(t, pkgDir, dir)
 	assert.Equal(t, false, test)
@@ -178,26 +188,26 @@ func Test_parseOptions(t *testing.T) {
 
 	defer func() { *generatorTestFlag = false }()
 	*generatorTestFlag = true
-	test, _, _, _, _, err = parseOptions()
+	_, test, _, _, _, err = Initialise()
 	assert.NoError(t, err)
 	assert.Equal(t, true, test)
 
 	defer func() { *generatorRecursiveFlag = false }()
 	*generatorRecursiveFlag = true
-	_, _, recursive, _, _, err = parseOptions()
+	_, _, recursive, _, _, err = Initialise()
 	assert.NoError(t, err)
 	assert.Equal(t, true, recursive)
 
 	defer func() { *generatorPathFlag = "" }()
 	*generatorPathFlag = "a.b/c"
-	_, _, _, path, _, err = parseOptions()
+	_, _, _, path, _, err = Initialise()
 	assert.NoError(t, err)
 	assert.Equal(t, "a.b/c", path)
 
 	*generatorPathFlag = ""
 	os.Chdir("/")
 	defer os.Chdir(currentDir)
-	_, _, _, _, _, err = parseOptions()
+	_, _, _, _, _, err = Initialise()
 	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }
