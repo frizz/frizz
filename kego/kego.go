@@ -2,10 +2,25 @@ package kego // import "kego.io/kego"
 
 import (
 	"io"
+	"os"
 
 	"kego.io/json"
+	"kego.io/kerr"
 	_ "kego.io/system"
 )
+
+func Open(filename string, path string, imports map[string]string) (value interface{}, unknown bool, err error) {
+
+	file, err := os.Open(filename)
+	if err != nil {
+		err = kerr.New("NDJKHCDCIW", err, "kego.Open", "os.Open")
+		return
+	}
+	defer file.Close()
+
+	unknown, err = json.NewDecoder(file, path, imports).Decode(&value)
+	return
+}
 
 func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) (unknown bool, err error) {
 	return json.Unmarshal(data, v, path, imports)
