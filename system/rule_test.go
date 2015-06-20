@@ -137,10 +137,10 @@ func TestRuleHolderItemsRule(t *testing.T) {
 		*RuleBase
 	}
 	parentType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
 	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}))
 	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}))

@@ -30,10 +30,10 @@ func TestFormatTag(t *testing.T) {
 		*RuleBase
 	}
 	parentType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
 	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}))
 	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}))
@@ -59,7 +59,6 @@ func TestFormatTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"a\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	parentType.Context.Package = "kego.io/system"
 	parentType.Id = NewReference("kego.io/system", "string")
 	s, err = formatTag([]byte(`"a"`), r)
 	assert.NoError(t, err)
@@ -125,10 +124,10 @@ func TestGetTag(t *testing.T) {
 		Default structWithoutCustomMarshaler
 	}
 	parentType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
 	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStructA{}))
 	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStructB{}))
@@ -234,7 +233,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		*RuleBase
 	}
 	tyr := &Type{Base: &Base{Id: NewReference("b.c/d", "@a")}}
-	ty := &Type{Base: &Base{Id: NewReference("b.c/d", "a"), Context: &Context{Package: "b.c/d"}}}
+	ty := &Type{Base: &Base{Id: NewReference("b.c/d", "a")}}
 	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}))
 	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}))
 	RegisterType("b.c/d", "a", ty)
@@ -364,7 +363,7 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 		*RuleBase
 	}
 	tyr := &Type{Base: &Base{Id: NewReference("b.c/d", "@a")}}
-	ty := &Type{Base: &Base{Id: NewReference("b.c/d", "a"), Context: &Context{Package: "b.c/d"}}}
+	ty := &Type{Base: &Base{Id: NewReference("b.c/d", "a")}}
 	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}))
 	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}))
 	RegisterType("b.c/d", "a", ty)

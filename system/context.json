@@ -1,8 +1,0 @@
-{
-	"description": "Unmarshal context.",
-	"type": "type",
-	"id": "context",
-	"basic": true,
-	"extends": "",
-	"exclude": true
-}

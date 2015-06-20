@@ -11,12 +11,6 @@ func (b *Base) GetBase() *Base {
 	return b
 }
 
-// SetContext satisfies the json.Contexter interface, which allows the json unmarshal
-// function to store the unmarshal context in every object.
-func (o *Base) SetContext(path string, imports map[string]string) {
-	o.Context = &Context{Package: path, Imports: imports}
-}
-
 // RulesApplyToObjects returns true if we should apply the rules collection to this object.
 // Rules on types apply to instances of that type, not to the actual type object.
 // Rules on rules apply to objects defined by that rule, not to the actual rule object.

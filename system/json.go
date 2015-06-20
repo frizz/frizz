@@ -44,16 +44,14 @@ func init() {
 	json.RegisterType("kego.io/json", "@string", reflect.TypeOf(&JsonString_rule{}))
 	json.RegisterType("kego.io/json", "@bool", reflect.TypeOf(&JsonBool_rule{}))
 
-	c := Context{Imports: map[string]string{}, Package: "kego.io/json"}
 	tr := NewReference("kego.io/system", "type")
 	or := NewReference("kego.io/system", "object")
 
 	makeRule := func(name string) *Type {
 		return &Type{
 			Base: &Base{
-				Context: &c,
-				Id:      NewReference("kego.io/json", fmt.Sprintf("@%s", name)),
-				Type:    tr},
+				Id:   NewReference("kego.io/json", fmt.Sprintf("@%s", name)),
+				Type: tr},
 			Extends:   or,
 			Interface: false,
 			Is:        []Reference{NewReference("kego.io/system", "rule")},
@@ -65,9 +63,8 @@ func init() {
 	makeType := func(name string) *Type {
 		return &Type{
 			Base: &Base{
-				Context: &c,
-				Id:      NewReference("kego.io/json", name),
-				Type:    tr},
+				Id:   NewReference("kego.io/json", name),
+				Type: tr},
 			Extends:   or,
 			Interface: false,
 			Is:        []Reference(nil),

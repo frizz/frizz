@@ -18,11 +18,6 @@
 			"type": "json:@string",
 			"optional": true
 		},
-		"context": {
-			"description": "Unmarshaling context. This should not be in the json - it's added by the unmarshaler.",
-			"type": "@context",
-			"optional": true
-		},
 		"rules": {
 			"description": "Extra validation rules for this object or descendants",
 			"type": "@array",

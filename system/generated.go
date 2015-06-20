@@ -7,39 +7,13 @@ import (
 )
 
 //***********************************************************
-//*** @rule ***
+//*** map ***
 //***********************************************************
 
-// Automatically created basic rule for rule
-type Rule_rule struct {
+// This is the native json object data type.
+type Map struct {
 	*Base
-
-	*RuleBase
 }
-
-//***********************************************************
-//*** @map ***
-//***********************************************************
-
-// Restriction rules for maps
-type Map_rule struct {
-	*Base
-
-	*RuleBase
-
-	// This is a rule object, defining the type and restrictions on the value of the items.
-	Items Rule
-
-	// This is the maximum number of items alowed in the array
-	MaxItems Int
-
-	// This is the minimum number of items alowed in the array
-	MinItems Int
-}
-
-//***********************************************************
-//*** context ***
-//***********************************************************
 
 //***********************************************************
 //*** @number ***
@@ -71,125 +45,6 @@ type Number_rule struct {
 }
 
 //***********************************************************
-//*** @type ***
-//***********************************************************
-
-// Automatically created basic rule for type
-type Type_rule struct {
-	*Base
-
-	*RuleBase
-}
-
-//***********************************************************
-//*** @imports ***
-//***********************************************************
-
-// Automatically created basic rule for imports
-type Imports_rule struct {
-	*Base
-
-	*RuleBase
-}
-
-//***********************************************************
-//*** int ***
-//***********************************************************
-
-//***********************************************************
-//*** @context ***
-//***********************************************************
-
-// Automatically created basic rule for context
-type Context_rule struct {
-	*Base
-
-	*RuleBase
-}
-
-//***********************************************************
-//*** @reference ***
-//***********************************************************
-
-// Restriction rules for references
-type Reference_rule struct {
-	*Base
-
-	*RuleBase
-
-	// Default value of this is missing or null
-	Default Reference
-}
-
-//***********************************************************
-//*** reference ***
-//***********************************************************
-
-//***********************************************************
-//*** array ***
-//***********************************************************
-
-// This is the native json array data type
-type Array struct {
-	*Base
-}
-
-//***********************************************************
-//*** @base ***
-//***********************************************************
-
-// Automatically created basic rule for base
-type Base_rule struct {
-	*Base
-
-	*RuleBase
-}
-
-//***********************************************************
-//*** @string ***
-//***********************************************************
-
-// Restriction rules for strings
-type String_rule struct {
-	*Base
-
-	*RuleBase
-
-	// Default value of this is missing or null
-	Default String
-
-	// The value of this string is restricted to one of the provided values
-	Enum []String
-
-	// This is a string that the value must match
-	Equal String
-
-	// This restricts the value to one of several built-in formats
-	Format String
-
-	// The value must be shorter or equal to the provided maximum length
-	MaxLength Int
-
-	// The value must be longer or equal to the provided minimum length
-	MinLength Int
-
-	// This is a regex to match the value to
-	Pattern String
-}
-
-//***********************************************************
-//*** imports ***
-//***********************************************************
-
-// Lists imports used in this package.
-type Imports struct {
-	*Base
-
-	// Map of import name to path.
-	Imports map[string]String
-}
-
-//***********************************************************
 //*** @int ***
 //***********************************************************
 
@@ -213,23 +68,27 @@ type Int_rule struct {
 }
 
 //***********************************************************
-//*** string ***
-//***********************************************************
-
-//***********************************************************
 //*** rule ***
 //***********************************************************
 
 //***********************************************************
-//*** number ***
+//*** imports ***
 //***********************************************************
 
+// Lists imports used in this package.
+type Imports struct {
+	*Base
+
+	// Map of import name to path.
+	Imports map[string]String
+}
+
 //***********************************************************
-//*** @ruleBase ***
+//*** @imports ***
 //***********************************************************
 
-// Automatically created basic rule for ruleBase
-type RuleBase_rule struct {
+// Automatically created basic rule for imports
+type Imports_rule struct {
 	*Base
 
 	*RuleBase
@@ -272,18 +131,23 @@ type Type struct {
 }
 
 //***********************************************************
-//*** @bool ***
+//*** @ruleBase ***
 //***********************************************************
 
-// Restriction rules for bools
-type Bool_rule struct {
+// Automatically created basic rule for ruleBase
+type RuleBase_rule struct {
 	*Base
 
 	*RuleBase
-
-	// Default value if this is missing or null
-	Default Bool
 }
+
+//***********************************************************
+//*** bool ***
+//***********************************************************
+
+//***********************************************************
+//*** reference ***
+//***********************************************************
 
 //***********************************************************
 //*** ruleBase ***
@@ -300,35 +164,28 @@ type RuleBase struct {
 }
 
 //***********************************************************
-//*** base ***
+//*** @rule ***
 //***********************************************************
 
-// This is the most basic type.
-type Base struct {
+// Automatically created basic rule for rule
+type Rule_rule struct {
+	*Base
 
-	// Unmarshaling context. This should not be in the json - it's added by the unmarshaler.
-	Context *Context
-
-	// Description for the developer
-	Description string
-
-	// All global objects should have an id.
-	Id Reference
-
-	// Extra validation rules for this object or descendants
-	Rules []Rule
-
-	// Type of the object.
-	Type Reference
+	*RuleBase
 }
 
 //***********************************************************
-//*** map ***
+//*** @bool ***
 //***********************************************************
 
-// This is the native json object data type.
-type Map struct {
+// Restriction rules for bools
+type Bool_rule struct {
 	*Base
+
+	*RuleBase
+
+	// Default value if this is missing or null
+	Default Bool
 }
 
 //***********************************************************
@@ -355,60 +212,181 @@ type Array_rule struct {
 }
 
 //***********************************************************
-//*** bool ***
+//*** array ***
 //***********************************************************
+
+// This is the native json array data type
+type Array struct {
+	*Base
+}
+
+//***********************************************************
+//*** @base ***
+//***********************************************************
+
+// Automatically created basic rule for base
+type Base_rule struct {
+	*Base
+
+	*RuleBase
+}
+
+//***********************************************************
+//*** @type ***
+//***********************************************************
+
+// Automatically created basic rule for type
+type Type_rule struct {
+	*Base
+
+	*RuleBase
+}
+
+//***********************************************************
+//*** int ***
+//***********************************************************
+
+//***********************************************************
+//*** number ***
+//***********************************************************
+
+//***********************************************************
+//*** @map ***
+//***********************************************************
+
+// Restriction rules for maps
+type Map_rule struct {
+	*Base
+
+	*RuleBase
+
+	// This is a rule object, defining the type and restrictions on the value of the items.
+	Items Rule
+
+	// This is the maximum number of items alowed in the array
+	MaxItems Int
+
+	// This is the minimum number of items alowed in the array
+	MinItems Int
+}
+
+//***********************************************************
+//*** string ***
+//***********************************************************
+
+//***********************************************************
+//*** base ***
+//***********************************************************
+
+// This is the most basic type.
+type Base struct {
+
+	// Description for the developer
+	Description string
+
+	// All global objects should have an id.
+	Id Reference
+
+	// Extra validation rules for this object or descendants
+	Rules []Rule
+
+	// Type of the object.
+	Type Reference
+}
+
+//***********************************************************
+//*** @reference ***
+//***********************************************************
+
+// Restriction rules for references
+type Reference_rule struct {
+	*Base
+
+	*RuleBase
+
+	// Default value of this is missing or null
+	Default Reference
+}
+
+//***********************************************************
+//*** @string ***
+//***********************************************************
+
+// Restriction rules for strings
+type String_rule struct {
+	*Base
+
+	*RuleBase
+
+	// Default value of this is missing or null
+	Default String
+
+	// The value of this string is restricted to one of the provided values
+	Enum []String
+
+	// This is a string that the value must match
+	Equal String
+
+	// This restricts the value to one of several built-in formats
+	Format String
+
+	// The value must be shorter or equal to the provided maximum length
+	MaxLength Int
+
+	// The value must be longer or equal to the provided minimum length
+	MinLength Int
+
+	// This is a regex to match the value to
+	Pattern String
+}
 
 func init() {
 
-	json.RegisterType("kego.io/system", "map", reflect.TypeOf(&Map{}))
-
-	json.RegisterType("kego.io/system", "number", reflect.TypeOf(&Number{}))
-
-	json.RegisterType("kego.io/system", "@ruleBase", reflect.TypeOf(&RuleBase_rule{}))
-
-	json.RegisterType("kego.io/system", "type", reflect.TypeOf(&Type{}))
-
-	json.RegisterType("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}))
-
-	json.RegisterType("kego.io/system", "ruleBase", reflect.TypeOf(&RuleBase{}))
-
-	json.RegisterType("kego.io/system", "base", reflect.TypeOf(&Base{}))
-
-	json.RegisterType("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}))
-
-	json.RegisterType("kego.io/system", "bool", reflect.TypeOf(&Bool{}))
-
-	json.RegisterType("kego.io/system", "@context", reflect.TypeOf(&Context_rule{}))
-
-	json.RegisterType("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}))
-
-	json.RegisterType("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}))
-
-	json.RegisterType("kego.io/system", "context", reflect.TypeOf(&Context{}))
-
 	json.RegisterType("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}))
 
-	json.RegisterType("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}))
-
-	json.RegisterType("kego.io/system", "@imports", reflect.TypeOf(&Imports_rule{}))
-
-	json.RegisterType("kego.io/system", "int", reflect.TypeOf(&Int{}))
-
-	json.RegisterType("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}))
-
-	json.RegisterType("kego.io/system", "reference", reflect.TypeOf(&Reference{}))
-
-	json.RegisterType("kego.io/system", "string", reflect.TypeOf(&String{}))
-
-	json.RegisterType("kego.io/system", "array", reflect.TypeOf(&Array{}))
-
-	json.RegisterType("kego.io/system", "@base", reflect.TypeOf(&Base_rule{}))
-
-	json.RegisterType("kego.io/system", "@string", reflect.TypeOf(&String_rule{}))
+	json.RegisterType("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}))
 
 	json.RegisterType("kego.io/system", "imports", reflect.TypeOf(&Imports{}))
 
-	json.RegisterType("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}))
+	json.RegisterType("kego.io/system", "@imports", reflect.TypeOf(&Imports_rule{}))
+
+	json.RegisterType("kego.io/system", "map", reflect.TypeOf(&Map{}))
+
+	json.RegisterType("kego.io/system", "bool", reflect.TypeOf(&Bool{}))
+
+	json.RegisterType("kego.io/system", "reference", reflect.TypeOf(&Reference{}))
+
+	json.RegisterType("kego.io/system", "ruleBase", reflect.TypeOf(&RuleBase{}))
+
+	json.RegisterType("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}))
+
+	json.RegisterType("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}))
+
+	json.RegisterType("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}))
+
+	json.RegisterType("kego.io/system", "type", reflect.TypeOf(&Type{}))
+
+	json.RegisterType("kego.io/system", "@ruleBase", reflect.TypeOf(&RuleBase_rule{}))
+
+	json.RegisterType("kego.io/system", "@base", reflect.TypeOf(&Base_rule{}))
+
+	json.RegisterType("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}))
+
+	json.RegisterType("kego.io/system", "int", reflect.TypeOf(&Int{}))
+
+	json.RegisterType("kego.io/system", "number", reflect.TypeOf(&Number{}))
+
+	json.RegisterType("kego.io/system", "array", reflect.TypeOf(&Array{}))
+
+	json.RegisterType("kego.io/system", "string", reflect.TypeOf(&String{}))
+
+	json.RegisterType("kego.io/system", "base", reflect.TypeOf(&Base{}))
+
+	json.RegisterType("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}))
+
+	json.RegisterType("kego.io/system", "@string", reflect.TypeOf(&String_rule{}))
+
+	json.RegisterType("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}))
 
 }
 

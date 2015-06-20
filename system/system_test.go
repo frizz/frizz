@@ -346,33 +346,3 @@ func TestReferenceDefault(t *testing.T) {
 	assert.Equal(t, "typb", f.RefDefault.Name)
 
 }
-
-func TestContext(t *testing.T) {
-
-	type Foo struct {
-		*Base
-		Bar string
-	}
-
-	data := `{
-		"type": "foo",
-		"bar": "a"
-	}`
-
-	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system", "foo")
-
-	var i interface{}
-	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})
-	assert.False(t, unknown)
-	assert.NoError(t, err)
-	f, ok := i.(*Foo)
-	assert.True(t, ok, "Type %T not correct", i)
-	assert.NotNil(t, f)
-	assert.Equal(t, "a", f.Bar)
-	assert.Equal(t, "kego.io/system", f.Context.Package)
-	assert.Equal(t, "e.f/g", f.Context.Imports["d"])
-
-}

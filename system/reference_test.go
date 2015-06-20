@@ -113,7 +113,7 @@ func TestReferenceGoReference(t *testing.T) {
 func TestReferenceGetType(t *testing.T) {
 
 	ty := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
 	}
 	RegisterType("a.b/c", "d", ty)
 	defer UnregisterType("a.b/c", "d")
