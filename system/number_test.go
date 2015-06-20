@@ -6,6 +6,89 @@ import (
 	"kego.io/kerr/assert"
 )
 
+func TestNumberRule_Enforce(t *testing.T) {
+	r := Number_rule{Minimum: NewNumber(1.5)}
+	ok, message, err := r.Enforce(Number{}, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Minimum: value must exist", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(2), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(1), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Minimum: value 1 must not be less than 1.5", message)
+	assert.False(t, ok)
+
+	r = Number_rule{Minimum: NewNumber(1.5), ExclusiveMinimum: true}
+	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Minimum (exclusive): value 1.5 must be greater than 1.5", message)
+	assert.False(t, ok)
+
+	r = Number_rule{Maximum: NewNumber(1.5)}
+	ok, message, err = r.Enforce(Number{}, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Maximum: value must exist", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(1), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(2), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Maximum: value 2 must not be greater than 1.5", message)
+	assert.False(t, ok)
+
+	r = Number_rule{Maximum: NewNumber(1.5), ExclusiveMaximum: true}
+	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Maximum (exclusive): value 1.5 must be less than 1.5", message)
+	assert.False(t, ok)
+
+	r = Number_rule{MultipleOf: NewNumber(1.5)}
+	ok, message, err = r.Enforce(Number{}, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "MultipleOf: value must exist", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(0), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(3), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewNumber(4), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "MultipleOf: value 4 must be a multiple of 1.5", message)
+	assert.False(t, ok)
+
+}
+
 func TestNewNumber(t *testing.T) {
 	n := NewNumber(1.2)
 	assert.True(t, n.Exists)

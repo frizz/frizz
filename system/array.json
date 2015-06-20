@@ -28,8 +28,7 @@
 			},
 			"uniqueItems": {
 				"description": "If this is true, each item must be unique",
-				"type": "@bool",
-				"default": false,
+				"type": "json:@bool",
 				"optional": true
 			}
 		}

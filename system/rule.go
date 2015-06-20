@@ -11,6 +11,11 @@ type Rule interface {
 	GetRuleBase() *RuleBase
 }
 
+// Enforcer is a rule with properties that need to be enforced against data.
+type Enforcer interface {
+	Enforce(data interface{}, path string, imports map[string]string) (bool, string, error)
+}
+
 func (b *RuleBase) GetRuleBase() *RuleBase {
 	if b == nil {
 		return &RuleBase{}

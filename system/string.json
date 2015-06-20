@@ -19,7 +19,7 @@
 				"description": "The value of this string is restricted to one of the provided values",
 				"type": "@array",
 				"items": {
-					"type": "@string"
+					"type": "json:@string"
 				},
 				"optional": true
 			},

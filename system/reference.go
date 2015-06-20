@@ -89,6 +89,13 @@ func (r *Reference) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Quote(r.Value())), nil
 }
 
+func (r *Reference) String() string {
+	if !r.Exists {
+		return ""
+	}
+	return r.Value()
+}
+
 func (r *Reference) GoReference(path string, imports map[string]string) (string, error) {
 	s, err := IdToGoReference(r.Package, r.Name, path, imports)
 	if err != nil {

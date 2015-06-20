@@ -6,6 +6,77 @@ import (
 	"kego.io/kerr/assert"
 )
 
+func TestIntRule_Enforce(t *testing.T) {
+	r := Int_rule{Minimum: NewInt(2)}
+	ok, message, err := r.Enforce(Int{}, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Minimum: value must exist", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(3), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(2), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(1), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Minimum: value 1 must not be less than 2", message)
+	assert.False(t, ok)
+
+	r = Int_rule{Maximum: NewInt(2)}
+	ok, message, err = r.Enforce(Int{}, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Maximum: value must exist", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(1), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(2), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(3), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "Maximum: value 3 must not be greater than 2", message)
+	assert.False(t, ok)
+
+	r = Int_rule{MultipleOf: NewInt(3)}
+	ok, message, err = r.Enforce(Int{}, "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "MultipleOf: value must exist", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(0), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(3), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(6), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "", message)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(NewInt(4), "", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "MultipleOf: value 4 must be a multiple of 3", message)
+	assert.False(t, ok)
+
+}
+
 func TestNewInt(t *testing.T) {
 	n := NewInt(2)
 	assert.True(t, n.Exists)
