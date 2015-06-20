@@ -109,10 +109,6 @@ type Unmarshaler interface {
 	UnmarshalJSON([]byte, string, map[string]string) error
 }
 
-type Contexter interface {
-	SetContext(path string, imports map[string]string)
-}
-
 // An UnmarshalTypeError describes a JSON value that was
 // not appropriate for a value of a specific Go type.
 type UnmarshalTypeError struct {
@@ -394,9 +390,8 @@ func (d *decodeState) valueQuoted(context *ctx, unmarshalers bool) interface{} {
 // until it gets to a non-pointer.
 // if it encounters an Unmarshaler, indirect stops and returns that.
 // if decodingNull is true, indirect stops at the last pointer so it can be set to nil.
-func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers bool) (Unmarshaler, encoding.TextUnmarshaler, Contexter, reflect.Value) {
+func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers bool) (Unmarshaler, encoding.TextUnmarshaler, reflect.Value) {
 
-	var c Contexter
 	// If v is a named type and is addressable,
 	// start with its address, so that if the type has pointer methods,
 	// we find them.
@@ -425,21 +420,18 @@ func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers 
 			v.Set(reflect.New(v.Type().Elem()))
 		}
 		if v.Type().NumMethod() > 0 {
-			if cont, ok := v.Interface().(Contexter); ok {
-				c = cont
-			}
 			if unmarshalers {
 				if u, ok := v.Interface().(Unmarshaler); ok {
-					return u, nil, c, reflect.Value{}
+					return u, nil, reflect.Value{}
 				}
 				if u, ok := v.Interface().(encoding.TextUnmarshaler); ok {
-					return nil, u, c, reflect.Value{}
+					return nil, u, reflect.Value{}
 				}
 			}
 		}
 		v = v.Elem()
 	}
-	return nil, nil, c, v
+	return nil, nil, v
 }
 
 // getValue walks down v allocating pointers as needed.
@@ -460,7 +452,7 @@ func (d *decodeState) getValue(v reflect.Value) reflect.Value {
 // the first byte of the array ('[') has been read already.
 func (d *decodeState) array(v reflect.Value, context *ctx, unmarshalers bool) {
 	// Check for unmarshaler.
-	u, ut, c, pv := d.indirect(v, false, unmarshalers)
+	u, ut, pv := d.indirect(v, false, unmarshalers)
 	if u != nil {
 		d.off--
 		err := u.UnmarshalJSON(d.next(), context.Package, context.Imports)
@@ -559,9 +551,6 @@ func (d *decodeState) array(v reflect.Value, context *ctx, unmarshalers bool) {
 	}
 	if i == 0 && v.Kind() == reflect.Slice {
 		v.Set(reflect.MakeSlice(v.Type(), 0, 0))
-	}
-	if c != nil {
-		c.SetContext(context.Package, context.Imports)
 	}
 }
 
@@ -781,7 +770,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 		}
 	}
 
-	u, ut, c, pv := d.indirect(v, false, unmarshalers)
+	u, ut, pv := d.indirect(v, false, unmarshalers)
 	if u != nil {
 		d.off--
 		err := u.UnmarshalJSON(d.next(), context.Package, context.Imports)
@@ -800,14 +789,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 
 	// Decoding into nil interface?  Switch to non-reflect code.
 	if v.Kind() == reflect.Interface && v.NumMethod() == 0 {
-		m := d.objectInterface()
-		/*
-			if typed {
-				m["_path"] = context.Package
-				m["_imports"] = context.Imports
-			}
-		*/
-		v.Set(reflect.ValueOf(m))
+		v.Set(reflect.ValueOf(d.objectInterface()))
 		return
 	}
 
@@ -937,10 +919,6 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 		}
 	}
 
-	if c != nil {
-		c.SetContext(context.Package, context.Imports)
-	}
-
 	// When we finish decoding the json for an object, we should loop round the fields
 	// of the struct we're decoding into and assign any default values for missing items.
 	if v.Kind() == reflect.Struct {
@@ -1035,7 +1013,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		return
 	}
 	wantptr := item[0] == 'n' // null
-	u, ut, c, pv := d.indirect(v, wantptr, unmarshalers)
+	u, ut, pv := d.indirect(v, wantptr, unmarshalers)
 	if u != nil {
 		err := u.UnmarshalJSON(item, context.Package, context.Imports)
 		if err != nil {
@@ -1184,9 +1162,6 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			}
 			v.SetFloat(n)
 		}
-	}
-	if c != nil {
-		c.SetContext(context.Package, context.Imports)
 	}
 }
 
