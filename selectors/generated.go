@@ -9,11 +9,32 @@ import (
 )
 
 //***********************************************************
-//*** @gallery ***
+//*** polykids ***
 //***********************************************************
 
-// Automatically created basic rule for gallery
-type Gallery_rule struct {
+type Polykids struct {
+	*system.Base
+
+	A []*Kid
+}
+
+//***********************************************************
+//*** @sibling ***
+//***********************************************************
+
+// Automatically created basic rule for sibling
+type Sibling_rule struct {
+	*system.Base
+
+	*system.RuleBase
+}
+
+//***********************************************************
+//*** @photo ***
+//***********************************************************
+
+// Automatically created basic rule for photo
+type Photo_rule struct {
 	*system.Base
 
 	*system.RuleBase
@@ -38,127 +59,6 @@ type Photo struct {
 }
 
 //***********************************************************
-//*** @expr ***
-//***********************************************************
-
-// Automatically created basic rule for expr
-type Expr_rule struct {
-	*system.Base
-
-	*system.RuleBase
-}
-
-//***********************************************************
-//*** collision ***
-//***********************************************************
-
-type Collision struct {
-	*system.Base
-
-	Number map[string]system.String
-}
-
-//***********************************************************
-//*** @diagram ***
-//***********************************************************
-
-// Automatically created basic rule for diagram
-type Diagram_rule struct {
-	*system.Base
-
-	*system.RuleBase
-}
-
-//***********************************************************
-//*** polykids ***
-//***********************************************************
-
-type Polykids struct {
-	*system.Base
-
-	A []*Kid
-}
-
-//***********************************************************
-//*** gallery ***
-//***********************************************************
-
-// This represents a gallery - it's just a list of images
-type Gallery struct {
-	*system.Base
-
-	Images map[string]Image
-}
-
-//***********************************************************
-//*** @polykids ***
-//***********************************************************
-
-// Automatically created basic rule for polykids
-type Polykids_rule struct {
-	*system.Base
-
-	*system.RuleBase
-}
-
-//***********************************************************
-//*** @sibling ***
-//***********************************************************
-
-// Automatically created basic rule for sibling
-type Sibling_rule struct {
-	*system.Base
-
-	*system.RuleBase
-}
-
-//***********************************************************
-//*** kid ***
-//***********************************************************
-
-type Kid struct {
-	*system.Base
-
-	Language system.String
-
-	Level system.String
-
-	Preferred system.Bool
-}
-
-//***********************************************************
-//*** @basic ***
-//***********************************************************
-
-// Automatically created basic rule for basic
-type Basic_rule struct {
-	*system.Base
-
-	*system.RuleBase
-}
-
-//***********************************************************
-//*** diagram ***
-//***********************************************************
-
-type Diagram struct {
-	*system.Base
-
-	Url system.String
-}
-
-//***********************************************************
-//*** @typed ***
-//***********************************************************
-
-// Automatically created basic rule for typed
-type Typed_rule struct {
-	*system.Base
-
-	*system.RuleBase
-}
-
-//***********************************************************
 //*** sibling ***
 //***********************************************************
 
@@ -177,14 +77,28 @@ type Sibling struct {
 }
 
 //***********************************************************
-//*** @photo ***
+//*** @diagram ***
 //***********************************************************
 
-// Automatically created basic rule for photo
-type Photo_rule struct {
+// Automatically created basic rule for diagram
+type Diagram_rule struct {
 	*system.Base
 
 	*system.RuleBase
+}
+
+//***********************************************************
+//*** c ***
+//***********************************************************
+
+type C struct {
+	*system.Base
+
+	A system.Number
+
+	B system.Number
+
+	C map[string]system.Number
 }
 
 //***********************************************************
@@ -208,31 +122,11 @@ type Basic struct {
 }
 
 //***********************************************************
-//*** typed ***
+//*** @collision ***
 //***********************************************************
 
-type Typed struct {
-	*system.Base
-
-	Avatar Image
-
-	DrinkPreference []system.String
-
-	FavoriteColor system.String
-
-	Kids map[string]*Kid
-
-	Name map[string]system.String
-
-	Weight system.Number
-}
-
-//***********************************************************
-//*** @image ***
-//***********************************************************
-
-// Automatically created basic rule for image
-type Image_rule struct {
+// Automatically created basic rule for collision
+type Collision_rule struct {
 	*system.Base
 
 	*system.RuleBase
@@ -261,8 +155,92 @@ type Expr struct {
 }
 
 //***********************************************************
+//*** @polykids ***
+//***********************************************************
+
+// Automatically created basic rule for polykids
+type Polykids_rule struct {
+	*system.Base
+
+	*system.RuleBase
+}
+
+//***********************************************************
+//*** collision ***
+//***********************************************************
+
+type Collision struct {
+	*system.Base
+
+	Number map[string]system.String
+}
+
+//***********************************************************
 //*** image ***
 //***********************************************************
+
+//***********************************************************
+//*** typed ***
+//***********************************************************
+
+type Typed struct {
+	*system.Base
+
+	Avatar Image
+
+	DrinkPreference []system.String
+
+	FavoriteColor system.String
+
+	Kids map[string]*Kid
+
+	Name map[string]system.String
+
+	Weight system.Number
+}
+
+//***********************************************************
+//*** diagram ***
+//***********************************************************
+
+type Diagram struct {
+	*system.Base
+
+	Url system.String
+}
+
+//***********************************************************
+//*** @gallery ***
+//***********************************************************
+
+// Automatically created basic rule for gallery
+type Gallery_rule struct {
+	*system.Base
+
+	*system.RuleBase
+}
+
+//***********************************************************
+//*** @typed ***
+//***********************************************************
+
+// Automatically created basic rule for typed
+type Typed_rule struct {
+	*system.Base
+
+	*system.RuleBase
+}
+
+//***********************************************************
+//*** gallery ***
+//***********************************************************
+
+// This represents a gallery - it's just a list of images
+type Gallery struct {
+	*system.Base
+
+	Images map[string]Image
+}
 
 //***********************************************************
 //*** @kid ***
@@ -287,77 +265,99 @@ type C_rule struct {
 }
 
 //***********************************************************
-//*** @collision ***
+//*** @image ***
 //***********************************************************
 
-// Automatically created basic rule for collision
-type Collision_rule struct {
+// Automatically created basic rule for image
+type Image_rule struct {
 	*system.Base
 
 	*system.RuleBase
 }
 
 //***********************************************************
-//*** c ***
+//*** @basic ***
 //***********************************************************
 
-type C struct {
+// Automatically created basic rule for basic
+type Basic_rule struct {
 	*system.Base
 
-	A system.Number
+	*system.RuleBase
+}
 
-	B system.Number
+//***********************************************************
+//*** @expr ***
+//***********************************************************
 
-	C map[string]system.Number
+// Automatically created basic rule for expr
+type Expr_rule struct {
+	*system.Base
+
+	*system.RuleBase
+}
+
+//***********************************************************
+//*** kid ***
+//***********************************************************
+
+type Kid struct {
+	*system.Base
+
+	Language system.String
+
+	Level system.String
+
+	Preferred system.Bool
 }
 
 func init() {
 
+	json.RegisterType("kego.io/selectors", "photo", reflect.TypeOf(&Photo{}))
+
 	json.RegisterType("kego.io/selectors", "polykids", reflect.TypeOf(&Polykids{}))
-
-	json.RegisterType("kego.io/selectors", "gallery", reflect.TypeOf(&Gallery{}))
-
-	json.RegisterType("kego.io/selectors", "@polykids", reflect.TypeOf(&Polykids_rule{}))
 
 	json.RegisterType("kego.io/selectors", "@sibling", reflect.TypeOf(&Sibling_rule{}))
 
-	json.RegisterType("kego.io/selectors", "kid", reflect.TypeOf(&Kid{}))
+	json.RegisterType("kego.io/selectors", "@photo", reflect.TypeOf(&Photo_rule{}))
 
-	json.RegisterType("kego.io/selectors", "@basic", reflect.TypeOf(&Basic_rule{}))
+	json.RegisterType("kego.io/selectors", "expr", reflect.TypeOf(&Expr{}))
 
-	json.RegisterType("kego.io/selectors", "diagram", reflect.TypeOf(&Diagram{}))
+	json.RegisterType("kego.io/selectors", "@polykids", reflect.TypeOf(&Polykids_rule{}))
 
-	json.RegisterType("kego.io/selectors", "@diagram", reflect.TypeOf(&Diagram_rule{}))
-
-	json.RegisterType("kego.io/selectors", "@typed", reflect.TypeOf(&Typed_rule{}))
+	json.RegisterType("kego.io/selectors", "collision", reflect.TypeOf(&Collision{}))
 
 	json.RegisterType("kego.io/selectors", "sibling", reflect.TypeOf(&Sibling{}))
 
+	json.RegisterType("kego.io/selectors", "@diagram", reflect.TypeOf(&Diagram_rule{}))
+
+	json.RegisterType("kego.io/selectors", "c", reflect.TypeOf(&C{}))
+
 	json.RegisterType("kego.io/selectors", "basic", reflect.TypeOf(&Basic{}))
+
+	json.RegisterType("kego.io/selectors", "@collision", reflect.TypeOf(&Collision_rule{}))
 
 	json.RegisterType("kego.io/selectors", "typed", reflect.TypeOf(&Typed{}))
 
-	json.RegisterType("kego.io/selectors", "@image", reflect.TypeOf(&Image_rule{}))
-
-	json.RegisterType("kego.io/selectors", "@photo", reflect.TypeOf(&Photo_rule{}))
+	json.RegisterType("kego.io/selectors", "gallery", reflect.TypeOf(&Gallery{}))
 
 	json.RegisterType("kego.io/selectors", "@kid", reflect.TypeOf(&Kid_rule{}))
 
 	json.RegisterType("kego.io/selectors", "@c", reflect.TypeOf(&C_rule{}))
 
-	json.RegisterType("kego.io/selectors", "@collision", reflect.TypeOf(&Collision_rule{}))
-
-	json.RegisterType("kego.io/selectors", "c", reflect.TypeOf(&C{}))
-
-	json.RegisterType("kego.io/selectors", "expr", reflect.TypeOf(&Expr{}))
-
-	json.RegisterType("kego.io/selectors", "photo", reflect.TypeOf(&Photo{}))
-
-	json.RegisterType("kego.io/selectors", "@expr", reflect.TypeOf(&Expr_rule{}))
-
-	json.RegisterType("kego.io/selectors", "collision", reflect.TypeOf(&Collision{}))
+	json.RegisterType("kego.io/selectors", "diagram", reflect.TypeOf(&Diagram{}))
 
 	json.RegisterType("kego.io/selectors", "@gallery", reflect.TypeOf(&Gallery_rule{}))
+
+	json.RegisterType("kego.io/selectors", "@typed", reflect.TypeOf(&Typed_rule{}))
+
+	json.RegisterType("kego.io/selectors", "kid", reflect.TypeOf(&Kid{}))
+
+	json.RegisterType("kego.io/selectors", "@image", reflect.TypeOf(&Image_rule{}))
+
+	json.RegisterType("kego.io/selectors", "@basic", reflect.TypeOf(&Basic_rule{}))
+
+	json.RegisterType("kego.io/selectors", "@expr", reflect.TypeOf(&Expr_rule{}))
 
 	var _ system.Nothing
 
