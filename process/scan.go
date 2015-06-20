@@ -69,7 +69,6 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
 						Type:        system.NewReference("kego.io/system", "type"),
 						Id:          ref,
-						Context:     t.Base.Context.Clone(),
 					},
 					Is: []system.Reference{system.NewReference("kego.io/system", "rule")},
 					Embed: []system.Reference{
