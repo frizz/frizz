@@ -12,22 +12,22 @@ import (
 
 type Reference struct {
 	Package string
-	Id      string
+	Name    string
 	Exists  bool
 }
 
-func (r *Reference) Value() string {
+func (r Reference) Value() string {
 	if !r.Exists {
 		return ""
 	}
-	return fmt.Sprintf("%s:%s", r.Package, r.Id)
+	return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
 func NewReference(packagePath string, typeName string) Reference {
 	r := Reference{}
 	r.Exists = true
 	r.Package = packagePath
-	r.Id = typeName
+	r.Name = typeName
 	return r
 }
 
@@ -35,13 +35,13 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
 		return nil, kerr.New("OSQKOWGVWX", nil, "Reference.RuleToParentType", "Reference is nil")
 	}
-	if !strings.HasPrefix(r.Id, "@") {
-		return nil, kerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Id)
+	if !strings.HasPrefix(r.Name, "@") {
+		return nil, kerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Name)
 	}
-	newType := r.Id[1:]
+	newType := r.Name[1:]
 	newRef := &Reference{
 		Package: r.Package,
-		Id:      newType,
+		Name:    newType,
 		Exists:  r.Exists,
 	}
 	return newRef, nil
@@ -63,7 +63,7 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 	}
 	if s == nil {
 		out.Exists = false
-		out.Id = ""
+		out.Name = ""
 		out.Package = ""
 	} else {
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
@@ -71,13 +71,13 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 			// We don't want to throw an error here, because when we're scanning for
 			// imports we need to tolerate unknown imports
 			out.Exists = false
-			out.Id = ""
+			out.Name = ""
 			out.Package = ""
 			return nil
 		}
 		out.Exists = true
 		out.Package = path
-		out.Id = name
+		out.Name = name
 	}
 	return nil
 }
@@ -90,7 +90,7 @@ func (r *Reference) MarshalJSON() ([]byte, error) {
 }
 
 func (r *Reference) GoReference(path string, imports map[string]string) (string, error) {
-	s, err := IdToGoReference(r.Package, r.Id, path, imports)
+	s, err := IdToGoReference(r.Package, r.Name, path, imports)
 	if err != nil {
 		return "", kerr.New("LVHAQUOQGR", err, "Reference.GoReference", "IdToGoReference")
 	}
@@ -101,7 +101,7 @@ func (r *Reference) GetType() (*Type, bool) {
 	if !r.Exists {
 		return nil, false
 	}
-	return GetType(r.Value())
+	return GetType(r.Package, r.Name)
 }
 
 func (s Reference) NativeString() (value string, exists bool) {

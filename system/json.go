@@ -37,12 +37,12 @@ type JsonBool_rule struct {
 }
 
 func init() {
-	json.RegisterType("kego.io/json:number", reflect.TypeOf(float64(1.1)))
-	json.RegisterType("kego.io/json:string", reflect.TypeOf(string("")))
-	json.RegisterType("kego.io/json:bool", reflect.TypeOf(bool(true)))
-	json.RegisterType("kego.io/json:@number", reflect.TypeOf(&JsonNumber_rule{}))
-	json.RegisterType("kego.io/json:@string", reflect.TypeOf(&JsonString_rule{}))
-	json.RegisterType("kego.io/json:@bool", reflect.TypeOf(&JsonBool_rule{}))
+	json.RegisterType("kego.io/json", "number", reflect.TypeOf(float64(1.1)))
+	json.RegisterType("kego.io/json", "string", reflect.TypeOf(string("")))
+	json.RegisterType("kego.io/json", "bool", reflect.TypeOf(bool(true)))
+	json.RegisterType("kego.io/json", "@number", reflect.TypeOf(&JsonNumber_rule{}))
+	json.RegisterType("kego.io/json", "@string", reflect.TypeOf(&JsonString_rule{}))
+	json.RegisterType("kego.io/json", "@bool", reflect.TypeOf(&JsonBool_rule{}))
 
 	c := Context{Imports: map[string]string{}, Package: "kego.io/json"}
 	tr := NewReference("kego.io/system", "type")
@@ -52,7 +52,7 @@ func init() {
 		return &Type{
 			Base: &Base{
 				Context: &c,
-				Id:      fmt.Sprintf("@%s", name),
+				Id:      NewReference("kego.io/json", fmt.Sprintf("@%s", name)),
 				Type:    tr},
 			Extends:   or,
 			Interface: false,
@@ -66,7 +66,7 @@ func init() {
 		return &Type{
 			Base: &Base{
 				Context: &c,
-				Id:      name,
+				Id:      NewReference("kego.io/json", name),
 				Type:    tr},
 			Extends:   or,
 			Interface: false,
@@ -76,11 +76,11 @@ func init() {
 			Rule:      makeRule(name)}
 	}
 
-	RegisterType("kego.io/json:string", makeType("string"))
-	RegisterType("kego.io/json:number", makeType("number"))
-	RegisterType("kego.io/json:bool", makeType("bool"))
-	RegisterType("kego.io/json:@string", makeRule("string"))
-	RegisterType("kego.io/json:@number", makeRule("number"))
-	RegisterType("kego.io/json:@bool", makeRule("bool"))
+	RegisterType("kego.io/json", "string", makeType("string"))
+	RegisterType("kego.io/json", "number", makeType("number"))
+	RegisterType("kego.io/json", "bool", makeType("bool"))
+	RegisterType("kego.io/json", "@string", makeRule("string"))
+	RegisterType("kego.io/json", "@number", makeRule("number"))
+	RegisterType("kego.io/json", "@bool", makeRule("bool"))
 
 }

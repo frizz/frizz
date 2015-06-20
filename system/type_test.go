@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"testing"
 
 	"kego.io/json"
@@ -40,7 +39,7 @@ func TestBool(t *testing.T) {
 	assert.Equal(t, "This is the native json bool data type", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "bool", f.Native.Value)
-	assert.Equal(t, "@bool", f.Rule.Id)
+	assert.Equal(t, "@bool", f.Rule.Id.Name)
 
 }
 
@@ -110,7 +109,7 @@ func TestType(t *testing.T) {
 	assert.Equal(t, "This is the most basic type.", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "object", f.Native.Value)
-	assert.Equal(t, "@type", f.Rule.Id)
+	assert.Equal(t, "@type", f.Rule.Id.Name)
 	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(Object).GetBase().Description)
 	assert.Equal(t, true, f.Fields["interface"].GetRuleBase().Optional)
 	r, ok := f.Fields["interface"].(*Bool_rule)
@@ -154,11 +153,9 @@ func unmarshalDiagram(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, d)
 
-	fullname := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Id)
-	RegisterType(fullname, d)
+	RegisterType("kego.io/gallery", d.Id.Name, d)
 	if d.Rule != nil {
-		rulename := fmt.Sprintf("%s:%s", "kego.io/gallery", d.Rule.Id)
-		RegisterType(rulename, d.Rule)
+		RegisterType("kego.io/gallery", d.Rule.Id.Name, d.Rule)
 	}
 
 }
@@ -216,7 +213,7 @@ func TestUnknownRule(t *testing.T) {
 }
 
 func TestUnregisterType(t *testing.T) {
-	UnregisterType("")
+	UnregisterType("", "")
 }
 
 func TestTypeHasExtends(t *testing.T) {
@@ -273,7 +270,7 @@ func TestTypeNativeValueGolangType(t *testing.T) {
 }
 
 func TestTypeGoName(t *testing.T) {
-	y := &Type{Base: &Base{Id: "aa"}}
+	y := &Type{Base: &Base{Id: NewReference("a.b/c", "aa")}}
 	n := y.GoName()
 	assert.Equal(t, "Aa", n)
 }

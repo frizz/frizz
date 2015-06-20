@@ -9,6 +9,9 @@ import (
 )
 
 func IdToGoName(id string) string {
+	if id == "" {
+		return ""
+	}
 	if strings.HasPrefix(id, "@") {
 		// Rules are prefixed with @ in the json ID, and suffixed with _rule in the
 		// golang type name.

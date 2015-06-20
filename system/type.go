@@ -1,54 +1,51 @@
 package system
 
 import (
-	"fmt"
 	"sync"
-
-	"strings"
 
 	"kego.io/kerr"
 )
 
 var types struct {
 	sync.RWMutex
-	m map[string]*Type
+	m map[Reference]*Type
 }
 
-func RegisterType(name string, typ *Type) {
+func RegisterType(path string, name string, typ *Type) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {
-		types.m = make(map[string]*Type)
+		types.m = make(map[Reference]*Type)
 	}
-	types.m[name] = typ
+	types.m[NewReference(path, name)] = typ
 }
-func UnregisterType(name string) {
+func UnregisterType(path string, name string) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {
 		return
 	}
-	delete(types.m, name)
+	delete(types.m, NewReference(path, name))
 }
 
 // TODO: Perhaps this should not return a pointer if it will
 // TODO: be used concurrently?
-func GetType(name string) (t *Type, found bool) {
+func GetType(path string, name string) (t *Type, found bool) {
 	types.RLock()
 	defer types.RUnlock()
-	t, found = types.m[name]
+	t, found = types.m[NewReference(path, name)]
 	return
 }
 
 // TODO: Perhaps this should not return pointers if it will
 // TODO: be used concurrently?
-func GetAllTypesInPackage(path string) map[string]*Type {
-	out := map[string]*Type{}
+func GetAllTypesInPackage(path string) map[Reference]*Type {
+	out := map[Reference]*Type{}
 	types.RLock()
 	defer types.RUnlock()
-	for k, t := range types.m {
-		if strings.HasPrefix(k, fmt.Sprintf("%s:", path)) {
-			out[k] = t
+	for ref, t := range types.m {
+		if ref.Package == path {
+			out[ref] = t
 		}
 	}
 	return out
@@ -111,11 +108,11 @@ func (t *Type) NativeValueGolangType() (string, error) {
 }
 
 func (t *Type) GoName() string {
-	return IdToGoName(t.Id)
+	return IdToGoName(t.Id.Name)
 }
 
 func (t *Type) FullName() string {
-	return fmt.Sprintf("%s:%s", t.Context.Package, t.Id)
+	return t.Id.Value()
 }
 
 // GoTypeReference outputs a Go source code reference to the name of this type. If we're in
@@ -123,7 +120,7 @@ func (t *Type) FullName() string {
 // it looks up the alias of the package in the imports and appends that to the start.
 // e.g. "system.String".
 func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
-	return IdToGoReference(t.Context.Package, t.Id, path, imports)
+	return IdToGoReference(t.Id.Package, t.Id.Name, path, imports)
 }
 
 /*

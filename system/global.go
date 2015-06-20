@@ -1,48 +1,44 @@
 package system
 
-import (
-	"fmt"
-	"strings"
-	"sync"
-)
+import "sync"
 
 var globals struct {
 	sync.RWMutex
-	m map[string]Object
+	m map[Reference]Object
 }
 
-func RegisterGlobal(name string, ob Object) {
+func RegisterGlobal(path string, name string, ob Object) {
 	globals.Lock()
 	defer globals.Unlock()
 	if globals.m == nil {
-		globals.m = make(map[string]Object)
+		globals.m = make(map[Reference]Object)
 	}
-	globals.m[name] = ob
+	globals.m[NewReference(path, name)] = ob
 }
 
-func UnregisterGlobal(name string) {
+func UnregisterGlobal(path string, name string) {
 	globals.Lock()
 	defer globals.Unlock()
 	if globals.m == nil {
 		return
 	}
-	delete(globals.m, name)
+	delete(globals.m, NewReference(path, name))
 }
 
-func GetGlobal(name string) (global Object, found bool) {
+func GetGlobal(path string, name string) (global Object, found bool) {
 	globals.RLock()
 	defer globals.RUnlock()
-	global, found = globals.m[name]
+	global, found = globals.m[NewReference(path, name)]
 	return
 }
 
-func GetAllGlobalsInPackage(path string) map[string]Object {
-	out := map[string]Object{}
+func GetAllGlobalsInPackage(path string) map[Reference]Object {
+	out := map[Reference]Object{}
 	globals.RLock()
 	defer globals.RUnlock()
-	for k, g := range globals.m {
-		if strings.HasPrefix(k, fmt.Sprintf("%s:", path)) {
-			out[k] = g
+	for ref, g := range globals.m {
+		if ref.Package == path {
+			out[ref] = g
 		}
 	}
 	return out

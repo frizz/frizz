@@ -12,7 +12,7 @@ func TestReferenceRuleToParentType(t *testing.T) {
 	rp, err := r.RuleToParentType()
 	assert.NoError(t, err)
 	assert.Equal(t, "a.b/c", rp.Package)
-	assert.Equal(t, "d", rp.Id)
+	assert.Equal(t, "d", rp.Name)
 	assert.Equal(t, "a.b/c:d", rp.Value())
 
 	r = Reference{}
@@ -43,7 +43,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, r.Exists)
 	assert.Equal(t, "", r.Package)
-	assert.Equal(t, "", r.Id)
+	assert.Equal(t, "", r.Name)
 	assert.Equal(t, "", r.Value())
 
 	r = reset()
@@ -51,7 +51,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
 	assert.Equal(t, "a.b/c", r.Package)
-	assert.Equal(t, "d", r.Id)
+	assert.Equal(t, "d", r.Name)
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
@@ -59,7 +59,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
 	assert.Equal(t, "a.b/c", r.Package)
-	assert.Equal(t, "@d", r.Id)
+	assert.Equal(t, "@d", r.Name)
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
@@ -113,15 +113,15 @@ func TestReferenceGoReference(t *testing.T) {
 func TestReferenceGetType(t *testing.T) {
 
 	ty := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "d", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
 	}
-	RegisterType("a.b/c:d", ty)
-	defer UnregisterType("a.b/c:d")
+	RegisterType("a.b/c", "d", ty)
+	defer UnregisterType("a.b/c", "d")
 
 	r := NewReference("a.b/c", "d")
 	typ, ok := r.GetType()
 	assert.True(t, ok)
-	assert.Equal(t, "d", typ.Id)
+	assert.Equal(t, "a.b/c:d", typ.Id.Value())
 
 	r = NewReference("a.b/c", "e")
 	_, ok = r.GetType()

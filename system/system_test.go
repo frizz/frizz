@@ -32,10 +32,10 @@ func TestNative(t *testing.T) {
 		"bolNull": null
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -77,10 +77,10 @@ func TestNativeDefaults(t *testing.T) {
 		"bolHere": false
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -122,10 +122,10 @@ func TestNativeDefaultsShort(t *testing.T) {
 		"bolHere": false
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -175,10 +175,10 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 		"type": "foo"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -207,10 +207,10 @@ func TestReferenceType(t *testing.T) {
 		"ref": "typ"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -222,7 +222,7 @@ func TestReferenceType(t *testing.T) {
 	assert.True(t, f.Ref.Exists)
 	assert.Equal(t, "kego.io/system:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/system", f.Ref.Package)
-	assert.Equal(t, "typ", f.Ref.Id)
+	assert.Equal(t, "typ", f.Ref.Name)
 
 }
 
@@ -236,10 +236,10 @@ func TestReferenceEmpty(t *testing.T) {
 		"type": "foo"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -263,10 +263,10 @@ func TestReferencePath(t *testing.T) {
 		"ref": "kego.io/pkg:typ"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -278,7 +278,7 @@ func TestReferencePath(t *testing.T) {
 	assert.True(t, f.Ref.Exists)
 	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
-	assert.Equal(t, "typ", f.Ref.Id)
+	assert.Equal(t, "typ", f.Ref.Name)
 
 }
 
@@ -293,10 +293,10 @@ func TestReferenceImport(t *testing.T) {
 		"ref": "pkg:typ"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
@@ -308,7 +308,7 @@ func TestReferenceImport(t *testing.T) {
 	assert.True(t, f.Ref.Exists)
 	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
-	assert.Equal(t, "typ", f.Ref.Id)
+	assert.Equal(t, "typ", f.Ref.Name)
 
 }
 
@@ -324,10 +324,10 @@ func TestReferenceDefault(t *testing.T) {
 		"refHere": "typc"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
@@ -340,10 +340,10 @@ func TestReferenceDefault(t *testing.T) {
 	assert.True(t, f.RefDefault.Exists)
 	assert.Equal(t, "kego.io/system:typc", f.RefHere.Value())
 	assert.Equal(t, "kego.io/system", f.RefHere.Package)
-	assert.Equal(t, "typc", f.RefHere.Id)
+	assert.Equal(t, "typc", f.RefHere.Name)
 	assert.Equal(t, "kego.io/pkgb:typb", f.RefDefault.Value())
 	assert.Equal(t, "kego.io/pkgb", f.RefDefault.Package)
-	assert.Equal(t, "typb", f.RefDefault.Id)
+	assert.Equal(t, "typb", f.RefDefault.Name)
 
 }
 
@@ -359,10 +359,10 @@ func TestContext(t *testing.T) {
 		"bar": "a"
 	}`
 
-	json.RegisterType("kego.io/system:foo", reflect.TypeOf(&Foo{}))
+	json.RegisterType("kego.io/system", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system:foo")
+	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
 	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"d": "e.f/g"})

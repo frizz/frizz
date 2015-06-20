@@ -30,19 +30,19 @@ func TestFormatTag(t *testing.T) {
 		*RuleBase
 	}
 	parentType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c:a", reflect.TypeOf(&parentStruct{}))
-	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStruct{}))
-	RegisterType("a.b/c:a", parentType)
-	RegisterType("a.b/c:@a", ruleType)
-	defer json.UnregisterType("a.b/c:a")
-	defer json.UnregisterType("a.b/c:@a")
-	defer UnregisterType("a.b/c:a")
-	defer UnregisterType("a.b/c:@a")
+	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}))
+	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}))
+	RegisterType("a.b/c", "a", parentType)
+	RegisterType("a.b/c", "@a", ruleType)
+	defer json.UnregisterType("a.b/c", "a")
+	defer json.UnregisterType("a.b/c", "@a")
+	defer UnregisterType("a.b/c", "a")
+	defer UnregisterType("a.b/c", "@a")
 
 	r := &RuleHolder{
 		Rule:       &ruleStruct{},
@@ -60,7 +60,7 @@ func TestFormatTag(t *testing.T) {
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"a\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
 	parentType.Context.Package = "kego.io/system"
-	parentType.Id = "string"
+	parentType.Id = NewReference("kego.io/system", "string")
 	s, err = formatTag([]byte(`"a"`), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
@@ -125,24 +125,24 @@ func TestGetTag(t *testing.T) {
 		Default structWithoutCustomMarshaler
 	}
 	parentType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStructA{}))
-	json.RegisterType("a.b/c:@b", reflect.TypeOf(&ruleStructB{}))
-	json.RegisterType("a.b/c:@c", reflect.TypeOf(&ruleStructC{}))
-	json.RegisterType("a.b/c:@d", reflect.TypeOf(&ruleStructD{}))
-	json.RegisterType("a.b/c:@e", reflect.TypeOf(&ruleStructE{}))
+	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStructA{}))
+	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStructB{}))
+	json.RegisterType("a.b/c", "@c", reflect.TypeOf(&ruleStructC{}))
+	json.RegisterType("a.b/c", "@d", reflect.TypeOf(&ruleStructD{}))
+	json.RegisterType("a.b/c", "@e", reflect.TypeOf(&ruleStructE{}))
 	for _, letter := range []string{"a", "b", "c", "d", "e"} {
-		json.RegisterType(fmt.Sprintf("a.b/c:%s", letter), reflect.TypeOf(&parentStruct{}))
-		RegisterType(fmt.Sprintf("a.b/c:%s", letter), parentType)
-		RegisterType(fmt.Sprintf("a.b/c:@%s", letter), ruleType)
-		defer json.UnregisterType(fmt.Sprintf("a.b/c:%s", letter))
-		defer json.UnregisterType(fmt.Sprintf("a.b/c:@%s", letter))
-		defer UnregisterType(fmt.Sprintf("a.b/c:%s", letter))
-		defer UnregisterType(fmt.Sprintf("a.b/c:@%s", letter))
+		json.RegisterType("a.b/c", letter, reflect.TypeOf(&parentStruct{}))
+		RegisterType("a.b/c", letter, parentType)
+		RegisterType("a.b/c", fmt.Sprintf("@%s", letter), ruleType)
+		defer json.UnregisterType("a.b/c", letter)
+		defer json.UnregisterType("a.b/c", fmt.Sprintf("@%s", letter))
+		defer UnregisterType("a.b/c", letter)
+		defer UnregisterType("a.b/c", fmt.Sprintf("@%s", letter))
 	}
 
 	r := &RuleHolder{
@@ -163,12 +163,12 @@ func TestGetTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Base: &Base{Id: "f"}}}
+	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Base: &Base{Id: NewReference("d.e/f", "f")}}}
 	s, err = getTag(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
-	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Base: &Base{Id: "f"}, throwError: true}}
+	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Base: &Base{Id: NewReference("d.e/f", "f")}, throwError: true}}
 	s, err = getTag(r)
 	assert.IsError(t, err, "YIEMHYFVCD")
 
@@ -233,16 +233,16 @@ func TestGoTypeDescriptor(t *testing.T) {
 		*Base
 		*RuleBase
 	}
-	tyr := &Type{Base: &Base{Id: "@a"}}
-	ty := &Type{Base: &Base{Id: "a", Context: &Context{Package: "b.c/d"}}}
-	json.RegisterType("b.c/d:a", reflect.TypeOf(&a{}))
-	json.RegisterType("b.c/d:@a", reflect.TypeOf(&a_rule{}))
-	RegisterType("b.c/d:a", ty)
-	RegisterType("b.c/d:@a", tyr)
-	defer json.UnregisterType("b.c/d:a")
-	defer json.UnregisterType("b.c/d:@a")
-	defer UnregisterType("b.c/d:a")
-	defer UnregisterType("b.c/d:@a")
+	tyr := &Type{Base: &Base{Id: NewReference("b.c/d", "@a")}}
+	ty := &Type{Base: &Base{Id: NewReference("b.c/d", "a"), Context: &Context{Package: "b.c/d"}}}
+	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}))
+	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}))
+	RegisterType("b.c/d", "a", ty)
+	RegisterType("b.c/d", "@a", tyr)
+	defer json.UnregisterType("b.c/d", "a")
+	defer json.UnregisterType("b.c/d", "@a")
+	defer UnregisterType("b.c/d", "a")
+	defer UnregisterType("b.c/d", "@a")
 
 	pa := &a_rule{
 		Base: &Base{
@@ -363,16 +363,16 @@ func GoTypeDescriptorErrors_NeedsTypes(t *testing.T) {
 		*Base
 		*RuleBase
 	}
-	tyr := &Type{Base: &Base{Id: "@a"}}
-	ty := &Type{Base: &Base{Id: "a", Context: &Context{Package: "b.c/d"}}}
-	json.RegisterType("b.c/d:a", reflect.TypeOf(&a{}))
-	json.RegisterType("b.c/d:@a", reflect.TypeOf(&a_rule{}))
-	RegisterType("b.c/d:a", ty)
-	RegisterType("b.c/d:@a", tyr)
-	defer json.UnregisterType("b.c/d:a")
-	defer json.UnregisterType("b.c/d:@a")
-	defer UnregisterType("b.c/d:a")
-	defer UnregisterType("b.c/d:@a")
+	tyr := &Type{Base: &Base{Id: NewReference("b.c/d", "@a")}}
+	ty := &Type{Base: &Base{Id: NewReference("b.c/d", "a"), Context: &Context{Package: "b.c/d"}}}
+	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}))
+	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}))
+	RegisterType("b.c/d", "a", ty)
+	RegisterType("b.c/d", "@a", tyr)
+	defer json.UnregisterType("b.c/d", "a")
+	defer json.UnregisterType("b.c/d", "@a")
+	defer UnregisterType("b.c/d", "a")
+	defer UnregisterType("b.c/d", "@a")
 
 	pa := &a_rule{
 		Base: &Base{

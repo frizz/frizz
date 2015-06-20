@@ -10,7 +10,7 @@
 		},
 		"id": {
 			"description": "All global objects should have an id.",
-			"type": "json:@string",
+			"type": "@reference",
 			"optional": true
 		},
 		"description": {

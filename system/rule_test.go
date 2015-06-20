@@ -18,23 +18,23 @@ func TestRuleTypes(t *testing.T) {
 		*RuleBase
 	}
 	parentType := &Type{
-		Base: &Base{Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	RegisterType("a.b/c:a", parentType)
-	RegisterType("a.b/c:@a", ruleType)
-	defer UnregisterType("a.b/c:a")
-	defer UnregisterType("a.b/c:@a")
+	RegisterType("a.b/c", "a", parentType)
+	RegisterType("a.b/c", "@a", ruleType)
+	defer UnregisterType("a.b/c", "a")
+	defer UnregisterType("a.b/c", "@a")
 
 	r := &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@a")},
 	}
 	rt, pt, err := ruleTypes(r, "", map[string]string{})
 	assert.NoError(t, err)
-	assert.Equal(t, "a", pt.Id)
-	assert.Equal(t, "@a", rt.Id)
+	assert.Equal(t, "a", pt.Id.Name)
+	assert.Equal(t, "@a", rt.Id.Name)
 
 	r1 := nonRuleStruct{}
 	rt, pt, err = ruleTypes(r1, "", map[string]string{})
@@ -55,7 +55,7 @@ func TestRuleTypes(t *testing.T) {
 	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
 	assert.IsError(t, err, "NXRCPQMUIE")
 
-	RegisterType("a.b/c:@b", ruleType)
+	RegisterType("a.b/c", "@b", ruleType)
 	r = &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@b")},
 	}
@@ -137,19 +137,19 @@ func TestRuleHolderItemsRule(t *testing.T) {
 		*RuleBase
 	}
 	parentType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: "@a", Type: NewReference("kego.io/system", "type")},
+		Base: &Base{Context: &Context{Package: "a.b/c"}, Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c:a", reflect.TypeOf(&parentStruct{}))
-	json.RegisterType("a.b/c:@a", reflect.TypeOf(&ruleStruct{}))
-	RegisterType("a.b/c:a", parentType)
-	RegisterType("a.b/c:@a", ruleType)
-	defer json.UnregisterType("a.b/c:a")
-	defer json.UnregisterType("a.b/c:@a")
-	defer UnregisterType("a.b/c:a")
-	defer UnregisterType("a.b/c:@a")
+	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}))
+	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}))
+	RegisterType("a.b/c", "a", parentType)
+	RegisterType("a.b/c", "@a", ruleType)
+	defer json.UnregisterType("a.b/c", "a")
+	defer json.UnregisterType("a.b/c", "@a")
+	defer UnregisterType("a.b/c", "a")
+	defer UnregisterType("a.b/c", "@a")
 
 	rh := &RuleHolder{
 		Rule:       &ruleStruct{},
