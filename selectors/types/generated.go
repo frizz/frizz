@@ -10,357 +10,357 @@ import (
 
 func init() {
 
-	ptr8729210368 := &system.Base{Description: "Automatically created basic rule for typed", Id: system.Reference{Package: "kego.io/selectors", Name: "@typed", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729348352 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "typed", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729148928 := &system.Type{Base: ptr8729210368, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729348480 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	ptr8729208960 := &system.Base{Description: "Automatically created basic rule for sibling", Id: system.Reference{Package: "kego.io/selectors", Name: "@sibling", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729348608 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	ptr8729148608 := &system.Type{Base: ptr8729208960, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729145296 := &system.String_rule{Base: ptr8729348608, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	ptr8729206784 := &system.Base{Description: "This represents an image, and contains path, server and protocol separately", Id: system.Reference{Package: "kego.io/selectors", Name: "photo", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8728905920 := &system.Map_rule{Base: ptr8729348480, RuleBase: (*system.RuleBase)(nil), Items: ptr8729145296, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 
-	ptr8729206912 := &system.Base{Description: "The protocol for the url - e.g. http or https", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729348736 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	ptr8729411968 := &system.RuleBase{Optional: true, Selector: ""}
+	ptr8729145472 := &system.String_rule{Base: ptr8729348736, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	ptr8729151552 := &system.String_rule{Base: ptr8729206912, RuleBase: ptr8729411968, Default: system.String{Value: "http", Exists: true}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729348864 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	ptr8729207040 := &system.Base{Description: "The server for the url - e.g. www.google.com", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729348992 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@kid", Exists: true}}
 
-	ptr8729152960 := &system.String_rule{Base: ptr8729207040, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729438336 := &selectors.Kid_rule{Base: ptr8729348992, RuleBase: (*system.RuleBase)(nil)}
 
-	ptr8729207168 := &system.Base{Description: "The path for the url - e.g. /foo/bar.jpg", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8728907456 := &system.Map_rule{Base: ptr8729348864, RuleBase: (*system.RuleBase)(nil), Items: ptr8729438336, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 
-	ptr8729153136 := &system.String_rule{Base: ptr8729207168, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 1, Exists: true}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "^/.*$", Exists: true}}
+	ptr8729349120 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@image", Exists: true}}
 
-	ptr8729147648 := &system.Type{Base: ptr8729206784, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"protocol": ptr8729151552, "server": ptr8729152960, "path": ptr8729153136}, Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/selectors", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729438432 := &selectors.Image_rule{Base: ptr8729349120, RuleBase: (*system.RuleBase)(nil)}
 
-	ptr8729163264 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "expr", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729349248 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
 
-	ptr8729163520 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr8729349376 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	ptr8729076192 := &system.Number_rule{Base: ptr8729163520, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8729145648 := &system.String_rule{Base: ptr8729349376, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	ptr8729163648 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729420416 := &system.Array_rule{Base: ptr8729349248, RuleBase: (*system.RuleBase)(nil), Items: ptr8729145648, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}, UniqueItems: system.Bool{Exists: true}}
 
-	ptr8729152080 := &system.String_rule{Base: ptr8729163648, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729349504 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729163776 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729461696 := &system.Number_rule{Base: ptr8729349504, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729152256 := &system.String_rule{Base: ptr8729163776, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729140576 := &system.Type{Base: ptr8729348352, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"name": ptr8728905920, "favoriteColor": ptr8729145472, "kids": ptr8728907456, "avatar": ptr8729438432, "drinkPreference": ptr8729420416, "weight": ptr8729461696}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729163904 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729162112 := &system.Base{Description: "Automatically created basic rule for c", Id: system.Reference{Package: "kego.io/selectors", Name: "@c", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729152432 := &system.String_rule{Base: ptr8729163904, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729137056 := &system.Type{Base: ptr8729162112, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729164032 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+	ptr8729161472 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "c", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729413408 := &system.Bool_rule{Base: ptr8729164032, RuleBase: (*system.RuleBase)(nil), Default: system.Bool{Value: false, Exists: false}}
+	ptr8729161728 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729164160 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+	ptr8729460928 := &system.Number_rule{Base: ptr8729161728, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729413664 := &system.Bool_rule{Base: ptr8729164160, RuleBase: (*system.RuleBase)(nil), Default: system.Bool{Value: false, Exists: false}}
+	ptr8729161856 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	ptr8729163392 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr8729161984 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729076096 := &system.Number_rule{Base: ptr8729163392, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8729461024 := &system.Number_rule{Base: ptr8729161984, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729146368 := &system.Type{Base: ptr8729163264, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"float": ptr8729076192, "string": ptr8729152080, "string2": ptr8729152256, "null": ptr8729152432, "true": ptr8729413408, "false": ptr8729413664, "int": ptr8729076096}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8728905984 := &system.Map_rule{Base: ptr8729161856, RuleBase: (*system.RuleBase)(nil), Items: ptr8729461024, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+
+	ptr8729161600 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+
+	ptr8729460832 := &system.Number_rule{Base: ptr8729161600, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+
+	ptr8729137216 := &system.Type{Base: ptr8729161472, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"b": ptr8729460928, "c": ptr8728905984, "a": ptr8729460832}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729163264 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "expr", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729164032 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+
+	ptr8729312544 := &system.Bool_rule{Base: ptr8729164032, RuleBase: (*system.RuleBase)(nil), Default: system.Bool{}}
+
+	ptr8729164160 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+
+	ptr8729312800 := &system.Bool_rule{Base: ptr8729164160, RuleBase: (*system.RuleBase)(nil), Default: system.Bool{}}
+
+	ptr8729163392 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+
+	ptr8729461120 := &system.Number_rule{Base: ptr8729163392, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+
+	ptr8729163520 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+
+	ptr8729461216 := &system.Number_rule{Base: ptr8729163520, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+
+	ptr8729163648 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729143888 := &system.String_rule{Base: ptr8729163648, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729163776 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729144064 := &system.String_rule{Base: ptr8729163776, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729163904 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729144240 := &system.String_rule{Base: ptr8729163904, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729138176 := &system.Type{Base: ptr8729163264, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"true": ptr8729312544, "false": ptr8729312800, "int": ptr8729461120, "float": ptr8729461216, "string": ptr8729143888, "string2": ptr8729144064, "null": ptr8729144240}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729036032 := &system.Base{Description: "Automatically created basic rule for kid", Id: system.Reference{Package: "kego.io/selectors", Name: "@kid", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729139296 := &system.Type{Base: ptr8729036032, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729165440 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "kid", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729165568 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729144416 := &system.String_rule{Base: ptr8729165568, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729165696 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729144592 := &system.String_rule{Base: ptr8729165696, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729034752 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+
+	ptr8728735808 := &system.RuleBase{Optional: true}
+
+	ptr8728735712 := &system.Bool_rule{Base: ptr8729034752, RuleBase: ptr8728735808, Default: system.Bool{}}
+
+	ptr8729139136 := &system.Type{Base: ptr8729165440, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"language": ptr8729144416, "level": ptr8729144592, "preferred": ptr8728735712}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729161344 := &system.Base{Description: "Automatically created basic rule for basic", Id: system.Reference{Package: "kego.io/selectors", Name: "@basic", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729136896 := &system.Type{Base: ptr8729161344, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
 	ptr8729163136 := &system.Base{Description: "Automatically created basic rule for diagram", Id: system.Reference{Package: "kego.io/selectors", Name: "@diagram", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729146208 := &system.Type{Base: ptr8729163136, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729138016 := &system.Type{Base: ptr8729163136, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729164928 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "image", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729348224 := &system.Base{Description: "Automatically created basic rule for sibling", Id: system.Reference{Package: "kego.io/selectors", Name: "@sibling", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729147008 := &system.Type{Base: ptr8729164928, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule(nil), Interface: true, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729140416 := &system.Type{Base: ptr8729348224, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729162752 := &system.Base{Description: "Automatically created basic rule for collision", Id: system.Reference{Package: "kego.io/selectors", Name: "@collision", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729347200 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "sibling", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729145728 := &system.Type{Base: ptr8729162752, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729347584 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@c", Exists: true}}
 
-	ptr8729165056 := &system.Base{Description: "Automatically created basic rule for image", Id: system.Reference{Package: "kego.io/selectors", Name: "@image", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729436720 := &selectors.C_rule{Base: ptr8729347584, RuleBase: (*system.RuleBase)(nil)}
 
-	ptr8729147168 := &system.Type{Base: ptr8729165056, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729347712 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	ptr8729160192 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "basic", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729347840 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729161600 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr8729461504 := &system.Number_rule{Base: ptr8729347840, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729075712 := &system.Number_rule{Base: ptr8729161600, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
+	ptr8728905216 := &system.Map_rule{Base: ptr8729347712, RuleBase: (*system.RuleBase)(nil), Items: ptr8729461504, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 
-	ptr8729160320 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+	ptr8729347968 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	ptr8729160448 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729348096 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729150672 := &system.String_rule{Base: ptr8729160448, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729461600 := &system.Number_rule{Base: ptr8729348096, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729215040 := &system.Map_rule{Base: ptr8729160320, RuleBase: (*system.RuleBase)(nil), Items: ptr8729150672, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
+	ptr8728905280 := &system.Map_rule{Base: ptr8729347968, RuleBase: (*system.RuleBase)(nil), Items: ptr8729461600, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 
-	ptr8729160576 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729347328 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729150848 := &system.String_rule{Base: ptr8729160576, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729461312 := &system.Number_rule{Base: ptr8729347328, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729160704 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr8729347456 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	ptr8729160832 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+	ptr8729461408 := &system.Number_rule{Base: ptr8729347456, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	ptr8729160960 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729151024 := &system.String_rule{Base: ptr8729160960, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729215104 := &system.Map_rule{Base: ptr8729160832, RuleBase: (*system.RuleBase)(nil), Items: ptr8729151024, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729477600 := &system.Array_rule{Base: ptr8729160704, RuleBase: (*system.RuleBase)(nil), Items: ptr8729215104, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
-
-	ptr8729161088 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-
-	ptr8729161216 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729151200 := &system.String_rule{Base: ptr8729161216, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729477680 := &system.Array_rule{Base: ptr8729161088, RuleBase: (*system.RuleBase)(nil), Items: ptr8729151200, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
-
-	ptr8729161344 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-
-	ptr8729161472 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729151376 := &system.String_rule{Base: ptr8729161472, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729477760 := &system.Array_rule{Base: ptr8729161344, RuleBase: (*system.RuleBase)(nil), Items: ptr8729151376, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
-
-	ptr8729144928 := &system.Type{Base: ptr8729160192, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"weight": ptr8729075712, "name": ptr8729215040, "favoriteColor": ptr8729150848, "languagesSpoken": ptr8729477600, "seatingPreference": ptr8729477680, "drinkPreference": ptr8729477760}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729052416 := &system.Base{Description: "Automatically created basic rule for kid", Id: system.Reference{Package: "kego.io/selectors", Name: "@kid", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729147488 := &system.Type{Base: ptr8729052416, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729162880 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "diagram", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729163008 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729151904 := &system.String_rule{Base: ptr8729163008, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729145888 := &system.Type{Base: ptr8729162880, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"url": ptr8729151904}, Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/selectors", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729164800 := &system.Base{Description: "Automatically created basic rule for gallery", Id: system.Reference{Package: "kego.io/selectors", Name: "@gallery", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729146848 := &system.Type{Base: ptr8729164800, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729207296 := &system.Base{Description: "Automatically created basic rule for photo", Id: system.Reference{Package: "kego.io/selectors", Name: "@photo", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729147968 := &system.Type{Base: ptr8729207296, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729161856 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "c", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729162240 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729165568 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729076000 := &system.Number_rule{Base: ptr8729165568, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729215424 := &system.Map_rule{Base: ptr8729162240, RuleBase: (*system.RuleBase)(nil), Items: ptr8729076000, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729161984 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729075808 := &system.Number_rule{Base: ptr8729161984, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729162112 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729075904 := &system.Number_rule{Base: ptr8729162112, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729145248 := &system.Type{Base: ptr8729161856, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"c": ptr8729215424, "a": ptr8729075808, "b": ptr8729075904}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729165696 := &system.Base{Description: "Automatically created basic rule for c", Id: system.Reference{Package: "kego.io/selectors", Name: "@c", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729145408 := &system.Type{Base: ptr8729165696, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729161728 := &system.Base{Description: "Automatically created basic rule for basic", Id: system.Reference{Package: "kego.io/selectors", Name: "@basic", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729145088 := &system.Type{Base: ptr8729161728, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729209088 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "typed", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729209856 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@image", Exists: true}}
-
-	ptr8729449536 := &selectors.Image_rule{Base: ptr8729209856, RuleBase: (*system.RuleBase)(nil)}
-
-	ptr8729209984 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-
-	ptr8729210112 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729153840 := &system.String_rule{Base: ptr8729210112, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729478800 := &system.Array_rule{Base: ptr8729209984, RuleBase: (*system.RuleBase)(nil), Items: ptr8729153840, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
-
-	ptr8729210240 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729076672 := &system.Number_rule{Base: ptr8729210240, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729209216 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729209344 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729153488 := &system.String_rule{Base: ptr8729209344, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729215296 := &system.Map_rule{Base: ptr8729209216, RuleBase: (*system.RuleBase)(nil), Items: ptr8729153488, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729209472 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729153664 := &system.String_rule{Base: ptr8729209472, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729209600 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729209728 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@kid", Exists: true}}
-
-	ptr8729449424 := &selectors.Kid_rule{Base: ptr8729209728, RuleBase: (*system.RuleBase)(nil)}
-
-	ptr8729215360 := &system.Map_rule{Base: ptr8729209600, RuleBase: (*system.RuleBase)(nil), Items: ptr8729449424, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729148768 := &system.Type{Base: ptr8729209088, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"avatar": ptr8729449536, "drinkPreference": ptr8729478800, "weight": ptr8729076672, "name": ptr8729215296, "favoriteColor": ptr8729153664, "kids": ptr8729215360}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729207936 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "sibling", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729208064 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729076288 := &system.Number_rule{Base: ptr8729208064, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729208192 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729076384 := &system.Number_rule{Base: ptr8729208192, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729208320 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@c", Exists: true}}
-
-	ptr8729447472 := &selectors.C_rule{Base: ptr8729208320, RuleBase: (*system.RuleBase)(nil)}
-
-	ptr8729208448 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729208576 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729076480 := &system.Number_rule{Base: ptr8729208576, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729215168 := &system.Map_rule{Base: ptr8729208448, RuleBase: (*system.RuleBase)(nil), Items: ptr8729076480, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729208704 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729208832 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-
-	ptr8729076576 := &system.Number_rule{Base: ptr8729208832, RuleBase: (*system.RuleBase)(nil), Default: system.Number{Value: 0, Exists: false}, ExclusiveMaximum: system.Bool{Value: false, Exists: true}, ExclusiveMinimum: system.Bool{Value: false, Exists: true}, Maximum: system.Number{Value: 0, Exists: false}, Minimum: system.Number{Value: 0, Exists: false}, MultipleOf: system.Number{Value: 0, Exists: false}}
-
-	ptr8729215232 := &system.Map_rule{Base: ptr8729208704, RuleBase: (*system.RuleBase)(nil), Items: ptr8729076576, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729148448 := &system.Type{Base: ptr8729207936, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"a": ptr8729076288, "b": ptr8729076384, "c": ptr8729447472, "d": ptr8729215168, "e": ptr8729215232}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729207424 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "polykids", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729207552 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-
-	ptr8729207680 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@kid", Exists: true}}
-
-	ptr8729446800 := &selectors.Kid_rule{Base: ptr8729207680, RuleBase: (*system.RuleBase)(nil)}
-
-	ptr8729477920 := &system.Array_rule{Base: ptr8729207552, RuleBase: (*system.RuleBase)(nil), Items: ptr8729446800, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}, UniqueItems: system.Bool{Value: false, Exists: true}}
-
-	ptr8729148128 := &system.Type{Base: ptr8729207424, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"a": ptr8729477920}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729162368 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "collision", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729162496 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729162624 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-
-	ptr8729151728 := &system.String_rule{Base: ptr8729162624, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
-
-	ptr8729215488 := &system.Map_rule{Base: ptr8729162496, RuleBase: (*system.RuleBase)(nil), Items: ptr8729151728, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729145568 := &system.Type{Base: ptr8729162368, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"number": ptr8729215488}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729164416 := &system.Base{Description: "This represents a gallery - it's just a list of images", Id: system.Reference{Package: "kego.io/selectors", Name: "gallery", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729164544 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-
-	ptr8729164672 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@image", Exists: true}}
-
-	ptr8729450128 := &selectors.Image_rule{Base: ptr8729164672, RuleBase: (*system.RuleBase)(nil)}
-
-	ptr8729215616 := &system.Map_rule{Base: ptr8729164544, RuleBase: (*system.RuleBase)(nil), Items: ptr8729450128, MaxItems: system.Int{Value: 0, Exists: false}, MinItems: system.Int{Value: 0, Exists: false}}
-
-	ptr8729146688 := &system.Type{Base: ptr8729164416, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"images": ptr8729215616}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-
-	ptr8729207808 := &system.Base{Description: "Automatically created basic rule for polykids", Id: system.Reference{Package: "kego.io/selectors", Name: "@polykids", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-
-	ptr8729148288 := &system.Type{Base: ptr8729207808, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729140256 := &system.Type{Base: ptr8729347200, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"c": ptr8729436720, "d": ptr8728905216, "e": ptr8728905280, "a": ptr8729461312, "b": ptr8729461408}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
 	ptr8729164288 := &system.Base{Description: "Automatically created basic rule for expr", Id: system.Reference{Package: "kego.io/selectors", Name: "@expr", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729146528 := &system.Type{Base: ptr8729164288, Basic: false, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Exclude: false, Extends: system.Reference{Package: "", Name: "", Exists: false}, Fields: map[string]system.Rule(nil), Interface: false, Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729138336 := &system.Type{Base: ptr8729164288, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729165184 := &system.Base{Description: "", Id: system.Reference{Package: "kego.io/selectors", Name: "kid", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr8729349632 := &system.Base{Description: "Automatically created basic rule for typed", Id: system.Reference{Package: "kego.io/selectors", Name: "@typed", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729165440 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729140736 := &system.Type{Base: ptr8729349632, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729152784 := &system.String_rule{Base: ptr8729165440, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729165056 := &system.Base{Description: "Automatically created basic rule for gallery", Id: system.Reference{Package: "kego.io/selectors", Name: "@gallery", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729051136 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+	ptr8729138656 := &system.Type{Base: ptr8729165056, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729416192 := &system.RuleBase{Optional: true, Selector: ""}
+	ptr8729346560 := &system.Base{Description: "Automatically created basic rule for photo", Id: system.Reference{Package: "kego.io/selectors", Name: "@photo", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729416096 := &system.Bool_rule{Base: ptr8729051136, RuleBase: ptr8729416192, Default: system.Bool{Value: false, Exists: false}}
+	ptr8729139776 := &system.Type{Base: ptr8729346560, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	ptr8729165312 := &system.Base{Description: "", Id: system.Reference{Package: "", Name: "", Exists: false}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr8729162624 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "basic", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	ptr8729152608 := &system.String_rule{Base: ptr8729165312, RuleBase: (*system.RuleBase)(nil), Default: system.String{Value: "", Exists: false}, Enum: []system.String(nil), Equal: system.String{Value: "", Exists: false}, Format: system.String{Value: "", Exists: false}, MaxLength: system.Int{Value: 0, Exists: false}, MinLength: system.Int{Value: 0, Exists: false}, Pattern: system.String{Value: "", Exists: false}}
+	ptr8729162752 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	ptr8729147328 := &system.Type{Base: ptr8729165184, Basic: false, Embed: []system.Reference(nil), Exclude: false, Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"level": ptr8729152784, "preferred": ptr8729416096, "language": ptr8729152608}, Interface: false, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr8729162880 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@sibling", ptr8729148608)
+	ptr8729142480 := &system.String_rule{Base: ptr8729162880, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	system.RegisterType("kego.io/selectors", "c", ptr8729145248)
+	ptr8728907520 := &system.Map_rule{Base: ptr8729162752, RuleBase: (*system.RuleBase)(nil), Items: ptr8729142480, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 
-	system.RegisterType("kego.io/selectors", "@polykids", ptr8729148288)
+	ptr8729160192 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@basic", ptr8729145088)
+	ptr8729142656 := &system.String_rule{Base: ptr8729160192, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	system.RegisterType("kego.io/selectors", "typed", ptr8729148768)
+	ptr8729160320 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "collision", ptr8729145568)
+	ptr8729160448 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@typed", ptr8729148928)
+	ptr8729160576 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@diagram", ptr8729146208)
+	ptr8729142832 := &system.String_rule{Base: ptr8729160576, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	system.RegisterType("kego.io/selectors", "@image", ptr8729147168)
+	ptr8728903936 := &system.Map_rule{Base: ptr8729160448, RuleBase: (*system.RuleBase)(nil), Items: ptr8729142832, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 
-	system.RegisterType("kego.io/selectors", "@gallery", ptr8729146848)
+	ptr8729419776 := &system.Array_rule{Base: ptr8729160320, RuleBase: (*system.RuleBase)(nil), Items: ptr8728903936, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}, UniqueItems: system.Bool{Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@c", ptr8729145408)
+	ptr8729160704 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@expr", ptr8729146528)
+	ptr8729160832 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "expr", ptr8729146368)
+	ptr8729143008 := &system.String_rule{Base: ptr8729160832, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	system.RegisterType("kego.io/selectors", "image", ptr8729147008)
+	ptr8729419856 := &system.Array_rule{Base: ptr8729160704, RuleBase: (*system.RuleBase)(nil), Items: ptr8729143008, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}, UniqueItems: system.Bool{Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@collision", ptr8729145728)
+	ptr8729160960 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "diagram", ptr8729145888)
+	ptr8729161088 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "gallery", ptr8729146688)
+	ptr8729143184 := &system.String_rule{Base: ptr8729161088, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 
-	system.RegisterType("kego.io/selectors", "polykids", ptr8729148128)
+	ptr8729419936 := &system.Array_rule{Base: ptr8729160960, RuleBase: (*system.RuleBase)(nil), Items: ptr8729143184, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}, UniqueItems: system.Bool{Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "kid", ptr8729147328)
+	ptr8729161216 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "photo", ptr8729147648)
+	ptr8729460736 := &system.Number_rule{Base: ptr8729161216, RuleBase: (*system.RuleBase)(nil), Default: system.Number{}, ExclusiveMaximum: system.Bool{Exists: true}, ExclusiveMinimum: system.Bool{Exists: true}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
 
-	system.RegisterType("kego.io/selectors", "basic", ptr8729144928)
+	ptr8729136736 := &system.Type{Base: ptr8729162624, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"name": ptr8728907520, "favoriteColor": ptr8729142656, "languagesSpoken": ptr8729419776, "seatingPreference": ptr8729419856, "drinkPreference": ptr8729419936, "weight": ptr8729460736}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	system.RegisterType("kego.io/selectors", "@kid", ptr8729147488)
+	ptr8729165312 := &system.Base{Description: "Automatically created basic rule for image", Id: system.Reference{Package: "kego.io/selectors", Name: "@image", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 
-	system.RegisterType("kego.io/selectors", "@photo", ptr8729147968)
+	ptr8729138976 := &system.Type{Base: ptr8729165312, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 
-	system.RegisterType("kego.io/selectors", "sibling", ptr8729148448)
+	ptr8729346048 := &system.Base{Description: "This represents an image, and contains path, server and protocol separately", Id: system.Reference{Package: "kego.io/selectors", Name: "photo", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729346304 := &system.Base{Description: "The server for the url - e.g. www.google.com", Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729144944 := &system.String_rule{Base: ptr8729346304, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729346432 := &system.Base{Description: "The path for the url - e.g. /foo/bar.jpg", Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729145120 := &system.String_rule{Base: ptr8729346432, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 1, Exists: true}, MinLength: system.Int{Value: 0}, Pattern: system.String{Value: "^/.*$", Exists: true}}
+
+	ptr8729346176 := &system.Base{Description: "The protocol for the url - e.g. http or https", Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8728736672 := &system.RuleBase{Optional: true}
+
+	ptr8729144768 := &system.String_rule{Base: ptr8729346176, RuleBase: ptr8728736672, Default: system.String{Value: "http", Exists: true}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729139456 := &system.Type{Base: ptr8729346048, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"server": ptr8729144944, "path": ptr8729145120, "protocol": ptr8729144768}, Is: []system.Reference{system.Reference{Package: "kego.io/selectors", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729164672 := &system.Base{Description: "This represents a gallery - it's just a list of images", Id: system.Reference{Package: "kego.io/selectors", Name: "gallery", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729164800 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+
+	ptr8729164928 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@image", Exists: true}}
+
+	ptr8729441184 := &selectors.Image_rule{Base: ptr8729164928, RuleBase: (*system.RuleBase)(nil)}
+
+	ptr8728906176 := &system.Map_rule{Base: ptr8729164800, RuleBase: (*system.RuleBase)(nil), Items: ptr8729441184, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+
+	ptr8729138496 := &system.Type{Base: ptr8729164672, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"images": ptr8728906176}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729346688 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "polykids", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729346816 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+
+	ptr8729346944 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "@kid", Exists: true}}
+
+	ptr8729443600 := &selectors.Kid_rule{Base: ptr8729346944, RuleBase: (*system.RuleBase)(nil)}
+
+	ptr8729423536 := &system.Array_rule{Base: ptr8729346816, RuleBase: (*system.RuleBase)(nil), Items: ptr8729443600, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}, UniqueItems: system.Bool{Exists: true}}
+
+	ptr8729139936 := &system.Type{Base: ptr8729346688, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"a": ptr8729423536}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729164544 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "diagram", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729163008 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729143712 := &system.String_rule{Base: ptr8729163008, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8729137696 := &system.Type{Base: ptr8729164544, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"url": ptr8729143712}, Is: []system.Reference{system.Reference{Package: "kego.io/selectors", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729164416 := &system.Base{Description: "Automatically created basic rule for collision", Id: system.Reference{Package: "kego.io/selectors", Name: "@collision", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729137536 := &system.Type{Base: ptr8729164416, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729165184 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "image", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729138816 := &system.Type{Base: ptr8729165184, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule(nil), Interface: true, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729347072 := &system.Base{Description: "Automatically created basic rule for polykids", Id: system.Reference{Package: "kego.io/selectors", Name: "@polykids", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729140096 := &system.Type{Base: ptr8729347072, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "ruleBase", Exists: true}}, Extends: system.Reference{}, Fields: map[string]system.Rule(nil), Is: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	ptr8729162240 := &system.Base{Id: system.Reference{Package: "kego.io/selectors", Name: "collision", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+
+	ptr8729162368 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+
+	ptr8729162496 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+
+	ptr8729143536 := &system.String_rule{Base: ptr8729162496, RuleBase: (*system.RuleBase)(nil), Default: system.String{}, Enum: []system.String(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+
+	ptr8728906048 := &system.Map_rule{Base: ptr8729162368, RuleBase: (*system.RuleBase)(nil), Items: ptr8729143536, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+
+	ptr8729137376 := &system.Type{Base: ptr8729162240, Embed: []system.Reference(nil), Extends: system.Reference{Package: "kego.io/system", Name: "object", Exists: true}, Fields: map[string]system.Rule{"number": ptr8728906048}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+
+	system.RegisterType("kego.io/selectors", "c", ptr8729137216)
+
+	system.RegisterType("kego.io/selectors", "expr", ptr8729138176)
+
+	system.RegisterType("kego.io/selectors", "@basic", ptr8729136896)
+
+	system.RegisterType("kego.io/selectors", "@image", ptr8729138976)
+
+	system.RegisterType("kego.io/selectors", "image", ptr8729138816)
+
+	system.RegisterType("kego.io/selectors", "@gallery", ptr8729138656)
+
+	system.RegisterType("kego.io/selectors", "photo", ptr8729139456)
+
+	system.RegisterType("kego.io/selectors", "polykids", ptr8729139936)
+
+	system.RegisterType("kego.io/selectors", "diagram", ptr8729137696)
+
+	system.RegisterType("kego.io/selectors", "sibling", ptr8729140256)
+
+	system.RegisterType("kego.io/selectors", "@photo", ptr8729139776)
+
+	system.RegisterType("kego.io/selectors", "collision", ptr8729137376)
+
+	system.RegisterType("kego.io/selectors", "@c", ptr8729137056)
+
+	system.RegisterType("kego.io/selectors", "@kid", ptr8729139296)
+
+	system.RegisterType("kego.io/selectors", "kid", ptr8729139136)
+
+	system.RegisterType("kego.io/selectors", "@diagram", ptr8729138016)
+
+	system.RegisterType("kego.io/selectors", "@sibling", ptr8729140416)
+
+	system.RegisterType("kego.io/selectors", "@collision", ptr8729137536)
+
+	system.RegisterType("kego.io/selectors", "@polykids", ptr8729140096)
+
+	system.RegisterType("kego.io/selectors", "typed", ptr8729140576)
+
+	system.RegisterType("kego.io/selectors", "@expr", ptr8729138336)
+
+	system.RegisterType("kego.io/selectors", "@typed", ptr8729140736)
+
+	system.RegisterType("kego.io/selectors", "basic", ptr8729136736)
+
+	system.RegisterType("kego.io/selectors", "gallery", ptr8729138496)
 
 	var _ selectors.Nothing
 
