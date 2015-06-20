@@ -76,7 +76,7 @@ func cmd_main_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "cmd_main.tmpl", size: 606, mode: os.FileMode(420), modTime: time.Unix(1434737862, 0)}
+	info := bindata_file_info{name: "cmd_main.tmpl", size: 606, mode: os.FileMode(420), modTime: time.Unix(1434841461, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
