@@ -69,7 +69,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 			return nil, kerr.New("HGENTDRWHL", nil, "selectors.getNodes", "Type.GetType not found")
 		}
 	} else {
-		n.ktyperef = system.NewReference(element.Rule.ParentType.Context.Package, element.Rule.ParentType.Id)
+		n.ktyperef = element.Rule.ParentType.Id
 		n.ktype = element.Rule.ParentType
 	}
 
