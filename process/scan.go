@@ -40,12 +40,11 @@ func ScanForGlobals(root string, recursive bool, packagePath string, imports map
 			return nil
 		}
 		b := o.GetBase()
-		if b.Id == "" {
+		if !b.Id.Exists {
 			// Anything without an ID is not a global
 			return nil
 		}
-		fullname := fmt.Sprintf("%s:%s", packagePath, b.Id)
-		system.RegisterGlobal(fullname, o)
+		system.RegisterGlobal(b.Id.Package, b.Id.Name, o)
 		return nil
 	}
 	return scanPath(root, false, recursive, scanner, packagePath, imports)
@@ -55,24 +54,21 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 	scanner := func(ob interface{}) error {
 		if t, ok := ob.(*system.Type); ok {
 
-			fullname := fmt.Sprintf("%s:%s", packagePath, t.Id)
-			system.RegisterType(fullname, t)
+			system.RegisterType(t.Id.Package, t.Id.Name, t)
 
 			if t.Rule != nil {
 
-				rulename := fmt.Sprintf("%s:%s", packagePath, t.Rule.Id)
-				system.RegisterType(rulename, t.Rule)
+				system.RegisterType(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule)
 
 			} else {
 
 				// If the rule is missing, automatically create a default.
-				id := fmt.Sprintf("@%s", t.Id)
-				rulename := fmt.Sprintf("%s:%s", packagePath, id)
+				ref := system.NewReference(packagePath, fmt.Sprintf("@%s", t.Id.Name))
 				rule := &system.Type{
 					Base: &system.Base{
-						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id),
+						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
 						Type:        system.NewReference("kego.io/system", "type"),
-						Id:          id,
+						Id:          ref,
 						Context:     t.Base.Context.Clone(),
 					},
 					Is: []system.Reference{system.NewReference("kego.io/system", "rule")},
@@ -82,7 +78,7 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 					Native:    system.NewString("object"),
 					Interface: false,
 				}
-				system.RegisterType(rulename, rule)
+				system.RegisterType(ref.Package, ref.Name, rule)
 			}
 		}
 		return nil

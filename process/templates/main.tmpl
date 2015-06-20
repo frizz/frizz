@@ -16,13 +16,12 @@ import (
 	{{ end }}
 )
 
-{{ range $typeName, $type := .Types }}
+{{ range $ref, $type := .Types }}
 
-	{{ $name := $type.Id }}
-	{{ $full := $typeName }}
+	{{ $name := $type.Id.Name }}
 	{{ $go := $type.GoName }}
 
-	{{ $vars := map "type" $type "name" $name "full" $full "go" $go "path" $path "imports" $imports }}
+	{{ $vars := map "type" $type "name" $name "go" $go "path" $path "imports" $imports }}
 
 	//***********************************************************
 	//*** {{ $name }} ***
@@ -35,9 +34,9 @@ import (
 {{ end }}
 
 func init() {
-	{{ range $typeName, $type := .Types }}
+	{{ range $ref, $type := .Types }}
 		{{ if not $type.Interface }}
-			{{ reference "kego.io/json" "RegisterType" $path $imports }}({{ $typeName | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
+			{{ reference "kego.io/json" "RegisterType" $path $imports }}({{ $ref.Package | quote }}, {{ $ref.Name | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
 		{{ end }}
 	{{ end }}
 

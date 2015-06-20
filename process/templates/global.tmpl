@@ -16,8 +16,8 @@ import (
 	{{ $pointer }}
 {{ end }}
 
-{{ range $name, $source := .Globals }}
-	var {{ $name | goname }} = {{ $source }}
+{{ range $ref, $source := .Globals }}
+	var {{ $ref.Name | goname }} = {{ $source }}
 {{ end }}
 
 {{ range $importName, $importPath := $imports }}

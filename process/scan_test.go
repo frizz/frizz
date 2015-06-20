@@ -35,7 +35,7 @@ func TestScan(t *testing.T) {
 
 	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
-	ty, ok := system.GetType("d.e/f:b")
+	ty, ok := system.GetType("d.e/f", "b")
 	assert.True(t, ok)
 	assert.Equal(t, "a", ty.Description)
 
@@ -78,9 +78,9 @@ func TestScan_rule(t *testing.T) {
 
 	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
-	ty, ok := system.GetType("d.e/f:b")
+	ty, ok := system.GetType("d.e/f", "b")
 	assert.True(t, ok)
-	assert.Equal(t, "@b", ty.Rule.Id)
+	assert.Equal(t, "@b", ty.Rule.Id.Name)
 
 }
 

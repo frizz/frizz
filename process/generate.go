@@ -59,17 +59,11 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		}
 
 		globalData := globalDataStruct{Path: path, Imports: imports}
-		globalData.Globals = map[string]string{}
+		globalData.Globals = map[system.Reference]string{}
 		order := []string{}
 		pointersMap := map[string]string{}
-		for n, g := range globals {
-			var r *system.Reference
-			r, err = system.NewReferenceFromString(n, path, imports)
-			if err != nil {
-				err = kerr.New("MHDPFJFMKC", err, "process.Generate", "system.NewReferenceFromString")
-				return
-			}
-			globalData.Globals[r.Id] = literal.Build(g, pointersMap, &order, path, imports)
+		for r, g := range globals {
+			globalData.Globals[r] = literal.Build(g, pointersMap, &order, path, imports)
 		}
 		pointers := []string{}
 		for _, n := range order {
@@ -102,11 +96,11 @@ func getTypesDataFromMainData(data mainDataStruct) (new typesDataStruct) {
 		new.Imports[name] = data.Path
 	}
 
-	new.Types = map[string]string{}
+	new.Types = map[system.Reference]string{}
 	order := []string{}
 	pointersMap := map[string]string{}
-	for n, t := range data.Types {
-		new.Types[n] = literal.Build(t, pointersMap, &order, new.Path, new.Imports)
+	for r, t := range data.Types {
+		new.Types[r] = literal.Build(t, pointersMap, &order, new.Path, new.Imports)
 	}
 
 	pointers := []string{}
@@ -136,19 +130,19 @@ func executeTemplateAndFormat(data interface{}, templateName string) ([]byte, er
 }
 
 type mainDataStruct struct {
-	Types   map[string]*system.Type
+	Types   map[system.Reference]*system.Type
 	Path    string
 	Imports map[string]string
 }
 type globalDataStruct struct {
 	Pointers []string
-	Globals  map[string]string
+	Globals  map[system.Reference]string
 	Path     string
 	Imports  map[string]string
 }
 type typesDataStruct struct {
 	Pointers     []string
-	Types        map[string]string
+	Types        map[system.Reference]string
 	Path         string
 	Imports      map[string]string
 	NonTypesPath string

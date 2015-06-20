@@ -40,10 +40,10 @@ func TestGenerate_errors(t *testing.T) {
 	assert.HasError(t, err, "XTKWMEDWKI")
 
 	ty := &system.Type{
-		Base: &system.Base{Id: "a corrupt", Type: system.NewReference("kego.io/system", "type")},
+		Base: &system.Base{Id: system.NewReference("b.c/d", "a corrupt"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	system.RegisterType("b.c/d:a", ty)
-	defer system.UnregisterType("b.c/d:a")
+	system.RegisterType("b.c/d", "a", ty)
+	defer system.UnregisterType("b.c/d", "a")
 
 	_, err = Generate(F_MAIN, "b.c/d", map[string]string{})
 	// Corrupt type ID causes error from source formatter
@@ -57,10 +57,10 @@ func TestGenerate_errors(t *testing.T) {
 func TestGenerate(t *testing.T) {
 
 	ty := &system.Type{
-		Base: &system.Base{Id: "a", Type: system.NewReference("kego.io/system", "type")},
+		Base: &system.Base{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	system.RegisterType("b.c/d:a", ty)
-	defer system.UnregisterType("b.c/d:a")
+	system.RegisterType("b.c/d", "a", ty)
+	defer system.UnregisterType("b.c/d", "a")
 
 	source, err := Generate(F_MAIN, "b.c/d", map[string]string{"e": "f.g/h"})
 	assert.NoError(t, err)
@@ -70,7 +70,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "\t\"kego.io/system\"\n")
 	assert.Contains(t, string(source), "e \"f.g/h\"\n")
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Base\n}\n")
-	assert.Contains(t, string(source), "json.RegisterType(\"b.c/d:a\", reflect.TypeOf(&A{}))\n")
+	assert.Contains(t, string(source), "json.RegisterType(\"b.c/d\", \"a\", reflect.TypeOf(&A{}))\n")
 
 	source, err = Generate(F_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})
 	assert.NoError(t, err)
@@ -79,7 +79,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "_ \"kego.io/system/types\"\n")
 	assert.Contains(t, string(source), "\t\"b.c/d\"\n")
 	assert.Contains(t, string(source), "e \"f.g/h\"\n")
-	assert.Contains(t, string(source), "system.RegisterType(\"b.c/d:a\"")
+	assert.Contains(t, string(source), "system.RegisterType(\"b.c/d\", \"a\"")
 
 	source, err = Generate(F_CMD_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})
 	assert.NoError(t, err)

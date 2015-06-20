@@ -23,8 +23,8 @@ func init() {
 		{{ $pointer }}
 	{{ end }}
 
-	{{ range $typeName, $source := .Types }}
-		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $typeName | quote }}, {{ $source }})
+	{{ range $ref, $source := .Types }}
+		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $ref.Package | quote }}, {{ $ref.Name | quote }}, {{ $source }})
 	{{ end }}
 
 	{{ range $importName, $importPath := $imports }}
