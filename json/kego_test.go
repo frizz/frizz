@@ -18,10 +18,10 @@ func TestDecodeSimple(t *testing.T) {
 			Baz bool
 		}
 
-		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
+		RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
 
 		// Clean up for the tests - don't normally need to unregister types
-		defer UnregisterType("kego.io/json:foo")
+		defer UnregisterType("kego.io/json", "foo")
 
 		var i interface{}
 		unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -73,10 +73,10 @@ func TestDecodeDefaults(t *testing.T) {
 			Baz bool    `kego:"{\"default\":{\"value\":true}}"`
 		}
 
-		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
+		RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
 
 		// Clean up for the tests - don't normally need to unregister types
-		defer UnregisterType("kego.io/json:foo")
+		defer UnregisterType("kego.io/json", "foo")
 
 		var i interface{}
 		unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -136,10 +136,10 @@ func TestDecodeCollections(t *testing.T) {
 		"boolArray": [true, false, true]
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
+	defer UnregisterType("kego.io/json", "foo")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -177,12 +177,12 @@ func TestDecodeEmbed(t *testing.T) {
 			Embed Bar
 		}
 
-		RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-		RegisterType("kego.io/json:bar", reflect.TypeOf(&Bar{}))
+		RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+		RegisterType("kego.io/json", "bar", reflect.TypeOf(&Bar{}))
 
 		// Clean up for the tests - don't normally need to unregister types
-		defer UnregisterType("kego.io/json:foo")
-		defer UnregisterType("kego.io/json:bar")
+		defer UnregisterType("kego.io/json", "foo")
+		defer UnregisterType("kego.io/json", "bar")
 
 		var i interface{}
 		unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -256,12 +256,12 @@ func TestDecodeEmbedCollections(t *testing.T) {
 		]
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-	RegisterType("kego.io/json:bar", reflect.TypeOf(&Bar{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "bar", reflect.TypeOf(&Bar{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
-	defer UnregisterType("kego.io/json:bar")
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "bar")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -294,12 +294,12 @@ func TestDecodeComposition(t *testing.T) {
 		"fooString": "b"
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-	RegisterType("kego.io/json:base", reflect.TypeOf(&Base{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "base", reflect.TypeOf(&Base{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
-	defer UnregisterType("kego.io/json:base")
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "base")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -345,14 +345,14 @@ func TestInterface(t *testing.T) {
 		}
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
-	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "photo", reflect.TypeOf(&Photo{}))
+	RegisterType("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
-	defer UnregisterType("kego.io/json:photo")
-	defer UnregisterType("kego.io/json:diagram")
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "photo")
+	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -383,14 +383,14 @@ func TestNilInterface(t *testing.T) {
 		}
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
-	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "photo", reflect.TypeOf(&Photo{}))
+	RegisterType("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
-	defer UnregisterType("kego.io/json:photo")
-	defer UnregisterType("kego.io/json:diagram")
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "photo")
+	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -440,14 +440,14 @@ func TestInterfaceCollections(t *testing.T) {
 		}
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
-	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "photo", reflect.TypeOf(&Photo{}))
+	RegisterType("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
-	defer UnregisterType("kego.io/json:photo")
-	defer UnregisterType("kego.io/json:diagram")
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "photo")
+	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
@@ -499,14 +499,14 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 		}
 	}`
 
-	RegisterType("kego.io/json:foo", reflect.TypeOf(&Foo{}))
-	RegisterType("kego.io/json:photo", reflect.TypeOf(&Photo{}))
-	RegisterType("kego.io/json:diagram", reflect.TypeOf(&Diagram{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "photo", reflect.TypeOf(&Photo{}))
+	RegisterType("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}))
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterType("kego.io/json:foo")
-	defer UnregisterType("kego.io/json:photo")
-	defer UnregisterType("kego.io/json:diagram")
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "photo")
+	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
 	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})

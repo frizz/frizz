@@ -598,28 +598,33 @@ func GetInterface(t reflect.Type) (reflect.Type, bool) {
 
 var types struct {
 	sync.RWMutex
-	m map[string]reflect.Type
+	m map[typeRef]reflect.Type
 }
 
-func RegisterType(name string, typ reflect.Type) {
+type typeRef struct {
+	path string
+	name string
+}
+
+func RegisterType(path string, name string, typ reflect.Type) {
 	types.Lock()
 	if types.m == nil {
-		types.m = make(map[string]reflect.Type)
+		types.m = make(map[typeRef]reflect.Type)
 	}
-	types.m[name] = typ
+	types.m[typeRef{path, name}] = typ
 	types.Unlock()
 }
-func UnregisterType(name string) {
+func UnregisterType(path string, name string) {
 	types.Lock()
 	if types.m == nil {
 		return
 	}
-	delete(types.m, name)
+	delete(types.m, typeRef{path, name})
 	types.Unlock()
 }
-func GetType(name string) (reflect.Type, bool) {
+func GetType(path string, name string) (reflect.Type, bool) {
 	types.RLock()
-	t, ok := types.m[name]
+	t, ok := types.m[typeRef{path, name}]
 	types.RUnlock()
 	if !ok {
 		return nil, false
@@ -700,12 +705,12 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, un
 		d.unknown = true
 	}
 
-	fullTypeName := fmt.Sprintf("%s:%s", path, name)
+	//fullTypeName := fmt.Sprintf("%s:%s", path, name)
 	var typ reflect.Type
 	var ok bool
 
 	// We should look the type up in the type resolver
-	typ, ok = GetType(fullTypeName)
+	typ, ok = GetType(path, name)
 	if !ok && v.Kind() == reflect.Interface {
 		// If we can't find the type in the resolver, and
 		// we're unmarshaling into an interface, then look
