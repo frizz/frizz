@@ -49,12 +49,6 @@ func TestType(t *testing.T) {
 		"type": "type",
 		"id": "type",
 		"fields": {
-			"extends": {
-				"description": "Type which this should extend",
-				"type": "@reference",
-				"default": "kego.io/system:object",
-				"optional": true
-			},
 			"is": {
 				"description": "Array of interface types that this type should support",
 				"type": "@array",
@@ -214,16 +208,6 @@ func TestUnknownRule(t *testing.T) {
 
 func TestUnregisterType(t *testing.T) {
 	UnregisterType("", "")
-}
-
-func TestTypeHasExtends(t *testing.T) {
-	y := &Type{}
-	h := y.HasExtends()
-	assert.False(t, h)
-
-	y = &Type{Extends: NewReference("a.b/c", "d")}
-	h = y.HasExtends()
-	assert.True(t, h)
 }
 
 func TestNativeGoType(t *testing.T) {

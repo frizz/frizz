@@ -16,12 +16,6 @@
 			},
 			"optional": true
 		},
-		"extends": {
-			"description": "Type which this should extend",
-			"type": "@reference",
-			"default": "kego.io/system:object",
-			"optional": true
-		},
 		"is": {
 			"description": "Array of interface types that this type should support",
 			"type": "@array",

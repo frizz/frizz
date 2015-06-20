@@ -52,7 +52,7 @@ func init() {
 			Base: &Base{
 				Id:   NewReference("kego.io/json", fmt.Sprintf("@%s", name)),
 				Type: tr},
-			Extends:   or,
+			Embed:     []Reference{or},
 			Interface: false,
 			Is:        []Reference{NewReference("kego.io/system", "rule")},
 			Native:    NewString("object"),
@@ -65,7 +65,7 @@ func init() {
 			Base: &Base{
 				Id:   NewReference("kego.io/json", name),
 				Type: tr},
-			Extends:   or,
+			Embed:     []Reference{or},
 			Interface: false,
 			Is:        []Reference(nil),
 			Native:    NewString(name),

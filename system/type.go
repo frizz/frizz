@@ -51,11 +51,6 @@ func GetAllTypesInPackage(path string) map[Reference]*Type {
 	return out
 }
 
-func (t *Type) HasExtends() bool {
-	// Only the actual system:object type should have an empty string here.
-	return t.Extends.Value() != ""
-}
-
 type nativeTypeClasses string
 
 const (
