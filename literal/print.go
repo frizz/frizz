@@ -947,8 +947,24 @@ BigSwitch:
 		p.add('{')
 		v := f
 		t := v.Type()
+		count := 0
 		for i := 0; i < v.NumField(); i++ {
-			if i > 0 {
+
+			val := getField(v, i)
+
+			if val.CanInterface() {
+				if val.Kind() == reflect.Bool && val.Interface().(bool) == false {
+					continue
+				}
+				if val.Kind() == reflect.Float64 && val.Interface().(float64) == 0 {
+					continue
+				}
+				if val.Kind() == reflect.String && val.Interface().(string) == "" {
+					continue
+				}
+			}
+
+			if count > 0 {
 				if p.fmt.sharpV {
 					p.buf.Write(commaSpaceBytes)
 				} else {
@@ -961,7 +977,8 @@ BigSwitch:
 					p.buf.WriteByte(':')
 				}
 			}
-			p.printValue(getField(v, i), verb, depth+1)
+			p.printValue(val, verb, depth+1)
+			count++
 		}
 		p.buf.WriteByte('}')
 	case reflect.Interface:
