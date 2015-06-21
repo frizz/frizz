@@ -13,7 +13,7 @@ import (
 )
 
 {{ range $pointer := .Pointers }}
-	{{ $pointer }}
+	var {{ $pointer.Name }} = {{ $pointer.Source }}
 {{ end }}
 
 {{ range $ref, $source := .Globals }}

@@ -90,7 +90,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "_ \"b.c/d\"\n")
 	assert.Contains(t, string(source), "_ \"f.g/h\"\n")
 	assert.Contains(t, string(source), "_ \"f.g/h/types\"\n")
-	assert.Contains(t, string(source), "process.GenerateFiles(process.F_TYPES, dir, test, recursive, path, imports)")
+	assert.Contains(t, string(source), "process.GenerateFiles(process.F_TYPES, dir, test, recursive, verbose, path, imports)")
 
 }
 

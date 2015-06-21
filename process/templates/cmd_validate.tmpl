@@ -22,12 +22,12 @@ import (
 )
 
 func main() {
-	dir, _, recursive, path, imports, err := process.Initialise()
+	dir, _, recursive, verbose, path, imports, err := process.Initialise()
 	if err != nil {
 		fmt.Println(err)
         os.Exit(1)
 	}
-	if err := process.Validate(dir, recursive, path, imports); err != nil {
+	if err := process.Validate(dir, recursive, verbose, path, imports); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

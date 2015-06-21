@@ -8,13 +8,19 @@ import (
 	"reflect"
 	"strings"
 
+	"fmt"
+
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/selectors"
 	"kego.io/system"
 )
 
-func Validate(root string, recursive bool, packagePath string, imports map[string]string) error {
+func Validate(root string, recursive bool, verbose bool, packagePath string, imports map[string]string) error {
+
+	if verbose {
+		fmt.Println("Validating...")
+	}
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -40,6 +46,10 @@ func Validate(root string, recursive bool, packagePath string, imports map[strin
 				return kerr.New("UJBOWKFUMS", err, "process.Validate", "walker")
 			}
 		}
+	}
+
+	if verbose {
+		fmt.Println("OK")
 	}
 
 	return nil
@@ -91,9 +101,9 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
 
-	rules := []system.Rule{}
+	rules := t.Rules
 	if system.RulesApplyToObjects(data) {
-		rules = data.(system.Object).GetBase().Rules
+		rules = append(rules, data.(system.Object).GetBase().Rules...)
 	}
 
 	return validateObject(partialRuleHolder, rules, data, path, imports)
@@ -121,7 +131,9 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 				return kerr.New("EBEMISLGDX", err, "process.validateObject", "e.Enforce (main)")
 			}
 			if !ok {
-				return kerr.New("KKOFBHILXM", nil, "process.validateObject", "Broken rule. %s. %#v", message, data)
+				fmt.Println(message)
+				return nil
+				//return kerr.New("KKOFBHILXM", nil, "process.validateObject", "Broken rule. %s. %#v", message, data)
 			}
 		}
 	}
@@ -157,7 +169,9 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 					return kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
 				}
 				if !ok {
-					return kerr.New("FRXEXSTARP", nil, "process.validateObject", "Broken rule. %s. %#v", message, match.Data)
+					fmt.Println(message)
+					return nil
+					//return kerr.New("FRXEXSTARP", nil, "process.validateObject", "Broken rule. %s. %#v", message, match.Data)
 				}
 
 			}

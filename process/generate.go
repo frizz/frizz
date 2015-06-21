@@ -38,21 +38,49 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 			err = kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 			return
 		}
-		mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
 		switch file {
 		case F_MAIN:
+			mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
 			source, err = executeTemplateAndFormat(mainData, "main.tmpl")
 			if err != nil {
 				err = kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
 			}
 		case F_TYPES:
-			typesData := getTypesDataFromMainData(mainData)
+
+			typesData := typesDataStruct{}
+
+			typesPath := fmt.Sprintf("%s/types", path)
+
+			typesData.NonTypesPath = path
+			typesData.Path = typesPath
+
+			// Clone the imports map because we have to add the base package
+			typesData.Imports = map[string]string{}
+			for k, v := range imports {
+				typesData.Imports[k] = v
+			}
+
+			// Add the base package, but not if it's system or json
+			if path != "kego.io/system" {
+				name := getPackageNameFromPath(path)
+				typesData.Imports[name] = path
+			}
+
+			typesData.Types = map[system.Reference]string{}
+			pointersOrder := []string{}
+			pointersMap := map[string]string{}
+			for r, t := range types {
+				typesData.Types[r] = literal.Build(t, pointersMap, &pointersOrder, typesPath, typesData.Imports)
+			}
+			typesData.Pointers = orderPointers(pointersOrder, pointersMap)
+
+			//typesData := getTypesDataFromMainData(mainData)
 			source, err = executeTemplateAndFormat(typesData, "types.tmpl")
 			if err != nil {
 				err = kerr.New("UURNHCUYAI", err, "process.Generate", "executeTemplateAndFormat (types)")
 			}
 		}
-	case F_DATA:
+	case F_GLOBALS:
 		globals := system.GetAllGlobalsInPackage(path)
 		if len(globals) == 0 {
 			return
@@ -60,16 +88,13 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 
 		globalData := globalDataStruct{Path: path, Imports: imports}
 		globalData.Globals = map[system.Reference]string{}
-		order := []string{}
+		pointersOrder := []string{}
 		pointersMap := map[string]string{}
 		for r, g := range globals {
-			globalData.Globals[r] = literal.Build(g, pointersMap, &order, path, imports)
+			globalData.Globals[r] = literal.Build(g, pointersMap, &pointersOrder, path, imports)
 		}
-		pointers := []string{}
-		for _, n := range order {
-			pointers = append(pointers, fmt.Sprintf("var %s = %s", n, pointersMap[n]))
-		}
-		globalData.Pointers = pointers
+
+		globalData.Pointers = orderPointers(pointersOrder, pointersMap)
 
 		source, err = executeTemplateAndFormat(globalData, "global.tmpl")
 		if err != nil {
@@ -79,38 +104,17 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 	return
 }
 
-func getTypesDataFromMainData(data mainDataStruct) (new typesDataStruct) {
-
-	new.NonTypesPath = data.Path
-	new.Path = fmt.Sprintf("%s/types", data.Path)
-
-	// Clone the imports map because we have to add the base package
-	new.Imports = map[string]string{}
-	for k, v := range data.Imports {
-		new.Imports[k] = v
+func orderPointers(pointersOrder []string, pointersMap map[string]string) []pointer {
+	pointers := []pointer{}
+	for _, name := range pointersOrder {
+		pointers = append(pointers, pointer{name, pointersMap[name]})
 	}
+	return pointers
+}
 
-	// Add the base package, but not if it's system or json
-	if data.Path != "kego.io/system" && data.Path != "kego.io/json" {
-		name := getPackageNameFromPath(data.Path)
-		new.Imports[name] = data.Path
-	}
-
-	new.Types = map[system.Reference]string{}
-	order := []string{}
-	pointersMap := map[string]string{}
-	for r, t := range data.Types {
-		new.Types[r] = literal.Build(t, pointersMap, &order, new.Path, new.Imports)
-	}
-
-	pointers := []string{}
-	for _, n := range order {
-		pointers = append(pointers, fmt.Sprintf("%s := %s", n, pointersMap[n]))
-	}
-
-	new.Pointers = pointers
-
-	return
+type pointer struct {
+	Name   string
+	Source string
 }
 
 func executeTemplateAndFormat(data interface{}, templateName string) ([]byte, error) {
@@ -135,13 +139,13 @@ type mainDataStruct struct {
 	Imports map[string]string
 }
 type globalDataStruct struct {
-	Pointers []string
+	Pointers []pointer
 	Globals  map[system.Reference]string
 	Path     string
 	Imports  map[string]string
 }
 type typesDataStruct struct {
-	Pointers     []string
+	Pointers     []pointer
 	Types        map[system.Reference]string
 	Path         string
 	Imports      map[string]string

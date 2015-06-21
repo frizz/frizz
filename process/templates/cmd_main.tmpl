@@ -19,12 +19,12 @@ import (
 )
 
 func main() {
-	dir, test, recursive, path, imports, err := process.Initialise()
+	dir, test, recursive, verbose, path, imports, err := process.Initialise()
 	if err != nil {
 		fmt.Println(err)
         os.Exit(1)
 	}
-	if err := process.GenerateFiles(process.F_MAIN, dir, test, recursive, path, imports); err != nil {
+	if err := process.GenerateFiles(process.F_MAIN, dir, test, recursive, verbose, path, imports); err != nil {
 		fmt.Println(err)
         os.Exit(1)
 	}

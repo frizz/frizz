@@ -30,7 +30,7 @@ func Validate_NeedsTypes(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(aFile)
 
-	err = Validate(d, false, "d.e/f", map[string]string{})
+	err = Validate(d, false, false, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 }
 func TestValidate_error1(t *testing.T) {
@@ -56,7 +56,7 @@ func TestValidate_error1(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(bFile)
 
-	err = Validate(d, false, "d.e/f", map[string]string{})
+	err = Validate(d, false, false, "d.e/f", map[string]string{})
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "DCIARXKRXN")
 
