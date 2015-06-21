@@ -76,7 +76,7 @@ func cmd_main_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "cmd_main.tmpl", size: 624, mode: os.FileMode(420), modTime: time.Unix(1434902113, 0)}
+	info := bindata_file_info{name: "cmd_main.tmpl", size: 624, mode: os.FileMode(420), modTime: time.Unix(1434920259, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -96,7 +96,7 @@ func cmd_types_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "cmd_types.tmpl", size: 844, mode: os.FileMode(420), modTime: time.Unix(1434902525, 0)}
+	info := bindata_file_info{name: "cmd_types.tmpl", size: 844, mode: os.FileMode(420), modTime: time.Unix(1434920259, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -116,7 +116,7 @@ func cmd_validate_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "cmd_validate.tmpl", size: 627, mode: os.FileMode(420), modTime: time.Unix(1434902133, 0)}
+	info := bindata_file_info{name: "cmd_validate.tmpl", size: 627, mode: os.FileMode(420), modTime: time.Unix(1434920259, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -136,7 +136,7 @@ func global_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "global.tmpl", size: 549, mode: os.FileMode(420), modTime: time.Unix(1434919472, 0)}
+	info := bindata_file_info{name: "global.tmpl", size: 549, mode: os.FileMode(420), modTime: time.Unix(1434920259, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -156,27 +156,7 @@ func main_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "main.tmpl", size: 1309, mode: os.FileMode(420), modTime: time.Unix(1434901744, 0)}
-	a := &asset{bytes: bytes, info: info}
-	return a, nil
-}
-
-var _struct_tmpl = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x7c\x91\x41\x4b\xc4\x30\x10\x85\xcf\xed\xaf\x18\x4a\x0f\x2a\x12\xef\x82\x17\x41\xc5\xcb\x1e\x3c\x78\x95\x6c\x32\xad\xc1\x36\x29\xc9\x54\x5c\xba\xfb\xdf\x4d\x26\xa9\x5b\x10\xf6\xf6\xfa\x3e\xde\x4c\xde\x74\x59\xa0\x9d\x24\x7d\xc2\xfd\x03\x08\x16\xa7\x53\x9d\x4c\x33\x4e\xce\x53\x60\x7f\xd5\x19\x99\x0e\xa4\xd5\x70\x65\x1d\x81\xa0\xc3\x84\xe2\x35\xec\x24\x99\x6f\x7c\x97\xc3\x8c\xd7\x5b\xf2\xf4\xa3\x86\x59\x47\x2f\x47\xd9\x84\x23\x68\x0c\xca\x9b\x89\x8c\xb3\x89\xb0\xbb\x62\xf1\xe2\x76\x72\xc4\xe8\x43\x20\x3f\x2b\x82\xa5\xae\xab\xbc\xf7\x3c\xf8\x51\x06\xa3\x52\xb6\xaa\x6e\x22\xf3\xd8\xa1\x47\xab\xf0\xc3\x68\x68\xbe\xb0\x77\xc2\xb8\xbb\x70\x08\x84\x63\x03\xcd\x5e\x06\x6c\x4a\xd1\x76\xd3\x26\x8d\xc5\xd8\xa5\x48\x2f\x6d\x8f\xd0\xe2\xb8\x47\xcd\xc5\x73\x07\xfe\xfc\x5b\x95\x71\x7c\xe5\xdb\xba\xf3\xf2\xe0\xed\xe4\xce\xe0\xa0\x53\xbb\xdb\xa2\xcf\x5b\x9e\xd3\x67\xce\xa6\x40\xc1\xff\x4e\xb5\x81\x7c\xa5\x23\xf4\xce\x96\x73\x45\xd2\x3b\xbe\x65\x49\x5f\x7c\x17\xff\x90\xac\x7f\x03\x00\x00\xff\xff\x3b\xb8\x66\x9e\x05\x02\x00\x00")
-
-func struct_tmpl_bytes() ([]byte, error) {
-	return bindata_read(
-		_struct_tmpl,
-		"struct.tmpl",
-	)
-}
-
-func struct_tmpl() (*asset, error) {
-	bytes, err := struct_tmpl_bytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindata_file_info{name: "struct.tmpl", size: 517, mode: os.FileMode(420), modTime: time.Unix(1434819787, 0)}
+	info := bindata_file_info{name: "main.tmpl", size: 1309, mode: os.FileMode(420), modTime: time.Unix(1434920438, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -196,7 +176,7 @@ func types_tmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "types.tmpl", size: 806, mode: os.FileMode(420), modTime: time.Unix(1434919460, 0)}
+	info := bindata_file_info{name: "types.tmpl", size: 806, mode: os.FileMode(420), modTime: time.Unix(1434920259, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -258,7 +238,6 @@ var _bindata = map[string]func() (*asset, error){
 	"cmd_validate.tmpl": cmd_validate_tmpl,
 	"global.tmpl":       global_tmpl,
 	"main.tmpl":         main_tmpl,
-	"struct.tmpl":       struct_tmpl,
 	"types.tmpl":        types_tmpl,
 }
 
@@ -308,7 +287,6 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"cmd_validate.tmpl": &_bintree_t{cmd_validate_tmpl, map[string]*_bintree_t{}},
 	"global.tmpl":       &_bintree_t{global_tmpl, map[string]*_bintree_t{}},
 	"main.tmpl":         &_bintree_t{main_tmpl, map[string]*_bintree_t{}},
-	"struct.tmpl":       &_bintree_t{struct_tmpl, map[string]*_bintree_t{}},
 	"types.tmpl":        &_bintree_t{types_tmpl, map[string]*_bintree_t{}},
 }}
 
