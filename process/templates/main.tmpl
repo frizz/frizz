@@ -17,7 +17,7 @@ import (
 )
 
 {{ range $ref, $type := .Types }}
-	{{ if and (not $type.Interface) (not $type.IsNativeValue) (not $type.Exclude) }}
+	{{ if $type.IncludeStructInMainGeneratedCode }}
 		{{ $type | description }}
 		type {{ $type.GoName }} struct {
 			{{ if not $type.Basic }}

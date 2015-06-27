@@ -104,6 +104,43 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 	return
 }
 
+type imps map[string]string
+
+func (i imps) Add(path string) {
+
+	// if the path already exists in the imports, we don't need to do anything
+	for _, p := range i {
+		if path == p {
+			return
+		}
+	}
+
+	// lets find a preferred alias
+	preferredAlias := path
+	if strings.Contains(path, "/") {
+		preferredAlias = path[strings.LastIndex(path, "/")+1:]
+	}
+
+	uniqueAlias := i.findUniqueAlias(preferredAlias)
+	i[uniqueAlias] = path
+}
+func (i imps) findUniqueAlias(preferredAlias string) string {
+	if _, ok := i[preferredAlias]; !ok {
+		return preferredAlias
+	}
+	count := 1
+	for {
+		new := fmt.Sprintf("%s%v", preferredAlias, count)
+		if _, ok := i[new]; !ok {
+			return new
+		}
+		count++
+		if count > 100 {
+			panic("too many iterations")
+		}
+	}
+}
+
 func orderPointers(pointersOrder []string, pointersMap map[string]string) []pointer {
 	pointers := []pointer{}
 	for _, name := range pointersOrder {
