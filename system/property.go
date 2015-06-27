@@ -101,6 +101,21 @@ func getTag(r *RuleHolder) (string, error) {
 	return formatTag(defaultBytes, r)
 }
 
+func InnerRule(field Rule, path string, imports map[string]string) (*RuleHolder, error) {
+
+	outer, err := NewRuleHolder(field, path, imports)
+	if err != nil {
+		return nil, kerr.New("YLYXPMFPTR", err, "system.InnerRule", "NewRuleHolder")
+	}
+
+	_, inner, err := collectionPrefixInnerRule("", outer)
+	if err != nil {
+		return nil, kerr.New("PYSSXWKIBW", err, "system.InnerRule", "collectionPrefixInnerRule")
+	}
+
+	return inner, nil
+}
+
 // GoTypeDescriptor returns the Go source for the definition of the type of this property
 // [collection prefix][optional pointer][type name]
 func GoTypeDescriptor(field Rule, path string, imports map[string]string) (string, error) {

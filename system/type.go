@@ -11,6 +11,10 @@ type Validator interface {
 	Validate(path string, imports map[string]string) (bool, string, error)
 }
 
+func (t *Type) IncludeStructInMainGeneratedCode() bool {
+	return !t.Interface && !t.IsNativeValue() && !t.Exclude
+}
+
 var types struct {
 	sync.RWMutex
 	m map[Reference]*Type
