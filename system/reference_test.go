@@ -79,37 +79,6 @@ func TestReferenceMarshalJson(t *testing.T) {
 	assert.Equal(t, "null", string(b))
 }
 
-func TestReferenceGoReference(t *testing.T) {
-	r := NewReference("a.b/c", "d")
-	s, err := r.GoReference("a.b/c", map[string]string{})
-	assert.NoError(t, err)
-	assert.Equal(t, "D", s)
-
-	r = NewReference("a.b/c", "d")
-	_, err = r.GoReference("", map[string]string{})
-	assert.IsError(t, err, "LVHAQUOQGR")
-
-	r = NewReference("kego.io/json", "string")
-	s, err = r.GoReference("", map[string]string{})
-	assert.NoError(t, err)
-	assert.Equal(t, "string", s)
-
-	r = NewReference("kego.io/json", "bool")
-	s, err = r.GoReference("", map[string]string{})
-	assert.NoError(t, err)
-	assert.Equal(t, "bool", s)
-
-	r = NewReference("kego.io/json", "number")
-	s, err = r.GoReference("", map[string]string{})
-	assert.NoError(t, err)
-	assert.Equal(t, "float64", s)
-
-	r = NewReference("kego.io/json", "a")
-	s, err = r.GoReference("", map[string]string{})
-	assert.NoError(t, err)
-	assert.Equal(t, "json.A", s)
-}
-
 func TestReferenceGetType(t *testing.T) {
 
 	ty := &Type{

@@ -11,10 +11,6 @@ type Validator interface {
 	Validate(path string, imports map[string]string) (bool, string, error)
 }
 
-func (t *Type) IncludeStructInMainGeneratedCode() bool {
-	return !t.Interface && !t.IsNativeValue() && !t.Exclude
-}
-
 var types struct {
 	sync.RWMutex
 	m map[Reference]*Type
@@ -112,28 +108,9 @@ func (t *Type) NativeValueGolangType() (string, error) {
 }
 
 func (t *Type) GoName() string {
-	return IdToGoName(t.Id.Name)
+	return GoName(t.Id.Name)
 }
 
 func (t *Type) FullName() string {
 	return t.Id.Value()
 }
-
-// GoTypeReference outputs a Go source code reference to the name of this type. If we're in
-// the local package, it just outputs the name e.g. "String". If we're in a different package,
-// it looks up the alias of the package in the imports and appends that to the start.
-// e.g. "system.String".
-func (t *Type) GoTypeReference(path string, imports map[string]string) (string, error) {
-	return IdToGoReference(t.Id.Package, t.Id.Name, path, imports)
-}
-
-/*
-func (t *Type) Defaulter() (name string, property *Property, ok bool) {
-	for name, prop := range t.Properties {
-		if prop.Defaulter {
-			return name, prop, true
-		}
-	}
-	return "", nil, false
-}
-*/

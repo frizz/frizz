@@ -96,14 +96,6 @@ func (r *Reference) String() string {
 	return r.Value()
 }
 
-func (r *Reference) GoReference(path string, imports map[string]string) (string, error) {
-	s, err := IdToGoReference(r.Package, r.Name, path, imports)
-	if err != nil {
-		return "", kerr.New("LVHAQUOQGR", err, "Reference.GoReference", "IdToGoReference")
-	}
-	return s, nil
-}
-
 func (r *Reference) GetType() (*Type, bool) {
 	if !r.Exists {
 		return nil, false

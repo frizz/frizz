@@ -44,15 +44,15 @@ func NewMinimalRuleHolder(t *Type, path string, imports map[string]string) *Rule
 	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t, Path: path, Imports: imports}
 }
 func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder, error) {
-	rt, pt, err := ruleTypes(r, path, imports)
+	rt, pt, err := ruleTypes(r)
 	if err != nil {
 		return nil, kerr.New("VRCWUGOTMA", err, "NewRuleHolder", "ruleTypes")
 	}
 	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Imports: imports}, nil
 }
 
-func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, parentType *Type, err error) {
-	ruleReference, err := ruleTypeReference(r, path, imports)
+func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
+	ruleReference, err := ruleTypeReference(r)
 	if err != nil {
 		return nil, nil, kerr.New("BNEKIFYDDL", err, "ruleTypes", "ruleTypeReference")
 	}
@@ -71,7 +71,7 @@ func ruleTypes(r Rule, path string, imports map[string]string) (ruleType *Type, 
 	return rt, pt, nil
 }
 
-func ruleTypeReference(r Rule, path string, imports map[string]string) (*Reference, error) {
+func ruleTypeReference(r Rule) (*Reference, error) {
 	ob, ok := r.(Object)
 	if !ok {
 		return nil, kerr.New("VKFNPJDNVB", nil, "system.ruleTypeReference", "r does not implement Object")
@@ -85,12 +85,12 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !r.ParentType.IsNativeCollection() {
 		return nil, kerr.New("VPAGXSTQHM", nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.ParentType.Id)
 	}
-	items, _, ok, err := ruleFieldByReflection(r.Rule, "Items")
+	items, _, ok, err := RuleFieldByReflection(r.Rule, "Items")
 	if err != nil {
-		return nil, kerr.New("LIDXIQYGJD", err, "RuleHolder.ItemsRule", "ruleFieldByReflection")
+		return nil, kerr.New("LIDXIQYGJD", err, "RuleHolder.ItemsRule", "RuleFieldByReflection")
 	}
 	if !ok {
-		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleHolder.ItemsRule", "ruleFieldByReflection could not find Items field")
+		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleHolder.ItemsRule", "RuleFieldByReflection could not find Items field")
 	}
 	rule, ok := items.(Rule)
 	if !ok {
@@ -103,13 +103,13 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	return rh, nil
 }
 
-func ruleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
+func RuleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
 	v := reflect.ValueOf(object)
 	if v.Kind() != reflect.Ptr {
-		return nil, nil, false, kerr.New("QOYMWPXWUO", nil, "ruleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
+		return nil, nil, false, kerr.New("QOYMWPXWUO", nil, "RuleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
 	}
 	if v.Elem().Kind() != reflect.Struct {
-		return nil, nil, false, kerr.New("IGOUOBGXAN", nil, "ruleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
+		return nil, nil, false, kerr.New("IGOUOBGXAN", nil, "RuleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
 	}
 	value, pointer, _, found, zero, err := GetObjectField(v.Elem(), name)
 

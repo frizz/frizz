@@ -50,7 +50,7 @@ func init() {
 	makeRule := func(name string) *Type {
 		return &Type{
 			Base: &Base{
-				Id:   NewReference("kego.io/json", fmt.Sprintf("@%s", name)),
+				Id:   NewReference("kego.io/json", fmt.Sprint("@", name)),
 				Type: tr},
 			Embed:     []Reference{or},
 			Interface: false,

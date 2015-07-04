@@ -31,27 +31,27 @@ func TestRuleTypes(t *testing.T) {
 	r := &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@a")},
 	}
-	rt, pt, err := ruleTypes(r, "", map[string]string{})
+	rt, pt, err := ruleTypes(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "a", pt.Id.Name)
 	assert.Equal(t, "@a", rt.Id.Name)
 
 	r1 := nonRuleStruct{}
-	rt, pt, err = ruleTypes(r1, "", map[string]string{})
+	rt, pt, err = ruleTypes(r1)
 	// A non Object rule will cause ruleTypeReference to return an error
 	assert.IsError(t, err, "BNEKIFYDDL")
 
 	r = &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "unregistered")},
 	}
-	rt, pt, err = ruleTypes(r, "", map[string]string{})
+	rt, pt, err = ruleTypes(r)
 	// An unregistered type will cause ruleReference.GetType to return an error
 	assert.IsError(t, err, "PFGWISOHRR")
 
 	r = &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "a")},
 	}
-	rt, pt, err = ruleTypes(r, "", map[string]string{})
+	rt, pt, err = ruleTypes(r)
 	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
 	assert.IsError(t, err, "NXRCPQMUIE")
 
@@ -59,7 +59,7 @@ func TestRuleTypes(t *testing.T) {
 	r = &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@b")},
 	}
-	rt, pt, err = ruleTypes(r, "", map[string]string{})
+	rt, pt, err = ruleTypes(r)
 	// An rule type with an unregistered parent type typeReference.GetType to return an error
 	assert.IsError(t, err, "KYCTDXKFYR")
 
@@ -74,7 +74,7 @@ func TestRuleTypeReference(t *testing.T) {
 	rs := &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@a")},
 	}
-	r, err := ruleTypeReference(rs, "", map[string]string{})
+	r, err := ruleTypeReference(rs)
 	assert.NoError(t, err)
 	assert.Equal(t, "a.b/c:@a", r.Value())
 
@@ -106,7 +106,7 @@ func TestRuleTypeReference(t *testing.T) {
 	*/
 
 	rsp := ruleStruct{}
-	r, err = ruleTypeReference(rsp, "", map[string]string{})
+	r, err = ruleTypeReference(rsp)
 	// rsp has no base, so ruleTypeReference will return a zero base
 	assert.NoError(t, err)
 	assert.False(t, r.Exists)
@@ -165,7 +165,7 @@ func TestRuleHolderItemsRule(t *testing.T) {
 	/*
 		rh.Rule = "a"
 		_, err = rh.ItemsRule()
-		// rh.rule must be a pointer or ruleFieldByReflection will error
+		// rh.rule must be a pointer or RuleFieldByReflection will error
 		assert.IsError(t, err, "LIDXIQYGJD")
 
 		rh.Rule = &struct{}{}
@@ -181,31 +181,31 @@ func TestRuleHolderItemsRule(t *testing.T) {
 }
 func TestRuleFieldByReflection(t *testing.T) {
 
-	_, _, _, err := ruleFieldByReflection(struct{}{}, "")
+	_, _, _, err := RuleFieldByReflection(struct{}{}, "")
 	// Must be a pointer type
 	assert.IsError(t, err, "QOYMWPXWUO")
 
 	i := 1
-	_, _, _, err = ruleFieldByReflection(&i, "")
+	_, _, _, err = RuleFieldByReflection(&i, "")
 	// Must point to a struct type
 	assert.IsError(t, err, "IGOUOBGXAN")
 
-	_, _, ok, err := ruleFieldByReflection(&struct{}{}, "A")
+	_, _, ok, err := RuleFieldByReflection(&struct{}{}, "A")
 	// Must have field called a, or it returns false
 	assert.NoError(t, err)
 	assert.False(t, ok)
 
-	_, _, ok, err = ruleFieldByReflection(&struct{ A *string }{A: nil}, "A")
+	_, _, ok, err = RuleFieldByReflection(&struct{ A *string }{A: nil}, "A")
 	// If field is a pointer, and nil, returns false
 	assert.NoError(t, err)
 	assert.False(t, ok)
 
-	_, _, ok, err = ruleFieldByReflection(&struct{ A string }{A: ""}, "A")
+	_, _, ok, err = RuleFieldByReflection(&struct{ A string }{A: ""}, "A")
 	// If field is not a pointer, and equal to the zero value for that type, returns false
 	assert.NoError(t, err)
 	assert.False(t, ok)
 
-	_, _, ok, err = ruleFieldByReflection(&struct {
+	_, _, ok, err = RuleFieldByReflection(&struct {
 		A struct {
 			B int
 			C string
@@ -218,7 +218,7 @@ func TestRuleFieldByReflection(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, ok)
 
-	fi, fpi, ok, err := ruleFieldByReflection(&struct{ A string }{A: "b"}, "A")
+	fi, fpi, ok, err := RuleFieldByReflection(&struct{ A string }{A: "b"}, "A")
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	f, ok := fi.(string)
@@ -229,7 +229,7 @@ func TestRuleFieldByReflection(t *testing.T) {
 	assert.Equal(t, "b", *fp)
 
 	b := "b"
-	fi, fpi, ok, err = ruleFieldByReflection(&struct{ A *string }{A: &b}, "A")
+	fi, fpi, ok, err = RuleFieldByReflection(&struct{ A *string }{A: &b}, "A")
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	fp, ok = fi.(*string)
