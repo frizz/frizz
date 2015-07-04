@@ -9,6 +9,9 @@ import (
 
 	"io"
 
+	"bytes"
+
+	"github.com/ghodss/yaml"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -118,9 +121,11 @@ func scanPath(root string, ignoreUnknownTypes bool, recursive bool, scan func(ob
 
 func scanFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
-	if !strings.HasSuffix(filePath, ".json") {
+	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil
 	}
+
+	var reader io.Reader
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -128,7 +133,21 @@ func scanFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}
 	}
 	defer file.Close()
 
-	if err = scanReader(file, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
+	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
+		y, err := ioutil.ReadAll(file)
+		if err != nil {
+			return kerr.New("AXNOMOAWDF", err, "process.scanFile", "ioutil.ReadAll (yml)")
+		}
+		j, err := yaml.YAMLToJSON(y)
+		if err != nil {
+			return kerr.New("FAFJCYESRH", err, "process.scanFile", "yaml.YAMLToJSON")
+		}
+		reader = bytes.NewReader(j)
+	} else {
+		reader = file
+	}
+
+	if err = scanReader(reader, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
