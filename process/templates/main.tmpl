@@ -1,0 +1,41 @@
+{{ $path := .Path }}
+{{ $imports := .Imports }}
+package {{ $path | name }}
+
+import (
+	"reflect"
+
+	"kego.io/json"
+
+	{{ if not (eq $path "kego.io/system") }}
+		"kego.io/system"
+	{{ end }}
+
+	{{ range $importName, $importPath := $imports }}
+		{{ import $importName $importPath $path }}
+	{{ end }}
+)
+
+{{ range $ref, $type := .Types }}
+	{{ $vars := map "type" $type "path" $path "imports" $imports }}
+	{{ if not $type.Interface }}
+		{{ template "struct.tmpl" $vars }}
+	{{ end }}
+{{ end }}
+
+func init() {
+	{{ range $ref, $type := .Types }}
+		{{ if not $type.Interface }}
+			{{ reference "kego.io/json" "RegisterType" $path $imports }}({{ $ref.Package | quote }}, {{ $ref.Name | quote }}, reflect.TypeOf(&{{ $type.GoName }}{}))
+		{{ end }}
+	{{ end }}
+}
+
+{{ if not (eq $path "kego.io/system") }}
+	var _ system.Nothing
+{{ end }}
+{{ range $importName, $importPath := $imports }}
+	var _ {{ $importName }}.Nothing
+{{ end }}
+
+type Nothing struct{}
