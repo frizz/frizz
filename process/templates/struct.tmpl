@@ -1,0 +1,19 @@
+{{ $path := .path }}
+{{ $imports := .imports }}
+{{ if and (not .type.IsNativeValue) (not .type.Exclude) }}
+{{ .type | description }}
+type {{ .type.GoName }} struct {
+
+	{{ if not .type.Basic }}
+		*{{ reference_id "kego.io/system" "base" $path $imports }}
+	{{ end }}
+	{{ range $embed := .type.Embed }}
+		*{{ $embed.GoReference $path $imports }}
+	{{ end }}
+
+	{{ range $fieldName, $field := .type.Fields }}
+		{{ $field | description }}
+		{{ $fieldName | goname }} {{ gotype $field $path $imports }}
+	{{ end }}
+}
+{{ end }}

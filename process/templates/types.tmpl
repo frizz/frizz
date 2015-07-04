@@ -1,0 +1,33 @@
+{{ $path := .Path }}
+{{ $imports := .Imports }}
+{{ $nonTypesPath := .NonTypesPath }}
+package {{ $path | name }}
+
+import (
+	{{ if not (eq $path "kego.io/system") }}
+		"kego.io/system"
+	{{ end }}
+
+	{{ if not (eq $path "kego.io/system/types") }}
+		_ "kego.io/system/types"
+	{{ end }}
+
+	{{ range $importName, $importPath := $imports }}
+		{{ import $importName $importPath $path }}
+		{{ types $importPath $path }}
+	{{ end }}
+)
+
+func init() {
+	{{ range $pointer := .Pointers }}
+		{{ $pointer }}
+	{{ end }}
+
+	{{ range $ref, $source := .Types }}
+		{{ reference "kego.io/system" "RegisterType" $path $imports }}({{ $ref.Package | quote }}, {{ $ref.Name | quote }}, {{ $source }})
+	{{ end }}
+}
+
+{{ range $importName, $importPath := $imports }}
+	var _ {{ $importName }}.Nothing
+{{ end }}
