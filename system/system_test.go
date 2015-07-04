@@ -161,14 +161,14 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 
 		// The value is just a, so we should be picking up the package
 		// kego.io/b from the local package path
-		Ref1 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		Ref1 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\",\"imports\":{\"kego.io/json\":\"json\",\"kego.io/system\":\"system\"}}}"`
 
 		// The value is a:b, so a is the package alias for kego.io/d
 		// which we find in the package imports, and b is the type.
-		Ref2 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"imports\":{\"json\":\"kego.io/json\",\"a\":\"kego.io/d\",\"system\":\"kego.io/system\"}}}"`
+		Ref2 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"imports\":{\"kego.io/json\":\"json\",\"kego.io/d\":\"a\",\"kego.io/system\":\"system\"}}}"`
 
 		// The value is a full type with package path.
-		Ref3 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		Ref3 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"imports\":{\"kego.io/json\":\"json\",\"kego.io/system\":\"system\"}}}"`
 	}
 
 	data := `{
@@ -299,7 +299,7 @@ func TestReferenceImport(t *testing.T) {
 	defer json.UnregisterType("kego.io/system", "foo")
 
 	var i interface{}
-	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"pkg": "kego.io/pkg"})
+	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
 	assert.False(t, unknown)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
@@ -315,8 +315,8 @@ func TestReferenceImport(t *testing.T) {
 func TestReferenceDefault(t *testing.T) {
 
 	type Foo struct {
-		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
-		RefDefault Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"imports\":{\"json\":\"kego.io/json\",\"system\":\"kego.io/system\"}}}"`
+		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"imports\":{\"kego.io/json\":\"json\",\"kego.io/system\":\"system\"}}}"`
+		RefDefault Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"imports\":{\"kego.io/json\":\"json\",\"kego.io/system\":\"system\"}}}"`
 	}
 
 	data := `{

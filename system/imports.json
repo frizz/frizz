@@ -4,7 +4,7 @@
 	"id": "imports",
 	"fields": {
 		"imports": {
-			"description": "Map of import name to path.",
+			"description": "Map of path to alias.",
 			"type": "@map",
 			"items": {
 				"type": "@string"
