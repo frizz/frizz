@@ -746,7 +746,7 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		} else if parts[0] == "json" {
 			return "kego.io/json", parts[1], nil
 		}
-		packagePath, ok := imports[parts[0]]
+		packagePath, ok := findKey(imports, parts[0])
 		if !ok {
 			return "", "", fmt.Errorf("Error in json.GetReferencePartsFromTypeString: package name %v not found in imports.\n", parts[0])
 		}
@@ -754,6 +754,14 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 	} else {
 		return localPath, typeString, nil
 	}
+}
+func findKey(m map[string]string, value string) (string, bool) {
+	for k, v := range m {
+		if value == v {
+			return k, true
+		}
+	}
+	return "", false
 }
 
 // object consumes an object from d.data[d.off-1:], decoding into the value v.
