@@ -7,7 +7,7 @@ import (
 	"github.com/go-errors/errors"
 )
 
-func Build(object interface{}, pointers map[string]string, order *[]string, path string, imports map[string]string) string {
+func Build(object interface{}, pointers map[string]string, order *[]string, path string, getAlias func(string) string) string {
 
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr {
@@ -20,7 +20,7 @@ func Build(object interface{}, pointers map[string]string, order *[]string, path
 
 	p := newPrinter()
 	p.path = path
-	p.imports = imports
+	p.getAlias = getAlias
 	p.pointers = pointers
 	p.order = order
 	p.reordered = false

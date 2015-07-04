@@ -123,49 +123,36 @@ type pp struct {
 	runeBuf    [utf8.UTFMax]byte
 	fmt        fmtr
 	path       string
-	imports    map[string]string
+	getAlias   func(string) string
 	pointers   map[string]string
 	order      *[]string
 }
 
 func (p *pp) WriteName(t reflect.Type) {
-	p.buf.WriteString(GetName(t, p.path, p.imports))
+	p.buf.WriteString(GetName(t, p.path, p.getAlias))
 }
-func GetName(t reflect.Type, path string, imports map[string]string) string {
+func GetName(t reflect.Type, path string, getAlias func(string) string) string {
 	if path == "" {
 		// If we haven't provided a local package, just print the name using Stringer.
 		return t.String()
 	} else if t.Kind() == reflect.Map {
 		// Slices get brackets and we recursively call GetName for the key type and elem type
-		return Sprintf("map[%s]%s", GetName(t.Key(), path, imports), GetName(t.Elem(), path, imports))
+		return Sprintf("map[%s]%s", GetName(t.Key(), path, getAlias), GetName(t.Elem(), path, getAlias))
 	} else if t.Kind() == reflect.Slice {
 		// Slices get brackets and we recursively call GetName
-		return Sprintf("[]%s", GetName(t.Elem(), path, imports))
+		return Sprintf("[]%s", GetName(t.Elem(), path, getAlias))
 	} else if t.Kind() == reflect.Ptr {
 		// Pointers get an asterisk and we recursively call GetName
-		return Sprintf("*%s", GetName(t.Elem(), path, imports))
+		return Sprintf("*%s", GetName(t.Elem(), path, getAlias))
 	} else if t.PkgPath() == "" {
 		// Native types: string, float64, bool etc.
 		return t.String()
 	} else if path == t.PkgPath() {
 		// Types in the local package
 		return t.Name()
-	} else if t.PkgPath() == "kego.io/json" {
-		// Types in the built in json package
-		return Sprintf("json.%s", t.Name())
-	} else if t.PkgPath() == "kego.io/system" {
-		// Types in the built in system package
-		return Sprintf("system.%s", t.Name())
-	} else {
-		// Types in an imported package
-		for alias, path := range imports {
-			if t.PkgPath() == path {
-				return Sprintf("%s.%s", alias, t.Name())
-			}
-		}
 	}
-	// Anything else panics
-	panic(Errorf("Package %s not found in imports!", t.PkgPath()))
+	// Types in an imported package
+	return Sprintf("%s.%s", getAlias(t.PkgPath()), t.Name())
 }
 
 var ppFree = sync.Pool{
@@ -178,7 +165,7 @@ func newPrinter() *pp {
 	p.panicking = false
 	p.erroring = false
 	p.path = ""
-	p.imports = nil
+	p.getAlias = nil
 	p.fmt.init(&p.buf)
 	return p
 }
@@ -1065,7 +1052,7 @@ BigSwitch:
 		} else if v != 0 && depth > 0 {
 			name := pointerLiteralName(value.Pointer())
 			if p.pointers[string(name)] == "" {
-				Build(value.Interface(), p.pointers, p.order, p.path, p.imports)
+				Build(value.Interface(), p.pointers, p.order, p.path, p.getAlias)
 			}
 			p.Write([]byte(name))
 			break BigSwitch

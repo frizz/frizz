@@ -1,11 +1,11 @@
 package literal
 
 import (
+	"fmt"
 	"testing"
 
-	"fmt"
-
 	"kego.io/kerr/assert"
+	"kego.io/process/generator"
 )
 
 func TestBuild(t *testing.T) {
@@ -20,7 +20,8 @@ func TestBuild(t *testing.T) {
 
 	o := []string{}
 	p := map[string]string{}
-	n := Build(foo, p, &o, "", map[string]string{})
+	i := generator.NewImports_test()
+	n := Build(foo, p, &o, "", i.Add_test)
 	inner := o[0]
 	outer := o[1]
 	assert.Equal(t, n, outer)
@@ -29,7 +30,8 @@ func TestBuild(t *testing.T) {
 
 	o = []string{}
 	p = map[string]string{}
-	n = Build(foo, p, &o, "kego.io/literal", map[string]string{"a": "a.b/c"})
+	i = generator.NewImports_test(map[string]string{"a.b/c": "a"})
+	n = Build(foo, p, &o, "kego.io/literal", i.Add_test)
 	inner = o[0]
 	outer = o[1]
 	assert.Equal(t, n, outer)
@@ -38,7 +40,8 @@ func TestBuild(t *testing.T) {
 
 	o = []string{}
 	p = map[string]string{}
-	n = Build(foo, p, &o, "kego.io/system", map[string]string{"literal": "foo.com/literal", "f": "kego.io/literal"})
+	i = generator.NewImports_test(map[string]string{"foo.com/literal": "literal", "kego.io/literal": "f"})
+	n = Build(foo, p, &o, "kego.io/system", i.Add_test)
 	inner = o[0]
 	outer = o[1]
 	assert.Equal(t, n, outer)
@@ -73,7 +76,8 @@ func TestBuildTypes(t *testing.T) {
 
 	o := []string{}
 	p := map[string]string{}
-	n := Build(foo, p, &o, "", map[string]string{})
+	i := generator.NewImports_test()
+	n := Build(foo, p, &o, "", i.Add_test)
 	inner1 := o[0]
 	inner2 := o[1]
 	inner3 := o[2]
@@ -86,7 +90,8 @@ func TestBuildTypes(t *testing.T) {
 
 	o = []string{}
 	p = map[string]string{}
-	n = Build(foo, p, &o, "kego.io/literal", map[string]string{"a": "a.b/c"})
+	i = generator.NewImports_test(map[string]string{"a.b/c": "a"})
+	n = Build(foo, p, &o, "kego.io/literal", i.Add_test)
 	inner1 = o[0]
 	inner2 = o[1]
 	inner3 = o[2]
@@ -99,7 +104,8 @@ func TestBuildTypes(t *testing.T) {
 
 	o = []string{}
 	p = map[string]string{}
-	n = Build(foo, p, &o, "kego.io/system", map[string]string{"literal": "foo.com/literal", "f": "kego.io/literal"})
+	i = generator.NewImports_test(map[string]string{"foo.com/literal": "literal", "kego.io/literal": "f"})
+	n = Build(foo, p, &o, "kego.io/system", i.Add_test)
 	inner1 = o[0]
 	inner2 = o[1]
 	inner3 = o[2]
@@ -137,19 +143,22 @@ func TestBuildTypesNil(t *testing.T) {
 
 	o := []string{}
 	p := map[string]string{}
-	n := Build(foo, p, &o, "", map[string]string{})
+	i := generator.NewImports_test(map[string]string{})
+	n := Build(foo, p, &o, "", i.Add_test)
 	assert.Equal(t, n, o[0])
 	assert.Equal(t, `&literal.b{A:(*literal.a)(nil), Bm:map[string]string(nil), Bmt:map[string]literal.a(nil), Bmp:map[string]*literal.a(nil), Ba:[]string(nil), Bat:[]literal.a(nil), Bap:[]*literal.a(nil)}`, p[n])
 
 	o = []string{}
 	p = map[string]string{}
-	n = Build(foo, p, &o, "kego.io/literal", map[string]string{"a": "a.b/c"})
+	i = generator.NewImports_test(map[string]string{"a.b/c": "a"})
+	n = Build(foo, p, &o, "kego.io/literal", i.Add_test)
 	assert.Equal(t, n, o[0])
 	assert.Equal(t, `&b{A:(*a)(nil), Bm:map[string]string(nil), Bmt:map[string]a(nil), Bmp:map[string]*a(nil), Ba:[]string(nil), Bat:[]a(nil), Bap:[]*a(nil)}`, p[n])
 
 	o = []string{}
 	p = map[string]string{}
-	n = Build(foo, p, &o, "kego.io/system", map[string]string{"literal": "foo.com/literal", "f": "kego.io/literal"})
+	i = generator.NewImports_test(map[string]string{"foo.com/literal": "literal", "kego.io/literal": "f"})
+	n = Build(foo, p, &o, "kego.io/system", i.Add_test)
 	assert.Equal(t, n, o[0])
 	assert.Equal(t, `&f.b{A:(*f.a)(nil), Bm:map[string]string(nil), Bmt:map[string]f.a(nil), Bmp:map[string]*f.a(nil), Ba:[]string(nil), Bat:[]f.a(nil), Bap:[]*f.a(nil)}`, p[n])
 }
