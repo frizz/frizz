@@ -125,7 +125,7 @@ func TestGenerateFiles(t *testing.T) {
 
 	err = GenerateFiles(F_MAIN, dir, test, recursive, verbose, path, imports)
 	assert.IsError(t, err, "XFNESBLBTQ")
-	assert.HasError(t, err, "HQLAEMCHBM")
+	assert.HasError(t, err, "DFAAGVGIJR")
 
 	data := `{"type": "system:type", "id": "a"}`
 	err = ioutil.WriteFile(filepath.Join(pkgDir, "a.json"), []byte(data), 0777)

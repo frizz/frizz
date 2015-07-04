@@ -1,4 +1,3 @@
-//go:generate go-bindata -prefix "templates/" -pkg=process templates/...
 package process // import "kego.io/process"
 
 /*

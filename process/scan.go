@@ -91,7 +91,7 @@ func scanPath(root string, ignoreUnknownTypes bool, recursive bool, scan func(ob
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := processScannedFile(filePath, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
+		if err := scanFile(filePath, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
@@ -116,7 +116,7 @@ func scanPath(root string, ignoreUnknownTypes bool, recursive bool, scan func(ob
 	return nil
 }
 
-func processScannedFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	if !strings.HasSuffix(filePath, ".json") {
 		return nil
@@ -128,13 +128,13 @@ func processScannedFile(filePath string, ignoreUnknownTypes bool, scan func(ob i
 	}
 	defer file.Close()
 
-	if err = processReader(file, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
+	if err = scanReader(file, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-func processReader(file io.Reader, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanReader(file io.Reader, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	var i interface{}
 	unknown, err := json.NewDecoder(file, packagePath, imports).Decode(&i)

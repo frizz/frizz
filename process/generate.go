@@ -5,140 +5,220 @@ import (
 	"fmt"
 	"go/format"
 	"strconv"
-	"text/template"
-
-	"strings"
 
 	"kego.io/kerr"
 	"kego.io/literal"
+	"kego.io/process/generator"
 	"kego.io/system"
 )
 
 func Generate(file fileType, path string, imports map[string]string) (source []byte, err error) {
-
+	b := bytes.NewBuffer(nil)
 	switch file {
-	case F_CMD_TYPES, F_CMD_MAIN, F_CMD_VALIDATE:
-		var templateName string
-		switch file {
-		case F_CMD_MAIN:
-			templateName = "cmd_main.tmpl"
-		case F_CMD_TYPES:
-			templateName = "cmd_types.tmpl"
-		case F_CMD_VALIDATE:
-			templateName = "cmd_validate.tmpl"
+	case F_CMD_MAIN:
+		g := generator.New(path, "main", b)
+		g.Import("os")
+		g.Import("fmt")
+		g.Import("kego.io/process")
+		g.AnonymousImport("kego.io/system")
+		if path != "kego.io/system" {
+			g.AnonymousImport("kego.io/system/types")
 		}
-		cmdData := cmdDataStruct{Path: path, Imports: imports}
-		source, err = executeTemplateAndFormat(cmdData, templateName)
-		if err != nil {
-			err = kerr.New("NXIWSECRLL", err, "process.Generate", "executeTemplateAndFormat (cmd)")
+		for _, p := range imports {
+			g.AnonymousImport(p)
+			g.AnonymousImport(fmt.Sprint(p, "/types"))
 		}
-	case F_MAIN, F_TYPES:
+		g.Print(`
+			func main() {
+				dir, test, recursive, verbose, path, imports, err := process.Initialise()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				if err := process.GenerateFiles(process.F_MAIN, dir, test, recursive, verbose, path, imports); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			}`)
+		g.Build()
+	case F_CMD_TYPES:
+		g := generator.New(path, "main", b)
+		g.Import("os")
+		g.Import("fmt")
+		g.Import("kego.io/process")
+		g.AnonymousImport("kego.io/system")
+		if path != "kego.io/system" {
+			g.AnonymousImport("kego.io/system/types")
+		}
+		g.AnonymousImport(path)
+		for _, p := range imports {
+			g.AnonymousImport(p)
+			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		}
+		g.Print(`
+			func main() {
+				dir, test, recursive, verbose, path, imports, err := process.Initialise()
+				if err != nil {
+					fmt.Println(err)
+			        os.Exit(1)
+				}
+				if err := process.GenerateFiles(process.F_TYPES, dir, test, recursive, verbose, path, imports); err != nil {
+					fmt.Println(err)
+			        os.Exit(1)
+				}
+				if err := process.GenerateFiles(process.F_GLOBALS, dir, test, recursive, verbose, path, imports); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			}`)
+		g.Build()
+	case F_CMD_VALIDATE:
+		g := generator.New(path, "main", b)
+		g.Import("os")
+		g.Import("fmt")
+		g.Import("kego.io/process")
+		g.AnonymousImport("kego.io/system")
+		g.AnonymousImport("kego.io/system/types")
+		g.AnonymousImport(path)
+		g.AnonymousImport(fmt.Sprint(path, "/types"))
+		for _, p := range imports {
+			g.AnonymousImport(p)
+			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		}
+		g.Print(`
+			func main() {
+				dir, _, recursive, verbose, path, imports, err := process.Initialise()
+				if err != nil {
+					fmt.Println(err)
+			        os.Exit(1)
+				}
+				if err := process.Validate(dir, recursive, verbose, path, imports); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			}`)
+		g.Build()
+	case F_MAIN:
+		types := system.GetAllTypesInPackage(path)
+		if len(types) == 0 {
+			err = kerr.New("DFAAGVGIJR", nil, "process.Generate", "No types found")
+			return
+		}
+		g := generator.New(path, generator.PackageName(path), b)
+		for _, typ := range types {
+			if typ.Interface || typ.IsNativeValue() || typ.Exclude {
+				continue
+			}
+			if typ.Description != "" {
+				g.Println("// ", typ.Description)
+			}
+			g.Println("type ", system.GoName(typ.Id.Name), " struct {")
+			{
+				if !typ.Basic {
+					g.Println("*", generator.Reference("kego.io/system", "Base", path, g.Import))
+				}
+				for _, embed := range typ.Embed {
+					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), path, g.Import))
+				}
+				for name, field := range typ.Fields {
+					b := field.(system.Object).GetBase()
+					if b.Description != "" {
+						g.Println("// ", b.Description)
+					}
+					descriptor, err := generator.Type(field, path, g.Import)
+					if err != nil {
+						return nil, kerr.New("GDSKJDEKQD", err, "process.Generate", "generator.Type")
+					}
+					g.Println(system.GoName(name), " ", descriptor)
+				}
+			}
+			g.Println("}")
+		}
+		g.Println("func init() {")
+		{
+			for _, typ := range types {
+				if typ.Interface {
+					continue
+				}
+				jsonRegisterType := generator.Reference("kego.io/json", "RegisterType", path, g.Import)
+				pkg := strconv.Quote(typ.Id.Package)
+				name := strconv.Quote(typ.Id.Name)
+				reflectTypeOf := generator.Reference("reflect", "TypeOf", path, g.Import)
+				typOf := fmt.Sprintf("%s(&%s{})", reflectTypeOf, system.GoName(typ.Id.Name))
+				// e.g.
+				// json.RegisterType("kego.io/gallery/data", "@gallery", reflect.TypeOf(&Gallery_rule{}))
+				// json.RegisterType("kego.io/gallery/data", "gallery", reflect.TypeOf(&Gallery{}))
+				g.Printf("%s(%s, %s, %s)\n", jsonRegisterType, pkg, name, typOf)
+			}
+		}
+		g.Println("}")
+		g.Build()
+	case F_TYPES:
 		types := system.GetAllTypesInPackage(path)
 		if len(types) == 0 {
 			err = kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
 			return
 		}
-		switch file {
-		case F_MAIN:
-			mainData := mainDataStruct{Types: types, Path: path, Imports: imports}
-			source, err = executeTemplateAndFormat(mainData, "main.tmpl")
-			if err != nil {
-				err = kerr.New("XTIEALKSXN", err, "process.Generate", "executeTemplateAndFormat (main)")
-			}
-		case F_TYPES:
+		path := fmt.Sprintf("%s/types", path)
 
-			typesData := typesDataStruct{}
-
-			typesPath := fmt.Sprintf("%s/types", path)
-
-			typesData.NonTypesPath = path
-			typesData.Path = typesPath
-
-			// Clone the imports map because we have to add the base package
-			typesData.Imports = map[string]string{}
-			for k, v := range imports {
-				typesData.Imports[k] = v
-			}
-
-			// Add the base package, but not if it's system or json
-			if path != "kego.io/system" {
-				name := getPackageNameFromPath(path)
-				typesData.Imports[name] = path
-			}
-
-			typesData.Types = map[system.Reference]string{}
+		g := generator.New(path, "types", b)
+		if path != "kego.io/system/types" {
+			g.AnonymousImport("kego.io/system/types")
+		}
+		for _, p := range imports {
+			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		}
+		g.Println("func init() {")
+		{
+			typesSource := map[system.Reference]string{}
 			pointersOrder := []string{}
 			pointersMap := map[string]string{}
 			for r, t := range types {
-				typesData.Types[r] = literal.Build(t, pointersMap, &pointersOrder, typesPath, typesData.Imports)
+				typesSource[r] = literal.Build(t, pointersMap, &pointersOrder, path, g.Import)
 			}
-			typesData.Pointers = orderPointers(pointersOrder, pointersMap)
-
-			//typesData := getTypesDataFromMainData(mainData)
-			source, err = executeTemplateAndFormat(typesData, "types.tmpl")
-			if err != nil {
-				err = kerr.New("UURNHCUYAI", err, "process.Generate", "executeTemplateAndFormat (types)")
+			pointers := orderPointers(pointersOrder, pointersMap)
+			for _, p := range pointers {
+				g.Println(p.Name, " := ", p.Source)
+			}
+			for ref, source := range typesSource {
+				systemRegisterType := generator.Reference("kego.io/system", "RegisterType", path, g.Import)
+				pkg := strconv.Quote(ref.Package)
+				name := strconv.Quote(ref.Name)
+				// e.g.
+				// system.RegisterType("kego.io/gallery/data", "gallery", ptr8728815248)
+				// system.RegisterType("kego.io/gallery/data", "@gallery", ptr8728815360)
+				g.Printf("%s(%s, %s, %s)\n", systemRegisterType, pkg, name, source)
 			}
 		}
+		g.Println("}")
+		g.Build()
 	case F_GLOBALS:
 		globals := system.GetAllGlobalsInPackage(path)
 		if len(globals) == 0 {
 			return
 		}
+		g := generator.New(path, generator.PackageName(path), b)
 
-		globalData := globalDataStruct{Path: path, Imports: imports}
-		globalData.Globals = map[system.Reference]string{}
+		globalsSource := map[system.Reference]string{}
 		pointersOrder := []string{}
 		pointersMap := map[string]string{}
-		for r, g := range globals {
-			globalData.Globals[r] = literal.Build(g, pointersMap, &pointersOrder, path, imports)
+		for ref, global := range globals {
+			globalsSource[ref] = literal.Build(global, pointersMap, &pointersOrder, path, g.Import)
 		}
-
-		globalData.Pointers = orderPointers(pointersOrder, pointersMap)
-
-		source, err = executeTemplateAndFormat(globalData, "global.tmpl")
-		if err != nil {
-			err = kerr.New("GPDPVPHXCY", err, "process.Generate", "executeTemplateAndFormat (global)")
+		pointers := orderPointers(pointersOrder, pointersMap)
+		for _, p := range pointers {
+			g.Println("var ", p.Name, " = ", p.Source)
 		}
+		for ref, source := range globalsSource {
+			g.Println("var ", system.GoName(ref.Name), " = ", source)
+		}
+		g.Build()
+	}
+	source, err = format.Source(b.Bytes())
+	if err != nil {
+		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source")
 	}
 	return
-}
-
-type imps map[string]string
-
-func (i imps) Add(path string) {
-
-	// if the path already exists in the imports, we don't need to do anything
-	for _, p := range i {
-		if path == p {
-			return
-		}
-	}
-
-	// lets find a preferred alias
-	preferredAlias := path
-	if strings.Contains(path, "/") {
-		preferredAlias = path[strings.LastIndex(path, "/")+1:]
-	}
-
-	uniqueAlias := i.findUniqueAlias(preferredAlias)
-	i[uniqueAlias] = path
-}
-func (i imps) findUniqueAlias(preferredAlias string) string {
-	if _, ok := i[preferredAlias]; !ok {
-		return preferredAlias
-	}
-	count := 1
-	for {
-		new := fmt.Sprintf("%s%v", preferredAlias, count)
-		if _, ok := i[new]; !ok {
-			return new
-		}
-		count++
-		if count > 100 {
-			panic("too many iterations")
-		}
-	}
 }
 
 func orderPointers(pointersOrder []string, pointersMap map[string]string) []pointer {
@@ -152,144 +232,4 @@ func orderPointers(pointersOrder []string, pointersMap map[string]string) []poin
 type pointer struct {
 	Name   string
 	Source string
-}
-
-func executeTemplateAndFormat(data interface{}, templateName string) ([]byte, error) {
-
-	var rendered bytes.Buffer
-	if err := templates().ExecuteTemplate(&rendered, templateName, data); err != nil {
-		return nil, kerr.New("SGHJCEHQMF", err, "process.executeTemplateAndFormat", "templates.ExecuteTemplate")
-	}
-
-	formatted, err := format.Source(rendered.Bytes())
-	if err != nil {
-		return nil, kerr.New("XTKWMEDWKI", err, "process.executeTemplateAndFormat", "format.Source:\n%s\n", rendered.Bytes())
-	}
-
-	return formatted, nil
-
-}
-
-type mainDataStruct struct {
-	Types   map[system.Reference]*system.Type
-	Path    string
-	Imports map[string]string
-}
-type globalDataStruct struct {
-	Pointers []pointer
-	Globals  map[system.Reference]string
-	Path     string
-	Imports  map[string]string
-}
-type typesDataStruct struct {
-	Pointers     []pointer
-	Types        map[system.Reference]string
-	Path         string
-	Imports      map[string]string
-	NonTypesPath string
-}
-type cmdDataStruct struct {
-	Path    string
-	Imports map[string]string
-}
-
-func functions() template.FuncMap {
-	return template.FuncMap{
-		"quote":        strconv.Quote,
-		"import":       importStatement,
-		"types":        typesImportStatement,
-		"ternary":      ternary,
-		"map":          mapHelper,
-		"reference":    system.GoReference,
-		"reference_id": system.IdToGoReference,
-		"name":         getPackageNameFromPath,
-		"description":  description,
-		"goname":       system.IdToGoName,
-		"gotype":       system.GoTypeDescriptor,
-	}
-}
-
-func description(i interface{}) (string, error) {
-	o, ok := i.(system.Object)
-	if !ok {
-		return "", kerr.New("HQIOAQBDAX", nil, "process.description", "input does not implement system.Object")
-	}
-	b := o.GetBase()
-	if b.Description == "" {
-		return "", nil
-	}
-	return fmt.Sprintf("// %s", b.Description), nil
-}
-
-func templates() *template.Template {
-	tpl := template.New("").Funcs(functions())
-	for name, unpacker := range _bindata {
-		asset, err := unpacker()
-		if err != nil {
-			panic(err)
-		}
-		tpl = template.Must(tpl.New(name).Parse(string(asset.bytes)))
-	}
-	return tpl
-}
-
-// getPackageNameFromPath returns the name of the package, given the package
-// path. Note this is golang packages not file system paths, so we always use
-// forward slash instead of os.PathSeparator
-// TODO: Lots of packages have a different name to the path...
-// TODO: Work out what to do here.
-func getPackageNameFromPath(path string) string {
-	parts := strings.Split(path, "/")
-	return parts[len(parts)-1]
-}
-
-// importStatement generates the source code for an import statement. If the
-// package alias is different to the name from the package path, we specify the
-// alias. If we're trying to import the local package, we output nothing.
-func importStatement(name string, path string, currentPackage string) string {
-	if currentPackage == path {
-		return ""
-	}
-	parts := strings.Split(path, "/")
-	if parts[len(parts)-1] == name {
-		return strconv.Quote(path)
-	} else {
-		return fmt.Sprintf("%s %s", name, strconv.Quote(path))
-	}
-
-}
-
-// typesImportStatement generates the source code for an import statement
-// for the types sub-package.
-func typesImportStatement(path string, currentPackage string) string {
-	newPath := fmt.Sprintf("%s/types", path)
-	if currentPackage == newPath {
-		return ""
-	}
-	return fmt.Sprintf("_ %s", strconv.Quote(newPath))
-}
-
-// ternary is a helper for template logic
-func ternary(condition bool, valueIfTrue string, valueIfFalse string) string {
-	if condition {
-		return valueIfTrue
-	} else {
-		return valueIfFalse
-	}
-}
-
-// mapHelper allows us to create a map inside a template
-func mapHelper(values ...interface{}) (map[string]interface{}, error) {
-	if len(values)%2 != 0 {
-		return nil, kerr.New("AHGBMCNALB", nil, "process.mapHelper", "Must be an even number of values. Got %v", len(values))
-	}
-	dict := make(map[string]interface{}, len(values)/2)
-	for i := 0; i < len(values); i += 2 {
-		key, ok := values[i].(string)
-		if !ok {
-			return nil, kerr.New("WLHGIPIEUI", nil, "process.mapHelper", "All keys must be strings")
-		}
-		dict[key] = values[i+1]
-	}
-	return dict, nil
 }

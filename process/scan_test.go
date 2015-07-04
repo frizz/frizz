@@ -110,8 +110,3 @@ func TestScan_errors(t *testing.T) {
 	assert.HasError(t, err, "DHTURNTIXE")
 
 }
-
-//func TestProcessScannedFile(t *testing.T) {
-//	err := processScannedFile("/this-file-doesnt-exist.json", false, "", map[string]string{})
-//	assert.IsError(t, err, "NMWROTKPLJ")
-//}
