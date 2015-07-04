@@ -47,7 +47,7 @@ func TestGenerate(t *testing.T) {
 	system.RegisterType("b.c/d", "a", ty)
 	defer system.UnregisterType("b.c/d", "a")
 
-	source, err := Generate(F_MAIN, "b.c/d", map[string]string{"e": "f.g/h"})
+	source, err := Generate(F_MAIN, "b.c/d", map[string]string{"f.g/h": "e"})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
@@ -58,7 +58,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Base\n}\n")
 	assert.Contains(t, string(source), "json.RegisterType(\"b.c/d\", \"a\", reflect.TypeOf(&A{}))\n")
 
-	source, err = Generate(F_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})
+	source, err = Generate(F_TYPES, "b.c/d", map[string]string{"f.g/h": "e"})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package types")
 	imp = getImports(t, string(source))
@@ -69,7 +69,7 @@ func TestGenerate(t *testing.T) {
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "system.RegisterType(\"b.c/d\", \"a\"")
 
-	source, err = Generate(F_CMD_TYPES, "b.c/d", map[string]string{"e": "f.g/h"})
+	source, err = Generate(F_CMD_TYPES, "b.c/d", map[string]string{"f.g/h": "e"})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package main\n")
 	imp = getImports(t, string(source))

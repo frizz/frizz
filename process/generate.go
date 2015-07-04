@@ -24,7 +24,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		if path != "kego.io/system" {
 			g.AnonymousImport("kego.io/system/types")
 		}
-		for _, p := range imports {
+		for p, _ := range imports {
 			g.AnonymousImport(p)
 			g.AnonymousImport(fmt.Sprint(p, "/types"))
 		}
@@ -51,7 +51,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 			g.AnonymousImport("kego.io/system/types")
 		}
 		g.AnonymousImport(path)
-		for _, p := range imports {
+		for p, _ := range imports {
 			g.AnonymousImport(p)
 			g.AnonymousImport(fmt.Sprint(p, "/types"))
 		}
@@ -81,7 +81,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		g.AnonymousImport("kego.io/system/types")
 		g.AnonymousImport(path)
 		g.AnonymousImport(fmt.Sprint(path, "/types"))
-		for _, p := range imports {
+		for p, _ := range imports {
 			g.AnonymousImport(p)
 			g.AnonymousImport(fmt.Sprint(p, "/types"))
 		}
@@ -165,7 +165,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		if path != "kego.io/system/types" {
 			g.AnonymousImport("kego.io/system/types")
 		}
-		for _, p := range imports {
+		for p, _ := range imports {
 			g.AnonymousImport(fmt.Sprint(p, "/types"))
 		}
 		g.Println("func init() {")
