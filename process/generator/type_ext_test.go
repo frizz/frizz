@@ -3,10 +3,10 @@ package generator_test
 import (
 	"testing"
 
-	"kego.io/system"
+	"kego.io/process/generator"
 	_ "kego.io/system/types"
 )
 
 func TestGoTypeDescriptorErrors(t *testing.T) {
-	system.GoTypeDescriptorErrors_NeedsTypes(t)
+	generator.TypeErrors_NeedsTypes(t)
 }

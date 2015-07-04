@@ -34,18 +34,19 @@ func TestGenerator(t *testing.T) {
 
 	g.AnonymousImport("e.f/g")
 	g.Build()
-	assert.Equal(t, "package d\n\nimports (\n_ \"e.f/g\"\n)", b.String())
+	assert.Equal(t, "package d\n\nimport (\n_ \"e.f/g\"\n)\n", b.String())
 	b.Reset()
 
 	alias := g.Import("h.i/j")
 	assert.Equal(t, "j", alias)
 
 	g.Build()
-	assert.Equal(t, "package d\n\nimports (\n_ \"e.f/g\"\nj \"h.i/j\"\n)", b.String())
+	assert.Equal(t, "package d\n\nimport (\n_ \"e.f/g\"\nj \"h.i/j\"\n)\n", b.String())
 	b.Reset()
 
 	g.Print("foo")
-	g.Print("bar")
+	g.Println("bar")
+	g.Printf("baz\n%s", "qux")
 	g.Build()
-	assert.Equal(t, "package d\n\nimports (\n_ \"e.f/g\"\nj \"h.i/j\"\n)\n\nfoo\n\nbar", b.String())
+	assert.Equal(t, "package d\n\nimport (\n_ \"e.f/g\"\nj \"h.i/j\"\n)\nfoobar\nbaz\nqux", b.String())
 }
