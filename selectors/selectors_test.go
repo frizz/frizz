@@ -343,7 +343,7 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 			return false, kerr.New("TWVUMUFLST", nil, "selectors.comparison", "Type.GetType couldn't find type")
 		}
 		compareChild := func(key string) (bool, error) {
-			object, _, value, found, _, err := system.GetObjectField(actual.Value, system.IdToGoName(key))
+			object, _, value, found, _, err := system.GetObjectField(actual.Value, system.GoName(key))
 			if err != nil {
 				return false, kerr.New("KOLTDOJSJY", err, "selectors.comparison", "system.GetObjectField")
 			}

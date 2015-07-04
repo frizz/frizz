@@ -158,7 +158,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		n.value = element.Data
 		n.native = J_OBJ
 		for key, field := range n.ktype.Fields {
-			object, _, value, found, _, err := system.GetObjectField(element.Value, system.IdToGoName(key))
+			object, _, value, found, _, err := system.GetObjectField(element.Value, system.GoName(key))
 			if err != nil {
 				return nil, kerr.New("JMUJMBBLWU", err, "selectors.getNodes", "system.GetMapMember")
 			}
