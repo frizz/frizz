@@ -9,7 +9,7 @@ import (
 	_ "kego.io/system"
 )
 
-func Open(filename string, path string, imports map[string]string) (value interface{}, unknown bool, err error) {
+func Open(filename string, path string, imports map[string]string) (value interface{}, err error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -18,11 +18,11 @@ func Open(filename string, path string, imports map[string]string) (value interf
 	}
 	defer file.Close()
 
-	unknown, err = json.NewDecoder(file, path, imports).Decode(&value)
+	err = json.NewDecoder(file, path, imports).Decode(&value)
 	return
 }
 
-func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) (unknown bool, err error) {
+func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) error {
 	return json.Unmarshal(data, v, path, imports)
 }
 
