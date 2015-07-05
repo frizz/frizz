@@ -68,12 +68,12 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 	} else {
 		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
 		if err != nil {
-			// We don't want to throw an error here, because when we're scanning for
-			// imports we need to tolerate unknown imports
+			// We need to clear the reference, because when we're scanning for
+			// imports we need to tolerate unknown import errors here
 			out.Exists = false
 			out.Name = ""
 			out.Package = ""
-			return nil
+			return err
 		}
 		out.Exists = true
 		out.Package = path
