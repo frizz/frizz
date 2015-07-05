@@ -45,8 +45,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 				continue
 			}
 			var i interface{}
-			unknown, err := kego.Unmarshal(json_document, &i, "kego.io/selectors", map[string]string{})
-			assert.False(t, unknown)
+			err = kego.Unmarshal(json_document, &i, "kego.io/selectors", map[string]string{})
 			assert.NoError(t, err)
 
 			ob, ok := i.(system.Object)
