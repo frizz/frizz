@@ -24,8 +24,7 @@ func TestDecodeSimple(t *testing.T) {
 		defer UnregisterType("kego.io/json", "foo")
 
 		var i interface{}
-		unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-		assert.False(t, unknown)
+		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -79,8 +78,7 @@ func TestDecodeDefaults(t *testing.T) {
 		defer UnregisterType("kego.io/json", "foo")
 
 		var i interface{}
-		unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-		assert.False(t, unknown)
+		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -142,8 +140,7 @@ func TestDecodeCollections(t *testing.T) {
 	defer UnregisterType("kego.io/json", "foo")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -185,8 +182,7 @@ func TestDecodeEmbed(t *testing.T) {
 		defer UnregisterType("kego.io/json", "bar")
 
 		var i interface{}
-		unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-		assert.False(t, unknown)
+		err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -264,8 +260,7 @@ func TestDecodeEmbedCollections(t *testing.T) {
 	defer UnregisterType("kego.io/json", "bar")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -302,8 +297,7 @@ func TestDecodeComposition(t *testing.T) {
 	defer UnregisterType("kego.io/json", "base")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -355,8 +349,7 @@ func TestInterface(t *testing.T) {
 	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -393,8 +386,7 @@ func TestNilInterface(t *testing.T) {
 	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -450,8 +442,7 @@ func TestInterfaceCollections(t *testing.T) {
 	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -509,8 +500,7 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	defer UnregisterType("kego.io/json", "diagram")
 
 	var i interface{}
-	unknown, err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
-	assert.False(t, unknown)
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -520,4 +510,99 @@ func TestInterfaceCollectionsComplex(t *testing.T) {
 	assert.Equal(t, "http://www.photos.com/e.jpg", f.ImageMap["b"][0].Url())
 	assert.Equal(t, "http://www.diagrams.com/f.jpg", f.ImageMap["b"][1].Url())
 
+}
+
+func TestDummyInterfaceNotFound(t *testing.T) {
+
+	type Image interface {
+		Url() string
+	}
+
+	type Foo struct {
+		Img Image
+	}
+
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "photo", reflect.TypeOf(&Photo{}))
+	RegisterType("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}))
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "photo")
+	defer UnregisterType("kego.io/json", "diagram")
+
+	data := `{
+		"type": "foo",
+		"img": {
+			"type": "bar",
+			"id": "a"
+		}
+	}`
+	var i interface{}
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
+	assert.EqualError(t, err, "Unknown type kego.io/json:bar")
+	assert.True(t, i.(*Foo).Img == nil)
+
+	data = `{
+		"type": "foo",
+		"img": {
+			"type": "foo:bar",
+			"id": "a"
+		}
+	}`
+	err = Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
+	assert.EqualError(t, err, "Unknown package foo")
+
+	data = `{
+		"type": "foo",
+		"img": {
+			"type": "a.b/c:bar",
+			"id": "a"
+		}
+	}`
+	err = Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
+	assert.EqualError(t, err, "Unknown package a.b/c")
+
+	err = Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{"a.b/c": "d"})
+	assert.EqualError(t, err, "Unknown type a.b/c:bar")
+
+}
+
+type dummyImage struct{}
+
+func (d *dummyImage) Url() string {
+	return ""
+}
+
+func TestDummyInterface(t *testing.T) {
+
+	type Image interface {
+		Url() string
+	}
+
+	type Foo struct {
+		Img Image
+	}
+
+	RegisterInterface(reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf(&dummyImage{}))
+	RegisterType("kego.io/json", "foo", reflect.TypeOf(&Foo{}))
+	RegisterType("kego.io/json", "photo", reflect.TypeOf(&Photo{}))
+	RegisterType("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}))
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterInterface(reflect.TypeOf((*Image)(nil)).Elem())
+	defer UnregisterType("kego.io/json", "foo")
+	defer UnregisterType("kego.io/json", "photo")
+	defer UnregisterType("kego.io/json", "diagram")
+
+	data := `{
+		"type": "foo",
+		"img": {
+			"type": "bar",
+			"id": "a"
+		}
+	}`
+	var i interface{}
+	err := Unmarshal([]byte(data), &i, "kego.io/json", map[string]string{})
+	assert.NoError(t, err)
 }

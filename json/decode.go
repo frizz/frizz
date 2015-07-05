@@ -80,19 +80,36 @@ func UnmarshalPlain(data []byte, v interface{}, path string, imports map[string]
 	return d.unmarshal(v, &ctx{path, imports}, true)
 }
 
-func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) (unknown bool, err error) {
+type UnknownPackageError struct {
+	UnknownPackage string
+}
+
+func (u UnknownPackageError) Error() string {
+	return fmt.Sprint("Unknown package ", u.UnknownPackage)
+}
+
+type UnknownTypeError struct {
+	UnknownType string
+}
+
+func (u UnknownTypeError) Error() string {
+	return fmt.Sprint("Unknown type ", u.UnknownType)
+}
+
+func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
 	var d decodeState
-	err = checkValid(data, &d.scan)
+	err := checkValid(data, &d.scan)
+	err = d.getError(err)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	d.init(data)
 	err = d.unmarshalTyped(v, &ctx{path, imports}, true)
-	return d.unknown, err
+	return d.getError(err)
 }
 
 type ctx struct {
@@ -208,13 +225,27 @@ func (n NumberLiteral) Int64() (int64, error) {
 
 // decodeState represents the state while decoding a JSON value.
 type decodeState struct {
-	data       []byte
-	off        int // read offset in data
-	scan       scanner
-	nextscan   scanner // for calls to nextValue
-	savedError error
-	useNumber  bool
-	unknown    bool // have we encountered an unknown type?
+	data           []byte
+	off            int // read offset in data
+	scan           scanner
+	nextscan       scanner // for calls to nextValue
+	savedError     error
+	useNumber      bool
+	unknownType    string // have we encountered an unknown type?
+	unknownPackage string // have we encountered an unknown package?
+}
+
+func (d *decodeState) getError(err error) error {
+	if err != nil {
+		return err
+	}
+	if d.unknownPackage != "" {
+		return UnknownPackageError{d.unknownPackage}
+	}
+	if d.unknownType != "" {
+		return UnknownTypeError{d.unknownType}
+	}
+	return nil
 }
 
 // backup saves the exact state of the decoder so we
@@ -222,12 +253,13 @@ type decodeState struct {
 // type json key, and restore afterwards.
 func (d *decodeState) backup() decodeState {
 	return decodeState{
-		off:        d.off,
-		savedError: d.savedError,
-		useNumber:  d.useNumber,
-		scan:       d.scan.backup(),
-		nextscan:   d.nextscan.backup(),
-		unknown:    d.unknown,
+		off:            d.off,
+		savedError:     d.savedError,
+		useNumber:      d.useNumber,
+		scan:           d.scan.backup(),
+		nextscan:       d.nextscan.backup(),
+		unknownType:    d.unknownType,
+		unknownPackage: d.unknownPackage,
 	}
 }
 
@@ -240,7 +272,8 @@ func (d *decodeState) restore(from decodeState) {
 	d.useNumber = from.useNumber
 	d.scan = from.scan
 	d.nextscan = from.nextscan
-	d.unknown = from.unknown
+	d.unknownType = from.unknownType
+	d.unknownPackage = from.unknownPackage
 }
 
 // errPhase is used for errors that should not happen unless
@@ -252,7 +285,8 @@ func (d *decodeState) init(data []byte) *decodeState {
 	d.data = data
 	d.off = 0
 	d.savedError = nil
-	d.unknown = false
+	d.unknownType = ""
+	d.unknownPackage = ""
 	return d
 }
 
@@ -683,23 +717,22 @@ func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bo
 
 	if typeName != "" {
 		d.setType(typeName, v, context, unmarshalers)
+	} else {
+		d.unknownType = "(no type attribute)"
 	}
 }
 
 func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, unmarshalers bool) {
+
 	path, name, err := GetReferencePartsFromTypeString(typeName, context.Package, context.Imports)
-	if err != nil {
+	if unk, ok := err.(UnknownPackageError); ok {
 		// We don't want to throw an error here, because when we're scanning for
-		// imports we need to tolerate unknown imports
-		d.unknown = true
+		// imports we need to tolerate unknown packages
+		d.unknownPackage = unk.UnknownPackage
 	}
 
-	//fullTypeName := fmt.Sprintf("%s:%s", path, name)
-	var typ reflect.Type
-	var ok bool
-
 	// We should look the type up in the type resolver
-	typ, ok = GetType(path, name)
+	typ, ok := GetType(path, name)
 	if !ok && v.Kind() == reflect.Interface {
 		// If we can't find the type in the resolver, and
 		// we're unmarshaling into an interface, then look
@@ -725,7 +758,7 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, un
 			}
 		}
 	} else {
-		d.unknown = true
+		d.unknownType = path + ":" + name
 	}
 }
 
@@ -735,6 +768,10 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		// the form "kego.io/system:type".
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
+		_, ok := imports[parts[0]]
+		if !ok && parts[0] != localPath {
+			return "", "", UnknownPackageError{parts[0]}
+		}
 		return parts[0], parts[1], nil
 	} else if strings.Contains(typeString, ":") {
 		// If the type name contains a colon, I'm assuming it's an abreviated qualified type name of
@@ -748,7 +785,7 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		}
 		packagePath, ok := findKey(imports, parts[0])
 		if !ok {
-			return "", "", fmt.Errorf("Error in json.GetReferencePartsFromTypeString: package name %v not found in imports.\n", parts[0])
+			return "", "", UnknownPackageError{parts[0]}
 		}
 		return packagePath, parts[1], nil
 	} else {
@@ -818,7 +855,11 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 	case reflect.Struct:
 
 	default:
-		d.saveError(&UnmarshalTypeError{"object", v.Type()})
+		if d.unknownPackage == "" && d.unknownType == "" {
+			// we should only avoid this error if we have an unknown kego
+			// type / package, or we'll break the untyped behaviour.
+			d.saveError(&UnmarshalTypeError{"object", v.Type()})
+		}
 		d.off--
 		d.next() // skip over { } in input
 		return
