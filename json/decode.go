@@ -657,11 +657,25 @@ func GetType(path string, name string) (reflect.Type, bool) {
 
 var nullLiteral = []byte("null")
 
-func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bool) {
+func (d *decodeState) scanForLink(v reflect.Value, context *ctx, unmarshalers bool) bool {
+	if link := d.scanForAttribute("+", v, context, unmarshalers); link != "" {
+		return true
+	}
+	return false
+}
 
+func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bool) {
+	if typeName := d.scanForAttribute("type", v, context, unmarshalers); typeName != "" {
+		d.setType(typeName, v, context, unmarshalers)
+	} else {
+		d.unknownType = "(no type attribute)"
+	}
+}
+
+func (d *decodeState) scanForAttribute(attribute string, v reflect.Value, context *ctx, unmarshalers bool) string {
 	// We should scan forwards to find the "type" field, then reset the scanner.
 	stateBackup := d.backup()
-	typeName := ""
+	value := ""
 	for {
 		// Read opening " of string key or closing }.
 		op := d.scanWhile(scanSkipSpace)
@@ -690,12 +704,12 @@ func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bo
 			d.error(errPhase)
 		}
 
-		if string(key) == "type" {
+		if string(key) == attribute {
 			// Read value.
 			var str string
 			strv := reflect.ValueOf(&str).Elem()
 			d.value(strv, context, true, false)
-			typeName = str
+			value = str
 			break
 		} else {
 			// skip value
@@ -714,12 +728,7 @@ func (d *decodeState) scanForType(v reflect.Value, context *ctx, unmarshalers bo
 	}
 	// Rewind and restore the state of the decoder
 	d.restore(stateBackup)
-
-	if typeName != "" {
-		d.setType(typeName, v, context, unmarshalers)
-	} else {
-		d.unknownType = "(no type attribute)"
-	}
+	return value
 }
 
 func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, unmarshalers bool) {
@@ -805,11 +814,17 @@ func findKey(m map[string]string, value string) (string, bool) {
 // the first byte ('{') of the object has been read already.
 func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, typed bool) {
 
+	foundLink := false
 	if typed {
+		val := d.getValue(v)
+		// If the type we're unmarshaling into is an interface or a pointer, we should
+		// scan for a "+" attribute and initialise the link.
+		if val.Kind() == reflect.Interface || val.Kind() == reflect.Ptr {
+			foundLink = d.scanForLink(v, context, unmarshalers)
+		}
 		// If the type we're unmarshaling into is an interface, we should scan for a "type"
 		// attribute and initialise the correct type.
-		val := d.getValue(v)
-		if val.Kind() == reflect.Interface {
+		if val.Kind() == reflect.Interface && !foundLink {
 			// If needed, this sets the value of v to the correct type based on the "type" attribute.
 			d.scanForType(v, context, unmarshalers)
 		}
@@ -855,9 +870,9 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 	case reflect.Struct:
 
 	default:
-		if d.unknownPackage == "" && d.unknownType == "" {
-			// we should only avoid this error if we have an unknown kego
-			// type / package, or we'll break the untyped behaviour.
+		if !typed {
+			// we should only avoid this error if we're in typed mode,
+			// or we'll break the untyped behaviour.
 			d.saveError(&UnmarshalTypeError{"object", v.Type()})
 		}
 		d.off--
