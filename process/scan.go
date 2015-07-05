@@ -29,7 +29,7 @@ func ScanForImports(root string, recursive bool, packagePath string) (imports ma
 		}
 		return nil
 	}
-	err = scanPath(root, true, recursive, scanner, packagePath, map[string]string{})
+	err = scanPath(root, true, true, recursive, scanner, packagePath, map[string]string{})
 	return
 }
 
@@ -50,7 +50,7 @@ func ScanForGlobals(root string, recursive bool, packagePath string, imports map
 		system.RegisterGlobal(b.Id.Package, b.Id.Name, o)
 		return nil
 	}
-	return scanPath(root, false, recursive, scanner, packagePath, imports)
+	return scanPath(root, false, false, recursive, scanner, packagePath, imports)
 }
 
 func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, imports map[string]string) error {
@@ -85,16 +85,16 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 		}
 		return nil
 	}
-	return scanPath(root, ignoreUnknownTypes, recursive, scanner, packagePath, imports)
+	return scanPath(root, ignoreUnknownTypes, false, recursive, scanner, packagePath, imports)
 }
 
-func scanPath(root string, ignoreUnknownTypes bool, recursive bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanPath(root string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, recursive bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := scanFile(filePath, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
+		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, imports); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
@@ -119,7 +119,7 @@ func scanPath(root string, ignoreUnknownTypes bool, recursive bool, scan func(ob
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil
@@ -147,21 +147,27 @@ func scanFile(filePath string, ignoreUnknownTypes bool, scan func(ob interface{}
 		reader = file
 	}
 
-	if err = scanReader(reader, ignoreUnknownTypes, scan, packagePath, imports); err != nil {
+	if err = scanReader(reader, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, imports); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-func scanReader(file io.Reader, ignoreUnknownTypes bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanReader(file io.Reader, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
 
 	var i interface{}
-	unknown, err := json.NewDecoder(file, packagePath, imports).Decode(&i)
-	if err != nil {
+	err := json.NewDecoder(file, packagePath, imports).Decode(&i)
+
+	if ut, ok := err.(json.UnknownTypeError); ok {
+		if !ignoreUnknownTypes {
+			return kerr.New("FKCPTUWJWW", nil, "process.processReader", "json.NewDecoder.Decode: unknown type %s", ut.UnknownType)
+		}
+	} else if up, ok := err.(json.UnknownPackageError); ok {
+		if !ignoreUnknownPackages {
+			return kerr.New("KWNPDUJNYP", nil, "process.processReader", "json.NewDecoder.Decode: unknown package %s", up.UnknownPackage)
+		}
+	} else if err != nil {
 		return kerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
-	}
-	if unknown && !ignoreUnknownTypes {
-		return kerr.New("KWNPDUJNYP", nil, "process.processReader", "json.NewDecoder.Decode: unknown types")
 	}
 
 	return scan(i)

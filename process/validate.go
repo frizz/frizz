@@ -75,12 +75,13 @@ func validateFile(filePath string, packagePath string, imports map[string]string
 
 func validateReader(file io.Reader, packagePath string, imports map[string]string) error {
 	var i interface{}
-	unknown, err := json.NewDecoder(file, packagePath, imports).Decode(&i)
-	if err != nil {
+	err := json.NewDecoder(file, packagePath, imports).Decode(&i)
+	if up, ok := err.(json.UnknownPackageError); ok {
+		return kerr.New("QPOGRNXWMH", err, "process.validateReader", "json.NewDecoder: unknown package %s", up.UnknownPackage)
+	} else if ut, ok := err.(json.UnknownTypeError); ok {
+		return kerr.New("PJABFRVFLF", nil, "process.validateReader", "json.NewDecoder: unknown type %s", ut.UnknownType)
+	} else if err != nil {
 		return kerr.New("QIVNOQKCQF", err, "process.validateReader", "json.NewDecoder.Decode")
-	}
-	if unknown {
-		return kerr.New("PJABFRVFLF", nil, "process.validateReader", "json.NewDecoder: unknown types")
 	}
 	if err := validateUnknown(i, packagePath, imports); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "process.validateReader", "validateUnknown")

@@ -93,7 +93,7 @@ func GenerateFiles(file fileType, dir string, test bool, recursive bool, verbose
 	}
 
 	ignoreUnknownTypes := true
-	if file == F_TYPES || file == F_GLOBALS {
+	if file == F_TYPES {
 		ignoreUnknownTypes = false
 	}
 

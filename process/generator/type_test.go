@@ -414,8 +414,7 @@ func unmarshalDiagram(t *testing.T) {
 	}`
 
 	var i interface{}
-	unknown, err := json.Unmarshal([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
-	assert.False(t, unknown)
+	err := json.Unmarshal([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
 	assert.NoError(t, err)
 	d, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -462,9 +461,8 @@ func TestUnknownRule(t *testing.T) {
 
 	imp := NewImports_test()
 	var i interface{}
-	unknown, err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
-	assert.True(t, unknown)
-	assert.NoError(t, err)
+	err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
+	assert.EqualError(t, err, "Unknown type kego.io/gallery:diagram")
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)

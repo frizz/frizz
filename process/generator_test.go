@@ -145,7 +145,7 @@ func TestGenerateFiles(t *testing.T) {
 	// This will error because of unknown types in b.json
 	err = GenerateFiles(F_TYPES, dir, test, recursive, false, path, imports)
 	assert.IsError(t, err, "XYIUHERDHE")
-	assert.HasError(t, err, "KWNPDUJNYP")
+	assert.HasError(t, err, "FKCPTUWJWW")
 
 	os.Remove(filepath.Join(pkgDir, "b.json"))
 
