@@ -6,16 +6,86 @@ import (
 	json "kego.io/json"
 )
 
+// Lists imports used in this package.
+type Imports struct {
+	*Base
+	// Map of path to alias.
+	Imports map[string]String
+}
+
+// Restriction rules for strings
+type String_rule struct {
+	*Base
+	*RuleBase
+	// Default value of this is missing or null
+	Default String
+	// The value of this string is restricted to one of the provided values
+	Enum []string
+	// The value must be longer or equal to the provided minimum length
+	MinLength Int
+	// The value must be shorter or equal to the provided maximum length
+	MaxLength Int
+	// This is a string that the value must match
+	Equal String
+	// This is a regex to match the value to
+	Pattern String
+	// This restricts the value to one of several built-in formats
+	Format String
+}
+
+// Restriction rules for bools
+type Bool_rule struct {
+	*Base
+	*RuleBase
+	// Default value if this is missing or null
+	Default Bool
+}
+
+// This is the native json array data type
+type Array struct {
+	*Base
+}
+
+// Automatically created basic rule for ruleBase
+type RuleBase_rule struct {
+	*Base
+	*RuleBase
+}
+
 // Automatically created basic rule for imports
 type Imports_rule struct {
 	*Base
 	*RuleBase
 }
 
-// Automatically created basic rule for type
-type Type_rule struct {
+// Automatically created basic rule for base
+type Base_rule struct {
 	*Base
 	*RuleBase
+}
+
+// This is the most basic type.
+type Base struct {
+	// Type of the object.
+	Type Reference
+	// All global objects should have an id.
+	Id Reference
+	// Description for the developer
+	Description string
+	// Extra validation rules for this object or descendants
+	Rules []Rule
+}
+
+// Restriction rules for maps
+type Map_rule struct {
+	*Base
+	*RuleBase
+	// This is a rule object, defining the type and restrictions on the value of the items.
+	Items Rule
+	// This is the minimum number of items alowed in the array
+	MinItems Int
+	// This is the maximum number of items alowed in the array
+	MaxItems Int
 }
 
 // Restriction rules for references
@@ -65,6 +135,45 @@ type Number_rule struct {
 	ExclusiveMaximum bool
 }
 
+// All rules should embed this type.
+type RuleBase struct {
+	// If this rule is a field, this specifies that the field is optional
+	Optional bool
+	// Json selector defining what nodes this rule should be applied to.
+	Selector string
+}
+
+// Automatically created basic rule for type
+type Type_rule struct {
+	*Base
+	*RuleBase
+}
+
+// Automatically created basic rule for rule
+type Rule_rule struct {
+	*Base
+	*RuleBase
+}
+
+// This is the native json object data type.
+type Map struct {
+	*Base
+}
+
+// Restriction rules for arrays
+type Array_rule struct {
+	*Base
+	*RuleBase
+	// This is a rule object, defining the type and restrictions on the value of the items
+	Items Rule
+	// This is the minimum number of items allowed in the array
+	MinItems Int
+	// This is the maximum number of items allowed in the array
+	MaxItems Int
+	// If this is true, each item must be unique
+	UniqueItems bool
+}
+
 // Restriction rules for integers
 type Int_rule struct {
 	*Base
@@ -79,137 +188,28 @@ type Int_rule struct {
 	Maximum Int
 }
 
-// Restriction rules for bools
-type Bool_rule struct {
-	*Base
-	*RuleBase
-	// Default value if this is missing or null
-	Default Bool
-}
-
-// All rules should embed this type.
-type RuleBase struct {
-	// If this rule is a field, this specifies that the field is optional
-	Optional bool
-	// Json selector defining what nodes this rule should be applied to.
-	Selector string
-}
-
-// Lists imports used in this package.
-type Imports struct {
-	*Base
-	// Map of path to alias.
-	Imports map[string]String
-}
-
-// Restriction rules for maps
-type Map_rule struct {
-	*Base
-	*RuleBase
-	// This is a rule object, defining the type and restrictions on the value of the items.
-	Items Rule
-	// This is the minimum number of items alowed in the array
-	MinItems Int
-	// This is the maximum number of items alowed in the array
-	MaxItems Int
-}
-
-// Restriction rules for strings
-type String_rule struct {
-	*Base
-	*RuleBase
-	// Default value of this is missing or null
-	Default String
-	// The value of this string is restricted to one of the provided values
-	Enum []string
-	// The value must be longer or equal to the provided minimum length
-	MinLength Int
-	// The value must be shorter or equal to the provided maximum length
-	MaxLength Int
-	// This is a string that the value must match
-	Equal String
-	// This is a regex to match the value to
-	Pattern String
-	// This restricts the value to one of several built-in formats
-	Format String
-}
-
-// This is the most basic type.
-type Base struct {
-	// Type of the object.
-	Type Reference
-	// All global objects should have an id.
-	Id Reference
-	// Description for the developer
-	Description string
-	// Extra validation rules for this object or descendants
-	Rules []Rule
-}
-
-// Restriction rules for arrays
-type Array_rule struct {
-	*Base
-	*RuleBase
-	// This is the maximum number of items allowed in the array
-	MaxItems Int
-	// If this is true, each item must be unique
-	UniqueItems bool
-	// This is a rule object, defining the type and restrictions on the value of the items
-	Items Rule
-	// This is the minimum number of items allowed in the array
-	MinItems Int
-}
-
-// This is the native json array data type
-type Array struct {
-	*Base
-}
-
-// Automatically created basic rule for ruleBase
-type RuleBase_rule struct {
-	*Base
-	*RuleBase
-}
-
-// Automatically created basic rule for base
-type Base_rule struct {
-	*Base
-	*RuleBase
-}
-
-// This is the native json object data type.
-type Map struct {
-	*Base
-}
-
-// Automatically created basic rule for rule
-type Rule_rule struct {
-	*Base
-	*RuleBase
-}
-
 func init() {
-	json.RegisterType("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}))
-	json.RegisterType("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}))
-	json.RegisterType("kego.io/system", "ruleBase", reflect.TypeOf(&RuleBase{}))
-	json.RegisterType("kego.io/system", "imports", reflect.TypeOf(&Imports{}))
-	json.RegisterType("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}))
-	json.RegisterType("kego.io/system", "number", reflect.TypeOf(&Number{}))
-	json.RegisterType("kego.io/system", "reference", reflect.TypeOf(&Reference{}))
-	json.RegisterType("kego.io/system", "@string", reflect.TypeOf(&String_rule{}))
-	json.RegisterType("kego.io/system", "base", reflect.TypeOf(&Base{}))
-	json.RegisterType("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}))
-	json.RegisterType("kego.io/system", "@base", reflect.TypeOf(&Base_rule{}))
 	json.RegisterType("kego.io/system", "map", reflect.TypeOf(&Map{}))
+	json.RegisterType("kego.io/system", "number", reflect.TypeOf(&Number{}))
+	json.RegisterType("kego.io/system", "ruleBase", reflect.TypeOf(&RuleBase{}))
+	json.RegisterType("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}))
 	json.RegisterType("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}))
-	json.RegisterType("kego.io/system", "string", reflect.TypeOf(&String{}))
-	json.RegisterType("kego.io/system", "int", reflect.TypeOf(&Int{}))
+	json.RegisterType("kego.io/system", "reference", reflect.TypeOf(&Reference{}))
 	json.RegisterType("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}))
+	json.RegisterType("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}))
+	json.RegisterType("kego.io/system", "@imports", reflect.TypeOf(&Imports_rule{}))
+	json.RegisterType("kego.io/system", "int", reflect.TypeOf(&Int{}))
+	json.RegisterType("kego.io/system", "imports", reflect.TypeOf(&Imports{}))
+	json.RegisterType("kego.io/system", "@string", reflect.TypeOf(&String_rule{}))
+	json.RegisterType("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}))
 	json.RegisterType("kego.io/system", "array", reflect.TypeOf(&Array{}))
 	json.RegisterType("kego.io/system", "@ruleBase", reflect.TypeOf(&RuleBase_rule{}))
-	json.RegisterType("kego.io/system", "@imports", reflect.TypeOf(&Imports_rule{}))
-	json.RegisterType("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}))
-	json.RegisterType("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}))
 	json.RegisterType("kego.io/system", "type", reflect.TypeOf(&Type{}))
+	json.RegisterType("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}))
+	json.RegisterType("kego.io/system", "string", reflect.TypeOf(&String{}))
+	json.RegisterType("kego.io/system", "@base", reflect.TypeOf(&Base_rule{}))
 	json.RegisterType("kego.io/system", "bool", reflect.TypeOf(&Bool{}))
+	json.RegisterType("kego.io/system", "base", reflect.TypeOf(&Base{}))
+	json.RegisterType("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}))
+	json.RegisterType("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}))
 }
