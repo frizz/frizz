@@ -100,11 +100,11 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		g.Build()
 	case F_MAIN:
 		types := system.GetAllTypesInPackage(path)
-		if len(types) == 0 {
-			err = kerr.New("DFAAGVGIJR", nil, "process.Generate", "No types found")
-			return
-		}
 		g := generator.New(path, generator.PackageName(path), b)
+		if len(types) == 0 {
+			g.Build()
+			break
+		}
 		for _, typ := range types {
 			if typ.Interface || typ.IsNativeValue() || typ.Exclude {
 				continue
@@ -155,13 +155,12 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		g.Build()
 	case F_TYPES:
 		types := system.GetAllTypesInPackage(path)
-		if len(types) == 0 {
-			err = kerr.New("HQLAEMCHBM", nil, "process.Generate", "No types found")
-			return
-		}
 		path := fmt.Sprintf("%s/types", path)
-
 		g := generator.New(path, "types", b)
+		if len(types) == 0 {
+			g.Build()
+			break
+		}
 		if path != "kego.io/system/types" {
 			g.AnonymousImport("kego.io/system/types")
 		}

@@ -114,18 +114,14 @@ func TestGenerateFiles(t *testing.T) {
 
 	os.Chdir("/")
 
-	dir, test, recursive, verbose, path, imports, err := Initialise()
+	dir, test, recursive, _, path, imports, err := Initialise()
 	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 
 	os.Chdir(pkgDir)
 
-	dir, test, recursive, verbose, path, imports, err = Initialise()
+	dir, test, recursive, _, path, imports, err = Initialise()
 	assert.NoError(t, err)
-
-	err = GenerateFiles(F_MAIN, dir, test, recursive, verbose, path, imports)
-	assert.IsError(t, err, "XFNESBLBTQ")
-	assert.HasError(t, err, "DFAAGVGIJR")
 
 	data := `{"type": "system:type", "id": "a"}`
 	err = ioutil.WriteFile(filepath.Join(pkgDir, "a.json"), []byte(data), 0777)

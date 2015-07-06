@@ -65,6 +65,19 @@ func Initialise() (dir string, test bool, recursive bool, verbose bool, path str
 
 }
 
+func KegoCmd(dir string, test bool, recursive bool, verbose bool, path string, imports map[string]string) error {
+	if err := GenerateAndRunCmd(F_CMD_MAIN, dir, test, recursive, verbose, path, imports); err != nil {
+		return err
+	}
+	if err := GenerateAndRunCmd(F_CMD_TYPES, dir, test, recursive, verbose, path, imports); err != nil {
+		return err
+	}
+	if err := GenerateAndRunCmd(F_CMD_VALIDATE, dir, test, recursive, verbose, path, imports); err != nil {
+		return err
+	}
+	return nil
+}
+
 // GenerateFiles generates the source code from templates and writes
 // the files to the correct folders.
 //

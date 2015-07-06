@@ -11,11 +11,7 @@ import (
 
 func TestGenerate_errors(t *testing.T) {
 
-	_, err := Generate(F_MAIN, "a.b/c", map[string]string{})
-	// No types
-	assert.IsError(t, err, "DFAAGVGIJR")
-
-	_, err = Generate(F_CMD_TYPES, "\"", map[string]string{})
+	_, err := Generate(F_CMD_TYPES, "\"", map[string]string{})
 	// Quote in the path will generate malformed source
 	assert.IsError(t, err, "CRBYOUOHPG")
 
