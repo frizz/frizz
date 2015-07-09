@@ -180,24 +180,24 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		}
 		g.Println("func init() {")
 		{
-			typesSource := map[system.Reference]string{}
-			pointersOrder := []string{}
-			pointersMap := map[string]string{}
+			registers := []string{}
+			pointers := []literal.Pointer{}
+			systemRegisterType := generator.Reference("kego.io/system", "RegisterType", path, g.Import)
 			for _, t := range types {
-				typesSource[t.Id] = literal.Build(t, pointersMap, &pointersOrder, path, g.Import)
-			}
-			pointers := orderPointers(pointersOrder, pointersMap)
-			for _, p := range pointers {
-				g.Println(p.Name, " := ", p.Source)
-			}
-			for ref, source := range typesSource {
-				systemRegisterType := generator.Reference("kego.io/system", "RegisterType", path, g.Import)
-				pkg := strconv.Quote(ref.Package)
-				name := strconv.Quote(ref.Name)
+				pkg := strconv.Quote(t.Id.Package)
+				name := strconv.Quote(t.Id.Name)
+				pointer := literal.Build(t, &pointers, path, g.Import)
 				// e.g.
 				// system.RegisterType("kego.io/gallery/data", "gallery", ptr8728815248)
 				// system.RegisterType("kego.io/gallery/data", "@gallery", ptr8728815360)
-				g.Printf("%s(%s, %s, %s)\n", systemRegisterType, pkg, name, source)
+				line := fmt.Sprintf("%s(%s, %s, %s)", systemRegisterType, pkg, name, pointer.Name)
+				registers = append(registers, line)
+			}
+			for _, p := range pointers {
+				g.Println(p.Name, " := ", p.Source)
+			}
+			for _, s := range registers {
+				g.Println(s)
 			}
 		}
 		g.Println("}")
@@ -209,38 +209,24 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		}
 		g := generator.New(path, generator.PackageName(path), b)
 
-		globalsSource := map[system.Reference]string{}
-		pointersOrder := []string{}
-		pointersMap := map[string]string{}
-		for ref, global := range globals {
-			globalsSource[ref] = literal.Build(global, pointersMap, &pointersOrder, path, g.Import)
+		literals := []string{}
+		pointers := []literal.Pointer{}
+		for _, global := range globals {
+			pointer := literal.Build(global, &pointers, path, g.Import)
+			line := fmt.Sprint("var ", system.GoName(global.GetBase().Id.Name), " = ", pointer.Name)
+			literals = append(literals, line)
 		}
-		pointers := orderPointers(pointersOrder, pointersMap)
 		for _, p := range pointers {
 			g.Println("var ", p.Name, " = ", p.Source)
 		}
-		for ref, source := range globalsSource {
-			g.Println("var ", system.GoName(ref.Name), " = ", source)
+		for _, s := range literals {
+			g.Println(s)
 		}
 		g.Build()
 	}
 	source, err = format.Source(b.Bytes())
 	if err != nil {
-		fmt.Println(string(b.Bytes()))
-		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source")
+		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source: %s", b.String())
 	}
 	return
-}
-
-func orderPointers(pointersOrder []string, pointersMap map[string]string) []pointer {
-	pointers := []pointer{}
-	for _, name := range pointersOrder {
-		pointers = append(pointers, pointer{name, pointersMap[name]})
-	}
-	return pointers
-}
-
-type pointer struct {
-	Name   string
-	Source string
 }
