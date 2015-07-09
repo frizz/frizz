@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"sort"
 	"sync"
 	"unicode/utf8"
 )
@@ -909,6 +910,11 @@ BigSwitch:
 			p.buf.Write(mapBytes)
 		}
 		keys := f.MapKeys()
+		// must sort keys to ensure source is reproducible
+		if f.Type().Key().Kind() == reflect.String {
+			sortKeys(&keys)
+		}
+
 		for i, key := range keys {
 			if i > 0 {
 				if p.fmt.sharpV {
@@ -1064,6 +1070,29 @@ BigSwitch:
 	}
 	p.value = oldValue
 	return wasString
+}
+
+func sortKeys(values *[]reflect.Value) {
+	sortable := SortableValues(*values)
+	sort.Sort(sortable)
+	*values = []reflect.Value(sortable)
+}
+
+type SortableValues []reflect.Value
+
+func (s SortableValues) Len() int {
+	return len(s)
+}
+func (s SortableValues) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s SortableValues) Less(i, j int) bool {
+	v1 := s[i]
+	v2 := s[j]
+	if v1.Kind() == reflect.String && v2.Kind() == reflect.String {
+		return v1.Interface().(string) < v2.Interface().(string)
+	}
+	return true
 }
 
 // intFromArg gets the argNumth element of a. On return, isInt reports whether the argument has type int.

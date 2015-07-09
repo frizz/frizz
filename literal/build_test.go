@@ -40,6 +40,21 @@ func TestBuild(t *testing.T) {
 
 }
 
+func TestOrder(t *testing.T) {
+	foo := &map[string]string{
+		"e": "f",
+		"g": "h",
+		"i": "j",
+		"a": "b",
+		"c": "d",
+	}
+	p := []Pointer{}
+	i := generator.NewImports_test()
+	n := Build(foo, &p, "", i.Add_test)
+	assert.Equal(t, "ptr0", n.Name)
+	assert.Equal(t, `&map[string]string{"a":"b", "c":"d", "e":"f", "g":"h", "i":"j"}`, p[0].Source)
+}
+
 func TestBuildTypes(t *testing.T) {
 
 	type a struct {
