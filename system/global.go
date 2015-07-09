@@ -1,6 +1,9 @@
 package system
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
 var globals struct {
 	sync.RWMutex
@@ -32,14 +35,27 @@ func GetGlobal(path string, name string) (global Object, found bool) {
 	return
 }
 
-func GetAllGlobalsInPackage(path string) map[Reference]Object {
-	out := map[Reference]Object{}
+func GetAllGlobalsInPackage(path string) []Object {
+	out := SortableObjects{}
 	globals.RLock()
 	defer globals.RUnlock()
 	for ref, g := range globals.m {
 		if ref.Package == path {
-			out[ref] = g
+			out = append(out, g)
 		}
 	}
-	return out
+	sort.Sort(out)
+	return []Object(out)
+}
+
+type SortableObjects []Object
+
+func (s SortableObjects) Len() int {
+	return len(s)
+}
+func (s SortableObjects) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s SortableObjects) Less(i, j int) bool {
+	return s[i].GetBase().Id.Value() < s[j].GetBase().Id.Value()
 }
