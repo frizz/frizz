@@ -6,6 +6,8 @@ import (
 	"go/format"
 	"strconv"
 
+	"sort"
+
 	"kego.io/kerr"
 	"kego.io/literal"
 	"kego.io/process/generator"
@@ -124,19 +126,21 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 				if !typ.Basic {
 					g.Println("*", generator.Reference("kego.io/system", "Base", path, g.Import))
 				}
-				for _, embed := range typ.Embed {
+				embeds := system.SortableReferences(typ.Embed)
+				sort.Sort(embeds)
+				for _, embed := range embeds {
 					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), path, g.Import))
 				}
-				for name, field := range typ.Fields {
-					b := field.(system.Object).GetBase()
+				for _, nf := range typ.SortedFields() {
+					b := nf.Field.(system.Object).GetBase()
 					if b.Description != "" {
 						g.Println("// ", b.Description)
 					}
-					descriptor, err := generator.Type(field, path, g.Import)
+					descriptor, err := generator.Type(nf.Field, path, g.Import)
 					if err != nil {
 						return nil, kerr.New("GDSKJDEKQD", err, "process.Generate", "generator.Type")
 					}
-					g.Println(system.GoName(name), " ", descriptor)
+					g.Println(system.GoName(nf.Name), " ", descriptor)
 				}
 			}
 			g.Println("}")
@@ -179,8 +183,8 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 			typesSource := map[system.Reference]string{}
 			pointersOrder := []string{}
 			pointersMap := map[string]string{}
-			for r, t := range types {
-				typesSource[r] = literal.Build(t, pointersMap, &pointersOrder, path, g.Import)
+			for _, t := range types {
+				typesSource[t.Id] = literal.Build(t, pointersMap, &pointersOrder, path, g.Import)
 			}
 			pointers := orderPointers(pointersOrder, pointersMap)
 			for _, p := range pointers {
