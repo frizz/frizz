@@ -124,8 +124,7 @@ type pp struct {
 	fmt        fmtr
 	path       string
 	getAlias   func(string) string
-	pointers   map[string]string
-	order      *[]string
+	pointers   *[]Pointer
 }
 
 func (p *pp) WriteName(t reflect.Type) {
@@ -1050,11 +1049,11 @@ BigSwitch:
 				break BigSwitch
 			}
 		} else if v != 0 && depth > 0 {
-			name := pointerLiteralName(value.Pointer())
-			if p.pointers[string(name)] == "" {
-				Build(value.Interface(), p.pointers, p.order, p.path, p.getAlias)
+			pointer, ok := findPointer(p.pointers, value.Pointer())
+			if !ok {
+				pointer = Build(value.Interface(), p.pointers, p.path, p.getAlias)
 			}
-			p.Write([]byte(name))
+			p.Write([]byte(pointer.Name))
 			break BigSwitch
 		}
 		fallthrough

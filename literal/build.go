@@ -2,27 +2,41 @@ package literal
 
 import (
 	"reflect"
-	"strconv"
+
+	"fmt"
 
 	"github.com/go-errors/errors"
 )
 
-func Build(object interface{}, pointers map[string]string, order *[]string, path string, getAlias func(string) string) string {
+type Pointer struct {
+	Value  uintptr
+	Name   string
+	Source string
+}
+
+func findPointer(pointers *[]Pointer, v uintptr) (Pointer, bool) {
+	for _, p := range *pointers {
+		if p.Value == v {
+			return p, true
+		}
+	}
+	return Pointer{}, false
+}
+
+func Build(object interface{}, pointers *[]Pointer, path string, getAlias func(string) string) Pointer {
 
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr {
 		panic(errors.New("Must be pointer"))
 	}
-	name := pointerLiteralName(value.Pointer())
-	if pointers[name] != "" {
-		return name
+	if pointer, ok := findPointer(pointers, value.Pointer()); ok {
+		return pointer
 	}
 
 	p := newPrinter()
 	p.path = path
 	p.getAlias = getAlias
 	p.pointers = pointers
-	p.order = order
 	p.reordered = false
 	p.goodArgNum = true
 	p.fmt.clearflags()
@@ -30,13 +44,8 @@ func Build(object interface{}, pointers map[string]string, order *[]string, path
 	p.printValue(value, 'v', 0)
 	s := string(p.buf)
 	p.free()
-	*p.order = append(*p.order, name)
-	p.pointers[name] = s
-	return name
+	pointer := Pointer{Value: value.Pointer(), Name: fmt.Sprint("ptr", len(*p.pointers)), Source: s}
+	*p.pointers = append(*p.pointers, pointer)
+	return pointer
 
-}
-
-func pointerLiteralName(addr uintptr) string {
-	s := "ptr" + strconv.Itoa(int(addr))
-	return s
 }
