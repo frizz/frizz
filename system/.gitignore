@@ -29,3 +29,4 @@ _testmain.go
 .idea/
 generated.go.backup
 coverage.out
+validate
