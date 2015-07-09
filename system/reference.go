@@ -106,3 +106,15 @@ func (r *Reference) GetType() (*Type, bool) {
 func (s Reference) NativeString() (value string, exists bool) {
 	return s.Value(), s.Exists
 }
+
+type SortableReferences []Reference
+
+func (s SortableReferences) Len() int {
+	return len(s)
+}
+func (s SortableReferences) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s SortableReferences) Less(i, j int) bool {
+	return s[i].Value() < s[j].Value()
+}

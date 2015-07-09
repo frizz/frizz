@@ -3,6 +3,8 @@ package system
 import (
 	"sync"
 
+	"sort"
+
 	"kego.io/kerr"
 )
 
@@ -44,16 +46,29 @@ func GetType(path string, name string) (t *Type, found bool) {
 
 // TODO: Perhaps this should not return pointers if it will
 // TODO: be used concurrently?
-func GetAllTypesInPackage(path string) map[Reference]*Type {
-	out := map[Reference]*Type{}
+func GetAllTypesInPackage(path string) []*Type {
+	out := SortableTypes{}
 	types.RLock()
 	defer types.RUnlock()
 	for ref, t := range types.m {
 		if ref.Package == path {
-			out[ref] = t
+			out = append(out, t)
 		}
 	}
-	return out
+	sort.Sort(out)
+	return []*Type(out)
+}
+
+type SortableTypes []*Type
+
+func (s SortableTypes) Len() int {
+	return len(s)
+}
+func (s SortableTypes) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s SortableTypes) Less(i, j int) bool {
+	return s[i].Id.Value() < s[j].Id.Value()
 }
 
 type nativeTypeClasses string
@@ -113,4 +128,29 @@ func (t *Type) GoName() string {
 
 func (t *Type) FullName() string {
 	return t.Id.Value()
+}
+
+func (t *Type) SortedFields() []NamedField {
+	fields := SortableNamedFields{}
+	for name, field := range t.Fields {
+		fields = append(fields, NamedField{Name: name, Field: field})
+	}
+	sort.Sort(fields)
+	return []NamedField(fields)
+}
+
+type NamedField struct {
+	Name  string
+	Field Rule
+}
+type SortableNamedFields []NamedField
+
+func (s SortableNamedFields) Len() int {
+	return len(s)
+}
+func (s SortableNamedFields) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s SortableNamedFields) Less(i, j int) bool {
+	return s[i].Name < s[j].Name
 }
