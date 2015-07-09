@@ -30,12 +30,12 @@ func pkg(namespace string, pkgName string, files map[string]string) (string, err
 		}
 	}
 
-	dir, test, recursive, _, path, imports, err := process.Initialise()
+	dir, test, recursive, verbose, path, imports, err := process.Initialise()
 	if err != nil {
 		return "", err
 	}
 
-	if err := process.KegoCmd(dir, test, recursive, true, path, imports); err != nil {
+	if err := process.KegoCmd(dir, test, recursive, verbose, path, imports); err != nil {
 		return "", err
 	}
 
