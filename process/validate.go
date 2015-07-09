@@ -1,12 +1,15 @@
 package process
 
 import (
+	"bytes"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/ghodss/yaml"
 
 	"fmt"
 
@@ -57,7 +60,7 @@ func Validate(root string, recursive bool, verbose bool, packagePath string, imp
 
 func validateFile(filePath string, packagePath string, imports map[string]string) error {
 
-	if !strings.HasSuffix(filePath, ".json") {
+	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil
 	}
 
@@ -67,7 +70,22 @@ func validateFile(filePath string, packagePath string, imports map[string]string
 	}
 	defer file.Close()
 
-	if err = validateReader(file, packagePath, imports); err != nil {
+	var reader io.Reader
+	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
+		y, err := ioutil.ReadAll(file)
+		if err != nil {
+			return kerr.New("AXNOMOAWDF", err, "process.scanFile", "ioutil.ReadAll (yml)")
+		}
+		j, err := yaml.YAMLToJSON(y)
+		if err != nil {
+			return kerr.New("FAFJCYESRH", err, "process.scanFile", "yaml.YAMLToJSON")
+		}
+		reader = bytes.NewReader(j)
+	} else {
+		reader = file
+	}
+
+	if err = validateReader(reader, packagePath, imports); err != nil {
 		return kerr.New("GFVGDBDTNQ", err, "process.validateFile", "validateReader (%s)", filePath)
 	}
 	return nil
@@ -111,6 +129,14 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 
 }
 
+type ValidationError struct {
+	Message string
+}
+
+func (v ValidationError) Error() string {
+	return v.Message
+}
+
 func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
 
 	// Validate the actual object
@@ -132,9 +158,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 				return kerr.New("EBEMISLGDX", err, "process.validateObject", "e.Enforce (main)")
 			}
 			if !ok {
-				fmt.Println(message)
-				return nil
-				//return kerr.New("KKOFBHILXM", nil, "process.validateObject", "Broken rule. %s. %#v", message, data)
+				return ValidationError{Message: message}
 			}
 		}
 	}
@@ -170,11 +194,8 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 					return kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
 				}
 				if !ok {
-					fmt.Println(message)
-					return nil
-					//return kerr.New("FRXEXSTARP", nil, "process.validateObject", "Broken rule. %s. %#v", message, match.Data)
+					return ValidationError{Message: message}
 				}
-
 			}
 		}
 	}

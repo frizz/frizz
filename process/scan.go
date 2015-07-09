@@ -125,14 +125,13 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 		return nil
 	}
 
-	var reader io.Reader
-
 	file, err := os.Open(filePath)
 	if err != nil {
 		return kerr.New("NMWROTKPLJ", err, "process.processScannedFile", "os.Open (%s)", filePath)
 	}
 	defer file.Close()
 
+	var reader io.Reader
 	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
 		y, err := ioutil.ReadAll(file)
 		if err != nil {

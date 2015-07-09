@@ -182,12 +182,13 @@ func GenerateAndRunCmd(file fileType, dir string, test bool, recursive bool, ver
 
 	if file == F_CMD_VALIDATE {
 		cmd := exec.Command("go", "build", "-o", "validate", outputPath)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return kerr.New("OEPAEEYKIS", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run (go build)")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			return kerr.New("OEPAEEYKIS", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run (go build):\n%s", out)
 		}
-
+		if verbose {
+			fmt.Print(string(out))
+		}
 	}
 
 	command := ""
@@ -213,15 +214,18 @@ func GenerateAndRunCmd(file fileType, dir string, test bool, recursive bool, ver
 		params = append(params, "-verbose")
 	}
 	cmd := exec.Command(command, params...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 
 	if verbose {
 		fmt.Println("Running", file)
 	}
 
-	if err := cmd.Run(); err != nil {
-		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run: \n%s", out)
+	}
+
+	if verbose {
+		fmt.Print(string(out))
 	}
 
 	return nil

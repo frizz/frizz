@@ -77,6 +77,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		g.Import("os")
 		g.Import("fmt")
 		g.Import("kego.io/process")
+		g.Import("kego.io/kerr")
 		g.AnonymousImport("kego.io/system")
 		g.AnonymousImport("kego.io/system/types")
 		g.AnonymousImport(path)
@@ -93,6 +94,12 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 			        os.Exit(1)
 				}
 				if err := process.Validate(dir, recursive, verbose, path, imports); err != nil {
+					if u, ok := err.(kerr.UniqueError); ok {
+						if m, ok := u.Source().(process.ValidationError); ok {
+							fmt.Println("Error: ", m.Message)
+							os.Exit(1)
+						}
+					}
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -215,6 +222,7 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 	}
 	source, err = format.Source(b.Bytes())
 	if err != nil {
+		fmt.Println(string(b.Bytes()))
 		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source")
 	}
 	return
