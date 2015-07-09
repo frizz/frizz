@@ -24,3 +24,11 @@ func TestErr(t *testing.T) {
 	assert.Equal(t, "TUPDJYPRNU", e.Unique())
 
 }
+
+func TestSource(t *testing.T) {
+	source := fmt.Errorf("Foo")
+	e := kerr.New("PBNMPOIILQ", source, "a", "b")
+	s := e.Source()
+	assert.NotNil(t, s)
+	assert.Equal(t, "Foo", s.Error())
+}

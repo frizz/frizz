@@ -54,3 +54,16 @@ func (e UniqueError) Error() string {
 type Unique interface {
 	Unique() string
 }
+
+// Source gets the error at the bottom of the error stack
+func (e UniqueError) Source() error {
+	if e.Inner == nil {
+		fmt.Println("1")
+		return e
+	}
+	if u, ok := e.Inner.(UniqueError); ok {
+		return u.Source()
+	} else {
+		return e.Inner
+	}
+}
