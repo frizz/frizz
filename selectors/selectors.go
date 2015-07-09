@@ -1,3 +1,4 @@
+//go:generate kego -recursive
 package selectors // import "kego.io/selectors"
 
 import (
