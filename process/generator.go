@@ -61,25 +61,26 @@ func Initialise() (dir string, update bool, recursive bool, verbose bool, path s
 		return
 	}
 
-	for p, _ := range aliases {
-		params := []string{}
-		if update {
-			params = []string{"get", "-u", p}
-		} else {
-			params = []string{"get", p}
-		}
-		var out []byte
-		if out, err = exec.Command("go", params...).CombinedOutput(); err != nil {
-			err = kerr.New("HHKSTQMAKG", err, "process.Initialize", "go get command: %s", out)
-			return
-		}
-	}
-
 	return
 
 }
 
 func KegoCmd(dir string, update bool, recursive bool, verbose bool, path string, aliases map[string]string) error {
+
+	for p, _ := range aliases {
+		params := []string{"get"}
+		if update {
+			params = append(params, "-u")
+		}
+		if verbose {
+			params = append(params, "-v")
+		}
+		params = append(params, p)
+		if out, err := exec.Command("go", params...).CombinedOutput(); err != nil {
+			return kerr.New("HHKSTQMAKG", err, "process.KegoCmd", "go get command: %s", out)
+		}
+	}
+
 	if err := GenerateAndRunCmd(F_CMD_MAIN, dir, update, recursive, verbose, path, aliases); err != nil {
 		return err
 	}
