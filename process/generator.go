@@ -61,6 +61,20 @@ func Initialise() (dir string, update bool, recursive bool, verbose bool, path s
 		return
 	}
 
+	for p, _ := range aliases {
+		params := []string{}
+		if update {
+			params = []string{"get", "-u", p}
+		} else {
+			params = []string{"get", p}
+		}
+		var out []byte
+		if out, err = exec.Command("go", params...).CombinedOutput(); err != nil {
+			err = kerr.New("HHKSTQMAKG", err, "process.Initialize", "go get command: %s", out)
+			return
+		}
+	}
+
 	return
 
 }
