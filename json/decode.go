@@ -66,7 +66,7 @@ import (
 // Instead, they are replaced by the Unicode replacement
 // character U+FFFD.
 //
-func UnmarshalPlain(data []byte, v interface{}, path string, imports map[string]string) error {
+func UnmarshalPlain(data []byte, v interface{}, path string, aliases map[string]string) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
@@ -77,7 +77,7 @@ func UnmarshalPlain(data []byte, v interface{}, path string, imports map[string]
 	}
 
 	d.init(data)
-	return d.unmarshal(v, &ctx{path, imports}, true)
+	return d.unmarshal(v, &ctx{path, aliases}, true)
 }
 
 type UnknownPackageError struct {
@@ -96,7 +96,7 @@ func (u UnknownTypeError) Error() string {
 	return fmt.Sprint("Unknown type ", u.UnknownType)
 }
 
-func Unmarshal(data []byte, v *interface{}, path string, imports map[string]string) error {
+func Unmarshal(data []byte, v *interface{}, path string, aliases map[string]string) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
@@ -108,13 +108,13 @@ func Unmarshal(data []byte, v *interface{}, path string, imports map[string]stri
 	}
 
 	d.init(data)
-	err = d.unmarshalTyped(v, &ctx{path, imports}, true)
+	err = d.unmarshalTyped(v, &ctx{path, aliases}, true)
 	return d.getError(err)
 }
 
 type ctx struct {
 	Package string
-	Imports map[string]string
+	Aliases map[string]string
 }
 
 // Unmarshaler is the interface implemented by objects
@@ -489,7 +489,7 @@ func (d *decodeState) array(v reflect.Value, context *ctx, unmarshalers bool) {
 	u, ut, pv := d.indirect(v, false, unmarshalers)
 	if u != nil {
 		d.off--
-		err := u.UnmarshalJSON(d.next(), context.Package, context.Imports)
+		err := u.UnmarshalJSON(d.next(), context.Package, context.Aliases)
 		if err != nil {
 			d.error(err)
 		}
@@ -733,10 +733,10 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value, contex
 
 func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, unmarshalers bool) {
 
-	path, name, err := GetReferencePartsFromTypeString(typeName, context.Package, context.Imports)
+	path, name, err := GetReferencePartsFromTypeString(typeName, context.Package, context.Aliases)
 	if unk, ok := err.(UnknownPackageError); ok {
 		// We don't want to throw an error here, because when we're scanning for
-		// imports we need to tolerate unknown packages
+		// aliases we need to tolerate unknown packages
 		d.unknownPackage = unk.UnknownPackage
 	}
 
@@ -771,20 +771,20 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx, un
 	}
 }
 
-func GetReferencePartsFromTypeString(typeString string, localPath string, imports map[string]string) (path string, name string, err error) {
+func GetReferencePartsFromTypeString(typeString string, localPath string, aliases map[string]string) (path string, name string, err error) {
 	if strings.Contains(typeString, "/") {
 		// If the type name contains a slash, I'm assuming it's a fully qualified type name of
 		// the form "kego.io/system:type".
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
-		_, ok := imports[parts[0]]
+		_, ok := aliases[parts[0]]
 		if !ok && parts[0] != localPath {
 			return "", "", UnknownPackageError{parts[0]}
 		}
 		return parts[0], parts[1], nil
 	} else if strings.Contains(typeString, ":") {
 		// If the type name contains a colon, I'm assuming it's an abreviated qualified type name of
-		// the form "system:type". We should look the package name up in the imports map.
+		// the form "system:type". We should look the package name up in the aliases map.
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
 		if parts[0] == "system" {
@@ -792,7 +792,7 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, import
 		} else if parts[0] == "json" {
 			return "kego.io/json", parts[1], nil
 		}
-		packagePath, ok := findKey(imports, parts[0])
+		packagePath, ok := findKey(aliases, parts[0])
 		if !ok {
 			return "", "", UnknownPackageError{parts[0]}
 		}
@@ -833,7 +833,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 	u, ut, pv := d.indirect(v, false, unmarshalers)
 	if u != nil {
 		d.off--
-		err := u.UnmarshalJSON(d.next(), context.Package, context.Imports)
+		err := u.UnmarshalJSON(d.next(), context.Package, context.Aliases)
 		if err != nil {
 			d.error(err)
 		}
@@ -1014,7 +1014,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 				}
 				context := &ctx{
 					Package: path,
-					Imports: def.Imports,
+					Aliases: def.Aliases,
 				}
 				var d decodeState
 				err := checkValid(*def.Value, &d.scan)
@@ -1079,7 +1079,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	wantptr := item[0] == 'n' // null
 	u, ut, pv := d.indirect(v, wantptr, unmarshalers)
 	if u != nil {
-		err := u.UnmarshalJSON(item, context.Package, context.Imports)
+		err := u.UnmarshalJSON(item, context.Package, context.Aliases)
 		if err != nil {
 			d.error(err)
 		}

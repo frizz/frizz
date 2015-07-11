@@ -1001,7 +1001,7 @@ type KegoDefault struct {
 	Type    string            `json:"type,omitempty"`
 	Value   *RawMessage       `json:"value,omitempty"`
 	Path    string            `json:"path,omitempty"`
-	Imports map[string]string `json:"imports,omitempty"`
+	Aliases map[string]string `json:"aliases,omitempty"`
 }
 
 // typeFields returns a list of fields that JSON should recognize for the given type.

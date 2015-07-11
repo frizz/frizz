@@ -18,15 +18,15 @@ type Decoder struct {
 	scan    scanner
 	err     error
 	path    string
-	imports map[string]string
+	aliases map[string]string
 }
 
 // NewDecoder returns a new decoder that reads from r.
 //
 // The decoder introduces its own buffering and may
 // read data from r beyond the JSON values requested.
-func NewDecoder(r io.Reader, path string, imports map[string]string) *Decoder {
-	return &Decoder{r: r, path: path, imports: imports}
+func NewDecoder(r io.Reader, path string, aliases map[string]string) *Decoder {
+	return &Decoder{r: r, path: path, aliases: aliases}
 }
 
 // UseNumber causes the Decoder to unmarshal a number into an interface{} as a
@@ -53,7 +53,7 @@ func (dec *Decoder) Decode(v *interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err := dec.d.unmarshalTyped(v, &ctx{dec.path, dec.imports}, true)
+	err := dec.d.unmarshalTyped(v, &ctx{dec.path, dec.aliases}, true)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -76,7 +76,7 @@ func (dec *Decoder) DecodePlain(v interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err = dec.d.unmarshal(v, &ctx{dec.path, dec.imports}, true)
+	err = dec.d.unmarshal(v, &ctx{dec.path, dec.aliases}, true)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -214,7 +214,7 @@ func (m *RawMessage) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON sets *m to a copy of data.
-func (m *RawMessage) UnmarshalJSON(data []byte, path string, imports map[string]string) error {
+func (m *RawMessage) UnmarshalJSON(data []byte, path string, aliases map[string]string) error {
 	if m == nil {
 		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
 	}
