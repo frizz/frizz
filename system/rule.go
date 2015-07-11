@@ -13,7 +13,7 @@ type Rule interface {
 
 // Enforcer is a rule with properties that need to be enforced against data.
 type Enforcer interface {
-	Enforce(data interface{}, path string, imports map[string]string) (bool, string, error)
+	Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error)
 }
 
 func (b *RuleBase) GetRuleBase() *RuleBase {
@@ -37,18 +37,18 @@ type RuleHolder struct {
 	RuleType   *Type
 	ParentType *Type
 	Path       string
-	Imports    map[string]string
+	Aliases    map[string]string
 }
 
-func NewMinimalRuleHolder(t *Type, path string, imports map[string]string) *RuleHolder {
-	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t, Path: path, Imports: imports}
+func NewMinimalRuleHolder(t *Type, path string, aliases map[string]string) *RuleHolder {
+	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t, Path: path, Aliases: aliases}
 }
-func NewRuleHolder(r Rule, path string, imports map[string]string) (*RuleHolder, error) {
+func NewRuleHolder(r Rule, path string, aliases map[string]string) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r)
 	if err != nil {
 		return nil, kerr.New("VRCWUGOTMA", err, "NewRuleHolder", "ruleTypes")
 	}
-	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Imports: imports}, nil
+	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Aliases: aliases}, nil
 }
 
 func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
@@ -96,7 +96,7 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !ok {
 		return nil, kerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
 	}
-	rh, err := NewRuleHolder(rule, r.Path, r.Imports)
+	rh, err := NewRuleHolder(rule, r.Path, r.Aliases)
 	if err != nil {
 		return nil, kerr.New("FGYMQPNBQJ", err, "RuleHolder.ItemsRule", "NewRuleHolder")
 	}

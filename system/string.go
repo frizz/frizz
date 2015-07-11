@@ -18,7 +18,7 @@ func NewString(s string) String {
 	return String{Value: s, Exists: true}
 }
 
-func (r *String_rule) Validate(path string, imports map[string]string) (ok bool, message string, err error) {
+func (r *String_rule) Validate(path string, aliases map[string]string) (ok bool, message string, err error) {
 	if r.MaxLength.Exists && r.MinLength.Exists {
 		if r.MaxLength.Value < r.MinLength.Value {
 			return false, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value, r.MinLength.Value), nil
@@ -32,7 +32,7 @@ func (r *String_rule) Validate(path string, imports map[string]string) (ok bool,
 	return true, "", nil
 }
 
-func (r *String_rule) Enforce(data interface{}, path string, imports map[string]string) (bool, string, error) {
+func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 	s, ok := data.(String)
 	if !ok {
 		return false, "", kerr.New("SXFBXGQSEA", nil, "String_rule.Enforce", "data %T should be system.String.", data)
@@ -112,9 +112,9 @@ func (r *String_rule) Enforce(data interface{}, path string, imports map[string]
 	return true, "", nil
 }
 
-func (out *String) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
+func (out *String) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var s *string
-	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &s, path, aliases); err != nil {
 		return kerr.New("ACHMRKVFAB", err, "String.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if s == nil {

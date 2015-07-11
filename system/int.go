@@ -19,7 +19,7 @@ func NewInt(n int) Int {
 	return Int{Value: n, Exists: true}
 }
 
-func (r *Int_rule) Enforce(data interface{}, path string, imports map[string]string) (bool, string, error) {
+func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 
 	i, ok := data.(Int)
 	if !ok {
@@ -66,9 +66,9 @@ func (r *Int_rule) Enforce(data interface{}, path string, imports map[string]str
 	return true, "", nil
 }
 
-func (out *Int) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
+func (out *Int) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var f *float64
-	if err := json.UnmarshalPlain(in, &f, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &f, path, aliases); err != nil {
 		return kerr.New("WCXYWVMOTT", err, "Int.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if f == nil {

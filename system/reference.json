@@ -1,5 +1,5 @@
 {
-	"description": "This is a reference to another object, of the form: [local id] or [import name]:[id] or [full package path]:[id]",
+	"description": "This is a reference to another object, of the form: [local id] or [alias]:[id]",
 	"type": "type",
 	"id": "reference",
 	"native": "string",

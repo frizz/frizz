@@ -1,9 +1,9 @@
 {
-	"description": "Lists imports used in this package.",
+	"description": "Lists aliases used in this package.",
 	"type": "type",
-	"id": "imports",
+	"id": "aliases",
 	"fields": {
-		"imports": {
+		"aliases": {
 			"description": "Map of path to alias.",
 			"type": "@map",
 			"items": {

@@ -156,7 +156,7 @@ func TestRuleHolderItemsRule(t *testing.T) {
 		RuleType:   ruleType,
 		ParentType: parentType,
 		Path:       "d.e/f",
-		Imports:    map[string]string{},
+		Aliases:    map[string]string{},
 	}
 	_, err := rh.ItemsRule()
 	assert.IsError(t, err, "VPAGXSTQHM")

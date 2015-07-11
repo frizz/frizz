@@ -16,9 +16,9 @@ func NewBool(b bool) Bool {
 	return Bool{Value: b, Exists: true}
 }
 
-func (out *Bool) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
+func (out *Bool) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var b *bool
-	if err := json.UnmarshalPlain(in, &b, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &b, path, aliases); err != nil {
 		return kerr.New("CJMOICJGJG", err, "Bool.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if b == nil {

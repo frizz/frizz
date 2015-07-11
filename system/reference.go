@@ -47,18 +47,18 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 	return newRef, nil
 }
 
-func NewReferenceFromString(in string, path string, imports map[string]string) (*Reference, error) {
+func NewReferenceFromString(in string, path string, aliases map[string]string) (*Reference, error) {
 	r := &Reference{}
-	err := r.UnmarshalJSON([]byte(strconv.Quote(in)), path, imports)
+	err := r.UnmarshalJSON([]byte(strconv.Quote(in)), path, aliases)
 	if err != nil {
 		return nil, kerr.New("VXRGOQHWNB", err, "system.NewReferenceFromString", "UnmarshalJSON")
 	}
 	return r, nil
 }
 
-func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
+func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var s *string
-	if err := json.UnmarshalPlain(in, &s, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &s, path, aliases); err != nil {
 		return kerr.New("BBWVFPNNTT", err, "Reference.UnmarshalJSON", "json.UnmarshalPlain: %s", in)
 	}
 	if s == nil {
@@ -66,10 +66,10 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, imports map[string]s
 		out.Name = ""
 		out.Package = ""
 	} else {
-		path, name, err := json.GetReferencePartsFromTypeString(*s, path, imports)
+		path, name, err := json.GetReferencePartsFromTypeString(*s, path, aliases)
 		if err != nil {
 			// We need to clear the reference, because when we're scanning for
-			// imports we need to tolerate unknown import errors here
+			// aliases we need to tolerate unknown import errors here
 			out.Exists = false
 			out.Name = ""
 			out.Package = ""

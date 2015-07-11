@@ -20,7 +20,7 @@ func NewNumber(n float64) Number {
 	return Number{Value: n, Exists: true}
 }
 
-func (r *Number_rule) Enforce(data interface{}, path string, imports map[string]string) (bool, string, error) {
+func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 
 	n, ok := data.(Number)
 	if !ok {
@@ -80,9 +80,9 @@ func (r *Number_rule) Enforce(data interface{}, path string, imports map[string]
 	return true, "", nil
 }
 
-func (out *Number) UnmarshalJSON(in []byte, path string, imports map[string]string) error {
+func (out *Number) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var f *float64
-	if err := json.UnmarshalPlain(in, &f, path, imports); err != nil {
+	if err := json.UnmarshalPlain(in, &f, path, aliases); err != nil {
 		return kerr.New("GXNBRBELFA", err, "Number.UnmarshalJSON", "json.UnmarshalPlain")
 	}
 	if f == nil {

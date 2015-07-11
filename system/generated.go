@@ -1,10 +1,16 @@
 package system
 
 import (
-	reflect "reflect"
+	"reflect"
 
-	json "kego.io/json"
+	"kego.io/json"
 )
+
+// Automatically created basic rule for aliases
+type Aliases_rule struct {
+	*Base
+	*RuleBase
+}
 
 // Restriction rules for arrays
 type Array_rule struct {
@@ -130,6 +136,13 @@ type Type_rule struct {
 	*RuleBase
 }
 
+// Lists aliases used in this package.
+type Aliases struct {
+	*Base
+	// Map of path to alias.
+	Aliases map[string]string
+}
+
 // This is the native json array data type
 type Array struct {
 	*Base
@@ -151,7 +164,7 @@ type Base struct {
 type Imports struct {
 	*Base
 	// Map of path to alias.
-	Imports map[string]String
+	Imports map[string]string
 }
 
 // This is the native json object data type.
@@ -189,6 +202,7 @@ type Type struct {
 }
 
 func init() {
+	json.RegisterType("kego.io/system", "@aliases", reflect.TypeOf(&Aliases_rule{}))
 	json.RegisterType("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}))
 	json.RegisterType("kego.io/system", "@base", reflect.TypeOf(&Base_rule{}))
 	json.RegisterType("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}))
@@ -201,6 +215,7 @@ func init() {
 	json.RegisterType("kego.io/system", "@ruleBase", reflect.TypeOf(&RuleBase_rule{}))
 	json.RegisterType("kego.io/system", "@string", reflect.TypeOf(&String_rule{}))
 	json.RegisterType("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}))
+	json.RegisterType("kego.io/system", "aliases", reflect.TypeOf(&Aliases{}))
 	json.RegisterType("kego.io/system", "array", reflect.TypeOf(&Array{}))
 	json.RegisterType("kego.io/system", "base", reflect.TypeOf(&Base{}))
 	json.RegisterType("kego.io/system", "bool", reflect.TypeOf(&Bool{}))

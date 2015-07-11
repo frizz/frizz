@@ -161,11 +161,11 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 		Ref1 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\"}}"`
 
 		// The value is a:b, so a is the package alias for kego.io/d
-		// which we find in the package imports, and b is the type.
-		Ref2 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"imports\":{\"kego.io/d\":\"a\"}}}"`
+		// which we find in the package aliases, and b is the type.
+		Ref2 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"aliases\":{\"kego.io/d\":\"a\"}}}"`
 
 		// The value is a full type with package path.
-		Ref3 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"imports\":{\"a.b/c\":\"c\"}}}"`
+		Ref3 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"aliases\":{\"a.b/c\":\"c\"}}}"`
 	}
 
 	data := `{
@@ -307,8 +307,8 @@ func TestReferenceImport(t *testing.T) {
 func TestReferenceDefault(t *testing.T) {
 
 	type Foo struct {
-		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"imports\":{\"kego.io/pkga\":\"pkga\"}}}"`
-		RefDefault Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"imports\":{\"kego.io/pkgb\":\"pkgb\"}}}"`
+		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkga\":\"pkga\"}}}"`
+		RefDefault Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkgb\":\"pkgb\"}}}"`
 	}
 
 	data := `{
