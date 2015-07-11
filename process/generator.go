@@ -25,18 +25,18 @@ const (
 	F_CMD_VALIDATE          = "cmd_validate"
 )
 
-var generatorTestFlag = flag.Bool("test", false, "test mode? e.g. don't write the files")
-var generatorPathFlag = flag.String("path", "", "full package path e.g. github.com/foo/bar")
-var generatorRecursiveFlag = flag.Bool("recursive", false, "recursive? e.g. scan subdirectories")
-var generatorVerboseFlag = flag.Bool("verbose", false, "verbose output?")
+var generatorUpdateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
+var generatorPathFlag = flag.String("p", "", "Package: full package path e.g. github.com/foo/bar")
+var generatorRecursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
+var generatorVerboseFlag = flag.Bool("v", false, "Verbose")
 
-func Initialise() (dir string, test bool, recursive bool, verbose bool, path string, imports map[string]string, err error) {
+func Initialise() (dir string, update bool, recursive bool, verbose bool, path string, aliases map[string]string, err error) {
 
 	if !flag.Parsed() {
 		flag.Parse()
 	}
 
-	test = *generatorTestFlag
+	update = *generatorUpdateFlag
 	path = *generatorPathFlag
 	recursive = *generatorRecursiveFlag
 	verbose = *generatorVerboseFlag
@@ -55,7 +55,7 @@ func Initialise() (dir string, test bool, recursive bool, verbose bool, path str
 		}
 	}
 
-	imports, err = ScanForImports(dir, recursive, path)
+	aliases, err = ScanForAliases(dir, recursive, path)
 	if err != nil {
 		err = kerr.New("IAAETYCHSW", err, "process.Initialise", "ScanForImports")
 		return
@@ -65,14 +65,14 @@ func Initialise() (dir string, test bool, recursive bool, verbose bool, path str
 
 }
 
-func KegoCmd(dir string, test bool, recursive bool, verbose bool, path string, imports map[string]string) error {
-	if err := GenerateAndRunCmd(F_CMD_MAIN, dir, test, recursive, verbose, path, imports); err != nil {
+func KegoCmd(dir string, update bool, recursive bool, verbose bool, path string, aliases map[string]string) error {
+	if err := GenerateAndRunCmd(F_CMD_MAIN, dir, update, recursive, verbose, path, aliases); err != nil {
 		return err
 	}
-	if err := GenerateAndRunCmd(F_CMD_TYPES, dir, test, recursive, verbose, path, imports); err != nil {
+	if err := GenerateAndRunCmd(F_CMD_TYPES, dir, update, recursive, verbose, path, aliases); err != nil {
 		return err
 	}
-	if err := GenerateAndRunCmd(F_CMD_VALIDATE, dir, test, recursive, verbose, path, imports); err != nil {
+	if err := GenerateAndRunCmd(F_CMD_VALIDATE, dir, update, recursive, verbose, path, aliases); err != nil {
 		return err
 	}
 	return nil
@@ -94,7 +94,7 @@ func KegoCmd(dir string, test bool, recursive bool, verbose bool, path string, i
 // file == F_CMD_VALIDATE: this is the temporary command that we create in order
 // to run the validation
 //
-func GenerateFiles(file fileType, dir string, test bool, recursive bool, verbose bool, path string, imports map[string]string) error {
+func GenerateFiles(file fileType, dir string, update bool, recursive bool, verbose bool, path string, aliases map[string]string) error {
 
 	if verbose {
 		fmt.Println("Generating", file)
@@ -113,24 +113,19 @@ func GenerateFiles(file fileType, dir string, test bool, recursive bool, verbose
 	if file == F_MAIN || file == F_TYPES {
 		// If type == F_GLOBALS, we have already generated and imported the types, so
 		// there is no need to scan.
-		if err := ScanForTypes(dir, ignoreUnknownTypes, recursive, path, imports); err != nil {
+		if err := ScanForTypes(dir, ignoreUnknownTypes, recursive, path, aliases); err != nil {
 			return kerr.New("XYIUHERDHE", err, "process.GenerateFiles", "ScanForTypes")
 		}
 	} else {
 		// However, we need to scan for the globals.
-		if err := ScanForGlobals(dir, recursive, path, imports); err != nil {
+		if err := ScanForGlobals(dir, recursive, path, aliases); err != nil {
 			return kerr.New("JQLAQVKLAN", err, "process.GenerateFiles", "ScanForGlobals")
 		}
 	}
 
-	source, err := Generate(file, path, imports)
+	source, err := Generate(file, path, aliases)
 	if err != nil {
 		return kerr.New("XFNESBLBTQ", err, "process.GenerateFiles", "Generate")
-	}
-
-	if test {
-		fmt.Printf("%s\n", source)
-		return nil
 	}
 
 	// We only backup in the system types because they are the only
@@ -153,19 +148,15 @@ func GenerateFiles(file fileType, dir string, test bool, recursive bool, verbose
 // for a command is generated. This command is then compiled and run with
 // "go run". When run, this command generates the extra types data in
 // the "types" subpackage.
-func GenerateAndRunCmd(file fileType, dir string, test bool, recursive bool, verbose bool, path string, imports map[string]string) error {
+func GenerateAndRunCmd(file fileType, dir string, update bool, recursive bool, verbose bool, path string, aliases map[string]string) error {
 
 	if verbose {
 		fmt.Println("Generating", file)
 	}
 
-	source, err := Generate(file, path, imports)
+	source, err := Generate(file, path, aliases)
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "Generate")
-	}
-
-	if test {
-		fmt.Printf("%s\n", source)
 	}
 
 	outputDir, err := ioutil.TempDir(dir, "temporary")
@@ -202,16 +193,16 @@ func GenerateAndRunCmd(file fileType, dir string, test bool, recursive bool, ver
 	}
 
 	if *generatorPathFlag != "" {
-		params = append(params, fmt.Sprintf("-path=%s", strconv.Quote(*generatorPathFlag)))
+		params = append(params, fmt.Sprintf("-p=%s", strconv.Quote(*generatorPathFlag)))
 	}
-	if test {
-		params = append(params, "-test")
+	if update {
+		params = append(params, "-u")
 	}
 	if recursive {
-		params = append(params, "-recursive")
+		params = append(params, "-r")
 	}
 	if verbose {
-		params = append(params, "-verbose")
+		params = append(params, "-v")
 	}
 	cmd := exec.Command(command, params...)
 

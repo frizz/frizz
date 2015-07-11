@@ -3,19 +3,22 @@ package generator // import "kego.io/process/generator"
 import (
 	"fmt"
 	"io"
-	"strings"
 )
 
 type generator struct {
 	path       string
-	alias      string
-	imports    imports
+	name       string
+	Imports    Imports
 	statements []string
 	writer     io.Writer
 }
 
-func New(path string, alias string, writer io.Writer) *generator {
-	return &generator{path: path, alias: alias, imports: map[string]string{}, writer: writer}
+func New(path string, writer io.Writer) (*generator, error) {
+	name := getPackageName(path)
+	return &generator{path: path, name: name, Imports: Imports{}, writer: writer}, nil
+}
+func NewWithName(path string, name string, writer io.Writer) *generator {
+	return &generator{path: path, name: name, Imports: Imports{}, writer: writer}
 }
 
 func (g *generator) Print(args ...interface{}) *generator {
@@ -31,25 +34,23 @@ func (g *generator) Println(args ...interface{}) *generator {
 	return g
 }
 
-func (g *generator) AnonymousImport(path string) {
-	g.imports.add(path, true)
-}
-
-func (g *generator) Import(path string) string {
-	return g.imports.add(path, false)
-}
-
 func (g *generator) Build() {
 	w := g.writer
-	fmt.Fprintf(w, "package %s", g.alias)
-	if len(g.imports) > 0 {
+	fmt.Fprintf(w, "package %s", g.name)
+	if len(g.Imports) > 0 {
 		fmt.Fprintf(w, "\n\n")
 		fmt.Fprintf(w, "import (")
 		// The packages should build in the same order to make our tests work reproducibly, so
 		// we use the sorted packages() array rather than ranging over the map
-		for _, path := range g.imports.packages() {
+		for _, path := range g.Imports.packages() {
 			fmt.Fprintf(w, "\n")
-			fmt.Fprintf(w, "%s \"%s\"", g.imports[path], path)
+			imp := g.Imports[path]
+			alias := ""
+			if imp.Alias != imp.Name {
+				// if the alias is the same as the package name, we can omit the alias
+				alias = imp.Alias
+			}
+			fmt.Fprintf(w, "%s \"%s\"", alias, path)
 		}
 		fmt.Fprintf(w, "\n")
 		fmt.Fprintf(w, ")\n")
@@ -57,14 +58,4 @@ func (g *generator) Build() {
 	for _, statement := range g.statements {
 		fmt.Fprintf(w, "%s", statement)
 	}
-}
-
-// getPackageNameFromPath returns the name of the package, given the package
-// path. Note this is golang packages not file system paths, so we always use
-// forward slash instead of os.PathSeparator
-// TODO: Lots of packages have a different name to the path...
-// TODO: Work out what to do here.
-func PackageName(path string) string {
-	parts := strings.Split(path, "/")
-	return parts[len(parts)-1]
 }

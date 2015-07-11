@@ -8,45 +8,46 @@ import (
 	"kego.io/kerr/assert"
 )
 
-func TestPackageName(t *testing.T) {
-	n := PackageName("a.b/c")
-	assert.Equal(t, "c", n)
-
-	// Double check we're not splitting on backslash
-	n = PackageName(`a.b/c\d`)
-	assert.Equal(t, `c\d`, n)
-}
-
 func TestNew(t *testing.T) {
 	b := bytes.NewBuffer(nil)
-	g := New("a.b/c", "d", b)
-	assert.Equal(t, 0, len(g.imports))
+	g, err := New("a.b/c", b)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(g.Imports))
 	assert.Equal(t, "a.b/c", g.path)
-	assert.Equal(t, "d", g.alias)
+	assert.Equal(t, "c", g.name)
+}
+
+func TestNewWithName(t *testing.T) {
+	b := bytes.NewBuffer(nil)
+	g := NewWithName("a.b/c", "d", b)
+	assert.Equal(t, 0, len(g.Imports))
+	assert.Equal(t, "a.b/c", g.path)
+	assert.Equal(t, "d", g.name)
 }
 
 func TestGenerator(t *testing.T) {
 	b := bytes.NewBuffer(nil)
-	g := New("a.b/c", "d", b)
+	g, err := New("a.b/c", b)
+	assert.NoError(t, err)
 	g.Build()
-	assert.Equal(t, "package d", b.String())
+	assert.Equal(t, "package c", b.String())
 	b.Reset()
 
-	g.AnonymousImport("e.f/g")
+	g.Imports.Anonymous("e.f/g")
 	g.Build()
-	assert.Equal(t, "package d\n\nimport (\n_ \"e.f/g\"\n)\n", b.String())
+	assert.Equal(t, "package c\n\nimport (\n_ \"e.f/g\"\n)\n", b.String())
 	b.Reset()
 
-	alias := g.Import("h.i/j")
+	alias := g.Imports.Add("h.i/j")
 	assert.Equal(t, "j", alias)
 
 	g.Build()
-	assert.Equal(t, "package d\n\nimport (\n_ \"e.f/g\"\nj \"h.i/j\"\n)\n", b.String())
+	assert.Equal(t, "package c\n\nimport (\n_ \"e.f/g\"\n \"h.i/j\"\n)\n", b.String())
 	b.Reset()
 
 	g.Print("foo")
 	g.Println("bar")
 	g.Printf("baz\n%s", "qux")
 	g.Build()
-	assert.Equal(t, "package d\n\nimport (\n_ \"e.f/g\"\nj \"h.i/j\"\n)\nfoobar\nbaz\nqux", b.String())
+	assert.Equal(t, "package c\n\nimport (\n_ \"e.f/g\"\n \"h.i/j\"\n)\nfoobar\nbaz\nqux", b.String())
 }

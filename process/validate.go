@@ -19,7 +19,7 @@ import (
 	"kego.io/system"
 )
 
-func Validate(root string, recursive bool, verbose bool, packagePath string, imports map[string]string) error {
+func Validate(root string, recursive bool, verbose bool, packagePath string, aliases map[string]string) error {
 
 	if verbose {
 		fmt.Println("Validating...")
@@ -29,7 +29,7 @@ func Validate(root string, recursive bool, verbose bool, packagePath string, imp
 		if err != nil {
 			return kerr.New("GFBBIERGIY", err, "process.Validate", "walker (%s)", filePath)
 		}
-		if err := validateFile(filePath, packagePath, imports); err != nil {
+		if err := validateFile(filePath, packagePath, aliases); err != nil {
 			return kerr.New("QJGXAUKPTI", err, "process.Validate", "validateFile (%s)", filePath)
 		}
 		return nil
@@ -58,7 +58,7 @@ func Validate(root string, recursive bool, verbose bool, packagePath string, imp
 	return nil
 }
 
-func validateFile(filePath string, packagePath string, imports map[string]string) error {
+func validateFile(filePath string, packagePath string, aliases map[string]string) error {
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil
@@ -85,15 +85,15 @@ func validateFile(filePath string, packagePath string, imports map[string]string
 		reader = file
 	}
 
-	if err = validateReader(reader, packagePath, imports); err != nil {
+	if err = validateReader(reader, packagePath, aliases); err != nil {
 		return kerr.New("GFVGDBDTNQ", err, "process.validateFile", "validateReader (%s)", filePath)
 	}
 	return nil
 }
 
-func validateReader(file io.Reader, packagePath string, imports map[string]string) error {
+func validateReader(file io.Reader, packagePath string, aliases map[string]string) error {
 	var i interface{}
-	err := json.NewDecoder(file, packagePath, imports).Decode(&i)
+	err := json.NewDecoder(file, packagePath, aliases).Decode(&i)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "process.validateReader", "json.NewDecoder: unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
@@ -101,13 +101,13 @@ func validateReader(file io.Reader, packagePath string, imports map[string]strin
 	} else if err != nil {
 		return kerr.New("QIVNOQKCQF", err, "process.validateReader", "json.NewDecoder.Decode")
 	}
-	if err := validateUnknown(i, packagePath, imports); err != nil {
+	if err := validateUnknown(i, packagePath, aliases); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "process.validateReader", "validateUnknown")
 	}
 	return nil
 }
 
-func validateUnknown(data interface{}, path string, imports map[string]string) error {
+func validateUnknown(data interface{}, path string, aliases map[string]string) error {
 
 	ob, ok := data.(system.Object)
 	if !ok {
@@ -118,14 +118,14 @@ func validateUnknown(data interface{}, path string, imports map[string]string) e
 		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "Type.GetType not found")
 	}
 
-	partialRuleHolder := system.NewMinimalRuleHolder(t, path, imports)
+	partialRuleHolder := system.NewMinimalRuleHolder(t, path, aliases)
 
 	rules := t.Rules
 	if system.RulesApplyToObjects(data) {
 		rules = append(rules, data.(system.Object).GetBase().Rules...)
 	}
 
-	return validateObject(partialRuleHolder, rules, data, path, imports)
+	return validateObject(partialRuleHolder, rules, data, path, aliases)
 
 }
 
@@ -137,11 +137,11 @@ func (v ValidationError) Error() string {
 	return v.Message
 }
 
-func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
+func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
 
 	// Validate the actual object
 	if v, ok := data.(system.Validator); ok {
-		ok, message, err := v.Validate(path, imports)
+		ok, message, err := v.Validate(path, aliases)
 		if err != nil {
 			return kerr.New("RUGJLUAFAN", err, "process.validateObject", "v.Validate")
 		}
@@ -153,7 +153,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 	if rule.Rule != nil {
 		e, ok := rule.Rule.(system.Enforcer)
 		if ok {
-			ok, message, err := e.Enforce(data, path, imports)
+			ok, message, err := e.Enforce(data, path, aliases)
 			if err != nil {
 				return kerr.New("EBEMISLGDX", err, "process.validateObject", "e.Enforce (main)")
 			}
@@ -166,7 +166,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 	if rules != nil && len(rules) > 0 {
 
 		j := &selectors.Element{Data: data, Value: reflect.ValueOf(data), Rule: rule}
-		p, err := selectors.CreateParser(j, path, imports)
+		p, err := selectors.CreateParser(j, path, aliases)
 		if err != nil {
 			return kerr.New("AIWLGYGGAY", err, "process.validateObject", "selectors.CreateParser")
 		}
@@ -189,7 +189,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 				return kerr.New("UKOCCFJWAB", err, "process.validateObject", "p.GetJsonElements (%s)", selector)
 			}
 			for _, match := range matches {
-				ok, message, err := e.Enforce(match.Data, path, imports)
+				ok, message, err := e.Enforce(match.Data, path, aliases)
 				if err != nil {
 					return kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
 				}
@@ -203,28 +203,28 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 	// Validate the children
 	switch rule.ParentType.Native.Value {
 	case "object":
-		return validateObjectChildren(rule, data, path, imports)
+		return validateObjectChildren(rule, data, path, aliases)
 	case "array":
 		items, err := rule.ItemsRule()
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "process.validateObject", "rule.ItemsRule (array)")
 		}
 		rules := rule.Rule.(system.Object).GetBase().Rules
-		return validateArrayChildren(items, rules, data, path, imports)
+		return validateArrayChildren(items, rules, data, path, aliases)
 	case "map":
 		items, err := rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "process.validateObject", "rule.ItemsRule (map)")
 		}
 		rules := rule.Rule.(system.Object).GetBase().Rules
-		return validateMapChildren(items, rules, data, path, imports)
+		return validateMapChildren(items, rules, data, path, aliases)
 	}
 
 	return nil
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path string, imports map[string]string) error {
+func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path string, aliases map[string]string) error {
 
 	if data == nil {
 		return nil
@@ -248,7 +248,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if !field.GetRuleBase().Optional && !found {
 			return kerr.New("ETODESNSET", nil, "process.validateObjectChildren", "Field %s is missing and not optional", name)
 		}
-		childRule, err := system.NewRuleHolder(field, path, imports)
+		childRule, err := system.NewRuleHolder(field, path, aliases)
 		if err != nil {
 			return kerr.New("IQOXVXBLRO", err, "process.validateObjectChildren", "system.NewRuleHolder (%s)", name)
 		}
@@ -257,7 +257,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 			return kerr.New("XRTVWVUAMP", nil, "process.validateObjectChildren", "field does not implement system.Object")
 		}
 		allRules := append(rules, ob.GetBase().Rules...)
-		if err = validateObject(childRule, allRules, child, path, imports); err != nil {
+		if err = validateObject(childRule, allRules, child, path, aliases); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "process.validateObjectChildren", "validateObject (%s)", name)
 		}
 	}
@@ -265,7 +265,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
+func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Slice {
@@ -274,7 +274,7 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, da
 
 	for i := 0; i < value.Len(); i++ {
 		child := value.Index(i).Interface()
-		if err := validateObject(itemsRule, rules, child, path, imports); err != nil {
+		if err := validateObject(itemsRule, rules, child, path, aliases); err != nil {
 			return kerr.New("DKVEPIWTPI", err, "process.validateArrayChildren", "validateObject")
 		}
 	}
@@ -282,7 +282,7 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, da
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, imports map[string]string) error {
+func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Map {
@@ -294,7 +294,7 @@ func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data
 
 	for _, key := range value.MapKeys() {
 		child := value.MapIndex(key).Interface()
-		if err := validateObject(itemsRule, rules, child, path, imports); err != nil {
+		if err := validateObject(itemsRule, rules, child, path, aliases); err != nil {
 			return kerr.New("YLONAMFUAG", err, "process.validateMapChildren", "validateObject key %s %#v", key, child)
 		}
 	}

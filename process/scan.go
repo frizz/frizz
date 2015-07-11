@@ -17,14 +17,14 @@ import (
 	"kego.io/system"
 )
 
-func ScanForImports(root string, recursive bool, packagePath string) (imports map[string]string, err error) {
+func ScanForAliases(root string, recursive bool, packagePath string) (aliases map[string]string, err error) {
 
-	imports = map[string]string{}
+	aliases = map[string]string{}
 
 	scanner := func(ob interface{}) error {
 		if i, ok := ob.(*system.Imports); ok {
-			for name, imp := range i.Imports {
-				imports[name] = imp.Value
+			for path, alias := range i.Imports {
+				aliases[path] = alias
 			}
 		}
 		return nil
@@ -33,7 +33,7 @@ func ScanForImports(root string, recursive bool, packagePath string) (imports ma
 	return
 }
 
-func ScanForGlobals(root string, recursive bool, packagePath string, imports map[string]string) error {
+func ScanForGlobals(root string, recursive bool, packagePath string, aliases map[string]string) error {
 	scanner := func(i interface{}) error {
 		if _, ok := i.(*system.Type); ok {
 			return nil
@@ -50,10 +50,10 @@ func ScanForGlobals(root string, recursive bool, packagePath string, imports map
 		system.RegisterGlobal(b.Id.Package, b.Id.Name, o)
 		return nil
 	}
-	return scanPath(root, false, false, recursive, scanner, packagePath, imports)
+	return scanPath(root, false, false, recursive, scanner, packagePath, aliases)
 }
 
-func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, imports map[string]string) error {
+func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, aliases map[string]string) error {
 	scanner := func(ob interface{}) error {
 		if t, ok := ob.(*system.Type); ok {
 
@@ -85,16 +85,16 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 		}
 		return nil
 	}
-	return scanPath(root, ignoreUnknownTypes, false, recursive, scanner, packagePath, imports)
+	return scanPath(root, ignoreUnknownTypes, false, recursive, scanner, packagePath, aliases)
 }
 
-func scanPath(root string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, recursive bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanPath(root string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, recursive bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, imports); err != nil {
+		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, aliases); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
@@ -119,7 +119,7 @@ func scanPath(root string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, 
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil
@@ -146,16 +146,16 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 		reader = file
 	}
 
-	if err = scanReader(reader, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, imports); err != nil {
+	if err = scanReader(reader, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, aliases); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-func scanReader(file io.Reader, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, imports map[string]string) error {
+func scanReader(file io.Reader, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
 
 	var i interface{}
-	err := json.NewDecoder(file, packagePath, imports).Decode(&i)
+	err := json.NewDecoder(file, packagePath, aliases).Decode(&i)
 
 	if ut, ok := err.(json.UnknownTypeError); ok {
 		if !ignoreUnknownTypes {

@@ -85,7 +85,7 @@ func formatTag(defaultBytes []byte, r *system.RuleHolder) (string, error) {
 	var tag json.KegoTag
 	if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
 		// If our default is one of the basic system native types, we know we can unmarshal it without
-		// the extra context, so we omit type, path and imports. This makes the generated code easier to
+		// the extra context, so we omit type, path and aliases. This makes the generated code easier to
 		// understand.
 		tag = json.KegoTag{
 			Default: &json.KegoDefault{
@@ -97,7 +97,7 @@ func formatTag(defaultBytes []byte, r *system.RuleHolder) (string, error) {
 			Default: &json.KegoDefault{
 				Value:   &defaultRaw,
 				Path:    r.Path,
-				Imports: r.Imports,
+				Aliases: r.Aliases,
 				Type:    t,
 			},
 		}

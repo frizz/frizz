@@ -14,88 +14,88 @@ import (
 	"kego.io/system"
 )
 
-func Generate(file fileType, path string, imports map[string]string) (source []byte, err error) {
+func Generate(file fileType, path string, aliases map[string]string) (source []byte, err error) {
 	b := bytes.NewBuffer(nil)
 	switch file {
 	case F_CMD_MAIN:
-		g := generator.New(path, "main", b)
-		g.Import("os")
-		g.Import("fmt")
-		g.Import("kego.io/process")
-		g.AnonymousImport("kego.io/system")
+		g := generator.NewWithName(path, "main", b)
+		g.Imports.Add("os")
+		g.Imports.Add("fmt")
+		g.Imports.Add("kego.io/process")
+		g.Imports.Anonymous("kego.io/system")
 		if path != "kego.io/system" {
-			g.AnonymousImport("kego.io/system/types")
+			g.Imports.Anonymous("kego.io/system/types")
 		}
-		for p, _ := range imports {
-			g.AnonymousImport(p)
-			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		for p, _ := range aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
 		g.Print(`
 			func main() {
-				dir, test, recursive, verbose, path, imports, err := process.Initialise()
+				dir, update, recursive, verbose, path, aliases, err := process.Initialise()
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				if err := process.GenerateFiles(process.F_MAIN, dir, test, recursive, verbose, path, imports); err != nil {
+				if err := process.GenerateFiles(process.F_MAIN, dir, update, recursive, verbose, path, aliases); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
 			}`)
 		g.Build()
 	case F_CMD_TYPES:
-		g := generator.New(path, "main", b)
-		g.Import("os")
-		g.Import("fmt")
-		g.Import("kego.io/process")
-		g.AnonymousImport("kego.io/system")
+		g := generator.NewWithName(path, "main", b)
+		g.Imports.Add("os")
+		g.Imports.Add("fmt")
+		g.Imports.Add("kego.io/process")
+		g.Imports.Anonymous("kego.io/system")
 		if path != "kego.io/system" {
-			g.AnonymousImport("kego.io/system/types")
+			g.Imports.Anonymous("kego.io/system/types")
 		}
-		g.AnonymousImport(path)
-		for p, _ := range imports {
-			g.AnonymousImport(p)
-			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		g.Imports.Anonymous(path)
+		for p, _ := range aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
 		g.Print(`
 			func main() {
-				dir, test, recursive, verbose, path, imports, err := process.Initialise()
+				dir, update, recursive, verbose, path, aliases, err := process.Initialise()
 				if err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.GenerateFiles(process.F_TYPES, dir, test, recursive, verbose, path, imports); err != nil {
+				if err := process.GenerateFiles(process.F_TYPES, dir, update, recursive, verbose, path, aliases); err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.GenerateFiles(process.F_GLOBALS, dir, test, recursive, verbose, path, imports); err != nil {
+				if err := process.GenerateFiles(process.F_GLOBALS, dir, update, recursive, verbose, path, aliases); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
 			}`)
 		g.Build()
 	case F_CMD_VALIDATE:
-		g := generator.New(path, "main", b)
-		g.Import("os")
-		g.Import("fmt")
-		g.Import("kego.io/process")
-		g.Import("kego.io/kerr")
-		g.AnonymousImport("kego.io/system")
-		g.AnonymousImport("kego.io/system/types")
-		g.AnonymousImport(path)
-		g.AnonymousImport(fmt.Sprint(path, "/types"))
-		for p, _ := range imports {
-			g.AnonymousImport(p)
-			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		g := generator.NewWithName(path, "main", b)
+		g.Imports.Add("os")
+		g.Imports.Add("fmt")
+		g.Imports.Add("kego.io/process")
+		g.Imports.Add("kego.io/kerr")
+		g.Imports.Anonymous("kego.io/system")
+		g.Imports.Anonymous("kego.io/system/types")
+		g.Imports.Anonymous(path)
+		g.Imports.Anonymous(fmt.Sprint(path, "/types"))
+		for p, _ := range aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
 		g.Print(`
 			func main() {
-				dir, _, recursive, verbose, path, imports, err := process.Initialise()
+				dir, _, recursive, verbose, path, aliases, err := process.Initialise()
 				if err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.Validate(dir, recursive, verbose, path, imports); err != nil {
+				if err := process.Validate(dir, recursive, verbose, path, aliases); err != nil {
 					if u, ok := err.(kerr.UniqueError); ok {
 						if m, ok := u.Source().(process.ValidationError); ok {
 							fmt.Println("Error: ", m.Message)
@@ -109,7 +109,10 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		g.Build()
 	case F_MAIN:
 		types := system.GetAllTypesInPackage(path)
-		g := generator.New(path, generator.PackageName(path), b)
+		g, err := generator.New(path, b)
+		if err != nil {
+			return nil, kerr.New("WPIPODJIGV", err, "process.Generate", "generator.New")
+		}
 		if len(types) == 0 {
 			g.Build()
 			break
@@ -124,19 +127,19 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 			g.Println("type ", system.GoName(typ.Id.Name), " struct {")
 			{
 				if !typ.Basic {
-					g.Println("*", generator.Reference("kego.io/system", "Base", path, g.Import))
+					g.Println("*", generator.Reference("kego.io/system", "Base", path, g.Imports.Add))
 				}
 				embeds := system.SortableReferences(typ.Embed)
 				sort.Sort(embeds)
 				for _, embed := range embeds {
-					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), path, g.Import))
+					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), path, g.Imports.Add))
 				}
 				for _, nf := range typ.SortedFields() {
 					b := nf.Field.(system.Object).GetBase()
 					if b.Description != "" {
 						g.Println("// ", b.Description)
 					}
-					descriptor, err := generator.Type(nf.Field, path, g.Import)
+					descriptor, err := generator.Type(nf.Field, path, g.Imports.Add)
 					if err != nil {
 						return nil, kerr.New("GDSKJDEKQD", err, "process.Generate", "generator.Type")
 					}
@@ -151,10 +154,10 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 				if typ.Interface {
 					continue
 				}
-				jsonRegisterType := generator.Reference("kego.io/json", "RegisterType", path, g.Import)
+				jsonRegisterType := generator.Reference("kego.io/json", "RegisterType", path, g.Imports.Add)
 				pkg := strconv.Quote(typ.Id.Package)
 				name := strconv.Quote(typ.Id.Name)
-				reflectTypeOf := generator.Reference("reflect", "TypeOf", path, g.Import)
+				reflectTypeOf := generator.Reference("reflect", "TypeOf", path, g.Imports.Add)
 				typOf := fmt.Sprintf("%s(&%s{})", reflectTypeOf, system.GoName(typ.Id.Name))
 				// e.g.
 				// json.RegisterType("kego.io/gallery/data", "@gallery", reflect.TypeOf(&Gallery_rule{}))
@@ -167,26 +170,29 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 	case F_TYPES:
 		types := system.GetAllTypesInPackage(path)
 		path := fmt.Sprintf("%s/types", path)
-		g := generator.New(path, "types", b)
+		g, err := generator.New(path, b)
+		if err != nil {
+			return nil, kerr.New("KYIKJQXPMR", err, "process.Generate", "generator.New")
+		}
 		if len(types) == 0 {
 			g.Build()
 			break
 		}
 		if path != "kego.io/system/types" {
-			g.AnonymousImport("kego.io/system/types")
+			g.Imports.Anonymous("kego.io/system/types")
 		}
-		for p, _ := range imports {
-			g.AnonymousImport(fmt.Sprint(p, "/types"))
+		for p, _ := range aliases {
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
 		g.Println("func init() {")
 		{
 			registers := []string{}
 			pointers := []literal.Pointer{}
-			systemRegisterType := generator.Reference("kego.io/system", "RegisterType", path, g.Import)
+			systemRegisterType := generator.Reference("kego.io/system", "RegisterType", path, g.Imports.Add)
 			for _, t := range types {
 				pkg := strconv.Quote(t.Id.Package)
 				name := strconv.Quote(t.Id.Name)
-				pointer := literal.Build(t, &pointers, path, g.Import)
+				pointer := literal.Build(t, &pointers, path, g.Imports.Add)
 				// e.g.
 				// system.RegisterType("kego.io/gallery/data", "gallery", ptr8728815248)
 				// system.RegisterType("kego.io/gallery/data", "@gallery", ptr8728815360)
@@ -207,12 +213,15 @@ func Generate(file fileType, path string, imports map[string]string) (source []b
 		if len(globals) == 0 {
 			return
 		}
-		g := generator.New(path, generator.PackageName(path), b)
+		g, err := generator.New(path, b)
+		if err != nil {
+			return nil, kerr.New("WMGMMHHQGX", err, "process.Generate", "generator.New")
+		}
 
 		literals := []string{}
 		pointers := []literal.Pointer{}
 		for _, global := range globals {
-			pointer := literal.Build(global, &pointers, path, g.Import)
+			pointer := literal.Build(global, &pointers, path, g.Imports.Add)
 			line := fmt.Sprint("var ", system.GoName(global.GetBase().Id.Name), " = ", pointer.Name)
 			literals = append(literals, line)
 		}

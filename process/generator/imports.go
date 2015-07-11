@@ -3,64 +3,63 @@ package generator
 import (
 	"fmt"
 	"sort"
-	"strings"
 )
 
-type imports map[string]string
-
-// Only used in tests
-func NewImports_test(args ...map[string]string) imports {
-	if len(args) > 0 {
-		return imports(args[0])
-	}
-	return imports{}
+type Import struct {
+	// Go package path
+	Path string
+	// Alias used in the source, if different from the name
+	Alias string
+	// Package name - this is determined by executing "go list -f '{{.Name}}' [path]"
+	Name string
 }
 
-// Only used in tests
-func (i imports) Add_test(path string) string {
+type Imports map[string]Import
+
+func (i Imports) Anonymous(path string) {
+	i.add(path, true)
+}
+
+func (i Imports) Add(path string) string {
 	return i.add(path, false)
 }
 
-// Only used in tests
-func (i imports) Anon_test(path string) string {
-	return i.add(path, true)
-}
+func (i Imports) add(path string, anonymous bool) string {
 
-func (i imports) add(path string, anonymous bool) string {
-
-	currentAlias, found := i[path]
-	if found && currentAlias != "_" {
+	imp, found := i[path]
+	if found && imp.Alias != "_" {
 		// if the path already exists in the imports with an alias, we don't need to do anything.
-		return currentAlias
+		return imp.Alias
 	} else if found && anonymous {
 		// if the path already exists in the imports, and we're adding an anonymous import, we
 		// don't need to do anything.
 		return "_"
 	}
 
+	name := ""
+	if found {
+		name = imp.Name
+	} else {
+		name = getPackageName(path)
+	}
+
 	// either !found or (found && currentAlias == "_" && !anonymous)
 
 	if anonymous {
 		// if we're adding anonymously, we don't need to work out an alias
-		i[path] = "_"
+		i[path] = Import{Path: path, Alias: "_", Name: name}
 		return "_"
 	}
 
-	// lets find a preferred alias
-	preferred := path
-	if strings.Contains(path, "/") {
-		preferred = path[strings.LastIndex(path, "/")+1:]
-	}
-
-	// the preferred alias is not guaranteed to be unique, so we find a unique alias by
+	// the package name is not guaranteed to be unique, so we find a unique alias by
 	// appending digits until it is unique and not a keyword.
-	alias := i.alias(preferred)
+	alias := i.alias(name)
 
-	i[path] = alias
+	i[path] = Import{Path: path, Alias: alias, Name: name}
 	return alias
 }
 
-func (i imports) packages() []string {
+func (i Imports) packages() []string {
 	paths := make([]string, len(i))
 	count := 0
 	for path, _ := range i {
@@ -71,7 +70,7 @@ func (i imports) packages() []string {
 	return paths
 }
 
-func (i imports) alias(preferredAlias string) string {
+func (i Imports) alias(preferredAlias string) string {
 	new := preferredAlias
 	count := 0
 	for {
@@ -88,9 +87,9 @@ func (i imports) alias(preferredAlias string) string {
 	}
 }
 
-func (i imports) hasAlias(alias string) bool {
+func (i Imports) hasAlias(alias string) bool {
 	for _, a := range i {
-		if a == alias {
+		if a.Alias == alias {
 			return true
 		}
 	}

@@ -48,7 +48,7 @@ func TestFormatTag(t *testing.T) {
 		RuleType:   ruleType,
 		ParentType: parentType,
 		Path:       "d.e/f",
-		Imports:    map[string]string{},
+		Aliases:    map[string]string{},
 	}
 	s, err := formatTag([]byte("null"), r)
 	assert.NoError(t, err)
@@ -148,7 +148,7 @@ func TestGetTag(t *testing.T) {
 		RuleType:   ruleType,
 		ParentType: parentType,
 		Path:       "d.e/f",
-		Imports:    map[string]string{},
+		Aliases:    map[string]string{},
 	}
 
 	// rule has no default field
@@ -187,8 +187,8 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: system.NewReference("kego.io/json", "@string"),
 		},
 	}
-	i := NewImports_test()
-	s, err := Type(p, "kego.io/system", i.Add_test)
+	i := Imports{}
+	s, err := Type(p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "string", s)
 
@@ -197,11 +197,11 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: system.NewReference("kego.io/system", "@string"),
 		},
 	}
-	s, err = Type(p, "kego.io/system", i.Add_test)
+	s, err = Type(p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "String", s)
 
-	s, err = Type(p, "kego.io/a", i.Add_test)
+	s, err = Type(p, "kego.io/a", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "system.String", s)
 
@@ -212,7 +212,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: system.NewReference("kego.io/system", "@type"),
 		},
 	}
-	s, err = Type(pt, "kego.io/system", i.Add_test)
+	s, err = Type(pt, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "*Type", s)
 
@@ -223,7 +223,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: system.NewReference("kego.io/system", "@type"),
 		},
 	}
-	s, err = Type(pt, "kego.io/a", i.Add_test)
+	s, err = Type(pt, "kego.io/a", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "*system.Type", s)
 
@@ -248,12 +248,12 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Type: system.NewReference("b.c/d", "@a"),
 		},
 	}
-	ia := NewImports_test(map[string]string{"b.c/d": "d"})
-	s, err = Type(pa, "kego.io/system", ia.Add_test)
+	ia := Imports{"b.c/d": Import{Path: "b.c/d", Name: "d", Alias: "d"}}
+	s, err = Type(pa, "kego.io/system", ia.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "*d.A", s)
 
-	s, err = Type(pa, "b.c/d", i.Add_test)
+	s, err = Type(pa, "b.c/d", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "*A", s)
 
@@ -263,7 +263,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		},
 		Default: system.NewString("a"),
 	}
-	s, err = Type(p, "kego.io/system", i.Add_test)
+	s, err = Type(p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
 
@@ -277,7 +277,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 			},
 		},
 	}
-	s, err = Type(pm, "kego.io/system", i.Add_test)
+	s, err = Type(pm, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "map[string]String", s)
 
@@ -291,7 +291,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 			},
 		},
 	}
-	s, err = Type(par, "kego.io/system", i.Add_test)
+	s, err = Type(par, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "[]String", s)
 
@@ -310,7 +310,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 			},
 		},
 	}
-	s, err = Type(pm, "kego.io/system", i.Add_test)
+	s, err = Type(pm, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "map[string][]String", s)
 
@@ -330,7 +330,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 			},
 		},
 	}
-	s, err = Type(pm, "kego.io/system", i.Add_test)
+	s, err = Type(pm, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "map[string][]String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
 
@@ -343,8 +343,8 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 			Type: system.NewReference("a.b/c", "notFoundType"),
 		},
 	}
-	i := NewImports_test()
-	_, err := Type(p, "kego.io/system", i.Add_test)
+	i := Imports{}
+	_, err := Type(p, "kego.io/system", i.Add)
 	// Item is an unregistered type, so errors at NewRuleHolder
 	assert.IsError(t, err, "TFXFBIRXHN")
 	assert.HasError(t, err, "PFGWISOHRR")
@@ -354,7 +354,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 			Type: system.NewReference("kego.io/system", "@map"),
 		},
 	}
-	_, err = Type(pm, "kego.io/system", i.Add_test)
+	_, err = Type(pm, "kego.io/system", i.Add)
 	// Collection item @map doesn't have Items field, so errors at collectionPrefixInnerRule
 	assert.IsError(t, err, "SOGEFOPJHB")
 	assert.HasError(t, err, "VYTHGJTSNJ")
@@ -380,7 +380,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 			Type: system.NewReference("b.c/d", "@a"),
 		},
 	}
-	_, err = Type(pa, "kego.io/system", i.Add_test)
+	_, err = Type(pa, "kego.io/system", i.Add)
 	// This used to throw an error but since we moved to dynamic imports, it
 	// should not now.
 	assert.NoError(t, err)
@@ -459,7 +459,7 @@ func TestUnknownRule(t *testing.T) {
 		}
 	}`
 
-	imp := NewImports_test()
+	imp := Imports{}
 	var i interface{}
 	err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
 	assert.EqualError(t, err, "Unknown type kego.io/gallery:diagram")
@@ -467,15 +467,15 @@ func TestUnknownRule(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 
-	s, err := Type(f.Fields["image"], "kego.io/gallery", imp.Add_test)
+	s, err := Type(f.Fields["image"], "kego.io/gallery", imp.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "*Diagram `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/gallery:diagram\\\",\\\"value\\\":{\\\"type\\\":\\\"diagram\\\",\\\"url\\\":\\\"def\\\"}}}\"`", s)
 
-	b, err := Type(f.Fields["foo"], "kego.io/gallery", imp.Add_test)
+	b, err := Type(f.Fields["foo"], "kego.io/gallery", imp.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"value\\\":true}}\"`", b)
 
-	r, err := Type(f.Fields["ref"], "kego.io/gallery", imp.Add_test)
+	r, err := Type(f.Fields["ref"], "kego.io/gallery", imp.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\"}}\"`", r)
 
