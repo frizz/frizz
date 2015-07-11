@@ -1,7 +1,7 @@
 package selectors
 
 import (
-	system "kego.io/system"
+	"kego.io/system"
 )
 
 var ptr0 = &system.Base{Description: "This is an instance of the gallery type containing two nested images", Id: system.Reference{Package: "kego.io/selectors", Name: "faces", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/selectors", Name: "gallery", Exists: true}}

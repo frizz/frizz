@@ -26,7 +26,7 @@ func getTestParser(testDocuments map[string]*Element, testName string) (*Parser,
 	return CreateParser(jsonDocument, "kego.io/selectors", map[string]string{})
 }
 
-func runTestsInDirectory(t *testing.T, baseDirectory string, path string, imports map[string]string) {
+func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliases map[string]string) {
 	var testDocuments = make(map[string]*Element)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
@@ -157,7 +157,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 				var matched bool = false
 				for expectedIdx, expectedElement := range expected {
 					// TODO: Should we ignore the error here? I guess so...
-					matched, _ = comparison(actualElement, expectedElement, path, imports)
+					matched, _ = comparison(actualElement, expectedElement, path, aliases)
 					if matched {
 						expected = append(
 							expected[:expectedIdx],
@@ -187,7 +187,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, import
 	}
 }
 
-func comparison(actual *Element, expected interface{}, path string, imports map[string]string) (bool, error) {
+func comparison(actual *Element, expected interface{}, path string, aliases map[string]string) (bool, error) {
 	switch actual.Rule.ParentType.Native.Value {
 	case "string":
 		ns, ok := actual.Data.(system.NativeString)
@@ -272,7 +272,7 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 				return false, nil
 			}
 			child := &Element{Data: object, Rule: itemsRule, Value: value}
-			match, err := comparison(child, expectedArray[i], path, imports)
+			match, err := comparison(child, expectedArray[i], path, aliases)
 			if err != nil {
 				return false, kerr.New("CTHINNYIRI", err, "selectors.comparison", "comparison (array)")
 			}
@@ -299,7 +299,7 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 				return false, nil
 			}
 			child := &Element{Data: object, Rule: itemsRule, Value: value}
-			match, err := comparison(child, expectedMap[key], path, imports)
+			match, err := comparison(child, expectedMap[key], path, aliases)
 			if err != nil {
 				return false, kerr.New("QTVTEIETXV", err, "selectors.comparison", "getNodes (map)")
 			}
@@ -353,12 +353,12 @@ func comparison(actual *Element, expected interface{}, path string, imports map[
 			if !ok {
 				return false, kerr.New("DXRELESKCB", nil, "selectors.comparison", "field %s not found in %s", key, actual.Rule.ParentType.Id)
 			}
-			itemRule, err := system.NewRuleHolder(field, path, imports)
+			itemRule, err := system.NewRuleHolder(field, path, aliases)
 			if err != nil {
 				return false, kerr.New("ERPYTUODXO", err, "selectors.comparison", "system.NewRuleHolder")
 			}
 			child := &Element{Data: object, Rule: itemRule, Value: value}
-			match, err := comparison(child, expectedMap[key], path, imports)
+			match, err := comparison(child, expectedMap[key], path, aliases)
 			if err != nil {
 				return false, kerr.New("NNCBWVRAJC", err, "selectors.comparison", "comparison (object)")
 			}

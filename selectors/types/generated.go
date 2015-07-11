@@ -1,8 +1,8 @@
 package types
 
 import (
-	selectors "kego.io/selectors"
-	system "kego.io/system"
+	"kego.io/selectors"
+	"kego.io/system"
 	_ "kego.io/system/types"
 )
 

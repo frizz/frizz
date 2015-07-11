@@ -18,11 +18,11 @@ type Parser struct {
 	Data    *Element
 	nodes   []*node
 	path    string
-	imports map[string]string
+	aliases map[string]string
 }
 
-func CreateParser(element *Element, path string, imports map[string]string) (*Parser, error) {
-	parser := Parser{Data: element, nodes: nil, path: path, imports: imports}
+func CreateParser(element *Element, path string, aliases map[string]string) (*Parser, error) {
+	parser := Parser{Data: element, nodes: nil, path: path, aliases: aliases}
 	if err := parser.mapDocument(); err != nil {
 		return nil, kerr.New("SWLNNMSUTM", err, "selectors.CreateParser", "parser.mapDocument")
 	}
@@ -267,7 +267,7 @@ func (p *Parser) kegoProduction(value interface{}) func(*node) (bool, error) {
 	return func(n *node) (bool, error) {
 		tokenString := value.(string)
 		kegoType := tokenString[1 : len(tokenString)-1]
-		r, err := system.NewReferenceFromString(kegoType, p.path, p.imports)
+		r, err := system.NewReferenceFromString(kegoType, p.path, p.aliases)
 		if err != nil {
 			return false, kerr.New("RWDOYBBDVK", err, "selectors.kegoProduction", "NewReferenceFromString")
 		}
