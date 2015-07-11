@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"io"
 	"math"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -903,6 +902,8 @@ var mallocTest = []struct {
 
 var _ bytes.Buffer
 
+/*
+// Removed because it's always skipped in Go 1.5 because GOMAXPROCS>1
 func TestCountMallocs(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping malloc count in short mode")
@@ -916,7 +917,7 @@ func TestCountMallocs(t *testing.T) {
 			t.Errorf("%s: got %v allocs, want <=%v", mt.desc, got, max)
 		}
 	}
-}
+}*/
 
 type flagPrinter struct{}
 
