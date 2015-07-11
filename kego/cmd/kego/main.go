@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-	dir, test, recursive, verbose, path, imports, err := process.Initialise()
+	dir, update, recursive, verbose, path, aliases, err := process.Initialise()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if err := process.KegoCmd(dir, test, recursive, verbose, path, imports); err != nil {
+	if err := process.KegoCmd(dir, update, recursive, verbose, path, aliases); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
