@@ -44,5 +44,5 @@ func HasError(t TestingT, theError error, expectedId string, msgAndArgs ...inter
 			return true
 		}
 	}
-	return Fail(t, fmt.Sprintf("Didn't find error %s on stack.", expectedId), msgAndArgs...)
+	return Fail(t, fmt.Sprintf("Didn't find error %s on stack:\n%s", expectedId, theError), msgAndArgs...)
 }
