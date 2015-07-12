@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	set, err := process.Initialise()
+	set, err := process.InitialiseAutomatic()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
