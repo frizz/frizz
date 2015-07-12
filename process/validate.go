@@ -1,15 +1,11 @@
 package process
 
 import (
-	"bytes"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
-
-	"github.com/ghodss/yaml"
 
 	"fmt"
 
@@ -60,29 +56,16 @@ func Validate(set settings) error {
 
 func validateFile(filePath string, packagePath string, aliases map[string]string) error {
 
-	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
-		return nil
+	reader, closer, err := openFile(filePath)
+	if closer != nil {
+		// Note this is before the error check because an open file may be returned as well as an error.
+		defer closer.Close()
 	}
-
-	file, err := os.Open(filePath)
 	if err != nil {
-		return kerr.New("TIODJJGDCL", err, "process.validateFile", "os.Open (%s)", filePath)
+		return kerr.New("XXYPVKLNBQ", err, "process.validateFile", "openFile")
 	}
-	defer file.Close()
-
-	var reader io.Reader
-	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
-		y, err := ioutil.ReadAll(file)
-		if err != nil {
-			return kerr.New("AXNOMOAWDF", err, "process.scanFile", "ioutil.ReadAll (yml)")
-		}
-		j, err := yaml.YAMLToJSON(y)
-		if err != nil {
-			return kerr.New("FAFJCYESRH", err, "process.scanFile", "yaml.YAMLToJSON")
-		}
-		reader = bytes.NewReader(j)
-	} else {
-		reader = file
+	if reader == nil {
+		return nil
 	}
 
 	if err = validateReader(reader, packagePath, aliases); err != nil {

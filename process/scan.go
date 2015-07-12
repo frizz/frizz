@@ -123,35 +123,57 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 
 func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
 
-	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
+	reader, closer, err := openFile(filePath)
+	if closer != nil {
+		// Note this is before the error check because an open file may be returned as well as an error.
+		defer closer.Close()
+	}
+	if err != nil {
+		return kerr.New("JHSOCKOTHE", err, "process.scanFile", "openFile")
+	}
+	if reader == nil {
 		return nil
+	}
+
+	if err = scanReader(reader, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, aliases); err != nil {
+		return kerr.New("DHTURNTIXE", err, "process.scanFile", "processReader (%s)", filePath)
+	}
+	return nil
+}
+
+// openFile opens a file, optionally converts from yml to json, and returns a reader. The
+// open file is returned as a closer, and it's up to the calling function to close it. Note
+// that if the function returns an error, it may also return an open file, so you must set
+// up the deferred close before checking for the error.
+func openFile(filePath string) (io.Reader, io.Closer, error) {
+
+	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
+		return nil, nil, nil
 	}
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return kerr.New("NMWROTKPLJ", err, "process.processScannedFile", "os.Open (%s)", filePath)
+		return nil, nil, kerr.New("NMWROTKPLJ", err, "process.openFile", "os.Open (%s)", filePath)
 	}
-	defer file.Close()
 
 	var reader io.Reader
 	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
+
 		y, err := ioutil.ReadAll(file)
 		if err != nil {
-			return kerr.New("AXNOMOAWDF", err, "process.scanFile", "ioutil.ReadAll (yml)")
+			return nil, file, kerr.New("AXNOMOAWDF", err, "process.openFile", "ioutil.ReadAll (yml)")
 		}
 		j, err := yaml.YAMLToJSON(y)
 		if err != nil {
-			return kerr.New("FAFJCYESRH", err, "process.scanFile", "yaml.YAMLToJSON")
+			return nil, file, kerr.New("FAFJCYESRH", err, "process.openFile", "yaml.YAMLToJSON")
 		}
 		reader = bytes.NewReader(j)
+
 	} else {
 		reader = file
 	}
+	return reader, file, nil
 
-	if err = scanReader(reader, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, aliases); err != nil {
-		return kerr.New("DHTURNTIXE", err, "process.processScannedFile", "processReader (%s)", filePath)
-	}
-	return nil
 }
 
 func scanReader(file io.Reader, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {

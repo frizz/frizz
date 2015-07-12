@@ -63,7 +63,7 @@ func TestRules(t *testing.T) {
 
 }
 
-func TestFoo(t *testing.T) {
+func TestImport(t *testing.T) {
 
 	if testing.Short() {
 		t.Skip("Skipping long-running end-to-end tests")
@@ -80,10 +80,6 @@ func TestFoo(t *testing.T) {
 			fields:
 				text:
 					type: system:@string`,
-		"foo.yaml": `
-			type: title
-			id: foo
-			text: Heading`,
 		"page.yaml": `
 			type: system:type
 			id: page
@@ -94,9 +90,9 @@ func TestFoo(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = runKego(namespaceDir, "site", map[string]string{
-		"front.yaml": `
+		"site.yaml": `
 			type: elements:page
-			id: front
+			id: site
 			title:
 				type: elements:title
 				text: Heading`,
@@ -104,14 +100,14 @@ func TestFoo(t *testing.T) {
 			type: system:imports
 			imports:
 				%s: elements`, path),
-		"b_test.go": `
+		"site_test.go": `
 			package site
 			import (
 				"testing"
 				"kego.io/kerr/assert"
 			)
 			func TestMain(t *testing.T) {
-				assert.Equal(t, "Heading", Front.Title.Text.Value)
+				assert.Equal(t, "Heading", Site.Title.Text.Value)
 			}`,
 	})
 	assert.NoError(t, err)
@@ -122,9 +118,11 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 	runTests := false
 	for name, contents := range files {
 		if strings.HasSuffix(name, ".yaml") {
+			// our Go files are tab indented, but yaml files don't like tabs.
 			files[name] = strings.Replace(contents, "\t", "    ", -1)
 		}
 		if strings.HasSuffix(name, "_test.go") {
+			// if we add a xxx_test.go file we should also run "go test"
 			runTests = true
 		}
 	}
