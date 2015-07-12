@@ -1,4 +1,4 @@
-package selectors
+package tests
 
 import (
 	"reflect"
@@ -157,27 +157,27 @@ type Typed struct {
 }
 
 func init() {
-	json.RegisterType("kego.io/selectors", "@basic", reflect.TypeOf(&Basic_rule{}))
-	json.RegisterType("kego.io/selectors", "@c", reflect.TypeOf(&C_rule{}))
-	json.RegisterType("kego.io/selectors", "@collision", reflect.TypeOf(&Collision_rule{}))
-	json.RegisterType("kego.io/selectors", "@diagram", reflect.TypeOf(&Diagram_rule{}))
-	json.RegisterType("kego.io/selectors", "@expr", reflect.TypeOf(&Expr_rule{}))
-	json.RegisterType("kego.io/selectors", "@gallery", reflect.TypeOf(&Gallery_rule{}))
-	json.RegisterType("kego.io/selectors", "@image", reflect.TypeOf(&Image_rule{}))
-	json.RegisterType("kego.io/selectors", "@kid", reflect.TypeOf(&Kid_rule{}))
-	json.RegisterType("kego.io/selectors", "@photo", reflect.TypeOf(&Photo_rule{}))
-	json.RegisterType("kego.io/selectors", "@polykids", reflect.TypeOf(&Polykids_rule{}))
-	json.RegisterType("kego.io/selectors", "@sibling", reflect.TypeOf(&Sibling_rule{}))
-	json.RegisterType("kego.io/selectors", "@typed", reflect.TypeOf(&Typed_rule{}))
-	json.RegisterType("kego.io/selectors", "basic", reflect.TypeOf(&Basic{}))
-	json.RegisterType("kego.io/selectors", "c", reflect.TypeOf(&C{}))
-	json.RegisterType("kego.io/selectors", "collision", reflect.TypeOf(&Collision{}))
-	json.RegisterType("kego.io/selectors", "diagram", reflect.TypeOf(&Diagram{}))
-	json.RegisterType("kego.io/selectors", "expr", reflect.TypeOf(&Expr{}))
-	json.RegisterType("kego.io/selectors", "gallery", reflect.TypeOf(&Gallery{}))
-	json.RegisterType("kego.io/selectors", "kid", reflect.TypeOf(&Kid{}))
-	json.RegisterType("kego.io/selectors", "photo", reflect.TypeOf(&Photo{}))
-	json.RegisterType("kego.io/selectors", "polykids", reflect.TypeOf(&Polykids{}))
-	json.RegisterType("kego.io/selectors", "sibling", reflect.TypeOf(&Sibling{}))
-	json.RegisterType("kego.io/selectors", "typed", reflect.TypeOf(&Typed{}))
+	json.RegisterType("kego.io/selectors/tests", "@basic", reflect.TypeOf(&Basic_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@c", reflect.TypeOf(&C_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@collision", reflect.TypeOf(&Collision_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@diagram", reflect.TypeOf(&Diagram_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@expr", reflect.TypeOf(&Expr_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@gallery", reflect.TypeOf(&Gallery_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@image", reflect.TypeOf(&Image_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@kid", reflect.TypeOf(&Kid_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@photo", reflect.TypeOf(&Photo_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@polykids", reflect.TypeOf(&Polykids_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@sibling", reflect.TypeOf(&Sibling_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "@typed", reflect.TypeOf(&Typed_rule{}))
+	json.RegisterType("kego.io/selectors/tests", "basic", reflect.TypeOf(&Basic{}))
+	json.RegisterType("kego.io/selectors/tests", "c", reflect.TypeOf(&C{}))
+	json.RegisterType("kego.io/selectors/tests", "collision", reflect.TypeOf(&Collision{}))
+	json.RegisterType("kego.io/selectors/tests", "diagram", reflect.TypeOf(&Diagram{}))
+	json.RegisterType("kego.io/selectors/tests", "expr", reflect.TypeOf(&Expr{}))
+	json.RegisterType("kego.io/selectors/tests", "gallery", reflect.TypeOf(&Gallery{}))
+	json.RegisterType("kego.io/selectors/tests", "kid", reflect.TypeOf(&Kid{}))
+	json.RegisterType("kego.io/selectors/tests", "photo", reflect.TypeOf(&Photo{}))
+	json.RegisterType("kego.io/selectors/tests", "polykids", reflect.TypeOf(&Polykids{}))
+	json.RegisterType("kego.io/selectors/tests", "sibling", reflect.TypeOf(&Sibling{}))
+	json.RegisterType("kego.io/selectors/tests", "typed", reflect.TypeOf(&Typed{}))
 }

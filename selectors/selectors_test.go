@@ -12,7 +12,8 @@ import (
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	. "kego.io/selectors"
-	_ "kego.io/selectors/types"
+	_ "kego.io/selectors/tests"
+	_ "kego.io/selectors/tests/types"
 	"kego.io/system"
 )
 
@@ -23,7 +24,7 @@ var values []interface{}
 
 func getTestParser(testDocuments map[string]*Element, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
-	return CreateParser(jsonDocument, "kego.io/selectors", map[string]string{})
+	return CreateParser(jsonDocument, "kego.io/selectors/tests", map[string]string{})
 }
 
 func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliases map[string]string) {
@@ -45,7 +46,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 				continue
 			}
 			var i interface{}
-			err = kego.Unmarshal(json_document, &i, "kego.io/selectors", map[string]string{})
+			err = kego.Unmarshal(json_document, &i, "kego.io/selectors/tests", map[string]string{})
 			assert.NoError(t, err)
 
 			ob, ok := i.(system.Object)
@@ -53,7 +54,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 
 			ty, ok := ob.GetBase().Type.GetType()
 
-			r := system.NewMinimalRuleHolder(ty, "kego.io/selectors", map[string]string{})
+			r := system.NewMinimalRuleHolder(ty, "kego.io/selectors/tests", map[string]string{})
 
 			e := &Element{
 				Data:  i,
@@ -389,21 +390,21 @@ func comparison(actual *Element, expected interface{}, path string, aliases map[
 }
 
 func TestLevel1(t *testing.T) {
-	runTestsInDirectory(t, "./tests/level_1/", "kego.io/selectors", map[string]string{})
+	runTestsInDirectory(t, "./tests/level_1/", "kego.io/selectors/tests", map[string]string{})
 }
 
 func TestLevel2(t *testing.T) {
-	runTestsInDirectory(t, "./tests/level_2/", "kego.io/selectors", map[string]string{})
+	runTestsInDirectory(t, "./tests/level_2/", "kego.io/selectors/tests", map[string]string{})
 }
 
 func TestLevel3(t *testing.T) {
-	runTestsInDirectory(t, "./tests/level_3/", "kego.io/selectors", map[string]string{})
+	runTestsInDirectory(t, "./tests/level_3/", "kego.io/selectors/tests", map[string]string{})
 }
 
 func TestKego(t *testing.T) {
-	runTestsInDirectory(t, "./tests/kego/", "kego.io/selectors", map[string]string{})
+	runTestsInDirectory(t, "./tests/kego/", "kego.io/selectors/tests", map[string]string{})
 }
 
 func TestGallery(t *testing.T) {
-	runTestsInDirectory(t, "./tests/gallery/", "kego.io/selectors", map[string]string{})
+	runTestsInDirectory(t, "./tests/gallery/", "kego.io/selectors/tests", map[string]string{})
 }

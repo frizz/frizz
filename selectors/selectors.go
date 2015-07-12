@@ -11,9 +11,6 @@ import (
 	"kego.io/system"
 )
 
-// for tests
-type Image interface{}
-
 type Parser struct {
 	Data    *Element
 	nodes   []*node
