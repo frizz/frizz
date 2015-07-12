@@ -27,6 +27,7 @@ _testmain.go
 
 .DS_Store
 .idea/
-generated.go.backup
+generated-structs.go.backup
+generated-types.go.backup
 coverage.out
 validate

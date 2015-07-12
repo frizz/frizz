@@ -89,7 +89,7 @@ func TestReferenceGetType(t *testing.T) {
 	ty := &Type{
 		Base: &Base{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
 	}
-	RegisterType("a.b/c", "d", ty)
+	RegisterType("a.b/c", "d", ty, 0)
 	defer UnregisterType("a.b/c", "d")
 
 	r := NewReference("a.b/c", "d")

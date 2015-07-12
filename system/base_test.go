@@ -9,7 +9,7 @@ import (
 func TestObjectGetType(t *testing.T) {
 	ty := &Type{Base: &Base{Id: NewReference("a.b/c", "foo")}}
 
-	RegisterType("a.b/c", "t", ty)
+	RegisterType("a.b/c", "t", ty, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer UnregisterType("a.b/c", "t")

@@ -100,7 +100,10 @@ func (r *Reference) GetType() (*Type, bool) {
 	if !r.Exists {
 		return nil, false
 	}
-	return GetType(r.Package, r.Name)
+	if t, _, ok := GetType(r.Package, r.Name); ok {
+		return t, true
+	}
+	return nil, false
 }
 
 func (s Reference) NativeString() (value string, exists bool) {

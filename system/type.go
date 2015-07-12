@@ -15,16 +15,21 @@ type Validator interface {
 
 var types struct {
 	sync.RWMutex
-	m map[Reference]*Type
+	m map[Reference]typeDef
 }
 
-func RegisterType(path string, name string, typ *Type) {
+type typeDef struct {
+	Type *Type
+	Hash uint64
+}
+
+func RegisterType(path string, name string, typ *Type, hash uint64) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {
-		types.m = make(map[Reference]*Type)
+		types.m = make(map[Reference]typeDef)
 	}
-	types.m[NewReference(path, name)] = typ
+	types.m[NewReference(path, name)] = typeDef{typ, hash}
 }
 func UnregisterType(path string, name string) {
 	types.Lock()
@@ -37,16 +42,16 @@ func UnregisterType(path string, name string) {
 
 // TODO: Perhaps this should not return a pointer if it will
 // TODO: be used concurrently?
-func GetType(path string, name string) (t *Type, found bool) {
+func GetType(path string, name string) (*Type, uint64, bool) {
 	types.RLock()
 	defer types.RUnlock()
-	t, found = types.m[NewReference(path, name)]
-	return
+	if t, ok := types.m[NewReference(path, name)]; ok {
+		return t.Type, t.Hash, true
+	}
+	return nil, 0, false
 }
 
-// TODO: Perhaps this should not return pointers if it will
-// TODO: be used concurrently?
-func GetAllTypesInPackage(path string) []*Type {
+func GetAllTypesInPackage(path string) []typeDef {
 	out := SortableTypes{}
 	types.RLock()
 	defer types.RUnlock()
@@ -56,10 +61,10 @@ func GetAllTypesInPackage(path string) []*Type {
 		}
 	}
 	sort.Sort(out)
-	return []*Type(out)
+	return []typeDef(out)
 }
 
-type SortableTypes []*Type
+type SortableTypes []typeDef
 
 func (s SortableTypes) Len() int {
 	return len(s)
@@ -68,7 +73,7 @@ func (s SortableTypes) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 func (s SortableTypes) Less(i, j int) bool {
-	return s[i].Id.Value() < s[j].Id.Value()
+	return s[i].Type.Id.Value() < s[j].Type.Id.Value()
 }
 
 type nativeTypeClasses string
