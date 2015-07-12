@@ -107,53 +107,24 @@ func Test_parseOptions(t *testing.T) {
 		"b.go":   "package b",
 	})
 
-	os.Chdir(dirA)
-
-	*generatorUpdateFlag = false
-	*generatorPathFlag = ""
-	*generatorRecursiveFlag = false
-	*generatorVerboseFlag = false
-	defer func() { *generatorUpdateFlag = false }()
-	defer func() { *generatorPathFlag = "" }()
-	defer func() { *generatorRecursiveFlag = false }()
-	defer func() { *generatorVerboseFlag = false }()
+	err = os.Chdir(dirA)
+	assert.NoError(t, err)
 
 	set, err := InitialiseAutomatic()
 	assert.NoError(t, err)
 	assert.Equal(t, dirA, set.dir)
-	assert.Equal(t, false, set.update)
-	assert.Equal(t, false, set.recursive)
-	assert.Equal(t, false, set.verbose)
 	assert.Equal(t, pathA, set.path)
-	assert.Equal(t, map[string]string{}, set.aliases)
 
-	*generatorUpdateFlag = true
-	set, err = InitialiseAutomatic()
+	err = os.Chdir("/")
 	assert.NoError(t, err)
-	assert.Equal(t, true, set.update)
 
-	*generatorRecursiveFlag = true
-	set, err = InitialiseAutomatic()
-	assert.NoError(t, err)
-	assert.Equal(t, true, set.recursive)
-
-	*generatorVerboseFlag = true
-	set, err = InitialiseAutomatic()
-	assert.NoError(t, err)
-	assert.True(t, set.verbose)
-
-	os.Chdir("/")
-
-	*generatorPathFlag = pathB
-	set, err = InitialiseAutomatic()
+	set, err = InitialiseManually(false, false, false, pathB)
 	assert.NoError(t, err)
 	assert.Equal(t, dirB, set.dir)
 	assert.Equal(t, pathB, set.path)
 
-	*generatorPathFlag = ""
-	_, err = InitialiseAutomatic()
-	assert.IsError(t, err, "UKAMOSMQST")
-	assert.HasError(t, err, "PSRAWHQCPV")
+	_, err = InitialiseManually(false, false, false, "")
+	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }
 

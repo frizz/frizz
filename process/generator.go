@@ -23,11 +23,6 @@ const (
 	F_CMD_VALIDATE          = "cmd_validate"
 )
 
-var generatorUpdateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
-var generatorPathFlag = flag.String("p", "", "Package: full package path e.g. github.com/foo/bar")
-var generatorRecursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
-var generatorVerboseFlag = flag.Bool("v", false, "Verbose")
-
 type settings struct {
 	dir       string
 	update    bool
@@ -88,11 +83,16 @@ func InitialiseManually(update bool, recursive bool, verbose bool, path string) 
 
 func InitialiseAutomatic() (settings, error) {
 
+	var pathFlag = flag.String("p", "", "Package: full package path e.g. github.com/foo/bar")
+	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
+	var recursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
+	var verboseFlag = flag.Bool("v", false, "Verbose")
+
 	if !flag.Parsed() {
 		flag.Parse()
 	}
 
-	set, err := InitialiseManually(*generatorUpdateFlag, *generatorRecursiveFlag, *generatorVerboseFlag, *generatorPathFlag)
+	set, err := InitialiseManually(*updateFlag, *recursiveFlag, *verboseFlag, *pathFlag)
 	if err != nil {
 		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
 	}
