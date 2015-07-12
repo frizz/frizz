@@ -32,12 +32,12 @@ func Generate(file fileType, path string, aliases map[string]string) (source []b
 		}
 		g.Print(`
 			func main() {
-				dir, update, recursive, verbose, path, aliases, err := process.Initialise()
+				set, err := process.Initialise()
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				if err := process.GenerateFiles(process.F_MAIN, dir, update, recursive, verbose, path, aliases); err != nil {
+				if err := process.GenerateFiles(process.F_MAIN, set); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -59,16 +59,16 @@ func Generate(file fileType, path string, aliases map[string]string) (source []b
 		}
 		g.Print(`
 			func main() {
-				dir, update, recursive, verbose, path, aliases, err := process.Initialise()
+				set, err := process.Initialise()
 				if err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.GenerateFiles(process.F_TYPES, dir, update, recursive, verbose, path, aliases); err != nil {
+				if err := process.GenerateFiles(process.F_TYPES, set); err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.GenerateFiles(process.F_GLOBALS, dir, update, recursive, verbose, path, aliases); err != nil {
+				if err := process.GenerateFiles(process.F_GLOBALS, set); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -90,12 +90,12 @@ func Generate(file fileType, path string, aliases map[string]string) (source []b
 		}
 		g.Print(`
 			func main() {
-				dir, _, recursive, verbose, path, aliases, err := process.Initialise()
+				set, err := process.Initialise()
 				if err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.Validate(dir, recursive, verbose, path, aliases); err != nil {
+				if err := process.Validate(set); err != nil {
 					if u, ok := err.(kerr.UniqueError); ok {
 						if m, ok := u.Source().(process.ValidationError); ok {
 							fmt.Println("Error: ", m.Message)

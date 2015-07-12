@@ -10,12 +10,7 @@ func getPackageName(path string) string {
 	if err != nil {
 		return guessPackageName(path)
 	}
-	//output ends in \n
-	name := string(output)
-	if strings.HasSuffix(name, "\n") {
-		name = name[:len(name)-1]
-	}
-	return name
+	return strings.TrimSpace(string(output))
 }
 
 func guessPackageName(path string) string {

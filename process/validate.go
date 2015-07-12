@@ -19,9 +19,9 @@ import (
 	"kego.io/system"
 )
 
-func Validate(root string, recursive bool, verbose bool, packagePath string, aliases map[string]string) error {
+func Validate(set settings) error {
 
-	if verbose {
+	if set.verbose {
 		fmt.Println("Validating...")
 	}
 
@@ -29,29 +29,29 @@ func Validate(root string, recursive bool, verbose bool, packagePath string, ali
 		if err != nil {
 			return kerr.New("GFBBIERGIY", err, "process.Validate", "walker (%s)", filePath)
 		}
-		if err := validateFile(filePath, packagePath, aliases); err != nil {
+		if err := validateFile(filePath, set.path, set.aliases); err != nil {
 			return kerr.New("QJGXAUKPTI", err, "process.Validate", "validateFile (%s)", filePath)
 		}
 		return nil
 	}
 
-	if recursive {
-		if err := filepath.Walk(root, walker); err != nil {
+	if set.recursive {
+		if err := filepath.Walk(set.dir, walker); err != nil {
 			return kerr.New("GCKFJQJUXK", err, "process.Validate", "filepath.Walk")
 		}
 	} else {
-		files, err := ioutil.ReadDir(root)
+		files, err := ioutil.ReadDir(set.dir)
 		if err != nil {
 			return kerr.New("RJXRHBYVUW", err, "process.Validate", "ioutil.ReadDir")
 		}
 		for _, f := range files {
-			if err := walker(filepath.Join(root, f.Name()), f, nil); err != nil {
+			if err := walker(filepath.Join(set.dir, f.Name()), f, nil); err != nil {
 				return kerr.New("UJBOWKFUMS", err, "process.Validate", "walker")
 			}
 		}
 	}
 
-	if verbose {
+	if set.verbose {
 		fmt.Println("OK")
 	}
 

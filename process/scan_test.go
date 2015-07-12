@@ -33,7 +33,7 @@ func TestScan(t *testing.T) {
 	err = ioutil.WriteFile(f, []byte(test), 0644)
 	assert.NoError(t, err)
 
-	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
+	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: false})
 	assert.NoError(t, err)
 	ty, ok := system.GetType("d.e/f", "b")
 	assert.True(t, ok)
@@ -76,7 +76,7 @@ func TestScan_rule(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(f)
 
-	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
+	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: false})
 	assert.NoError(t, err)
 	ty, ok := system.GetType("d.e/f", "b")
 	assert.True(t, ok)
@@ -86,10 +86,10 @@ func TestScan_rule(t *testing.T) {
 
 func TestScan_errors(t *testing.T) {
 
-	err := ScanForTypes("/this-folder-doesnt-exist", false, true, "", map[string]string{})
+	err := ScanForTypes(false, settings{dir: "/this-folder-doesnt-exist", recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
-	err = ScanForTypes("/this-folder-doesnt-exist", false, false, "", map[string]string{})
+	err = ScanForTypes(false, settings{dir: "/this-folder-doesnt-exist", recursive: false})
 	assert.IsError(t, err, "CDYLDBLHKT")
 
 	d, err := ioutil.TempDir("", "temporary")
@@ -101,11 +101,11 @@ func TestScan_errors(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(f)
 
-	err = ScanForTypes(d, false, true, "d.e/f", map[string]string{})
+	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 	assert.HasError(t, err, "DHTURNTIXE")
 
-	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
+	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: false})
 	assert.IsError(t, err, "IAPRUHFTAD")
 	assert.HasError(t, err, "DHTURNTIXE")
 

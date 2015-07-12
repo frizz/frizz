@@ -77,6 +77,6 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, imp, "_ \"kego.io/system\"\n")
 	assert.Contains(t, imp, "_ \"kego.io/system/types\"\n")
 	assert.Contains(t, imp, "\"os\"\n")
-	assert.Contains(t, string(source), "process.GenerateFiles(process.F_TYPES, dir, update, recursive, verbose, path, aliases)")
+	assert.Contains(t, string(source), "process.GenerateFiles(process.F_TYPES, set)")
 
 }

@@ -30,7 +30,7 @@ func Validate_NeedsTypes(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(aFile)
 
-	err = Validate(d, false, false, "d.e/f", map[string]string{})
+	err = Validate(settings{dir: d, path: "d.e/f"})
 	assert.NoError(t, err)
 }
 func TestValidate_error1(t *testing.T) {
@@ -56,35 +56,8 @@ func TestValidate_error1(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(bFile)
 
-	err = Validate(d, false, false, "d.e/f", map[string]string{})
+	err = Validate(settings{dir: d, path: "d.e/f"})
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "DCIARXKRXN")
-
-}
-
-func TestValidate_error2(t *testing.T) {
-
-	err := ScanForTypes("/this-folder-doesnt-exist", false, true, "", map[string]string{})
-	assert.IsError(t, err, "XHHQSAVCKK")
-
-	err = ScanForTypes("/this-folder-doesnt-exist", false, false, "", map[string]string{})
-	assert.IsError(t, err, "CDYLDBLHKT")
-
-	d, err := ioutil.TempDir("", "temporary")
-	assert.NoError(t, err)
-	defer os.Remove(d)
-
-	f := filepath.Join(d, "a.json")
-	err = ioutil.WriteFile(f, []byte("foo"), 0644)
-	assert.NoError(t, err)
-	defer os.Remove(f)
-
-	err = ScanForTypes(d, false, true, "d.e/f", map[string]string{})
-	assert.IsError(t, err, "XHHQSAVCKK")
-	assert.HasError(t, err, "DHTURNTIXE")
-
-	err = ScanForTypes(d, false, false, "d.e/f", map[string]string{})
-	assert.IsError(t, err, "IAPRUHFTAD")
-	assert.HasError(t, err, "DHTURNTIXE")
 
 }

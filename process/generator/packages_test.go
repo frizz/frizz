@@ -29,21 +29,20 @@ func TestGuessPackageName(t *testing.T) {
 
 func TestGetPackageName(t *testing.T) {
 
-	currentDir, namespaceDir, err := pkgtest.CreateTemporaryNamespace()
+	dir, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
-	defer os.RemoveAll(namespaceDir)
+	defer os.RemoveAll(dir)
 
-	packagePath, err := pkgtest.CreateTemporaryPackage(namespaceDir, "a", map[string]string{})
+	path, _, err := pkgtest.CreateTemporaryPackage(dir, "a", map[string]string{})
 	assert.NoError(t, err)
-	name := getPackageName(packagePath)
+	name := getPackageName(path)
 	assert.Equal(t, "a", name)
 
-	packagePath, err = pkgtest.CreateTemporaryPackage(namespaceDir, "b", map[string]string{
+	path, _, err = pkgtest.CreateTemporaryPackage(dir, "b", map[string]string{
 		"foo.go": "package c",
 	})
 	assert.NoError(t, err)
-	name = getPackageName(packagePath)
+	name = getPackageName(path)
 	assert.Equal(t, "c", name)
 
 }

@@ -9,44 +9,23 @@ import (
 	"path/filepath"
 
 	"kego.io/kerr/assert"
+	"kego.io/process/internal/pkgtest"
 )
 
 func TestGenerateFiles_path(t *testing.T) {
 
-	currentDir, err := os.Getwd()
+	namespace, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
+	defer os.RemoveAll(namespace)
 
-	dir, err := ioutil.TempDir(currentDir, "temporary")
-	assert.NoError(t, err)
-	defer os.RemoveAll(dir)
+	path, dir, err := pkgtest.CreateTemporaryPackage(namespace, "z", map[string]string{
+		"a.json": `{"type": "system:type", "id": "a"}`,
+	})
 
-	currentGopath := os.Getenv("GOPATH")
-	defer os.Setenv("GOPATH", currentGopath)
-	os.Setenv("GOPATH", dir)
-
-	// in this case, the package name is not the same as the
-	// folder, so we must use the path flag
-	pkgDir := filepath.Join(dir, "src", "x.y", "funnyfolder")
-	os.MkdirAll(pkgDir, 0777)
-
-	os.Chdir(pkgDir)
-
-	data := `{"type": "system:type", "id": "a"}`
-	err = ioutil.WriteFile(filepath.Join(pkgDir, "a.json"), []byte(data), 0777)
+	err = GenerateFiles(F_MAIN, settings{dir: dir, path: path})
 	assert.NoError(t, err)
 
-	// we correct the path by setting the path flag
-	defer func() { *generatorPathFlag = "" }()
-	*generatorPathFlag = "x.y/z"
-
-	dir, update, recursive, verbose, path, aliases, err := Initialise()
-	assert.NoError(t, err)
-
-	err = GenerateFiles(F_MAIN, dir, update, recursive, verbose, path, aliases)
-	assert.NoError(t, err)
-
-	genBytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "generated.go"))
+	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "package z\n")
 
@@ -54,101 +33,55 @@ func TestGenerateFiles_path(t *testing.T) {
 
 func TestGenerateAndRunCmd(t *testing.T) {
 
-	currentDir, err := os.Getwd()
+	namespace, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
+	defer os.RemoveAll(namespace)
 
-	dir, err := ioutil.TempDir(currentDir, "temporary")
-	assert.NoError(t, err)
-	defer os.RemoveAll(dir)
+	path, dir, err := pkgtest.CreateTemporaryPackage(namespace, "d", map[string]string{
+		"a.json": `{"type": "system:type", "id": "a"}`,
+		"d.go":   `package d`,
+	})
 
-	currentGopath := os.Getenv("GOPATH")
-	defer os.Setenv("GOPATH", currentGopath)
-	// with this test, we will be compiling and executing
-	// the temporary command, so we still need access to the
-	// real gopath
-	newGopath := strings.Join([]string{currentGopath, dir}, string(os.PathListSeparator))
-	os.Setenv("GOPATH", newGopath)
-
-	pkgDir := filepath.Join(dir, "src", "b.c", "d")
-	os.MkdirAll(pkgDir, 0777)
-
-	os.Chdir(pkgDir)
-
-	data := `{"type": "system:type", "id": "a"}`
-	err = ioutil.WriteFile(filepath.Join(pkgDir, "a.json"), []byte(data), 0777)
+	err = GenerateAndRunCmd(F_CMD_TYPES, settings{dir: dir, path: path})
 	assert.NoError(t, err)
 
-	err = ioutil.WriteFile(filepath.Join(pkgDir, "d.go"), []byte("package d"), 0777)
-	assert.NoError(t, err)
-
-	dir, update, recursive, verbose, path, aliases, err := Initialise()
-	assert.NoError(t, err)
-
-	err = GenerateAndRunCmd(F_CMD_TYPES, dir, update, recursive, verbose, path, aliases)
-	assert.NoError(t, err)
-
-	bytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "types", "generated.go"))
+	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated.go"))
 	assert.NoError(t, err)
 	source := string(bytes)
 	assert.Contains(t, source, "system.RegisterType")
-
 }
 
 func TestGenerateFiles(t *testing.T) {
 
-	currentDir, err := os.Getwd()
+	namespace, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
+	defer os.RemoveAll(namespace)
 
-	dir, err := ioutil.TempDir(currentDir, "temporary")
-	assert.NoError(t, err)
-	defer os.RemoveAll(dir)
+	path, dir, err := pkgtest.CreateTemporaryPackage(namespace, "d", map[string]string{
+		"a.json": `{"type": "system:type", "id": "a"}`,
+		"b.json": `{"type": "c", "id": "b"}`,
+		"d.go":   `package d`,
+	})
 
-	currentGopath := os.Getenv("GOPATH")
-	defer os.Setenv("GOPATH", currentGopath)
-	os.Setenv("GOPATH", dir)
-
-	pkgDir := filepath.Join(dir, "src", "e.f", "g")
-	os.MkdirAll(pkgDir, 0777)
-
-	os.Chdir("/")
-
-	dir, update, recursive, _, path, aliases, err := Initialise()
-	assert.IsError(t, err, "PSRAWHQCPV")
-	assert.HasError(t, err, "CXOETFPTGM")
-
-	os.Chdir(pkgDir)
-
-	dir, update, recursive, _, path, aliases, err = Initialise()
+	set := settings{dir: dir, path: path}
+	err = GenerateFiles(F_MAIN, set)
 	assert.NoError(t, err)
 
-	data := `{"type": "system:type", "id": "a"}`
-	err = ioutil.WriteFile(filepath.Join(pkgDir, "a.json"), []byte(data), 0777)
-	assert.NoError(t, err)
-
-	data = `{"type": "c", "id": "b"}`
-	err = ioutil.WriteFile(filepath.Join(pkgDir, "b.json"), []byte(data), 0777)
-	assert.NoError(t, err)
-
-	err = GenerateFiles(F_MAIN, dir, update, recursive, false, path, aliases)
-	assert.NoError(t, err)
-
-	genBytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "generated.go"))
+	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "json.RegisterType")
 
 	// This will error because of unknown types in b.json
-	err = GenerateFiles(F_TYPES, dir, update, recursive, false, path, aliases)
+	err = GenerateFiles(F_TYPES, set)
 	assert.IsError(t, err, "XYIUHERDHE")
 	assert.HasError(t, err, "FKCPTUWJWW")
 
-	os.Remove(filepath.Join(pkgDir, "b.json"))
+	os.Remove(filepath.Join(dir, "b.json"))
 
-	err = GenerateFiles(F_TYPES, dir, update, recursive, false, path, aliases)
+	err = GenerateFiles(F_TYPES, set)
 	assert.NoError(t, err)
 
-	bytes, err := ioutil.ReadFile(filepath.Join(pkgDir, "types", "generated.go"))
+	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated.go"))
 	assert.NoError(t, err)
 	source := string(bytes)
 	assert.Contains(t, source, "system.RegisterType")
@@ -157,73 +90,100 @@ func TestGenerateFiles(t *testing.T) {
 
 func Test_parseOptions(t *testing.T) {
 
-	currentDir, err := os.Getwd()
+	current, err := os.Getwd()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
+	defer os.Chdir(current)
 
-	dir, err := ioutil.TempDir(currentDir, "temporary")
+	namespace, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.RemoveAll(dir)
+	defer os.RemoveAll(namespace)
 
-	currentGopath := os.Getenv("GOPATH")
-	defer os.Setenv("GOPATH", currentGopath)
-	os.Setenv("GOPATH", dir)
+	pathA, dirA, err := pkgtest.CreateTemporaryPackage(namespace, "a", map[string]string{
+		"a.json": `{"type": "system:type", "id": "a"}`,
+		"a.go":   "package a",
+	})
+	pathB, dirB, err := pkgtest.CreateTemporaryPackage(namespace, "b", map[string]string{
+		"b.json": `{"type": "system:type", "id": "b"}`,
+		"b.go":   "package b",
+	})
 
-	pkgDir := filepath.Join(dir, "src", "x.y", "z")
-	os.MkdirAll(pkgDir, 0777)
+	os.Chdir(dirA)
 
-	os.Chdir(pkgDir)
-
-	dir, update, recursive, verbose, path, aliases, err := Initialise()
-	assert.NoError(t, err)
-	assert.Equal(t, pkgDir, dir)
-	assert.Equal(t, false, update)
-	assert.Equal(t, false, recursive)
-	assert.Equal(t, false, verbose)
-	assert.Equal(t, "x.y/z", path)
-	assert.Equal(t, map[string]string{}, aliases)
-
+	*generatorUpdateFlag = false
+	*generatorPathFlag = ""
+	*generatorRecursiveFlag = false
+	*generatorVerboseFlag = false
 	defer func() { *generatorUpdateFlag = false }()
-	*generatorUpdateFlag = true
-	_, update, _, _, _, _, err = Initialise()
-	assert.NoError(t, err)
-	assert.Equal(t, true, update)
-
-	defer func() { *generatorRecursiveFlag = false }()
-	*generatorRecursiveFlag = true
-	_, _, recursive, _, _, _, err = Initialise()
-	assert.NoError(t, err)
-	assert.Equal(t, true, recursive)
-
 	defer func() { *generatorPathFlag = "" }()
-	*generatorPathFlag = "a.b/c"
-	_, _, _, _, path, _, err = Initialise()
-	assert.NoError(t, err)
-	assert.Equal(t, "a.b/c", path)
-
+	defer func() { *generatorRecursiveFlag = false }()
 	defer func() { *generatorVerboseFlag = false }()
-	*generatorVerboseFlag = true
-	_, _, _, verbose, _, _, err = Initialise()
+
+	set, err := Initialise()
 	assert.NoError(t, err)
-	assert.True(t, verbose)
+	assert.Equal(t, dirA, set.dir)
+	assert.Equal(t, false, set.update)
+	assert.Equal(t, false, set.recursive)
+	assert.Equal(t, false, set.verbose)
+	assert.Equal(t, pathA, set.path)
+	assert.Equal(t, map[string]string{}, set.aliases)
+
+	*generatorUpdateFlag = true
+	set, err = Initialise()
+	assert.NoError(t, err)
+	assert.Equal(t, true, set.update)
+
+	*generatorRecursiveFlag = true
+	set, err = Initialise()
+	assert.NoError(t, err)
+	assert.Equal(t, true, set.recursive)
+
+	*generatorVerboseFlag = true
+	set, err = Initialise()
+	assert.NoError(t, err)
+	assert.True(t, set.verbose)
+
+	os.Chdir("/")
+
+	*generatorPathFlag = pathB
+	set, err = Initialise()
+	assert.NoError(t, err)
+	assert.Equal(t, dirB, set.dir)
+	assert.Equal(t, pathB, set.path)
 
 	*generatorPathFlag = ""
-	os.Chdir("/")
-	defer os.Chdir(currentDir)
-	_, _, _, _, _, _, err = Initialise()
+	_, err = Initialise()
 	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }
 
-func TestGetPackage(t *testing.T) {
+func TestGetPackagePath(t *testing.T) {
 	gopath := "/Users/dave/go"
 	dir := "/Users/dave/go/src/github.com/foo/bar"
-	pkg, err := getPackage(dir, gopath)
+	pkg, err := getPackagePath(dir, gopath)
 	assert.NoError(t, err)
 	assert.Equal(t, "github.com/foo/bar", pkg)
 
 	gopath = strings.Join([]string{"/Users/another/path", "/Users/dave/go", "/one/more"}, string(os.PathListSeparator))
-	pkg, err = getPackage(dir, gopath)
+	pkg, err = getPackagePath(dir, gopath)
 	assert.NoError(t, err)
 	assert.Equal(t, "github.com/foo/bar", pkg)
+}
+
+func TestGetDir(t *testing.T) {
+	current, err := os.Getwd()
+	assert.NoError(t, err)
+	defer os.Chdir(current)
+
+	namespace, err := pkgtest.CreateTemporaryNamespace()
+	assert.NoError(t, err)
+	defer os.RemoveAll(namespace)
+
+	pathA, dirA, err := pkgtest.CreateTemporaryPackage(namespace, "a", nil)
+
+	dir, err := getPackageDir(pathA, os.Getenv("GOPATH"))
+	assert.NoError(t, err)
+	assert.Equal(t, dirA, dir)
+
+	dir, err = getPackageDir("a.b/c", os.Getenv("GOPATH"))
+	assert.IsError(t, err, "SUTCWEVRXS")
 }

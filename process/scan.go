@@ -17,9 +17,9 @@ import (
 	"kego.io/system"
 )
 
-func ScanForAliases(root string, recursive bool, packagePath string) (aliases map[string]string, err error) {
+func ScanForAliases(set settings) (map[string]string, error) {
 
-	aliases = map[string]string{}
+	aliases := map[string]string{}
 
 	scanner := func(ob interface{}) error {
 		if i, ok := ob.(*system.Imports); ok {
@@ -29,11 +29,13 @@ func ScanForAliases(root string, recursive bool, packagePath string) (aliases ma
 		}
 		return nil
 	}
-	err = scanPath(root, true, true, recursive, scanner, packagePath, map[string]string{})
-	return
+	if err := scanPath(true, true, scanner, set); err != nil {
+		return nil, err
+	}
+	return aliases, nil
 }
 
-func ScanForGlobals(root string, recursive bool, packagePath string, aliases map[string]string) error {
+func ScanForGlobals(set settings) error {
 	scanner := func(i interface{}) error {
 		if _, ok := i.(*system.Type); ok {
 			return nil
@@ -50,10 +52,10 @@ func ScanForGlobals(root string, recursive bool, packagePath string, aliases map
 		system.RegisterGlobal(b.Id.Package, b.Id.Name, o)
 		return nil
 	}
-	return scanPath(root, false, false, recursive, scanner, packagePath, aliases)
+	return scanPath(false, false, scanner, set)
 }
 
-func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packagePath string, aliases map[string]string) error {
+func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	scanner := func(ob interface{}) error {
 		if t, ok := ob.(*system.Type); ok {
 
@@ -66,7 +68,7 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 			} else {
 
 				// If the rule is missing, automatically create a default.
-				ref := system.NewReference(packagePath, fmt.Sprintf("@%s", t.Id.Name))
+				ref := system.NewReference(set.path, fmt.Sprintf("@%s", t.Id.Name))
 				rule := &system.Type{
 					Base: &system.Base{
 						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
@@ -85,32 +87,32 @@ func ScanForTypes(root string, ignoreUnknownTypes bool, recursive bool, packageP
 		}
 		return nil
 	}
-	return scanPath(root, ignoreUnknownTypes, false, recursive, scanner, packagePath, aliases)
+	return scanPath(ignoreUnknownTypes, false, scanner, set)
 }
 
-func scanPath(root string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, recursive bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
+func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, set settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, aliases); err != nil {
+		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, set.path, set.aliases); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
 	}
 
-	if recursive {
-		if err := filepath.Walk(root, walker); err != nil {
+	if set.recursive {
+		if err := filepath.Walk(set.dir, walker); err != nil {
 			return kerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
 		}
 	} else {
-		files, err := ioutil.ReadDir(root)
+		files, err := ioutil.ReadDir(set.dir)
 		if err != nil {
 			return kerr.New("CDYLDBLHKT", err, "process.Scan", "ioutil.ReadDir")
 		}
 		for _, f := range files {
-			if err := walker(filepath.Join(root, f.Name()), f, nil); err != nil {
+			if err := walker(filepath.Join(set.dir, f.Name()), f, nil); err != nil {
 				return kerr.New("IAPRUHFTAD", err, "process.Scan", "walker")
 			}
 		}

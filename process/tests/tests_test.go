@@ -18,12 +18,11 @@ func TestRules(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	currentDir, namespaceDir, err := pkgtest.CreateTemporaryNamespace()
+	namespace, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
-	defer os.RemoveAll(namespaceDir)
+	defer os.RemoveAll(namespace)
 
-	_, err = runKego(namespaceDir, "a", map[string]string{
+	_, err = runKego(namespace, "a", map[string]string{
 		"gallery.yaml": `
 			type: system:type
 			id: gallery
@@ -42,7 +41,7 @@ func TestRules(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	_, err = runKego(namespaceDir, "b", map[string]string{
+	_, err = runKego(namespace, "b", map[string]string{
 		"gallery.yaml": `
 			type: system:type
 			id: gallery
@@ -70,9 +69,8 @@ func TestFoo(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	currentDir, namespaceDir, err := pkgtest.CreateTemporaryNamespace()
+	namespaceDir, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Chdir(currentDir)
 	defer os.RemoveAll(namespaceDir)
 
 	path, err := runKego(namespaceDir, "elements", map[string]string{
@@ -119,7 +117,7 @@ func TestFoo(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func runKego(namespaceDir string, packageDir string, files map[string]string) (string, error) {
+func runKego(namespace string, name string, files map[string]string) (string, error) {
 
 	runTests := false
 	for name, contents := range files {
@@ -131,25 +129,28 @@ func runKego(namespaceDir string, packageDir string, files map[string]string) (s
 		}
 	}
 
-	_, err := pkgtest.CreateTemporaryPackage(namespaceDir, packageDir, files)
+	path, _, err := pkgtest.CreateTemporaryPackage(namespace, name, files)
 	if err != nil {
 		return "", err
 	}
 
-	dir, update, recursive, verbose, path, aliases, err := process.Initialise()
+	process.SetPathFlag(path)
+	defer process.SetPathFlag("")
+
+	set, err := process.Initialise()
 	if err != nil {
 		return "", err
 	}
 
-	if err := process.KegoCmd(dir, update, recursive, verbose, path, aliases); err != nil {
+	if err := process.KegoCmd(set); err != nil {
 		return "", err
 	}
 
 	if runTests {
-		if out, err := exec.Command("go", "test").CombinedOutput(); err != nil {
+		if out, err := exec.Command("go", "test", path).CombinedOutput(); err != nil {
 			return "", fmt.Errorf("%s", string(out))
 		}
 	}
 
-	return path, nil
+	return set.Path(), nil
 }
