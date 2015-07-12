@@ -25,7 +25,7 @@ func TestGenerateFiles_path(t *testing.T) {
 	err = GenerateFiles(F_MAIN, settings{dir: dir, path: path})
 	assert.NoError(t, err)
 
-	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
+	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated-structs.go"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "package z\n")
 
@@ -45,7 +45,7 @@ func TestGenerateAndRunCmd(t *testing.T) {
 	err = GenerateAndRunCmd(F_CMD_TYPES, settings{dir: dir, path: path})
 	assert.NoError(t, err)
 
-	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated.go"))
+	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
 	assert.NoError(t, err)
 	source := string(bytes)
 	assert.Contains(t, source, "system.RegisterType")
@@ -67,7 +67,7 @@ func TestGenerateFiles(t *testing.T) {
 	err = GenerateFiles(F_MAIN, set)
 	assert.NoError(t, err)
 
-	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
+	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated-structs.go"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "json.RegisterType")
 
@@ -81,7 +81,7 @@ func TestGenerateFiles(t *testing.T) {
 	err = GenerateFiles(F_TYPES, set)
 	assert.NoError(t, err)
 
-	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated.go"))
+	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
 	assert.NoError(t, err)
 	source := string(bytes)
 	assert.Contains(t, source, "system.RegisterType")
@@ -118,7 +118,7 @@ func Test_parseOptions(t *testing.T) {
 	defer func() { *generatorRecursiveFlag = false }()
 	defer func() { *generatorVerboseFlag = false }()
 
-	set, err := Initialise()
+	set, err := InitialiseAutomatic()
 	assert.NoError(t, err)
 	assert.Equal(t, dirA, set.dir)
 	assert.Equal(t, false, set.update)
@@ -128,31 +128,32 @@ func Test_parseOptions(t *testing.T) {
 	assert.Equal(t, map[string]string{}, set.aliases)
 
 	*generatorUpdateFlag = true
-	set, err = Initialise()
+	set, err = InitialiseAutomatic()
 	assert.NoError(t, err)
 	assert.Equal(t, true, set.update)
 
 	*generatorRecursiveFlag = true
-	set, err = Initialise()
+	set, err = InitialiseAutomatic()
 	assert.NoError(t, err)
 	assert.Equal(t, true, set.recursive)
 
 	*generatorVerboseFlag = true
-	set, err = Initialise()
+	set, err = InitialiseAutomatic()
 	assert.NoError(t, err)
 	assert.True(t, set.verbose)
 
 	os.Chdir("/")
 
 	*generatorPathFlag = pathB
-	set, err = Initialise()
+	set, err = InitialiseAutomatic()
 	assert.NoError(t, err)
 	assert.Equal(t, dirB, set.dir)
 	assert.Equal(t, pathB, set.path)
 
 	*generatorPathFlag = ""
-	_, err = Initialise()
-	assert.IsError(t, err, "PSRAWHQCPV")
+	_, err = InitialiseAutomatic()
+	assert.IsError(t, err, "UKAMOSMQST")
+	assert.HasError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }
 

@@ -1,7 +1,6 @@
 package process
 
 import (
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,7 +24,7 @@ func Validate(set settings) error {
 		if err != nil {
 			return kerr.New("GFBBIERGIY", err, "process.Validate", "walker (%s)", filePath)
 		}
-		if err := validateFile(filePath, set.path, set.aliases); err != nil {
+		if err := validateFile(filePath, set); err != nil {
 			return kerr.New("QJGXAUKPTI", err, "process.Validate", "validateFile (%s)", filePath)
 		}
 		return nil
@@ -54,29 +53,25 @@ func Validate(set settings) error {
 	return nil
 }
 
-func validateFile(filePath string, packagePath string, aliases map[string]string) error {
+func validateFile(filePath string, set settings) error {
 
-	reader, closer, err := openFile(filePath)
-	if closer != nil {
-		// Note this is before the error check because an open file may be returned as well as an error.
-		defer closer.Close()
-	}
+	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
 		return kerr.New("XXYPVKLNBQ", err, "process.validateFile", "openFile")
 	}
-	if reader == nil {
+	if bytes == nil {
 		return nil
 	}
 
-	if err = validateReader(reader, packagePath, aliases); err != nil {
+	if err = validateBytes(bytes, hash, set); err != nil {
 		return kerr.New("GFVGDBDTNQ", err, "process.validateFile", "validateReader (%s)", filePath)
 	}
 	return nil
 }
 
-func validateReader(file io.Reader, packagePath string, aliases map[string]string) error {
+func validateBytes(bytes []byte, hash uint64, set settings) error {
 	var i interface{}
-	err := json.NewDecoder(file, packagePath, aliases).Decode(&i)
+	err := json.Unmarshal(bytes, &i, set.path, set.aliases)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "process.validateReader", "json.NewDecoder: unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
@@ -84,21 +79,32 @@ func validateReader(file io.Reader, packagePath string, aliases map[string]strin
 	} else if err != nil {
 		return kerr.New("QIVNOQKCQF", err, "process.validateReader", "json.NewDecoder.Decode")
 	}
-	if err := validateUnknown(i, packagePath, aliases); err != nil {
+	if err := validateUnknown(i, hash, set.path, set.aliases); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "process.validateReader", "validateUnknown")
 	}
 	return nil
 }
 
-func validateUnknown(data interface{}, path string, aliases map[string]string) error {
+func validateUnknown(data interface{}, hash uint64, path string, aliases map[string]string) error {
 
 	ob, ok := data.(system.Object)
 	if !ok {
 		return kerr.New("RSSFIFHCOF", nil, "process.validateUnknown", "data %T does not implement system.Object", data)
 	}
+
+	if ty, ok := ob.(*system.Type); ok {
+		_, h, ok := system.GetType(ty.Id.Package, ty.Id.Name)
+		if !ok {
+			return ValidationError{fmt.Sprintf("New type %s found - you should run kego again to compile", ty.Id.Value())}
+		}
+		if hash != h {
+			return ValidationError{fmt.Sprintf("Type %s has changed - you should run kego again to compile", ty.Id.Value())}
+		}
+	}
+
 	t, ok := ob.GetBase().Type.GetType()
 	if !ok {
-		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "Type.GetType not found")
+		return kerr.New("BNQTCEDVGV", nil, "process.validateUnknown", "Type.GetType %s not found", ob.GetBase().Type.Value())
 	}
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t, path, aliases)

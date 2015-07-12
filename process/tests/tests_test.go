@@ -132,10 +132,7 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		return "", err
 	}
 
-	process.SetPathFlag(path)
-	defer process.SetPathFlag("")
-
-	set, err := process.Initialise()
+	set, err := process.InitialiseManually(false, false, false, path)
 	if err != nil {
 		return "", err
 	}

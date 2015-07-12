@@ -34,10 +34,10 @@ func TestFormatTag(t *testing.T) {
 	ruleType := &system.Type{
 		Base: &system.Base{Id: system.NewReference("a.b/c", "@a"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}))
-	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}))
-	system.RegisterType("a.b/c", "a", parentType)
-	system.RegisterType("a.b/c", "@a", ruleType)
+	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}), 0)
+	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), 0)
+	system.RegisterType("a.b/c", "a", parentType, 0)
+	system.RegisterType("a.b/c", "@a", ruleType, 0)
 	defer json.UnregisterType("a.b/c", "a")
 	defer json.UnregisterType("a.b/c", "@a")
 	defer system.UnregisterType("a.b/c", "a")
@@ -128,15 +128,15 @@ func TestGetTag(t *testing.T) {
 	ruleType := &system.Type{
 		Base: &system.Base{Id: system.NewReference("a.b/c", "@a"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStructA{}))
-	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStructB{}))
-	json.RegisterType("a.b/c", "@c", reflect.TypeOf(&ruleStructC{}))
-	json.RegisterType("a.b/c", "@d", reflect.TypeOf(&ruleStructD{}))
-	json.RegisterType("a.b/c", "@e", reflect.TypeOf(&ruleStructE{}))
+	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStructA{}), 0)
+	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStructB{}), 0)
+	json.RegisterType("a.b/c", "@c", reflect.TypeOf(&ruleStructC{}), 0)
+	json.RegisterType("a.b/c", "@d", reflect.TypeOf(&ruleStructD{}), 0)
+	json.RegisterType("a.b/c", "@e", reflect.TypeOf(&ruleStructE{}), 0)
 	for _, letter := range []string{"a", "b", "c", "d", "e"} {
-		json.RegisterType("a.b/c", letter, reflect.TypeOf(&parentStruct{}))
-		system.RegisterType("a.b/c", letter, parentType)
-		system.RegisterType("a.b/c", fmt.Sprintf("@%s", letter), ruleType)
+		json.RegisterType("a.b/c", letter, reflect.TypeOf(&parentStruct{}), 0)
+		system.RegisterType("a.b/c", letter, parentType, 0)
+		system.RegisterType("a.b/c", fmt.Sprintf("@%s", letter), ruleType, 0)
 		defer json.UnregisterType("a.b/c", letter)
 		defer json.UnregisterType("a.b/c", fmt.Sprintf("@%s", letter))
 		defer system.UnregisterType("a.b/c", letter)
@@ -234,10 +234,10 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	tyr := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "@a")}}
 	ty := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "a")}}
-	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}))
-	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}))
-	system.RegisterType("b.c/d", "a", ty)
-	system.RegisterType("b.c/d", "@a", tyr)
+	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}), 0)
+	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}), 0)
+	system.RegisterType("b.c/d", "a", ty, 0)
+	system.RegisterType("b.c/d", "@a", tyr, 0)
 	defer json.UnregisterType("b.c/d", "a")
 	defer json.UnregisterType("b.c/d", "@a")
 	defer system.UnregisterType("b.c/d", "a")
@@ -366,10 +366,10 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 	}
 	tyr := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "@a")}}
 	ty := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "a")}}
-	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}))
-	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}))
-	system.RegisterType("b.c/d", "a", ty)
-	system.RegisterType("b.c/d", "@a", tyr)
+	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}), 0)
+	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}), 0)
+	system.RegisterType("b.c/d", "a", ty, 0)
+	system.RegisterType("b.c/d", "@a", tyr, 0)
 	defer json.UnregisterType("b.c/d", "a")
 	defer json.UnregisterType("b.c/d", "@a")
 	defer system.UnregisterType("b.c/d", "a")
@@ -420,9 +420,9 @@ func unmarshalDiagram(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, d)
 
-	system.RegisterType("kego.io/gallery", d.Id.Name, d)
+	system.RegisterType("kego.io/gallery", d.Id.Name, d, 0)
 	if d.Rule != nil {
-		system.RegisterType("kego.io/gallery", d.Rule.Id.Name, d.Rule)
+		system.RegisterType("kego.io/gallery", d.Rule.Id.Name, d.Rule, 0)
 	}
 
 }

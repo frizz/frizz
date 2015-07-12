@@ -1,22 +1,22 @@
 package process
 
 import (
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"kego.io/kerr/assert"
+	"kego.io/process/internal/pkgtest"
+	"kego.io/system"
 )
 
 func Validate_NeedsTypes(t *testing.T) {
 
-	d, err := ioutil.TempDir("", "temporary")
+	n, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Remove(d)
+	defer os.Remove(n)
 
-	aFile := filepath.Join(d, "a.json")
-	aJson := `{
+	files := map[string]string{
+		"a.json": `{
 			"description": "a",
 			"type": "system:type",
 			"id": "a",
@@ -25,38 +25,51 @@ func Validate_NeedsTypes(t *testing.T) {
 					"type": "system:@string"
 				}
 			}
-		}`
-	err = ioutil.WriteFile(aFile, []byte(aJson), 0644)
+		}`,
+	}
+	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", files)
 	assert.NoError(t, err)
-	defer os.Remove(aFile)
 
-	err = Validate(settings{dir: d, path: "d.e/f"})
+	// this is a type, so we need to register it with a hash to stop validate erroring.
+	hash, err := getHash("a.json", path, map[string]string{}, []byte(files["a.json"]))
 	assert.NoError(t, err)
+	system.RegisterType(path, "a", &system.Type{}, hash)
+	defer system.UnregisterType(path, "a")
+
+	err = Validate(settings{dir: dir, path: path})
+	assert.NoError(t, err)
+
 }
 func TestValidate_error1(t *testing.T) {
 
-	d, err := ioutil.TempDir("", "temporary")
+	n, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Remove(d)
+	defer os.Remove(n)
 
-	bFile := filepath.Join(d, "b.json")
-	bJson := `{
-		"description": "b",
-		"type": "system:type",
-		"id": "b",
-		"fields": {
-			"b": {
-				"type": "system:@string",
-				"minLength": 10,
-				"maxLength": 5
+	files := map[string]string{
+		"b.json": `{
+			"description": "b",
+			"type": "system:type",
+			"id": "b",
+			"fields": {
+				"b": {
+					"type": "system:@string",
+					"minLength": 10,
+					"maxLength": 5
+				}
 			}
-		}
-	}`
-	err = ioutil.WriteFile(bFile, []byte(bJson), 0644)
+		}`,
+	}
+	path, dir, err := pkgtest.CreateTemporaryPackage(n, "b", files)
 	assert.NoError(t, err)
-	defer os.Remove(bFile)
 
-	err = Validate(settings{dir: d, path: "d.e/f"})
+	// this is a type, so we need to register it with a hash to stop validate erroring.
+	hash, err := getHash("b.json", path, map[string]string{}, []byte(files["b.json"]))
+	assert.NoError(t, err)
+	system.RegisterType(path, "b", &system.Type{}, hash)
+	defer system.UnregisterType(path, "b")
+
+	err = Validate(settings{dir: dir, path: path})
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "DCIARXKRXN")
 

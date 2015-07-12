@@ -1,7 +1,6 @@
 package process
 
 import (
-	"io/ioutil"
 	"testing"
 
 	"kego.io/kerr/assert"
@@ -9,33 +8,33 @@ import (
 
 	"os"
 
-	"path/filepath"
+	"kego.io/process/internal/pkgtest"
 )
 
 func TestScan(t *testing.T) {
 
-	test := `{
-	"description": "a",
-	"type": "system:type",
-	"id": "b",
-	"fields": {
-		"c": {
-			"type": "system:@string"
-		}
-	}
-}`
-
-	d, err := ioutil.TempDir("", "temporary")
+	n, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.RemoveAll(d)
+	defer os.RemoveAll(n)
 
-	f := filepath.Join(d, "a.json")
-	err = ioutil.WriteFile(f, []byte(test), 0644)
-	assert.NoError(t, err)
+	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+		"a.json": `{
+			"description": "a",
+			"type": "system:type",
+			"id": "b",
+			"fields": {
+				"c": {
+					"type": "system:@string"
+				}
+			}
+		}`,
+	})
 
-	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: false})
+	err = ScanForTypes(false, settings{dir: dir, path: path})
 	assert.NoError(t, err)
-	ty, ok := system.GetType("d.e/f", "b")
+	defer system.UnregisterType(path, "b")
+
+	ty, _, ok := system.GetType(path, "b")
 	assert.True(t, ok)
 	assert.Equal(t, "a", ty.Description)
 
@@ -43,42 +42,42 @@ func TestScan(t *testing.T) {
 
 func TestScan_rule(t *testing.T) {
 
-	test := `{
-	"description": "a",
-	"type": "system:type",
-	"id": "b",
-	"fields": {
-		"c": {
-			"type": "system:@string"
-		}
-	},
-	"rule": {
-		"description": "d",
-		"type": "system:type",
-		"id": "@b",
-		"is": ["system:rule"],
-		"embed": ["system:ruleBase"],
-		"fields": {
-			"e": {
-				"description": "f",
-				"type": "system:@string"
+	n, err := pkgtest.CreateTemporaryNamespace()
+	assert.NoError(t, err)
+	defer os.RemoveAll(n)
+
+	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+		"a.json": `{
+			"description": "a",
+			"type": "system:type",
+			"id": "b",
+			"fields": {
+				"c": {
+					"type": "system:@string"
+				}
+			},
+			"rule": {
+				"description": "d",
+				"type": "system:type",
+				"id": "@b",
+				"is": ["system:rule"],
+				"embed": ["system:ruleBase"],
+				"fields": {
+					"e": {
+						"description": "f",
+						"type": "system:@string"
+					}
+				}
 			}
-		}
-	}
-}`
+		}`,
+	})
 
-	d, err := ioutil.TempDir("", "temporary")
+	err = ScanForTypes(false, settings{dir: dir, path: path})
 	assert.NoError(t, err)
-	defer os.Remove(d)
+	defer system.UnregisterType(path, "b")
+	defer system.UnregisterType(path, "@b")
 
-	f := filepath.Join(d, "a.json")
-	err = ioutil.WriteFile(f, []byte(test), 0644)
-	assert.NoError(t, err)
-	defer os.Remove(f)
-
-	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: false})
-	assert.NoError(t, err)
-	ty, ok := system.GetType("d.e/f", "b")
+	ty, _, ok := system.GetType(path, "b")
 	assert.True(t, ok)
 	assert.Equal(t, "@b", ty.Rule.Id.Name)
 
@@ -92,20 +91,19 @@ func TestScan_errors(t *testing.T) {
 	err = ScanForTypes(false, settings{dir: "/this-folder-doesnt-exist", recursive: false})
 	assert.IsError(t, err, "CDYLDBLHKT")
 
-	d, err := ioutil.TempDir("", "temporary")
+	n, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Remove(d)
+	defer os.RemoveAll(n)
 
-	f := filepath.Join(d, "a.json")
-	err = ioutil.WriteFile(f, []byte("foo"), 0644)
-	assert.NoError(t, err)
-	defer os.Remove(f)
+	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+		"a.json": "foo",
+	})
 
-	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: true})
+	err = ScanForTypes(false, settings{dir: dir, path: path, recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 	assert.HasError(t, err, "DHTURNTIXE")
 
-	err = ScanForTypes(false, settings{dir: d, path: "d.e/f", recursive: false})
+	err = ScanForTypes(false, settings{dir: dir, path: path, recursive: false})
 	assert.IsError(t, err, "IAPRUHFTAD")
 	assert.HasError(t, err, "DHTURNTIXE")
 

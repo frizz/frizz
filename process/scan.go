@@ -7,11 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"io"
-
-	"bytes"
-
 	"github.com/ghodss/yaml"
+	"kego.io/cityhash"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -21,7 +18,7 @@ func ScanForAliases(set settings) (map[string]string, error) {
 
 	aliases := map[string]string{}
 
-	scanner := func(ob interface{}) error {
+	scanner := func(ob interface{}, hash uint64) error {
 		if i, ok := ob.(*system.Imports); ok {
 			for path, alias := range i.Imports {
 				aliases[path] = alias
@@ -36,7 +33,7 @@ func ScanForAliases(set settings) (map[string]string, error) {
 }
 
 func ScanForGlobals(set settings) error {
-	scanner := func(i interface{}) error {
+	scanner := func(i interface{}, hash uint64) error {
 		if _, ok := i.(*system.Type); ok {
 			return nil
 		}
@@ -56,14 +53,14 @@ func ScanForGlobals(set settings) error {
 }
 
 func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
-	scanner := func(ob interface{}) error {
+	scanner := func(ob interface{}, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
-			system.RegisterType(t.Id.Package, t.Id.Name, t)
+			system.RegisterType(t.Id.Package, t.Id.Name, t, hash)
 
 			if t.Rule != nil {
 
-				system.RegisterType(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule)
+				system.RegisterType(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule, hash)
 
 			} else {
 
@@ -82,7 +79,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 					Native:    system.NewString("object"),
 					Interface: false,
 				}
-				system.RegisterType(ref.Package, ref.Name, rule)
+				system.RegisterType(ref.Package, ref.Name, rule, hash)
 			}
 		}
 		return nil
@@ -90,13 +87,13 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	return scanPath(ignoreUnknownTypes, false, scanner, set)
 }
 
-func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, set settings) error {
+func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, hash uint64) error, set settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
 		}
-		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, set.path, set.aliases); err != nil {
+		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, set); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
 		}
 		return nil
@@ -121,65 +118,26 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, hash uint64) error, set settings) error {
 
-	reader, closer, err := openFile(filePath)
-	if closer != nil {
-		// Note this is before the error check because an open file may be returned as well as an error.
-		defer closer.Close()
-	}
+	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
 		return kerr.New("JHSOCKOTHE", err, "process.scanFile", "openFile")
 	}
-	if reader == nil {
+	if bytes == nil {
 		return nil
 	}
 
-	if err = scanReader(reader, ignoreUnknownTypes, ignoreUnknownPackages, scan, packagePath, aliases); err != nil {
+	if err = scanBytes(bytes, hash, ignoreUnknownTypes, ignoreUnknownPackages, scan, set); err != nil {
 		return kerr.New("DHTURNTIXE", err, "process.scanFile", "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-// openFile opens a file, optionally converts from yml to json, and returns a reader. The
-// open file is returned as a closer, and it's up to the calling function to close it. Note
-// that if the function returns an error, it may also return an open file, so you must set
-// up the deferred close before checking for the error.
-func openFile(filePath string) (io.Reader, io.Closer, error) {
-
-	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
-		return nil, nil, nil
-	}
-
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, nil, kerr.New("NMWROTKPLJ", err, "process.openFile", "os.Open (%s)", filePath)
-	}
-
-	var reader io.Reader
-	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
-
-		y, err := ioutil.ReadAll(file)
-		if err != nil {
-			return nil, file, kerr.New("AXNOMOAWDF", err, "process.openFile", "ioutil.ReadAll (yml)")
-		}
-		j, err := yaml.YAMLToJSON(y)
-		if err != nil {
-			return nil, file, kerr.New("FAFJCYESRH", err, "process.openFile", "yaml.YAMLToJSON")
-		}
-		reader = bytes.NewReader(j)
-
-	} else {
-		reader = file
-	}
-	return reader, file, nil
-
-}
-
-func scanReader(file io.Reader, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}) error, packagePath string, aliases map[string]string) error {
+func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, hash uint64) error, set settings) error {
 
 	var i interface{}
-	err := json.NewDecoder(file, packagePath, aliases).Decode(&i)
+	err := json.Unmarshal(file, &i, set.path, set.aliases)
 
 	if ut, ok := err.(json.UnknownTypeError); ok {
 		if !ignoreUnknownTypes {
@@ -193,5 +151,64 @@ func scanReader(file io.Reader, ignoreUnknownTypes bool, ignoreUnknownPackages b
 		return kerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
 	}
 
-	return scan(i)
+	return scan(i, hash)
+}
+
+// openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.
+func openFile(filePath string, set settings) ([]byte, uint64, error) {
+
+	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
+		return nil, 0, nil
+	}
+
+	bytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, 0, kerr.New("NMWROTKPLJ", err, "process.openFile", "ioutil.ReadFile (%s)", filePath)
+	}
+
+	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
+		j, err := yaml.YAMLToJSON(bytes)
+		if err != nil {
+			return nil, 0, kerr.New("FAFJCYESRH", err, "process.openFile", "yaml.YAMLToJSON")
+		}
+		bytes = j
+	}
+
+	relative, err := filepath.Rel(set.dir, filePath)
+	if err != nil {
+		return nil, 0, kerr.New("MDNIWARJEG", err, "process.openFile", "filepath.Rel")
+	}
+
+	hash, err := getHash(relative, set.path, set.aliases, bytes)
+	if err != nil {
+		return nil, 0, kerr.New("GKUPQSADWQ", err, "process.openFile", "getHash")
+	}
+
+	return bytes, hash, nil
+
+}
+
+// gets the hash of a file, including data about the file path, package path and import aliases
+func getHash(relativeFilePath string, packagePath string, aliases map[string]string, content []byte) (uint64, error) {
+
+	if aliases == nil {
+		// to stop null / {} confusion in json
+		aliases = map[string]string{}
+	}
+
+	holder := struct {
+		File    string
+		Path    string
+		Aliases map[string]string
+		Content []byte
+	}{relativeFilePath, packagePath, aliases, content}
+
+	bytes, err := json.Marshal(holder)
+	if err != nil {
+		return 0, kerr.New("TGAEJVECIF", err, "process.getHash", "json.Marshal")
+	}
+
+	hash := cityhash.CityHash64(bytes, uint32(len(bytes)))
+
+	return hash, nil
 }

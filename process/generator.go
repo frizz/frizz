@@ -28,10 +28,6 @@ var generatorPathFlag = flag.String("p", "", "Package: full package path e.g. gi
 var generatorRecursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
 var generatorVerboseFlag = flag.Bool("v", false, "Verbose")
 
-func SetPathFlag(path string) {
-	*generatorPathFlag = path
-}
-
 type settings struct {
 	dir       string
 	update    bool
@@ -45,34 +41,28 @@ func (s settings) Path() string {
 	return s.path
 }
 
-func Initialise() (settings, error) {
-
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
+func InitialiseManually(update bool, recursive bool, verbose bool, path string) (settings, error) {
 	set := settings{}
-	set.update = *generatorUpdateFlag
-	set.recursive = *generatorRecursiveFlag
-	set.verbose = *generatorVerboseFlag
-
-	if *generatorPathFlag == "" {
+	set.update = update
+	set.recursive = recursive
+	set.verbose = verbose
+	if path == "" {
 
 		dir, err := os.Getwd()
 		if err != nil {
-			return settings{}, kerr.New("OKOLXAMBSJ", err, "process.Initialise", "os.Getwd")
+			return settings{}, kerr.New("OKOLXAMBSJ", err, "process.InitialiseManually", "os.Getwd")
 		}
 		set.dir = dir
 
-		path, err := getPackagePath(set.dir, os.Getenv("GOPATH"))
+		pathFromDir, err := getPackagePath(set.dir, os.Getenv("GOPATH"))
 		if err != nil {
-			return settings{}, kerr.New("PSRAWHQCPV", err, "process.Initialise", "getPackage")
+			return settings{}, kerr.New("PSRAWHQCPV", err, "process.InitialiseManually", "getPackage")
 		}
-		set.path = path
+		set.path = pathFromDir
 
 	} else {
 
-		set.path = *generatorPathFlag
+		set.path = path
 
 		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", set.path).CombinedOutput()
 		if err == nil {
@@ -80,7 +70,7 @@ func Initialise() (settings, error) {
 		} else {
 			dir, err := getPackageDir(set.path, os.Getenv("GOPATH"))
 			if err != nil {
-				return settings{}, kerr.New("GXTUPMHETV", err, "process.Initialise", "Can't find %s", set.path)
+				return settings{}, kerr.New("GXTUPMHETV", err, "process.InitialiseManually", "Can't find %s", set.path)
 			}
 			set.dir = dir
 		}
@@ -89,9 +79,23 @@ func Initialise() (settings, error) {
 
 	aliases, err := ScanForAliases(set)
 	if err != nil {
-		return settings{}, kerr.New("IAAETYCHSW", err, "process.Initialise", "ScanForImports")
+		return settings{}, kerr.New("IAAETYCHSW", err, "process.InitialiseManually", "ScanForImports")
 	}
 	set.aliases = aliases
+
+	return set, nil
+}
+
+func InitialiseAutomatic() (settings, error) {
+
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	set, err := InitialiseManually(*generatorUpdateFlag, *generatorRecursiveFlag, *generatorVerboseFlag, *generatorPathFlag)
+	if err != nil {
+		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
+	}
 
 	return set, nil
 
@@ -99,12 +103,12 @@ func Initialise() (settings, error) {
 
 func KegoCmd(set settings) error {
 
-	for p, _ := range set.aliases {
+	for p, a := range set.aliases {
 		if set.verbose {
 			if set.update {
-				fmt.Println("Updating package:", p)
+				fmt.Print("Updating package ", a, "...")
 			} else {
-				fmt.Println("Getting package:", p)
+				fmt.Print("Getting package ", a, "...")
 			}
 		}
 		params := []string{"get"}
@@ -117,6 +121,10 @@ func KegoCmd(set settings) error {
 		params = append(params, p)
 		if out, err := exec.Command("go", params...).CombinedOutput(); err != nil {
 			return kerr.New("HHKSTQMAKG", err, "process.KegoCmd", "go get command: %s", out)
+		} else {
+			if set.verbose {
+				fmt.Println(" OK.")
+			}
 		}
 	}
 
@@ -138,11 +146,7 @@ func KegoCmd(set settings) error {
 // the "types" subpackage.
 func GenerateAndRunCmd(file fileType, set settings) error {
 
-	if set.verbose {
-		fmt.Println("Generating", file)
-	}
-
-	source, err := Generate(file, set.path, set.aliases)
+	source, err := Generate(file, set)
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "Generate")
 	}
@@ -162,10 +166,16 @@ func GenerateAndRunCmd(file fileType, set settings) error {
 	}
 
 	if file == F_CMD_VALIDATE {
-		cmd := exec.Command("go", "build", "-o", validateCommandPath, outputPath)
-		out, err := cmd.CombinedOutput()
+		if set.verbose {
+			fmt.Print("Building ", file, "...")
+		}
+		out, err := exec.Command("go", "build", "-o", validateCommandPath, outputPath).CombinedOutput()
 		if err != nil {
-			return kerr.New("OEPAEEYKIS", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run (go build):\n%s", out)
+			return kerr.New("OEPAEEYKIS", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "go build: cd%s", out)
+		} else {
+			if set.verbose {
+				fmt.Println(" OK.")
+			}
 		}
 		if set.verbose {
 			fmt.Print(string(out))
@@ -173,7 +183,7 @@ func GenerateAndRunCmd(file fileType, set settings) error {
 	}
 
 	if set.verbose {
-		fmt.Println("Running", file)
+		fmt.Print("Running ", file, "...")
 	}
 
 	command := ""
@@ -200,6 +210,10 @@ func GenerateAndRunCmd(file fileType, set settings) error {
 	out, err := exec.Command(command, params...).CombinedOutput()
 	if err != nil {
 		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.GenerateAndRunCmd %s", file), "cmd.Run: %s", out)
+	} else {
+		if set.verbose {
+			fmt.Println(" OK.")
+		}
 	}
 
 	if set.verbose {
@@ -212,12 +226,14 @@ func GenerateAndRunCmd(file fileType, set settings) error {
 // GenerateFiles generates the source code from templates and writes
 // the files to the correct folders.
 //
-// file == F_MAIN: the generated.go in the root of the package.
+// file == F_MAIN: generated-structs.go in the root of the package.
 //
-// file == F_TYPES: the generated.go containing advanced type information
+// file == F_TYPES: generated-types.go containing advanced type information
 // in the "types" sub package. Note that to generate this file, we need to
-// have the main generated.go compiled in, so we generate a temporary
+// have the main generated-structs.go compiled in, so we generate a temporary
 // command and run it with "go run".
+//
+// file == F_GLOBALS: generated-globals.go in the root of the package.
 //
 // file == F_CMD_TYPES: this is the temporary command that we create in order to
 // generate the types source file
@@ -228,7 +244,7 @@ func GenerateAndRunCmd(file fileType, set settings) error {
 func GenerateFiles(file fileType, set settings) error {
 
 	if set.verbose {
-		fmt.Println("Generating", file)
+		fmt.Print("Generating ", file, "...")
 	}
 
 	outputDir := set.dir
@@ -254,7 +270,7 @@ func GenerateFiles(file fileType, set settings) error {
 		}
 	}
 
-	source, err := Generate(file, set.path, set.aliases)
+	source, err := Generate(file, set)
 	if err != nil {
 		return kerr.New("XFNESBLBTQ", err, "process.GenerateFiles", "Generate")
 	}
@@ -263,13 +279,21 @@ func GenerateFiles(file fileType, set settings) error {
 	// generated files you'll ever need to roll back
 	backup := set.path == "kego.io/system" || set.path == "kego.io/system/types"
 
-	filename := "generated.go"
+	var filename string
 	if file == F_GLOBALS {
-		filename = "globals.go"
+		filename = "generated-globals.go"
+	} else if file == F_MAIN {
+		filename = "generated-structs.go"
+	} else if file == F_TYPES {
+		filename = "generated-types.go"
 	}
 
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "process.GenerateFiles", "save")
+	} else {
+		if set.verbose {
+			fmt.Println(" OK.")
+		}
 	}
 
 	return nil
