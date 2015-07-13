@@ -14,100 +14,10 @@ import (
 	"kego.io/system"
 )
 
-func Generate(file fileType, set settings) (source []byte, err error) {
+func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 	b := bytes.NewBuffer(nil)
 	switch file {
-	case F_CMD_MAIN:
-		g := generator.NewWithName(set.path, "main", b)
-		g.Imports.Add("os")
-		g.Imports.Add("fmt")
-		g.Imports.Add("kego.io/process")
-		g.Imports.Anonymous("kego.io/system")
-		if set.path != "kego.io/system" {
-			g.Imports.Anonymous("kego.io/system/types")
-		}
-		for p, _ := range set.aliases {
-			g.Imports.Anonymous(p)
-			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
-		}
-		g.Print(`
-			func main() {
-				set, err := process.InitialiseAutomatic()
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-				if err := process.GenerateFiles(process.F_MAIN, set); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-			}`)
-		g.Build()
-	case F_CMD_TYPES:
-		g := generator.NewWithName(set.path, "main", b)
-		g.Imports.Add("os")
-		g.Imports.Add("fmt")
-		g.Imports.Add("kego.io/process")
-		g.Imports.Anonymous("kego.io/system")
-		if set.path != "kego.io/system" {
-			g.Imports.Anonymous("kego.io/system/types")
-		}
-		g.Imports.Anonymous(set.path)
-		for p, _ := range set.aliases {
-			g.Imports.Anonymous(p)
-			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
-		}
-		g.Print(`
-			func main() {
-				set, err := process.InitialiseAutomatic()
-				if err != nil {
-					fmt.Println(err)
-			        os.Exit(1)
-				}
-				if err := process.GenerateFiles(process.F_TYPES, set); err != nil {
-					fmt.Println(err)
-			        os.Exit(1)
-				}
-				if err := process.GenerateFiles(process.F_GLOBALS, set); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-			}`)
-		g.Build()
-	case F_CMD_VALIDATE:
-		g := generator.NewWithName(set.path, "main", b)
-		g.Imports.Add("os")
-		g.Imports.Add("fmt")
-		g.Imports.Add("kego.io/process")
-		g.Imports.Add("kego.io/kerr")
-		g.Imports.Anonymous("kego.io/system")
-		g.Imports.Anonymous("kego.io/system/types")
-		g.Imports.Anonymous(set.path)
-		g.Imports.Anonymous(fmt.Sprint(set.path, "/types"))
-		for p, _ := range set.aliases {
-			g.Imports.Anonymous(p)
-			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
-		}
-		g.Print(`
-			func main() {
-				set, err := process.InitialiseManually(false, ` + fmt.Sprint(set.recursive) + `, false, ` + strconv.Quote(set.path) + `)
-				if err != nil {
-					fmt.Println(err)
-			        os.Exit(1)
-				}
-				if err := process.Validate(set); err != nil {
-					if u, ok := err.(kerr.UniqueError); ok {
-						if m, ok := u.Source().(process.ValidationError); ok {
-							fmt.Println("Error:", m.Message)
-							os.Exit(1)
-						}
-					}
-					fmt.Println(err)
-					os.Exit(1)
-				}
-			}`)
-		g.Build()
-	case F_MAIN:
+	case S_MAIN:
 		types := system.GetAllTypesInPackage(set.path)
 		g, err := generator.New(set.path, b)
 		if err != nil {
@@ -169,7 +79,7 @@ func Generate(file fileType, set settings) (source []byte, err error) {
 		}
 		g.Println("}")
 		g.Build()
-	case F_TYPES:
+	case S_TYPES:
 		types := system.GetAllTypesInPackage(set.path)
 		typesPath := fmt.Sprintf("%s/types", set.path)
 		g, err := generator.New(typesPath, b)
@@ -211,7 +121,7 @@ func Generate(file fileType, set settings) (source []byte, err error) {
 		}
 		g.Println("}")
 		g.Build()
-	case F_GLOBALS:
+	case S_GLOBALS:
 		globals := system.GetAllGlobalsInPackage(set.path)
 		if len(globals) == 0 {
 			return
@@ -234,6 +144,114 @@ func Generate(file fileType, set settings) (source []byte, err error) {
 		for _, s := range literals {
 			g.Println(s)
 		}
+		g.Build()
+	}
+	source, err = format.Source(b.Bytes())
+	if err != nil {
+		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source: %s", b.String())
+	}
+	return
+}
+
+func GenerateCommand(file commandType, set settings) (source []byte, err error) {
+	b := bytes.NewBuffer(nil)
+	switch file {
+	case C_MAIN:
+		g := generator.NewWithName(set.path, "main", b)
+		g.Imports.Add("os")
+		g.Imports.Add("fmt")
+		g.Imports.Add("kego.io/process")
+		g.Imports.Anonymous("kego.io/system")
+		if set.path != "kego.io/system" {
+			g.Imports.Anonymous("kego.io/system/types")
+		}
+		for p, _ := range set.aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
+		}
+		g.Print(`
+			func main() {
+				set, err := process.InitialiseAutomatic()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				if err := process.Generate(process.S_MAIN, set); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			}`)
+		g.Build()
+	case C_TYPES:
+		g := generator.NewWithName(set.path, "main", b)
+		g.Imports.Add("os")
+		g.Imports.Add("fmt")
+		g.Imports.Add("kego.io/process")
+		g.Imports.Anonymous("kego.io/system")
+		if set.path != "kego.io/system" {
+			g.Imports.Anonymous("kego.io/system/types")
+		}
+		g.Imports.Anonymous(set.path)
+		for p, _ := range set.aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
+		}
+		g.Print(`
+			func main() {
+				set, err := process.InitialiseAutomatic()
+				if err != nil {
+					fmt.Println(err)
+			        os.Exit(1)
+				}
+				if err := process.Generate(process.S_TYPES, set); err != nil {
+					fmt.Println(err)
+			        os.Exit(1)
+				}
+				if set.Globals() {
+					if err := process.Generate(process.S_GLOBALS, set); err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+				}
+			}`)
+		g.Build()
+	case C_VALIDATE:
+		g := generator.NewWithName(set.path, "main", b)
+		g.Imports.Add("os")
+		g.Imports.Add("fmt")
+		g.Imports.Add("kego.io/process")
+		g.Imports.Add("kego.io/kerr")
+		g.Imports.Anonymous("kego.io/system")
+		g.Imports.Anonymous("kego.io/system/types")
+		g.Imports.Anonymous(set.path)
+		g.Imports.Anonymous(fmt.Sprint(set.path, "/types"))
+		for p, _ := range set.aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
+		}
+		g.Print(`
+			func main() {
+				update := false
+				recursive := ` + fmt.Sprint(set.recursive) + `
+				verbose := false
+				globals := ` + fmt.Sprint(set.globals) + `
+				path := ` + strconv.Quote(set.path) + `
+				set, err := process.InitialiseManually(update, recursive, verbose, globals, path)
+				if err != nil {
+					fmt.Println(err)
+			        os.Exit(1)
+				}
+				if err := process.Validate(set); err != nil {
+					if u, ok := err.(kerr.UniqueError); ok {
+						if m, ok := u.Source().(process.ValidationError); ok {
+							fmt.Println("Error:", m.Message)
+							os.Exit(1)
+						}
+					}
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			}`)
 		g.Build()
 	}
 	source, err = format.Source(b.Bytes())

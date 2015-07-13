@@ -9,9 +9,9 @@ import (
 	"kego.io/system"
 )
 
-func TestGenerate_errors(t *testing.T) {
+func TestGenerateCommand_errors(t *testing.T) {
 
-	_, err := Generate(F_CMD_TYPES, settings{path: "\""})
+	_, err := GenerateCommand(C_TYPES, settings{path: "\""})
 	// Quote in the path will generate malformed source
 	assert.IsError(t, err, "CRBYOUOHPG")
 
@@ -21,11 +21,11 @@ func TestGenerate_errors(t *testing.T) {
 	system.RegisterType("b.c/d", "a", ty, 0)
 	defer system.UnregisterType("b.c/d", "a")
 
-	_, err = Generate(F_MAIN, settings{path: "b.c/d"})
+	_, err = GenerateSource(S_MAIN, settings{path: "b.c/d"})
 	// Corrupt type ID causes error from source formatter
 	assert.IsError(t, err, "CRBYOUOHPG")
 
-	_, err = Generate(F_TYPES, settings{path: "b.c/d", aliases: map[string]string{"\"": "\""}})
+	_, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"\"": "\""}})
 	// Quote in the alias path will generate malformed source
 	assert.IsError(t, err, "CRBYOUOHPG")
 }
@@ -35,7 +35,7 @@ func getImports(t *testing.T, source string) string {
 	assert.Equal(t, 2, len(matches))
 	return matches[1]
 }
-func TestGenerate(t *testing.T) {
+func TestGenerateSource(t *testing.T) {
 
 	ty := &system.Type{
 		Base: &system.Base{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
@@ -43,7 +43,7 @@ func TestGenerate(t *testing.T) {
 	system.RegisterType("b.c/d", "a", ty, 0)
 	defer system.UnregisterType("b.c/d", "a")
 
-	source, err := Generate(F_MAIN, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err := GenerateSource(S_MAIN, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
@@ -54,7 +54,7 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Base\n}\n")
 	assert.Contains(t, string(source), "json.RegisterType(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), 0x0)\n")
 
-	source, err = Generate(F_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package types")
 	imp = getImports(t, string(source))
@@ -65,7 +65,7 @@ func TestGenerate(t *testing.T) {
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "system.RegisterType(\"b.c/d\", \"a\", ptr1, 0x0)")
 
-	source, err = Generate(F_CMD_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err = GenerateCommand(C_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package main\n")
 	imp = getImports(t, string(source))
@@ -77,6 +77,6 @@ func TestGenerate(t *testing.T) {
 	assert.Contains(t, imp, "_ \"kego.io/system\"\n")
 	assert.Contains(t, imp, "_ \"kego.io/system/types\"\n")
 	assert.Contains(t, imp, "\"os\"\n")
-	assert.Contains(t, string(source), "process.GenerateFiles(process.F_TYPES, set)")
+	assert.Contains(t, string(source), "process.Generate(process.S_TYPES, set)")
 
 }
