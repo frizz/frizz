@@ -74,6 +74,22 @@ func InitialiseManually(update bool, recursive bool, verbose bool, globals bool,
 	return set, nil
 }
 
+func InitialiseValidate(update bool, recursive bool, globals bool, path string) (settings, error) {
+
+	var verboseFlag = flag.Bool("v", false, "Verbose")
+
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	set, err := InitialiseManually(update, recursive, *verboseFlag, globals, path)
+	if err != nil {
+		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
+	}
+
+	return set, nil
+}
+
 func InitialiseAutomatic() (settings, error) {
 
 	var pathFlag = flag.String("p", "", "Package: full package path e.g. github.com/foo/bar")

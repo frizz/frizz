@@ -58,7 +58,7 @@ func TestRules(t *testing.T) {
 			id: faces
 			str: bar`,
 	})
-	assert.IsError(t, err, "UDDSSMQRHA")
+	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "Equal: value must equal 'foo'")
 
 }

@@ -7,13 +7,15 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"strings"
+
 	"kego.io/kerr"
 )
 
 type sourceType string
 
 const (
-	S_MAIN    sourceType = "main"
+	S_STRUCTS sourceType = "structs"
 	S_TYPES              = "types"
 	S_GLOBALS            = "globals"
 )
@@ -21,19 +23,31 @@ const (
 type commandType string
 
 const (
-	C_MAIN     commandType = "main"
+	C_STRUCTS  commandType = "structs"
 	C_TYPES                = "types"
 	C_VALIDATE             = "validate"
 )
+
+func FormatError(err error) string {
+	if u, ok := err.(kerr.UniqueError); ok {
+		if m, ok := u.Source().(ValidationError); ok {
+			return fmt.Sprint("Error: ", m.Message)
+		}
+		if t, ok := u.Source().(TypesChangedError); ok {
+			return fmt.Sprint("Error: ", t.Message)
+		}
+	}
+	return err.Error()
+}
 
 func KegoCmd(set settings) error {
 
 	for p, a := range set.aliases {
 		if set.verbose {
 			if set.update {
-				fmt.Print("Updating package ", a, "...")
+				fmt.Print("Updating package ", a, "... ")
 			} else {
-				fmt.Print("Getting package ", a, "...")
+				fmt.Print("Getting package ", a, "... ")
 			}
 		}
 		params := []string{"get"}
@@ -48,12 +62,19 @@ func KegoCmd(set settings) error {
 			return kerr.New("HHKSTQMAKG", err, "process.KegoCmd", "go get command: %s", out)
 		} else {
 			if set.verbose {
-				fmt.Println(" OK.")
+				fmt.Println("OK.")
 			}
 		}
 	}
 
-	if err := RunCommand(C_MAIN, set); err != nil {
+	if err := RunAllCommands(set); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RunAllCommands(set settings) error {
+	if err := RunCommand(C_STRUCTS, set); err != nil {
 		return err
 	}
 	if err := RunCommand(C_TYPES, set); err != nil {
@@ -92,14 +113,14 @@ func RunCommand(file commandType, set settings) error {
 
 	if file == C_VALIDATE {
 		if set.verbose {
-			fmt.Print("Building ", file, "...")
+			fmt.Print("Building ", file, " command... ")
 		}
 		out, err := exec.Command("go", "build", "-o", validateCommandPath, outputPath).CombinedOutput()
 		if err != nil {
 			return kerr.New("OEPAEEYKIS", err, fmt.Sprintf("process.RunCommand %s", file), "go build: cd%s", out)
 		} else {
 			if set.verbose {
-				fmt.Println(" OK.")
+				fmt.Println("OK.")
 			}
 		}
 		if set.verbose {
@@ -108,7 +129,7 @@ func RunCommand(file commandType, set settings) error {
 	}
 
 	if set.verbose {
-		fmt.Print("Running ", file, " command...")
+		fmt.Print("Running ", file, " command... ")
 	}
 
 	command := ""
@@ -116,31 +137,41 @@ func RunCommand(file commandType, set settings) error {
 
 	if file == C_VALIDATE {
 		command = validateCommandPath
+		if set.verbose {
+			params = append(params, "-v")
+		}
 	} else {
 		command = "go"
 		params = []string{"run", outputPath}
+
+		params = append(params, fmt.Sprintf("-p=%s", set.path))
+
+		if set.update {
+			params = append(params, "-u")
+		}
+		if set.recursive {
+			params = append(params, "-r")
+		}
+		if set.verbose {
+			params = append(params, "-v")
+		}
+		if set.globals {
+			params = append(params, "-g")
+		}
 	}
 
-	params = append(params, fmt.Sprintf("-p=%s", set.path))
-
-	if set.update {
-		params = append(params, "-u")
-	}
-	if set.recursive {
-		params = append(params, "-r")
-	}
-	if set.verbose {
-		params = append(params, "-v")
-	}
-	if set.globals {
-		params = append(params, "-g")
-	}
 	out, err := exec.Command(command, params...).CombinedOutput()
 	if err != nil {
+		if set.verbose {
+			fmt.Println()
+		}
+		if file == C_VALIDATE {
+			return ValidationError{strings.TrimSpace(string(out))}
+		}
 		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.RunCommand %s", file), "cmd.Run: %s", out)
 	} else {
 		if set.verbose {
-			fmt.Println(" OK.")
+			fmt.Println("OK.")
 		}
 	}
 
@@ -172,7 +203,7 @@ func RunCommand(file commandType, set settings) error {
 func Generate(file sourceType, set settings) error {
 
 	if set.verbose {
-		fmt.Print("Generating ", file, "...")
+		fmt.Print("Generating ", file, "... ")
 	}
 
 	outputDir := set.dir
@@ -185,7 +216,7 @@ func Generate(file sourceType, set settings) error {
 		ignoreUnknownTypes = false
 	}
 
-	if file == S_MAIN || file == S_TYPES {
+	if file == S_STRUCTS || file == S_TYPES {
 		// If type == F_GLOBALS, we have already generated and imported the types, so
 		// there is no need to scan.
 		if err := ScanForTypes(ignoreUnknownTypes, set); err != nil {
@@ -210,7 +241,7 @@ func Generate(file sourceType, set settings) error {
 	var filename string
 	if file == S_GLOBALS {
 		filename = "generated-globals.go"
-	} else if file == S_MAIN {
+	} else if file == S_STRUCTS {
 		filename = "generated-structs.go"
 	} else if file == S_TYPES {
 		filename = "generated-types.go"
@@ -220,7 +251,7 @@ func Generate(file sourceType, set settings) error {
 		return kerr.New("UONJTTSTWW", err, "process.Generate", "save")
 	} else {
 		if set.verbose {
-			fmt.Println(" OK.")
+			fmt.Println("OK.")
 		}
 	}
 

@@ -71,6 +71,6 @@ func TestValidate_error1(t *testing.T) {
 
 	err = Validate(settings{dir: dir, path: path})
 	// @string is invalid because minLength > maxLength
-	assert.HasError(t, err, "DCIARXKRXN")
+	assert.HasError(t, err, "YLONAMFUAG")
 
 }

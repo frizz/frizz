@@ -21,7 +21,7 @@ func TestGenerateCommand_errors(t *testing.T) {
 	system.RegisterType("b.c/d", "a", ty, 0)
 	defer system.UnregisterType("b.c/d", "a")
 
-	_, err = GenerateSource(S_MAIN, settings{path: "b.c/d"})
+	_, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d"})
 	// Corrupt type ID causes error from source formatter
 	assert.IsError(t, err, "CRBYOUOHPG")
 
@@ -43,7 +43,7 @@ func TestGenerateSource(t *testing.T) {
 	system.RegisterType("b.c/d", "a", ty, 0)
 	defer system.UnregisterType("b.c/d", "a")
 
-	source, err := GenerateSource(S_MAIN, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err := GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
