@@ -47,25 +47,27 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 	// This is a regex to match the value to
 	// Pattern String
 	if r.Pattern.Exists {
-		if !s.Exists {
+		if !s.Exists && !r.Optional {
 			return false, "Pattern: value must exist", nil
 		}
-		reg, err := regexp.Compile(r.Pattern.Value)
-		if err != nil {
-			return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value), nil
-		}
-		if !reg.Match([]byte(s.Value)) {
-			return false, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value), nil
+		if s.Exists {
+			reg, err := regexp.Compile(r.Pattern.Value)
+			if err != nil {
+				return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value), nil
+			}
+			if !reg.Match([]byte(s.Value)) {
+				return false, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value), nil
+			}
 		}
 	}
 
 	// This is a string that the value must match
 	// Equal String
 	if r.Equal.Exists {
-		if !s.Exists {
+		if !s.Exists && !r.Optional {
 			return false, "Equal: value must exist", nil
 		}
-		if s.Value != r.Equal.Value {
+		if s.Exists && s.Value != r.Equal.Value {
 			return false, fmt.Sprintf("Equal: value must equal '%s'", r.Equal.Value), nil
 		}
 	}
@@ -73,10 +75,10 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 	// The value must be longer or equal to the provided minimum length
 	// MinLength Int
 	if r.MinLength.Exists {
-		if !s.Exists {
+		if !s.Exists && !r.Optional {
 			return false, "MinLength: value must exist", nil
 		}
-		if len(s.Value) < r.MinLength.Value {
+		if s.Exists && len(s.Value) < r.MinLength.Value {
 			return false, fmt.Sprintf("MinLength: length must not be less than %d", r.MinLength.Value), nil
 		}
 	}
@@ -84,10 +86,10 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 	// The value must be shorter or equal to the provided maximum length
 	// MaxLength Int
 	if r.MaxLength.Exists {
-		if !s.Exists {
+		if !s.Exists && !r.Optional {
 			return false, "MaxLength: value must exist", nil
 		}
-		if len(s.Value) > r.MaxLength.Value {
+		if s.Exists && len(s.Value) > r.MaxLength.Value {
 			return false, fmt.Sprintf("MaxLength: length must not be greater than %d", r.MaxLength.Value), nil
 		}
 	}
@@ -95,17 +97,19 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 	// The value of this string is restricted to one of the provided values
 	// Enum []string
 	if len(r.Enum) > 0 {
-		if !s.Exists {
+		if !s.Exists && !r.Optional {
 			return false, "Enum: value must exist", nil
 		}
-		found := false
-		for _, e := range r.Enum {
-			if e == s.Value {
-				found = true
+		if s.Exists {
+			found := false
+			for _, e := range r.Enum {
+				if e == s.Value {
+					found = true
+				}
 			}
-		}
-		if !found {
-			return false, fmt.Sprintf("Enum: value must be one of: %v", r.Enum), nil
+			if !found {
+				return false, fmt.Sprintf("Enum: value must be one of: %v", r.Enum), nil
+			}
 		}
 	}
 

@@ -31,10 +31,10 @@ func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]str
 	// This provides an upper bound for the restriction
 	// Maximum Number
 	if r.Maximum.Exists {
-		if !i.Exists {
+		if !i.Exists && !r.Optional {
 			return false, "Maximum: value must exist", nil
 		}
-		if i.Value > r.Maximum.Value {
+		if i.Exists && i.Value > r.Maximum.Value {
 			return false, fmt.Sprintf("Maximum: value %v must not be greater than %v", i.Value, r.Maximum.Value), nil
 		}
 	}
@@ -44,10 +44,10 @@ func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]str
 	// This provides a lower bound for the restriction
 	// Minimum Number
 	if r.Minimum.Exists {
-		if !i.Exists {
+		if !i.Exists && !r.Optional {
 			return false, "Minimum: value must exist", nil
 		}
-		if i.Value < r.Minimum.Value {
+		if i.Exists && i.Value < r.Minimum.Value {
 			return false, fmt.Sprintf("Minimum: value %v must not be less than %v", i.Value, r.Minimum.Value), nil
 		}
 	}
@@ -55,10 +55,10 @@ func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]str
 	// This restricts the number to be a multiple of the given number
 	// MultipleOf Number
 	if r.MultipleOf.Exists {
-		if !i.Exists {
+		if !i.Exists && !r.Optional {
 			return false, "MultipleOf: value must exist", nil
 		}
-		if i.Value%r.MultipleOf.Value != 0 {
+		if i.Exists && i.Value%r.MultipleOf.Value != 0 {
 			return false, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", i.Value, r.MultipleOf.Value), nil
 		}
 	}

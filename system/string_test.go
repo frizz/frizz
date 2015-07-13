@@ -98,7 +98,7 @@ func TestStringRule_Validate(t *testing.T) {
 }
 
 func TestStringRule_Enforce(t *testing.T) {
-	r := String_rule{Equal: NewString("a"), MaxLength: NewInt(1)}
+	r := String_rule{RuleBase: &RuleBase{Optional: false}, Equal: NewString("a"), MaxLength: NewInt(1)}
 	ok, message, err := r.Enforce(NewString("a"), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
@@ -117,7 +117,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	ok, message, err = r.Enforce("a", "", map[string]string{})
 	assert.IsError(t, err, "SXFBXGQSEA")
 
-	r = String_rule{MaxLength: NewInt(1)}
+	r = String_rule{RuleBase: &RuleBase{Optional: false}, MaxLength: NewInt(1)}
 	ok, message, err = r.Enforce(NewString("ab"), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxLength: length must not be greater than 1", message)
@@ -128,7 +128,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MaxLength: value must exist", message)
 	assert.False(t, ok)
 
-	r = String_rule{Enum: []string{"a", "b"}}
+	r = String_rule{RuleBase: &RuleBase{Optional: false}, Enum: []string{"a", "b"}}
 	ok, message, err = r.Enforce(String{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Enum: value must exist", message)
@@ -144,13 +144,13 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.Equal(t, "Enum: value must be one of: [a b]", message)
 	assert.False(t, ok)
 
-	r = String_rule{Pattern: NewString(`[`)}
+	r = String_rule{RuleBase: &RuleBase{Optional: false}, Pattern: NewString(`[`)}
 	ok, message, err = r.Enforce(NewString(""), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: regex does not compile: [", message)
 	assert.False(t, ok)
 
-	r = String_rule{Pattern: NewString(`^foo\d`)}
+	r = String_rule{RuleBase: &RuleBase{Optional: false}, Pattern: NewString(`^foo\d`)}
 	ok, message, err = r.Enforce(String{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: value must exist", message)

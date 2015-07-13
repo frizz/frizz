@@ -32,16 +32,18 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 	// This provides an upper bound for the restriction
 	// Maximum Number
 	if r.Maximum.Exists {
-		if !n.Exists {
+		if !n.Exists && !r.Optional {
 			return false, "Maximum: value must exist", nil
 		}
-		if r.ExclusiveMaximum {
-			if n.Value >= r.Maximum.Value {
-				return false, fmt.Sprintf("Maximum (exclusive): value %v must be less than %v", n.Value, r.Maximum.Value), nil
-			}
-		} else {
-			if n.Value > r.Maximum.Value {
-				return false, fmt.Sprintf("Maximum: value %v must not be greater than %v", n.Value, r.Maximum.Value), nil
+		if n.Exists {
+			if r.ExclusiveMaximum {
+				if n.Value >= r.Maximum.Value {
+					return false, fmt.Sprintf("Maximum (exclusive): value %v must be less than %v", n.Value, r.Maximum.Value), nil
+				}
+			} else {
+				if n.Value > r.Maximum.Value {
+					return false, fmt.Sprintf("Maximum: value %v must not be greater than %v", n.Value, r.Maximum.Value), nil
+				}
 			}
 		}
 	}
@@ -51,16 +53,18 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 	// This provides a lower bound for the restriction
 	// Minimum Number
 	if r.Minimum.Exists {
-		if !n.Exists {
+		if !n.Exists && !r.Optional {
 			return false, "Minimum: value must exist", nil
 		}
-		if r.ExclusiveMinimum {
-			if n.Value <= r.Minimum.Value {
-				return false, fmt.Sprintf("Minimum (exclusive): value %v must be greater than %v", n.Value, r.Minimum.Value), nil
-			}
-		} else {
-			if n.Value < r.Minimum.Value {
-				return false, fmt.Sprintf("Minimum: value %v must not be less than %v", n.Value, r.Minimum.Value), nil
+		if n.Exists {
+			if r.ExclusiveMinimum {
+				if n.Value <= r.Minimum.Value {
+					return false, fmt.Sprintf("Minimum (exclusive): value %v must be greater than %v", n.Value, r.Minimum.Value), nil
+				}
+			} else {
+				if n.Value < r.Minimum.Value {
+					return false, fmt.Sprintf("Minimum: value %v must not be less than %v", n.Value, r.Minimum.Value), nil
+				}
 			}
 		}
 	}
@@ -68,12 +72,14 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 	// This restricts the number to be a multiple of the given number
 	// MultipleOf Number
 	if r.MultipleOf.Exists {
-		if !n.Exists {
+		if !n.Exists && !r.Optional {
 			return false, "MultipleOf: value must exist", nil
 		}
-		_, frac := math.Modf(n.Value / r.MultipleOf.Value)
-		if frac != 0 {
-			return false, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", n.Value, r.MultipleOf.Value), nil
+		if n.Exists {
+			_, frac := math.Modf(n.Value / r.MultipleOf.Value)
+			if frac != 0 {
+				return false, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", n.Value, r.MultipleOf.Value), nil
+			}
 		}
 	}
 

@@ -7,7 +7,7 @@ import (
 )
 
 func TestIntRule_Enforce(t *testing.T) {
-	r := Int_rule{Minimum: NewInt(2)}
+	r := Int_rule{RuleBase: &RuleBase{Optional: false}, Minimum: NewInt(2)}
 	ok, message, err := r.Enforce(Int{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum: value must exist", message)
@@ -28,7 +28,7 @@ func TestIntRule_Enforce(t *testing.T) {
 	assert.Equal(t, "Minimum: value 1 must not be less than 2", message)
 	assert.False(t, ok)
 
-	r = Int_rule{Maximum: NewInt(2)}
+	r = Int_rule{RuleBase: &RuleBase{Optional: false}, Maximum: NewInt(2)}
 	ok, message, err = r.Enforce(Int{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum: value must exist", message)
@@ -49,7 +49,7 @@ func TestIntRule_Enforce(t *testing.T) {
 	assert.Equal(t, "Maximum: value 3 must not be greater than 2", message)
 	assert.False(t, ok)
 
-	r = Int_rule{MultipleOf: NewInt(3)}
+	r = Int_rule{RuleBase: &RuleBase{Optional: false}, MultipleOf: NewInt(3)}
 	ok, message, err = r.Enforce(Int{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value must exist", message)
