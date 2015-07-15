@@ -269,7 +269,14 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if !ok {
 			return kerr.New("XRTVWVUAMP", nil, "process.validateObjectChildren", "field does not implement system.Object")
 		}
+
 		allRules := append(rules, ob.GetBase().Rules...)
+
+		// if we have additional rules on the main field rule, we should add them to allRules
+		if len(childRule.Rule.(system.Object).GetBase().Rules) > 0 {
+			allRules = append(allRules, childRule.Rule.(system.Object).GetBase().Rules...)
+		}
+
 		if err = validateObject(childRule, allRules, child, path, aliases); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "process.validateObjectChildren", "validateObject (%s)", name)
 		}
@@ -283,6 +290,11 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, da
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Slice {
 		return kerr.New("HQOKLQABIA", nil, "process.validateArrayChildren", "value.Kind %s must be Slice", value.Kind())
+	}
+
+	// if we have additional rules on the main items rule, we should add them to rules
+	if len(itemsRule.Rule.(system.Object).GetBase().Rules) > 0 {
+		rules = append(rules, itemsRule.Rule.(system.Object).GetBase().Rules...)
 	}
 
 	for i := 0; i < value.Len(); i++ {
@@ -303,6 +315,11 @@ func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data
 	}
 	if value.Type().Key() != reflect.TypeOf("") {
 		return kerr.New("BPEHPQWUSG", nil, "process.validateMapChildren", "Map key %s must be string", value.Type().Key())
+	}
+
+	// if we have additional rules on the main items rule, we should add them to rules
+	if len(itemsRule.Rule.(system.Object).GetBase().Rules) > 0 {
+		rules = append(rules, itemsRule.Rule.(system.Object).GetBase().Rules...)
 	}
 
 	for _, key := range value.MapKeys() {

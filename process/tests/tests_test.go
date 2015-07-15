@@ -12,6 +12,51 @@ import (
 	"kego.io/process/internal/pkgtest"
 )
 
+func TestSelector(t *testing.T) {
+
+	if testing.Short() {
+		t.Skip("Skipping long-running end-to-end tests")
+	}
+
+	namespace, err := pkgtest.CreateTemporaryNamespace()
+	assert.NoError(t, err)
+	defer os.RemoveAll(namespace)
+
+	_, err = runKego(namespace, "a", map[string]string{
+		"gallery.yaml": `
+			type: system:type
+			id: gallery
+			fields:
+				images:
+					type: system:@map
+					items:
+						type: "@photo"
+						rules:
+							-
+								selector: ".protocol"
+								type: system:@string
+								equal: https`,
+		"photo.yaml": `
+			type: system:type
+			id: photo
+			fields:
+				protocol:
+					type: system:@string
+					default: http
+					optional: true`,
+		"faces.yaml": `
+			type: gallery
+			id: faces
+			images:
+				foo:
+					type: photo
+					protocol: http`,
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Equal: value must equal 'https'")
+
+}
+
 func TestRules(t *testing.T) {
 
 	if testing.Short() {
@@ -132,7 +177,8 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		return "", err
 	}
 
-	set, err := process.InitialiseManually(false, false, false, true, path)
+	verbose := false
+	set, err := process.InitialiseManually(false, false, verbose, true, path)
 	if err != nil {
 		return "", err
 	}
