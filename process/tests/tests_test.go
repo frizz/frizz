@@ -12,6 +12,60 @@ import (
 	"kego.io/process/internal/pkgtest"
 )
 
+func TestInt(t *testing.T) {
+
+	if testing.Short() {
+		t.Skip("Skipping long-running end-to-end tests")
+	}
+
+	namespace, err := pkgtest.CreateTemporaryNamespace()
+	assert.NoError(t, err)
+	defer os.RemoveAll(namespace)
+
+	_, err = runKego(namespace, "a", map[string]string{
+		"gallery.yaml": `
+			type: system:type
+			id: gallery
+			fields:
+				images:
+					type: system:@map
+					items:
+						type: "@photo"
+			rules:
+				-
+					selector: "{photo} {system:int}.width"
+					type: system:@int
+					minimum: 800`,
+		"rectangle.yaml": `
+			type: system:type
+			id: rectangle
+			fields:
+				width:
+					type: system:@int
+				height:
+					type: system:@int`,
+		"photo.yaml": `
+			type: system:type
+			id: photo
+			fields:
+				size:
+					type: "@rectangle"`,
+		"faces.yaml": `
+			type: gallery
+			id: faces
+			images:
+				foo:
+					type: photo
+					size:
+						type: rectangle
+						width: 500
+						height: 500`,
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Minimum: value 500 must not be less than 800")
+
+}
+
 func TestSelector(t *testing.T) {
 
 	if testing.Short() {
@@ -177,7 +231,7 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		return "", err
 	}
 
-	verbose := false
+	verbose := true
 	set, err := process.InitialiseManually(false, false, verbose, true, path)
 	if err != nil {
 		return "", err

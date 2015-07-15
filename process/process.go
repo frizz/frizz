@@ -113,7 +113,7 @@ func RunCommand(file commandType, set settings) error {
 
 	if file == C_VALIDATE {
 		if set.verbose {
-			fmt.Print("Building ", file, " command... ")
+			fmt.Print("\nBuilding ", file, " command... ")
 		}
 		out, err := exec.Command("go", "build", "-o", validateCommandPath, outputPath).CombinedOutput()
 		if err != nil {
@@ -128,19 +128,21 @@ func RunCommand(file commandType, set settings) error {
 		}
 	}
 
-	if set.verbose {
-		fmt.Print("Running ", file, " command... ")
-	}
-
 	command := ""
 	params := []string{}
 
 	if file == C_VALIDATE {
+		if set.verbose {
+			fmt.Print("Running ", file, " command... ")
+		}
 		command = validateCommandPath
 		if set.verbose {
 			params = append(params, "-v")
 		}
 	} else {
+		if set.verbose {
+			fmt.Print("\nBuilding ", file, " command... ")
+		}
 		command = "go"
 		params = []string{"run", outputPath}
 
