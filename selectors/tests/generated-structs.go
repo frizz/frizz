@@ -67,6 +67,12 @@ type Polykids_rule struct {
 	*system.RuleBase
 }
 
+// Automatically created basic rule for rectangle
+type Rectangle_rule struct {
+	*system.Base
+	*system.RuleBase
+}
+
 // Automatically created basic rule for sibling
 type Sibling_rule struct {
 	*system.Base
@@ -133,10 +139,16 @@ type Photo struct {
 	Protocol system.String `kego:"{\"default\":{\"value\":\"http\"}}"`
 	// The server for the url - e.g. www.google.com
 	Server system.String
+	Size   *Rectangle
 }
 type Polykids struct {
 	*system.Base
 	A []*Kid
+}
+type Rectangle struct {
+	*system.Base
+	Height system.Int
+	Width  system.Int
 }
 type Sibling struct {
 	*system.Base
@@ -165,8 +177,9 @@ func init() {
 	json.RegisterType("kego.io/selectors/tests", "@gallery", reflect.TypeOf(&Gallery_rule{}), 0xa2261dbb985b3d3)
 	json.RegisterType("kego.io/selectors/tests", "@image", reflect.TypeOf(&Image_rule{}), 0x2a2a6f416ac31013)
 	json.RegisterType("kego.io/selectors/tests", "@kid", reflect.TypeOf(&Kid_rule{}), 0x3b576fd38b04a2eb)
-	json.RegisterType("kego.io/selectors/tests", "@photo", reflect.TypeOf(&Photo_rule{}), 0x4f573f90d58ba54)
+	json.RegisterType("kego.io/selectors/tests", "@photo", reflect.TypeOf(&Photo_rule{}), 0x9b14a4b75f8931a8)
 	json.RegisterType("kego.io/selectors/tests", "@polykids", reflect.TypeOf(&Polykids_rule{}), 0xebaffecb552df4d1)
+	json.RegisterType("kego.io/selectors/tests", "@rectangle", reflect.TypeOf(&Rectangle_rule{}), 0x21539507256190ab)
 	json.RegisterType("kego.io/selectors/tests", "@sibling", reflect.TypeOf(&Sibling_rule{}), 0xac837d672ff74ed6)
 	json.RegisterType("kego.io/selectors/tests", "@typed", reflect.TypeOf(&Typed_rule{}), 0x216d0e1d4c22bb2d)
 	json.RegisterType("kego.io/selectors/tests", "basic", reflect.TypeOf(&Basic{}), 0xe2f725e9d48b69d4)
@@ -176,8 +189,9 @@ func init() {
 	json.RegisterType("kego.io/selectors/tests", "expr", reflect.TypeOf(&Expr{}), 0x6214e678b1df35e3)
 	json.RegisterType("kego.io/selectors/tests", "gallery", reflect.TypeOf(&Gallery{}), 0xa2261dbb985b3d3)
 	json.RegisterType("kego.io/selectors/tests", "kid", reflect.TypeOf(&Kid{}), 0x3b576fd38b04a2eb)
-	json.RegisterType("kego.io/selectors/tests", "photo", reflect.TypeOf(&Photo{}), 0x4f573f90d58ba54)
+	json.RegisterType("kego.io/selectors/tests", "photo", reflect.TypeOf(&Photo{}), 0x9b14a4b75f8931a8)
 	json.RegisterType("kego.io/selectors/tests", "polykids", reflect.TypeOf(&Polykids{}), 0xebaffecb552df4d1)
+	json.RegisterType("kego.io/selectors/tests", "rectangle", reflect.TypeOf(&Rectangle{}), 0x21539507256190ab)
 	json.RegisterType("kego.io/selectors/tests", "sibling", reflect.TypeOf(&Sibling{}), 0xac837d672ff74ed6)
 	json.RegisterType("kego.io/selectors/tests", "typed", reflect.TypeOf(&Typed{}), 0x216d0e1d4c22bb2d)
 }
