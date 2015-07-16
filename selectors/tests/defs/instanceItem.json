@@ -1,0 +1,10 @@
+{
+	"type": "system:type",
+	"id": "instanceItem",
+	"fields": {
+		"name": {
+			"type": "system:@string"
+		}
+	}
+
+}

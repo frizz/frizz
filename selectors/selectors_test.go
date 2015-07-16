@@ -408,3 +408,7 @@ func TestKego(t *testing.T) {
 func TestGallery(t *testing.T) {
 	runTestsInDirectory(t, "./tests/gallery/", "kego.io/selectors/tests", map[string]string{})
 }
+
+func TestExtra(t *testing.T) {
+	runTestsInDirectory(t, "./tests/extra/", "kego.io/selectors/tests", map[string]string{})
+}

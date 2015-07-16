@@ -1,0 +1,13 @@
+{
+	"type": "system:type",
+	"id": "rightscaleLink",
+	"fields": {
+		"href": {
+			"type": "system:@string"
+		},
+		"rel": {
+			"type": "system:@string"
+		}
+	}
+
+}

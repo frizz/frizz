@@ -1,0 +1,16 @@
+{
+	"type": "system:type",
+	"id": "rightscale",
+	"fields": {
+		"name": {
+			"type": "system:@string"
+		},
+		"child": {
+			"type": "system:@map",
+			"items": {
+				"type": "@instanceItem"
+			}
+		}
+	}
+
+}
