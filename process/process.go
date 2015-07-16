@@ -132,9 +132,6 @@ func RunCommand(file commandType, set settings) error {
 	params := []string{}
 
 	if file == C_VALIDATE {
-		if set.verbose {
-			fmt.Print("Running ", file, " command... ")
-		}
 		command = validateCommandPath
 		if set.verbose {
 			params = append(params, "-v")
@@ -172,8 +169,10 @@ func RunCommand(file commandType, set settings) error {
 		}
 		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.RunCommand %s", file), "cmd.Run: %s", out)
 	} else {
-		if set.verbose {
-			fmt.Println("OK.")
+		if file != C_VALIDATE {
+			if set.verbose {
+				fmt.Println("OK.")
+			}
 		}
 	}
 
