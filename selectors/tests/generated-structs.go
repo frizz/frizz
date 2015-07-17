@@ -109,6 +109,18 @@ type Sibling_rule struct {
 	*system.RuleBase
 }
 
+// Automatically created basic rule for simple
+type Simple_rule struct {
+	*system.Base
+	*system.RuleBase
+}
+
+// Automatically created basic rule for simpleItem
+type SimpleItem_rule struct {
+	*system.Base
+	*system.RuleBase
+}
+
 // Automatically created basic rule for typed
 type Typed_rule struct {
 	*system.Base
@@ -213,6 +225,14 @@ type Sibling struct {
 	D map[string]system.Number
 	E map[string]system.Number
 }
+type Simple struct {
+	*system.Base
+	A *SimpleItem
+}
+type SimpleItem struct {
+	*system.Base
+	B system.String
+}
 type Typed struct {
 	*system.Base
 	Avatar          Image
@@ -241,6 +261,8 @@ func init() {
 	json.RegisterType("kego.io/selectors/tests", "@rightscaleLink", reflect.TypeOf(&RightscaleLink_rule{}), 0x127d9489c45697ea)
 	json.RegisterType("kego.io/selectors/tests", "@rightscaleList", reflect.TypeOf(&RightscaleList_rule{}), 0x6a9527067852e20b)
 	json.RegisterType("kego.io/selectors/tests", "@sibling", reflect.TypeOf(&Sibling_rule{}), 0xac837d672ff74ed6)
+	json.RegisterType("kego.io/selectors/tests", "@simple", reflect.TypeOf(&Simple_rule{}), 0x7054dc6469f4db46)
+	json.RegisterType("kego.io/selectors/tests", "@simpleItem", reflect.TypeOf(&SimpleItem_rule{}), 0xac167d73687ccb1f)
 	json.RegisterType("kego.io/selectors/tests", "@typed", reflect.TypeOf(&Typed_rule{}), 0x216d0e1d4c22bb2d)
 	json.RegisterType("kego.io/selectors/tests", "basic", reflect.TypeOf(&Basic{}), 0xe2f725e9d48b69d4)
 	json.RegisterType("kego.io/selectors/tests", "c", reflect.TypeOf(&C{}), 0x6a4bf0b03046c68a)
@@ -258,5 +280,7 @@ func init() {
 	json.RegisterType("kego.io/selectors/tests", "rightscaleLink", reflect.TypeOf(&RightscaleLink{}), 0x127d9489c45697ea)
 	json.RegisterType("kego.io/selectors/tests", "rightscaleList", reflect.TypeOf(&RightscaleList{}), 0x6a9527067852e20b)
 	json.RegisterType("kego.io/selectors/tests", "sibling", reflect.TypeOf(&Sibling{}), 0xac837d672ff74ed6)
+	json.RegisterType("kego.io/selectors/tests", "simple", reflect.TypeOf(&Simple{}), 0x7054dc6469f4db46)
+	json.RegisterType("kego.io/selectors/tests", "simpleItem", reflect.TypeOf(&SimpleItem{}), 0xac167d73687ccb1f)
 	json.RegisterType("kego.io/selectors/tests", "typed", reflect.TypeOf(&Typed{}), 0x216d0e1d4c22bb2d)
 }
