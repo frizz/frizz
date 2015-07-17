@@ -43,7 +43,7 @@ func parents(lhs []*node, rhs []*node) []*node {
 	lhsHaystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
-		if nodeIsMemberOfHaystack(element.parent, lhsHaystack) {
+		if element.parent != nil && nodeIsMemberOfHaystack(element.parent, lhsHaystack) {
 			results = append(results, element)
 		}
 	}
@@ -69,11 +69,13 @@ func siblings(lhs []*node, rhs []*node) []*node {
 	parents := make(map[*Element]*node, len(lhs))
 
 	for _, element := range lhs {
-		parents[element.parent.element] = element.parent
+		if element.parent != nil {
+			parents[element.parent.element] = element.parent
+		}
 	}
 
 	for _, element := range rhs {
-		if nodeIsMemberOfHaystack(element.parent, parents) {
+		if element.parent != nil && nodeIsMemberOfHaystack(element.parent, parents) {
 			results = append(results, element)
 		}
 	}
