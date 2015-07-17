@@ -33,7 +33,7 @@ func TestInt(t *testing.T) {
 						type: "@photo"
 			rules:
 				-
-					selector: "{photo} {system:int}.width"
+					selector: "{photo} .width"
 					type: system:@int
 					minimum: 800`,
 		"rectangle.yaml": `
