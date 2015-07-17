@@ -657,6 +657,18 @@ func GetType(path string, name string) (reflect.Type, uint64, bool) {
 	}
 	return nil, 0, false
 }
+func GetTypeByReflectType(typ reflect.Type) (path string, name string, found bool) {
+	types.RLock()
+	defer types.RUnlock()
+	for ref, def := range types.m {
+		// def.typ is always a pointer, and we would like to support pointers or naked types
+		// as the input, so we compare both
+		if def.typ == typ || (def.typ.Kind() == reflect.Ptr && def.typ.Elem() == typ) {
+			return ref.path, ref.name, true
+		}
+	}
+	return "", "", false
+}
 
 var nullLiteral = []byte("null")
 
@@ -818,6 +830,9 @@ func findKey(m map[string]string, value string) (string, bool) {
 func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, typed bool) {
 
 	foundLink := false
+	hasConcreteType := false
+	concreteTypePath := ""
+	concreteTypeName := ""
 	if typed {
 		val := d.getValue(v)
 		// If the type we're unmarshaling into is an interface or a pointer, we should
@@ -830,6 +845,17 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 		if val.Kind() == reflect.Interface && !foundLink {
 			// If needed, this sets the value of v to the correct type based on the "type" attribute.
 			d.scanForType(v, context, unmarshalers)
+		}
+		if val.Kind() == reflect.Struct && !foundLink {
+			// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
+			// attribute, so we should add it back in if it's missing so the system:base object is
+			// correct.
+			path, name, ok := GetTypeByReflectType(val.Type())
+			if ok {
+				hasConcreteType = true
+				concreteTypePath = path
+				concreteTypeName = name
+			}
 		}
 	}
 
@@ -1035,6 +1061,51 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 			}
 		}
 	}
+
+	// We loop round the fields, and initialise any anonymous
+	// fields that are nil.
+	// This is tested in system.TestInitialiseAnonymousFields
+	if typed && v.Kind() == reflect.Struct {
+		for i := 0; i < v.Type().NumField(); i++ {
+			sf := v.Type().Field(i)
+			fv := v.FieldByName(sf.Name)
+			if sf.Anonymous && fv.IsNil() {
+				fv.Set(reflect.New(sf.Type.Elem()))
+			}
+		}
+	}
+
+	// If we are unpacking this object into a concrete type defined
+	// by the schema, we should set the type with the TypeSettable
+	// interface. This is implemented by system:base.
+	if typed && hasConcreteType && v.Kind() == reflect.Struct {
+		if it, ok := v.Interface().(InitializableType); ok {
+			if err := it.InitializeType(concreteTypePath, concreteTypeName); err != nil {
+				if ite, ok := err.(InitializableTypeError); ok {
+					d.saveError(&UnmarshalTypeError{fmt.Sprint(ite.UnmarshalledPath, ":", ite.UnmarshalledName), v.Type()})
+				} else {
+					d.saveError(&UnmarshalTypeError{"unknown object", v.Type()})
+				}
+			}
+		}
+	}
+}
+
+type InitializableType interface {
+	InitializeType(path string, name string) error
+}
+
+// if we tried to unmarshal an incompatible type, we return this from the InitializeType
+// funciton. We include the package path and name of the unmarshaled object.
+type InitializableTypeError struct {
+	UnmarshalledPath string
+	UnmarshalledName string
+	IntoPath         string
+	IntoName         string
+}
+
+func (i InitializableTypeError) Error() string {
+	return fmt.Sprintf("Tried to unmarshal %s:%s into %s:%s", i.UnmarshalledPath, i.UnmarshalledName, i.IntoPath, i.IntoName)
 }
 
 // literal consumes a literal from d.data[d.off-1:], decoding into the value v.
