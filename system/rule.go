@@ -17,9 +17,6 @@ type Enforcer interface {
 }
 
 func (b *RuleBase) GetRuleBase() *RuleBase {
-	if b == nil {
-		return &RuleBase{}
-	}
 	return b
 }
 

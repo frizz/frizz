@@ -1,5 +1,7 @@
 package system
 
+import "kego.io/json"
+
 type Object interface {
 	GetBase() *Base
 }
@@ -20,4 +22,20 @@ func RulesApplyToObjects(object interface{}) bool {
 	_, isType := object.(*Type)
 	_, isObject := object.(Object)
 	return !isRule && !isType && isObject
+}
+
+func (b *Base) InitializeType(path string, name string) error {
+	if b.Type.Exists {
+		// We should return an error if we're trying to set the type to a different type
+		if path != b.Type.Package || name != b.Type.Name {
+			return json.InitializableTypeError{
+				UnmarshalledPath: b.Type.Package,
+				UnmarshalledName: b.Type.Name,
+				IntoPath:         path,
+				IntoName:         name,
+			}
+		}
+	}
+	b.Type = NewReference(path, name)
+	return nil
 }

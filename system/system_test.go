@@ -8,6 +8,52 @@ import (
 	"kego.io/kerr/assert"
 )
 
+func TestNoType(t *testing.T) {
+	type C struct {
+		*Base
+		D string
+	}
+	type A struct {
+		*Base
+		B *C
+	}
+
+	json.RegisterType("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+	json.RegisterType("kego.io/system", "c", reflect.TypeOf(&C{}), 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer UnregisterType("kego.io/system", "a")
+	defer UnregisterType("kego.io/system", "c")
+
+	j := `{
+		"type": "a",
+		"b": {
+			"d": "e"
+		}
+	}`
+
+	var i interface{}
+	err := json.Unmarshal([]byte(j), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	a, ok := i.(*A)
+	assert.True(t, ok)
+	assert.NotNil(t, a.B.Base)
+	assert.Equal(t, "kego.io/system:c", a.B.Type.Value())
+
+	j = `{
+		"type": "a",
+		"b": {
+			"type": "f",
+			"d": "e"
+		}
+	}`
+
+	err = json.Unmarshal([]byte(j), &i, "kego.io/system", map[string]string{})
+	assert.Error(t, err)
+	assert.EqualError(t, err, "json: cannot unmarshal kego.io/system:f into Go value of type system.C")
+
+}
+
 func TestNative(t *testing.T) {
 
 	type Foo struct {

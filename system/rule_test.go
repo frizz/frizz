@@ -65,6 +65,28 @@ func TestRuleTypes(t *testing.T) {
 
 }
 
+func TestInitialiseAnonymousFields(t *testing.T) {
+
+	type ruleStruct struct {
+		*Base
+		*RuleBase
+	}
+
+	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStruct{}), 0)
+	defer json.UnregisterType("a.b/c", "@b")
+	j := `{
+		"type": "@b"
+	}`
+	var i interface{}
+	err := json.Unmarshal([]byte(j), &i, "a.b/c", map[string]string{})
+	assert.NoError(t, err)
+	rs, ok := i.(*ruleStruct)
+	assert.True(t, ok)
+	assert.NotNil(t, rs.Base)
+	assert.NotNil(t, rs.RuleBase)
+
+}
+
 func TestRuleTypeReference(t *testing.T) {
 
 	type ruleStruct struct {
