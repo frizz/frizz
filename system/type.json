@@ -1,0 +1,58 @@
+{
+	"description": "This is the most basic type.",
+	"type": "type",
+	"id": "type",
+	"fields": {
+		"basic": {
+			"description": "Basic types don't have system:object added by default to the embedded types.",
+			"type": "json:@bool",
+			"optional": true
+		},
+		"embed": {
+			"description": "Types which this should embed - system:object is always added unless base = true.",
+			"type": "@array",
+			"items": {
+				"type": "@reference"
+			},
+			"optional": true
+		},
+		"is": {
+			"description": "Array of interface types that this type should support",
+			"type": "@array",
+			"items": {
+				"type": "@reference"
+			},
+			"optional": true
+		},
+		"native": {
+			"description": "This is the native json type that represents this type. If omitted, default is object.",
+			"type": "@string",
+			"enum": ["string", "number", "bool", "array", "object", "map"],
+			"default": "object",
+			"optional": true
+		},
+		"interface": {
+			"description": "Is this type an interface?",
+			"type": "json:@bool",
+			"optional": true
+		},
+		"exclude": {
+			"description": "Exclude this type from the generated json?",
+			"type": "json:@bool",
+			"optional": true
+		},
+		"fields": {
+			"description": "Each field is listed with it's type",
+			"type": "@map",
+			"items": {
+				"type": "@rule"
+			},
+			"optional": true
+		},
+		"rule": {
+			"description": "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.",
+			"type": "@type",
+			"optional": true
+		}
+	}
+}

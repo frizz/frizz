@@ -1,0 +1,35 @@
+{
+	"description": "This is the int data type",
+	"type": "type",
+	"id": "int",
+	"native": "number",
+	"rule": {
+		"description": "Restriction rules for integers",
+		"type": "type",
+		"id": "@int",
+		"is": ["rule"],
+		"embed": ["ruleBase"],
+		"fields": {
+			"default": {
+				"description": "Default value if this property is omitted",
+				"type": "@int",
+				"optional": true
+			},
+			"multipleOf": {
+				"description": "This restricts the number to be a multiple of the given number",
+				"type": "@int",
+				"optional": true
+			},
+			"minimum": {
+				"description": "This provides a lower bound for the restriction",
+				"type": "@int",
+				"optional": true
+			},
+			"maximum": {
+				"description": "This provides an upper bound for the restriction",
+				"type": "@int",
+				"optional": true
+			}
+		}
+	}
+}

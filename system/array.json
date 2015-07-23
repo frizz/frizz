@@ -1,0 +1,36 @@
+{
+	"description": "This is the native json array data type",
+	"type": "type",
+	"id": "array",
+	"native": "array",
+	"rule": {
+		"description": "Restriction rules for arrays",
+		"type": "type",
+		"id": "@array",
+		"is": ["rule"],
+		"embed": ["ruleBase"],
+		"fields": {
+			"items": {
+				"description": "This is a rule object, defining the type and restrictions on the value of the items",
+				"type": "@rule"
+			},
+			"minItems": {
+				"description": "This is the minimum number of items allowed in the array",
+				"type": "@int",
+				"minimum": 0,
+				"optional": true
+			},
+			"maxItems": {
+				"description": "This is the maximum number of items allowed in the array",
+				"type": "@int",
+				"minimum": 0,
+				"optional": true
+			},
+			"uniqueItems": {
+				"description": "If this is true, each item must be unique",
+				"type": "json:@bool",
+				"optional": true
+			}
+		}
+	}
+}

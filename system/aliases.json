@@ -1,0 +1,14 @@
+{
+	"description": "Lists aliases used in this package.",
+	"type": "type",
+	"id": "aliases",
+	"fields": {
+		"aliases": {
+			"description": "Map of path to alias.",
+			"type": "@map",
+			"items": {
+				"type": "json:@string"
+			}
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"description": "Lists imports used in this package.",
+	"type": "type",
+	"id": "imports",
+	"fields": {
+		"imports": {
+			"description": "Map of path to alias.",
+			"type": "@map",
+			"items": {
+				"type": "json:@string"
+			}
+		}
+	}
+}

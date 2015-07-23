@@ -1,0 +1,20 @@
+{
+	"description": "This is a reference to another object, of the form: [local id] or [alias]:[id]",
+	"type": "type",
+	"id": "reference",
+	"native": "string",
+	"rule": {
+		"description": "Restriction rules for references",
+		"type": "type",
+		"id": "@reference",
+		"is": ["rule"],
+		"embed": ["ruleBase"],
+		"fields": {
+			"default": {
+				"description": "Default value of this is missing or null",
+				"type": "@reference",
+				"optional": true
+			}
+		}
+	}
+}
