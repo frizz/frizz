@@ -1,0 +1,10 @@
+{
+	"type": "expr",
+	"int": 42,
+	"float": 3.1415,
+	"string": "foo.exe",
+	"string2": "bar.dmg",
+	"null": null,
+	"true": true,
+	"false": false
+}

@@ -1,0 +1,7 @@
+{
+	"type": "collision",
+	"number": {
+		"string": "some string",
+		"stringTwo": "some other string"
+	}
+}

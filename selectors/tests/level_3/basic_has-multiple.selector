@@ -1,0 +1,1 @@
+:root > map:has(string.first):has(string.last)

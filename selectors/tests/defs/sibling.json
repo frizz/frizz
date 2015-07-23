@@ -1,0 +1,27 @@
+{
+	"type": "system:type",
+	"id": "sibling",
+	"fields": {
+		"a": {
+			"type": "system:@number"
+		},
+		"b": {
+			"type": "system:@number"
+		},
+		"c": {
+			"type": "@c"
+		},
+		"d": {
+			"type": "system:@map",
+			"items": {
+				"type": "system:@number"
+			}
+		},
+		"e": {
+			"type": "system:@map",
+			"items": {
+				"type": "system:@number"
+			}
+		}
+	}
+}

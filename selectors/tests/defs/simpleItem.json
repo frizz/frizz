@@ -1,0 +1,9 @@
+{
+	"type": "system:type",
+	"id": "simpleItem",
+	"fields": {
+		"b": {
+			"type": "system:@string"
+		}
+	}
+}

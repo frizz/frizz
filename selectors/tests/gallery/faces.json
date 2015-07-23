@@ -1,0 +1,17 @@
+{
+	"description": "This is an instance of the gallery type containing two nested images",
+	"type": "gallery",
+	"id": "faces",
+	"images": {
+		"dave": {
+			"type": "photo",
+			"path": "/me.jpg",
+			"server": "www.google.com",
+			"protocol": "http"
+		},
+		"foo": {
+			"type": "diagram",
+			"url": "http://www.other.com/foo.jpg"
+		}
+	}
+}

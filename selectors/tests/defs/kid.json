@@ -1,0 +1,16 @@
+{
+	"type": "system:type",
+	"id": "kid",
+	"fields": {
+		"language": {
+			"type": "system:@string"
+		},
+		"level": {
+			"type": "system:@string"
+		},
+		"preferred": {
+			"type": "system:@bool",
+			"optional": true
+		}
+	}
+}

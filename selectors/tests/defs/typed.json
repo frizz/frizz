@@ -1,0 +1,33 @@
+{
+	"type": "system:type",
+	"id": "typed",
+	"fields": {
+		"name": {
+			"type": "system:@map",
+			"items": {
+				"type": "system:@string"
+			}
+		},
+		"favoriteColor": {
+			"type": "system:@string"
+		},
+		"kids": {
+			"type": "system:@map",
+			"items": {
+				"type": "@kid"
+			}
+		},
+		"avatar": {
+			"type": "@image"
+		},
+		"drinkPreference": {
+			"type": "system:@array",
+			"items": {
+				"type": "system:@string"
+			}
+		},
+		"weight": {
+			"type": "system:@number"
+		}
+	}
+}

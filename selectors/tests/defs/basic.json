@@ -1,0 +1,39 @@
+{
+	"type": "system:type",
+	"id": "basic",
+	"fields": {
+		"name": {
+			"type": "system:@map",
+			"items": {
+				"type": "system:@string"
+			}
+		},
+		"favoriteColor": {
+			"type": "system:@string"
+		},
+		"languagesSpoken": {
+			"type": "system:@array",
+			"items": {
+				"type": "system:@map",
+				"items": {
+					"type": "system:@string"
+				}
+			}
+		},
+		"seatingPreference": {
+			"type": "system:@array",
+			"items": {
+				"type": "system:@string"
+			}
+		},
+		"drinkPreference": {
+			"type": "system:@array",
+			"items": {
+				"type": "system:@string"
+			}
+		},
+		"weight": {
+			"type": "system:@number"
+		}
+	}
+}

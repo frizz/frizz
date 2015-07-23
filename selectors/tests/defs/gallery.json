@@ -1,0 +1,13 @@
+{
+	"description": "This represents a gallery - it's just a list of images",
+	"type": "system:type",
+	"id": "gallery",
+	"fields": {
+		"images": {
+			"type": "system:@map",
+			"items": {
+				"type": "@image"
+			}
+		}
+	}
+}
