@@ -8,7 +8,7 @@ import (
 
 	"encoding/json"
 
-	"kego.io"
+	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	. "kego.io/selectors"
@@ -46,7 +46,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 				continue
 			}
 			var i interface{}
-			err = kego.Unmarshal(json_document, &i, "kego.io/selectors/tests", map[string]string{})
+			err = ke.Unmarshal(json_document, &i, "kego.io/selectors/tests", map[string]string{})
 			assert.NoError(t, err)
 
 			ob, ok := i.(system.Object)

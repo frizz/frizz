@@ -1,4 +1,4 @@
-package kego // import "kego.io"
+package ke // import "kego.io/ke"
 
 import (
 	"io"
