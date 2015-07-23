@@ -14,7 +14,7 @@ import (
 	"kego.io/system"
 )
 
-func ValidateCmd(set settings) error {
+func ValidateCommand(set settings) error {
 	if set.verbose {
 		fmt.Print("Validating... ")
 	}

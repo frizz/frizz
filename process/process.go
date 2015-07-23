@@ -157,6 +157,9 @@ func RunCommand(file commandType, set settings) error {
 		if set.globals {
 			params = append(params, "-g")
 		}
+		if set.edit {
+			params = append(params, "-e")
+		}
 	}
 
 	out, err := exec.Command(command, params...).CombinedOutput()

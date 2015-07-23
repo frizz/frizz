@@ -232,7 +232,7 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 	}
 
 	verbose := false
-	set, err := process.InitialiseManually(false, false, verbose, true, path)
+	set, err := process.InitialiseManually(false, false, false, verbose, true, path)
 	if err != nil {
 		return "", err
 	}

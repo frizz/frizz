@@ -144,6 +144,19 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		for _, s := range literals {
 			g.Println(s)
 		}
+		g.Println("func init() {")
+		{
+			systemRegisterGlobal := generator.Reference("kego.io/system", "RegisterGlobal", set.path, g.Imports.Add)
+			for _, global := range globals {
+				pkg := strconv.Quote(global.GetBase().Id.Package)
+				name := strconv.Quote(global.GetBase().Id.Name)
+				// e.g.
+				// system.RegisterGlobal("kego.io/gallery/data", "Site", Site)
+				line := fmt.Sprintf("%s(%s, %s, %s)", systemRegisterGlobal, pkg, name, system.GoName(global.GetBase().Id.Name))
+				g.Println(line)
+			}
+		}
+		g.Println("}")
 		g.Build()
 	}
 	source, err = format.Source(b.Bytes())
@@ -234,12 +247,12 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 				recursive := ` + fmt.Sprint(set.recursive) + `
 				globals := ` + fmt.Sprint(set.globals) + `
 				path := ` + strconv.Quote(set.path) + `
-				set, err := process.InitialiseValidate(update, recursive, globals, path)
+				set, err := process.InitialiseCommand(update, recursive, globals, path)
 				if err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.ValidateCmd(set); err != nil {
+				if err := process.ValidateCommand(set); err != nil {
 					fmt.Println(process.FormatError(err))
 					os.Exit(1)
 				}

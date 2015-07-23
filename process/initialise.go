@@ -13,6 +13,7 @@ import (
 
 type settings struct {
 	dir       string
+	edit      bool
 	update    bool
 	recursive bool
 	verbose   bool
@@ -28,8 +29,9 @@ func (s settings) Globals() bool {
 	return s.globals
 }
 
-func InitialiseManually(update bool, recursive bool, verbose bool, globals bool, path string) (settings, error) {
+func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, globals bool, path string) (settings, error) {
 	set := settings{}
+	set.edit = edit
 	set.update = update
 	set.recursive = recursive
 	set.verbose = verbose
@@ -74,15 +76,16 @@ func InitialiseManually(update bool, recursive bool, verbose bool, globals bool,
 	return set, nil
 }
 
-func InitialiseValidate(update bool, recursive bool, globals bool, path string) (settings, error) {
+func InitialiseCommand(update bool, recursive bool, globals bool, path string) (settings, error) {
 
+	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
 
 	if !flag.Parsed() {
 		flag.Parse()
 	}
 
-	set, err := InitialiseManually(update, recursive, *verboseFlag, globals, path)
+	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, globals, path)
 	if err != nil {
 		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
 	}
@@ -92,6 +95,7 @@ func InitialiseValidate(update bool, recursive bool, globals bool, path string) 
 
 func InitialiseAutomatic() (settings, error) {
 
+	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var pathFlag = flag.String("p", "", "Package: full package path e.g. github.com/foo/bar")
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
 	var recursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
@@ -102,7 +106,7 @@ func InitialiseAutomatic() (settings, error) {
 		flag.Parse()
 	}
 
-	set, err := InitialiseManually(*updateFlag, *recursiveFlag, *verboseFlag, *globalsFlag, *pathFlag)
+	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, *globalsFlag, *pathFlag)
 	if err != nil {
 		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
 	}
