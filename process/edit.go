@@ -1,0 +1,14 @@
+package process
+
+import (
+	"kego.io/kerr"
+	"kego.io/process/editor"
+)
+
+func EditCommand(set settings) error {
+	err := editor.StartServer(set.path)
+	if err != nil {
+		return kerr.New("EGGSFTSGWM", err, "process.EditCommand", "editor.StartServer")
+	}
+	return nil
+}
