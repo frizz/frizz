@@ -1,4 +1,4 @@
-//go:generate kego
+//go:generate ke -p kego.io/system
 package system // import "kego.io/system"
 
 import (

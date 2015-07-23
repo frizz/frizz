@@ -1,4 +1,4 @@
-//go:generate kego -recursive
+//go:generate ke -r -p kego.io/selectors/tests
 package selectors // import "kego.io/selectors"
 
 import (
