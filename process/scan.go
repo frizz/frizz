@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/ghodss/yaml"
-	"kego.io/cityhash"
+	"github.com/surge/cityhash"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
