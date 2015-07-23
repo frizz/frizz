@@ -8,7 +8,7 @@ import (
 
 	"encoding/json"
 
-	"kego.io/kego"
+	"kego.io"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	. "kego.io/selectors"
