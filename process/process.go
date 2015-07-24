@@ -29,13 +29,12 @@ const (
 )
 
 func FormatError(err error) string {
-	if u, ok := err.(kerr.UniqueError); ok {
-		if m, ok := u.Source().(ValidationError); ok {
-			return fmt.Sprint("Error: ", m.Message)
-		}
-		if t, ok := u.Source().(TypesChangedError); ok {
-			return fmt.Sprint("Error: ", t.Message)
-		}
+	source := kerr.Source(err)
+	if m, ok := source.(ValidationError); ok {
+		return fmt.Sprint("Error: ", m.Description)
+	}
+	if t, ok := source.(TypesChangedError); ok {
+		return fmt.Sprint("Error: ", t.Description)
 	}
 	return err.Error()
 }
@@ -168,7 +167,7 @@ func RunCommand(file commandType, set settings) error {
 			fmt.Println()
 		}
 		if file == C_VALIDATE {
-			return ValidationError{strings.TrimSpace(string(out))}
+			return ValidationError{kerr.New("ETWHPXTUVB", nil, "", strings.TrimSpace(string(out)))}
 		}
 		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.RunCommand %s", file), "cmd.Run: %s", out)
 	} else {

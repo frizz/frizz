@@ -19,16 +19,14 @@ func ValidateCommand(set settings) error {
 		fmt.Print("Validating... ")
 	}
 	if err := Validate(set); err != nil {
-		if u, ok := err.(kerr.UniqueError); ok {
-			if _, ok := u.Source().(TypesChangedError); ok {
-				if set.verbose {
-					fmt.Println("Types have changed - rebuilding...")
-				}
-				if err := RunAllCommands(set); err != nil {
-					return err
-				}
-				return nil
+		if _, ok := kerr.Source(err).(TypesChangedError); ok {
+			if set.verbose {
+				fmt.Println("Types have changed - rebuilding...")
 			}
+			if err := RunAllCommands(set); err != nil {
+				return err
+			}
+			return nil
 		}
 		return err
 	}
@@ -111,10 +109,10 @@ func validateUnknown(data interface{}, hash uint64, path string, aliases map[str
 	if ty, ok := ob.(*system.Type); ok {
 		_, h, ok := system.GetType(ty.Id.Package, ty.Id.Name)
 		if !ok {
-			return TypesChangedError{fmt.Sprintf("New type %s found - run kego again to rebuild", ty.Id.Value())}
+			return TypesChangedError{kerr.New("XCBNOPEEUY", nil, "", "New type %s found - run kego again to rebuild", ty.Id.Value())}
 		}
 		if hash != h {
-			return TypesChangedError{fmt.Sprintf("Type %s has changed - run kego again to rebuild", ty.Id.Value())}
+			return TypesChangedError{kerr.New("KRKBNITUON", nil, "", "Type %s has changed - run kego again to rebuild", ty.Id.Value())}
 		}
 	}
 
@@ -135,19 +133,11 @@ func validateUnknown(data interface{}, hash uint64, path string, aliases map[str
 }
 
 type TypesChangedError struct {
-	Message string
-}
-
-func (v TypesChangedError) Error() string {
-	return v.Message
+	kerr.Struct
 }
 
 type ValidationError struct {
-	Message string
-}
-
-func (v ValidationError) Error() string {
-	return v.Message
+	kerr.Struct
 }
 
 func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
@@ -159,7 +149,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 			return kerr.New("RUGJLUAFAN", err, "process.validateObject", "v.Validate")
 		}
 		if !ok {
-			return ValidationError{message}
+			return ValidationError{kerr.New("KULDIJUYFB", nil, "", message)}
 		}
 	}
 
@@ -171,7 +161,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 				return kerr.New("EBEMISLGDX", err, "process.validateObject", "e.Enforce (main)")
 			}
 			if !ok {
-				return ValidationError{message}
+				return ValidationError{kerr.New("HLKQWDCMRN", nil, "", message)}
 			}
 		}
 	}
@@ -207,7 +197,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 					return kerr.New("MGHHDYTXVV", err, "process.validateObject", "e.Enforce")
 				}
 				if !ok {
-					return ValidationError{message}
+					return ValidationError{kerr.New("HAOXUVTFEX", nil, "", message)}
 				}
 			}
 		}

@@ -5,65 +5,121 @@ package kerr // import "kego.io/kerr"
 
 import (
 	"fmt"
+	"runtime"
 
+	"os"
+	"path/filepath"
 	"strings"
 )
 
+// Error is an error with a unique Id.
+type Struct struct {
+	// Unique ID for this error - used to identify this error in tests
+	Id string
+	// The inner error. Nil if this is the source error.
+	Inner error
+	// Path of the file that this error occurred in
+	File string
+	// Line number of the source where this error occurred
+	Line int
+	// Package path where the error occurred
+	Package string
+	// Function name where this error occurred
+	Function string
+	// Description of the function or location that this error occurred [deprecated - will be removed]
+	Location string
+	// Description is a description of the error if there is no inner error, or else
+	// a description of the fucntion that returned the inner error
+	Description string
+	// Array of unique IDs of the error stack
+	Stack []string
+}
+
+// Unique things have a globally unique string
+type Interface interface {
+	ErrorId() string
+	ErrorStack() []string
+	ErrorInner() error
+}
+
 // New creates a new kerr.Error
-func New(id string, inner error, location string, descriptionFormat string, descriptionArgs ...interface{}) UniqueError {
+func New(id string, inner error, location string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
 	stack := []string{id}
-	if ui, ok := inner.(UniqueError); ok {
-		stack = append(ui.Stack, id)
+	if i, ok := inner.(Interface); ok {
+		stack = append(i.ErrorStack(), id)
 	}
-	return UniqueError{
+
+	packageName, functionName := "", ""
+	pc, file, line, ok := runtime.Caller(1)
+	if ok {
+		f := runtime.FuncForPC(pc)
+		caller := f.Name()
+		i := strings.LastIndex(caller, ".")
+		if i > -1 {
+			packageName = caller[:i]
+			functionName = caller[i+1:]
+		}
+	}
+
+	return Struct{
 		Id:          id,
 		Inner:       inner,
+		File:        file,
+		Line:        line,
+		Package:     packageName,
+		Function:    functionName,
 		Location:    location,
 		Description: fmt.Sprintf(descriptionFormat, descriptionArgs...),
 		Stack:       stack,
 	}
 }
 
-// UniqueError is an error with a unique Id.
-type UniqueError struct {
-	Id          string
-	Inner       error
-	Location    string
-	Description string
-	Stack       []string
-}
-
-// Unique returns the unique Id of the error
-func (e UniqueError) Unique() string {
-	return e.Id
-}
-
 // Error returns a string of the error
-func (e UniqueError) Error() string {
+func (e Struct) Error() string {
 	if e.Inner == nil {
-		return fmt.Sprintf("\n%s error in %s: %s.\n", e.Unique(), e.Location, e.Description)
+		return fmt.Sprintf("\n%s error in %s:%d %s: %s.\n", e.Id, getRelPath(e.File), e.Line, e.Function, e.Description)
 	}
 	inner := e.Inner.Error()
 	if strings.HasPrefix(inner, "\n") {
+		// Remove the leading new-line from inner error
 		inner = inner[1:]
 	}
-	return fmt.Sprintf("\n%s error in %s: %s returned an error: \n%v", e.Unique(), e.Location, e.Description, inner)
+	return fmt.Sprintf("\n%s error in %s:%d %s: %s returned an error: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, e.Description, inner)
 }
 
-// Unique things have a globally unique string
-type Unique interface {
-	Unique() string
+func getRelPath(filePath string) string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return filePath
+	}
+	rp, err := filepath.Rel(wd, filePath)
+	if err != nil {
+		return filePath
+	}
+	return rp
 }
 
-// Source gets the error at the bottom of the error stack
-func (e UniqueError) Source() error {
-	if e.Inner == nil {
-		fmt.Println("1")
-		return e
+// ErrorId returns the unique id of the error
+func (e Struct) ErrorId() string {
+	return e.Id
+}
+
+// ErrorStack returns the error id stack
+func (e Struct) ErrorStack() []string {
+	return e.Stack
+}
+
+// ErrorInner returns the inner error
+func (e Struct) ErrorInner() error {
+	return e.Inner
+}
+
+// ErrorSource gets the error at the bottom of the error stack. This
+// can't be a method on kerr.Struct because it needs to return the
+// whole error when called on an error that embeds kerr.Struct
+func Source(e error) error {
+	if i, ok := e.(Interface); ok && i.ErrorInner() != nil {
+		return Source(i.ErrorInner())
 	}
-	if u, ok := e.Inner.(UniqueError); ok {
-		return u.Source()
-	} else {
-		return e.Inner
-	}
+	return e
 }

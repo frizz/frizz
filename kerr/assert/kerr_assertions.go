@@ -17,11 +17,11 @@ func IsError(t TestingT, theError error, expectedId string, msgAndArgs ...interf
 	if !NotNil(t, theError, "An error is expected but got nil. %s", message) {
 		return false
 	}
-	i, ok := theError.(kerr.Unique)
-	if !True(t, ok, "Error should implement kerr.Unique", message) {
+	i, ok := theError.(kerr.Interface)
+	if !True(t, ok, "Error should implement kerr.Interface", message) {
 		return false
 	}
-	return Equal(t, expectedId, i.Unique(), "Expected %s but got %s. %s:\n%s", expectedId, i.Unique(), message, theError)
+	return Equal(t, expectedId, i.ErrorId(), "Expected %s but got %s. %s:\n%s", expectedId, i.ErrorId(), message, theError)
 
 }
 
@@ -35,11 +35,11 @@ func HasError(t TestingT, theError error, expectedId string, msgAndArgs ...inter
 	if !NotNil(t, theError, "An error is expected but got nil. %s", message) {
 		return false
 	}
-	u, ok := theError.(kerr.UniqueError)
-	if !True(t, ok, "Error should be UniqueError", message) {
+	i, ok := theError.(kerr.Interface)
+	if !True(t, ok, "Error should be kerr.Interface", message) {
 		return false
 	}
-	for _, i := range u.Stack {
+	for _, i := range i.ErrorStack() {
 		if i == expectedId {
 			return true
 		}
