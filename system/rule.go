@@ -43,7 +43,7 @@ func NewMinimalRuleHolder(t *Type, path string, aliases map[string]string) *Rule
 func NewRuleHolder(r Rule, path string, aliases map[string]string) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r)
 	if err != nil {
-		return nil, kerr.New("VRCWUGOTMA", err, "NewRuleHolder", "ruleTypes")
+		return nil, kerr.New("VRCWUGOTMA", err, "ruleTypes")
 	}
 	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Aliases: aliases}, nil
 }
@@ -51,19 +51,19 @@ func NewRuleHolder(r Rule, path string, aliases map[string]string) (*RuleHolder,
 func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
 	ruleReference, err := ruleTypeReference(r)
 	if err != nil {
-		return nil, nil, kerr.New("BNEKIFYDDL", err, "ruleTypes", "ruleTypeReference")
+		return nil, nil, kerr.New("BNEKIFYDDL", err, "ruleTypeReference")
 	}
 	rt, ok := ruleReference.GetType()
 	if !ok {
-		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleTypes", "ruleReference.GetType: type %v not found", ruleReference.Value())
+		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleReference.GetType: type %v not found", ruleReference.Value())
 	}
 	typeReference, err := ruleReference.RuleToParentType()
 	if err != nil {
-		return nil, nil, kerr.New("NXRCPQMUIE", err, "ruleTypes", "ruleReference.RuleToParentType")
+		return nil, nil, kerr.New("NXRCPQMUIE", err, "ruleReference.RuleToParentType")
 	}
 	pt, ok := typeReference.GetType()
 	if !ok {
-		return nil, nil, kerr.New("KYCTDXKFYR", nil, "ruleTypes", "typeReference.GetType: type %v not found", typeReference.Value())
+		return nil, nil, kerr.New("KYCTDXKFYR", nil, "typeReference.GetType: type %v not found", typeReference.Value())
 	}
 	return rt, pt, nil
 }
@@ -71,7 +71,7 @@ func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
 func ruleTypeReference(r Rule) (*Reference, error) {
 	ob, ok := r.(Object)
 	if !ok {
-		return nil, kerr.New("VKFNPJDNVB", nil, "system.ruleTypeReference", "r does not implement Object")
+		return nil, kerr.New("VKFNPJDNVB", nil, "r does not implement Object")
 	}
 	return &ob.GetBase().Type, nil
 
@@ -80,22 +80,22 @@ func ruleTypeReference(r Rule) (*Reference, error) {
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !r.ParentType.IsNativeCollection() {
-		return nil, kerr.New("VPAGXSTQHM", nil, "RuleHolder.ItemsRule", "parentType %s is not a collection", r.ParentType.Id)
+		return nil, kerr.New("VPAGXSTQHM", nil, "parentType %s is not a collection", r.ParentType.Id)
 	}
 	items, _, ok, err := RuleFieldByReflection(r.Rule, "Items")
 	if err != nil {
-		return nil, kerr.New("LIDXIQYGJD", err, "RuleHolder.ItemsRule", "RuleFieldByReflection")
+		return nil, kerr.New("LIDXIQYGJD", err, "RuleFieldByReflection")
 	}
 	if !ok {
-		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleHolder.ItemsRule", "RuleFieldByReflection could not find Items field")
+		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleFieldByReflection could not find Items field")
 	}
 	rule, ok := items.(Rule)
 	if !ok {
-		return nil, kerr.New("DIFVRMVWMC", nil, "RuleHolder.ItemsRule", "items is not a rule")
+		return nil, kerr.New("DIFVRMVWMC", nil, "items is not a rule")
 	}
 	rh, err := NewRuleHolder(rule, r.Path, r.Aliases)
 	if err != nil {
-		return nil, kerr.New("FGYMQPNBQJ", err, "RuleHolder.ItemsRule", "NewRuleHolder")
+		return nil, kerr.New("FGYMQPNBQJ", err, "NewRuleHolder")
 	}
 	return rh, nil
 }
@@ -103,10 +103,10 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 func RuleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
 	v := reflect.ValueOf(object)
 	if v.Kind() != reflect.Ptr {
-		return nil, nil, false, kerr.New("QOYMWPXWUO", nil, "RuleFieldByReflection", "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
+		return nil, nil, false, kerr.New("QOYMWPXWUO", nil, "val.Kind (%s) is not a Ptr: %v", name, v.Kind())
 	}
 	if v.Elem().Kind() != reflect.Struct {
-		return nil, nil, false, kerr.New("IGOUOBGXAN", nil, "RuleFieldByReflection", "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
+		return nil, nil, false, kerr.New("IGOUOBGXAN", nil, "val.Elem().Kind (%s) is not a Struct: %v", name, v.Elem().Kind())
 	}
 	value, pointer, _, found, zero, err := GetObjectField(v.Elem(), name)
 

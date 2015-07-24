@@ -58,7 +58,7 @@ func KegoCmd(set settings) error {
 		}
 		params = append(params, p)
 		if out, err := exec.Command("go", params...).CombinedOutput(); err != nil {
-			return kerr.New("HHKSTQMAKG", err, "process.KegoCmd", "go get command: %s", out)
+			return kerr.New("HHKSTQMAKG", err, "go get command: %s", out)
 		} else {
 			if set.verbose {
 				fmt.Println("OK.")
@@ -93,12 +93,12 @@ func RunCommand(file commandType, set settings) error {
 
 	source, err := GenerateCommand(file, set)
 	if err != nil {
-		return kerr.New("SPRFABSRWK", err, fmt.Sprintf("process.RunCommand %s", file), "Generate")
+		return kerr.New("SPRFABSRWK", err, "Generate")
 	}
 
 	outputDir, err := ioutil.TempDir(set.dir, "temporary")
 	if err != nil {
-		return kerr.New("HWOPVXYMCT", err, fmt.Sprintf("process.RunCommand %s", file), "ioutil.TempDir")
+		return kerr.New("HWOPVXYMCT", err, "ioutil.TempDir")
 	}
 	defer os.RemoveAll(outputDir)
 	outputName := "generated_cmd.go"
@@ -107,7 +107,7 @@ func RunCommand(file commandType, set settings) error {
 	validateCommandPath := filepath.Join(set.dir, "validate")
 
 	if err = save(outputDir, source, outputName, false); err != nil {
-		return kerr.New("FRLCYFOWCJ", err, fmt.Sprintf("process.RunCommand %s", file), "save")
+		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
 	if file == C_VALIDATE {
@@ -116,7 +116,7 @@ func RunCommand(file commandType, set settings) error {
 		}
 		out, err := exec.Command("go", "build", "-o", validateCommandPath, outputPath).CombinedOutput()
 		if err != nil {
-			return kerr.New("OEPAEEYKIS", err, fmt.Sprintf("process.RunCommand %s", file), "go build: cd%s", out)
+			return kerr.New("OEPAEEYKIS", err, "go build: cd%s", out)
 		} else {
 			if set.verbose {
 				fmt.Println("OK.")
@@ -167,9 +167,9 @@ func RunCommand(file commandType, set settings) error {
 			fmt.Println()
 		}
 		if file == C_VALIDATE {
-			return ValidationError{kerr.New("ETWHPXTUVB", nil, "", strings.TrimSpace(string(out)))}
+			return ValidationError{kerr.New("ETWHPXTUVB", nil, strings.TrimSpace(string(out)))}
 		}
-		return kerr.New("UDDSSMQRHA", err, fmt.Sprintf("process.RunCommand %s", file), "cmd.Run: %s", out)
+		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", out)
 	} else {
 		if file != C_VALIDATE {
 			if set.verbose {
@@ -223,18 +223,18 @@ func Generate(file sourceType, set settings) error {
 		// If type == F_GLOBALS, we have already generated and imported the types, so
 		// there is no need to scan.
 		if err := ScanForTypes(ignoreUnknownTypes, set); err != nil {
-			return kerr.New("XYIUHERDHE", err, "process.Generate", "ScanForTypes")
+			return kerr.New("XYIUHERDHE", err, "ScanForTypes")
 		}
 	} else {
 		// However, we need to scan for the globals.
 		if err := ScanForGlobals(set); err != nil {
-			return kerr.New("JQLAQVKLAN", err, "process.Generate", "ScanForGlobals")
+			return kerr.New("JQLAQVKLAN", err, "ScanForGlobals")
 		}
 	}
 
 	source, err := GenerateSource(file, set)
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "process.Generate", "Generate")
+		return kerr.New("XFNESBLBTQ", err, "Generate")
 	}
 
 	// We only backup in the system types because they are the only
@@ -251,7 +251,7 @@ func Generate(file sourceType, set settings) error {
 	}
 
 	if err = save(outputDir, source, filename, backup); err != nil {
-		return kerr.New("UONJTTSTWW", err, "process.Generate", "save")
+		return kerr.New("UONJTTSTWW", err, "save")
 	} else {
 		if set.verbose {
 			fmt.Println("OK.")
@@ -265,7 +265,7 @@ func save(dir string, contents []byte, name string, backup bool) error {
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err = os.MkdirAll(dir, 0777); err != nil {
-			return kerr.New("BPGOUIYPXO", err, "process.save", "os.MkdirAll")
+			return kerr.New("BPGOUIYPXO", err, "os.MkdirAll")
 		}
 	}
 
@@ -289,16 +289,16 @@ func save(dir string, contents []byte, name string, backup bool) error {
 
 	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return kerr.New("NWLWHSGJWP", err, "process.save", "os.OpenFile (could not open output file)")
+		return kerr.New("NWLWHSGJWP", err, "os.OpenFile (could not open output file)")
 	}
 	defer output.Close()
 
 	if _, err := output.Write(contents); err != nil {
-		return kerr.New("FBMGPRWQBL", err, "process.save", "output.Write")
+		return kerr.New("FBMGPRWQBL", err, "output.Write")
 	}
 
 	if err := output.Sync(); err != nil {
-		return kerr.New("EGFNTMNKFX", err, "process.save", "output.Sync")
+		return kerr.New("EGFNTMNKFX", err, "output.Sync")
 	}
 
 	return nil

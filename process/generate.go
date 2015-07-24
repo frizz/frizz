@@ -21,7 +21,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		types := system.GetAllTypesInPackage(set.path)
 		g, err := generator.New(set.path, b)
 		if err != nil {
-			return nil, kerr.New("WPIPODJIGV", err, "process.Generate", "generator.New")
+			return nil, kerr.New("WPIPODJIGV", err, "generator.New")
 		}
 		if len(types) == 0 {
 			g.Build()
@@ -52,7 +52,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 					}
 					descriptor, err := generator.Type(nf.Field, set.path, g.Imports.Add)
 					if err != nil {
-						return nil, kerr.New("GDSKJDEKQD", err, "process.Generate", "generator.Type")
+						return nil, kerr.New("GDSKJDEKQD", err, "generator.Type")
 					}
 					g.Println(system.GoName(nf.Name), " ", descriptor)
 				}
@@ -84,7 +84,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		typesPath := fmt.Sprintf("%s/types", set.path)
 		g, err := generator.New(typesPath, b)
 		if err != nil {
-			return nil, kerr.New("KYIKJQXPMR", err, "process.Generate", "generator.New")
+			return nil, kerr.New("KYIKJQXPMR", err, "generator.New")
 		}
 		if len(types) == 0 {
 			g.Build()
@@ -128,7 +128,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		}
 		g, err := generator.New(set.path, b)
 		if err != nil {
-			return nil, kerr.New("WMGMMHHQGX", err, "process.Generate", "generator.New")
+			return nil, kerr.New("WMGMMHHQGX", err, "generator.New")
 		}
 
 		literals := []string{}
@@ -161,7 +161,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 	}
 	source, err = format.Source(b.Bytes())
 	if err != nil {
-		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source: %s", b.String())
+		err = kerr.New("CRBYOUOHPG", err, "format.Source: %s", b.String())
 	}
 	return
 }
@@ -261,7 +261,7 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 	}
 	source, err = format.Source(b.Bytes())
 	if err != nil {
-		err = kerr.New("CRBYOUOHPG", err, "process.Generate", "format.Source: %s", b.String())
+		err = kerr.New("CRBYOUOHPG", err, "format.Source: %s", b.String())
 	}
 	return
 }

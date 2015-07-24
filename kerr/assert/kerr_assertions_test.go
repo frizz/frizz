@@ -22,7 +22,7 @@ func TestIsError(t *testing.T) {
 		t.Error("assert.HasError should return false")
 	}
 
-	e = kerr.New("HKROXGJXIV", nil, "", "")
+	e = kerr.New("HKROXGJXIV", nil, "")
 
 	if assert.IsError(e, "foo", "bar") {
 		t.Error("assert.IsError should return false")
@@ -32,7 +32,7 @@ func TestIsError(t *testing.T) {
 		t.Error("assert.IsError should return true")
 	}
 
-	e1 := kerr.New("JGAOOWPMNE", e, "baz", "qux")
+	e1 := kerr.New("JGAOOWPMNE", e, "qux")
 
 	if assert.IsError(e1, "HKROXGJXIV", "bar") {
 		t.Error("assert.IsError should return false")

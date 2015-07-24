@@ -21,7 +21,7 @@ type Parser struct {
 func CreateParser(element *Element, path string, aliases map[string]string) (*Parser, error) {
 	parser := Parser{Data: element, nodes: nil, path: path, aliases: aliases}
 	if err := parser.mapDocument(); err != nil {
-		return nil, kerr.New("SWLNNMSUTM", err, "selectors.CreateParser", "parser.mapDocument")
+		return nil, kerr.New("SWLNNMSUTM", err, "parser.mapDocument")
 	}
 	return &parser, nil
 }
@@ -238,7 +238,7 @@ func (p *Parser) matchNodes(validators []func(*node) (bool, error), documentMap 
 		for _, validator := range validators {
 			result, err := validator(node)
 			if err != nil {
-				return nil, kerr.New("GUOFXMISKX", err, "selectors.matchNodes", "validator")
+				return nil, kerr.New("GUOFXMISKX", err, "validator")
 			}
 			if !result {
 				passed = false
@@ -268,7 +268,7 @@ func (p *Parser) kegoProduction(value interface{}) func(*node) (bool, error) {
 		kegoType := tokenString[1 : len(tokenString)-1]
 		r, err := system.NewReferenceFromString(kegoType, p.path, p.aliases)
 		if err != nil {
-			return false, kerr.New("RWDOYBBDVK", err, "selectors.kegoProduction", "NewReferenceFromString")
+			return false, kerr.New("RWDOYBBDVK", err, "NewReferenceFromString")
 		}
 		logger.Print("kegoProduction ? ", n.ktyperef.Value(), " == ", r.Value())
 
@@ -509,7 +509,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		return func(n *node) (bool, error) {
 			newMap, err := p.getFlooredDocumentMap(n)
 			if err != nil {
-				return false, kerr.New("HFVKFIUIUT", err, "selectors.pclassFuncProduction", "getFlooredDocumentMap")
+				return false, kerr.New("HFVKFIUIUT", err, "getFlooredDocumentMap")
 			}
 			if len(args) > 0 {
 				logger.Print("pclassFuncProduction recursing into selectorProduction(-100) starting with ", args[0], "; ", len(args), " tokens remaining.")

@@ -35,7 +35,7 @@ func (r *String_rule) Validate(path string, aliases map[string]string) (ok bool,
 func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 	s, ok := data.(String)
 	if !ok {
-		return false, "", kerr.New("SXFBXGQSEA", nil, "String_rule.Enforce", "data %T should be system.String.", data)
+		return false, "", kerr.New("SXFBXGQSEA", nil, "data %T should be system.String.", data)
 	}
 
 	// TODO: This restricts the value to one of several built-in formats
@@ -119,7 +119,7 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 func (out *String) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var s *string
 	if err := json.UnmarshalPlain(in, &s, path, aliases); err != nil {
-		return kerr.New("ACHMRKVFAB", err, "String.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("ACHMRKVFAB", err, "json.UnmarshalPlain")
 	}
 	if s == nil {
 		out.Exists = false

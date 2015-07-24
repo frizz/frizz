@@ -26,8 +26,6 @@ type Struct struct {
 	Package string
 	// Function name where this error occurred
 	Function string
-	// Description of the function or location that this error occurred [deprecated - will be removed]
-	Location string
 	// Description is a description of the error if there is no inner error, or else
 	// a description of the fucntion that returned the inner error
 	Description string
@@ -43,7 +41,7 @@ type Interface interface {
 }
 
 // New creates a new kerr.Error
-func New(id string, inner error, location string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
+func New(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
 	stack := []string{id}
 	if i, ok := inner.(Interface); ok {
 		stack = append(i.ErrorStack(), id)
@@ -68,7 +66,6 @@ func New(id string, inner error, location string, descriptionFormat string, desc
 		Line:        line,
 		Package:     packageName,
 		Function:    functionName,
-		Location:    location,
 		Description: fmt.Sprintf(descriptionFormat, descriptionArgs...),
 		Stack:       stack,
 	}

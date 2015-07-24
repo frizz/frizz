@@ -13,7 +13,7 @@ func Open(filename string, path string, aliases map[string]string) (value interf
 
 	file, err := os.Open(filename)
 	if err != nil {
-		err = kerr.New("NDJKHCDCIW", err, "kego.Open", "os.Open")
+		err = kerr.New("NDJKHCDCIW", err, "os.Open")
 		return
 	}
 	defer file.Close()

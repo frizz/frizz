@@ -33,10 +33,10 @@ func NewReference(packagePath string, typeName string) Reference {
 
 func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
-		return nil, kerr.New("OSQKOWGVWX", nil, "Reference.RuleToParentType", "Reference is nil")
+		return nil, kerr.New("OSQKOWGVWX", nil, "Reference is nil")
 	}
 	if !strings.HasPrefix(r.Name, "@") {
-		return nil, kerr.New("HBKCDXQBYG", nil, "Reference.RuleToParentType", "Type %s is not a rule type", r.Name)
+		return nil, kerr.New("HBKCDXQBYG", nil, "Type %s is not a rule type", r.Name)
 	}
 	newType := r.Name[1:]
 	newRef := &Reference{
@@ -51,7 +51,7 @@ func NewReferenceFromString(in string, path string, aliases map[string]string) (
 	r := &Reference{}
 	err := r.UnmarshalJSON([]byte(strconv.Quote(in)), path, aliases)
 	if err != nil {
-		return nil, kerr.New("VXRGOQHWNB", err, "system.NewReferenceFromString", "UnmarshalJSON")
+		return nil, kerr.New("VXRGOQHWNB", err, "UnmarshalJSON")
 	}
 	return r, nil
 }
@@ -59,7 +59,7 @@ func NewReferenceFromString(in string, path string, aliases map[string]string) (
 func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var s *string
 	if err := json.UnmarshalPlain(in, &s, path, aliases); err != nil {
-		return kerr.New("BBWVFPNNTT", err, "Reference.UnmarshalJSON", "json.UnmarshalPlain: %s", in)
+		return kerr.New("BBWVFPNNTT", err, "json.UnmarshalPlain: %s", in)
 	}
 	if s == nil {
 		out.Exists = false

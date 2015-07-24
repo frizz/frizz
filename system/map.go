@@ -17,7 +17,7 @@ func (r *Map_rule) Enforce(data interface{}, path string, aliases map[string]str
 	val := reflect.ValueOf(data)
 
 	if val.Kind() != reflect.Map {
-		return false, "", kerr.New("NFWPLTOJLP", nil, "Array_rule.Enforce", "val.Kind %s should be slice.", val.Kind())
+		return false, "", kerr.New("NFWPLTOJLP", nil, "val.Kind %s should be slice.", val.Kind())
 	}
 
 	// This is the maximum number of items allowed in the map

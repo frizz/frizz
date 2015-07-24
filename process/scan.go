@@ -91,26 +91,26 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
-			return kerr.New("RSYYBBHVQK", err, "process.Scan", "walker (%s)", filePath)
+			return kerr.New("RSYYBBHVQK", err, "walker (%s)", filePath)
 		}
 		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, set); err != nil {
-			return kerr.New("EMFAEDUFRS", err, "process.Scan", "processScannedFile (%s)", filePath)
+			return kerr.New("EMFAEDUFRS", err, "processScannedFile (%s)", filePath)
 		}
 		return nil
 	}
 
 	if set.recursive {
 		if err := filepath.Walk(set.dir, walker); err != nil {
-			return kerr.New("XHHQSAVCKK", err, "process.Scan", "filepath.Walk (scanning for types)")
+			return kerr.New("XHHQSAVCKK", err, "filepath.Walk (scanning for types)")
 		}
 	} else {
 		files, err := ioutil.ReadDir(set.dir)
 		if err != nil {
-			return kerr.New("CDYLDBLHKT", err, "process.Scan", "ioutil.ReadDir")
+			return kerr.New("CDYLDBLHKT", err, "ioutil.ReadDir")
 		}
 		for _, f := range files {
 			if err := walker(filepath.Join(set.dir, f.Name()), f, nil); err != nil {
-				return kerr.New("IAPRUHFTAD", err, "process.Scan", "walker")
+				return kerr.New("IAPRUHFTAD", err, "walker")
 			}
 		}
 	}
@@ -122,14 +122,14 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 
 	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
-		return kerr.New("JHSOCKOTHE", err, "process.scanFile", "openFile")
+		return kerr.New("JHSOCKOTHE", err, "openFile")
 	}
 	if bytes == nil {
 		return nil
 	}
 
 	if err = scanBytes(bytes, hash, ignoreUnknownTypes, ignoreUnknownPackages, scan, set); err != nil {
-		return kerr.New("DHTURNTIXE", err, "process.scanFile", "processReader (%s)", filePath)
+		return kerr.New("DHTURNTIXE", err, "processReader (%s)", filePath)
 	}
 	return nil
 }
@@ -141,14 +141,14 @@ func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownP
 
 	if ut, ok := err.(json.UnknownTypeError); ok {
 		if !ignoreUnknownTypes {
-			return kerr.New("FKCPTUWJWW", nil, "process.processReader", "json.NewDecoder.Decode: unknown type %s", ut.UnknownType)
+			return kerr.New("FKCPTUWJWW", nil, "json.NewDecoder.Decode: unknown type %s", ut.UnknownType)
 		}
 	} else if up, ok := err.(json.UnknownPackageError); ok {
 		if !ignoreUnknownPackages {
-			return kerr.New("KWNPDUJNYP", nil, "process.processReader", "json.NewDecoder.Decode: unknown package %s", up.UnknownPackage)
+			return kerr.New("KWNPDUJNYP", nil, "json.NewDecoder.Decode: unknown package %s", up.UnknownPackage)
 		}
 	} else if err != nil {
-		return kerr.New("DSMDNTCPOQ", err, "process.processReader", "json.NewDecoder.Decode")
+		return kerr.New("DSMDNTCPOQ", err, "json.NewDecoder.Decode")
 	}
 
 	return scan(i, hash)
@@ -163,25 +163,25 @@ func openFile(filePath string, set settings) ([]byte, uint64, error) {
 
 	bytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return nil, 0, kerr.New("NMWROTKPLJ", err, "process.openFile", "ioutil.ReadFile (%s)", filePath)
+		return nil, 0, kerr.New("NMWROTKPLJ", err, "ioutil.ReadFile (%s)", filePath)
 	}
 
 	if strings.HasSuffix(filePath, ".yaml") || strings.HasSuffix(filePath, ".yml") {
 		j, err := yaml.YAMLToJSON(bytes)
 		if err != nil {
-			return nil, 0, kerr.New("FAFJCYESRH", err, "process.openFile", "yaml.YAMLToJSON")
+			return nil, 0, kerr.New("FAFJCYESRH", err, "yaml.YAMLToJSON")
 		}
 		bytes = j
 	}
 
 	relative, err := filepath.Rel(set.dir, filePath)
 	if err != nil {
-		return nil, 0, kerr.New("MDNIWARJEG", err, "process.openFile", "filepath.Rel")
+		return nil, 0, kerr.New("MDNIWARJEG", err, "filepath.Rel")
 	}
 
 	hash, err := getHash(relative, set.path, set.aliases, bytes)
 	if err != nil {
-		return nil, 0, kerr.New("GKUPQSADWQ", err, "process.openFile", "getHash")
+		return nil, 0, kerr.New("GKUPQSADWQ", err, "getHash")
 	}
 
 	return bytes, hash, nil
@@ -205,7 +205,7 @@ func getHash(relativeFilePath string, packagePath string, aliases map[string]str
 
 	bytes, err := json.Marshal(holder)
 	if err != nil {
-		return 0, kerr.New("TGAEJVECIF", err, "process.getHash", "json.Marshal")
+		return 0, kerr.New("TGAEJVECIF", err, "json.Marshal")
 	}
 
 	hash := cityhash.CityHash64(bytes, uint32(len(bytes)))

@@ -24,7 +24,7 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 
 	n, ok := data.(Number)
 	if !ok {
-		return false, "", kerr.New("AISBHNCJXJ", nil, "Number_rule.Enforce", "Data %T should be Number", data)
+		return false, "", kerr.New("AISBHNCJXJ", nil, "Data %T should be Number", data)
 	}
 
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
@@ -89,7 +89,7 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 func (out *Number) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var f *float64
 	if err := json.UnmarshalPlain(in, &f, path, aliases); err != nil {
-		return kerr.New("GXNBRBELFA", err, "Number.UnmarshalJSON", "json.UnmarshalPlain")
+		return kerr.New("GXNBRBELFA", err, "json.UnmarshalPlain")
 	}
 	if f == nil {
 		out.Exists = false

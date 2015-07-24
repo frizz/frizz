@@ -40,13 +40,13 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, gl
 
 		dir, err := os.Getwd()
 		if err != nil {
-			return settings{}, kerr.New("OKOLXAMBSJ", err, "process.InitialiseManually", "os.Getwd")
+			return settings{}, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
 		}
 		set.dir = dir
 
 		pathFromDir, err := getPackagePath(set.dir, os.Getenv("GOPATH"))
 		if err != nil {
-			return settings{}, kerr.New("PSRAWHQCPV", err, "process.InitialiseManually", "getPackage")
+			return settings{}, kerr.New("PSRAWHQCPV", err, "getPackage")
 		}
 		set.path = pathFromDir
 
@@ -60,7 +60,7 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, gl
 		} else {
 			dir, err := getPackageDir(set.path, os.Getenv("GOPATH"))
 			if err != nil {
-				return settings{}, kerr.New("GXTUPMHETV", err, "process.InitialiseManually", "Can't find %s", set.path)
+				return settings{}, kerr.New("GXTUPMHETV", err, "Can't find %s", set.path)
 			}
 			set.dir = dir
 		}
@@ -69,7 +69,7 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, gl
 
 	aliases, err := ScanForAliases(set)
 	if err != nil {
-		return settings{}, kerr.New("IAAETYCHSW", err, "process.InitialiseManually", "ScanForImports")
+		return settings{}, kerr.New("IAAETYCHSW", err, "ScanForImports")
 	}
 	set.aliases = aliases
 
@@ -87,7 +87,7 @@ func InitialiseCommand(update bool, recursive bool, globals bool, path string) (
 
 	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, globals, path)
 	if err != nil {
-		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
+		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
 	return set, nil
@@ -108,7 +108,7 @@ func InitialiseAutomatic() (settings, error) {
 
 	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, *globalsFlag, *pathFlag)
 	if err != nil {
-		return settings{}, kerr.New("UKAMOSMQST", err, "process.InitialiseAutomatic", "InitialiseManually")
+		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
 	return set, nil
@@ -135,7 +135,7 @@ func getPackagePath(dir string, gopathEnv string) (string, error) {
 	if savedError != nil {
 		return "", savedError
 	}
-	return "", kerr.New("CXOETFPTGM", nil, "process.getPackage", "Package not found for %s", dir)
+	return "", kerr.New("CXOETFPTGM", nil, "Package not found for %s", dir)
 }
 
 func getPackageDir(path string, gopathEnv string) (string, error) {
@@ -146,5 +146,5 @@ func getPackageDir(path string, gopathEnv string) (string, error) {
 			return dir, nil
 		}
 	}
-	return "", kerr.New("SUTCWEVRXS", nil, "process.getDir", "%s not found", path)
+	return "", kerr.New("SUTCWEVRXS", nil, "%s not found", path)
 }

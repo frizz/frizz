@@ -15,7 +15,7 @@ func Type(field system.Rule, path string, getAlias func(string) string) (string,
 
 	outer, err := system.NewRuleHolder(field, "", map[string]string{})
 	if err != nil {
-		return "", kerr.New("TFXFBIRXHN", err, "generator.Type", "NewRuleHolder")
+		return "", kerr.New("TFXFBIRXHN", err, "NewRuleHolder")
 	}
 
 	// if the rule is a complex collection, with possibly several maps and arrays, this
@@ -23,7 +23,7 @@ func Type(field system.Rule, path string, getAlias func(string) string) (string,
 	// for an array of maps. It also returns the inner rule.
 	prefix, inner, err := collectionPrefixInnerRule("", outer)
 	if err != nil {
-		return "", kerr.New("SOGEFOPJHB", err, "generator.Type", "collectionPrefixInnerRule")
+		return "", kerr.New("SOGEFOPJHB", err, "collectionPrefixInnerRule")
 	}
 
 	// this returns a "*" if the type should be prefixed by it. Native and interface types
@@ -34,7 +34,7 @@ func Type(field system.Rule, path string, getAlias func(string) string) (string,
 
 	tag, err := getTag(inner)
 	if err != nil {
-		return "", kerr.New("CSJHNCMHRU", err, "generator.Type", "getTag")
+		return "", kerr.New("CSJHNCMHRU", err, "getTag")
 	}
 	if tag != "" {
 		tag = " " + tag
@@ -57,7 +57,7 @@ func collectionPrefixInnerRule(prefix string, outer *system.RuleHolder) (fullPre
 		}
 		items, err := outer.ItemsRule()
 		if err != nil {
-			return "", nil, kerr.New("SUTYJEGBKW", err, "property.collectionPrefixInnerRule", "outer.ItemsRule")
+			return "", nil, kerr.New("SUTYJEGBKW", err, "outer.ItemsRule")
 		}
 		return collectionPrefixInnerRule(prefix, items)
 	} else {
@@ -105,7 +105,7 @@ func formatTag(defaultBytes []byte, r *system.RuleHolder) (string, error) {
 
 	jsonBytes, err := json.Marshal(tag)
 	if err != nil {
-		return "", kerr.New("LKBWJTMJCF", err, "property.formatTag", "json.Marshal(tag)")
+		return "", kerr.New("LKBWJTMJCF", err, "json.Marshal(tag)")
 	}
 
 	return fmt.Sprintf("`kego:%s`", strconv.Quote(string(jsonBytes))), nil
@@ -123,14 +123,14 @@ func getTag(r *system.RuleHolder) (string, error) {
 	if m, ok := pointer.(json.Marshaler); ok {
 		defaultBytes, err := m.MarshalJSON()
 		if err != nil {
-			return "", kerr.New("YIEMHYFVCD", err, "Property.getTag", "m.MarshalJSON")
+			return "", kerr.New("YIEMHYFVCD", err, "m.MarshalJSON")
 		}
 		return formatTag(defaultBytes, r)
 	}
 
 	defaultBytes, err := json.Marshal(value)
 	if err != nil {
-		return "", kerr.New("QQDOLAJKLU", err, "Property.getTag", "json.Marshal (typed)")
+		return "", kerr.New("QQDOLAJKLU", err, "json.Marshal (typed)")
 	}
 
 	return formatTag(defaultBytes, r)

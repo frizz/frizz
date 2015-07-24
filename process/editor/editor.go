@@ -31,21 +31,21 @@ func StartServer(path string) error {
 
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
-		return kerr.New("ALTNEBOFGB", err, "editor.StartServer", "net.Listen")
+		return kerr.New("ALTNEBOFGB", err, "net.Listen")
 	}
 	defer l.Close()
 
 	addr, ok := l.Addr().(*net.TCPAddr)
 	if !ok {
-		return kerr.New("HSWSQFNQQH", nil, "editor.StartServer", "Can't find address (l.Addr() is not *net.TCPAddr)")
+		return kerr.New("HSWSQFNQQH", nil, "Can't find address (l.Addr() is not *net.TCPAddr)")
 	}
 
 	if err := browser.OpenURL(fmt.Sprintf("http://localhost:%d/github.com/davelondon/ke_site/editor/", addr.Port)); err != nil {
-		return kerr.New("MMMFFQDKQP", err, "editor.StartServer", "browser.OpenUrl")
+		return kerr.New("MMMFFQDKQP", err, "browser.OpenUrl")
 	}
 
 	if err := http.Serve(l, sourceFiles); err != nil {
-		return kerr.New("BXWMMJPTFR", err, "editor.StartServer", "http.Serve")
+		return kerr.New("BXWMMJPTFR", err, "http.Serve")
 	}
 
 	return nil
