@@ -39,7 +39,7 @@ func FormatError(err error) string {
 	return err.Error()
 }
 
-func KegoCmd(set settings) error {
+func KeCommand(set settings) error {
 
 	for p, a := range set.aliases {
 		if set.verbose {

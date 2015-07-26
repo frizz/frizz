@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 	"testing"
 
 	"kego.io/kerr/assert"
@@ -214,19 +213,7 @@ func TestImport(t *testing.T) {
 
 func runKego(namespace string, name string, files map[string]string) (string, error) {
 
-	runTests := false
-	for name, contents := range files {
-		if strings.HasSuffix(name, ".yaml") {
-			// our Go files are tab indented, but yaml files don't like tabs.
-			files[name] = strings.Replace(contents, "\t", "    ", -1)
-		}
-		if strings.HasSuffix(name, "_test.go") {
-			// if we add a xxx_test.go file we should also run "go test"
-			runTests = true
-		}
-	}
-
-	path, _, err := pkgtest.CreateTemporaryPackage(namespace, name, files)
+	path, _, tests, err := pkgtest.CreateTemporaryPackage(namespace, name, files)
 	if err != nil {
 		return "", err
 	}
@@ -237,11 +224,11 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		return "", err
 	}
 
-	if err := process.KegoCmd(set); err != nil {
+	if err := process.KeCommand(set); err != nil {
 		return "", err
 	}
 
-	if runTests {
+	if tests {
 		if out, err := exec.Command("go", "test", path).CombinedOutput(); err != nil {
 			return "", fmt.Errorf("%s", string(out))
 		}

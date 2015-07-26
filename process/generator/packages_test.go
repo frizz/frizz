@@ -33,12 +33,12 @@ func TestGetPackageName(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 
-	path, _, err := pkgtest.CreateTemporaryPackage(dir, "a", map[string]string{})
+	path, _, _, err := pkgtest.CreateTemporaryPackage(dir, "a", map[string]string{})
 	assert.NoError(t, err)
 	name := getPackageName(path)
 	assert.Equal(t, "a", name)
 
-	path, _, err = pkgtest.CreateTemporaryPackage(dir, "b", map[string]string{
+	path, _, _, err = pkgtest.CreateTemporaryPackage(dir, "b", map[string]string{
 		"foo.go": "package c",
 	})
 	assert.NoError(t, err)

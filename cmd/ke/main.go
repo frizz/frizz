@@ -14,7 +14,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if err := process.KegoCmd(set); err != nil {
+	if err := process.KeCommand(set); err != nil {
 		fmt.Println(process.FormatError(err))
 		os.Exit(1)
 	}
