@@ -13,7 +13,7 @@ func Validate_NeedsTypes(t *testing.T) {
 
 	n, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Remove(n)
+	defer os.RemoveAll(n)
 
 	files := map[string]string{
 		"a.json": `{
@@ -44,7 +44,7 @@ func TestValidate_error1(t *testing.T) {
 
 	n, err := pkgtest.CreateTemporaryNamespace()
 	assert.NoError(t, err)
-	defer os.Remove(n)
+	defer os.RemoveAll(n)
 
 	files := map[string]string{
 		"b.json": `{
