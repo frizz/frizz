@@ -1,8 +1,8 @@
 package process
 
 import (
+	"kego.io/editor"
 	"kego.io/kerr"
-	"kego.io/process/editor"
 )
 
 func EditCommand(set settings) error {

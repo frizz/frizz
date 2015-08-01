@@ -1,4 +1,4 @@
-package editor // import "kego.io/process/editor"
+package editor // import "kego.io/editor"
 
 import (
 	"go/build"
