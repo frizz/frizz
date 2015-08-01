@@ -1,3 +1,5 @@
+// astwalker walks through all source files, finds the kerr.New function, and
+// removes the third parameter. This was used to refactor the code base.
 package main
 
 import (
@@ -14,10 +16,17 @@ import (
 )
 
 func main() {
+
+	// disabled
+	return
+
 	if false {
+		// for testing
 		walkFile("/Users/dave/dev/proj/go/src/kego.io/process/edit.go")
 	} else {
+		// walk eaach file in the working directory
 		walker := func(path string, file os.FileInfo, err error) error {
+			// skip anything starting with a period, or not ending in .go.
 			if strings.HasPrefix(path, ".") || !strings.HasSuffix(path, ".go") {
 				return nil
 			}
@@ -39,9 +48,12 @@ func walkFile(path string) error {
 	if err != nil {
 		return err
 	}
-	v := &FuncVisitor{b, false}
+
+	// visitor implements ast.Visitor
+	v := &visitor{b, false}
 	ast.Walk(v, file)
 
+	// if we made a replacement, re-write the modified file
 	if v.Found {
 		fmt.Println(path)
 		f, err := os.Create(path)
@@ -57,12 +69,12 @@ func walkFile(path string) error {
 	return nil
 }
 
-type FuncVisitor struct {
+type visitor struct {
 	Bytes []byte
 	Found bool
 }
 
-func (v *FuncVisitor) Visit(node ast.Node) (w ast.Visitor) {
+func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 
 	if node == nil {
 		return v
@@ -78,7 +90,8 @@ func (v *FuncVisitor) Visit(node ast.Node) (w ast.Visitor) {
 				pkg = i.Name
 			}
 		}
-		if name == "New" && pkg == "kerr" {
+		if pkg == "kerr" && name == "New" {
+			// for call expressions kerr.New, remove the third parameter
 			t.Args = append(t.Args[0:2], t.Args[3:]...)
 			v.Found = true
 		}
