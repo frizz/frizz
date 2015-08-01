@@ -1,8 +1,8 @@
 package process
 
 import (
+	"kego.io/generator"
 	"kego.io/kerr"
-	"kego.io/process/generator"
 	"kego.io/system"
 )
 

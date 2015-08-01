@@ -8,9 +8,9 @@ import (
 
 	"sort"
 
+	"kego.io/generator"
 	"kego.io/kerr"
 	"kego.io/literal"
-	"kego.io/process/generator"
 	"kego.io/system"
 )
 

@@ -1,4 +1,4 @@
-package generator // import "kego.io/process/generator"
+package generator // import "kego.io/generator"
 
 import (
 	"fmt"

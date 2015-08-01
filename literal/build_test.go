@@ -3,8 +3,8 @@ package literal
 import (
 	"testing"
 
+	"kego.io/generator"
 	"kego.io/kerr/assert"
-	"kego.io/process/generator"
 )
 
 func TestBuild(t *testing.T) {

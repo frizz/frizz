@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/generator"
 	"kego.io/kerr/assert"
-	"kego.io/process/generator"
 )
 
 func TestGetName(t *testing.T) {

@@ -3,7 +3,7 @@ package generator_test
 import (
 	"testing"
 
-	"kego.io/process/generator"
+	"kego.io/generator"
 	_ "kego.io/system/types"
 )
 
