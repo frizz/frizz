@@ -17,7 +17,7 @@ func TestScan(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(n)
 
-	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -46,7 +46,7 @@ func TestScan_rule(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(n)
 
-	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -95,7 +95,7 @@ func TestScan_errors(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(n)
 
-	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": "foo",
 	})
 

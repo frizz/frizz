@@ -27,7 +27,7 @@ func Validate_NeedsTypes(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, err := pkgtest.CreateTemporaryPackage(n, "a", files)
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", files)
 	assert.NoError(t, err)
 
 	// this is a type, so we need to register it with a hash to stop validate erroring.
@@ -60,7 +60,7 @@ func TestValidate_error1(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, err := pkgtest.CreateTemporaryPackage(n, "b", files)
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "b", files)
 	assert.NoError(t, err)
 
 	// this is a type, so we need to register it with a hash to stop validate erroring.

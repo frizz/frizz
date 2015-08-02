@@ -33,19 +33,17 @@ type RuleHolder struct {
 	Rule       Rule
 	RuleType   *Type
 	ParentType *Type
-	Path       string
-	Aliases    map[string]string
 }
 
 func NewMinimalRuleHolder(t *Type, path string, aliases map[string]string) *RuleHolder {
-	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t, Path: path, Aliases: aliases}
+	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t}
 }
-func NewRuleHolder(r Rule, path string, aliases map[string]string) (*RuleHolder, error) {
+func NewRuleHolder(r Rule) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r)
 	if err != nil {
 		return nil, kerr.New("VRCWUGOTMA", err, "ruleTypes")
 	}
-	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt, Path: path, Aliases: aliases}, nil
+	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt}, nil
 }
 
 func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
@@ -93,7 +91,7 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !ok {
 		return nil, kerr.New("DIFVRMVWMC", nil, "items is not a rule")
 	}
-	rh, err := NewRuleHolder(rule, r.Path, r.Aliases)
+	rh, err := NewRuleHolder(rule)
 	if err != nil {
 		return nil, kerr.New("FGYMQPNBQJ", err, "NewRuleHolder")
 	}

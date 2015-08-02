@@ -47,23 +47,21 @@ func TestFormatTag(t *testing.T) {
 		Rule:       &ruleStruct{},
 		RuleType:   ruleType,
 		ParentType: parentType,
-		Path:       "d.e/f",
-		Aliases:    map[string]string{},
 	}
-	s, err := formatTag([]byte("null"), r)
+	s, err := formatTag([]byte("null"), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "", s)
 
-	s, err = formatTag([]byte(`"a"`), r)
+	s, err = formatTag([]byte(`"a"`), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"a\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
 	parentType.Id = system.NewReference("kego.io/system", "string")
-	s, err = formatTag([]byte(`"a"`), r)
+	s, err = formatTag([]byte(`"a"`), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\"`", s)
 
-	_, err = formatTag([]byte(`foo`), r)
+	_, err = formatTag([]byte(`foo`), r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "LKBWJTMJCF")
 }
 
@@ -147,35 +145,33 @@ func TestGetTag(t *testing.T) {
 		Rule:       &ruleStructA{},
 		RuleType:   ruleType,
 		ParentType: parentType,
-		Path:       "d.e/f",
-		Aliases:    map[string]string{},
 	}
 
 	// rule has no default field
-	s, err := getTag(r)
+	s, err := getTag(r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "", s)
 
 	r.Rule = &ruleStructB{Default: system.NewString("c")}
-	s, err = getTag(r)
+	s, err = getTag(r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
 	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Base: &system.Base{Id: system.NewReference("d.e/f", "f")}}}
-	s, err = getTag(r)
+	s, err = getTag(r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 
 	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Base: &system.Base{Id: system.NewReference("d.e/f", "f")}, throwError: true}}
-	s, err = getTag(r)
+	s, err = getTag(r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "YIEMHYFVCD")
 
 	r.Rule = &ruleStructD{Default: make(typeThatWillCauseJsonMarshalToError)}
-	s, err = getTag(r)
+	s, err = getTag(r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "QQDOLAJKLU")
 
 	r.Rule = &ruleStructE{Default: structWithoutCustomMarshaler{A: "b"}}
-	s, err = getTag(r)
+	s, err = getTag(r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":{\\\"A\\\":\\\"b\\\"},\\\"path\\\":\\\"d.e/f\\\"}}\"`", s)
 

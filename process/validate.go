@@ -251,7 +251,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if !field.GetRuleBase().Optional && !found {
 			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
 		}
-		childRule, err := system.NewRuleHolder(field, path, aliases)
+		childRule, err := system.NewRuleHolder(field)
 		if err != nil {
 			return kerr.New("IQOXVXBLRO", err, "system.NewRuleHolder (%s)", name)
 		}

@@ -19,11 +19,11 @@ func TestInitialise(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	pathA, dirA, err := pkgtest.CreateTemporaryPackage(namespace, "a", map[string]string{
+	pathA, dirA, _, err := pkgtest.CreateTemporaryPackage(namespace, "a", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"a.go":   "package a",
 	})
-	pathB, dirB, err := pkgtest.CreateTemporaryPackage(namespace, "b", map[string]string{
+	pathB, dirB, _, err := pkgtest.CreateTemporaryPackage(namespace, "b", map[string]string{
 		"b.json": `{"type": "system:type", "id": "b"}`,
 		"b.go":   "package b",
 	})
@@ -74,7 +74,7 @@ func TestGetPackageDir(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	pathA, dirA, err := pkgtest.CreateTemporaryPackage(namespace, "a", nil)
+	pathA, dirA, _, err := pkgtest.CreateTemporaryPackage(namespace, "a", nil)
 
 	dir, err := getPackageDir(pathA, os.Getenv("GOPATH"))
 	assert.NoError(t, err)

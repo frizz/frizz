@@ -13,7 +13,7 @@ import (
 // [collection prefix][optional pointer][type name]
 func Type(field system.Rule, path string, getAlias func(string) string) (string, error) {
 
-	outer, err := system.NewRuleHolder(field, "", map[string]string{})
+	outer, err := system.NewRuleHolder(field)
 	if err != nil {
 		return "", kerr.New("TFXFBIRXHN", err, "NewRuleHolder")
 	}
@@ -32,7 +32,8 @@ func Type(field system.Rule, path string, getAlias func(string) string) (string,
 
 	name := Reference(inner.ParentType.Id.Package, system.GoName(inner.ParentType.Id.Name), path, getAlias)
 
-	tag, err := getTag(inner)
+	// TODO: Why aren't we giving getTag the correct path and aliases?!?
+	tag, err := getTag(inner, "", map[string]string{})
 	if err != nil {
 		return "", kerr.New("CSJHNCMHRU", err, "getTag")
 	}
@@ -74,7 +75,7 @@ func getPointer(t *system.Type) string {
 	return ""
 }
 
-func formatTag(defaultBytes []byte, r *system.RuleHolder) (string, error) {
+func formatTag(defaultBytes []byte, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
 
 	if string(defaultBytes) == "null" {
 		return "", nil
@@ -96,8 +97,8 @@ func formatTag(defaultBytes []byte, r *system.RuleHolder) (string, error) {
 		tag = json.KegoTag{
 			Default: &json.KegoDefault{
 				Value:   &defaultRaw,
-				Path:    r.Path,
-				Aliases: r.Aliases,
+				Path:    path,
+				Aliases: aliases,
 				Type:    t,
 			},
 		}
@@ -111,7 +112,7 @@ func formatTag(defaultBytes []byte, r *system.RuleHolder) (string, error) {
 	return fmt.Sprintf("`kego:%s`", strconv.Quote(string(jsonBytes))), nil
 }
 
-func getTag(r *system.RuleHolder) (string, error) {
+func getTag(r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
 
 	value, pointer, ok, err := system.RuleFieldByReflection(r.Rule, "Default")
 	if !ok {
@@ -125,7 +126,7 @@ func getTag(r *system.RuleHolder) (string, error) {
 		if err != nil {
 			return "", kerr.New("YIEMHYFVCD", err, "m.MarshalJSON")
 		}
-		return formatTag(defaultBytes, r)
+		return formatTag(defaultBytes, r, path, aliases)
 	}
 
 	defaultBytes, err := json.Marshal(value)
@@ -133,5 +134,5 @@ func getTag(r *system.RuleHolder) (string, error) {
 		return "", kerr.New("QQDOLAJKLU", err, "json.Marshal (typed)")
 	}
 
-	return formatTag(defaultBytes, r)
+	return formatTag(defaultBytes, r, path, aliases)
 }

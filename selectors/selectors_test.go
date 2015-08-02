@@ -354,7 +354,7 @@ func comparison(actual *Element, expected interface{}, path string, aliases map[
 			if !ok {
 				return false, kerr.New("DXRELESKCB", nil, "field %s not found in %s", key, actual.Rule.ParentType.Id)
 			}
-			itemRule, err := system.NewRuleHolder(field, path, aliases)
+			itemRule, err := system.NewRuleHolder(field)
 			if err != nil {
 				return false, kerr.New("ERPYTUODXO", err, "system.NewRuleHolder")
 			}

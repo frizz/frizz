@@ -165,7 +165,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 			if !found {
 				continue
 			}
-			itemRule, err := system.NewRuleHolder(field, p.path, p.aliases)
+			itemRule, err := system.NewRuleHolder(field)
 			if err != nil {
 				return nil, kerr.New("WWQNGYIUKN", err, "system.NewRuleHolder")
 			}

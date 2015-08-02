@@ -17,7 +17,7 @@ func TestGenerate_path(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	path, dir, err := pkgtest.CreateTemporaryPackage(namespace, "z", map[string]string{
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(namespace, "z", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 	})
 
@@ -36,7 +36,7 @@ func TestRunCommand(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	path, dir, err := pkgtest.CreateTemporaryPackage(namespace, "d", map[string]string{
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(namespace, "d", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"d.go":   `package d`,
 	})
@@ -56,7 +56,7 @@ func TestGenerate(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	path, dir, err := pkgtest.CreateTemporaryPackage(namespace, "d", map[string]string{
+	path, dir, _, err := pkgtest.CreateTemporaryPackage(namespace, "d", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"b.json": `{"type": "c", "id": "b"}`,
 		"d.go":   `package d`,
