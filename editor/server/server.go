@@ -202,12 +202,12 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 		<html>
 			<head>
 				<meta charset="utf-8">
-				<!--
+
 				<link rel="stylesheet"
 					href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.indigo-pink.min.css">
 				<script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js"></script>
 				<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-				-->
+
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 				<style>
 					.node {
@@ -222,6 +222,11 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 						left: -25px;
 						top: 0px;
 						width: 15px;
+					}
+					.toggle svg {
+						opacity: 0.5;
+						height: 20px;
+						width: 20px;
 					}
 				</style>
 			</head>
