@@ -1,0 +1,14 @@
+description: This represents a gallery - it's just a list of images
+type: system:type
+id: gallery2b
+fields:
+  title:
+    type: system:@string
+  images:
+    type: system:@map
+    items:
+      type: images:@photo
+rules:
+  - selector: "{images:photo} .width"
+    type: system:@int
+    minimum: 800

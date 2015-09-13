@@ -50,7 +50,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 					if b.Description != "" {
 						g.Println("// ", b.Description)
 					}
-					descriptor, err := generator.Type(nf.Field, set.path, g.Imports.Add)
+					descriptor, err := generator.Type(nf.Name, nf.Field, set.path, g.Imports.Add)
 					if err != nil {
 						return nil, kerr.New("GDSKJDEKQD", err, "generator.Type")
 					}
@@ -76,6 +76,38 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 				// json.RegisterType("kego.io/gallery/data", "gallery", reflect.TypeOf(&Gallery{}))
 				g.Printf("%s(%s, %s, %s, %#v)\n", jsonRegisterType, pkg, name, typOf, typeDef.Hash)
 			}
+		}
+		g.Println("}")
+		g.Build()
+	case S_EDITOR:
+		g, err := generator.New("main", b)
+		if err != nil {
+			return nil, kerr.New("TMBFYTQHXU", err, "generator.New")
+		}
+		g.Imports.Anonymous("kego.io/system")
+		g.Imports.Anonymous("kego.io/system/types")
+		g.Imports.Anonymous(set.path)
+		g.Imports.Anonymous(fmt.Sprint(set.path, "/types"))
+		for p, _ := range set.aliases {
+			g.Imports.Anonymous(p)
+			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
+		}
+		/*
+			func main() {
+				if err := client.Start("XXX"); err != nil {
+					console.Error(err.Error())
+				}
+			}
+		*/
+		g.Println("func main() {")
+		{
+			clientStart := generator.Reference("kego.io/editor/client", "Start", set.path, g.Imports.Add)
+			g.Println("if err := ", clientStart, "(", strconv.Quote(set.path), "); err != nil {")
+			{
+				consoleError := generator.Reference("kego.io/js/console", "Error", set.path, g.Imports.Add)
+				g.Println(consoleError, "(err.Error())")
+			}
+			g.Println("}")
 		}
 		g.Println("}")
 		g.Build()
@@ -220,6 +252,10 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 					fmt.Println(process.FormatError(err))
 			        os.Exit(1)
 				}
+				if err := process.Generate(process.S_EDITOR, set); err != nil {
+					fmt.Println(process.FormatError(err))
+			        os.Exit(1)
+				}
 				if set.Globals() {
 					if err := process.Generate(process.S_GLOBALS, set); err != nil {
 						fmt.Println(process.FormatError(err))
@@ -228,11 +264,12 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 				}
 			}`)
 		g.Build()
-	case C_VALIDATE:
+	case C_KE:
 		g := generator.NewWithName(set.path, "main", b)
 		g.Imports.Add("os")
 		g.Imports.Add("fmt")
 		g.Imports.Add("kego.io/process")
+		g.Imports.Add("kego.io/editor/server")
 		g.Imports.Anonymous("kego.io/system")
 		g.Imports.Anonymous("kego.io/system/types")
 		g.Imports.Anonymous(set.path)
@@ -255,6 +292,12 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 				if err := process.ValidateCommand(set); err != nil {
 					fmt.Println(process.FormatError(err))
 					os.Exit(1)
+				}
+				if set.Edit() {
+					if err = server.Start(set.Path(), set.Verbose()); err != nil {
+						fmt.Println(process.FormatError(err))
+						os.Exit(1)
+					}
 				}
 			}`)
 		g.Build()

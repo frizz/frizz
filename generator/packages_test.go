@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/internal/pkgtest"
+	"kego.io/process/pkgtest"
 )
 
 func TestGuessPackageName(t *testing.T) {

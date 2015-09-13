@@ -18,14 +18,15 @@ const (
 	S_STRUCTS sourceType = "structs"
 	S_TYPES              = "types"
 	S_GLOBALS            = "globals"
+	S_EDITOR             = "editor"
 )
 
 type commandType string
 
 const (
-	C_STRUCTS  commandType = "structs"
-	C_TYPES                = "types"
-	C_VALIDATE             = "validate"
+	C_STRUCTS commandType = "structs"
+	C_TYPES               = "types"
+	C_KE                  = "ke"
 )
 
 func FormatError(err error) string {
@@ -79,7 +80,7 @@ func RunAllCommands(set settings) error {
 	if err := RunCommand(C_TYPES, set); err != nil {
 		return err
 	}
-	if err := RunCommand(C_VALIDATE, set); err != nil {
+	if err := RunCommand(C_KE, set); err != nil {
 		return err
 	}
 	return nil
@@ -104,17 +105,17 @@ func RunCommand(file commandType, set settings) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	validateCommandPath := filepath.Join(set.dir, "validate")
+	keCommandPath := filepath.Join(set.dir, "ke")
 
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
-	if file == C_VALIDATE {
+	if file == C_KE {
 		if set.verbose {
 			fmt.Print("Building ", file, " command... ")
 		}
-		out, err := exec.Command("go", "build", "-o", validateCommandPath, outputPath).CombinedOutput()
+		out, err := exec.Command("go", "build", "-o", keCommandPath, outputPath).CombinedOutput()
 		if err != nil {
 			return kerr.New("OEPAEEYKIS", err, "go build: cd%s", out)
 		} else {
@@ -130,10 +131,13 @@ func RunCommand(file commandType, set settings) error {
 	command := ""
 	params := []string{}
 
-	if file == C_VALIDATE {
-		command = validateCommandPath
+	if file == C_KE {
+		command = keCommandPath
 		if set.verbose {
 			params = append(params, "-v")
+		}
+		if set.edit {
+			params = append(params, "-e")
 		}
 	} else {
 		if set.verbose {
@@ -166,12 +170,12 @@ func RunCommand(file commandType, set settings) error {
 		if set.verbose {
 			fmt.Println()
 		}
-		if file == C_VALIDATE {
+		if file == C_KE {
 			return ValidationError{kerr.New("ETWHPXTUVB", nil, strings.TrimSpace(string(out)))}
 		}
 		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", out)
 	} else {
-		if file != C_VALIDATE {
+		if file != C_KE {
 			if set.verbose {
 				fmt.Println("OK.")
 			}
@@ -200,8 +204,8 @@ func RunCommand(file commandType, set settings) error {
 // file == F_CMD_TYPES: this is the temporary command that we create in order to
 // generate the types source file
 //
-// file == F_CMD_VALIDATE: this is the temporary command that we create in order
-// to run the validation
+// file == F_CMD_KE: this is the temporary command that we create in order
+// to run the validation and start the editor
 //
 func Generate(file sourceType, set settings) error {
 
@@ -212,21 +216,24 @@ func Generate(file sourceType, set settings) error {
 	outputDir := set.dir
 	if file == S_TYPES {
 		outputDir = filepath.Join(set.dir, "types")
+	} else if file == S_EDITOR {
+		outputDir = filepath.Join(set.dir, "editor")
 	}
 
-	ignoreUnknownTypes := true
-	if file == S_TYPES {
-		ignoreUnknownTypes = false
-	}
+	// We only tolerate unknown types when we're initially building the struct files. At all other
+	// times, the generated structs should provide all types.
+	ignoreUnknownTypes := file == S_STRUCTS
 
 	if file == S_STRUCTS || file == S_TYPES {
-		// If type == F_GLOBALS, we have already generated and imported the types, so
-		// there is no need to scan.
+		// When generating structs or types, we need to scan for types. All other runs will have
+		// them compiled in the types sub-package.
 		if err := ScanForTypes(ignoreUnknownTypes, set); err != nil {
 			return kerr.New("XYIUHERDHE", err, "ScanForTypes")
 		}
-	} else {
-		// However, we need to scan for the globals.
+	}
+
+	if file == S_GLOBALS {
+		// When generating the globals definitions, we need to scan for globals.
 		if err := ScanForGlobals(set); err != nil {
 			return kerr.New("JQLAQVKLAN", err, "ScanForGlobals")
 		}
@@ -234,21 +241,19 @@ func Generate(file sourceType, set settings) error {
 
 	source, err := GenerateSource(file, set)
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "Generate")
+		return kerr.New("XFNESBLBTQ", err, "GenerateSource")
 	}
 
-	// We only backup in the system types because they are the only
-	// generated files you'll ever need to roll back
-	backup := set.path == "kego.io/system" || set.path == "kego.io/system/types"
+	// We only backup in the system structs and types files because they are the only
+	// generated files we ever need to roll back
+	backup := set.path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
 
-	var filename string
-	if file == S_GLOBALS {
-		filename = "generated-globals.go"
-	} else if file == S_STRUCTS {
-		filename = "generated-structs.go"
-	} else if file == S_TYPES {
-		filename = "generated-types.go"
-	}
+	// Filenames:
+	// generated-globals.go
+	// generated-structs.go
+	// generated-types.go
+	// generated-editor.go
+	filename := fmt.Sprintf("generated-%s.go", file)
 
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "save")

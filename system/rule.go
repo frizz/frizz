@@ -35,7 +35,7 @@ type RuleHolder struct {
 	ParentType *Type
 }
 
-func NewMinimalRuleHolder(t *Type, path string, aliases map[string]string) *RuleHolder {
+func NewMinimalRuleHolder(t *Type) *RuleHolder {
 	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t}
 }
 func NewRuleHolder(r Rule) (*RuleHolder, error) {

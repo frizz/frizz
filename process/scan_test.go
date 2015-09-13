@@ -8,7 +8,7 @@ import (
 
 	"os"
 
-	"kego.io/process/internal/pkgtest"
+	"kego.io/process/pkgtest"
 )
 
 func TestScan(t *testing.T) {

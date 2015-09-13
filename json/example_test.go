@@ -26,7 +26,7 @@ func ExampleMarshal() {
 		Name:   "Reds",
 		Colors: []string{"Crimson", "Red", "Ruby", "Maroon"},
 	}
-	b, err := json.Marshal(group)
+	b, err := json.MarshalPlain(group)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
@@ -140,7 +140,7 @@ func ExampleIndent() {
 		{"Sheep Creek", 51},
 	}
 
-	b, err := json.Marshal(roads)
+	b, err := json.MarshalPlain(roads)
 	if err != nil {
 		log.Fatal(err)
 	}

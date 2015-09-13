@@ -82,7 +82,7 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]s
 	return nil
 }
 
-func (r *Reference) MarshalJSON() ([]byte, error) {
+func (r Reference) MarshalJSON() ([]byte, error) {
 	if !r.Exists {
 		return []byte("null"), nil
 	}
@@ -121,3 +121,11 @@ func (s SortableReferences) Swap(i, j int) {
 func (s SortableReferences) Less(i, j int) bool {
 	return s[i].Value() < s[j].Value()
 }
+
+// We satisfy the json.EmptyAware interface to allow intelligent omission of
+// empty values when marshalling
+func (r *Reference) Empty() bool {
+	return !r.Exists
+}
+
+var _ = json.EmptyAware(&Reference{})

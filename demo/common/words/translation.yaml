@@ -1,0 +1,15 @@
+description: This represents a translated string
+type: system:type
+id: translation
+is: [localizer]
+fields:
+  english:
+    description: The original English string
+    type: system:@string
+    default: http
+    optional: true
+  translations:
+    description: The translated strings
+    type: system:@map
+    items:
+      type: system:@string

@@ -1,8 +1,9 @@
 package process
 
+/*
 import (
-	"kego.io/generator"
 	"kego.io/kerr"
+	"kego.io/generator"
 	"kego.io/system"
 )
 
@@ -23,3 +24,4 @@ func GenerateStructs(set settings) error {
 
 	return nil
 }
+*/

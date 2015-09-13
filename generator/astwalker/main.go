@@ -1,5 +1,6 @@
 // astwalker walks through all source files, finds the kerr.New function, and
-// removes the third parameter. This was used to refactor the code base.
+// removes the third parameter. This was used to refactor the code base and
+// learn about the ast package.
 package main
 
 import (

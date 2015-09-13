@@ -244,7 +244,7 @@ func initBig() {
 	if testing.Short() {
 		n = 100
 	}
-	b, err := Marshal(genValue(n))
+	b, err := MarshalPlain(genValue(n))
 	if err != nil {
 		panic(err)
 	}

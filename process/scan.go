@@ -203,7 +203,7 @@ func getHash(relativeFilePath string, packagePath string, aliases map[string]str
 		Content []byte
 	}{relativeFilePath, packagePath, aliases, content}
 
-	bytes, err := json.Marshal(holder)
+	bytes, err := json.MarshalPlain(holder)
 	if err != nil {
 		return 0, kerr.New("TGAEJVECIF", err, "json.Marshal")
 	}

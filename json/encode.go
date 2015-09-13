@@ -131,6 +131,16 @@ import (
 // an infinite recursion.
 //
 func Marshal(v interface{}) ([]byte, error) {
+	e := &encodeState{typed: true}
+	err := e.marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return e.Bytes(), nil
+}
+
+// MarshalPlain marshals plain (non-kego) values into json
+func MarshalPlain(v interface{}) ([]byte, error) {
 	e := &encodeState{}
 	err := e.marshal(v)
 	if err != nil {
@@ -141,7 +151,7 @@ func Marshal(v interface{}) ([]byte, error) {
 
 // MarshalIndent is like Marshal but applies Indent to format the output.
 func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
-	b, err := Marshal(v)
+	b, err := MarshalPlain(v)
 	if err != nil {
 		return nil, err
 	}
@@ -242,6 +252,7 @@ var hex = "0123456789abcdef"
 type encodeState struct {
 	bytes.Buffer // accumulated output
 	scratch      [64]byte
+	typed        bool
 }
 
 var encodeStatePool sync.Pool
@@ -278,6 +289,15 @@ func (e *encodeState) error(err error) {
 var byteSliceType = reflect.TypeOf([]byte(nil))
 
 func isEmptyValue(v reflect.Value) bool {
+
+	if e, ok := v.Interface().(EmptyAware); ok {
+		return e.Empty()
+	} else if v.CanAddr() {
+		if e, ok := v.Addr().Interface().(EmptyAware); ok {
+			return e.Empty()
+		}
+	}
+
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len() == 0
@@ -293,6 +313,10 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.IsNil()
 	}
 	return false
+}
+
+type EmptyAware interface {
+	Empty() bool
 }
 
 func (e *encodeState) reflectValue(v reflect.Value) {
@@ -539,7 +563,7 @@ func stringEncoder(e *encodeState, v reflect.Value, quoted bool) {
 		return
 	}
 	if quoted {
-		sb, err := Marshal(v.String())
+		sb, err := MarshalPlain(v.String())
 		if err != nil {
 			e.error(err)
 		}
@@ -571,7 +595,7 @@ func (se *structEncoder) encode(e *encodeState, v reflect.Value, quoted bool) {
 	first := true
 	for i, f := range se.fields {
 		fv := fieldByIndex(v, f.index)
-		if !fv.IsValid() || f.omitEmpty && isEmptyValue(fv) {
+		if !fv.IsValid() || (f.omitEmpty || e.typed) && isEmptyValue(fv) {
 			continue
 		}
 		if first {

@@ -8,7 +8,7 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process"
-	"kego.io/process/internal/pkgtest"
+	"kego.io/process/pkgtest"
 )
 
 func TestInt(t *testing.T) {

@@ -1,0 +1,3 @@
+Remove globals
+Remove YAML
+Remove recursive

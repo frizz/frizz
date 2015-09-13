@@ -1,5 +1,6 @@
 package generator
 
+/*
 import (
 	"go/ast"
 	"go/parser"
@@ -197,3 +198,4 @@ func updateStruct(ts *ast.TypeSpec, t *system.Type) error {
 
 	return nil
 }
+*/

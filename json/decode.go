@@ -792,6 +792,14 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, aliase
 		// the form "kego.io/system:type".
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
+
+		// We hard-code system and json to prevent them having to always be specified in the aliases
+		if parts[0] == "kego.io/system" {
+			return "kego.io/system", parts[1], nil
+		} else if parts[0] == "kego.io/json" {
+			return "kego.io/json", parts[1], nil
+		}
+
 		_, ok := aliases[parts[0]]
 		if !ok && parts[0] != localPath {
 			return "", "", UnknownPackageError{parts[0]}
@@ -802,11 +810,14 @@ func GetReferencePartsFromTypeString(typeString string, localPath string, aliase
 		// the form "system:type". We should look the package name up in the aliases map.
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
+
+		// We hard-code system and json to prevent them having to always be specified in the aliases
 		if parts[0] == "system" {
 			return "kego.io/system", parts[1], nil
 		} else if parts[0] == "json" {
 			return "kego.io/json", parts[1], nil
 		}
+
 		packagePath, ok := findKey(aliases, parts[0])
 		if !ok {
 			return "", "", UnknownPackageError{parts[0]}

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/internal/pkgtest"
+	"kego.io/process/pkgtest"
 )
 
 func TestGenerate_path(t *testing.T) {

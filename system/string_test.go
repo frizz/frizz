@@ -1,12 +1,45 @@
 package system
 
 import (
+	"reflect"
 	"testing"
 
+	"kego.io/json"
 	"kego.io/kerr/assert"
 
 	"strconv"
 )
+
+func TestMarshal(t *testing.T) {
+
+	data := `{
+		"type": "a",
+		"b": "c"
+	}`
+
+	type A struct {
+		*Base
+		B String `json:"b"`
+	}
+
+	json.RegisterType("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.UnregisterType("kego.io/system", "a")
+
+	var i interface{}
+	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	a, ok := i.(*A)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, a)
+	assert.Equal(t, "c", a.B.Value)
+
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
+
+}
 
 func TestNewString(t *testing.T) {
 	s := NewString("a")

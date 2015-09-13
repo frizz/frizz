@@ -1,5 +1,6 @@
 package generator
 
+/*
 import (
 	"bytes"
 	"fmt"
@@ -77,7 +78,7 @@ func TestAst(t *testing.T) {
 			E	float64
 		}
 		`
-	*/
+
 
 }
 
@@ -134,3 +135,4 @@ func addStructField(fields *ast.FieldList, file *ast.File, typ string, name stri
 	fields.List = append(fields.List, f)
 
 }
+*/

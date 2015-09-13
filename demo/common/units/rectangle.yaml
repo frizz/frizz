@@ -1,0 +1,7 @@
+type: system:type
+id: rectangle
+fields:
+  width:
+    type: system:@int
+  height:
+    type: system:@int

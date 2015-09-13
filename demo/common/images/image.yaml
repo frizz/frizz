@@ -1,0 +1,14 @@
+description: This interface type represents all images - icon and photo
+type: system:type
+id: image
+interface: true
+rule:
+  description: Restriction rules for images
+  type: system:type
+  id: "@image"
+  is: ["system:rule"]
+  embed: ["system:ruleBase"]
+  fields:
+    secure:
+      type: system:@bool
+      optional: true

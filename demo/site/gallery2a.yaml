@@ -1,0 +1,14 @@
+description: This represents a gallery - it's just a list of images
+type: system:type
+id: gallery2a
+fields:
+  title:
+    type: system:@string
+  images:
+    type: system:@map
+    items:
+      type: images:@photo
+      rules:
+        - selector: ".protocol"
+          type: system:@string
+          equal: https

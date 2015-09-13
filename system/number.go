@@ -101,7 +101,7 @@ func (out *Number) UnmarshalJSON(in []byte, path string, aliases map[string]stri
 	return nil
 }
 
-func (n *Number) MarshalJSON() ([]byte, error) {
+func (n Number) MarshalJSON() ([]byte, error) {
 	if !n.Exists {
 		return []byte("null"), nil
 	}
@@ -126,3 +126,11 @@ type NativeNumber interface {
 func (n Number) NativeNumber() (value float64, exists bool) {
 	return n.Value, n.Exists
 }
+
+// We satisfy the json.EmptyAware interface to allow intelligent omission of
+// empty values when marshalling
+func (n *Number) Empty() bool {
+	return !n.Exists
+}
+
+var _ = json.EmptyAware(&Number{})

@@ -1,0 +1,7 @@
+description: This is a type of image, which just contains the url of the image
+type: system:type
+id: icon
+is: [image]
+fields:
+  url:
+    type: system:@string

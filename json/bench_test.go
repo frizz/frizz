@@ -57,7 +57,7 @@ func codeInit() {
 		panic("unmarshal code.json: " + err.Error())
 	}
 
-	if data, err = Marshal(&codeStruct); err != nil {
+	if data, err = MarshalPlain(&codeStruct); err != nil {
 		panic("marshal code.json: " + err.Error())
 	}
 
@@ -97,7 +97,7 @@ func BenchmarkCodeMarshal(b *testing.B) {
 		b.StartTimer()
 	}
 	for i := 0; i < b.N; i++ {
-		if _, err := Marshal(&codeStruct); err != nil {
+		if _, err := MarshalPlain(&codeStruct); err != nil {
 			b.Fatal("Marshal:", err)
 		}
 	}

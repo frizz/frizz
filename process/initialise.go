@@ -28,6 +28,12 @@ func (s settings) Path() string {
 func (s settings) Globals() bool {
 	return s.globals
 }
+func (s settings) Verbose() bool {
+	return s.verbose
+}
+func (s settings) Edit() bool {
+	return s.edit
+}
 
 func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, globals bool, path string) (settings, error) {
 	set := settings{}

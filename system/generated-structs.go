@@ -17,13 +17,13 @@ type Array_rule struct {
 	*Base
 	*RuleBase
 	// This is a rule object, defining the type and restrictions on the value of the items
-	Items Rule
+	Items Rule `json:"items"`
 	// This is the maximum number of items allowed in the array
-	MaxItems Int
+	MaxItems Int `json:"maxItems"`
 	// This is the minimum number of items allowed in the array
-	MinItems Int
+	MinItems Int `json:"minItems"`
 	// If this is true, each item must be unique
-	UniqueItems bool
+	UniqueItems bool `json:"uniqueItems"`
 }
 
 // Automatically created basic rule for base
@@ -37,7 +37,7 @@ type Bool_rule struct {
 	*Base
 	*RuleBase
 	// Default value if this is missing or null
-	Default Bool
+	Default Bool `json:"default"`
 }
 
 // Automatically created basic rule for imports
@@ -51,13 +51,13 @@ type Int_rule struct {
 	*Base
 	*RuleBase
 	// Default value if this property is omitted
-	Default Int
+	Default Int `json:"default"`
 	// This provides an upper bound for the restriction
-	Maximum Int
+	Maximum Int `json:"maximum"`
 	// This provides a lower bound for the restriction
-	Minimum Int
+	Minimum Int `json:"minimum"`
 	// This restricts the number to be a multiple of the given number
-	MultipleOf Int
+	MultipleOf Int `json:"multipleOf"`
 }
 
 // Restriction rules for maps
@@ -65,11 +65,11 @@ type Map_rule struct {
 	*Base
 	*RuleBase
 	// This is a rule object, defining the type and restrictions on the value of the items.
-	Items Rule
+	Items Rule `json:"items"`
 	// This is the maximum number of items alowed in the array
-	MaxItems Int
+	MaxItems Int `json:"maxItems"`
 	// This is the minimum number of items alowed in the array
-	MinItems Int
+	MinItems Int `json:"minItems"`
 }
 
 // Restriction rules for numbers
@@ -77,17 +77,17 @@ type Number_rule struct {
 	*Base
 	*RuleBase
 	// Default value if this property is omitted
-	Default Number
+	Default Number `json:"default"`
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
-	ExclusiveMaximum bool
+	ExclusiveMaximum bool `json:"exclusiveMaximum"`
 	// If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.
-	ExclusiveMinimum bool
+	ExclusiveMinimum bool `json:"exclusiveMinimum"`
 	// This provides an upper bound for the restriction
-	Maximum Number
+	Maximum Number `json:"maximum"`
 	// This provides a lower bound for the restriction
-	Minimum Number
+	Minimum Number `json:"minimum"`
 	// This restricts the number to be a multiple of the given number
-	MultipleOf Number
+	MultipleOf Number `json:"multipleOf"`
 }
 
 // Restriction rules for references
@@ -95,7 +95,7 @@ type Reference_rule struct {
 	*Base
 	*RuleBase
 	// Default value of this is missing or null
-	Default Reference
+	Default Reference `json:"default"`
 }
 
 // Automatically created basic rule for rule
@@ -115,19 +115,19 @@ type String_rule struct {
 	*Base
 	*RuleBase
 	// Default value of this is missing or null
-	Default String
+	Default String `json:"default"`
 	// The value of this string is restricted to one of the provided values
-	Enum []string
+	Enum []string `json:"enum"`
 	// This is a string that the value must match
-	Equal String
+	Equal String `json:"equal"`
 	// This restricts the value to one of several built-in formats
-	Format String
+	Format String `json:"format"`
 	// The value must be shorter or equal to the provided maximum length
-	MaxLength Int
+	MaxLength Int `json:"maxLength"`
 	// The value must be longer or equal to the provided minimum length
-	MinLength Int
+	MinLength Int `json:"minLength"`
 	// This is a regex to match the value to
-	Pattern String
+	Pattern String `json:"pattern"`
 }
 
 // Automatically created basic rule for type
@@ -140,7 +140,7 @@ type Type_rule struct {
 type Aliases struct {
 	*Base
 	// Map of path to alias.
-	Aliases map[string]string
+	Aliases map[string]string `json:"aliases"`
 }
 
 // This is the native json array data type
@@ -151,20 +151,20 @@ type Array struct {
 // This is the most basic type.
 type Base struct {
 	// Description for the developer
-	Description string
+	Description string `json:"description"`
 	// All global objects should have an id.
-	Id Reference
+	Id Reference `json:"id"`
 	// Extra validation rules for this object or descendants
-	Rules []Rule
+	Rules []Rule `json:"rules"`
 	// Type of the object.
-	Type Reference
+	Type Reference `json:"type"`
 }
 
 // Lists imports used in this package.
 type Imports struct {
 	*Base
 	// Map of path to alias.
-	Imports map[string]string
+	Imports map[string]string `json:"imports"`
 }
 
 // This is the native json object data type.
@@ -175,30 +175,30 @@ type Map struct {
 // All rules should embed this type.
 type RuleBase struct {
 	// If this rule is a field, this specifies that the field is optional
-	Optional bool
+	Optional bool `json:"optional"`
 	// Json selector defining what nodes this rule should be applied to.
-	Selector string
+	Selector string `json:"selector"`
 }
 
 // This is the most basic type.
 type Type struct {
 	*Base
 	// Basic types don't have system:object added by default to the embedded types.
-	Basic bool
+	Basic bool `json:"basic"`
 	// Types which this should embed - system:object is always added unless base = true.
-	Embed []Reference
+	Embed []Reference `json:"embed"`
 	// Exclude this type from the generated json?
-	Exclude bool
+	Exclude bool `json:"exclude"`
 	// Each field is listed with it's type
-	Fields map[string]Rule
+	Fields map[string]Rule `json:"fields"`
 	// Is this type an interface?
-	Interface bool
+	Interface bool `json:"interface"`
 	// Array of interface types that this type should support
-	Is []Reference
+	Is []Reference `json:"is"`
 	// This is the native json type that represents this type. If omitted, default is object.
-	Native String `kego:"{\"default\":{\"value\":\"object\"}}"`
+	Native String `kego:"{\"default\":{\"value\":\"object\"}}" json:"native"`
 	// Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.
-	Rule *Type
+	Rule *Type `json:"rule"`
 }
 
 func init() {

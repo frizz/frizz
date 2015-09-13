@@ -54,7 +54,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 
 			ty, ok := ob.GetBase().Type.GetType()
 
-			r := system.NewMinimalRuleHolder(ty, "kego.io/selectors/tests", map[string]string{})
+			r := system.NewMinimalRuleHolder(ty)
 
 			e := &Element{
 				Data:  i,

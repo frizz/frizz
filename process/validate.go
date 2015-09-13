@@ -121,7 +121,7 @@ func validateUnknown(data interface{}, hash uint64, path string, aliases map[str
 		return kerr.New("BNQTCEDVGV", nil, "Type.GetType %s not found", ob.GetBase().Type.Value())
 	}
 
-	partialRuleHolder := system.NewMinimalRuleHolder(t, path, aliases)
+	partialRuleHolder := system.NewMinimalRuleHolder(t)
 
 	rules := t.Rules
 	if system.RulesApplyToObjects(data) {

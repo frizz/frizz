@@ -109,7 +109,7 @@ type renamedRenamedByteSlice []renamedByte
 
 func TestEncodeRenamedByteSlice(t *testing.T) {
 	s := renamedByteSlice("abc")
-	result, err := Marshal(s)
+	result, err := MarshalPlain(s)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,7 +118,7 @@ func TestEncodeRenamedByteSlice(t *testing.T) {
 		t.Errorf(" got %s want %s", result, expect)
 	}
 	r := renamedRenamedByteSlice("abc")
-	result, err = Marshal(r)
+	result, err = MarshalPlain(r)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +135,7 @@ var unsupportedValues = []interface{}{
 
 func TestUnsupportedValues(t *testing.T) {
 	for _, v := range unsupportedValues {
-		if _, err := Marshal(v); err != nil {
+		if _, err := MarshalPlain(v); err != nil {
 			if _, ok := err.(*UnsupportedValueError); !ok {
 				t.Errorf("for %v, got %T want UnsupportedValueError", v, err)
 			}
@@ -204,7 +204,7 @@ func TestRefValMarshal(t *testing.T) {
 		V3: new(ValText),
 	}
 	const want = `{"R0":"ref","R1":"ref","R2":"\"ref\"","R3":"\"ref\"","V0":"val","V1":"val","V2":"\"val\"","V3":"\"val\""}`
-	b, err := Marshal(&s)
+	b, err := MarshalPlain(&s)
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
 	}
@@ -230,7 +230,7 @@ func (CText) MarshalText() ([]byte, error) {
 func TestMarshalerEscaping(t *testing.T) {
 	var c C
 	want := `"\u003c\u0026\u003e"`
-	b, err := Marshal(c)
+	b, err := MarshalPlain(c)
 	if err != nil {
 		t.Fatalf("Marshal(c): %v", err)
 	}
@@ -240,7 +240,7 @@ func TestMarshalerEscaping(t *testing.T) {
 
 	var ct CText
 	want = `"\"\u003c\u0026\u003e\""`
-	b, err = Marshal(ct)
+	b, err = MarshalPlain(ct)
 	if err != nil {
 		t.Fatalf("Marshal(ct): %v", err)
 	}
@@ -260,7 +260,7 @@ func TestAnonymousNonstruct(t *testing.T) {
 	a := MyStruct{i}
 	const want = `{"IntType":11}`
 
-	b, err := Marshal(a)
+	b, err := MarshalPlain(a)
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
 	}
@@ -295,7 +295,7 @@ func TestEmbeddedBug(t *testing.T) {
 		BugA{"A"},
 		"B",
 	}
-	b, err := Marshal(v)
+	b, err := MarshalPlain(v)
 	if err != nil {
 		t.Fatal("Marshal:", err)
 	}
@@ -308,7 +308,7 @@ func TestEmbeddedBug(t *testing.T) {
 	x := BugX{
 		A: 23,
 	}
-	b, err = Marshal(x)
+	b, err = MarshalPlain(x)
 	if err != nil {
 		t.Fatal("Marshal:", err)
 	}
@@ -335,7 +335,7 @@ func TestTaggedFieldDominates(t *testing.T) {
 		BugA{"BugA"},
 		BugD{"BugD"},
 	}
-	b, err := Marshal(v)
+	b, err := MarshalPlain(v)
 	if err != nil {
 		t.Fatal("Marshal:", err)
 	}
@@ -362,7 +362,7 @@ func TestDuplicatedFieldDisappears(t *testing.T) {
 			BugD{"nested BugD"},
 		},
 	}
-	b, err := Marshal(v)
+	b, err := MarshalPlain(v)
 	if err != nil {
 		t.Fatal("Marshal:", err)
 	}
@@ -425,7 +425,7 @@ func TestIssue6458(t *testing.T) {
 	}
 	x := Foo{RawMessage(`"foo"`)}
 
-	b, err := Marshal(&x)
+	b, err := MarshalPlain(&x)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -433,7 +433,7 @@ func TestIssue6458(t *testing.T) {
 		t.Errorf("Marshal(&x) = %#q; want %#q", b, want)
 	}
 
-	b, err = Marshal(x)
+	b, err = MarshalPlain(x)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -459,7 +459,7 @@ func TestEncodePointerString(t *testing.T) {
 		N *int64 `json:"n,string"`
 	}
 	var n int64 = 42
-	b, err := Marshal(stringPointer{N: &n})
+	b, err := MarshalPlain(stringPointer{N: &n})
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
 	}
@@ -519,7 +519,7 @@ var encodeStringTests = []struct {
 
 func TestEncodeString(t *testing.T) {
 	for _, tt := range encodeStringTests {
-		b, err := Marshal(tt.in)
+		b, err := MarshalPlain(tt.in)
 		if err != nil {
 			t.Errorf("Marshal(%q): %v", tt.in, err)
 			continue

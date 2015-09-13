@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/internal/pkgtest"
+	"kego.io/process/pkgtest"
 )
 
 func TestInitialise(t *testing.T) {

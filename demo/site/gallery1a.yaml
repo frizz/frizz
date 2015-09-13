@@ -1,0 +1,7 @@
+description: This represents a gallery - it's just a list of images
+type: system:type
+id: gallery1a
+fields:
+  title:
+    type: system:@string
+    maxLength: 20

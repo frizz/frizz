@@ -32,6 +32,16 @@ type node struct {
 	siblings   int
 }
 
+func (p *Parser) mapDocument() error {
+	var nodes []*node
+	n, err := p.getNodes(p.Data, nodes, nil, "", -1, -1)
+	if err != nil {
+		return kerr.New("DBFKOECICC", err, "p.getNodes")
+	}
+	p.nodes = n
+	return nil
+}
+
 func (p *Parser) getFlooredDocumentMap(n *node) ([]*node, error) {
 	var newMap []*node
 	newMap, err := p.getNodes(n.element, newMap, nil, "", -1, -1)
@@ -179,14 +189,4 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 	}
 	nodes = append(nodes, &n)
 	return nodes, nil
-}
-
-func (p *Parser) mapDocument() error {
-	var nodes []*node
-	n, err := p.getNodes(p.Data, nodes, nil, "", -1, -1)
-	if err != nil {
-		return kerr.New("DBFKOECICC", err, "p.getNodes")
-	}
-	p.nodes = n
-	return nil
 }

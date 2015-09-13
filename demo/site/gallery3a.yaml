@@ -1,0 +1,11 @@
+description: This represents a gallery - it's just a list of images
+type: system:type
+id: gallery3a
+fields:
+  title:
+    type: words:@localizer
+  images:
+      type: system:@map
+      items:
+        type: images:@image
+        secure: true

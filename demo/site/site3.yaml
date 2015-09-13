@@ -1,0 +1,22 @@
+description: This is an instance of the gallery type containing two nested images
+type: gallery3
+id: site3
+title:
+  type: words:translation
+  english: Hello, world.
+  translations:
+    es: Hola mundo.
+    fr: Bonjour le monde.
+images:
+  james:
+      type: images:icon
+      url: https://www.foo.com/james.png
+  dave:
+    type: images:photo
+    path: /dave.jpg
+    server: www.brophy.co.uk
+    protocol: https
+    size:
+      type: units:rectangle
+      width: 800
+      height: 600
