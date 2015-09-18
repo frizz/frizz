@@ -102,7 +102,6 @@ func InitialiseCommand(update bool, recursive bool, globals bool, path string) (
 func InitialiseAutomatic() (settings, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
-	var pathFlag = flag.String("p", "", "Package: full package path e.g. github.com/foo/bar")
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
 	var recursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
 	var globalsFlag = flag.Bool("g", false, "Globals: generate Go literals for all global objects")
@@ -112,7 +111,9 @@ func InitialiseAutomatic() (settings, error) {
 		flag.Parse()
 	}
 
-	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, *globalsFlag, *pathFlag)
+	var firstArg = flag.Arg(0)
+
+	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, *globalsFlag, firstArg)
 	if err != nil {
 		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}

@@ -12,11 +12,7 @@ type Item interface {
 type root struct {
 }
 
-func (r *root) Initialise(div dom.Element) {
-	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-	label.SetTextContent("root")
-	div.AppendChild(label)
-}
+func (r *root) Initialise(div dom.Element) {}
 
 func (r *root) Open(*Node, func(), func(error)) {
 	// Root node can't be opened

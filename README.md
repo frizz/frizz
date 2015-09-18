@@ -1,2 +1,11 @@
-[![Build Status](https://drone.io/github.com/kego/kego/status.png)](https://drone.io/github.com/kego/kego/latest)
-[![Coverage Status](https://coveralls.io/repos/kego/kego/badge.svg)](https://coveralls.io/r/kego/kego)
+Ke
+==
+
+	$ go get kego.io/cmd/ke
+	$ ke -v -e kego.io/demo/site
+
+This will create a local compiled "ke" command, so next time, you just need to run:
+
+	$ cd $GOPATH/src/kego.io/demo/site
+	$ ./ke -v -e 
+	

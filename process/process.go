@@ -146,8 +146,6 @@ func RunCommand(file commandType, set settings) error {
 		command = "go"
 		params = []string{"run", outputPath}
 
-		params = append(params, fmt.Sprintf("-p=%s", set.path))
-
 		if set.update {
 			params = append(params, "-u")
 		}
@@ -163,6 +161,8 @@ func RunCommand(file commandType, set settings) error {
 		if set.edit {
 			params = append(params, "-e")
 		}
+
+		params = append(params, set.path)
 	}
 
 	out, err := exec.Command(command, params...).CombinedOutput()
