@@ -52,6 +52,18 @@ func ScanForGlobals(set settings) error {
 	return scanPath(false, false, scanner, set)
 }
 
+func ScanForKegoFiles(set settings) (bool, error) {
+	hasFiles := false
+	scanner := func(ob interface{}, hash uint64) error {
+		hasFiles = true
+		return nil
+	}
+	if err := scanPath(true, false, scanner, set); err != nil {
+		return false, kerr.New("VAMBAWHTCS", err, "scanPath (ScanForKegoFiles)")
+	}
+	return hasFiles, nil
+}
+
 func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	scanner := func(ob interface{}, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {

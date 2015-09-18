@@ -224,6 +224,16 @@ func Generate(file sourceType, set settings) error {
 	// times, the generated structs should provide all types.
 	ignoreUnknownTypes := file == S_STRUCTS
 
+	if file == S_STRUCTS {
+		hasFiles, err := ScanForKegoFiles(set)
+		if err != nil {
+			return kerr.New("GXGGDQVHHP", err, "ScanForKegoFiles")
+		}
+		if !hasFiles {
+			return kerr.New("YSLREDFDLJ", nil, "No kego files found")
+		}
+	}
+
 	if file == S_STRUCTS || file == S_TYPES {
 		// When generating structs or types, we need to scan for types. All other runs will have
 		// them compiled in the types sub-package.
