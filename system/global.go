@@ -24,7 +24,7 @@ func Register(path string, name string, ob Object, hash uint64) error {
 		registry.m = make(map[Reference]Hashed)
 	}
 	r := NewReference(path, name)
-	if _, found := registry.m[r]; found {
+	if h, found := registry.m[r]; found && h.Hash != hash {
 		return kerr.New("ANBTDVMCYE", nil, "Global %s already exists", r.String())
 	}
 	registry.m[r] = Hashed{ob, hash}

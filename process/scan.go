@@ -70,11 +70,15 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	scanner := func(ob interface{}, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
-			system.Register(t.Id.Package, t.Id.Name, t, hash)
+			if err := system.Register(t.Id.Package, t.Id.Name, t, hash); err != nil {
+				return kerr.New("XIANHMCTKB", err, "system.Register (type)")
+			}
 
 			if t.Rule != nil {
 
-				system.Register(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule, hash)
+				if err := system.Register(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule, hash); err != nil {
+					return kerr.New("GNOJJEYXHX", err, "system.Register (rule)")
+				}
 
 			} else {
 
@@ -93,7 +97,9 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 					Native:    system.NewString("object"),
 					Interface: false,
 				}
-				system.Register(ref.Package, ref.Name, rule, hash)
+				if err := system.Register(ref.Package, ref.Name, rule, hash); err != nil {
+					return kerr.New("YWGPPDVMCV", err, "system.Register (automatic rule)")
+				}
 			}
 		}
 		return nil
