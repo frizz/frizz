@@ -18,8 +18,8 @@ func TestGenerateCommand_errors(t *testing.T) {
 	ty := &system.Type{
 		Base: &system.Base{Id: system.NewReference("b.c/d", "a corrupt"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	system.RegisterType("b.c/d", "a", ty, 0)
-	defer system.UnregisterType("b.c/d", "a")
+	system.Register("b.c/d", "a", ty, 0)
+	defer system.Unregister("b.c/d", "a")
 
 	_, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d"})
 	// Corrupt type ID causes error from source formatter
@@ -40,8 +40,8 @@ func TestGenerateSource(t *testing.T) {
 	ty := &system.Type{
 		Base: &system.Base{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	system.RegisterType("b.c/d", "a", ty, 0)
-	defer system.UnregisterType("b.c/d", "a")
+	system.Register("b.c/d", "a", ty, 0)
+	defer system.Unregister("b.c/d", "a")
 
 	source, err := GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
@@ -52,7 +52,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "\t\"reflect\"\n")
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Base\n}\n")
-	assert.Contains(t, string(source), "json.RegisterType(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), 0x0)\n")
+	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), 0x0)\n")
 
 	source, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
@@ -63,7 +63,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "\t_ \"kego.io/system/types\"\n")
 	assert.NotContains(t, imp, "\"b.c/d\"")
 	assert.NotContains(t, imp, "\"f.g/h\"")
-	assert.Contains(t, string(source), "system.RegisterType(\"b.c/d\", \"a\", ptr1, 0x0)")
+	assert.Contains(t, string(source), "system.Register(\"b.c/d\", \"a\", ptr1, 0x0)")
 
 	source, err = GenerateCommand(C_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)

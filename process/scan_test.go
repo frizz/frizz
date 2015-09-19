@@ -32,9 +32,11 @@ func TestScan(t *testing.T) {
 
 	err = ScanForTypes(false, settings{dir: dir, path: path})
 	assert.NoError(t, err)
-	defer system.UnregisterType(path, "b")
+	defer system.Unregister(path, "b")
 
-	ty, _, ok := system.GetType(path, "b")
+	h, ok := system.GetGlobal(path, "b")
+	assert.True(t, ok)
+	ty, ok := h.Object.(*system.Type)
 	assert.True(t, ok)
 	assert.Equal(t, "a", ty.Description)
 
@@ -74,10 +76,12 @@ func TestScan_rule(t *testing.T) {
 
 	err = ScanForTypes(false, settings{dir: dir, path: path})
 	assert.NoError(t, err)
-	defer system.UnregisterType(path, "b")
-	defer system.UnregisterType(path, "@b")
+	defer system.Unregister(path, "b")
+	defer system.Unregister(path, "@b")
 
-	ty, _, ok := system.GetType(path, "b")
+	h, ok := system.GetGlobal(path, "b")
+	assert.True(t, ok)
+	ty, ok := h.Object.(*system.Type)
 	assert.True(t, ok)
 	assert.Equal(t, "@b", ty.Rule.Id.Name)
 

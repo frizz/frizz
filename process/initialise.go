@@ -17,16 +17,12 @@ type settings struct {
 	update    bool
 	recursive bool
 	verbose   bool
-	globals   bool
 	path      string
 	aliases   map[string]string
 }
 
 func (s settings) Path() string {
 	return s.path
-}
-func (s settings) Globals() bool {
-	return s.globals
 }
 func (s settings) Verbose() bool {
 	return s.verbose
@@ -35,13 +31,12 @@ func (s settings) Edit() bool {
 	return s.edit
 }
 
-func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, globals bool, path string) (settings, error) {
+func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (settings, error) {
 	set := settings{}
 	set.edit = edit
 	set.update = update
 	set.recursive = recursive
 	set.verbose = verbose
-	set.globals = globals
 	if path == "" {
 
 		dir, err := os.Getwd()
@@ -82,7 +77,7 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, gl
 	return set, nil
 }
 
-func InitialiseCommand(update bool, recursive bool, globals bool, path string) (settings, error) {
+func InitialiseCommand(update bool, recursive bool, path string) (settings, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
@@ -91,7 +86,7 @@ func InitialiseCommand(update bool, recursive bool, globals bool, path string) (
 		flag.Parse()
 	}
 
-	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, globals, path)
+	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path)
 	if err != nil {
 		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
@@ -104,7 +99,6 @@ func InitialiseAutomatic() (settings, error) {
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
 	var recursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
-	var globalsFlag = flag.Bool("g", false, "Globals: generate Go literals for all global objects")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
 
 	if !flag.Parsed() {
@@ -113,7 +107,7 @@ func InitialiseAutomatic() (settings, error) {
 
 	var firstArg = flag.Arg(0)
 
-	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, *globalsFlag, firstArg)
+	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg)
 	if err != nil {
 		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}

@@ -46,7 +46,9 @@ func ScanForGlobals(set settings) error {
 			// Anything without an ID is not a global
 			return nil
 		}
-		system.RegisterGlobal(b.Id.Package, b.Id.Name, o)
+		if err := system.Register(b.Id.Package, b.Id.Name, o, hash); err != nil {
+			return kerr.New("IYSUOFVSGR", err, "system.Register")
+		}
 		return nil
 	}
 	return scanPath(false, false, scanner, set)
@@ -68,11 +70,11 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	scanner := func(ob interface{}, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
-			system.RegisterType(t.Id.Package, t.Id.Name, t, hash)
+			system.Register(t.Id.Package, t.Id.Name, t, hash)
 
 			if t.Rule != nil {
 
-				system.RegisterType(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule, hash)
+				system.Register(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule, hash)
 
 			} else {
 
@@ -91,7 +93,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 					Native:    system.NewString("object"),
 					Interface: false,
 				}
-				system.RegisterType(ref.Package, ref.Name, rule, hash)
+				system.Register(ref.Package, ref.Name, rule, hash)
 			}
 		}
 		return nil

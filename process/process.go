@@ -17,7 +17,6 @@ type sourceType string
 const (
 	S_STRUCTS sourceType = "structs"
 	S_TYPES              = "types"
-	S_GLOBALS            = "globals"
 	S_EDITOR             = "editor"
 )
 
@@ -155,9 +154,6 @@ func RunCommand(file commandType, set settings) error {
 		if set.verbose {
 			params = append(params, "-v")
 		}
-		if set.globals {
-			params = append(params, "-g")
-		}
 		if set.edit {
 			params = append(params, "-e")
 		}
@@ -239,13 +235,6 @@ func Generate(file sourceType, set settings) error {
 		// them compiled in the types sub-package.
 		if err := ScanForTypes(ignoreUnknownTypes, set); err != nil {
 			return kerr.New("XYIUHERDHE", err, "ScanForTypes")
-		}
-	}
-
-	if file == S_GLOBALS {
-		// When generating the globals definitions, we need to scan for globals.
-		if err := ScanForGlobals(set); err != nil {
-			return kerr.New("JQLAQVKLAN", err, "ScanForGlobals")
 		}
 	}
 

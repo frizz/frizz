@@ -100,8 +100,10 @@ func (r *Reference) GetType() (*Type, bool) {
 	if !r.Exists {
 		return nil, false
 	}
-	if t, _, ok := GetType(r.Package, r.Name); ok {
-		return t, true
+	if h, ok := GetGlobal(r.Package, r.Name); ok {
+		if t, ok := h.Object.(*Type); ok {
+			return t, true
+		}
 	}
 	return nil, false
 }

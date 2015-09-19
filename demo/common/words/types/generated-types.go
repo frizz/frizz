@@ -30,10 +30,10 @@ func init() {
 	ptr21 := &system.String_rule{Base: ptr19, RuleBase: ptr20, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
 	ptr22 := &system.Map_rule{Base: ptr17, RuleBase: ptr18, Items: ptr21, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
 	ptr23 := &system.Type{Base: ptr13, Embed: []system.Reference(nil), Fields: map[string]system.Rule{"english": ptr16, "translations": ptr22}, Is: []system.Reference{system.Reference{Package: "kego.io/demo/common/words", Name: "localizer", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	system.RegisterType("kego.io/demo/common/words", "@localizer", ptr1, 0x72d207b91bb0393)
-	system.RegisterType("kego.io/demo/common/words", "@simple", ptr3, 0xb367436bb1ddac59)
-	system.RegisterType("kego.io/demo/common/words", "@translation", ptr5, 0x20d3acc377a84c88)
-	system.RegisterType("kego.io/demo/common/words", "localizer", ptr7, 0x72d207b91bb0393)
-	system.RegisterType("kego.io/demo/common/words", "simple", ptr12, 0xb367436bb1ddac59)
-	system.RegisterType("kego.io/demo/common/words", "translation", ptr23, 0x20d3acc377a84c88)
+	system.Register("kego.io/demo/common/words", "@localizer", ptr1, 0x72d207b91bb0393)
+	system.Register("kego.io/demo/common/words", "@simple", ptr3, 0xb367436bb1ddac59)
+	system.Register("kego.io/demo/common/words", "@translation", ptr5, 0x20d3acc377a84c88)
+	system.Register("kego.io/demo/common/words", "localizer", ptr7, 0x72d207b91bb0393)
+	system.Register("kego.io/demo/common/words", "simple", ptr12, 0xb367436bb1ddac59)
+	system.Register("kego.io/demo/common/words", "translation", ptr23, 0x20d3acc377a84c88)
 }

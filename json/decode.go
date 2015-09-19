@@ -633,7 +633,7 @@ type typeDef struct {
 	hash uint64
 }
 
-func RegisterType(path string, name string, typ reflect.Type, hash uint64) {
+func Register(path string, name string, typ reflect.Type, hash uint64) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {
@@ -641,7 +641,7 @@ func RegisterType(path string, name string, typ reflect.Type, hash uint64) {
 	}
 	types.m[typeRef{path, name}] = typeDef{typ, hash}
 }
-func UnregisterType(path string, name string) {
+func Unregister(path string, name string) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {

@@ -47,7 +47,7 @@ func TestRunCommand(t *testing.T) {
 	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
 	assert.NoError(t, err)
 	source := string(bytes)
-	assert.Contains(t, source, "system.RegisterType")
+	assert.Contains(t, source, "system.Register")
 }
 
 func TestGenerate(t *testing.T) {
@@ -68,7 +68,7 @@ func TestGenerate(t *testing.T) {
 
 	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated-structs.go"))
 	assert.NoError(t, err)
-	assert.Contains(t, string(genBytes), "json.RegisterType")
+	assert.Contains(t, string(genBytes), "json.Register")
 
 	// This will error because of unknown types in b.json
 	err = Generate(S_TYPES, set)
@@ -83,6 +83,6 @@ func TestGenerate(t *testing.T) {
 	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
 	assert.NoError(t, err)
 	source := string(bytes)
-	assert.Contains(t, source, "system.RegisterType")
+	assert.Contains(t, source, "system.Register")
 
 }

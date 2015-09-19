@@ -23,10 +23,10 @@ func TestRuleTypes(t *testing.T) {
 	ruleType := &Type{
 		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	RegisterType("a.b/c", "a", parentType, 0)
-	RegisterType("a.b/c", "@a", ruleType, 0)
-	defer UnregisterType("a.b/c", "a")
-	defer UnregisterType("a.b/c", "@a")
+	Register("a.b/c", "a", parentType, 0)
+	Register("a.b/c", "@a", ruleType, 0)
+	defer Unregister("a.b/c", "a")
+	defer Unregister("a.b/c", "@a")
 
 	r := &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@a")},
@@ -55,7 +55,8 @@ func TestRuleTypes(t *testing.T) {
 	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
 	assert.IsError(t, err, "NXRCPQMUIE")
 
-	RegisterType("a.b/c", "@b", ruleType, 0)
+	Register("a.b/c", "@b", ruleType, 0)
+	defer Unregister("a.b/c", "@b")
 	r = &ruleStruct{
 		Base: &Base{Type: NewReference("a.b/c", "@b")},
 	}
@@ -72,8 +73,8 @@ func TestInitialiseAnonymousFields(t *testing.T) {
 		*RuleBase
 	}
 
-	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStruct{}), 0)
-	defer json.UnregisterType("a.b/c", "@b")
+	json.Register("a.b/c", "@b", reflect.TypeOf(&ruleStruct{}), 0)
+	defer json.Unregister("a.b/c", "@b")
 	j := `{
 		"type": "@b"
 	}`
@@ -164,14 +165,14 @@ func TestRuleHolderItemsRule(t *testing.T) {
 	ruleType := &Type{
 		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}), 0)
-	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), 0)
-	RegisterType("a.b/c", "a", parentType, 0)
-	RegisterType("a.b/c", "@a", ruleType, 0)
-	defer json.UnregisterType("a.b/c", "a")
-	defer json.UnregisterType("a.b/c", "@a")
-	defer UnregisterType("a.b/c", "a")
-	defer UnregisterType("a.b/c", "@a")
+	json.Register("a.b/c", "a", reflect.TypeOf(&parentStruct{}), 0)
+	json.Register("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), 0)
+	Register("a.b/c", "a", parentType, 0)
+	Register("a.b/c", "@a", ruleType, 0)
+	defer json.Unregister("a.b/c", "a")
+	defer json.Unregister("a.b/c", "@a")
+	defer Unregister("a.b/c", "a")
+	defer Unregister("a.b/c", "@a")
 
 	rh := &RuleHolder{
 		Rule:       &ruleStruct{},

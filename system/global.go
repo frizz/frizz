@@ -3,59 +3,77 @@ package system
 import (
 	"sort"
 	"sync"
+
+	"kego.io/kerr"
 )
 
-var globals struct {
+var registry struct {
 	sync.RWMutex
-	m map[Reference]Object
+	m map[Reference]Hashed
 }
 
-func RegisterGlobal(path string, name string, ob Object) {
-	globals.Lock()
-	defer globals.Unlock()
-	if globals.m == nil {
-		globals.m = make(map[Reference]Object)
+type Hashed struct {
+	Object Object
+	Hash   uint64
+}
+
+func Register(path string, name string, ob Object, hash uint64) error {
+	registry.Lock()
+	defer registry.Unlock()
+	if registry.m == nil {
+		registry.m = make(map[Reference]Hashed)
 	}
-	globals.m[NewReference(path, name)] = ob
+	r := NewReference(path, name)
+	if _, found := registry.m[r]; found {
+		return kerr.New("ANBTDVMCYE", nil, "Global %s already exists", r.String())
+	}
+	registry.m[r] = Hashed{ob, hash}
+	return nil
 }
 
-func UnregisterGlobal(path string, name string) {
-	globals.Lock()
-	defer globals.Unlock()
-	if globals.m == nil {
+func Unregister(path string, name string) {
+	registry.Lock()
+	defer registry.Unlock()
+	if registry.m == nil {
 		return
 	}
-	delete(globals.m, NewReference(path, name))
+	delete(registry.m, NewReference(path, name))
 }
 
-func GetGlobal(path string, name string) (global Object, found bool) {
-	globals.RLock()
-	defer globals.RUnlock()
-	global, found = globals.m[NewReference(path, name)]
+func GetGlobal(path string, name string) (hashed Hashed, found bool) {
+	registry.RLock()
+	defer registry.RUnlock()
+	hashed, found = registry.m[NewReference(path, name)]
 	return
 }
 
-func GetAllGlobalsInPackage(path string) []Object {
-	out := SortableObjects{}
-	globals.RLock()
-	defer globals.RUnlock()
-	for ref, g := range globals.m {
-		if ref.Package == path {
-			out = append(out, g)
+// GetAllGlobalsInPackage returns all the globals in a given package, optionally
+// filtering them by type. Use filter = nil to return all globals
+func GetAllGlobalsInPackage(path string, filter *Reference) []Hashed {
+	out := SortableHashed{}
+	registry.RLock()
+	defer registry.RUnlock()
+	for ref, h := range registry.m {
+		if ref.Package != path {
+			continue
 		}
+		if filter != nil && h.Object.GetBase().Type != *filter {
+			continue
+		}
+		out = append(out, h)
 	}
 	sort.Sort(out)
-	return []Object(out)
+	return []Hashed(out)
 }
 
-type SortableObjects []Object
+type SortableHashed []Hashed
 
-func (s SortableObjects) Len() int {
+func (s SortableHashed) Len() int {
 	return len(s)
 }
-func (s SortableObjects) Swap(i, j int) {
+func (s SortableHashed) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
-func (s SortableObjects) Less(i, j int) bool {
-	return s[i].GetBase().Id.Value() < s[j].GetBase().Id.Value()
+func (s SortableHashed) Less(i, j int) bool {
+	return s[i].Object.GetBase().Id.Value() < s[j].Object.GetBase().Id.Value()
 }

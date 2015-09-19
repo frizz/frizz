@@ -16,6 +16,6 @@ func init() {
 	ptr7 := &system.RuleBase{}
 	ptr8 := &system.Int_rule{Base: ptr6, RuleBase: ptr7, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
 	ptr9 := &system.Type{Base: ptr2, Embed: []system.Reference(nil), Fields: map[string]system.Rule{"height": ptr5, "width": ptr8}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	system.RegisterType("kego.io/demo/common/units", "@rectangle", ptr1, 0xe9ce1340e46b290e)
-	system.RegisterType("kego.io/demo/common/units", "rectangle", ptr9, 0xe9ce1340e46b290e)
+	system.Register("kego.io/demo/common/units", "@rectangle", ptr1, 0xe9ce1340e46b290e)
+	system.Register("kego.io/demo/common/units", "rectangle", ptr9, 0xe9ce1340e46b290e)
 }

@@ -38,10 +38,10 @@ func init() {
 	ptr27 := &system.RuleBase{}
 	ptr28 := &units.Rectangle_rule{Base: ptr26, RuleBase: ptr27}
 	ptr29 := &system.Type{Base: ptr16, Embed: []system.Reference(nil), Fields: map[string]system.Rule{"path": ptr19, "protocol": ptr22, "server": ptr25, "size": ptr28}, Is: []system.Reference{system.Reference{Package: "kego.io/demo/common/images", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	system.RegisterType("kego.io/demo/common/images", "@icon", ptr1, 0x7c5035ca01145c14)
-	system.RegisterType("kego.io/demo/common/images", "@image", ptr6, 0x707fd069bb76ad90)
-	system.RegisterType("kego.io/demo/common/images", "@photo", ptr8, 0xf2b64533e434a543)
-	system.RegisterType("kego.io/demo/common/images", "icon", ptr13, 0x7c5035ca01145c14)
-	system.RegisterType("kego.io/demo/common/images", "image", ptr15, 0x707fd069bb76ad90)
-	system.RegisterType("kego.io/demo/common/images", "photo", ptr29, 0xf2b64533e434a543)
+	system.Register("kego.io/demo/common/images", "@icon", ptr1, 0x7c5035ca01145c14)
+	system.Register("kego.io/demo/common/images", "@image", ptr6, 0x707fd069bb76ad90)
+	system.Register("kego.io/demo/common/images", "@photo", ptr8, 0xf2b64533e434a543)
+	system.Register("kego.io/demo/common/images", "icon", ptr13, 0x7c5035ca01145c14)
+	system.Register("kego.io/demo/common/images", "image", ptr15, 0x707fd069bb76ad90)
+	system.Register("kego.io/demo/common/images", "photo", ptr29, 0xf2b64533e434a543)
 }

@@ -19,6 +19,6 @@ type Rectangle struct {
 }
 
 func init() {
-	json.RegisterType("kego.io/demo/common/units", "@rectangle", reflect.TypeOf(&Rectangle_rule{}), 0xe9ce1340e46b290e)
-	json.RegisterType("kego.io/demo/common/units", "rectangle", reflect.TypeOf(&Rectangle{}), 0xe9ce1340e46b290e)
+	json.Register("kego.io/demo/common/units", "@rectangle", reflect.TypeOf(&Rectangle_rule{}), 0xe9ce1340e46b290e)
+	json.Register("kego.io/demo/common/units", "rectangle", reflect.TypeOf(&Rectangle{}), 0xe9ce1340e46b290e)
 }

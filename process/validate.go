@@ -107,11 +107,11 @@ func validateUnknown(data interface{}, hash uint64, path string, aliases map[str
 	}
 
 	if ty, ok := ob.(*system.Type); ok {
-		_, h, ok := system.GetType(ty.Id.Package, ty.Id.Name)
+		h, ok := system.GetGlobal(ty.Id.Package, ty.Id.Name)
 		if !ok {
 			return TypesChangedError{kerr.New("XCBNOPEEUY", nil, "New type %s found - run kego again to rebuild", ty.Id.Value())}
 		}
-		if hash != h {
+		if hash != h.Hash {
 			return TypesChangedError{kerr.New("KRKBNITUON", nil, "Type %s has changed - run kego again to rebuild", ty.Id.Value())}
 		}
 	}

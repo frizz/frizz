@@ -1,8 +1,6 @@
 package system
 
 import (
-	"sync"
-
 	"sort"
 
 	"kego.io/kerr"
@@ -11,69 +9,6 @@ import (
 // Validator is a type that needs to have it's data validated.
 type Validator interface {
 	Validate(path string, aliases map[string]string) (bool, string, error)
-}
-
-var types struct {
-	sync.RWMutex
-	m map[Reference]typeDef
-}
-
-type typeDef struct {
-	Type *Type
-	Hash uint64
-}
-
-func RegisterType(path string, name string, typ *Type, hash uint64) {
-	types.Lock()
-	defer types.Unlock()
-	if types.m == nil {
-		types.m = make(map[Reference]typeDef)
-	}
-	types.m[NewReference(path, name)] = typeDef{typ, hash}
-}
-func UnregisterType(path string, name string) {
-	types.Lock()
-	defer types.Unlock()
-	if types.m == nil {
-		return
-	}
-	delete(types.m, NewReference(path, name))
-}
-
-// TODO: Perhaps this should not return a pointer if it will
-// TODO: be used concurrently?
-func GetType(path string, name string) (*Type, uint64, bool) {
-	types.RLock()
-	defer types.RUnlock()
-	if t, ok := types.m[NewReference(path, name)]; ok {
-		return t.Type, t.Hash, true
-	}
-	return nil, 0, false
-}
-
-func GetAllTypesInPackage(path string) []typeDef {
-	out := SortableTypes{}
-	types.RLock()
-	defer types.RUnlock()
-	for ref, t := range types.m {
-		if ref.Package == path {
-			out = append(out, t)
-		}
-	}
-	sort.Sort(out)
-	return []typeDef(out)
-}
-
-type SortableTypes []typeDef
-
-func (s SortableTypes) Len() int {
-	return len(s)
-}
-func (s SortableTypes) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s SortableTypes) Less(i, j int) bool {
-	return s[i].Type.Id.Value() < s[j].Type.Id.Value()
 }
 
 type nativeTypeClasses string

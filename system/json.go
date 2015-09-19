@@ -37,12 +37,12 @@ type JsonBool_rule struct {
 }
 
 func init() {
-	json.RegisterType("kego.io/json", "number", reflect.TypeOf(float64(1.1)), 0)
-	json.RegisterType("kego.io/json", "string", reflect.TypeOf(string("")), 0)
-	json.RegisterType("kego.io/json", "bool", reflect.TypeOf(bool(true)), 0)
-	json.RegisterType("kego.io/json", "@number", reflect.TypeOf(&JsonNumber_rule{}), 0)
-	json.RegisterType("kego.io/json", "@string", reflect.TypeOf(&JsonString_rule{}), 0)
-	json.RegisterType("kego.io/json", "@bool", reflect.TypeOf(&JsonBool_rule{}), 0)
+	json.Register("kego.io/json", "number", reflect.TypeOf(float64(1.1)), 0)
+	json.Register("kego.io/json", "string", reflect.TypeOf(string("")), 0)
+	json.Register("kego.io/json", "bool", reflect.TypeOf(bool(true)), 0)
+	json.Register("kego.io/json", "@number", reflect.TypeOf(&JsonNumber_rule{}), 0)
+	json.Register("kego.io/json", "@string", reflect.TypeOf(&JsonString_rule{}), 0)
+	json.Register("kego.io/json", "@bool", reflect.TypeOf(&JsonBool_rule{}), 0)
 
 	tr := NewReference("kego.io/system", "type")
 	or := NewReference("kego.io/system", "object")
@@ -73,11 +73,11 @@ func init() {
 			Rule:      makeRule(name)}
 	}
 
-	RegisterType("kego.io/json", "string", makeType("string"), 0)
-	RegisterType("kego.io/json", "number", makeType("number"), 0)
-	RegisterType("kego.io/json", "bool", makeType("bool"), 0)
-	RegisterType("kego.io/json", "@string", makeRule("string"), 0)
-	RegisterType("kego.io/json", "@number", makeRule("number"), 0)
-	RegisterType("kego.io/json", "@bool", makeRule("bool"), 0)
+	Register("kego.io/json", "string", makeType("string"), 0)
+	Register("kego.io/json", "number", makeType("number"), 0)
+	Register("kego.io/json", "bool", makeType("bool"), 0)
+	Register("kego.io/json", "@string", makeRule("string"), 0)
+	Register("kego.io/json", "@number", makeRule("number"), 0)
+	Register("kego.io/json", "@bool", makeRule("bool"), 0)
 
 }

@@ -33,8 +33,8 @@ func Validate_NeedsTypes(t *testing.T) {
 	// this is a type, so we need to register it with a hash to stop validate erroring.
 	hash, err := getHash("a.json", path, map[string]string{}, []byte(files["a.json"]))
 	assert.NoError(t, err)
-	system.RegisterType(path, "a", &system.Type{}, hash)
-	defer system.UnregisterType(path, "a")
+	system.Register(path, "a", &system.Type{}, hash)
+	defer system.Unregister(path, "a")
 
 	err = Validate(settings{dir: dir, path: path})
 	assert.NoError(t, err)
@@ -66,8 +66,8 @@ func TestValidate_error1(t *testing.T) {
 	// this is a type, so we need to register it with a hash to stop validate erroring.
 	hash, err := getHash("b.json", path, map[string]string{}, []byte(files["b.json"]))
 	assert.NoError(t, err)
-	system.RegisterType(path, "b", &system.Type{}, hash)
-	defer system.UnregisterType(path, "b")
+	system.Register(path, "b", &system.Type{}, hash)
+	defer system.Unregister(path, "b")
 
 	err = Validate(settings{dir: dir, path: path})
 	// @string is invalid because minLength > maxLength

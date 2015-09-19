@@ -12,12 +12,13 @@ import (
 
 func TestTree(t *testing.T) {
 	root := tree.New(nil)
-	o, _, ok := system.GetType("kego.io/system", "type")
+	h, ok := system.GetGlobal("kego.io/system", "type")
 	assert.True(t, ok)
-	ty, ok := o.Type.GetType()
+	ty, ok := h.Object.(*system.Type)
 	assert.True(t, ok)
-	rule := system.NewMinimalRuleHolder(ty)
-	child := &element{data: o, rule: rule, value: reflect.ValueOf(o), index: -1, name: "type"}
+	typ, ok := ty.Type.GetType()
+	rule := system.NewMinimalRuleHolder(typ)
+	child := &element{data: ty, rule: rule, value: reflect.ValueOf(ty), index: -1, name: "type"}
 	err := addElement(child, root)
 	assert.NoError(t, err)
 	err = root.Each(func(n *tree.Node) error {

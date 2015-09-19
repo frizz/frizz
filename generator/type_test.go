@@ -34,14 +34,14 @@ func TestFormatTag(t *testing.T) {
 	ruleType := &system.Type{
 		Base: &system.Base{Id: system.NewReference("a.b/c", "@a"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c", "a", reflect.TypeOf(&parentStruct{}), 0)
-	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), 0)
-	system.RegisterType("a.b/c", "a", parentType, 0)
-	system.RegisterType("a.b/c", "@a", ruleType, 0)
-	defer json.UnregisterType("a.b/c", "a")
-	defer json.UnregisterType("a.b/c", "@a")
-	defer system.UnregisterType("a.b/c", "a")
-	defer system.UnregisterType("a.b/c", "@a")
+	json.Register("a.b/c", "a", reflect.TypeOf(&parentStruct{}), 0)
+	json.Register("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), 0)
+	system.Register("a.b/c", "a", parentType, 0)
+	system.Register("a.b/c", "@a", ruleType, 0)
+	defer json.Unregister("a.b/c", "a")
+	defer json.Unregister("a.b/c", "@a")
+	defer system.Unregister("a.b/c", "a")
+	defer system.Unregister("a.b/c", "@a")
 
 	r := &system.RuleHolder{
 		Rule:       &ruleStruct{},
@@ -126,19 +126,19 @@ func TestGetTag(t *testing.T) {
 	ruleType := &system.Type{
 		Base: &system.Base{Id: system.NewReference("a.b/c", "@a"), Type: system.NewReference("kego.io/system", "type")},
 	}
-	json.RegisterType("a.b/c", "@a", reflect.TypeOf(&ruleStructA{}), 0)
-	json.RegisterType("a.b/c", "@b", reflect.TypeOf(&ruleStructB{}), 0)
-	json.RegisterType("a.b/c", "@c", reflect.TypeOf(&ruleStructC{}), 0)
-	json.RegisterType("a.b/c", "@d", reflect.TypeOf(&ruleStructD{}), 0)
-	json.RegisterType("a.b/c", "@e", reflect.TypeOf(&ruleStructE{}), 0)
+	json.Register("a.b/c", "@a", reflect.TypeOf(&ruleStructA{}), 0)
+	json.Register("a.b/c", "@b", reflect.TypeOf(&ruleStructB{}), 0)
+	json.Register("a.b/c", "@c", reflect.TypeOf(&ruleStructC{}), 0)
+	json.Register("a.b/c", "@d", reflect.TypeOf(&ruleStructD{}), 0)
+	json.Register("a.b/c", "@e", reflect.TypeOf(&ruleStructE{}), 0)
 	for _, letter := range []string{"a", "b", "c", "d", "e"} {
-		json.RegisterType("a.b/c", letter, reflect.TypeOf(&parentStruct{}), 0)
-		system.RegisterType("a.b/c", letter, parentType, 0)
-		system.RegisterType("a.b/c", fmt.Sprintf("@%s", letter), ruleType, 0)
-		defer json.UnregisterType("a.b/c", letter)
-		defer json.UnregisterType("a.b/c", fmt.Sprintf("@%s", letter))
-		defer system.UnregisterType("a.b/c", letter)
-		defer system.UnregisterType("a.b/c", fmt.Sprintf("@%s", letter))
+		json.Register("a.b/c", letter, reflect.TypeOf(&parentStruct{}), 0)
+		system.Register("a.b/c", letter, parentType, 0)
+		system.Register("a.b/c", fmt.Sprintf("@%s", letter), ruleType, 0)
+		defer json.Unregister("a.b/c", letter)
+		defer json.Unregister("a.b/c", fmt.Sprintf("@%s", letter))
+		defer system.Unregister("a.b/c", letter)
+		defer system.Unregister("a.b/c", fmt.Sprintf("@%s", letter))
 	}
 
 	r := &system.RuleHolder{
@@ -230,14 +230,14 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	tyr := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "@a")}}
 	ty := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "a")}}
-	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}), 0)
-	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}), 0)
-	system.RegisterType("b.c/d", "a", ty, 0)
-	system.RegisterType("b.c/d", "@a", tyr, 0)
-	defer json.UnregisterType("b.c/d", "a")
-	defer json.UnregisterType("b.c/d", "@a")
-	defer system.UnregisterType("b.c/d", "a")
-	defer system.UnregisterType("b.c/d", "@a")
+	json.Register("b.c/d", "a", reflect.TypeOf(&a{}), 0)
+	json.Register("b.c/d", "@a", reflect.TypeOf(&a_rule{}), 0)
+	system.Register("b.c/d", "a", ty, 0)
+	system.Register("b.c/d", "@a", tyr, 0)
+	defer json.Unregister("b.c/d", "a")
+	defer json.Unregister("b.c/d", "@a")
+	defer system.Unregister("b.c/d", "a")
+	defer system.Unregister("b.c/d", "@a")
 
 	pa := &a_rule{
 		Base: &system.Base{
@@ -362,14 +362,14 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 	}
 	tyr := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "@a")}}
 	ty := &system.Type{Base: &system.Base{Id: system.NewReference("b.c/d", "a")}}
-	json.RegisterType("b.c/d", "a", reflect.TypeOf(&a{}), 0)
-	json.RegisterType("b.c/d", "@a", reflect.TypeOf(&a_rule{}), 0)
-	system.RegisterType("b.c/d", "a", ty, 0)
-	system.RegisterType("b.c/d", "@a", tyr, 0)
-	defer json.UnregisterType("b.c/d", "a")
-	defer json.UnregisterType("b.c/d", "@a")
-	defer system.UnregisterType("b.c/d", "a")
-	defer system.UnregisterType("b.c/d", "@a")
+	json.Register("b.c/d", "a", reflect.TypeOf(&a{}), 0)
+	json.Register("b.c/d", "@a", reflect.TypeOf(&a_rule{}), 0)
+	system.Register("b.c/d", "a", ty, 0)
+	system.Register("b.c/d", "@a", tyr, 0)
+	defer json.Unregister("b.c/d", "a")
+	defer json.Unregister("b.c/d", "@a")
+	defer system.Unregister("b.c/d", "a")
+	defer system.Unregister("b.c/d", "@a")
 
 	pa := &a_rule{
 		Base: &system.Base{
@@ -416,9 +416,9 @@ func unmarshalDiagram(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, d)
 
-	system.RegisterType("kego.io/gallery", d.Id.Name, d, 0)
+	system.Register("kego.io/gallery", d.Id.Name, d, 0)
 	if d.Rule != nil {
-		system.RegisterType("kego.io/gallery", d.Rule.Id.Name, d.Rule, 0)
+		system.Register("kego.io/gallery", d.Rule.Id.Name, d.Rule, 0)
 	}
 
 }
@@ -426,8 +426,8 @@ func unmarshalDiagram(t *testing.T) {
 func TestUnknownRule(t *testing.T) {
 
 	unmarshalDiagram(t)
-	defer system.UnregisterType("kego.io/gallery", "diagram")
-	defer system.UnregisterType("kego.io/gallery", "@diagram")
+	defer system.Unregister("kego.io/gallery", "diagram")
+	defer system.Unregister("kego.io/gallery", "@diagram")
 
 	data := `{
 		"description": "This represents a gallery - it's just a list of images",

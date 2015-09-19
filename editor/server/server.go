@@ -86,7 +86,7 @@ func Start(path string, verbose bool) error {
 
 func initialise(path string) (aliases map[string]string, err error) {
 
-	set, err := process.InitialiseManually(true, true, false, false, false, path)
+	set, err := process.InitialiseManually(true, true, false, false, path)
 	if err != nil {
 		return nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
@@ -156,12 +156,9 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 
 	if len(req.URL.Path) > 1 {
 		name := req.URL.Path[1:]
-		global, ok := system.GetGlobal(path, name)
-		if !ok {
-			global, _, ok = system.GetType(path, name)
-		}
+		hashed, ok := system.GetGlobal(path, name)
 		if ok {
-			b, err := kejson.Marshal(global)
+			b, err := kejson.Marshal(hashed.Object)
 			if err != nil {
 				return kerr.New("WTXNLMABAS", err, "kejson.Marshal")
 			}
@@ -174,17 +171,15 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 		return nil
 	}
 
-	types := system.GetAllTypesInPackage(path)
-	globals := system.GetAllGlobalsInPackage(path)
+	globals := system.GetAllGlobalsInPackage(path, nil)
 
 	names := []string{}
-	for _, g := range globals {
-		names = append(names, g.GetBase().Id.Name)
-	}
-	for _, t := range types {
-		if !strings.HasPrefix(t.Type.Id.Name, "@") {
-			names = append(names, t.Type.Id.Name)
+	for _, hashed := range globals {
+		name := hashed.Object.GetBase().Id.Name
+		if strings.HasPrefix(name, "@") {
+			continue
 		}
+		names = append(names, name)
 	}
 
 	info := shared.Info{

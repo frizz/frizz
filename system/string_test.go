@@ -22,10 +22,10 @@ func TestMarshal(t *testing.T) {
 		B String `json:"b"`
 	}
 
-	json.RegisterType("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
 
 	// Clean up for the tests - don't normally need to unregister types
-	defer json.UnregisterType("kego.io/system", "a")
+	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
 	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})

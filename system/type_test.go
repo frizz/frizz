@@ -111,8 +111,8 @@ func TestType(t *testing.T) {
 
 }
 
-func TestUnregisterType(t *testing.T) {
-	UnregisterType("", "")
+func TestUnregister(t *testing.T) {
+	Unregister("", "")
 }
 
 func TestNativeGoType(t *testing.T) {
