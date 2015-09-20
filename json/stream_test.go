@@ -41,7 +41,7 @@ func TestEncoder(t *testing.T) {
 		var buf bytes.Buffer
 		enc := NewEncoder(&buf)
 		for j, v := range streamTest[0:i] {
-			if err := enc.Encode(v); err != nil {
+			if err := enc.EncodePlain(v); err != nil {
 				t.Fatalf("encode #%d: %v", j, err)
 			}
 		}
@@ -199,7 +199,7 @@ func BenchmarkEncoderEncode(b *testing.B) {
 	}
 	v := &T{"foo", "bar"}
 	for i := 0; i < b.N; i++ {
-		if err := NewEncoder(ioutil.Discard).Encode(v); err != nil {
+		if err := NewEncoder(ioutil.Discard).EncodePlain(v); err != nil {
 			b.Fatal(err)
 		}
 	}

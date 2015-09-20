@@ -183,6 +183,37 @@ func (enc *Encoder) Encode(v interface{}) error {
 		return enc.err
 	}
 	e := newEncodeState()
+	e.typed = true
+	err := e.marshal(v)
+	if err != nil {
+		return err
+	}
+
+	// Terminate each value with a newline.
+	// This makes the output look a little nicer
+	// when debugging, and some kind of space
+	// is required if the encoded value was a number,
+	// so that the reader knows there aren't more
+	// digits coming.
+	e.WriteByte('\n')
+
+	if _, err = enc.w.Write(e.Bytes()); err != nil {
+		enc.err = err
+	}
+	encodeStatePool.Put(e)
+	return err
+}
+
+// Encode writes the JSON encoding of v to the stream,
+// followed by a newline character.
+//
+// See the documentation for Marshal for details about the
+// conversion of Go values to JSON.
+func (enc *Encoder) EncodePlain(v interface{}) error {
+	if enc.err != nil {
+		return enc.err
+	}
+	e := newEncodeState()
 	err := e.marshal(v)
 	if err != nil {
 		return err

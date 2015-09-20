@@ -29,3 +29,11 @@ func Unmarshal(data []byte, v *interface{}, path string, aliases map[string]stri
 func NewDecoder(r io.Reader, path string, aliases map[string]string) *json.Decoder {
 	return json.NewDecoder(r, path, aliases)
 }
+
+func NewEncoder(w io.Writer) *json.Encoder {
+	return json.NewEncoder(w)
+}
+
+func Marshal(v interface{}) ([]byte, error) {
+	return json.Marshal(v)
+}

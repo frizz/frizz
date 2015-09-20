@@ -83,7 +83,7 @@ func BenchmarkCodeEncoder(b *testing.B) {
 	}
 	enc := NewEncoder(ioutil.Discard)
 	for i := 0; i < b.N; i++ {
-		if err := enc.Encode(&codeStruct); err != nil {
+		if err := enc.EncodePlain(&codeStruct); err != nil {
 			b.Fatal("Encode:", err)
 		}
 	}
