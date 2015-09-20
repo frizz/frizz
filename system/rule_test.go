@@ -11,17 +11,17 @@ import (
 func TestRuleTypes(t *testing.T) {
 
 	type nonRuleStruct struct {
-		*RuleBase
+		*Rule_base
 	}
 	type ruleStruct struct {
-		*Base
-		*RuleBase
+		*Object_base
+		*Rule_base
 	}
 	parentType := &Type{
-		Base: &Base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Object_base: &Object_base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Object_base: &Object_base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
 	Register("a.b/c", "a", parentType, 0)
 	Register("a.b/c", "@a", ruleType, 0)
@@ -29,7 +29,7 @@ func TestRuleTypes(t *testing.T) {
 	defer Unregister("a.b/c", "@a")
 
 	r := &ruleStruct{
-		Base: &Base{Type: NewReference("a.b/c", "@a")},
+		Object_base: &Object_base{Type: NewReference("a.b/c", "@a")},
 	}
 	rt, pt, err := ruleTypes(r)
 	assert.NoError(t, err)
@@ -42,14 +42,14 @@ func TestRuleTypes(t *testing.T) {
 	assert.IsError(t, err, "BNEKIFYDDL")
 
 	r = &ruleStruct{
-		Base: &Base{Type: NewReference("a.b/c", "unregistered")},
+		Object_base: &Object_base{Type: NewReference("a.b/c", "unregistered")},
 	}
 	rt, pt, err = ruleTypes(r)
 	// An unregistered type will cause ruleReference.GetType to return an error
 	assert.IsError(t, err, "PFGWISOHRR")
 
 	r = &ruleStruct{
-		Base: &Base{Type: NewReference("a.b/c", "a")},
+		Object_base: &Object_base{Type: NewReference("a.b/c", "a")},
 	}
 	rt, pt, err = ruleTypes(r)
 	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
@@ -58,7 +58,7 @@ func TestRuleTypes(t *testing.T) {
 	Register("a.b/c", "@b", ruleType, 0)
 	defer Unregister("a.b/c", "@b")
 	r = &ruleStruct{
-		Base: &Base{Type: NewReference("a.b/c", "@b")},
+		Object_base: &Object_base{Type: NewReference("a.b/c", "@b")},
 	}
 	rt, pt, err = ruleTypes(r)
 	// An rule type with an unregistered parent type typeReference.GetType to return an error
@@ -69,8 +69,8 @@ func TestRuleTypes(t *testing.T) {
 func TestInitialiseAnonymousFields(t *testing.T) {
 
 	type ruleStruct struct {
-		*Base
-		*RuleBase
+		*Object_base
+		*Rule_base
 	}
 
 	json.Register("a.b/c", "@b", reflect.TypeOf(&ruleStruct{}), 0)
@@ -83,19 +83,19 @@ func TestInitialiseAnonymousFields(t *testing.T) {
 	assert.NoError(t, err)
 	rs, ok := i.(*ruleStruct)
 	assert.True(t, ok)
-	assert.NotNil(t, rs.Base)
-	assert.NotNil(t, rs.RuleBase)
+	assert.NotNil(t, rs.Object_base)
+	assert.NotNil(t, rs.Rule_base)
 
 }
 
 func TestRuleTypeReference(t *testing.T) {
 
 	type ruleStruct struct {
-		*Base
-		*RuleBase
+		*Object_base
+		*Rule_base
 	}
 	rs := &ruleStruct{
-		Base: &Base{Type: NewReference("a.b/c", "@a")},
+		Object_base: &Object_base{Type: NewReference("a.b/c", "@a")},
 	}
 	r, err := ruleTypeReference(rs)
 	assert.NoError(t, err)
@@ -153,17 +153,17 @@ func TestRuleTypeReference(t *testing.T) {
 
 func TestRuleHolderItemsRule(t *testing.T) {
 	type parentStruct struct {
-		*Base
+		*Object_base
 	}
 	type ruleStruct struct {
-		*Base
-		*RuleBase
+		*Object_base
+		*Rule_base
 	}
 	parentType := &Type{
-		Base: &Base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Object_base: &Object_base{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
 	}
 	ruleType := &Type{
-		Base: &Base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Object_base: &Object_base{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
 	json.Register("a.b/c", "a", reflect.TypeOf(&parentStruct{}), 0)
 	json.Register("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), 0)

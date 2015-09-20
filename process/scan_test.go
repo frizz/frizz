@@ -61,9 +61,7 @@ func TestScan_rule(t *testing.T) {
 			"rule": {
 				"description": "d",
 				"type": "system:type",
-				"id": "@b",
 				"is": ["system:rule"],
-				"embed": ["system:ruleBase"],
 				"fields": {
 					"e": {
 						"description": "f",

@@ -6,9 +6,7 @@
 	"rule": {
 		"description": "Restriction rules for maps",
 		"type": "type",
-		"id": "@map",
 		"is": ["rule"],
-		"embed": ["ruleBase"],
 		"fields": {
 			"items": {
 				"description": "This is a rule object, defining the type and restrictions on the value of the items.",

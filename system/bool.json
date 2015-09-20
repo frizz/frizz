@@ -6,9 +6,7 @@
 	"rule": {
 		"description": "Restriction rules for bools",
 		"type": "type",
-		"id": "@bool",
 		"is": ["rule"],
-		"embed": ["ruleBase"],
 		"fields": {
 			"default": {
 				"description": "Default value if this is missing or null",

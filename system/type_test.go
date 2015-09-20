@@ -16,9 +16,7 @@ func TestBool(t *testing.T) {
 		"rule": {
 			"description": "Restriction rules for bools",
 			"type": "type",
-			"id": "@bool",
 			"is": ["rule"],
-			"embed": ["ruleBase"],
 			"fields": {
 				"default": {
 					"description": "Default value of this is missing or null",
@@ -38,7 +36,6 @@ func TestBool(t *testing.T) {
 	assert.Equal(t, "This is the native json bool data type", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "bool", f.Native.Value)
-	assert.Equal(t, "@bool", f.Rule.Id.Name)
 
 }
 
@@ -86,9 +83,7 @@ func TestType(t *testing.T) {
 		"rule": {
 			"description": "Restriction rules for types",
 			"type": "type",
-			"id": "@type",
-			"is": ["rule"],
-			"embed": ["ruleBase"]
+			"is": ["rule"]
 		}
 	}`
 
@@ -101,9 +96,8 @@ func TestType(t *testing.T) {
 	assert.Equal(t, "This is the most basic type.", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "object", f.Native.Value)
-	assert.Equal(t, "@type", f.Rule.Id.Name)
-	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(Object).GetBase().Description)
-	assert.Equal(t, true, f.Fields["interface"].GetRuleBase().Optional)
+	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(Object).Object().Description)
+	assert.Equal(t, true, f.Fields["interface"].Rule().Optional)
 	r, ok := f.Fields["interface"].(*Bool_rule)
 	assert.True(t, ok, "Wrong type %T\n", f.Fields["interface"])
 	assert.True(t, r.Default.Exists)
@@ -159,7 +153,7 @@ func TestTypeNativeValueGolangType(t *testing.T) {
 }
 
 func TestTypeGoName(t *testing.T) {
-	y := &Type{Base: &Base{Id: NewReference("a.b/c", "aa")}}
+	y := &Type{Object_base: &Object_base{Id: NewReference("a.b/c", "aa")}}
 	n := y.GoName()
 	assert.Equal(t, "Aa", n)
 }

@@ -116,16 +116,16 @@ func validateUnknown(data interface{}, hash uint64, path string, aliases map[str
 		}
 	}
 
-	t, ok := ob.GetBase().Type.GetType()
+	t, ok := ob.Object().Type.GetType()
 	if !ok {
-		return kerr.New("BNQTCEDVGV", nil, "Type.GetType %s not found", ob.GetBase().Type.Value())
+		return kerr.New("BNQTCEDVGV", nil, "Type.GetType %s not found", ob.Object().Type.Value())
 	}
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t)
 
 	rules := t.Rules
 	if system.RulesApplyToObjects(data) {
-		rules = append(rules, data.(system.Object).GetBase().Rules...)
+		rules = append(rules, data.(system.Object).Object().Rules...)
 	}
 
 	return validateObject(partialRuleHolder, rules, data, path, aliases)
@@ -176,7 +176,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 
 		for _, rule := range rules {
 
-			base := rule.GetRuleBase()
+			base := rule.Rule()
 
 			selector := ":root"
 			if base.Selector != "" {
@@ -212,14 +212,14 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
 		}
-		rules := rule.Rule.(system.Object).GetBase().Rules
+		rules := rule.Rule.(system.Object).Object().Rules
 		return validateArrayChildren(items, rules, data, path, aliases)
 	case "map":
 		items, err := rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
 		}
-		rules := rule.Rule.(system.Object).GetBase().Rules
+		rules := rule.Rule.(system.Object).Object().Rules
 		return validateMapChildren(items, rules, data, path, aliases)
 	}
 
@@ -240,7 +240,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 
 	rules := []system.Rule{}
 	if system.RulesApplyToObjects(data) {
-		rules = data.(system.Object).GetBase().Rules
+		rules = data.(system.Object).Object().Rules
 	}
 
 	for name, field := range itemsRule.ParentType.Fields {
@@ -248,7 +248,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if err != nil {
 			return kerr.New("XTUKWWRDHH", err, "system.GetField (%s)", name)
 		}
-		if !field.GetRuleBase().Optional && !found {
+		if !field.Rule().Optional && !found {
 			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
 		}
 		childRule, err := system.NewRuleHolder(field)
@@ -260,11 +260,11 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 			return kerr.New("XRTVWVUAMP", nil, "field does not implement system.Object")
 		}
 
-		allRules := append(rules, ob.GetBase().Rules...)
+		allRules := append(rules, ob.Object().Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(childRule.Rule.(system.Object).GetBase().Rules) > 0 {
-			allRules = append(allRules, childRule.Rule.(system.Object).GetBase().Rules...)
+		if len(childRule.Rule.(system.Object).Object().Rules) > 0 {
+			allRules = append(allRules, childRule.Rule.(system.Object).Object().Rules...)
 		}
 
 		if err = validateObject(childRule, allRules, child, path, aliases); err != nil {
@@ -283,8 +283,8 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, da
 	}
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Rule.(system.Object).GetBase().Rules) > 0 {
-		rules = append(rules, itemsRule.Rule.(system.Object).GetBase().Rules...)
+	if len(itemsRule.Rule.(system.Object).Object().Rules) > 0 {
+		rules = append(rules, itemsRule.Rule.(system.Object).Object().Rules...)
 	}
 
 	for i := 0; i < value.Len(); i++ {
@@ -308,8 +308,8 @@ func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data
 	}
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Rule.(system.Object).GetBase().Rules) > 0 {
-		rules = append(rules, itemsRule.Rule.(system.Object).GetBase().Rules...)
+	if len(itemsRule.Rule.(system.Object).Object().Rules) > 0 {
+		rules = append(rules, itemsRule.Rule.(system.Object).Object().Rules...)
 	}
 
 	for _, key := range value.MapKeys() {

@@ -9,125 +9,125 @@ import (
 
 // Automatically created basic rule for basic
 type Basic_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for c
 type C_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for collision
 type Collision_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for diagram
 type Diagram_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for expr
 type Expr_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery
 type Gallery_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for image
 type Image_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for instance
 type Instance_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for instanceItem
 type InstanceItem_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for kid
 type Kid_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for photo
 type Photo_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for polykids
 type Polykids_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for rectangle
 type Rectangle_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for rightscale
 type Rightscale_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for rightscaleLink
 type RightscaleLink_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for rightscaleList
 type RightscaleList_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for sibling
 type Sibling_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for simple
 type Simple_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for simpleItem
 type SimpleItem_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for typed
 type Typed_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 type Basic struct {
-	*system.Base
+	*system.Object_base
 	DrinkPreference   []system.String            `json:"drinkPreference"`
 	FavoriteColor     system.String              `json:"favoriteColor"`
 	LanguagesSpoken   []map[string]system.String `json:"languagesSpoken"`
@@ -136,21 +136,21 @@ type Basic struct {
 	Weight            system.Number              `json:"weight"`
 }
 type C struct {
-	*system.Base
+	*system.Object_base
 	A system.Number            `json:"a"`
 	B system.Number            `json:"b"`
 	C map[string]system.Number `json:"c"`
 }
 type Collision struct {
-	*system.Base
+	*system.Object_base
 	Number map[string]system.String `json:"number"`
 }
 type Diagram struct {
-	*system.Base
+	*system.Object_base
 	Url system.String `json:"url"`
 }
 type Expr struct {
-	*system.Base
+	*system.Object_base
 	False   system.Bool   `json:"false"`
 	Float   system.Number `json:"float"`
 	Int     system.Number `json:"int"`
@@ -162,22 +162,22 @@ type Expr struct {
 
 // This represents a gallery - it's just a list of images
 type Gallery struct {
-	*system.Base
+	*system.Object_base
 	Images map[string]Image `json:"images"`
 }
 type Instance struct {
-	*system.Base
+	*system.Object_base
 	Cloud_type   system.String     `json:"cloud_type"`
 	Display_name system.String     `json:"display_name"`
 	Links        []*RightscaleLink `json:"links"`
 	Name         system.String     `json:"name"`
 }
 type InstanceItem struct {
-	*system.Base
+	*system.Object_base
 	Name system.String `json:"name"`
 }
 type Kid struct {
-	*system.Base
+	*system.Object_base
 	Language  system.String `json:"language"`
 	Level     system.String `json:"level"`
 	Preferred system.Bool   `json:"preferred"`
@@ -185,7 +185,7 @@ type Kid struct {
 
 // This represents an image, and contains path, server and protocol separately
 type Photo struct {
-	*system.Base
+	*system.Object_base
 	// The path for the url - e.g. /foo/bar.jpg
 	Path system.String `json:"path"`
 	// The protocol for the url - e.g. http or https
@@ -195,30 +195,30 @@ type Photo struct {
 	Size   *Rectangle    `json:"size"`
 }
 type Polykids struct {
-	*system.Base
+	*system.Object_base
 	A []*Kid `json:"a"`
 }
 type Rectangle struct {
-	*system.Base
+	*system.Object_base
 	Height system.Int `json:"height"`
 	Width  system.Int `json:"width"`
 }
 type Rightscale struct {
-	*system.Base
+	*system.Object_base
 	Child map[string]*InstanceItem `json:"child"`
 	Name  system.String            `json:"name"`
 }
 type RightscaleLink struct {
-	*system.Base
+	*system.Object_base
 	Href system.String `json:"href"`
 	Rel  system.String `json:"rel"`
 }
 type RightscaleList struct {
-	*system.Base
+	*system.Object_base
 	Foo []*Rightscale `json:"foo"`
 }
 type Sibling struct {
-	*system.Base
+	*system.Object_base
 	A system.Number            `json:"a"`
 	B system.Number            `json:"b"`
 	C *C                       `json:"c"`
@@ -226,15 +226,15 @@ type Sibling struct {
 	E map[string]system.Number `json:"e"`
 }
 type Simple struct {
-	*system.Base
+	*system.Object_base
 	A *SimpleItem `json:"a"`
 }
 type SimpleItem struct {
-	*system.Base
+	*system.Object_base
 	B system.String `json:"b"`
 }
 type Typed struct {
-	*system.Base
+	*system.Object_base
 	Avatar          Image                    `json:"avatar"`
 	DrinkPreference []system.String          `json:"drinkPreference"`
 	FavoriteColor   system.String            `json:"favoriteColor"`

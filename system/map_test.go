@@ -17,7 +17,7 @@ func TestMapMarshal(t *testing.T) {
 	}`
 
 	type A struct {
-		*Base
+		*Object_base
 		E String            `json:"e"`
 		B map[string]String `json:"b"`
 	}

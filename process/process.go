@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-
 	"strings"
 
 	"bytes"
@@ -60,8 +59,14 @@ func KeCommand(set settings) error {
 			params = append(params, "-v")
 		}
 		params = append(params, p)
-		if out, err := exec.Command("go", params...).CombinedOutput(); err != nil {
-			return kerr.New("HHKSTQMAKG", err, "go get command: %s", out)
+
+		combined, stdout, stderr := logger(set.verbose)
+		cmd := exec.Command("go", params...)
+		cmd.Stdout = stdout
+		cmd.Stderr = stderr
+
+		if err := cmd.Run(); err != nil {
+			return kerr.New("HHKSTQMAKG", err, "go get command: %s", combined.String())
 		} else {
 			if set.verbose {
 				fmt.Println("OK.")
@@ -117,16 +122,21 @@ func RunCommand(file commandType, set settings) error {
 		if set.verbose {
 			fmt.Print("Building ", file, " command... ")
 		}
-		out, err := exec.Command("go", "build", "-o", keCommandPath, outputPath).CombinedOutput()
-		if err != nil {
-			return kerr.New("OEPAEEYKIS", err, "go build: %s", out)
-		} else {
-			if set.verbose {
-				fmt.Println("OK.")
-			}
+
+		combined, stdout, stderr := logger(set.verbose)
+		cmd := exec.Command("go", "build", "-o", keCommandPath, outputPath)
+		cmd.Stdout = stdout
+		cmd.Stderr = stderr
+
+		if err := cmd.Run(); err != nil {
+			return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
 		}
 		if set.verbose {
-			fmt.Print(string(out))
+			fmt.Println("OK.")
+		}
+
+		if set.verbose {
+			fmt.Print(combined.String())
 		}
 	}
 
@@ -164,32 +174,35 @@ func RunCommand(file commandType, set settings) error {
 		params = append(params, set.path)
 	}
 
-	out := bytes.Buffer{}
-	var wErr io.Writer
-	var wOut io.Writer
-	if set.verbose {
-		wErr = MultiWriter(os.Stderr, &out)
-		wOut = MultiWriter(os.Stdout, &out)
-	} else {
-		wErr = &out
-		wOut = &out
-	}
+	combined, stdout, stderr := logger(set.verbose)
 
 	cmd := exec.Command(command, params...)
-	cmd.Stdout = wOut
-	cmd.Stderr = wErr
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
 		if file == C_KE {
-			errorMessage := strings.TrimSpace(out.String())
+			errorMessage := strings.TrimSpace(combined.String())
 			if strings.HasPrefix(errorMessage, "Error: ") {
 				errorMessage = errorMessage[7:]
 			}
 			return ValidationError{kerr.New("ETWHPXTUVB", nil, errorMessage)}
 		}
-		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", out.String())
+		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", combined.String())
 	}
 
 	return nil
+}
+
+func logger(verbose bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.Writer) {
+	combined = &bytes.Buffer{}
+	if verbose {
+		stderr = MultiWriter(os.Stderr, combined)
+		stdout = MultiWriter(os.Stdout, combined)
+	} else {
+		stderr = combined
+		stdout = combined
+	}
+	return
 }
 
 // GenerateFiles generates the source code from templates and writes

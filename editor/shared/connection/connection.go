@@ -62,7 +62,7 @@ func (c *Conn) Send(message messages.Message) {
 func (c *Conn) Request(message messages.Message, fail chan error) chan messages.Message {
 
 	responseChannel := make(chan messages.Message)
-	c.requests[message.GetMessageBase().Guid.Value] = responseChannel
+	c.requests[message.Message().Guid.Value] = responseChannel
 	c.out <- message
 
 	outputChannel := make(chan messages.Message)
@@ -82,7 +82,7 @@ func (c *Conn) Request(message messages.Message, fail chan error) chan messages.
 
 // Respond sends a message as a reply to a request
 func (c *Conn) Respond(message messages.Message, requestGuid string) {
-	message.GetMessageBase().Request = system.NewString(requestGuid)
+	message.Message().Request = system.NewString(requestGuid)
 	c.out <- message
 }
 
@@ -118,7 +118,7 @@ func (c *Conn) Receive() error {
 			return kerr.New("FYWKSPGYXY", nil, "Received type %T does not implement messages.Message", i)
 		}
 
-		requestGuid := m.GetMessageBase().Request
+		requestGuid := m.Message().Request
 		if requestGuid.Exists {
 			reply, ok := c.requests[requestGuid.Value]
 			if !ok {
@@ -129,7 +129,7 @@ func (c *Conn) Receive() error {
 			continue
 		}
 
-		t := m.(system.Object).GetBase().Type
+		t := m.(system.Object).Object().Type
 		subscriber, ok := c.subs[t]
 		if !ok {
 			return kerr.New("USAYKUNHSC", nil, "Subscriber not found for %s", t.Value())

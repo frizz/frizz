@@ -6,9 +6,7 @@
 	"rule": {
 		"description": "Restriction rules for numbers",
 		"type": "type",
-		"id": "@number",
 		"is": ["rule"],
-		"embed": ["ruleBase"],
 		"fields": {
 			"default": {
 				"description": "Default value if this property is omitted",

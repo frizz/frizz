@@ -16,7 +16,7 @@ func TestGenerateCommand_errors(t *testing.T) {
 	assert.IsError(t, err, "CRBYOUOHPG")
 
 	ty := &system.Type{
-		Base: &system.Base{Id: system.NewReference("b.c/d", "a corrupt"), Type: system.NewReference("kego.io/system", "type")},
+		Object_base: &system.Object_base{Id: system.NewReference("b.c/d", "a corrupt"), Type: system.NewReference("kego.io/system", "type")},
 	}
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
@@ -38,7 +38,7 @@ func getImports(t *testing.T, source string) string {
 func TestGenerateSource(t *testing.T) {
 
 	ty := &system.Type{
-		Base: &system.Base{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
+		Object_base: &system.Object_base{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
 	}
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
@@ -51,7 +51,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "\t\"kego.io/system\"\n")
 	assert.Contains(t, imp, "\t\"reflect\"\n")
 	assert.NotContains(t, imp, "\"f.g/h\"")
-	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Base\n}\n")
+	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Object_base\n}\n")
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), 0x0)\n")
 
 	source, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})

@@ -38,16 +38,35 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 			}
 			g.Println("type ", system.GoName(typ.Id.Name), " struct {")
 			{
-				if !typ.Basic {
-					g.Println("*", generator.Reference("kego.io/system", "Base", set.path, g.Imports.Add))
-				}
-				embeds := system.SortableReferences(typ.Embed)
-				sort.Sort(embeds)
+				embedsSortable := system.SortableReferences(typ.Embed)
+				sort.Sort(embedsSortable)
+				embeds := []system.Reference(embedsSortable)
 				for _, embed := range embeds {
 					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), set.path, g.Imports.Add))
 				}
+
+				if !typ.Basic {
+					g.Println("*", generator.Reference("kego.io/system", "Object_base", set.path, g.Imports.Add))
+				}
+				interfacesSortable := system.SortableReferences(typ.Is)
+				sort.Sort(interfacesSortable)
+				interfaces := []system.Reference(interfacesSortable)
+				for _, iface := range interfaces {
+					h, ok := system.GetGlobal(iface.Package, iface.Name)
+					if !ok {
+						return nil, kerr.New("UHIRQKNEEV", nil, "Can't find type %s", iface)
+					}
+					t, ok := h.Object.(*system.Type)
+					if !ok {
+						return nil, kerr.New("AOMVIJBFJA", nil, "%T is not a *system.Type", h.Object)
+					}
+					if t.Base != nil {
+						g.Println("*", generator.Reference(t.Base.Id.Package, system.GoName(t.Base.Id.Name), set.path, g.Imports.Add))
+					}
+				}
+
 				for _, nf := range typ.SortedFields() {
-					b := nf.Field.(system.Object).GetBase()
+					b := nf.Field.(system.Object).Object()
 					if b.Description != "" {
 						g.Println("// ", b.Description)
 					}

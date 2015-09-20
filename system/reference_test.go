@@ -87,7 +87,7 @@ func TestReferenceMarshalJson(t *testing.T) {
 func TestReferenceGetType(t *testing.T) {
 
 	ty := &Type{
-		Base: &Base{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
+		Object_base: &Object_base{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
 	}
 	Register("a.b/c", "d", ty, 0)
 	defer Unregister("a.b/c", "d")

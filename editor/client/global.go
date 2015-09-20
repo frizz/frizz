@@ -67,7 +67,7 @@ func (g *global) awaitGlobalResponse(responseChannel chan messages.Message, succ
 		return kerr.New("HEHNRKNHIC", nil, "%T is not a system.Object", i)
 	}
 
-	b := o.GetBase()
+	b := o.Object()
 	t, ok := b.Type.GetType()
 	if !ok {
 		return kerr.New("FODKTVUAAS", nil, "Type not found")

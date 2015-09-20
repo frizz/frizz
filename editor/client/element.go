@@ -52,7 +52,7 @@ func addChildren(el *element, n *tree.Node) error {
 
 	ob, ok := el.data.(system.Object)
 	if ok {
-		base := ob.GetBase()
+		base := ob.Object()
 		el.ktype, ok = base.Type.GetType()
 		if !ok {
 			return kerr.New("EVTTBNAQQO", nil, "Type.GetType not found")

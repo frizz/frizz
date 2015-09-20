@@ -2,7 +2,6 @@ description: This is returned when the client requests a global.
 type: system:type
 id: globalResponse
 is: [message]
-embed: [messageBase]
 fields:
   name:
     type: system:@string

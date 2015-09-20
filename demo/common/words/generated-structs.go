@@ -1,37 +1,36 @@
 package words
 
 import (
-	"reflect"
-
 	"kego.io/json"
 	"kego.io/system"
+	"reflect"
 )
 
 // Automatically created basic rule for localizer
 type Localizer_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for simple
 type Simple_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for translation
 type Translation_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 type Simple struct {
-	*system.Base
+	*system.Object_base
 	String system.String `json:"string"`
 }
 
 // This represents a translated string
 type Translation struct {
-	*system.Base
+	*system.Object_base
 	// The original English string
 	English system.String `kego:"{\"default\":{\"value\":\"http\"}}" json:"english"`
 	// The translated strings

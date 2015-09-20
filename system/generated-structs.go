@@ -6,16 +6,36 @@ import (
 	"kego.io/json"
 )
 
+// This is the base type for the object interface. All ke objects have this type embedded.
+type Object_base struct {
+	// Description for the developer
+	Description string `json:"description"`
+	// All global objects should have an id.
+	Id Reference `json:"id"`
+	// Extra validation rules for this object or descendants
+	Rules []Rule `json:"rules"`
+	// Type of the object.
+	Type Reference `json:"type"`
+}
+
+// All rules will have this embedded in them.
+type Rule_base struct {
+	// If this rule is a field, this specifies that the field is optional
+	Optional bool `json:"optional"`
+	// Json selector defining what nodes this rule should be applied to.
+	Selector string `json:"selector"`
+}
+
 // Automatically created basic rule for aliases
 type Aliases_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 
 // Restriction rules for arrays
 type Array_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// This is a rule object, defining the type and restrictions on the value of the items
 	Items Rule `json:"items"`
 	// This is the maximum number of items allowed in the array
@@ -26,30 +46,24 @@ type Array_rule struct {
 	UniqueItems bool `json:"uniqueItems"`
 }
 
-// Automatically created basic rule for base
-type Base_rule struct {
-	*Base
-	*RuleBase
-}
-
 // Restriction rules for bools
 type Bool_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// Default value if this is missing or null
 	Default Bool `json:"default"`
 }
 
 // Automatically created basic rule for imports
 type Imports_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 
 // Restriction rules for integers
 type Int_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// Default value if this property is omitted
 	Default Int `json:"default"`
 	// This provides an upper bound for the restriction
@@ -62,8 +76,8 @@ type Int_rule struct {
 
 // Restriction rules for maps
 type Map_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// This is a rule object, defining the type and restrictions on the value of the items.
 	Items Rule `json:"items"`
 	// This is the maximum number of items alowed in the array
@@ -74,8 +88,8 @@ type Map_rule struct {
 
 // Restriction rules for numbers
 type Number_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// Default value if this property is omitted
 	Default Number `json:"default"`
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
@@ -90,30 +104,30 @@ type Number_rule struct {
 	MultipleOf Number `json:"multipleOf"`
 }
 
+// Automatically created basic rule for object
+type Object_rule struct {
+	*Object_base
+	*Rule_base
+}
+
 // Restriction rules for references
 type Reference_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// Default value of this is missing or null
 	Default Reference `json:"default"`
 }
 
 // Automatically created basic rule for rule
 type Rule_rule struct {
-	*Base
-	*RuleBase
-}
-
-// Automatically created basic rule for ruleBase
-type RuleBase_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 
 // Restriction rules for strings
 type String_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 	// Default value of this is missing or null
 	Default String `json:"default"`
 	// The value of this string is restricted to one of the provided values
@@ -132,57 +146,39 @@ type String_rule struct {
 
 // Automatically created basic rule for type
 type Type_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 
 // Lists aliases used in this package.
 type Aliases struct {
-	*Base
+	*Object_base
 	// Map of path to alias.
 	Aliases map[string]string `json:"aliases"`
 }
 
 // This is the native json array data type
 type Array struct {
-	*Base
-}
-
-// This is the most basic type.
-type Base struct {
-	// Description for the developer
-	Description string `json:"description"`
-	// All global objects should have an id.
-	Id Reference `json:"id"`
-	// Extra validation rules for this object or descendants
-	Rules []Rule `json:"rules"`
-	// Type of the object.
-	Type Reference `json:"type"`
+	*Object_base
 }
 
 // Lists imports used in this package.
 type Imports struct {
-	*Base
+	*Object_base
 	// Map of path to alias.
 	Imports map[string]string `json:"imports"`
 }
 
 // This is the native json object data type.
 type Map struct {
-	*Base
-}
-
-// All rules should embed this type.
-type RuleBase struct {
-	// If this rule is a field, this specifies that the field is optional
-	Optional bool `json:"optional"`
-	// Json selector defining what nodes this rule should be applied to.
-	Selector string `json:"selector"`
+	*Object_base
 }
 
 // This is the most basic type.
 type Type struct {
-	*Base
+	*Object_base
+	// Optionally this is a type which is embedded in each object that implements this interface.
+	Base *Type `json:"base"`
 	// Basic types don't have system:object added by default to the embedded types.
 	Basic bool `json:"basic"`
 	// Types which this should embed - system:object is always added unless base = true.
@@ -197,34 +193,33 @@ type Type struct {
 	Is []Reference `json:"is"`
 	// This is the native json type that represents this type. If omitted, default is object.
 	Native String `kego:"{\"default\":{\"value\":\"object\"}}" json:"native"`
-	// Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.
+	// Type that defines restriction rules for this type.
 	Rule *Type `json:"rule"`
 }
 
 func init() {
+	json.Register("kego.io/system", "$object", reflect.TypeOf(&Object_base{}), 0xa80f42e03150e43e)
+	json.Register("kego.io/system", "$rule", reflect.TypeOf(&Rule_base{}), 0x61f37939f1737cbf)
 	json.Register("kego.io/system", "@aliases", reflect.TypeOf(&Aliases_rule{}), 0xa201259ad19e56d5)
-	json.Register("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}), 0x9396ab3adc9b26c2)
-	json.Register("kego.io/system", "@base", reflect.TypeOf(&Base_rule{}), 0x55165bf6126129f)
-	json.Register("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}), 0x18e72064215d8f71)
+	json.Register("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}), 0xf6f09a20ac87e96f)
+	json.Register("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}), 0x849d95e096ea903a)
 	json.Register("kego.io/system", "@imports", reflect.TypeOf(&Imports_rule{}), 0x9bb5dc657899f549)
-	json.Register("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}), 0xe7b98d2f66bb5b1)
-	json.Register("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}), 0x68d11e9fab3ed4bb)
-	json.Register("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}), 0x8c2b0d23320b8aeb)
-	json.Register("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}), 0x2a5ddf0f63b58876)
-	json.Register("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}), 0x50ad825a1446eccd)
-	json.Register("kego.io/system", "@ruleBase", reflect.TypeOf(&RuleBase_rule{}), 0xab213a8c8218179a)
-	json.Register("kego.io/system", "@string", reflect.TypeOf(&String_rule{}), 0xae4613a6af2bb7d6)
-	json.Register("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}), 0xc1bba2c7da9518b7)
+	json.Register("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}), 0x9f6cffbf2042e2aa)
+	json.Register("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}), 0xb95cdb828f1494cc)
+	json.Register("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}), 0x14f986941edf71e9)
+	json.Register("kego.io/system", "@object", reflect.TypeOf(&Object_rule{}), 0xa80f42e03150e43e)
+	json.Register("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}), 0x67e9d97dde75d10f)
+	json.Register("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}), 0x61f37939f1737cbf)
+	json.Register("kego.io/system", "@string", reflect.TypeOf(&String_rule{}), 0xe1e0d90cd0a489ca)
+	json.Register("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}), 0xc3b35155074abe72)
 	json.Register("kego.io/system", "aliases", reflect.TypeOf(&Aliases{}), 0xa201259ad19e56d5)
-	json.Register("kego.io/system", "array", reflect.TypeOf(&Array{}), 0x9396ab3adc9b26c2)
-	json.Register("kego.io/system", "base", reflect.TypeOf(&Base{}), 0x55165bf6126129f)
-	json.Register("kego.io/system", "bool", reflect.TypeOf(&Bool{}), 0x18e72064215d8f71)
+	json.Register("kego.io/system", "array", reflect.TypeOf(&Array{}), 0xf6f09a20ac87e96f)
+	json.Register("kego.io/system", "bool", reflect.TypeOf(&Bool{}), 0x849d95e096ea903a)
 	json.Register("kego.io/system", "imports", reflect.TypeOf(&Imports{}), 0x9bb5dc657899f549)
-	json.Register("kego.io/system", "int", reflect.TypeOf(&Int{}), 0xe7b98d2f66bb5b1)
-	json.Register("kego.io/system", "map", reflect.TypeOf(&Map{}), 0x68d11e9fab3ed4bb)
-	json.Register("kego.io/system", "number", reflect.TypeOf(&Number{}), 0x8c2b0d23320b8aeb)
-	json.Register("kego.io/system", "reference", reflect.TypeOf(&Reference{}), 0x2a5ddf0f63b58876)
-	json.Register("kego.io/system", "ruleBase", reflect.TypeOf(&RuleBase{}), 0xab213a8c8218179a)
-	json.Register("kego.io/system", "string", reflect.TypeOf(&String{}), 0xae4613a6af2bb7d6)
-	json.Register("kego.io/system", "type", reflect.TypeOf(&Type{}), 0xc1bba2c7da9518b7)
+	json.Register("kego.io/system", "int", reflect.TypeOf(&Int{}), 0x9f6cffbf2042e2aa)
+	json.Register("kego.io/system", "map", reflect.TypeOf(&Map{}), 0xb95cdb828f1494cc)
+	json.Register("kego.io/system", "number", reflect.TypeOf(&Number{}), 0x14f986941edf71e9)
+	json.Register("kego.io/system", "reference", reflect.TypeOf(&Reference{}), 0x67e9d97dde75d10f)
+	json.Register("kego.io/system", "string", reflect.TypeOf(&String{}), 0xe1e0d90cd0a489ca)
+	json.Register("kego.io/system", "type", reflect.TypeOf(&Type{}), 0xc3b35155074abe72)
 }

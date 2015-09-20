@@ -24,16 +24,16 @@ import (
 */
 
 type JsonNumber_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 type JsonString_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 type JsonBool_rule struct {
-	*Base
-	*RuleBase
+	*Object_base
+	*Rule_base
 }
 
 func init() {
@@ -49,7 +49,7 @@ func init() {
 
 	makeRule := func(name string) *Type {
 		return &Type{
-			Base: &Base{
+			Object_base: &Object_base{
 				Id:   NewReference("kego.io/json", fmt.Sprint("@", name)),
 				Type: tr},
 			Embed:     []Reference{or},
@@ -62,7 +62,7 @@ func init() {
 
 	makeType := func(name string) *Type {
 		return &Type{
-			Base: &Base{
+			Object_base: &Object_base{
 				Id:   NewReference("kego.io/json", name),
 				Type: tr},
 			Embed:     []Reference{or},

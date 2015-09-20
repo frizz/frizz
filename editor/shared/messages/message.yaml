@@ -2,3 +2,14 @@ description: This is the message interface
 type: system:type
 id: message
 interface: true
+base:
+  description: This is a base class embedded in each message
+  type: system:type
+  basic: true
+  fields:
+    guid:
+      description: A globally unique string identifying this message
+      type: system:@string
+    request:
+      description: If this is a response, this is the message guid that we are responding to
+      type: system:@string

@@ -1,0 +1,35 @@
+{
+	"description": "This is the interface that all ke types should implement",
+	"type": "type",
+	"id": "object",
+	"interface": true,
+	"base": {
+		"description": "This is the base type for the object interface. All ke objects have this type embedded.",
+		"type": "type",
+		"basic": true,
+		"fields": {
+			"type": {
+				"description": "Type of the object.",
+				"type": "@reference"
+			},
+			"id": {
+				"description": "All global objects should have an id.",
+				"type": "@reference",
+				"optional": true
+			},
+			"description": {
+				"description": "Description for the developer",
+				"type": "json:@string",
+				"optional": true
+			},
+			"rules": {
+				"description": "Extra validation rules for this object or descendants",
+				"type": "@array",
+				"items": {
+					"type": "@rule"
+				},
+				"optional": true
+			}
+		}
+	}
+}

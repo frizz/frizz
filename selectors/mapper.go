@@ -72,7 +72,7 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 
 	ob, ok := element.Data.(system.Object)
 	if ok {
-		base := ob.GetBase()
+		base := ob.Object()
 		n.ktyperef = base.Type
 		n.ktype, ok = base.Type.GetType()
 		if !ok {

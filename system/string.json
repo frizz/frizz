@@ -6,9 +6,7 @@
 	"rule": {
 		"description": "Restriction rules for strings",
 		"type": "type",
-		"id": "@string",
 		"is": ["rule"],
-		"embed": ["ruleBase"],
 		"fields": {
 			"default": {
 				"description": "Default value of this is missing or null",

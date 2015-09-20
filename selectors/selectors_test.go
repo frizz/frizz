@@ -52,7 +52,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 			ob, ok := i.(system.Object)
 			assert.True(t, ok)
 
-			ty, ok := ob.GetBase().Type.GetType()
+			ty, ok := ob.Object().Type.GetType()
 
 			r := system.NewMinimalRuleHolder(ty)
 
@@ -338,7 +338,7 @@ func comparison(actual *Element, expected interface{}, path string, aliases map[
 		if !ok {
 			return false, kerr.New("KQJCVJSTKH", nil, "actual %T does not implement system.Object")
 		}
-		parentType, ok := ob.GetBase().Type.GetType()
+		parentType, ok := ob.Object().Type.GetType()
 		if !ok {
 			return false, kerr.New("TWVUMUFLST", nil, "Type.GetType couldn't find type")
 		}

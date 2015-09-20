@@ -11,89 +11,89 @@ import (
 
 // Automatically created basic rule for gallery1
 type Gallery1_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery1a
 type Gallery1a_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery2
 type Gallery2_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery2a
 type Gallery2a_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery2b
 type Gallery2b_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery3
 type Gallery3_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // Automatically created basic rule for gallery3a
 type Gallery3a_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 
 // This represents a gallery - it's just a list of images
 type Gallery1 struct {
-	*system.Base
+	*system.Object_base
 	Title system.String `json:"title"`
 }
 
 // This represents a gallery - it's just a list of images
 type Gallery1a struct {
-	*system.Base
+	*system.Object_base
 	Title system.String `json:"title"`
 }
 
 // This represents a gallery - it's just a list of images
 type Gallery2 struct {
-	*system.Base
+	*system.Object_base
 	Images map[string]*images.Photo `json:"images"`
 	Title  system.String            `json:"title"`
 }
 
 // This represents a gallery - it's just a list of images
 type Gallery2a struct {
-	*system.Base
+	*system.Object_base
 	Images map[string]*images.Photo `json:"images"`
 	Title  system.String            `json:"title"`
 }
 
 // This represents a gallery - it's just a list of images
 type Gallery2b struct {
-	*system.Base
+	*system.Object_base
 	Images map[string]*images.Photo `json:"images"`
 	Title  system.String            `json:"title"`
 }
 
 // This represents a gallery - it's just a list of images
 type Gallery3 struct {
-	*system.Base
+	*system.Object_base
 	Images map[string]images.Image `json:"images"`
 	Title  words.Localizer         `json:"title"`
 }
 
 // This represents a gallery - it's just a list of images.
 type Gallery3a struct {
-	*system.Base
+	*system.Object_base
 	Images map[string]images.Image `json:"images"`
 	Title  words.Localizer         `json:"title"`
 }

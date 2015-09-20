@@ -8,7 +8,7 @@ import (
 )
 
 type Rule interface {
-	GetRuleBase() *RuleBase
+	Rule() *Rule_base
 }
 
 // Enforcer is a rule with properties that need to be enforced against data.
@@ -16,14 +16,14 @@ type Enforcer interface {
 	Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error)
 }
 
-func (b *RuleBase) GetRuleBase() *RuleBase {
+func (b *Rule_base) Rule() *Rule_base {
 	return b
 }
 
 func init() {
 	type dummyRule struct {
-		*Base
-		*RuleBase
+		*Object_base
+		*Rule_base
 		Default interface{}
 	}
 	json.RegisterInterface(reflect.TypeOf((*Rule)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
@@ -71,7 +71,7 @@ func ruleTypeReference(r Rule) (*Reference, error) {
 	if !ok {
 		return nil, kerr.New("VKFNPJDNVB", nil, "r does not implement Object")
 	}
-	return &ob.GetBase().Type, nil
+	return &ob.Object().Type, nil
 
 }
 

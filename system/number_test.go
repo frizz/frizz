@@ -7,7 +7,7 @@ import (
 )
 
 func TestNumberRule_Enforce(t *testing.T) {
-	r := Number_rule{RuleBase: &RuleBase{Optional: false}, Minimum: NewNumber(1.5)}
+	r := Number_rule{Rule_base: &Rule_base{Optional: false}, Minimum: NewNumber(1.5)}
 	ok, message, err := r.Enforce(Number{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum: value must exist", message)
@@ -28,13 +28,13 @@ func TestNumberRule_Enforce(t *testing.T) {
 	assert.Equal(t, "Minimum: value 1 must not be less than 1.5", message)
 	assert.False(t, ok)
 
-	r = Number_rule{RuleBase: &RuleBase{Optional: false}, Minimum: NewNumber(1.5), ExclusiveMinimum: true}
+	r = Number_rule{Rule_base: &Rule_base{Optional: false}, Minimum: NewNumber(1.5), ExclusiveMinimum: true}
 	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum (exclusive): value 1.5 must be greater than 1.5", message)
 	assert.False(t, ok)
 
-	r = Number_rule{RuleBase: &RuleBase{Optional: false}, Maximum: NewNumber(1.5)}
+	r = Number_rule{Rule_base: &Rule_base{Optional: false}, Maximum: NewNumber(1.5)}
 	ok, message, err = r.Enforce(Number{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum: value must exist", message)
@@ -55,13 +55,13 @@ func TestNumberRule_Enforce(t *testing.T) {
 	assert.Equal(t, "Maximum: value 2 must not be greater than 1.5", message)
 	assert.False(t, ok)
 
-	r = Number_rule{RuleBase: &RuleBase{Optional: false}, Maximum: NewNumber(1.5), ExclusiveMaximum: true}
+	r = Number_rule{Rule_base: &Rule_base{Optional: false}, Maximum: NewNumber(1.5), ExclusiveMaximum: true}
 	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum (exclusive): value 1.5 must be less than 1.5", message)
 	assert.False(t, ok)
 
-	r = Number_rule{RuleBase: &RuleBase{Optional: false}, MultipleOf: NewNumber(1.5)}
+	r = Number_rule{Rule_base: &Rule_base{Optional: false}, MultipleOf: NewNumber(1.5)}
 	ok, message, err = r.Enforce(Number{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value must exist", message)

@@ -9,37 +9,37 @@ var Path = "kego.io/editor/shared/messages"
 var Aliases = map[string]string{}
 
 type Message interface {
-	GetMessageBase() *MessageBase
+	Message() *Message_base
 }
 
-func (b *MessageBase) GetMessageBase() *MessageBase {
+func (b *Message_base) Message() *Message_base {
 	return b
 }
 
-func NewMessageBase() *MessageBase {
-	return &MessageBase{
+func NewMessageBase() *Message_base {
+	return &Message_base{
 		Guid: system.NewString(uuid.NewV4().String()),
 	}
 }
 
 func NewGlobalResponse(name string, ok bool, data string) *GlobalResponse {
 	return &GlobalResponse{
-		Base: &system.Base{
+		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/editor/shared/messages", "globalResponse"),
 		},
-		MessageBase: NewMessageBase(),
-		Name:        system.NewString(name),
-		Found:       system.NewBool(ok),
-		Data:        system.NewString(data),
+		Message_base: NewMessageBase(),
+		Name:         system.NewString(name),
+		Found:        system.NewBool(ok),
+		Data:         system.NewString(data),
 	}
 }
 
 func NewGlobalRequest(name string) *GlobalRequest {
 	return &GlobalRequest{
-		Base: &system.Base{
+		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/editor/shared/messages", "globalRequest"),
 		},
-		MessageBase: NewMessageBase(),
-		Name:        system.NewString(name),
+		Message_base: NewMessageBase(),
+		Name:         system.NewString(name),
 	}
 }

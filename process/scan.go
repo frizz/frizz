@@ -41,7 +41,7 @@ func ScanForGlobals(set settings) error {
 		if !ok {
 			return nil
 		}
-		b := o.GetBase()
+		b := o.Object()
 		if !b.Id.Exists {
 			// Anything without an ID is not a global
 			return nil
@@ -74,7 +74,30 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 				return kerr.New("XIANHMCTKB", err, "system.Register (type)")
 			}
 
+			if t.Base != nil {
+
+				if !t.Interface {
+					return kerr.New("OOUDHHYVOE", nil, "Only interface types can have a base type")
+				}
+
+				if t.Base.Id.Exists {
+					return kerr.New("OINLQNXBJK", nil, "Base types should not have id specified")
+				}
+
+				t.Base.Id = system.NewReference(t.Id.Package, fmt.Sprint("$", t.Id.Name))
+
+				if err := system.Register(t.Base.Id.Package, t.Base.Id.Name, t.Base, hash); err != nil {
+					return kerr.New("DRKPPLVLRO", err, "system.Register (base)")
+				}
+			}
+
 			if t.Rule != nil {
+
+				if t.Rule.Id.Exists {
+					return kerr.New("LOTEAIWAAW", nil, "Rule types should not have id specified")
+				}
+
+				t.Rule.Id = system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
 
 				if err := system.Register(t.Rule.Id.Package, t.Rule.Id.Name, t.Rule, hash); err != nil {
 					return kerr.New("GNOJJEYXHX", err, "system.Register (rule)")
@@ -83,17 +106,14 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 			} else {
 
 				// If the rule is missing, automatically create a default.
-				ref := system.NewReference(set.path, fmt.Sprintf("@%s", t.Id.Name))
+				ref := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
 				rule := &system.Type{
-					Base: &system.Base{
+					Object_base: &system.Object_base{
 						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
 						Type:        system.NewReference("kego.io/system", "type"),
 						Id:          ref,
 					},
-					Is: []system.Reference{system.NewReference("kego.io/system", "rule")},
-					Embed: []system.Reference{
-						system.NewReference("kego.io/system", "ruleBase"),
-					},
+					Is:        []system.Reference{system.NewReference("kego.io/system", "rule")},
 					Native:    system.NewString("object"),
 					Interface: false,
 				}

@@ -10,11 +10,11 @@ import (
 
 func TestNoType(t *testing.T) {
 	type C struct {
-		*Base
+		*Object_base
 		D string
 	}
 	type A struct {
-		*Base
+		*Object_base
 		B *C
 	}
 
@@ -37,7 +37,7 @@ func TestNoType(t *testing.T) {
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok)
-	assert.NotNil(t, a.B.Base)
+	assert.NotNil(t, a.B.Object_base)
 	assert.Equal(t, "kego.io/system:c", a.B.Type.Value())
 
 	j = `{

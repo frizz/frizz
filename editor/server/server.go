@@ -203,7 +203,7 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 
 	names := []string{}
 	for _, hashed := range globals {
-		name := hashed.Object.GetBase().Id.Name
+		name := hashed.Object.Object().Id.Name
 		if strings.HasPrefix(name, "@") {
 			continue
 		}

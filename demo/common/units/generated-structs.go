@@ -9,11 +9,11 @@ import (
 
 // Automatically created basic rule for rectangle
 type Rectangle_rule struct {
-	*system.Base
-	*system.RuleBase
+	*system.Object_base
+	*system.Rule_base
 }
 type Rectangle struct {
-	*system.Base
+	*system.Object_base
 	Height system.Int `json:"height"`
 	Width  system.Int `json:"width"`
 }

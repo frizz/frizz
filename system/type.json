@@ -50,7 +50,12 @@
 			"optional": true
 		},
 		"rule": {
-			"description": "Embedded type that defines restriction rules for this type. By convention, the ID should be this type prefixed with the @ character.",
+			"description": "Type that defines restriction rules for this type.",
+			"type": "@type",
+			"optional": true
+		},
+		"base": {
+			"description": "Optionally this is a type which is embedded in each object that implements this interface.",
 			"type": "@type",
 			"optional": true
 		}
