@@ -1,0 +1,8 @@
+description: This is sent by the client to request a global.
+type: system:type
+id: globalRequest
+is: [message]
+embed: [messageBase]
+fields:
+  name:
+    type: system:@string

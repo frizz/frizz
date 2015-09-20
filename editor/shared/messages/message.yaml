@@ -1,0 +1,4 @@
+description: This is the message interface
+type: system:type
+id: message
+interface: true

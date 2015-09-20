@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"path"
 	"strings"
-	"time"
 
-	kejson "kego.io/json"
+	"golang.org/x/net/websocket"
+
+	"kego.io/ke"
 	"kego.io/kerr"
 
 	"github.com/gopherjs/gopherjs/compiler"
@@ -23,70 +24,114 @@ import (
 
 	"github.com/gopherjs/gopherjs/build"
 	"kego.io/editor/shared"
+	"kego.io/editor/shared/connection"
+	"kego.io/editor/shared/messages"
 	"kego.io/process"
 	"kego.io/system"
 )
 
+type appData struct {
+	path     string
+	aliases  map[string]string
+	verbose  bool
+	fail     chan error
+	finished chan bool
+}
+
+var app appData
+
 func Start(path string, verbose bool) error {
 
-	if verbose {
-		fmt.Println("Starting editor... ")
-	}
-
+	app.path = path
+	app.verbose = verbose
 	aliases, err := initialise(path)
 	if err != nil {
 		return kerr.New("SWSQDFXIEV", err, "initialise")
 	}
+	app.aliases = aliases
+
+	if verbose {
+		fmt.Println("Starting editor server... ")
+	}
+
+	app.finished = make(chan bool)
+	app.fail = make(chan error)
 
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
-
-	finished := make(chan bool)
-	timeout := make(chan bool)
-	ping := make(chan bool)
-	fail := make(chan error)
-
 	http.HandleFunc("/script.js", func(w http.ResponseWriter, req *http.Request) {
 		if err := script(w, req, path, aliases, false, &mapping); err != nil {
-			fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
+			app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
+			return
 		}
 	})
 	http.HandleFunc("/script.js.map", func(w http.ResponseWriter, req *http.Request) {
 		if err := script(w, req, path, aliases, true, &mapping); err != nil {
-			fail <- kerr.New("JRLOMPOHRQ", err, "script (map)")
+			app.fail <- kerr.New("JRLOMPOHRQ", err, "script (map)")
+			return
 		}
-	})
-	http.HandleFunc("/_ping", func(http.ResponseWriter, *http.Request) {
-		ping <- true
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if err := wildcard(w, req, path, aliases); err != nil {
-			fail <- kerr.New("QOMJGNOCQF", err, "wildcard")
+			app.fail <- kerr.New("QOMJGNOCQF", err, "wildcard")
+			return
 		}
 	})
 
-	go func() { serve(finished, fail) }()
-	go func() { pong(ping, timeout, true) }()
+	http.Handle("/_socket", websocket.Handler(func(ws *websocket.Conn) {
+		c := connection.New(ws, app.fail, app.finished, path, aliases)
+
+		globalRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "globalRequest"))
+		go handle(func() error { return getGlobals(globalRequestsChannel, c) })
+
+		if err := c.Receive(); err != nil {
+			app.fail <- err
+			return
+		}
+	}))
+
+	go handle(func() error { return serve(app.finished) })
 
 	select {
-	case <-finished:
+	case <-app.finished:
 		if verbose {
 			fmt.Println("Exiting editor server (finished)... ")
 		}
-	case <-timeout:
-		if verbose {
-			fmt.Println("Exiting editor server (client closed)... ")
-		}
-	case err := <-fail:
+	case err := <-app.fail:
 		return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 	}
-
 	return nil
 }
 
-func initialise(path string) (aliases map[string]string, err error) {
+func handle(f func() error) {
+	if err := f(); err != nil {
+		app.fail <- err
+	}
+}
 
-	set, err := process.InitialiseManually(true, true, false, false, path)
+func getGlobals(in chan messages.Message, conn *connection.Conn) error {
+	for {
+		m := <-in
+		request, ok := m.(*messages.GlobalRequest)
+		if !ok {
+			return kerr.New("BKGSQAWUJY", nil, "Message %T is not a *messages.Request", m)
+		}
+		hashed, ok := system.GetGlobal(app.path, request.Name.Value)
+		data := ""
+		if ok {
+			b, err := ke.Marshal(hashed.Object)
+			if err != nil {
+				return kerr.New("WTXNLMABAS", err, "ke.Marshal")
+			}
+			data = string(b)
+		}
+		response := messages.NewGlobalResponse(request.Name.Value, ok, data)
+		conn.Respond(response, request.Guid.Value)
+	}
+}
+
+func initialise(path string) (aliases map[string]string, err error) {
+	set, err := process.InitialiseManually(true, false, false, false, path)
 	if err != nil {
 		return nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
@@ -154,23 +199,6 @@ func script(w http.ResponseWriter, req *http.Request, packagePath string, aliase
 
 func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string) error {
 
-	if len(req.URL.Path) > 1 {
-		name := req.URL.Path[1:]
-		hashed, ok := system.GetGlobal(path, name)
-		if ok {
-			b, err := kejson.Marshal(hashed.Object)
-			if err != nil {
-				return kerr.New("WTXNLMABAS", err, "kejson.Marshal")
-			}
-			if _, err := w.Write(b); err != nil {
-				return kerr.New("OQVYRENYUX", err, "w.Write (data)")
-			}
-		} else {
-			w.WriteHeader(404)
-		}
-		return nil
-	}
-
 	globals := system.GetAllGlobalsInPackage(path, nil)
 
 	names := []string{}
@@ -237,48 +265,32 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 	return nil
 }
 
-func serve(finished chan bool, fail chan error) {
+func serve(finished chan bool) error {
 
 	// Starting with port zero chooses a random open port
 	listner, err := net.Listen("tcp", ":0")
 	if err != nil {
-		fail <- kerr.New("QGLXHWPWQW", err, "net.Listen")
+		return kerr.New("QGLXHWPWQW", err, "net.Listen")
+
 	}
 	defer listner.Close()
 
 	// Here we get the address we're serving on
 	address, ok := listner.Addr().(*net.TCPAddr)
 	if !ok {
-		fail <- kerr.New("CBLPYVGGUR", nil, "Can't find address (l.Addr() is not *net.TCPAddr)")
+		return kerr.New("CBLPYVGGUR", nil, "Can't find address (l.Addr() is not *net.TCPAddr)")
 	}
 
 	// We open the default browser and navigate to the address we're serving from.
 	if err := browser.OpenURL(fmt.Sprintf("http://localhost:%d/", address.Port)); err != nil {
-		fail <- kerr.New("AEJLAXGVVA", err, "browser.OpenUrl")
+		return kerr.New("AEJLAXGVVA", err, "browser.OpenUrl")
 	}
 
 	if err := http.Serve(listner, nil); err != nil {
-		fail <- kerr.New("TUCBTWMRNN", err, "http.Serve")
+		return kerr.New("TUCBTWMRNN", err, "http.Serve")
 	}
 
 	finished <- true
-}
+	return nil
 
-// pong starts a timeout. If a ping is not received before the timeout, the
-// timeout channel is signaled. If the ping is received, the timeout starts
-// again. The initial timeout is 20 seconds, to give the page time to
-// initialize. Subsequent requests have a 3 second timeout.
-func pong(ping chan bool, timeout chan bool, first bool) {
-
-	duration := time.Second * 3
-	if first {
-		duration = time.Second * 20
-	}
-
-	select {
-	case <-ping:
-		pong(ping, timeout, false)
-	case <-time.After(duration):
-		timeout <- true
-	}
 }

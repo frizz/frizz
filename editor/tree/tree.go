@@ -2,7 +2,6 @@ package tree
 
 import (
 	"honnef.co/go/js/dom"
-	"kego.io/js/console"
 	"kego.io/kerr"
 )
 
@@ -46,6 +45,9 @@ func New(parent dom.Element) *Node {
 	}
 	node.Initialise()
 	return node
+}
+func (n *Node) Item() Item {
+	return n.item
 }
 
 func (n *Node) Initialise() {
@@ -118,16 +120,12 @@ func (n *Node) Open() *Node {
 		return n
 	}
 
-	// with some nodes, when we open the node we have to load data from the
-	// server. We have an "opening" state that shows an operation is in progress.
-	// TODO: Why are we using callbacks? This is Go... surely we should be using channels?
-
 	if n.opening {
 		// if we're already in the process of opening the node, we should cancel the open operation
 		return n
 	}
 
-	success := func() {
+	opened := func() {
 		if n.inner != nil {
 			n.inner.Style().Set("display", "block")
 		}
@@ -136,21 +134,21 @@ func (n *Node) Open() *Node {
 		n.afterStateChange()
 	}
 
-	fail := func(err error) {
-		console.Error(err, err.Error())
-		if n.inner != nil {
-			n.inner.Style().Set("display", "none")
-		}
-		n.open = false
-		n.opening = false
-		n.afterStateChange()
-	}
+	if async, ok := n.item.(AsyncItem); ok && !async.ContentLoaded() {
 
-	if n.item.AsyncOpen() {
+		// load content asynchronously
 		n.opening = true
-		go n.item.Open(n, success, fail)
+		successChannel := async.LoadContent()
+		go func() {
+			<-successChannel
+			opened()
+		}()
+
 	} else {
-		success()
+
+		// if item is not async or content is already loaded, just
+		// open the node.
+		opened()
 	}
 
 	return n
@@ -229,7 +227,8 @@ func (n *Node) update() {
 		minus := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>`
 		point := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`
 
-		if n.item.AsyncOpen() && !n.item.ContentLoaded() {
+		async, isAsync := n.item.(AsyncItem)
+		if isAsync && !async.ContentLoaded() {
 			n.opener.SetInnerHTML(plus)
 		} else if n.children == nil || len(n.children) == 0 {
 			n.opener.SetInnerHTML(point)

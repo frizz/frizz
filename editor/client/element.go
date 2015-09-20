@@ -32,16 +32,6 @@ func (e *element) Initialise(div dom.Element) {
 	e.label = label
 	div.AppendChild(label)
 }
-func (e *element) Open(node *tree.Node, success func(), fail func(error)) {
-	success()
-	return
-}
-func (e *element) AsyncOpen() bool {
-	return false
-}
-func (e *element) ContentLoaded() bool {
-	return true
-}
 
 var _ = tree.Item(&element{})
 

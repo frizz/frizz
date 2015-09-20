@@ -17,15 +17,6 @@ type item struct {
 func (i *item) Initialise(div dom.Element) {
 	div.SetTextContent(i.id)
 }
-func (i *item) Open(node *Node, success func(), fail func(error)) {
-	success()
-}
-func (i *item) AsyncOpen() bool {
-	return false
-}
-func (i *item) ContentLoaded() bool {
-	return true
-}
 
 var _ = Item(&item{})
 

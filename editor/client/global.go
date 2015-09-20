@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"honnef.co/go/js/dom"
-	"honnef.co/go/js/xhr"
+	"kego.io/editor/shared/messages"
 	"kego.io/editor/tree"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -12,11 +12,10 @@ import (
 )
 
 type global struct {
-	name    string
-	loaded  bool
-	path    string
-	aliases map[string]string
-	label   *dom.HTMLDivElement
+	name   string
+	loaded bool
+	label  *dom.HTMLDivElement
+	node   *tree.Node
 }
 
 func (g *global) Initialise(div dom.Element) {
@@ -26,45 +25,63 @@ func (g *global) Initialise(div dom.Element) {
 	div.AppendChild(label)
 }
 
-func (g *global) Open(node *tree.Node, success func(), fail func(error)) {
+func (g *global) LoadContent() chan bool {
+
+	successChannel := make(chan bool)
+
 	if g.loaded {
-		success()
-		return
+		// if the data is already loaded, we return the success channel
+		// and immediately signal it. This has to be done with a goroutine.
+		go func() { successChannel <- true }()
+		return successChannel
 	}
-	data, err := xhr.Send("GET", g.name, nil)
-	if err != nil {
-		fail(kerr.New("KHBCONMBSF", err, "xrh.Send"))
-		return
+
+	responseChannel := app.conn.Request(messages.NewGlobalRequest(g.name), app.fail)
+
+	go func() {
+		if err := g.awaitGlobalResponse(responseChannel, successChannel); err != nil {
+			app.fail <- kerr.New("ATCPPWKQOF", err, "awaitGlobalResponse")
+		}
+	}()
+
+	return successChannel
+
+}
+
+func (g *global) awaitGlobalResponse(responseChannel chan messages.Message, successChannel chan bool) error {
+
+	m := <-responseChannel
+
+	gr, ok := m.(*messages.GlobalResponse)
+	if !ok {
+		return kerr.New("YCFRNPEYGI", nil, "%T is not a *messages.GlobalResponse", m)
 	}
+
 	var i interface{}
-	if err = ke.Unmarshal(data, &i, g.path, g.aliases); err != nil {
-		fail(kerr.New("GXMCMOPRFK", err, "ke.Unmarshal"))
-		return
+	if err := ke.Unmarshal([]byte(gr.Data.Value), &i, app.path, app.aliases); err != nil {
+		return kerr.New("GXMCMOPRFK", err, "ke.Unmarshal")
 	}
+
 	o, ok := i.(system.Object)
 	if !ok {
-		fail(kerr.New("HEHNRKNHIC", nil, "%T is not a system.Object", i))
-		return
+		return kerr.New("HEHNRKNHIC", nil, "%T is not a system.Object", i)
 	}
+
 	b := o.GetBase()
 	t, ok := b.Type.GetType()
 	if !ok {
-		fail(kerr.New("FODKTVUAAS", nil, "Type not found"))
-		return
+		return kerr.New("FODKTVUAAS", nil, "Type not found")
 	}
+
 	rule := system.NewMinimalRuleHolder(t)
 	child := &element{data: o, rule: rule, value: reflect.ValueOf(o), index: -1, name: b.Id.Name}
-	if err := addChildren(child, node); err != nil {
-		fail(kerr.New("HBLEFLWPOG", err, "addNodes (root)"))
-		return
+	if err := addChildren(child, g.node); err != nil {
+		return kerr.New("HBLEFLWPOG", err, "addNodes (root)")
 	}
-	g.loaded = true
-	success()
-	return
-}
 
-func (g *global) AsyncOpen() bool {
-	return true
+	g.loaded = true
+	successChannel <- true
+	return nil
 }
 
 func (g *global) ContentLoaded() bool {
@@ -72,8 +89,11 @@ func (g *global) ContentLoaded() bool {
 }
 
 var _ = tree.Item(&global{})
+var _ = tree.AsyncItem(&global{})
 
-func addGlobal(name string, parent *tree.Node, path string, aliases map[string]string) {
-	n := tree.NewNode(&global{name: name, path: path, aliases: aliases})
+func addGlobal(name string, parent *tree.Node) {
+	g := &global{name: name}
+	n := tree.NewNode(g)
+	g.node = n
 	parent.AppendNodes(n)
 }

@@ -5,13 +5,26 @@ import (
 
 	"encoding/json"
 
+	"fmt"
+
+	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
-	"honnef.co/go/js/xhr"
 	"kego.io/editor/shared"
+	"kego.io/editor/shared/connection"
 	"kego.io/editor/tree"
+	"kego.io/js/console"
 	"kego.io/kerr"
 )
 
+type appData struct {
+	path     string
+	aliases  map[string]string
+	fail     chan error
+	finished chan bool
+	conn     *connection.Conn
+}
+
+var app appData
 var window dom.Window
 var doc dom.Document
 var body dom.Element
@@ -21,11 +34,6 @@ func Start(path string) error {
 	window = dom.GetWindow()
 	doc = window.Document()
 	body = doc.GetElementByID("body")
-	window.AddEventListener("hashchange", false, navigate)
-
-	// We ping the server every 500ms. When we close the browser
-	// the server will exit after a 2sec timeout.
-	window.SetInterval(keepAlive, 500)
 
 	// We parse the json info attribute from the body tag
 	info, err := getInfo(body)
@@ -33,39 +41,47 @@ func Start(path string) error {
 		return kerr.New("MGLVIQIDDY", err, "getInfo")
 	}
 
-	// We create a new root tree element
-	root := tree.New(body)
+	app.path = path
+	app.aliases = info.Aliases
+	app.fail = make(chan error)
+	app.finished = make(chan bool)
 
-	// We add a new node to the tree for each global
-	for _, g := range info.Globals {
-		addGlobal(g, root, info.Path, info.Aliases)
+	// We dial the websocket connection to the server
+	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))
+	if err != nil {
+		return kerr.New("XBMAKPJICG", err, "websocket.Dial")
 	}
 
-	/*
-		err = root.Each(func(n *tree.Node) error {
-			if err := n.WriteDom(body, doc); err != nil {
-				return kerr.New("EWSIOWILSD", err, "WriteDom")
-			}
-			return nil
-		})
-		if err != nil {
-			return kerr.New("MYWBOWUMIY", err, "root.Each")
-		}
-	*/
+	app.conn = connection.New(ws, app.fail, app.finished, app.path, app.aliases)
+	go handle(app.conn.Receive)
 
-	/*for _, e := range doc.GetElementsByClassName("global") {
-		href := e.GetAttribute("href") // must read this now to get it in the closure
-		e.AddEventListener("click", true, func(ev dom.Event) {
-			ev.PreventDefault()
-			go func() {
-				if err := loadFromServer(href, path, aliases, root); err != nil {
-					console.Error(err.Error())
-				}
-			}()
-		})
-	}*/
+	// We create a new root tree element
+	root := tree.New(body)
+	// We add a new node to the tree for each global
+	for _, name := range info.Globals {
+		addGlobal(name, root)
+	}
+
+	go func() {
+		// watch for fail or finished signals
+		select {
+		case err := <-app.fail:
+			console.Error(err.Error())
+			body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
+			app.conn.Close()
+		case <-app.finished:
+			body.SetInnerHTML("<pre>Server disconnected.</pre>")
+			app.conn.Close()
+		}
+	}()
 
 	return nil
+}
+
+func handle(f func() error) {
+	if err := f(); err != nil {
+		app.fail <- err
+	}
 }
 
 func getInfo(body dom.Element) (info shared.Info, err error) {
@@ -78,21 +94,4 @@ func getInfo(body dom.Element) (info shared.Info, err error) {
 		return shared.Info{}, kerr.New("AAFXLQRUEW", err, "json.Unmarshal (info)")
 	}
 	return info, nil
-}
-
-// TODO: do this instead with a websocket.
-func keepAlive() {
-	go func() { xhr.Send("GET", "/_ping", nil) }()
-}
-
-func navigate(e dom.Event) {
-	id := dom.GetWindow().Location().Hash[1:]
-	element := doc.GetElementByID(id)
-	div := doc.CreateElement("div")
-	div.SetInnerHTML(id)
-	if element.NextSibling() != nil {
-		body.InsertBefore(div, element.NextSibling())
-	} else {
-		body.AppendChild(div)
-	}
 }
