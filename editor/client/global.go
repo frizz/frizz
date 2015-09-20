@@ -4,8 +4,8 @@ import (
 	"reflect"
 
 	"honnef.co/go/js/dom"
+	"kego.io/editor/client/tree"
 	"kego.io/editor/shared/messages"
-	"kego.io/editor/tree"
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/system"

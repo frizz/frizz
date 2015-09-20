@@ -1,4 +1,4 @@
-package pkgtest
+package pkgtest // import "kego.io/process/pkgtest"
 
 import (
 	"fmt"

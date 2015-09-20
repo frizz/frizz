@@ -1,4 +1,4 @@
-package shared
+package shared // import "kego.io/editor/shared"
 
 type Info struct {
 	// Package path

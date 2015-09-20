@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/editor/tree"
+	"kego.io/editor/client/tree"
 	"kego.io/kerr/assert"
 	"kego.io/system"
 	_ "kego.io/system/types"

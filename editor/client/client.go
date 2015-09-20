@@ -9,9 +9,9 @@ import (
 
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
+	"kego.io/editor/client/tree"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
-	"kego.io/editor/tree"
 	"kego.io/js/console"
 	"kego.io/kerr"
 )

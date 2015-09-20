@@ -1,4 +1,4 @@
-package tree
+package tree // import "kego.io/editor/client/tree"
 
 import (
 	"honnef.co/go/js/dom"

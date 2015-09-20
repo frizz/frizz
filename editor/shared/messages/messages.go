@@ -1,4 +1,4 @@
-package messages
+package messages // import "kego.io/editor/shared/messages"
 
 import (
 	"github.com/twinj/uuid"

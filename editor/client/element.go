@@ -6,7 +6,7 @@ import (
 
 	"honnef.co/go/js/dom"
 
-	"kego.io/editor/tree"
+	"kego.io/editor/client/tree"
 	"kego.io/kerr"
 	"kego.io/system"
 )

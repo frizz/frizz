@@ -1,4 +1,4 @@
-package connection
+package connection // import "kego.io/editor/shared/connection"
 
 import (
 	"io"
