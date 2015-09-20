@@ -14,7 +14,7 @@ import (
 	"kego.io/system"
 )
 
-func ValidateCommand(set settings) error {
+func ValidateCommand(set settings) (typesChanged bool, err error) {
 	if set.verbose {
 		fmt.Print("Validating... ")
 	}
@@ -24,16 +24,16 @@ func ValidateCommand(set settings) error {
 				fmt.Println("Types have changed - rebuilding...")
 			}
 			if err := RunAllCommands(set); err != nil {
-				return err
+				return true, err
 			}
-			return nil
+			return true, nil
 		}
-		return err
+		return false, err
 	}
 	if set.verbose {
 		fmt.Println("OK.")
 	}
-	return nil
+	return false, nil
 }
 
 func Validate(set settings) error {

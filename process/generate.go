@@ -247,8 +247,13 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 					fmt.Println(err)
 			        os.Exit(1)
 				}
-				if err := process.ValidateCommand(set); err != nil {
-					fmt.Println(process.FormatError(err))
+				if typesChanged, err := process.ValidateCommand(set); err != nil {
+					if !typesChanged || !set.Verbose() {
+						// when ValidateCommand detects the types have changed, it
+						// spawns a ke command. In verbose mode this will output any
+						// error so we don't need to print the error
+						fmt.Println(process.FormatError(err))
+					}
 					os.Exit(1)
 				}
 				if set.Edit() {

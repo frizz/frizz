@@ -85,7 +85,7 @@ func init() {
 	ptr71 := &system.RuleBase{}
 	ptr72 := &words.Localizer_rule{Base: ptr70, RuleBase: ptr71}
 	ptr73 := &system.Type{Base: ptr63, Embed: []system.Reference(nil), Fields: map[string]system.Rule{"images": ptr69, "title": ptr72}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr74 := &system.Base{Description: "This represents a gallery - it's just a list of images", Id: system.Reference{Package: "kego.io/demo/site", Name: "gallery3a", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr74 := &system.Base{Description: "This represents a gallery - it's just a list of images.", Id: system.Reference{Package: "kego.io/demo/site", Name: "gallery3a", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 	ptr75 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 	ptr76 := &system.RuleBase{}
 	ptr77 := &system.Base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/demo/common/images", Name: "@image", Exists: true}}
@@ -102,12 +102,12 @@ func init() {
 	system.Register("kego.io/demo/site", "@gallery2a", ptr7, 0x4a0bb74542b31d47)
 	system.Register("kego.io/demo/site", "@gallery2b", ptr9, 0x8dc28cbd83066e3d)
 	system.Register("kego.io/demo/site", "@gallery3", ptr11, 0x327c5e90f012bd49)
-	system.Register("kego.io/demo/site", "@gallery3a", ptr13, 0x89fb5c874cf0f786)
+	system.Register("kego.io/demo/site", "@gallery3a", ptr13, 0x6c37f443b6dc9d05)
 	system.Register("kego.io/demo/site", "gallery1", ptr18, 0x8997ec74747e71d5)
 	system.Register("kego.io/demo/site", "gallery1a", ptr23, 0xf6237017f97fc838)
 	system.Register("kego.io/demo/site", "gallery2", ptr34, 0x3ff7f11dfc3e88c0)
 	system.Register("kego.io/demo/site", "gallery2a", ptr48, 0x4a0bb74542b31d47)
 	system.Register("kego.io/demo/site", "gallery2b", ptr62, 0x8dc28cbd83066e3d)
 	system.Register("kego.io/demo/site", "gallery3", ptr73, 0x327c5e90f012bd49)
-	system.Register("kego.io/demo/site", "gallery3a", ptr84, 0x89fb5c874cf0f786)
+	system.Register("kego.io/demo/site", "gallery3a", ptr84, 0x6c37f443b6dc9d05)
 }

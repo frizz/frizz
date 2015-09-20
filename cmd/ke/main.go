@@ -15,7 +15,11 @@ func main() {
 		os.Exit(1)
 	}
 	if err := process.KeCommand(set); err != nil {
-		fmt.Println(process.FormatError(err))
+		if !set.Verbose() {
+			// in verbose mode, we have already written the output of the exec'ed ke command,
+			// so we don't need to duplicate the error message.
+			fmt.Println(process.FormatError(err))
+		}
 		os.Exit(1)
 	}
 	os.Exit(0)

@@ -2,12 +2,15 @@ package process // import "kego.io/process"
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"strings"
+
+	"bytes"
 
 	"kego.io/kerr"
 )
@@ -116,7 +119,7 @@ func RunCommand(file commandType, set settings) error {
 		}
 		out, err := exec.Command("go", "build", "-o", keCommandPath, outputPath).CombinedOutput()
 		if err != nil {
-			return kerr.New("OEPAEEYKIS", err, "go build: cd%s", out)
+			return kerr.New("OEPAEEYKIS", err, "go build: %s", out)
 		} else {
 			if set.verbose {
 				fmt.Println("OK.")
@@ -130,6 +133,9 @@ func RunCommand(file commandType, set settings) error {
 	command := ""
 	params := []string{}
 
+	if set.verbose {
+		fmt.Println("Running", file, "command...")
+	}
 	if file == C_KE {
 		command = keCommandPath
 		if set.verbose {
@@ -139,9 +145,6 @@ func RunCommand(file commandType, set settings) error {
 			params = append(params, "-e")
 		}
 	} else {
-		if set.verbose {
-			fmt.Print("Building ", file, " command... ")
-		}
 		command = "go"
 		params = []string{"run", outputPath}
 
@@ -161,25 +164,29 @@ func RunCommand(file commandType, set settings) error {
 		params = append(params, set.path)
 	}
 
-	out, err := exec.Command(command, params...).CombinedOutput()
-	if err != nil {
-		if set.verbose {
-			fmt.Println()
-		}
-		if file == C_KE {
-			return ValidationError{kerr.New("ETWHPXTUVB", nil, strings.TrimSpace(string(out)))}
-		}
-		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", out)
+	out := bytes.Buffer{}
+	var wErr io.Writer
+	var wOut io.Writer
+	if set.verbose {
+		wErr = MultiWriter(os.Stderr, &out)
+		wOut = MultiWriter(os.Stdout, &out)
 	} else {
-		if file != C_KE {
-			if set.verbose {
-				fmt.Println("OK.")
-			}
-		}
+		wErr = &out
+		wOut = &out
 	}
 
-	if set.verbose {
-		fmt.Print(string(out))
+	cmd := exec.Command(command, params...)
+	cmd.Stdout = wOut
+	cmd.Stderr = wErr
+	if err := cmd.Run(); err != nil {
+		if file == C_KE {
+			errorMessage := strings.TrimSpace(out.String())
+			if strings.HasPrefix(errorMessage, "Error: ") {
+				errorMessage = errorMessage[7:]
+			}
+			return ValidationError{kerr.New("ETWHPXTUVB", nil, errorMessage)}
+		}
+		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", out.String())
 	}
 
 	return nil
@@ -306,4 +313,24 @@ func save(dir string, contents []byte, name string, backup bool) error {
 	}
 
 	return nil
+}
+
+// MultiWriter creates a writer that duplicates its writes to all the
+// provided writers, similar to the Unix tee(1) command.
+func MultiWriter(primary io.Writer, writers ...io.Writer) io.Writer {
+	w := make([]io.Writer, len(writers))
+	copy(w, writers)
+	return &multiWriter{primary: primary, writers: w}
+}
+
+type multiWriter struct {
+	primary io.Writer
+	writers []io.Writer
+}
+
+func (t *multiWriter) Write(p []byte) (n int, err error) {
+	for _, w := range t.writers {
+		w.Write(p)
+	}
+	return t.primary.Write(p)
 }
