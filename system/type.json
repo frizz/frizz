@@ -9,7 +9,7 @@
 			"optional": true
 		},
 		"embed": {
-			"description": "Types which this should embed - system:object is always added unless base = true.",
+			"description": "Types which this should embed - system:object is always added unless basic = true.",
 			"type": "@array",
 			"items": {
 				"type": "@reference"
