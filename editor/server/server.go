@@ -31,11 +31,10 @@ import (
 )
 
 type appData struct {
-	path     string
-	aliases  map[string]string
-	verbose  bool
-	fail     chan error
-	finished chan bool
+	path    string
+	aliases map[string]string
+	verbose bool
+	fail    chan error
 }
 
 var app appData
@@ -54,7 +53,6 @@ func Start(path string, verbose bool) error {
 		fmt.Println("Starting editor server... ")
 	}
 
-	app.finished = make(chan bool)
 	app.fail = make(chan error)
 
 	// This contains the source map that will be persisted between requests
@@ -65,21 +63,26 @@ func Start(path string, verbose bool) error {
 			return
 		}
 	})
-	http.HandleFunc("/script.js.map", func(w http.ResponseWriter, req *http.Request) {
-		if err := script(w, req, path, aliases, true, &mapping); err != nil {
-			app.fail <- kerr.New("JRLOMPOHRQ", err, "script (map)")
-			return
-		}
-	})
+	//http.HandleFunc("/script.js.map", func(w http.ResponseWriter, req *http.Request) {
+	//	if err := script(w, req, path, aliases, true, &mapping); err != nil {
+	//		app.fail <- kerr.New("JRLOMPOHRQ", err, "script (map)")
+	//		return
+	//	}
+	//})
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if err := wildcard(w, req, path, aliases); err != nil {
-			app.fail <- kerr.New("QOMJGNOCQF", err, "wildcard")
+		if err := root(w, req, path, aliases); err != nil {
+			app.fail <- kerr.New("QOMJGNOCQF", err, "root")
 			return
 		}
 	})
 
 	http.Handle("/_socket", websocket.Handler(func(ws *websocket.Conn) {
-		c := connection.New(ws, app.fail, app.finished, path, aliases)
+		if connection.MESSAGE_TYPE == connection.M_BINARY {
+			ws.PayloadType = 0x2 // binary messages
+		} else {
+			ws.PayloadType = 0x1 // string messages
+		}
+		c := connection.New(ws, app.fail, path, aliases)
 
 		globalRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "globalRequest"))
 		go handle(func() error { return getGlobals(globalRequestsChannel, c) })
@@ -90,16 +93,19 @@ func Start(path string, verbose bool) error {
 		}
 	}))
 
-	go handle(func() error { return serve(app.finished) })
+	go handle(func() error { return serve() })
 
-	select {
-	case <-app.finished:
+	err, open := <-app.fail
+	if !open {
+		// Channel has been closed, so app should gracefully exit.
 		if verbose {
 			fmt.Println("Exiting editor server (finished)... ")
 		}
-	case err := <-app.fail:
+	} else {
+		// Error received, so app should display error.
 		return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 	}
+
 	return nil
 }
 
@@ -197,7 +203,7 @@ func script(w http.ResponseWriter, req *http.Request, packagePath string, aliase
 	return nil
 }
 
-func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string) error {
+func root(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string) error {
 
 	globals := system.GetAllGlobalsInPackage(path, nil)
 
@@ -265,7 +271,7 @@ func wildcard(w http.ResponseWriter, req *http.Request, path string, aliases map
 	return nil
 }
 
-func serve(finished chan bool) error {
+func serve() error {
 
 	// Starting with port zero chooses a random open port
 	listner, err := net.Listen("tcp", ":0")
@@ -290,7 +296,7 @@ func serve(finished chan bool) error {
 		return kerr.New("TUCBTWMRNN", err, "http.Serve")
 	}
 
-	finished <- true
+	close(app.fail)
 	return nil
 
 }

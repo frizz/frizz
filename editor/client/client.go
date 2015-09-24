@@ -17,11 +17,10 @@ import (
 )
 
 type appData struct {
-	path     string
-	aliases  map[string]string
-	fail     chan error
-	finished chan bool
-	conn     *connection.Conn
+	path    string
+	aliases map[string]string
+	fail    chan error
+	conn    *connection.Conn
 }
 
 var app appData
@@ -44,7 +43,6 @@ func Start(path string) error {
 	app.path = path
 	app.aliases = info.Aliases
 	app.fail = make(chan error)
-	app.finished = make(chan bool)
 
 	// We dial the websocket connection to the server
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))
@@ -52,7 +50,10 @@ func Start(path string) error {
 		return kerr.New("XBMAKPJICG", err, "websocket.Dial")
 	}
 
-	app.conn = connection.New(ws, app.fail, app.finished, app.path, app.aliases)
+	// socket allows us to specify the message type - binary or string.
+	s := &socket{ws, shared.MESSAGE_TYPE}
+
+	app.conn = connection.New(s, app.fail, app.path, app.aliases)
 	go handle(app.conn.Receive)
 
 	// We create a new root tree element
@@ -63,16 +64,16 @@ func Start(path string) error {
 	}
 
 	go func() {
-		// watch for fail or finished signals
-		select {
-		case err := <-app.fail:
+		err, open := <-app.fail
+		if !open {
+			// Channel has been closed, so app should gracefully exit.
+			body.SetInnerHTML("<pre>Server disconnected.</pre>")
+		} else {
+			// Error received, so app should display error.
 			console.Error(err.Error())
 			body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
-			app.conn.Close()
-		case <-app.finished:
-			body.SetInnerHTML("<pre>Server disconnected.</pre>")
-			app.conn.Close()
 		}
+		app.conn.Close()
 	}()
 
 	return nil

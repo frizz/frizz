@@ -2,7 +2,6 @@ package connection // import "kego.io/editor/shared/connection"
 
 import (
 	"io"
-	"net"
 	"time"
 
 	"kego.io/editor/shared/messages"
@@ -12,12 +11,19 @@ import (
 )
 
 const TIMEOUT = time.Second
+const MESSAGE_TYPE = M_STRING
 
-func New(socket net.Conn, fail chan error, finished chan bool, path string, aliases map[string]string) *Conn {
+type MessageType string
+
+const (
+	M_STRING MessageType = "string"
+	M_BINARY             = "binary"
+)
+
+func New(socket io.ReadWriteCloser, fail chan error, path string, aliases map[string]string) *Conn {
 	c := &Conn{
 		socket:   socket,
 		fail:     fail,
-		finished: finished,
 		path:     path,
 		aliases:  aliases,
 		in:       make(chan messages.Message),
@@ -30,9 +36,8 @@ func New(socket net.Conn, fail chan error, finished chan bool, path string, alia
 }
 
 type Conn struct {
-	socket   net.Conn
+	socket   io.ReadWriteCloser
 	fail     chan error
-	finished chan bool
 	path     string
 	aliases  map[string]string
 	in       chan messages.Message
@@ -91,7 +96,8 @@ func (c *Conn) sender() error {
 		m := <-c.out
 		if err := ke.NewEncoder(c.socket).Encode(m); err != nil {
 			if err == io.EOF {
-				c.finished <- true
+				// Closing the fail channel exits the app gracefully
+				close(c.fail)
 				return nil
 			}
 			return kerr.New("WIUXNWRXCQ", err, "Encode")
@@ -107,7 +113,8 @@ func (c *Conn) Receive() error {
 		// is just a message, not an object from the local repo.
 		if err := ke.NewDecoder(c.socket, messages.Path, messages.Aliases).Decode(&i); err != nil {
 			if err == io.EOF {
-				c.finished <- true
+				// Closing the fail channel exits the app gracefully
+				close(c.fail)
 				return nil
 			}
 			return kerr.New("GJTKHMTWYY", err, "ke.Unmarshal")
