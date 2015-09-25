@@ -126,8 +126,8 @@ func (s SortableReferences) Less(i, j int) bool {
 
 // We satisfy the json.EmptyAware interface to allow intelligent omission of
 // empty values when marshalling
-func (r *Reference) Empty() bool {
+func (r Reference) Empty() bool {
 	return !r.Exists
 }
 
-var _ = json.EmptyAware(&Reference{})
+var _ json.EmptyAware = (*Reference)(nil)

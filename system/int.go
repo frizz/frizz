@@ -109,8 +109,8 @@ func (i Int) NativeNumber() (value float64, exists bool) {
 
 // We satisfy the json.EmptyAware interface to allow intelligent omission of
 // empty values when marshalling
-func (i *Int) Empty() bool {
+func (i Int) Empty() bool {
 	return !i.Exists
 }
 
-var _ = json.EmptyAware(&Int{})
+var _ json.EmptyAware = (*Int)(nil)

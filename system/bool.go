@@ -59,8 +59,8 @@ func (b Bool) NativeBool() (value bool, exists bool) {
 
 // We satisfy the json.EmptyAware interface to allow intelligent omission of
 // empty values when marshalling
-func (b *Bool) Empty() bool {
+func (b Bool) Empty() bool {
 	return !b.Exists
 }
 
-var _ = json.EmptyAware(&Bool{})
+var _ json.EmptyAware = (*Bool)(nil)

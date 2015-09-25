@@ -41,6 +41,31 @@ func TestMarshal(t *testing.T) {
 
 }
 
+func TestMarshal1(t *testing.T) {
+
+	type A struct {
+		*Object_base
+		B String `json:"b"`
+		C String `json:"c"`
+	}
+
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("kego.io/system", "a")
+
+	a := A{
+		Object_base: &Object_base{
+			Type: NewReference("kego.io/system", "a"),
+		},
+		B: NewString("d"),
+	}
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":"d"}`, string(b))
+
+}
+
 func TestNewString(t *testing.T) {
 	s := NewString("a")
 	assert.True(t, s.Exists)
