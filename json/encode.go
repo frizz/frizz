@@ -292,10 +292,6 @@ func isEmptyValue(v reflect.Value) bool {
 
 	if e, ok := v.Interface().(EmptyAware); ok {
 		return e.Empty()
-	} else if v.CanAddr() {
-		if e, ok := v.Addr().Interface().(EmptyAware); ok {
-			return e.Empty()
-		}
 	}
 
 	switch v.Kind() {
