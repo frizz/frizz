@@ -3,8 +3,6 @@ package connection
 import (
 	"testing"
 
-	"fmt"
-
 	"github.com/golang/mock/gomock"
 	"kego.io/editor/shared/connection/mocks"
 	"kego.io/editor/shared/messages"
@@ -33,15 +31,7 @@ func doTest(t *testing.T, f func(*Conn, *mocks.MockReadWriteCloser)) {
 func TestSend(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.GlobalRequest{
-			Object_base: &system.Object_base{
-				Type: system.NewReference("kego.io/editor/shared/messages", "globalRequest"),
-			},
-			Message_base: &messages.Message_base{
-				Guid: system.NewString("a"),
-			},
-			Name: system.NewString("b"),
-		}
+		m := messages.NewGlobalRequest("a")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -55,15 +45,7 @@ func TestSend(t *testing.T) {
 func TestRequest(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.GlobalRequest{
-			Object_base: &system.Object_base{
-				Type: system.NewReference("kego.io/editor/shared/messages", "globalRequest"),
-			},
-			Message_base: &messages.Message_base{
-				Guid: system.NewString("a"),
-			},
-			Name: system.NewString("b"),
-		}
+		m := messages.NewGlobalRequest("a")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -74,7 +56,7 @@ func TestRequest(t *testing.T) {
 		// sendRequestAndWaitForResponse is the first part of the Request method,
 		// which sends a request and stores the response channel in the requests
 		// map. We should check the response channel exists in the requests map.
-		r, ok := c.requests["a"]
+		r, ok := c.requests[m.Message().Guid.Value]
 		assert.True(t, ok)
 		assert.Equal(t, r, responseChannel)
 
@@ -84,15 +66,7 @@ func TestRequest(t *testing.T) {
 func TestRespond(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.GlobalResponse{
-			Object_base: &system.Object_base{
-				Type: system.NewReference("kego.io/editor/shared/messages", "globalResponse"),
-			},
-			Message_base: &messages.Message_base{
-				Guid: system.NewString("a"),
-			},
-			Name: system.NewString("b"),
-		}
+		m := messages.NewGlobalResponse("a", true, "b")
 
 		// The Respond method adds the guid of the request message to the "Request"
 		// field, so we must clone the request and add it.
@@ -113,13 +87,11 @@ func clone(in system.Object, path string, aliases map[string]string) (system.Obj
 	if err != nil {
 		return nil, kerr.New("WSTYPJHIVG", err, "ke.Marshal")
 	}
-	fmt.Println(string(b))
 	var i interface{}
 	err = ke.Unmarshal(b, &i, path, aliases)
 	if err != nil {
 		return nil, kerr.New("NGELVDDBRF", err, "ke.Unmarshal")
 	}
-	fmt.Printf("%#v", i)
 	o, ok := i.(system.Object)
 	if !ok {
 		return nil, kerr.New("HLMRUOUQEM", nil, "Unmarshaled object is not a system.Object")
