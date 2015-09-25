@@ -36,7 +36,7 @@ func (g *global) LoadContent() chan bool {
 		return successChannel
 	}
 
-	responseChannel := app.conn.Request(messages.NewGlobalRequest(g.name), app.fail)
+	responseChannel := app.conn.Request(messages.NewGlobalRequest(g.name))
 
 	go func() {
 		if err := g.awaitGlobalResponse(responseChannel, successChannel); err != nil {

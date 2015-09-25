@@ -51,7 +51,7 @@ func Start(path string) error {
 	}
 
 	// socket allows us to specify the message type - binary or string.
-	s := &socket{ws, shared.MESSAGE_TYPE}
+	s := &socket{ws, connection.MESSAGE_TYPE}
 
 	app.conn = connection.New(s, app.fail, app.path, app.aliases)
 	go handle(app.conn.Receive)
