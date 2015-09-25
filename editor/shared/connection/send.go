@@ -18,7 +18,7 @@ func (c *Conn) Send(message messages.Message) {
 // Request sends a message and expects a response
 func (c *Conn) Request(message messages.Message) chan messages.Message {
 	responseChannel := c.sendRequestAndReturnResponseChannel(message)
-	outputChannel := c.applyTimeout(responseChannel)
+	outputChannel := c.applyTimeout(TIMEOUT, responseChannel)
 	return outputChannel
 }
 func (c *Conn) sendRequestAndReturnResponseChannel(message messages.Message) chan messages.Message {

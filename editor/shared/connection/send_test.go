@@ -51,6 +51,20 @@ func TestRequest(t *testing.T) {
 		expected = append(expected, byte('\n'))
 
 		socket.EXPECT().Write(expected)
+		_ = c.Request(m)
+
+	})
+}
+
+func TestRequestResponseChannel(t *testing.T) {
+	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
+
+		m := messages.NewGlobalRequest("a")
+
+		expected, _ := ke.Marshal(m)
+		expected = append(expected, byte('\n'))
+
+		socket.EXPECT().Write(expected)
 		responseChannel := c.sendRequestAndReturnResponseChannel(m)
 
 		// sendRequestAndWaitForResponse is the first part of the Request method,

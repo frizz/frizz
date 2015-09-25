@@ -60,11 +60,11 @@ func (c *Conn) handle(f func() error) {
 	}
 }
 
-func (c *Conn) applyTimeout(input chan messages.Message) chan messages.Message {
+func (c *Conn) applyTimeout(duration time.Duration, input chan messages.Message) chan messages.Message {
 	output := make(chan messages.Message)
 	go func() {
 		select {
-		case <-time.After(TIMEOUT):
+		case <-time.After(duration):
 			c.fail <- kerr.New("QKTKOKWSDG", nil, "Timed out waiting for message")
 			return
 		case m := <-input:
