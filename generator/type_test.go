@@ -77,6 +77,8 @@ func (s *structWithCustomMarshaler) MarshalJSON() ([]byte, error) {
 	return []byte(`"foo"`), nil
 }
 
+var _ json.Marshaler = (*structWithCustomMarshaler)(nil)
+
 func TestMarshaler(t *testing.T) {
 	f := structWithCustomMarshaler{}
 	s, err := f.MarshalJSON()

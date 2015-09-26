@@ -66,6 +66,75 @@ func TestMarshal1(t *testing.T) {
 
 }
 
+func TestMarshal2(t *testing.T) {
+
+	type A struct {
+		*Object_base
+		B String `json:"b"`
+	}
+
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("kego.io/system", "a")
+
+	a := A{
+		Object_base: &Object_base{
+			Type: NewReference("kego.io/system", "a"),
+		},
+		B: NewString("c"),
+	}
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
+
+	b, err = json.MarshalCompact(a, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
+
+	b, err = json.MarshalCompact(a, "d.e/f", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
+
+}
+
+func TestMarshal3(t *testing.T) {
+
+	type A struct {
+		*Object_base
+		B String `json:"b"`
+	}
+
+	json.Register("c.d/e", "a", reflect.TypeOf(&A{}), 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("c.d/e", "a")
+
+	a := A{
+		Object_base: &Object_base{
+			Type: NewReference("c.d/e", "a"),
+		},
+		B: NewString("c"),
+	}
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
+
+	b, err = json.MarshalCompact(a, "c.d/e", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
+
+	b, err = json.MarshalCompact(a, "f.g/h", map[string]string{})
+	// The json package doesn't use kerr throughout, so we can't use HasError
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "WGCDQQCFAD")
+
+	b, err = json.MarshalCompact(a, "f.g/h", map[string]string{"c.d/e": "i"})
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
+
+}
+
 func TestNewString(t *testing.T) {
 	s := NewString("a")
 	assert.True(t, s.Exists)

@@ -31,12 +31,16 @@ func (out *Bool) UnmarshalJSON(in []byte, path string, aliases map[string]string
 	return nil
 }
 
+var _ json.Unmarshaler = (*Bool)(nil)
+
 func (b Bool) MarshalJSON() ([]byte, error) {
 	if !b.Exists {
 		return []byte("null"), nil
 	}
 	return []byte(formatBool(b.Value)), nil
 }
+
+var _ json.Marshaler = (*Bool)(nil)
 
 func (b *Bool) String() string {
 	if !b.Exists {

@@ -7,7 +7,7 @@ import (
 
 	"fmt"
 
-	"github.com/stretchr/testify/assert"
+	"kego.io/kerr/assert"
 )
 
 type item struct {

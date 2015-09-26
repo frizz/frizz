@@ -37,3 +37,6 @@ func NewEncoder(w io.Writer) *json.Encoder {
 func Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
+func MarshalCompact(v interface{}, path string, aliases map[string]string) ([]byte, error) {
+	return json.MarshalCompact(v, path, aliases)
+}

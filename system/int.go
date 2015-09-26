@@ -85,12 +85,16 @@ func (out *Int) UnmarshalJSON(in []byte, path string, aliases map[string]string)
 	return nil
 }
 
+var _ json.Unmarshaler = (*Int)(nil)
+
 func (n Int) MarshalJSON() ([]byte, error) {
 	if !n.Exists {
 		return []byte("null"), nil
 	}
 	return []byte(formatInt(n.Value)), nil
 }
+
+var _ json.Marshaler = (*Int)(nil)
 
 func (n *Int) String() string {
 	if !n.Exists {

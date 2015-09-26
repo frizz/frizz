@@ -173,17 +173,16 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
-// Encode writes the JSON encoding of v to the stream,
-// followed by a newline character.
-//
-// See the documentation for Marshal for details about the
-// conversion of Go values to JSON.
-func (enc *Encoder) Encode(v interface{}) error {
+func (enc *Encoder) encode(v interface{}, typed bool, compact bool, path string, aliases map[string]string) error {
+
 	if enc.err != nil {
 		return enc.err
 	}
 	e := newEncodeState()
-	e.typed = true
+	e.typed = typed
+	e.compact = compact
+	e.path = path
+	e.aliases = aliases
 	err := e.marshal(v)
 	if err != nil {
 		return err
@@ -202,6 +201,22 @@ func (enc *Encoder) Encode(v interface{}) error {
 	}
 	encodeStatePool.Put(e)
 	return err
+
+}
+
+// Encode writes the JSON encoding of v to the stream,
+// followed by a newline character.
+//
+// See the documentation for Marshal for details about the
+// conversion of Go values to JSON.
+func (enc *Encoder) Encode(v interface{}) error {
+	return enc.encode(v, true, false, "", map[string]string{})
+}
+
+// EncodeCompact encodes JSON in a more compact form, using
+// aliases for package paths
+func (enc *Encoder) EncodeCompact(v interface{}, path string, aliases map[string]string) error {
+	return enc.encode(v, true, true, path, aliases)
 }
 
 // Encode writes the JSON encoding of v to the stream,
@@ -210,28 +225,7 @@ func (enc *Encoder) Encode(v interface{}) error {
 // See the documentation for Marshal for details about the
 // conversion of Go values to JSON.
 func (enc *Encoder) EncodePlain(v interface{}) error {
-	if enc.err != nil {
-		return enc.err
-	}
-	e := newEncodeState()
-	err := e.marshal(v)
-	if err != nil {
-		return err
-	}
-
-	// Terminate each value with a newline.
-	// This makes the output look a little nicer
-	// when debugging, and some kind of space
-	// is required if the encoded value was a number,
-	// so that the reader knows there aren't more
-	// digits coming.
-	e.WriteByte('\n')
-
-	if _, err = enc.w.Write(e.Bytes()); err != nil {
-		enc.err = err
-	}
-	encodeStatePool.Put(e)
-	return err
+	return enc.encode(v, false, false, "", map[string]string{})
 }
 
 // RawMessage is a raw encoded JSON object.
@@ -244,6 +238,8 @@ func (m *RawMessage) MarshalJSON() ([]byte, error) {
 	return *m, nil
 }
 
+var _ Marshaler = (*RawMessage)(nil)
+
 // UnmarshalJSON sets *m to a copy of data.
 func (m *RawMessage) UnmarshalJSON(data []byte, path string, aliases map[string]string) error {
 	if m == nil {
@@ -253,5 +249,4 @@ func (m *RawMessage) UnmarshalJSON(data []byte, path string, aliases map[string]
 	return nil
 }
 
-var _ Marshaler = (*RawMessage)(nil)
 var _ Unmarshaler = (*RawMessage)(nil)

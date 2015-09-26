@@ -23,6 +23,27 @@ func (r Reference) Value() string {
 	return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
+func (r Reference) ValueCompact(path string, aliases map[string]string) (string, error) {
+	if !r.Exists {
+		return "", nil
+	}
+	if r.Package == path {
+		return r.Name, nil
+	}
+	if r.Package == "kego.io/json" {
+		return fmt.Sprintf("json:%s", r.Name), nil
+	}
+	if r.Package == "kego.io/system" {
+		return fmt.Sprintf("system:%s", r.Name), nil
+	}
+	if alias, ok := aliases[r.Package]; ok {
+		return fmt.Sprintf("%s:%s", alias, r.Name), nil
+	}
+	return "", kerr.New("WGCDQQCFAD", nil, "Package %s not found in aliases", r.Package)
+	// Should we return an error here?
+	//return fmt.Sprintf("%s:%s", r.Package, r.Name)
+}
+
 func NewReference(packagePath string, typeName string) Reference {
 	r := Reference{}
 	r.Exists = true
@@ -82,12 +103,29 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]s
 	return nil
 }
 
+var _ json.Unmarshaler = (*Reference)(nil)
+
 func (r Reference) MarshalJSON() ([]byte, error) {
 	if !r.Exists {
 		return []byte("null"), nil
 	}
 	return []byte(strconv.Quote(r.Value())), nil
 }
+
+var _ json.Marshaler = (*Reference)(nil)
+
+func (r Reference) MarshalCompactJSON(path string, aliases map[string]string) ([]byte, error) {
+	if !r.Exists {
+		return []byte("null"), nil
+	}
+	val, err := r.ValueCompact(path, aliases)
+	if err != nil {
+		return nil, kerr.New("VQCYFSTPQD", err, "ValueCompact")
+	}
+	return []byte(strconv.Quote(val)), nil
+}
+
+var _ json.CompactMarshaler = (*Reference)(nil)
 
 func (r *Reference) String() string {
 	if !r.Exists {
