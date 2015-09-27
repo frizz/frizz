@@ -97,7 +97,7 @@ func TestStructTagObjectKey(t *testing.T) {
 			t.Fatalf("Marshal(%#q) failed: %v", tt.raw, err)
 		}
 		var f interface{}
-		err = UnmarshalPlain(b, &f, "", map[string]string{})
+		err = UnmarshalPlain(b, &f)
 		if err != nil {
 			t.Fatalf("UnmarshalPlain(%#q) failed: %v", b, err)
 		}

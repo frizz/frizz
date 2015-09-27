@@ -572,7 +572,7 @@ func TestUnmarshal(t *testing.T) {
 func TestUnmarshalMarshal(t *testing.T) {
 	initBig()
 	var v interface{}
-	if err := UnmarshalPlain(jsonBig, &v, "", map[string]string{}); err != nil {
+	if err := UnmarshalPlain(jsonBig, &v); err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	b, err := MarshalPlain(v)
@@ -628,7 +628,7 @@ func TestLargeByteSlice(t *testing.T) {
 		t.Fatalf("Marshal: %v", err)
 	}
 	var s1 []byte
-	if err := UnmarshalPlain(b, &s1, "", map[string]string{}); err != nil {
+	if err := UnmarshalPlain(b, &s1); err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	if !bytes.Equal(s0, s1) {
@@ -644,7 +644,7 @@ type Xint struct {
 func TestUnmarshalInterface(t *testing.T) {
 	var xint Xint
 	var i interface{} = &xint
-	if err := UnmarshalPlain([]byte(`{"X":1}`), &i, "", map[string]string{}); err != nil {
+	if err := UnmarshalPlain([]byte(`{"X":1}`), &i); err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	if xint.X != 1 {
@@ -655,7 +655,7 @@ func TestUnmarshalInterface(t *testing.T) {
 func TestUnmarshalPtrPtr(t *testing.T) {
 	var xint Xint
 	pxint := &xint
-	if err := UnmarshalPlain([]byte(`{"X":1}`), &pxint, "", map[string]string{}); err != nil {
+	if err := UnmarshalPlain([]byte(`{"X":1}`), &pxint); err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	if xint.X != 1 {
@@ -1043,7 +1043,7 @@ func TestRefUnmarshal(t *testing.T) {
 	*want.R3 = 13
 
 	var got S
-	if err := UnmarshalPlain([]byte(`{"R0":"ref","R1":"ref","R2":"ref","R3":"ref"}`), &got, "", map[string]string{}); err != nil {
+	if err := UnmarshalPlain([]byte(`{"R0":"ref","R1":"ref","R2":"ref","R3":"ref"}`), &got); err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}
 	if !reflect.DeepEqual(got, want) {
@@ -1083,7 +1083,7 @@ func TestNullString(t *testing.T) {
 	s.B = 1
 	s.C = new(int)
 	*s.C = 2
-	err := UnmarshalPlain(data, &s, "", map[string]string{})
+	err := UnmarshalPlain(data, &s)
 	if err != nil {
 		t.Fatalf("UnmarshalPlain: %v")
 	}
@@ -1128,7 +1128,7 @@ func TestInterfaceSet(t *testing.T) {
 	for _, tt := range interfaceSetTests {
 		b := struct{ X interface{} }{tt.pre}
 		blob := `{"X":` + tt.json + `}`
-		if err := UnmarshalPlain([]byte(blob), &b, "", map[string]string{}); err != nil {
+		if err := UnmarshalPlain([]byte(blob), &b); err != nil {
 			t.Errorf("UnmarshalPlain %#q: %v", blob, err)
 			continue
 		}
@@ -1173,7 +1173,7 @@ func TestUnmarshalNulls(t *testing.T) {
 		Float64: 13.1,
 		String:  "14"}
 
-	err := UnmarshalPlain(jsonData, &nulls, "", map[string]string{})
+	err := UnmarshalPlain(jsonData, &nulls)
 	if err != nil {
 		t.Errorf("UnmarshalPlain of null values failed: %v", err)
 	}
@@ -1198,7 +1198,7 @@ func TestStringKind(t *testing.T) {
 		t.Errorf("Unexpected error marshalling: %v", err)
 	}
 
-	err = UnmarshalPlain(data, &m2, "", map[string]string{})
+	err = UnmarshalPlain(data, &m2)
 	if err != nil {
 		t.Errorf("Unexpected error unmarshalling: %v", err)
 	}
@@ -1223,7 +1223,7 @@ var decodeTypeErrorTests = []struct {
 
 func TestUnmarshalTypeError(t *testing.T) {
 	for _, item := range decodeTypeErrorTests {
-		err := UnmarshalPlain([]byte(item.src), item.dest, "", map[string]string{})
+		err := UnmarshalPlain([]byte(item.src), item.dest)
 		if _, ok := err.(*UnmarshalTypeError); !ok {
 			t.Errorf("expected type error for UnmarshalPlain(%q, type %T): got %T",
 				item.src, item.dest, err)
@@ -1245,7 +1245,7 @@ var unmarshalSyntaxTests = []string{
 func TestUnmarshalSyntax(t *testing.T) {
 	var x interface{}
 	for _, src := range unmarshalSyntaxTests {
-		err := UnmarshalPlain([]byte(src), &x, "", map[string]string{})
+		err := UnmarshalPlain([]byte(src), &x)
 		if _, ok := err.(*SyntaxError); !ok {
 			t.Errorf("expected syntax error for UnmarshalPlain(%q): got %T", src, err)
 		}
@@ -1265,7 +1265,7 @@ func TestUnmarshalUnexported(t *testing.T) {
 	want := &unexportedFields{Name: "Bob"}
 
 	out := &unexportedFields{}
-	err := UnmarshalPlain([]byte(input), out, "", map[string]string{})
+	err := UnmarshalPlain([]byte(input), out)
 	if err != nil {
 		t.Errorf("got error %v, expected nil", err)
 	}
@@ -1292,7 +1292,7 @@ func (t *Time3339) UnmarshalJSON(b []byte, path string, aliases map[string]strin
 
 func TestUnmarshalJSONLiteralError(t *testing.T) {
 	var t3 Time3339
-	err := UnmarshalPlain([]byte(`"0000-00-00T00:00:00Z"`), &t3, "", map[string]string{})
+	err := UnmarshalPlain([]byte(`"0000-00-00T00:00:00Z"`), &t3)
 	if err == nil {
 		t.Fatalf("expected error; got time %v", time.Time(t3))
 	}
@@ -1308,7 +1308,7 @@ func TestSkipArrayObjects(t *testing.T) {
 	json := `[{}]`
 	var dest [0]interface{}
 
-	err := UnmarshalPlain([]byte(json), &dest, "", map[string]string{})
+	err := UnmarshalPlain([]byte(json), &dest)
 	if err != nil {
 		t.Errorf("got error %q, want nil", err)
 	}
@@ -1339,7 +1339,7 @@ func TestPrefilled(t *testing.T) {
 
 	for _, tt := range prefillTests {
 		ptrstr := fmt.Sprintf("%v", tt.ptr)
-		err := UnmarshalPlain([]byte(tt.in), tt.ptr, "", map[string]string{}) // tt.ptr edited here
+		err := UnmarshalPlain([]byte(tt.in), tt.ptr) // tt.ptr edited here
 		if err != nil {
 			t.Errorf("UnmarshalPlain: %v", err)
 		}
@@ -1361,7 +1361,7 @@ var invalidUnmarshalTests = []struct {
 func TestInvalidUnmarshal(t *testing.T) {
 	buf := []byte(`{"a":"1"}`)
 	for _, tt := range invalidUnmarshalTests {
-		err := UnmarshalPlain(buf, tt.v, "", map[string]string{})
+		err := UnmarshalPlain(buf, tt.v)
 		if err == nil {
 			t.Errorf("UnmarshalPlain expecting error, got nil")
 			continue

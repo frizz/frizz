@@ -45,7 +45,7 @@ func ExampleUnmarshal() {
 		Order string
 	}
 	var animals []Animal
-	err := json.UnmarshalPlain(jsonBlob, &animals, "", map[string]string{})
+	err := json.UnmarshalPlain(jsonBlob, &animals)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
@@ -106,7 +106,7 @@ func ExampleRawMessage() {
 		{"Space": "RGB",   "Point": {"R": 98, "G": 218, "B": 255}}
 	]`)
 	var colors []Color
-	err := json.UnmarshalPlain(j, &colors, "", map[string]string{})
+	err := json.UnmarshalPlain(j, &colors)
 	if err != nil {
 		log.Fatalln("error:", err)
 	}
@@ -119,7 +119,7 @@ func ExampleRawMessage() {
 		case "YCbCr":
 			dst = new(YCbCr)
 		}
-		err := json.UnmarshalPlain(c.Point, dst, "", map[string]string{})
+		err := json.UnmarshalPlain(c.Point, dst)
 		if err != nil {
 			log.Fatalln("error:", err)
 		}

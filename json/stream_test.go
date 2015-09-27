@@ -130,7 +130,7 @@ func TestRawMessage(t *testing.T) {
 	}
 	const raw = `["\u0056",null]`
 	const msg = `{"X":0.1,"Id":["\u0056",null],"Y":0.2}`
-	err := UnmarshalPlain([]byte(msg), &data, "", map[string]string{})
+	err := UnmarshalPlain([]byte(msg), &data)
 	if err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}
@@ -155,7 +155,7 @@ func TestNullRawMessage(t *testing.T) {
 	}
 	data.Id = new(RawMessage)
 	const msg = `{"X":0.1,"Id":null,"Y":0.2}`
-	err := UnmarshalPlain([]byte(msg), &data, "", map[string]string{})
+	err := UnmarshalPlain([]byte(msg), &data)
 	if err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}

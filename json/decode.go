@@ -66,7 +66,7 @@ import (
 // Instead, they are replaced by the Unicode replacement
 // character U+FFFD.
 //
-func UnmarshalPlain(data []byte, v interface{}, path string, aliases map[string]string) error {
+func UnmarshalPlain(data []byte, v interface{}) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
@@ -77,7 +77,7 @@ func UnmarshalPlain(data []byte, v interface{}, path string, aliases map[string]
 	}
 
 	d.init(data)
-	return d.unmarshal(v, &ctx{path, aliases}, true)
+	return d.unmarshal(v, &ctx{}, true)
 }
 
 type UnknownPackageError struct {

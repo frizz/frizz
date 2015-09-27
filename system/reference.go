@@ -79,7 +79,7 @@ func NewReferenceFromString(in string, path string, aliases map[string]string) (
 
 func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var s *string
-	if err := json.UnmarshalPlain(in, &s, path, aliases); err != nil {
+	if err := json.UnmarshalPlain(in, &s); err != nil {
 		return kerr.New("BBWVFPNNTT", err, "json.UnmarshalPlain: %s", in)
 	}
 	if s == nil {

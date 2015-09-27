@@ -18,7 +18,7 @@ func NewBool(b bool) Bool {
 
 func (out *Bool) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var b *bool
-	if err := json.UnmarshalPlain(in, &b, path, aliases); err != nil {
+	if err := json.UnmarshalPlain(in, &b); err != nil {
 		return kerr.New("CJMOICJGJG", err, "json.UnmarshalPlain")
 	}
 	if b == nil {

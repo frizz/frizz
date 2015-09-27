@@ -118,7 +118,7 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 
 func (out *String) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var s *string
-	if err := json.UnmarshalPlain(in, &s, path, aliases); err != nil {
+	if err := json.UnmarshalPlain(in, &s); err != nil {
 		return kerr.New("ACHMRKVFAB", err, "json.UnmarshalPlain")
 	}
 	if s == nil {

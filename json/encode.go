@@ -1131,7 +1131,7 @@ func typeFields(t reflect.Type) []field {
 					// We don't need to worry about context here, because the default
 					// value we're unmarshaling is wrapped in a *RawMessage. Later we
 					// will unmarshal with the provided type and context.
-					err := UnmarshalPlain([]byte(s), k, "", map[string]string{})
+					err := UnmarshalPlain([]byte(s), k)
 					if err != nil {
 						panic(err)
 					}

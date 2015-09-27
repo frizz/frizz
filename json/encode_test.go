@@ -467,7 +467,7 @@ func TestEncodePointerString(t *testing.T) {
 		t.Errorf("Marshal = %s, want %s", got, want)
 	}
 	var back stringPointer
-	err = UnmarshalPlain(b, &back, "", map[string]string{})
+	err = UnmarshalPlain(b, &back)
 	if err != nil {
 		t.Fatalf("UnmarshalPlain: %v", err)
 	}

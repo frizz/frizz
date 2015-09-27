@@ -88,7 +88,7 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 
 func (out *Number) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
 	var f *float64
-	if err := json.UnmarshalPlain(in, &f, path, aliases); err != nil {
+	if err := json.UnmarshalPlain(in, &f); err != nil {
 		return kerr.New("GXNBRBELFA", err, "json.UnmarshalPlain")
 	}
 	if f == nil {
