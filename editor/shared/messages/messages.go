@@ -22,6 +22,18 @@ func NewMessageBase() *Message_base {
 	}
 }
 
+func NewSourceResponse(name string, ok bool, data string) *SourceResponse {
+	return &SourceResponse{
+		Object_base: &system.Object_base{
+			Type: system.NewReference("kego.io/editor/shared/messages", "sourceResponse"),
+		},
+		Message_base: NewMessageBase(),
+		Name:         system.NewString(name),
+		Found:        system.NewBool(ok),
+		Data:         system.NewString(data),
+	}
+}
+
 func NewGlobalResponse(name string, ok bool, data string) *GlobalResponse {
 	return &GlobalResponse{
 		Object_base: &system.Object_base{
@@ -38,6 +50,16 @@ func NewGlobalRequest(name string) *GlobalRequest {
 	return &GlobalRequest{
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/editor/shared/messages", "globalRequest"),
+		},
+		Message_base: NewMessageBase(),
+		Name:         system.NewString(name),
+	}
+}
+
+func NewSourceRequest(name string) *SourceRequest {
+	return &SourceRequest{
+		Object_base: &system.Object_base{
+			Type: system.NewReference("kego.io/editor/shared/messages", "sourceRequest"),
 		},
 		Message_base: NewMessageBase(),
 		Name:         system.NewString(name),

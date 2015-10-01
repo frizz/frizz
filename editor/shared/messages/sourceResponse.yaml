@@ -1,0 +1,11 @@
+description: This is returned when the client requests a source.
+type: system:type
+id: sourceResponse
+is: [message]
+fields:
+  name:
+    type: system:@string
+  found:
+    type: system:@bool
+  data:
+    type: system:@string

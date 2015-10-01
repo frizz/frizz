@@ -18,7 +18,7 @@ func ScanForAliases(set settings) (map[string]string, error) {
 
 	aliases := map[string]string{}
 
-	scanner := func(ob interface{}, hash uint64) error {
+	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if i, ok := ob.(*system.Imports); ok {
 			for path, alias := range i.Imports {
 				aliases[path] = alias
@@ -33,11 +33,11 @@ func ScanForAliases(set settings) (map[string]string, error) {
 }
 
 func ScanForGlobals(set settings) error {
-	scanner := func(i interface{}, hash uint64) error {
-		if _, ok := i.(*system.Type); ok {
+	scanner := func(ob interface{}, source []byte, hash uint64) error {
+		if _, ok := ob.(*system.Type); ok {
 			return nil
 		}
-		o, ok := i.(system.Object)
+		o, ok := ob.(system.Object)
 		if !ok {
 			return nil
 		}
@@ -54,9 +54,9 @@ func ScanForGlobals(set settings) error {
 	return scanPath(false, false, scanner, set)
 }
 
-func ScanForKegoFiles(set settings) (bool, error) {
+func HasSourceFiles(set settings) (bool, error) {
 	hasFiles := false
-	scanner := func(ob interface{}, hash uint64) error {
+	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		hasFiles = true
 		return nil
 	}
@@ -66,8 +66,27 @@ func ScanForKegoFiles(set settings) (bool, error) {
 	return hasFiles, nil
 }
 
+func ScanForSource(set settings) error {
+	scanner := func(ob interface{}, source []byte, hash uint64) error {
+		o, ok := ob.(system.Object)
+		if !ok {
+			return nil
+		}
+		b := o.Object()
+		if !b.Id.Exists {
+			// Anything without an ID is not a global
+			return nil
+		}
+		if err := system.RegisterSource(b.Id.Package, b.Id.Name, source, hash); err != nil {
+			return kerr.New("DFDDLHNYUW", err, "system.RegisterSource")
+		}
+		return nil
+	}
+	return scanPath(false, false, scanner, set)
+}
+
 func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
-	scanner := func(ob interface{}, hash uint64) error {
+	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
 			if err := system.Register(t.Id.Package, t.Id.Name, t, hash); err != nil {
@@ -127,7 +146,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	return scanPath(ignoreUnknownTypes, false, scanner, set)
 }
 
-func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, hash uint64) error, set settings) error {
+func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -158,7 +177,7 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, hash uint64) error, set settings) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set settings) error {
 
 	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
@@ -174,7 +193,7 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 	return nil
 }
 
-func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, hash uint64) error, set settings) error {
+func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set settings) error {
 
 	var i interface{}
 	err := json.Unmarshal(file, &i, set.path, set.aliases)
@@ -191,7 +210,7 @@ func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownP
 		return kerr.New("DSMDNTCPOQ", err, "json.NewDecoder.Decode")
 	}
 
-	return scan(i, hash)
+	return scan(i, file, hash)
 }
 
 // openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.

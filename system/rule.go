@@ -20,6 +20,10 @@ func (b *Rule_base) Rule() *Rule_base {
 	return b
 }
 
+type CollectionRule interface {
+	GetItemsRule() Rule
+}
+
 func init() {
 	type dummyRule struct {
 		*Object_base

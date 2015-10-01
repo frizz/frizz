@@ -87,6 +87,9 @@ func Start(path string, verbose bool) error {
 		globalRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "globalRequest"))
 		go handle(func() error { return getGlobals(globalRequestsChannel, c) })
 
+		sourceRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
+		go handle(func() error { return getSource(sourceRequestsChannel, c) })
+
 		if err := c.Receive(); err != nil {
 			app.fail <- err
 			return
@@ -115,12 +118,29 @@ func handle(f func() error) {
 	}
 }
 
+func getSource(in chan messages.Message, conn *connection.Conn) error {
+	for {
+		m := <-in
+		request, ok := m.(*messages.SourceRequest)
+		if !ok {
+			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.sourceRequest", m)
+		}
+		hashed, ok := system.GetSource(app.path, request.Name.Value)
+		data := ""
+		if ok {
+			data = string(hashed.Source)
+		}
+		response := messages.NewSourceResponse(request.Name.Value, ok, data)
+		conn.Respond(response, request.Guid.Value)
+	}
+}
+
 func getGlobals(in chan messages.Message, conn *connection.Conn) error {
 	for {
 		m := <-in
 		request, ok := m.(*messages.GlobalRequest)
 		if !ok {
-			return kerr.New("BKGSQAWUJY", nil, "Message %T is not a *messages.Request", m)
+			return kerr.New("BKGSQAWUJY", nil, "Message %T is not a *messages.globalRequest", m)
 		}
 		hashed, ok := system.GetGlobal(app.path, request.Name.Value)
 		data := ""
@@ -150,6 +170,9 @@ func initialise(path string) (aliases map[string]string, err error) {
 	}
 	if err = process.ScanForGlobals(set); err != nil {
 		return nil, kerr.New("MDUFNJBVGQ", err, "process.ScanForGlobals")
+	}
+	if err = process.ScanForSource(set); err != nil {
+		return nil, kerr.New("DLUESVWHXO", err, "process.ScanForSource")
 	}
 	return aliases, nil
 }
@@ -206,20 +229,27 @@ func script(w http.ResponseWriter, req *http.Request, packagePath string, aliase
 func root(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string) error {
 
 	globals := system.GetAllGlobalsInPackage(path, nil)
+	sources := system.GetAllSourceInPackage(path)
 
-	names := []string{}
+	gNames := []string{}
 	for _, hashed := range globals {
 		name := hashed.Object.Object().Id.Name
 		if strings.HasPrefix(name, "@") || strings.HasPrefix(name, "$") {
 			continue
 		}
-		names = append(names, name)
+		gNames = append(gNames, name)
+	}
+
+	sNames := []string{}
+	for _, hashed := range sources {
+		sNames = append(sNames, hashed.Id.Name)
 	}
 
 	info := shared.Info{
 		Path:    path,
 		Aliases: aliases,
-		Globals: names,
+		Globals: gNames,
+		Sources: sNames,
 	}
 	marshalled, err := json.Marshal(info)
 	if err != nil {

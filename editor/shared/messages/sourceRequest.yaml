@@ -1,0 +1,7 @@
+description: This is sent by the client to request a source file.
+type: system:type
+id: sourceRequest
+is: [message]
+fields:
+  name:
+    type: system:@string

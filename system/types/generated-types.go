@@ -176,7 +176,7 @@ func init() {
 	ptr168 := &system.Object_base{Description: "Basic types don't have system:object added by default to the embedded types.", Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/json", Name: "@bool", Exists: true}}
 	ptr169 := &system.Rule_base{Optional: true}
 	ptr170 := &system.JsonBool_rule{Object_base: ptr168, Rule_base: ptr169}
-	ptr171 := &system.Object_base{Description: "Types which this should embed - system:object is always added unless base = true.", Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr171 := &system.Object_base{Description: "Types which this should embed - system:object is always added unless basic = true.", Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
 	ptr172 := &system.Rule_base{Optional: true}
 	ptr173 := &system.Object_base{Id: system.Reference{}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "@reference", Exists: true}}
 	ptr174 := &system.Rule_base{}
@@ -220,7 +220,7 @@ func init() {
 	system.Register("kego.io/system", "@reference", ptr99, 0x67e9d97dde75d10f)
 	system.Register("kego.io/system", "@rule", ptr101, 0x61f37939f1737cbf)
 	system.Register("kego.io/system", "@string", ptr127, 0xe1e0d90cd0a489ca)
-	system.Register("kego.io/system", "@type", ptr129, 0xc3b35155074abe72)
+	system.Register("kego.io/system", "@type", ptr129, 0xe6e176a06eb36092)
 	system.Register("kego.io/system", "aliases", ptr137, 0xa201259ad19e56d5)
 	system.Register("kego.io/system", "array", ptr139, 0xf6f09a20ac87e96f)
 	system.Register("kego.io/system", "bool", ptr141, 0x849d95e096ea903a)
@@ -232,5 +232,5 @@ func init() {
 	system.Register("kego.io/system", "reference", ptr159, 0x67e9d97dde75d10f)
 	system.Register("kego.io/system", "rule", ptr161, 0x61f37939f1737cbf)
 	system.Register("kego.io/system", "string", ptr163, 0xe1e0d90cd0a489ca)
-	system.Register("kego.io/system", "type", ptr201, 0xc3b35155074abe72)
+	system.Register("kego.io/system", "type", ptr201, 0xe6e176a06eb36092)
 }

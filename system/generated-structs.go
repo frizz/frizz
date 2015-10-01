@@ -181,7 +181,7 @@ type Type struct {
 	Base *Type `json:"base"`
 	// Basic types don't have system:object added by default to the embedded types.
 	Basic bool `json:"basic"`
-	// Types which this should embed - system:object is always added unless base = true.
+	// Types which this should embed - system:object is always added unless basic = true.
 	Embed []Reference `json:"embed"`
 	// Exclude this type from the generated json?
 	Exclude bool `json:"exclude"`
@@ -211,7 +211,7 @@ func init() {
 	json.Register("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}), 0x67e9d97dde75d10f)
 	json.Register("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}), 0x61f37939f1737cbf)
 	json.Register("kego.io/system", "@string", reflect.TypeOf(&String_rule{}), 0xe1e0d90cd0a489ca)
-	json.Register("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}), 0xc3b35155074abe72)
+	json.Register("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}), 0xe6e176a06eb36092)
 	json.Register("kego.io/system", "aliases", reflect.TypeOf(&Aliases{}), 0xa201259ad19e56d5)
 	json.Register("kego.io/system", "array", reflect.TypeOf(&Array{}), 0xf6f09a20ac87e96f)
 	json.Register("kego.io/system", "bool", reflect.TypeOf(&Bool{}), 0x849d95e096ea903a)
@@ -221,5 +221,5 @@ func init() {
 	json.Register("kego.io/system", "number", reflect.TypeOf(&Number{}), 0x14f986941edf71e9)
 	json.Register("kego.io/system", "reference", reflect.TypeOf(&Reference{}), 0x67e9d97dde75d10f)
 	json.Register("kego.io/system", "string", reflect.TypeOf(&String{}), 0xe1e0d90cd0a489ca)
-	json.Register("kego.io/system", "type", reflect.TypeOf(&Type{}), 0xc3b35155074abe72)
+	json.Register("kego.io/system", "type", reflect.TypeOf(&Type{}), 0xe6e176a06eb36092)
 }

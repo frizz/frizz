@@ -33,6 +33,18 @@ type Message_rule struct {
 	*system.Rule_base
 }
 
+// Automatically created basic rule for sourceRequest
+type SourceRequest_rule struct {
+	*system.Object_base
+	*system.Rule_base
+}
+
+// Automatically created basic rule for sourceResponse
+type SourceResponse_rule struct {
+	*system.Object_base
+	*system.Rule_base
+}
+
 // This is sent by the client to request a global.
 type GlobalRequest struct {
 	*system.Object_base
@@ -49,11 +61,31 @@ type GlobalResponse struct {
 	Name  system.String `json:"name"`
 }
 
+// This is sent by the client to request a source file.
+type SourceRequest struct {
+	*system.Object_base
+	*Message_base
+	Name system.String `json:"name"`
+}
+
+// This is returned when the client requests a source.
+type SourceResponse struct {
+	*system.Object_base
+	*Message_base
+	Data  system.String `json:"data"`
+	Found system.Bool   `json:"found"`
+	Name  system.String `json:"name"`
+}
+
 func init() {
 	json.Register("kego.io/editor/shared/messages", "$message", reflect.TypeOf(&Message_base{}), 0xaabb15d6475cfec1)
 	json.Register("kego.io/editor/shared/messages", "@globalRequest", reflect.TypeOf(&GlobalRequest_rule{}), 0x136af35684ddacf7)
 	json.Register("kego.io/editor/shared/messages", "@globalResponse", reflect.TypeOf(&GlobalResponse_rule{}), 0x6b2590de8a9ff1d6)
 	json.Register("kego.io/editor/shared/messages", "@message", reflect.TypeOf(&Message_rule{}), 0xaabb15d6475cfec1)
+	json.Register("kego.io/editor/shared/messages", "@sourceRequest", reflect.TypeOf(&SourceRequest_rule{}), 0xe7f2816c1a88470b)
+	json.Register("kego.io/editor/shared/messages", "@sourceResponse", reflect.TypeOf(&SourceResponse_rule{}), 0x4421b9f7cf76b1b0)
 	json.Register("kego.io/editor/shared/messages", "globalRequest", reflect.TypeOf(&GlobalRequest{}), 0x136af35684ddacf7)
 	json.Register("kego.io/editor/shared/messages", "globalResponse", reflect.TypeOf(&GlobalResponse{}), 0x6b2590de8a9ff1d6)
+	json.Register("kego.io/editor/shared/messages", "sourceRequest", reflect.TypeOf(&SourceRequest{}), 0xe7f2816c1a88470b)
+	json.Register("kego.io/editor/shared/messages", "sourceResponse", reflect.TypeOf(&SourceResponse{}), 0x4421b9f7cf76b1b0)
 }

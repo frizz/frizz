@@ -241,7 +241,7 @@ func Generate(file sourceType, set settings) error {
 	ignoreUnknownTypes := file == S_STRUCTS
 
 	if file == S_STRUCTS {
-		hasFiles, err := ScanForKegoFiles(set)
+		hasFiles, err := HasSourceFiles(set)
 		if err != nil {
 			return kerr.New("GXGGDQVHHP", err, "ScanForKegoFiles")
 		}

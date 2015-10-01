@@ -54,3 +54,9 @@ func (r *Array_rule) Enforce(data interface{}, path string, aliases map[string]s
 
 	return true, "", nil
 }
+
+func (a *Array_rule) GetItemsRule() Rule {
+	return a.Items
+}
+
+var _ CollectionRule = (*Array_rule)(nil)

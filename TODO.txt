@@ -1,3 +1,18 @@
 Remove globals
 Remove YAML
 Remove recursive
+
+Refactor base types. Each type should have an interface.
+
+Object -> ObjectInterface
+
+Generated structs should have interfaces as members.
+
+This gives us the problem that native types don't have type information embedded in the
+json, so how do we unmarshal?
+
+Solution?
+json.Register(path string, name string, typ reflect.Type, iface reflect.Type, hash uint64) {...}
+
+The json package knows the default type for each interface. When unmarshaling a native json element into an
+interface, it attempts to unmarshall into the default type.

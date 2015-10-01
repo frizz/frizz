@@ -103,6 +103,29 @@ func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]s
 	return nil
 }
 
+func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases map[string]string) error {
+	s, ok := in.(string)
+	if !ok || s == "" {
+		out.Exists = false
+		out.Name = ""
+		out.Package = ""
+	} else {
+		path, name, err := json.GetReferencePartsFromTypeString(s, path, aliases)
+		if err != nil {
+			// We need to clear the reference, because when we're scanning for
+			// aliases we need to tolerate unknown import errors here
+			out.Exists = false
+			out.Name = ""
+			out.Package = ""
+			return err
+		}
+		out.Exists = true
+		out.Package = path
+		out.Name = name
+	}
+	return nil
+}
+
 var _ json.Unmarshaler = (*Reference)(nil)
 
 func (r Reference) MarshalJSON() ([]byte, error) {

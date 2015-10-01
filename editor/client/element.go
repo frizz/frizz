@@ -33,7 +33,7 @@ func (e *element) Initialise(div dom.Element) {
 	div.AppendChild(label)
 }
 
-var _ = tree.Item(&element{})
+var _ tree.Item = (*element)(nil)
 
 // addElement adds a ke object element to the tree, and recursively
 // adds children

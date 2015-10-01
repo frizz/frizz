@@ -88,8 +88,8 @@ func (g *global) ContentLoaded() bool {
 	return g.loaded
 }
 
-var _ = tree.Item(&global{})
-var _ = tree.AsyncItem(&global{})
+var _ tree.Item = (*global)(nil)
+var _ tree.AsyncItem = (*global)(nil)
 
 func addGlobal(name string, parent *tree.Node) {
 	g := &global{name: name}

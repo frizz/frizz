@@ -7,4 +7,6 @@ type Info struct {
 	Aliases map[string]string
 	// Array of global names
 	Globals []string
+	// Array of source names
+	Sources []string
 }

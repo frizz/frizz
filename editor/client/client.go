@@ -59,8 +59,11 @@ func Start(path string) error {
 	// We create a new root tree element
 	root := tree.New(body)
 	// We add a new node to the tree for each global
-	for _, name := range info.Globals {
-		addGlobal(name, root)
+	//for _, name := range info.Globals {
+	//	addGlobal(name, root)
+	//}
+	for _, name := range info.Sources {
+		addSource(name, root)
 	}
 
 	go func() {
