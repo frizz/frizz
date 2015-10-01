@@ -5,8 +5,6 @@ type Info struct {
 	Path string
 	// Map of path:alias
 	Aliases map[string]string
-	// Array of global names
-	Globals []string
 	// Array of source names
 	Sources []string
 }

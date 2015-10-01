@@ -5,11 +5,9 @@ import (
 	"net"
 	"net/http"
 	"path"
-	"strings"
 
 	"golang.org/x/net/websocket"
 
-	"kego.io/ke"
 	"kego.io/kerr"
 
 	"github.com/gopherjs/gopherjs/compiler"
@@ -63,6 +61,7 @@ func Start(path string, verbose bool) error {
 			return
 		}
 	})
+	// TODO: work out how to use script mapping.
 	//http.HandleFunc("/script.js.map", func(w http.ResponseWriter, req *http.Request) {
 	//	if err := script(w, req, path, aliases, true, &mapping); err != nil {
 	//		app.fail <- kerr.New("JRLOMPOHRQ", err, "script (map)")
@@ -83,9 +82,6 @@ func Start(path string, verbose bool) error {
 			ws.PayloadType = 0x1 // string messages
 		}
 		c := connection.New(ws, app.fail, path, aliases)
-
-		globalRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "globalRequest"))
-		go handle(func() error { return getGlobals(globalRequestsChannel, c) })
 
 		sourceRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })
@@ -135,27 +131,6 @@ func getSource(in chan messages.Message, conn *connection.Conn) error {
 	}
 }
 
-func getGlobals(in chan messages.Message, conn *connection.Conn) error {
-	for {
-		m := <-in
-		request, ok := m.(*messages.GlobalRequest)
-		if !ok {
-			return kerr.New("BKGSQAWUJY", nil, "Message %T is not a *messages.globalRequest", m)
-		}
-		hashed, ok := system.GetGlobal(app.path, request.Name.Value)
-		data := ""
-		if ok {
-			b, err := ke.Marshal(hashed.Object)
-			if err != nil {
-				return kerr.New("WTXNLMABAS", err, "ke.Marshal")
-			}
-			data = string(b)
-		}
-		response := messages.NewGlobalResponse(request.Name.Value, ok, data)
-		conn.Respond(response, request.Guid.Value)
-	}
-}
-
 func initialise(path string) (aliases map[string]string, err error) {
 	set, err := process.InitialiseManually(true, false, false, false, path)
 	if err != nil {
@@ -167,9 +142,6 @@ func initialise(path string) (aliases map[string]string, err error) {
 	}
 	if err := process.ScanForTypes(false, set); err != nil {
 		return nil, kerr.New("BIVHXIAIKJ", err, "process.ScanForTypes")
-	}
-	if err = process.ScanForGlobals(set); err != nil {
-		return nil, kerr.New("MDUFNJBVGQ", err, "process.ScanForGlobals")
 	}
 	if err = process.ScanForSource(set); err != nil {
 		return nil, kerr.New("DLUESVWHXO", err, "process.ScanForSource")
@@ -228,28 +200,17 @@ func script(w http.ResponseWriter, req *http.Request, packagePath string, aliase
 
 func root(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string) error {
 
-	globals := system.GetAllGlobalsInPackage(path, nil)
 	sources := system.GetAllSourceInPackage(path)
 
-	gNames := []string{}
-	for _, hashed := range globals {
-		name := hashed.Object.Object().Id.Name
-		if strings.HasPrefix(name, "@") || strings.HasPrefix(name, "$") {
-			continue
-		}
-		gNames = append(gNames, name)
-	}
-
-	sNames := []string{}
+	names := []string{}
 	for _, hashed := range sources {
-		sNames = append(sNames, hashed.Id.Name)
+		names = append(names, hashed.Id.Name)
 	}
 
 	info := shared.Info{
 		Path:    path,
 		Aliases: aliases,
-		Globals: gNames,
-		Sources: sNames,
+		Sources: names,
 	}
 	marshalled, err := json.Marshal(info)
 	if err != nil {

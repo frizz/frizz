@@ -1,7 +1,0 @@
-description: This is sent by the client to request a global.
-type: system:type
-id: globalRequest
-is: [message]
-fields:
-  name:
-    type: system:@string

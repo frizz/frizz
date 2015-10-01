@@ -29,7 +29,7 @@ func (e *entry) Initialise(div dom.Element) {
 
 	value := ""
 	if e.node.Type.Native.Value == "bool" {
-		value = fmt.Sprintf("%s", e.node.ValueBool)
+		value = fmt.Sprintf("%v", e.node.ValueBool)
 	} else if e.node.Type.Native.Value == "number" {
 		value = fmt.Sprintf("%v", e.node.ValueNumber)
 	} else if e.node.Type.Native.Value == "string" {
