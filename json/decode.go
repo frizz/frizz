@@ -126,6 +126,14 @@ type Unmarshaler interface {
 	UnmarshalJSON([]byte, string, map[string]string) error
 }
 
+type Unpacker interface {
+	Unpack(interface{}) error
+}
+
+type ContextUnpacker interface {
+	Unpack(interface{}, string, map[string]string) error
+}
+
 // An UnmarshalTypeError describes a JSON value that was
 // not appropriate for a value of a specific Go type.
 type UnmarshalTypeError struct {

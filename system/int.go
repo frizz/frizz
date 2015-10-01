@@ -67,23 +67,36 @@ func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]str
 }
 
 func (out *Int) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var f *float64
-	if err := json.UnmarshalPlain(in, &f); err != nil {
+	var i interface{}
+	if err := json.UnmarshalPlain(in, &i); err != nil {
 		return kerr.New("WCXYWVMOTT", err, "json.UnmarshalPlain")
 	}
-	if f == nil {
-		out.Exists = false
-		out.Value = 0
-	} else {
-		i := math.Floor(*f)
-		if i != *f {
-			return kerr.New("KVEOETSIJY", nil, "%v is not an integer", *f)
-		}
-		out.Exists = true
-		out.Value = int(i)
+	if err := out.Unpack(i); err != nil {
+		return kerr.New("MESFRIXYYC", err, "Unpack")
 	}
 	return nil
 }
+
+func (out *Int) Unpack(in interface{}) error {
+	if in == nil {
+		out.Exists = false
+		out.Value = 0
+		return nil
+	}
+	f, ok := in.(float64)
+	if !ok {
+		return kerr.New("UJUBDGVYGF", nil, "Can't unpack %T into system.Int", in)
+	}
+	i := math.Floor(f)
+	if i != f {
+		return kerr.New("KVEOETSIJY", nil, "%v is not an integer", f)
+	}
+	out.Exists = true
+	out.Value = int(i)
+	return nil
+}
+
+var _ json.Unpacker = (*Int)(nil)
 
 var _ json.Unmarshaler = (*Int)(nil)
 

@@ -31,7 +31,7 @@ func doTest(t *testing.T, f func(*Conn, *mocks.MockReadWriteCloser)) {
 func TestSend(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewGlobalRequest("a")
+		m := messages.NewSourceRequest("a")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -45,7 +45,7 @@ func TestSend(t *testing.T) {
 func TestRequest(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewGlobalRequest("a")
+		m := messages.NewSourceRequest("a")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -59,7 +59,7 @@ func TestRequest(t *testing.T) {
 func TestRequestResponseChannel(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewGlobalRequest("a")
+		m := messages.NewSourceRequest("a")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -80,7 +80,7 @@ func TestRequestResponseChannel(t *testing.T) {
 func TestRespond(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewGlobalResponse("a", true, "b")
+		m := messages.NewSourceResponse("a", true, "b")
 
 		// The Respond method adds the guid of the request message to the "Request"
 		// field, so we must clone the request and add it.

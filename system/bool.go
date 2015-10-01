@@ -17,20 +17,31 @@ func NewBool(b bool) Bool {
 }
 
 func (out *Bool) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var b *bool
-	if err := json.UnmarshalPlain(in, &b); err != nil {
+	var i interface{}
+	if err := json.UnmarshalPlain(in, &i); err != nil {
 		return kerr.New("CJMOICJGJG", err, "json.UnmarshalPlain")
 	}
-	if b == nil {
-		out.Exists = false
-		out.Value = false
-	} else {
-		out.Exists = true
-		out.Value = *b
+	if err := out.Unpack(i); err != nil {
+		return kerr.New("CTYHQGGOAP", err, "Unpack")
 	}
 	return nil
 }
+func (out *Bool) Unpack(in interface{}) error {
+	if in == nil {
+		out.Exists = false
+		out.Value = false
+		return nil
+	}
+	b, ok := in.(bool)
+	if !ok {
+		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %T into system.Bool", in)
+	}
+	out.Exists = true
+	out.Value = b
+	return nil
+}
 
+var _ json.Unpacker = (*Bool)(nil)
 var _ json.Unmarshaler = (*Bool)(nil)
 
 func (b Bool) MarshalJSON() ([]byte, error) {

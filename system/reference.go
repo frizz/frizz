@@ -78,30 +78,52 @@ func NewReferenceFromString(in string, path string, aliases map[string]string) (
 }
 
 func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var s *string
-	if err := json.UnmarshalPlain(in, &s); err != nil {
+	var i interface{}
+	if err := json.UnmarshalPlain(in, &i); err != nil {
 		return kerr.New("BBWVFPNNTT", err, "json.UnmarshalPlain: %s", in)
 	}
-	if s == nil {
-		out.Exists = false
-		out.Name = ""
-		out.Package = ""
-	} else {
-		path, name, err := json.GetReferencePartsFromTypeString(*s, path, aliases)
-		if err != nil {
-			// We need to clear the reference, because when we're scanning for
-			// aliases we need to tolerate unknown import errors here
-			out.Exists = false
-			out.Name = ""
-			out.Package = ""
-			return err
+	if err := out.Unpack(i, path, aliases); err != nil {
+		if p, ok := err.(json.UnknownPackageError); ok {
+			// if GetReferencePartsFromTypeString returns an UnknownPackageError we should
+			// not wrap it in kerr
+			return p
 		}
-		out.Exists = true
-		out.Package = path
-		out.Name = name
+		return kerr.New("TFTAQMDXTX", err, "Unpack")
 	}
 	return nil
 }
+func (out *Reference) Unpack(in interface{}, path string, aliases map[string]string) error {
+	if in == nil {
+		out.Exists = false
+		out.Name = ""
+		out.Package = ""
+		return nil
+	}
+	s, ok := in.(string)
+	if !ok {
+		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %T into system.Reference", in)
+	}
+	path, name, err := json.GetReferencePartsFromTypeString(s, path, aliases)
+	if err != nil {
+		// We need to clear the reference, because when we're scanning for
+		// aliases we need to tolerate unknown import errors here
+		out.Exists = false
+		out.Name = ""
+		out.Package = ""
+		if p, ok := err.(json.UnknownPackageError); ok {
+			// if GetReferencePartsFromTypeString returns an UnknownPackageError we should
+			// not wrap it in kerr
+			return p
+		}
+		return kerr.New("MSXBLEIGVJ", err, "json.GetReferencePartsFromTypeString")
+	}
+	out.Exists = true
+	out.Package = path
+	out.Name = name
+	return nil
+}
+
+var _ json.ContextUnpacker = (*Reference)(nil)
 
 func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases map[string]string) error {
 	s, ok := in.(string)

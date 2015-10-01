@@ -105,8 +105,11 @@ func TestIntUnmarshalJSON(t *testing.T) {
 	err = i.UnmarshalJSON([]byte("foo"), "", map[string]string{})
 	assert.IsError(t, err, "WCXYWVMOTT")
 
+	err = i.UnmarshalJSON([]byte("\"foo\""), "", map[string]string{})
+	assert.HasError(t, err, "UJUBDGVYGF")
+
 	err = i.UnmarshalJSON([]byte("1.2"), "", map[string]string{})
-	assert.IsError(t, err, "KVEOETSIJY")
+	assert.HasError(t, err, "KVEOETSIJY")
 
 }
 

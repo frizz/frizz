@@ -87,19 +87,31 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 }
 
 func (out *Number) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var f *float64
-	if err := json.UnmarshalPlain(in, &f); err != nil {
+	var i interface{}
+	if err := json.UnmarshalPlain(in, &i); err != nil {
 		return kerr.New("GXNBRBELFA", err, "json.UnmarshalPlain")
 	}
-	if f == nil {
-		out.Exists = false
-		out.Value = 0.0
-	} else {
-		out.Exists = true
-		out.Value = *f
+	if err := out.Unpack(i); err != nil {
+		return kerr.New("BHOLTJWJPV", err, "Unpack")
 	}
 	return nil
 }
+func (out *Number) Unpack(in interface{}) error {
+	if in == nil {
+		out.Exists = false
+		out.Value = 0.0
+		return nil
+	}
+	f, ok := in.(float64)
+	if !ok {
+		return kerr.New("YHXBFTONCW", nil, "Can't unpack %T into system.Number", in)
+	}
+	out.Exists = true
+	out.Value = f
+	return nil
+}
+
+var _ json.Unpacker = (*Number)(nil)
 
 var _ json.Unmarshaler = (*Number)(nil)
 

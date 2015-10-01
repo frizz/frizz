@@ -14,7 +14,7 @@ func TestTimeout(t *testing.T) {
 	input, outcome := testTimeout(t)
 
 	time.Sleep(time.Millisecond * 15)
-	input <- messages.NewGlobalRequest("a")
+	input <- messages.NewSourceRequest("a")
 
 	err := <-outcome
 	assert.HasError(t, err, "QKTKOKWSDG")
@@ -26,7 +26,7 @@ func TestNoTimeout(t *testing.T) {
 	input, outcome := testTimeout(t)
 
 	time.Sleep(time.Millisecond * 5)
-	input <- messages.NewGlobalRequest("a")
+	input <- messages.NewSourceRequest("a")
 
 	err := <-outcome
 	assert.NoError(t, err)
