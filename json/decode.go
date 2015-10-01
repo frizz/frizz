@@ -79,6 +79,19 @@ func UnmarshalPlain(data []byte, v interface{}) error {
 	d.init(data)
 	return d.unmarshal(v, &ctx{}, true)
 }
+func UnmarshalPlainContext(data []byte, v interface{}, path string, aliases map[string]string) error {
+	// Check for well-formedness.
+	// Avoids filling out half a data structure
+	// before discovering a JSON syntax error.
+	var d decodeState
+	err := checkValid(data, &d.scan)
+	if err != nil {
+		return err
+	}
+
+	d.init(data)
+	return d.unmarshal(v, &ctx{path, aliases}, true)
+}
 
 type UnknownPackageError struct {
 	UnknownPackage string
@@ -432,7 +445,7 @@ func (d *decodeState) valueQuoted(context *ctx, unmarshalers bool) interface{} {
 // until it gets to a non-pointer.
 // if it encounters an Unmarshaler, indirect stops and returns that.
 // if decodingNull is true, indirect stops at the last pointer so it can be set to nil.
-func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers bool) (Unmarshaler, encoding.TextUnmarshaler, reflect.Value) {
+func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers bool) (Unmarshaler, encoding.TextUnmarshaler, Unpacker, ContextUnpacker, reflect.Value) {
 
 	// If v is a named type and is addressable,
 	// start with its address, so that if the type has pointer methods,
@@ -464,16 +477,22 @@ func (d *decodeState) indirect(v reflect.Value, decodingNull bool, unmarshalers 
 		if v.Type().NumMethod() > 0 {
 			if unmarshalers {
 				if u, ok := v.Interface().(Unmarshaler); ok {
-					return u, nil, reflect.Value{}
+					return u, nil, nil, nil, reflect.Value{}
 				}
 				if u, ok := v.Interface().(encoding.TextUnmarshaler); ok {
-					return nil, u, reflect.Value{}
+					return nil, u, nil, nil, reflect.Value{}
+				}
+				if u, ok := v.Interface().(Unpacker); ok {
+					return nil, nil, u, nil, reflect.Value{}
+				}
+				if u, ok := v.Interface().(ContextUnpacker); ok {
+					return nil, nil, nil, u, reflect.Value{}
 				}
 			}
 		}
 		v = v.Elem()
 	}
-	return nil, nil, v
+	return nil, nil, nil, nil, v
 }
 
 // getValue walks down v allocating pointers as needed.
@@ -494,7 +513,7 @@ func (d *decodeState) getValue(v reflect.Value) reflect.Value {
 // the first byte of the array ('[') has been read already.
 func (d *decodeState) array(v reflect.Value, context *ctx, unmarshalers bool) {
 	// Check for unmarshaler.
-	u, ut, pv := d.indirect(v, false, unmarshalers)
+	u, ut, up, cup, pv := d.indirect(v, false, unmarshalers)
 	if u != nil {
 		d.off--
 		err := u.UnmarshalJSON(d.next(), context.Package, context.Aliases)
@@ -507,6 +526,32 @@ func (d *decodeState) array(v reflect.Value, context *ctx, unmarshalers bool) {
 		d.saveError(&UnmarshalTypeError{"array", v.Type()})
 		d.off--
 		d.next()
+		return
+	}
+	if up != nil {
+		d.off--
+		var i interface{}
+		if err := UnmarshalPlain(d.next(), &i); err != nil {
+			d.error(err)
+			return
+		}
+		if err := up.Unpack(i); err != nil {
+			d.error(err)
+			return
+		}
+		return
+	}
+	if cup != nil {
+		d.off--
+		var i interface{}
+		if err := UnmarshalPlainContext(d.next(), &i, context.Package, context.Aliases); err != nil {
+			d.error(err)
+			return
+		}
+		if err := cup.Unpack(i, context.Package, context.Aliases); err != nil {
+			d.error(err)
+			return
+		}
 		return
 	}
 
@@ -878,7 +923,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 		}
 	}
 
-	u, ut, pv := d.indirect(v, false, unmarshalers)
+	u, ut, up, cup, pv := d.indirect(v, false, unmarshalers)
 	if u != nil {
 		d.off--
 		err := u.UnmarshalJSON(d.next(), context.Package, context.Aliases)
@@ -891,6 +936,32 @@ func (d *decodeState) object(v reflect.Value, context *ctx, unmarshalers bool, t
 		d.saveError(&UnmarshalTypeError{"object", v.Type()})
 		d.off--
 		d.next() // skip over { } in input
+		return
+	}
+	if up != nil {
+		d.off--
+		var i interface{}
+		if err := UnmarshalPlain(d.next(), &i); err != nil {
+			d.error(err)
+			return
+		}
+		if err := up.Unpack(i); err != nil {
+			d.error(err)
+			return
+		}
+		return
+	}
+	if cup != nil {
+		d.off--
+		var i interface{}
+		if err := UnmarshalPlainContext(d.next(), &i, context.Package, context.Aliases); err != nil {
+			d.error(err)
+			return
+		}
+		if err := cup.Unpack(i, context.Package, context.Aliases); err != nil {
+			d.error(err)
+			return
+		}
 		return
 	}
 	v = pv
@@ -1170,7 +1241,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		return
 	}
 	wantptr := item[0] == 'n' // null
-	u, ut, pv := d.indirect(v, wantptr, unmarshalers)
+	u, ut, up, cup, pv := d.indirect(v, wantptr, unmarshalers)
 	if u != nil {
 		err := u.UnmarshalJSON(item, context.Package, context.Aliases)
 		if err != nil {
@@ -1197,6 +1268,30 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		err := ut.UnmarshalText(s)
 		if err != nil {
 			d.error(err)
+		}
+		return
+	}
+	if up != nil {
+		var i interface{}
+		if err := UnmarshalPlain(item, &i); err != nil {
+			d.error(err)
+			return
+		}
+		if err := up.Unpack(i); err != nil {
+			d.error(err)
+			return
+		}
+		return
+	}
+	if cup != nil {
+		var i interface{}
+		if err := UnmarshalPlainContext(item, &i, context.Package, context.Aliases); err != nil {
+			d.error(err)
+			return
+		}
+		if err := cup.Unpack(i, context.Package, context.Aliases); err != nil {
+			d.error(err)
+			return
 		}
 		return
 	}

@@ -1,8 +1,6 @@
 package helper
 
 import (
-	"strconv"
-
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -23,26 +21,33 @@ type Node struct {
 	Type        *system.Type
 }
 
-func Unpack(input []byte, path string, aliases map[string]string) (*Node, error) {
-	var v interface{}
-	if err := json.UnmarshalPlain(input, &v); err != nil {
-		return nil, kerr.New("GLCYSUHDGD", err, "UnmarshalPlain")
+func (n *Node) UnmarshalJSON(input []byte, path string, aliases map[string]string) error {
+	var i interface{}
+	if err := json.UnmarshalPlain(input, &i); err != nil {
+		return kerr.New("GLCYSUHDGD", err, "UnmarshalPlain")
 	}
-	n, err := get(v, true, nil, path, aliases)
-	if err != nil {
-		return nil, kerr.New("FUYLKYTQYD", err, "get (read)")
+	if err := n.Unpack(i, path, aliases); err != nil {
+		return kerr.New("NYDLWUSUGP", err, "Unpack")
 	}
-	return n, nil
+	return nil
+}
+func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) error {
+	if err := n.extract(in, true, nil, path, aliases); err != nil {
+		return kerr.New("FUYLKYTQYD", err, "get (read)")
+	}
+	return nil
 }
 
-func get(value interface{}, exists bool, rule *system.RuleHolder, path string, aliases map[string]string) (*Node, error) {
+var _ json.ContextUnpacker = (*Node)(nil)
+var _ json.Unmarshaler = (*Node)(nil)
 
-	objectType, err := extractObjectType(value, rule, path, aliases)
+func (n *Node) extract(value interface{}, exists bool, rule *system.RuleHolder, path string, aliases map[string]string) error {
+
+	objectType, err := extractType(value, rule, path, aliases)
 	if err != nil {
-		return nil, kerr.New("RBDBRRUVMM", err, "extractObjectType")
+		return kerr.New("RBDBRRUVMM", err, "extractObjectType")
 	}
 
-	n := &Node{}
 	n.Rule = rule
 	n.Type = objectType
 	n.Null = value == nil
@@ -52,73 +57,73 @@ func get(value interface{}, exists bool, rule *system.RuleHolder, path string, a
 		// For null input, we should skip processing the value or children, unless
 		// the native type is object. For object types we should still process the
 		// child fields because information from the parent type is added.
-		return n, nil
+		return nil
 	}
 
 	if n.Missing {
 		// If the field doesn't exist in the input json, we should add the field info, but
 		// we shouldn't try to add info for children. This would result in infinite recursion
 		// where one of the fields is the same type as the parent - e.g. Type.Rule.
-		return n, nil
+		return nil
 	}
 
 	switch objectType.Native.Value {
 	case "string":
 		s, ok := value.(string)
 		if !ok {
-			return nil, kerr.New("RKKSUYTCIA", nil, "Type %T should be a string", value)
+			return kerr.New("RKKSUYTCIA", nil, "Type %T should be a string", value)
 		}
 		n.ValueString = s
 	case "number":
 		f, ok := value.(float64)
 		if !ok {
-			return nil, kerr.New("RNSWFUUTHB", nil, "Type %T should be a float64", value)
+			return kerr.New("RNSWFUUTHB", nil, "Type %T should be a float64", value)
 		}
 		n.ValueNumber = f
 	case "bool":
 		b, ok := value.(bool)
 		if !ok {
-			return nil, kerr.New("QGKJRAQUQI", nil, "Type %T should be a bool", value)
+			return kerr.New("QGKJRAQUQI", nil, "Type %T should be a bool", value)
 		}
 		n.ValueBool = b
 	case "array":
 		a, ok := value.([]interface{})
 		if !ok {
-			return nil, kerr.New("CTJQUOKRTK", nil, "Type %T should be a []interface{}", value)
+			return kerr.New("CTJQUOKRTK", nil, "Type %T should be a []interface{}", value)
 		}
 		c, ok := n.Rule.Rule.(system.CollectionRule)
 		if !ok {
-			return nil, kerr.New("IUTONSPQOL", nil, "Rule %t must implement *system.CollectionRule for array types", n.Rule.Rule)
+			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *system.CollectionRule for array types", n.Rule.Rule)
 		}
 		childRule, err := system.NewRuleHolder(c.GetItemsRule())
 		if err != nil {
-			return nil, kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
+			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
 		for i, child := range a {
-			childNode, err := get(child, true, childRule, path, aliases)
-			if err != nil {
-				return nil, kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
+			childNode := &Node{}
+			if err := childNode.extract(child, true, childRule, path, aliases); err != nil {
+				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
 		}
 	case "map":
 		m, ok := value.(map[string]interface{})
 		if !ok {
-			return nil, kerr.New("IPWEPTWVYY", nil, "Type %T should be a map[string]interface{}", value)
+			return kerr.New("IPWEPTWVYY", nil, "Type %T should be a map[string]interface{}", value)
 		}
 		c, ok := n.Rule.Rule.(system.CollectionRule)
 		if !ok {
-			return nil, kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *system.CollectionRule for map types", n.Rule.Rule)
+			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *system.CollectionRule for map types", n.Rule.Rule)
 		}
 		childRule, err := system.NewRuleHolder(c.GetItemsRule())
 		if err != nil {
-			return nil, kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
+			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
 		n.Map = map[string]*Node{}
 		for name, child := range m {
-			childNode, err := get(child, true, childRule, path, aliases)
-			if err != nil {
-				return nil, kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
+			childNode := &Node{}
+			if err := childNode.extract(child, true, childRule, path, aliases); err != nil {
+				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
 		}
@@ -128,39 +133,39 @@ func get(value interface{}, exists bool, rule *system.RuleHolder, path string, a
 			var ok bool
 			o, ok = value.(map[string]interface{})
 			if !ok {
-				return nil, kerr.New("CVCRNWMDYF", nil, "Type %T should be a map[string]interface{}", value)
+				return kerr.New("CVCRNWMDYF", nil, "Type %T should be a map[string]interface{}", value)
 			}
 		}
 		n.Fields = map[string]*Node{}
 
 		fields := map[string]system.Rule{}
 		if err := extractFields(fields, n.Type); err != nil {
-			return nil, kerr.New("LPWTOSATQE", err, "extractFields (%s)", n.Type.Id.Value())
+			return kerr.New("LPWTOSATQE", err, "extractFields (%s)", n.Type.Id.Value())
 		}
 
 		for name, r := range fields {
 			rule, err := system.NewRuleHolder(r)
 			if err != nil {
-				return nil, kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
+				return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 			}
 			child, ok := o[name]
-			childNode, err := get(child, ok, rule, path, aliases)
-			if err != nil {
-				return nil, kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
+			childNode := &Node{}
+			if err := childNode.extract(child, ok, rule, path, aliases); err != nil {
+				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
 			n.Fields[name] = childNode
 		}
 		for name, _ := range o {
 			_, ok := fields[name]
 			if !ok {
-				return nil, kerr.New("SRANLETJRS", nil, "Extra field %s", name)
+				return kerr.New("SRANLETJRS", nil, "Extra field %s", name)
 			}
 		}
 	}
-	return n, nil
+	return nil
 }
 
-func extractObjectType(value interface{}, rule *system.RuleHolder, path string, aliases map[string]string) (*system.Type, error) {
+func extractType(value interface{}, rule *system.RuleHolder, path string, aliases map[string]string) (*system.Type, error) {
 
 	if rule != nil && !rule.ParentType.Interface {
 		// If we have a rule, and it's not an interface, then we just return the
@@ -176,12 +181,8 @@ func extractObjectType(value interface{}, rule *system.RuleHolder, path string, 
 	if !ok {
 		return nil, kerr.New("HBJVDKAKBJ", nil, "Input must have type field if rule is nil or an interface type")
 	}
-	typeString, ok := typeField.(string)
-	if !ok {
-		return nil, kerr.New("RQGIJPCKFD", nil, "Type field %T must be a string", typeField)
-	}
 	var r system.Reference
-	if err := r.UnmarshalJSON([]byte(strconv.Quote(typeString)), path, aliases); err != nil {
+	if err := r.Unpack(typeField, path, aliases); err != nil {
 		return nil, kerr.New("YXHGIBXCOC", err, "UnmarshalInterface (type)")
 	}
 	t, ok := r.GetType()

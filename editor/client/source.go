@@ -5,6 +5,7 @@ import (
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared/messages"
 	"kego.io/helper"
+	"kego.io/json"
 	"kego.io/kerr"
 )
 
@@ -54,9 +55,9 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", m)
 	}
 
-	n, err := helper.Unpack([]byte(gr.Data.Value), app.path, app.aliases)
-	if err != nil {
-		return kerr.New("ACODETSACJ", err, "helper.Unpack")
+	n := &helper.Node{}
+	if err := json.UnmarshalPlainContext([]byte(gr.Data.Value), n, app.path, app.aliases); err != nil {
+		return kerr.New("ACODETSACJ", err, "UnmarshalPlainContext")
 	}
 
 	child := &entry{index: -1, name: gr.Name.Value, node: n}
