@@ -6,14 +6,14 @@ import (
 	"honnef.co/go/js/dom"
 
 	"kego.io/editor/client/tree"
-	"kego.io/helper"
 	"kego.io/kerr"
+	"kego.io/node"
 )
 
 type entry struct {
 	name  string
 	index int
-	node  *helper.Node
+	node  *node.Node
 	label *dom.HTMLDivElement
 }
 

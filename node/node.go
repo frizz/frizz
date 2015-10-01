@@ -1,4 +1,4 @@
-package helper
+package node // import "kego.io/node"
 
 import (
 	"kego.io/json"

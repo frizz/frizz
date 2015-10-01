@@ -4,9 +4,9 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared/messages"
-	"kego.io/helper"
-	"kego.io/json"
+	"kego.io/ke"
 	"kego.io/kerr"
+	"kego.io/node"
 )
 
 type source struct {
@@ -55,9 +55,9 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", m)
 	}
 
-	n := &helper.Node{}
-	if err := json.UnmarshalPlainContext([]byte(gr.Data.Value), n, app.path, app.aliases); err != nil {
-		return kerr.New("ACODETSACJ", err, "UnmarshalPlainContext")
+	n := &node.Node{}
+	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, app.path, app.aliases); err != nil {
+		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
 	child := &entry{index: -1, name: gr.Name.Value, node: n}
