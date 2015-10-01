@@ -86,11 +86,11 @@ func TestMarshal2(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalCompact(a, "kego.io/system", map[string]string{})
+	b, err = json.MarshalContext(a, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalCompact(a, "d.e/f", map[string]string{})
+	b, err = json.MarshalContext(a, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
 
@@ -118,16 +118,16 @@ func TestMarshal3(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalCompact(a, "c.d/e", map[string]string{})
+	b, err = json.MarshalContext(a, "c.d/e", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalCompact(a, "f.g/h", map[string]string{})
+	b, err = json.MarshalContext(a, "f.g/h", map[string]string{})
 	// The json package doesn't use kerr throughout, so we can't use HasError
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
-	b, err = json.MarshalCompact(a, "f.g/h", map[string]string{"c.d/e": "i"})
+	b, err = json.MarshalContext(a, "f.g/h", map[string]string{"c.d/e": "i"})
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 

@@ -23,7 +23,7 @@ func (r Reference) Value() string {
 	return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
-func (r Reference) ValueCompact(path string, aliases map[string]string) (string, error) {
+func (r Reference) ValueContext(path string, aliases map[string]string) (string, error) {
 	if !r.Exists {
 		return "", nil
 	}
@@ -142,18 +142,18 @@ func (r Reference) MarshalJSON() ([]byte, error) {
 
 var _ json.Marshaler = (*Reference)(nil)
 
-func (r Reference) MarshalCompactJSON(path string, aliases map[string]string) ([]byte, error) {
+func (r Reference) MarshalContextJSON(path string, aliases map[string]string) ([]byte, error) {
 	if !r.Exists {
 		return []byte("null"), nil
 	}
-	val, err := r.ValueCompact(path, aliases)
+	val, err := r.ValueContext(path, aliases)
 	if err != nil {
-		return nil, kerr.New("VQCYFSTPQD", err, "ValueCompact")
+		return nil, kerr.New("VQCYFSTPQD", err, "ValueContext")
 	}
 	return []byte(strconv.Quote(val)), nil
 }
 
-var _ json.CompactMarshaler = (*Reference)(nil)
+var _ json.ContextMarshaler = (*Reference)(nil)
 
 func (r *Reference) String() string {
 	if !r.Exists {

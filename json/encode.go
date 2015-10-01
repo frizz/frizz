@@ -134,7 +134,7 @@ func Marshal(v interface{}) ([]byte, error) {
 	return marshal(v, true, false, "", map[string]string{})
 }
 
-func MarshalCompact(v interface{}, path string, aliases map[string]string) ([]byte, error) {
+func MarshalContext(v interface{}, path string, aliases map[string]string) ([]byte, error) {
 	return marshal(v, true, true, path, aliases)
 }
 
@@ -143,10 +143,10 @@ func MarshalPlain(v interface{}) ([]byte, error) {
 	return marshal(v, false, false, "", map[string]string{})
 }
 
-func marshal(v interface{}, typed bool, compact bool, path string, aliases map[string]string) ([]byte, error) {
+func marshal(v interface{}, typed bool, context bool, path string, aliases map[string]string) ([]byte, error) {
 	e := &encodeState{}
 	e.typed = typed
-	e.compact = compact
+	e.context = context
 	e.path = path
 	e.aliases = aliases
 	err := e.marshal(v)
@@ -211,8 +211,8 @@ type Marshaler interface {
 	MarshalJSON() ([]byte, error)
 }
 
-type CompactMarshaler interface {
-	MarshalCompactJSON(string, map[string]string) ([]byte, error)
+type ContextMarshaler interface {
+	MarshalContextJSON(string, map[string]string) ([]byte, error)
 }
 
 // An UnsupportedTypeError is returned by Marshal when attempting
@@ -264,7 +264,7 @@ type encodeState struct {
 	bytes.Buffer // accumulated output
 	scratch      [64]byte
 	typed        bool
-	compact      bool
+	context      bool
 	path         string
 	aliases      map[string]string
 }
@@ -330,7 +330,7 @@ type EmptyAware interface {
 }
 
 func (e *encodeState) reflectValue(v reflect.Value) {
-	valueEncoder(v, e.compact)(e, v, false)
+	valueEncoder(v, e.context)(e, v, false)
 }
 
 type encoderFunc func(e *encodeState, v reflect.Value, quoted bool)
@@ -342,19 +342,19 @@ var encoderCache struct {
 
 type encoderCacheKey struct {
 	t       reflect.Type
-	compact bool
+	context bool
 }
 
-func valueEncoder(v reflect.Value, compact bool) encoderFunc {
+func valueEncoder(v reflect.Value, context bool) encoderFunc {
 	if !v.IsValid() {
 		return invalidValueEncoder
 	}
-	return typeEncoder(v.Type(), compact)
+	return typeEncoder(v.Type(), context)
 }
 
-func typeEncoder(t reflect.Type, compact bool) encoderFunc {
+func typeEncoder(t reflect.Type, context bool) encoderFunc {
 	encoderCache.RLock()
-	f := encoderCache.m[encoderCacheKey{t, compact}]
+	f := encoderCache.m[encoderCacheKey{t, context}]
 	encoderCache.RUnlock()
 	if f != nil {
 		return f
@@ -370,7 +370,7 @@ func typeEncoder(t reflect.Type, compact bool) encoderFunc {
 	}
 	var wg sync.WaitGroup
 	wg.Add(1)
-	encoderCache.m[encoderCacheKey{t, compact}] = func(e *encodeState, v reflect.Value, quoted bool) {
+	encoderCache.m[encoderCacheKey{t, context}] = func(e *encodeState, v reflect.Value, quoted bool) {
 		wg.Wait()
 		f(e, v, quoted)
 	}
@@ -378,30 +378,30 @@ func typeEncoder(t reflect.Type, compact bool) encoderFunc {
 
 	// Compute fields without lock.
 	// Might duplicate effort but won't hold other computations back.
-	f = newTypeEncoder(t, true, compact)
+	f = newTypeEncoder(t, true, context)
 	wg.Done()
 	encoderCache.Lock()
-	encoderCache.m[encoderCacheKey{t, compact}] = f
+	encoderCache.m[encoderCacheKey{t, context}] = f
 	encoderCache.Unlock()
 	return f
 }
 
 var (
 	marshalerType        = reflect.TypeOf(new(Marshaler)).Elem()
-	compactMarshalerType = reflect.TypeOf(new(CompactMarshaler)).Elem()
+	contextMarshalerType = reflect.TypeOf(new(ContextMarshaler)).Elem()
 	textMarshalerType    = reflect.TypeOf(new(encoding.TextMarshaler)).Elem()
 )
 
 // newTypeEncoder constructs an encoderFunc for a type.
 // The returned encoder only checks CanAddr when allowAddr is true.
-func newTypeEncoder(t reflect.Type, allowAddr bool, compact bool) encoderFunc {
-	if compact {
-		if t.Implements(compactMarshalerType) {
-			return compactEncoder
+func newTypeEncoder(t reflect.Type, allowAddr bool, context bool) encoderFunc {
+	if context {
+		if t.Implements(contextMarshalerType) {
+			return contextEncoder
 		}
 		if t.Kind() != reflect.Ptr && allowAddr {
-			if reflect.PtrTo(t).Implements(compactMarshalerType) {
-				return newCondAddrEncoder(addrCompactEncoder, newTypeEncoder(t, false, compact))
+			if reflect.PtrTo(t).Implements(contextMarshalerType) {
+				return newCondAddrEncoder(addrContextEncoder, newTypeEncoder(t, false, context))
 			}
 		}
 	}
@@ -410,7 +410,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool, compact bool) encoderFunc {
 	}
 	if t.Kind() != reflect.Ptr && allowAddr {
 		if reflect.PtrTo(t).Implements(marshalerType) {
-			return newCondAddrEncoder(addrMarshalerEncoder, newTypeEncoder(t, false, compact))
+			return newCondAddrEncoder(addrMarshalerEncoder, newTypeEncoder(t, false, context))
 		}
 	}
 
@@ -419,7 +419,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool, compact bool) encoderFunc {
 	}
 	if t.Kind() != reflect.Ptr && allowAddr {
 		if reflect.PtrTo(t).Implements(textMarshalerType) {
-			return newCondAddrEncoder(addrTextMarshalerEncoder, newTypeEncoder(t, false, compact))
+			return newCondAddrEncoder(addrTextMarshalerEncoder, newTypeEncoder(t, false, context))
 		}
 	}
 
@@ -439,15 +439,15 @@ func newTypeEncoder(t reflect.Type, allowAddr bool, compact bool) encoderFunc {
 	case reflect.Interface:
 		return interfaceEncoder
 	case reflect.Struct:
-		return newStructEncoder(t, compact)
+		return newStructEncoder(t, context)
 	case reflect.Map:
-		return newMapEncoder(t, compact)
+		return newMapEncoder(t, context)
 	case reflect.Slice:
-		return newSliceEncoder(t, compact)
+		return newSliceEncoder(t, context)
 	case reflect.Array:
-		return newArrayEncoder(t, compact)
+		return newArrayEncoder(t, context)
 	case reflect.Ptr:
-		return newPtrEncoder(t, compact)
+		return newPtrEncoder(t, context)
 	default:
 		return unsupportedTypeEncoder
 	}
@@ -457,16 +457,16 @@ func invalidValueEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	e.WriteString("null")
 }
 
-func encoder(e *encodeState, v reflect.Value, quoted bool, compactJson bool) {
+func encoder(e *encodeState, v reflect.Value, quoted bool, context bool) {
 	if v.Kind() == reflect.Ptr && v.IsNil() {
 		e.WriteString("null")
 		return
 	}
 	var b []byte
 	var err error
-	if compactJson {
-		m := v.Interface().(CompactMarshaler)
-		b, err = m.MarshalCompactJSON(e.path, e.aliases)
+	if context {
+		m := v.Interface().(ContextMarshaler)
+		b, err = m.MarshalContextJSON(e.path, e.aliases)
 	} else {
 		m := v.Interface().(Marshaler)
 		b, err = m.MarshalJSON()
@@ -480,7 +480,7 @@ func encoder(e *encodeState, v reflect.Value, quoted bool, compactJson bool) {
 	}
 }
 
-func compactEncoder(e *encodeState, v reflect.Value, quoted bool) {
+func contextEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	encoder(e, v, quoted, true)
 }
 
@@ -491,10 +491,10 @@ func marshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 func addrMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	addrEncoder(e, v, quoted, false)
 }
-func addrCompactEncoder(e *encodeState, v reflect.Value, quoted bool) {
+func addrContextEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	addrEncoder(e, v, quoted, true)
 }
-func addrEncoder(e *encodeState, v reflect.Value, quoted bool, compactJson bool) {
+func addrEncoder(e *encodeState, v reflect.Value, quoted bool, context bool) {
 	va := v.Addr()
 	if va.IsNil() {
 		e.WriteString("null")
@@ -502,9 +502,9 @@ func addrEncoder(e *encodeState, v reflect.Value, quoted bool, compactJson bool)
 	}
 	var b []byte
 	var err error
-	if compactJson {
-		m := va.Interface().(CompactMarshaler)
-		b, err = m.MarshalCompactJSON(e.path, e.aliases)
+	if context {
+		m := va.Interface().(ContextMarshaler)
+		b, err = m.MarshalContextJSON(e.path, e.aliases)
 	} else {
 		m := va.Interface().(Marshaler)
 		b, err = m.MarshalJSON()
@@ -664,14 +664,14 @@ func (se *structEncoder) encode(e *encodeState, v reflect.Value, quoted bool) {
 	e.WriteByte('}')
 }
 
-func newStructEncoder(t reflect.Type, compact bool) encoderFunc {
+func newStructEncoder(t reflect.Type, context bool) encoderFunc {
 	fields := cachedTypeFields(t)
 	se := &structEncoder{
 		fields:    fields,
 		fieldEncs: make([]encoderFunc, len(fields)),
 	}
 	for i, f := range fields {
-		se.fieldEncs[i] = typeEncoder(typeByIndex(t, f.index), compact)
+		se.fieldEncs[i] = typeEncoder(typeByIndex(t, f.index), context)
 	}
 	return se.encode
 }
@@ -699,11 +699,11 @@ func (me *mapEncoder) encode(e *encodeState, v reflect.Value, _ bool) {
 	e.WriteByte('}')
 }
 
-func newMapEncoder(t reflect.Type, compact bool) encoderFunc {
+func newMapEncoder(t reflect.Type, context bool) encoderFunc {
 	if t.Key().Kind() != reflect.String {
 		return unsupportedTypeEncoder
 	}
-	me := &mapEncoder{typeEncoder(t.Elem(), compact)}
+	me := &mapEncoder{typeEncoder(t.Elem(), context)}
 	return me.encode
 }
 
@@ -742,12 +742,12 @@ func (se *sliceEncoder) encode(e *encodeState, v reflect.Value, _ bool) {
 	se.arrayEnc(e, v, false)
 }
 
-func newSliceEncoder(t reflect.Type, compact bool) encoderFunc {
+func newSliceEncoder(t reflect.Type, context bool) encoderFunc {
 	// Byte slices get special treatment; arrays don't.
 	if t.Elem().Kind() == reflect.Uint8 {
 		return encodeByteSlice
 	}
-	enc := &sliceEncoder{newArrayEncoder(t, compact)}
+	enc := &sliceEncoder{newArrayEncoder(t, context)}
 	return enc.encode
 }
 
@@ -767,8 +767,8 @@ func (ae *arrayEncoder) encode(e *encodeState, v reflect.Value, _ bool) {
 	e.WriteByte(']')
 }
 
-func newArrayEncoder(t reflect.Type, compact bool) encoderFunc {
-	enc := &arrayEncoder{typeEncoder(t.Elem(), compact)}
+func newArrayEncoder(t reflect.Type, context bool) encoderFunc {
+	enc := &arrayEncoder{typeEncoder(t.Elem(), context)}
 	return enc.encode
 }
 
@@ -784,8 +784,8 @@ func (pe *ptrEncoder) encode(e *encodeState, v reflect.Value, quoted bool) {
 	pe.elemEnc(e, v.Elem(), quoted)
 }
 
-func newPtrEncoder(t reflect.Type, compact bool) encoderFunc {
-	enc := &ptrEncoder{typeEncoder(t.Elem(), compact)}
+func newPtrEncoder(t reflect.Type, context bool) encoderFunc {
+	enc := &ptrEncoder{typeEncoder(t.Elem(), context)}
 	return enc.encode
 }
 

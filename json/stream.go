@@ -173,14 +173,14 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
-func (enc *Encoder) encode(v interface{}, typed bool, compact bool, path string, aliases map[string]string) error {
+func (enc *Encoder) encode(v interface{}, typed bool, context bool, path string, aliases map[string]string) error {
 
 	if enc.err != nil {
 		return enc.err
 	}
 	e := newEncodeState()
 	e.typed = typed
-	e.compact = compact
+	e.context = context
 	e.path = path
 	e.aliases = aliases
 	err := e.marshal(v)
@@ -213,9 +213,9 @@ func (enc *Encoder) Encode(v interface{}) error {
 	return enc.encode(v, true, false, "", map[string]string{})
 }
 
-// EncodeCompact encodes JSON in a more compact form, using
+// EncodeContext encodes JSON in a more compact form, using
 // aliases for package paths
-func (enc *Encoder) EncodeCompact(v interface{}, path string, aliases map[string]string) error {
+func (enc *Encoder) EncodeContext(v interface{}, path string, aliases map[string]string) error {
 	return enc.encode(v, true, true, path, aliases)
 }
 
