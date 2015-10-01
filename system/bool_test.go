@@ -16,23 +16,23 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 
 	var b Bool
 
-	err := b.UnmarshalJSON([]byte("true"), "", map[string]string{})
+	err := b.Unpack(true)
 	assert.NoError(t, err)
 	assert.True(t, b.Exists)
 	assert.True(t, b.Value)
 
-	err = b.UnmarshalJSON([]byte("false"), "", map[string]string{})
+	err = b.Unpack(false)
 	assert.NoError(t, err)
 	assert.True(t, b.Exists)
 	assert.False(t, b.Value)
 
-	err = b.UnmarshalJSON([]byte("null"), "", map[string]string{})
+	err = b.Unpack(nil)
 	assert.NoError(t, err)
 	assert.False(t, b.Exists)
 	assert.False(t, b.Value)
 
-	err = b.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	assert.IsError(t, err, "CJMOICJGJG")
+	err = b.Unpack("foo")
+	assert.IsError(t, err, "GXQGNEPJYS")
 
 }
 func TestBoolMarshalJSON(t *testing.T) {

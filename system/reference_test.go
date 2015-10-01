@@ -35,11 +35,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	}
 
 	r := reset()
-	err := r.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	assert.IsError(t, err, "BBWVFPNNTT")
-
-	r = reset()
-	err = r.UnmarshalJSON([]byte("null"), "", map[string]string{})
+	err := r.Unpack(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.False(t, r.Exists)
 	assert.Equal(t, "", r.Package)
@@ -47,12 +43,12 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "", r.Value())
 
 	r = reset()
-	err = r.UnmarshalJSON([]byte("\"a.b/c:d\""), "", map[string]string{})
+	err = r.Unpack("a.b/c:d", "", map[string]string{})
 	assert.EqualError(t, err, "Unknown package a.b/c")
 	assert.False(t, r.Exists)
 
 	r = reset()
-	err = r.UnmarshalJSON([]byte("\"a.b/c:d\""), "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack("a.b/c:d", "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -60,7 +56,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.UnmarshalJSON([]byte("\"a.b/c:@d\""), "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack("a.b/c:@d", "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -68,7 +64,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
-	err = r.UnmarshalJSON([]byte("\"a:b\""), "", map[string]string{})
+	err = r.Unpack("a:b", "", map[string]string{})
 	assert.False(t, r.Exists)
 }
 

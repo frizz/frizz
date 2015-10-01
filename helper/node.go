@@ -21,16 +21,6 @@ type Node struct {
 	Type        *system.Type
 }
 
-func (n *Node) UnmarshalJSON(input []byte, path string, aliases map[string]string) error {
-	var i interface{}
-	if err := json.UnmarshalPlain(input, &i); err != nil {
-		return kerr.New("GLCYSUHDGD", err, "UnmarshalPlain")
-	}
-	if err := n.Unpack(i, path, aliases); err != nil {
-		return kerr.New("NYDLWUSUGP", err, "Unpack")
-	}
-	return nil
-}
 func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) error {
 	if err := n.extract(in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "get (read)")
@@ -39,7 +29,6 @@ func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) er
 }
 
 var _ json.ContextUnpacker = (*Node)(nil)
-var _ json.Unmarshaler = (*Node)(nil)
 
 func (n *Node) extract(value interface{}, exists bool, rule *system.RuleHolder, path string, aliases map[string]string) error {
 

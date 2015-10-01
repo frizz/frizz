@@ -6,8 +6,6 @@ import (
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
-
-	"strconv"
 )
 
 func TestMarshal(t *testing.T) {
@@ -145,18 +143,18 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	var s String
 
-	err := s.UnmarshalJSON([]byte(strconv.Quote(`foo "bar"`)), "", map[string]string{})
+	err := s.Unpack(`foo "bar"`)
 	assert.NoError(t, err)
 	assert.True(t, s.Exists)
 	assert.Equal(t, `foo "bar"`, s.Value)
 
-	err = s.UnmarshalJSON([]byte("null"), "", map[string]string{})
+	err = s.Unpack(nil)
 	assert.NoError(t, err)
 	assert.False(t, s.Exists)
 	assert.Equal(t, "", s.Value)
 
-	err = s.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	assert.IsError(t, err, "ACHMRKVFAB")
+	err = s.Unpack(1)
+	assert.IsError(t, err, "IXASCXOPMG")
 
 }
 

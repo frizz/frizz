@@ -16,16 +16,6 @@ func NewBool(b bool) Bool {
 	return Bool{Value: b, Exists: true}
 }
 
-func (out *Bool) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var i interface{}
-	if err := json.UnmarshalPlain(in, &i); err != nil {
-		return kerr.New("CJMOICJGJG", err, "json.UnmarshalPlain")
-	}
-	if err := out.Unpack(i); err != nil {
-		return kerr.New("CTYHQGGOAP", err, "Unpack")
-	}
-	return nil
-}
 func (out *Bool) Unpack(in interface{}) error {
 	if in == nil {
 		out.Exists = false
@@ -42,7 +32,6 @@ func (out *Bool) Unpack(in interface{}) error {
 }
 
 var _ json.Unpacker = (*Bool)(nil)
-var _ json.Unmarshaler = (*Bool)(nil)
 
 func (b Bool) MarshalJSON() ([]byte, error) {
 	if !b.Exists {

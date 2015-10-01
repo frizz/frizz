@@ -99,18 +99,18 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 
 	var n Number
 
-	err := n.UnmarshalJSON([]byte("1.2"), "", map[string]string{})
+	err := n.Unpack(1.2)
 	assert.NoError(t, err)
 	assert.True(t, n.Exists)
 	assert.Equal(t, 1.2, n.Value)
 
-	err = n.UnmarshalJSON([]byte("null"), "", map[string]string{})
+	err = n.Unpack(nil)
 	assert.NoError(t, err)
 	assert.False(t, n.Exists)
 	assert.Equal(t, 0.0, n.Value)
 
-	err = n.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	assert.IsError(t, err, "GXNBRBELFA")
+	err = n.Unpack("foo")
+	assert.IsError(t, err, "YHXBFTONCW")
 
 }
 

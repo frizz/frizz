@@ -70,28 +70,13 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 
 func NewReferenceFromString(in string, path string, aliases map[string]string) (*Reference, error) {
 	r := &Reference{}
-	err := r.UnmarshalJSON([]byte(strconv.Quote(in)), path, aliases)
+	err := r.Unpack(in, path, aliases)
 	if err != nil {
-		return nil, kerr.New("VXRGOQHWNB", err, "UnmarshalJSON")
+		return nil, kerr.New("VXRGOQHWNB", err, "Unpack")
 	}
 	return r, nil
 }
 
-func (out *Reference) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var i interface{}
-	if err := json.UnmarshalPlain(in, &i); err != nil {
-		return kerr.New("BBWVFPNNTT", err, "json.UnmarshalPlain: %s", in)
-	}
-	if err := out.Unpack(i, path, aliases); err != nil {
-		if p, ok := err.(json.UnknownPackageError); ok {
-			// if GetReferencePartsFromTypeString returns an UnknownPackageError we should
-			// not wrap it in kerr
-			return p
-		}
-		return kerr.New("TFTAQMDXTX", err, "Unpack")
-	}
-	return nil
-}
 func (out *Reference) Unpack(in interface{}, path string, aliases map[string]string) error {
 	if in == nil {
 		out.Exists = false
@@ -147,8 +132,6 @@ func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases ma
 	}
 	return nil
 }
-
-var _ json.Unmarshaler = (*Reference)(nil)
 
 func (r Reference) MarshalJSON() ([]byte, error) {
 	if !r.Exists {

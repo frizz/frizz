@@ -3,8 +3,7 @@ package helper
 import (
 	"testing"
 
-	"fmt"
-
+	"kego.io/json"
 	"kego.io/kerr/assert"
 	_ "kego.io/system"
 	_ "kego.io/system/types"
@@ -23,7 +22,7 @@ func TestFoo(t *testing.T) {
 			}
 		}
 	}`
-	n, err := Unpack([]byte(s), "kego.io/system", map[string]string{})
+	n := &Node{}
+	err := json.UnmarshalPlainContext([]byte(s), n, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
-	fmt.Printf("%#v\n", n)
 }

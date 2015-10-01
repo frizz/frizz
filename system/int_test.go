@@ -87,28 +87,25 @@ func TestIntUnmarshalJSON(t *testing.T) {
 
 	var i Int
 
-	err := i.UnmarshalJSON([]byte("2"), "", map[string]string{})
+	err := i.Unpack(2.0)
 	assert.NoError(t, err)
 	assert.True(t, i.Exists)
 	assert.Equal(t, 2, i.Value)
 
-	err = i.UnmarshalJSON([]byte("-12"), "", map[string]string{})
+	err = i.Unpack(-12.0)
 	assert.NoError(t, err)
 	assert.True(t, i.Exists)
 	assert.Equal(t, -12, i.Value)
 
-	err = i.UnmarshalJSON([]byte("null"), "", map[string]string{})
+	err = i.Unpack(nil)
 	assert.NoError(t, err)
 	assert.False(t, i.Exists)
 	assert.Equal(t, 0, i.Value)
 
-	err = i.UnmarshalJSON([]byte("foo"), "", map[string]string{})
-	assert.IsError(t, err, "WCXYWVMOTT")
+	err = i.Unpack("foo")
+	assert.IsError(t, err, "UJUBDGVYGF")
 
-	err = i.UnmarshalJSON([]byte("\"foo\""), "", map[string]string{})
-	assert.HasError(t, err, "UJUBDGVYGF")
-
-	err = i.UnmarshalJSON([]byte("1.2"), "", map[string]string{})
+	err = i.Unpack(1.2)
 	assert.HasError(t, err, "KVEOETSIJY")
 
 }

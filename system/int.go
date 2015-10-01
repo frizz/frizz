@@ -66,17 +66,6 @@ func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]str
 	return true, "", nil
 }
 
-func (out *Int) UnmarshalJSON(in []byte, path string, aliases map[string]string) error {
-	var i interface{}
-	if err := json.UnmarshalPlain(in, &i); err != nil {
-		return kerr.New("WCXYWVMOTT", err, "json.UnmarshalPlain")
-	}
-	if err := out.Unpack(i); err != nil {
-		return kerr.New("MESFRIXYYC", err, "Unpack")
-	}
-	return nil
-}
-
 func (out *Int) Unpack(in interface{}) error {
 	if in == nil {
 		out.Exists = false
@@ -97,8 +86,6 @@ func (out *Int) Unpack(in interface{}) error {
 }
 
 var _ json.Unpacker = (*Int)(nil)
-
-var _ json.Unmarshaler = (*Int)(nil)
 
 func (n Int) MarshalJSON() ([]byte, error) {
 	if !n.Exists {
