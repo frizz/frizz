@@ -1209,6 +1209,28 @@ func TestStringKind(t *testing.T) {
 
 }
 
+// Custom types with []byte as underlying type could not be marshalled
+// and then unmarshalled.
+// Issue 8962.
+func TestByteKind(t *testing.T) {
+	type byteKind []byte
+
+	a := byteKind("hello")
+
+	data, err := Marshal(a)
+	if err != nil {
+		t.Error(err)
+	}
+	var b byteKind
+	err = UnmarshalPlain(data, &b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(a, b) {
+		t.Errorf("expected %v == %v", a, b)
+	}
+}
+
 var decodeTypeErrorTests = []struct {
 	dest interface{}
 	src  string

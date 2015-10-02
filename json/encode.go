@@ -300,8 +300,6 @@ func (e *encodeState) error(err error) {
 	panic(err)
 }
 
-var byteSliceType = reflect.TypeOf([]byte(nil))
-
 func isEmptyValue(v reflect.Value) bool {
 
 	if e, ok := v.Interface().(EmptyAware); ok {

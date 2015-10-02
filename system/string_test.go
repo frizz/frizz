@@ -9,6 +9,10 @@ import (
 )
 
 func TestMarshal(t *testing.T) {
+	testMarshal(t, unmarshalFunc)
+	testMarshal(t, unpackFunc)
+}
+func testMarshal(t *testing.T, unpacker unpackerFunc) {
 
 	data := `{
 		"type": "a",
@@ -26,7 +30,7 @@ func TestMarshal(t *testing.T) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)

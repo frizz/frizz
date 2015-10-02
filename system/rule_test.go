@@ -67,6 +67,10 @@ func TestRuleTypes(t *testing.T) {
 }
 
 func TestInitialiseAnonymousFields(t *testing.T) {
+	testInitialiseAnonymousFields(t, unmarshalFunc)
+	testInitialiseAnonymousFields(t, unpackFunc)
+}
+func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
 
 	type ruleStruct struct {
 		*Object_base
@@ -79,7 +83,7 @@ func TestInitialiseAnonymousFields(t *testing.T) {
 		"type": "@b"
 	}`
 	var i interface{}
-	err := json.Unmarshal([]byte(j), &i, "a.b/c", map[string]string{})
+	err := unpacker([]byte(j), &i, "a.b/c", map[string]string{})
 	assert.NoError(t, err)
 	rs, ok := i.(*ruleStruct)
 	assert.True(t, ok)

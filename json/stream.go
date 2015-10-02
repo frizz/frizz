@@ -53,7 +53,7 @@ func (dec *Decoder) Decode(v *interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err := dec.d.unmarshalTyped(v, &ctx{dec.path, dec.aliases}, true)
+	err := dec.d.unmarshalTyped(v, &ctx{dec.path, dec.aliases})
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -76,7 +76,7 @@ func (dec *Decoder) DecodePlain(v interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err = dec.d.unmarshal(v, &ctx{dec.path, dec.aliases}, true)
+	err = dec.d.unmarshal(v, &ctx{dec.path, dec.aliases})
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])

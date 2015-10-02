@@ -9,6 +9,10 @@ import (
 )
 
 func TestMapMarshal(t *testing.T) {
+	testMapMarshal(t, unmarshalFunc)
+	testMapMarshal(t, unpackFunc)
+}
+func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 
 	data := `{
 		"type": "a",
@@ -28,7 +32,7 @@ func TestMapMarshal(t *testing.T) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -42,6 +46,7 @@ func TestMapMarshal(t *testing.T) {
 }
 
 func TestMapRule_Enforce(t *testing.T) {
+
 	r := Map_rule{MaxItems: NewInt(2)}
 	ok, message, err := r.Enforce(map[string]int{"foo": 1, "bar": 2}, "", map[string]string{})
 	assert.NoError(t, err)

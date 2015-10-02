@@ -385,48 +385,13 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 
 }
 
-func unmarshalDiagram(t *testing.T) {
-	diagram := `{
-		"description": "This is a type of image, which just contains the url of the image",
-		"type": "system:type",
-		"id": "diagram",
-		"fields": {
-			"url": {
-				"type": "system:@string"
-			}
-		},
-		"rule": {
-			"description": "Restriction rules for diagram",
-			"type": "system:type",
-			"is": ["system:rule"],
-			"fields": {
-				"default": {
-					"description": "Default value",
-					"type": "@diagram",
-					"optional": true
-				}
-			}
-		}
-	}`
-
-	var i interface{}
-	err := json.Unmarshal([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
-	assert.NoError(t, err)
-	d, ok := i.(*system.Type)
-	assert.True(t, ok, "Type %T not correct", i)
-	assert.NotNil(t, d)
-
-	system.Register("kego.io/gallery", d.Id.Name, d, 0)
-	if d.Rule != nil {
-		d.Rule.Id = system.NewReference(d.Id.Package, fmt.Sprint("@", d.Id.Name))
-		system.Register("kego.io/gallery", d.Rule.Id.Name, d.Rule, 0)
-	}
-
-}
-
 func TestUnknownRule(t *testing.T) {
+	testUnknownRule(t, unmarshalFunc)
+	testUnknownRule(t, unpackFunc)
+}
+func testUnknownRule(t *testing.T, unpacker unpackerFunc) {
 
-	unmarshalDiagram(t)
+	unmarshalDiagram(t, unpacker)
 	defer system.Unregister("kego.io/gallery", "diagram")
 	defer system.Unregister("kego.io/gallery", "@diagram")
 
@@ -458,8 +423,10 @@ func TestUnknownRule(t *testing.T) {
 
 	imp := Imports{}
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/gallery", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/gallery", map[string]string{})
+	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown type kego.io/gallery:diagram")
+
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
@@ -475,5 +442,45 @@ func TestUnknownRule(t *testing.T) {
 	r, err := Type("n", f.Fields["ref"], "kego.io/gallery", imp.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\"}}\" json:\"n\"`", r)
+
+}
+
+func unmarshalDiagram(t *testing.T, unpacker unpackerFunc) {
+
+	diagram := `{
+		"description": "This is a type of image, which just contains the url of the image",
+		"type": "system:type",
+		"id": "diagram",
+		"fields": {
+			"url": {
+				"type": "system:@string"
+			}
+		},
+		"rule": {
+			"description": "Restriction rules for diagram",
+			"type": "system:type",
+			"is": ["system:rule"],
+			"fields": {
+				"default": {
+					"description": "Default value",
+					"type": "@diagram",
+					"optional": true
+				}
+			}
+		}
+	}`
+
+	var i interface{}
+	err := unpacker([]byte(diagram), &i, "kego.io/gallery", map[string]string{})
+	assert.NoError(t, err)
+	d, ok := i.(*system.Type)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, d)
+
+	system.Register("kego.io/gallery", d.Id.Name, d, 0)
+	if d.Rule != nil {
+		d.Rule.Id = system.NewReference(d.Id.Package, fmt.Sprint("@", d.Id.Name))
+		system.Register("kego.io/gallery", d.Rule.Id.Name, d.Rule, 0)
+	}
 
 }

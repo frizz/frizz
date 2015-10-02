@@ -3,11 +3,15 @@ package system
 import (
 	"testing"
 
-	"kego.io/json"
 	"kego.io/kerr/assert"
 )
 
 func TestBool(t *testing.T) {
+	testBool(t, unmarshalFunc)
+	testBool(t, unpackFunc)
+}
+func testBool(t *testing.T, unpacker unpackerFunc) {
+
 	data := `{
 		"description": "This is the native json bool data type",
 		"type": "type",
@@ -28,7 +32,7 @@ func TestBool(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -40,6 +44,11 @@ func TestBool(t *testing.T) {
 }
 
 func TestType(t *testing.T) {
+	testType(t, unmarshalFunc)
+	testType(t, unpackFunc)
+}
+func testType(t *testing.T, unpacker unpackerFunc) {
+
 	data := `{
 		"description": "This is the most basic type.",
 		"type": "type",
@@ -88,7 +97,7 @@ func TestType(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)

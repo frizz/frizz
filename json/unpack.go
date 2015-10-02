@@ -1,0 +1,411 @@
+package json
+
+import (
+	"bytes"
+	"encoding/base64"
+	"reflect"
+	"strconv"
+
+	"kego.io/kerr"
+)
+
+type unpackStruct struct {
+	unknownType    string // have we encountered an unknown type?
+	unknownPackage string // have we encountered an unknown package?
+}
+
+func Unpack(in interface{}, out *interface{}, path string, aliases map[string]string) error {
+	v := reflect.ValueOf(out)
+	us := &unpackStruct{}
+	typ, err := us.getType(in, reflect.Value{}, path, aliases)
+	if err != nil {
+		return kerr.New("NUHCPRKRXT", err, "getType (global)")
+	}
+	if typ == nil {
+		return kerr.New("GREMVFEUMH", nil, "Unknown global type")
+	}
+	setType(v, typ)
+	ob, ok := in.(map[string]interface{})
+	if !ok {
+		return kerr.New("XOOUKLGORQ", nil, "Type %T should be map[string]interface{}")
+	}
+	err = us.unpackObject(ob, v, path, aliases)
+	if us.unknownPackage != "" {
+		return UnknownPackageError{us.unknownPackage}
+	}
+	if us.unknownType != "" {
+		return UnknownTypeError{us.unknownType}
+	}
+	if err != nil {
+		return kerr.New("MAVALNTKXP", err, "unpack (global)")
+	}
+	return nil
+}
+
+func (us *unpackStruct) unpack(i interface{}, v reflect.Value, path string, aliases map[string]string) error {
+
+	if !v.IsValid() {
+		return nil
+	}
+
+	switch t := i.(type) {
+	case map[string]interface{}:
+		if err := us.unpackObject(t, v, path, aliases); err != nil {
+			return kerr.New("LMLUICBTBA", err, "unpackObject")
+		}
+	case []interface{}:
+		if err := us.unpackArray(t, v, path, aliases); err != nil {
+			return kerr.New("ITJMJWULKO", err, "unpackArray")
+		}
+	case float64, string, bool, nil:
+		if err := us.unpackLiteral(t, v, path, aliases); err != nil {
+			return kerr.New("BSTNWUKLYO", err, "unpackLiteral")
+		}
+	default:
+		return kerr.New("PTUKQALQHM", nil, "Illegal type %T", i)
+	}
+	return nil
+}
+
+func (us *unpackStruct) unpackLiteral(in interface{}, v reflect.Value, path string, aliases map[string]string) error {
+	wantptr := in == nil
+	_, _, up, cup, pv := indirect(v, wantptr, false, true)
+	if up != nil {
+		if err := up.Unpack(in); err != nil {
+			return kerr.New("RYSLUEEOAW", err, "Unpack (plain)")
+		}
+		return nil
+	}
+	if cup != nil {
+		if err := cup.Unpack(in, path, aliases); err != nil {
+			return kerr.New("MOKLHNANQB", err, "Unpack (context)")
+		}
+		return nil
+	}
+
+	v = pv
+
+	switch value := in.(type) {
+	case nil:
+		switch v.Kind() {
+		case reflect.Interface, reflect.Ptr, reflect.Map, reflect.Slice:
+			v.Set(reflect.Zero(v.Type()))
+			// otherwise, ignore null for primitives/string
+		}
+	case bool:
+		switch v.Kind() {
+		default:
+			return &UnmarshalTypeError{"bool", v.Type()}
+		case reflect.Bool:
+			v.SetBool(value)
+		case reflect.Interface:
+			if v.NumMethod() == 0 {
+				v.Set(reflect.ValueOf(value))
+			} else {
+				return &UnmarshalTypeError{"bool", v.Type()}
+			}
+		}
+	case string:
+		switch v.Kind() {
+		default:
+			return &UnmarshalTypeError{"string", v.Type()}
+		case reflect.Slice:
+			if v.Type().Elem().Kind() != reflect.Uint8 {
+				return &UnmarshalTypeError{"string", v.Type()}
+			}
+			b := make([]byte, base64.StdEncoding.DecodedLen(len(value)))
+			n, err := base64.StdEncoding.Decode(b, []byte(value))
+			if err != nil {
+				return kerr.New("OKMBMDOFNL", err, "base64.StdEncoding.Decode")
+			}
+			v.Set(reflect.ValueOf(b[0:n]))
+		case reflect.String:
+			v.SetString(string(value))
+		case reflect.Interface:
+			if v.NumMethod() == 0 {
+				v.Set(reflect.ValueOf(string(value)))
+			} else {
+				return &UnmarshalTypeError{"string", v.Type()}
+			}
+		}
+	case float64:
+		s := strconv.FormatFloat(value, 'f', -1, 64)
+		switch v.Kind() {
+		default:
+			if v.Kind() == reflect.String && v.Type() == numberType {
+				v.SetString(s)
+				break
+			}
+			return &UnmarshalTypeError{"number", v.Type()}
+		case reflect.Interface:
+			if v.NumMethod() != 0 {
+				return &UnmarshalTypeError{"number", v.Type()}
+			}
+			v.Set(reflect.ValueOf(value))
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			n, err := strconv.ParseInt(s, 10, 64)
+			if err != nil || v.OverflowInt(n) {
+				return &UnmarshalTypeError{"number " + s, v.Type()}
+			}
+			v.SetInt(n)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+			n, err := strconv.ParseUint(s, 10, 64)
+			if err != nil || v.OverflowUint(n) {
+				return &UnmarshalTypeError{"number " + s, v.Type()}
+			}
+			v.SetUint(n)
+		case reflect.Float32, reflect.Float64:
+			if v.OverflowFloat(value) {
+				return &UnmarshalTypeError{"number " + s, v.Type()}
+			}
+			v.SetFloat(value)
+		}
+	}
+	return nil
+}
+
+func (us *unpackStruct) unpackArray(in []interface{}, v reflect.Value, path string, aliases map[string]string) error {
+	// Check for unpackers.
+	_, _, up, cup, pv := indirect(v, false, false, true)
+	if up != nil {
+		if err := up.Unpack(in); err != nil {
+			return kerr.New("PQRNFAYAYQ", err, "Unpack (plain)")
+		}
+		return nil
+	}
+	if cup != nil {
+		if err := cup.Unpack(in, path, aliases); err != nil {
+			return kerr.New("HPUKPAPBDC", err, "Unpack (context)")
+		}
+		return nil
+	}
+
+	v = pv
+
+	// Check type of target.
+	switch v.Kind() {
+	default:
+		return kerr.New("AODAOUPIED", nil, "Array must be Array or Slice. This is %s", v.Kind())
+	case reflect.Array:
+	case reflect.Slice:
+		break
+	}
+
+	i := 0
+
+	for _, val := range in {
+
+		// Get element of array, growing if necessary.
+		if v.Kind() == reflect.Slice {
+			// Grow slice if necessary
+			if i >= v.Cap() {
+				newcap := v.Cap() + v.Cap()/2
+				if newcap < 4 {
+					newcap = 4
+				}
+				newv := reflect.MakeSlice(v.Type(), v.Len(), newcap)
+				reflect.Copy(newv, v)
+				v.Set(newv)
+			}
+			if i >= v.Len() {
+				v.SetLen(i + 1)
+			}
+		}
+
+		if i < v.Len() {
+			// Decode into element.
+			if err := us.unpack(val, v.Index(i), path, aliases); err != nil {
+				return kerr.New("PKGCUIXVWS", err, "unpack")
+			}
+		}
+		i++
+	}
+
+	if i < v.Len() {
+		if v.Kind() == reflect.Array {
+			// Array.  Zero the rest.
+			z := reflect.Zero(v.Type().Elem())
+			for ; i < v.Len(); i++ {
+				v.Index(i).Set(z)
+			}
+		} else {
+			v.SetLen(i)
+		}
+	}
+	if i == 0 && v.Kind() == reflect.Slice {
+		v.Set(reflect.MakeSlice(v.Type(), 0, 0))
+	}
+	return nil
+}
+
+func (us *unpackStruct) unpackObject(in map[string]interface{}, v reflect.Value, path string, aliases map[string]string) error {
+
+	hasConcreteType := false
+	concreteTypePath := ""
+	concreteTypeName := ""
+
+	val := getValue(v)
+
+	// If the type we're unmarshaling into is an interface, we should scan for a "type"
+	// attribute and initialise the correct type.
+	if val.Kind() == reflect.Interface {
+		// This sets the value of v to the correct type based on the "type" attribute.
+		typ, err := us.getType(in, v, path, aliases)
+		if err != nil {
+			return kerr.New("BGJEIXFQHL", err, "getType (interface)")
+		}
+		if typ != nil {
+			setType(v, typ)
+		}
+	}
+	if val.Kind() == reflect.Struct {
+		// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
+		// attribute, so we should add it back in if it's missing so the system:base object is
+		// correct.
+		path, name, ok := GetTypeByReflectType(val.Type())
+		if ok {
+			hasConcreteType = true
+			concreteTypePath = path
+			concreteTypeName = name
+		}
+	}
+
+	_, _, u, cu, rv := indirect(v, false, false, true)
+	if u != nil {
+		if err := u.Unpack(in); err != nil {
+			return kerr.New("NPDUYUXVVK", err, "Unpack (plain)")
+		}
+		return nil
+	}
+	if cu != nil {
+		if err := cu.Unpack(in, path, aliases); err != nil {
+			return kerr.New("TXWXHXCDWW", err, "Unpack (context)")
+		}
+		return nil
+	}
+	v = rv
+
+	// Decoding into nil interface? Just use the input value
+	if v.Kind() == reflect.Interface && v.NumMethod() == 0 {
+		v.Set(reflect.ValueOf(in))
+		return nil
+	}
+
+	// Check type of target: struct or map[string]T
+	switch v.Kind() {
+	case reflect.Map:
+		// map must have string kind
+		t := v.Type()
+		if t.Key().Kind() != reflect.String {
+			return kerr.New("TXNQGFVHOT", nil, "Map must have string keys. This has %s", t.Key().Kind())
+		}
+		if v.IsNil() {
+			v.Set(reflect.MakeMap(t))
+		}
+	case reflect.Struct:
+		// This is ok.
+	default:
+		return kerr.New("AMDJPDYCGI", nil, "unpackObject only unpacks maps and structs. This is %s %s", v.Type().Name(), v.Kind())
+	}
+
+	var mapElem reflect.Value
+
+	foundFields := make([]field, 10)
+	for key, val := range in {
+
+		// Figure out field corresponding to key.
+		var subv reflect.Value
+
+		if v.Kind() == reflect.Map {
+			elemType := v.Type().Elem()
+			if !mapElem.IsValid() {
+				mapElem = reflect.New(elemType).Elem()
+			} else {
+				mapElem.Set(reflect.Zero(elemType))
+			}
+			subv = mapElem
+		} else {
+			var f *field
+			fields := cachedTypeFields(v.Type())
+			for i := range fields {
+				ff := &fields[i]
+				if bytes.Equal(ff.nameBytes, []byte(key)) {
+					f = ff
+					break
+				}
+				if f == nil && ff.equalFold(ff.nameBytes, []byte(key)) {
+					f = ff
+				}
+			}
+			if f != nil {
+				subv = v
+				if f.quoted {
+					return kerr.New("SRULCNWOWM", nil, "Quoted json not supported by Unpack")
+				}
+				for _, i := range f.index {
+					if subv.Kind() == reflect.Ptr {
+						if subv.IsNil() {
+							subv.Set(reflect.New(subv.Type().Elem()))
+						}
+						subv = subv.Elem()
+					}
+					subv = subv.Field(i)
+				}
+				foundFields = append(foundFields, *f)
+			}
+		}
+
+		if err := us.unpack(val, subv, path, aliases); err != nil {
+			return kerr.New("SIJHJHWXYF", err, "unpack")
+		}
+
+		// Write value back to map;
+		// if using struct, subv points into struct already.
+		if v.Kind() == reflect.Map {
+			kv := reflect.ValueOf(key).Convert(v.Type().Key())
+			v.SetMapIndex(kv, subv)
+		}
+	}
+
+	if err := initialiseUnmarshaledObject(v, foundFields, true, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
+		return kerr.New("XWHQSWVNLF", err, "initialiseUnmarshaledObject")
+	}
+	return nil
+}
+
+func (us *unpackStruct) getType(in interface{}, iface reflect.Value, path string, aliases map[string]string) (reflect.Type, error) {
+	m, ok := in.(map[string]interface{})
+	if !ok {
+		return nil, kerr.New("ELEOKRXTGJ", nil, "Type %T should be map[string]interface{}", in)
+	}
+	ti, ok := m["type"]
+	if !ok {
+		return nil, kerr.New("RMMVQNVHTU", nil, "Input missing type field")
+	}
+	t, ok := ti.(string)
+	if !ok {
+		return nil, kerr.New("RPBSKPRLJQ", nil, "Type field %T is not string", ti)
+	}
+	typePath, typeName, err := GetReferencePartsFromTypeString(t, path, aliases)
+	if err != nil {
+		if unk, ok := err.(UnknownPackageError); ok {
+			// We don't want to throw an error here, because when we're scanning for
+			// aliases we need to tolerate unknown packages
+			us.unknownPackage = unk.UnknownPackage
+		} else {
+			return nil, kerr.New("KXBNXCCRYH", err, "GetReferencePartsFromTypeString")
+		}
+	}
+	typ, _, ok := GetType(typePath, typeName)
+	if !ok && iface.Kind() == reflect.Interface {
+
+		// If we can't find the type in the resolver, and
+		// we're unmarshaling into an interface, then look
+		// the interface in the dummy interface resolver.
+		typ, _ = GetInterface(iface.Type())
+	}
+	if typ == nil {
+		us.unknownType = typePath + ":" + typeName
+	}
+	return typ, nil
+}

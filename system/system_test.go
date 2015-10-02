@@ -9,6 +9,10 @@ import (
 )
 
 func TestNoType(t *testing.T) {
+	testNoType(t, unmarshalFunc)
+	testNoType(t, unpackFunc)
+}
+func testNoType(t *testing.T, unpacker unpackerFunc) {
 	type C struct {
 		*Object_base
 		D string
@@ -33,7 +37,7 @@ func TestNoType(t *testing.T) {
 	}`
 
 	var i interface{}
-	err := json.Unmarshal([]byte(j), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(j), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok)
@@ -48,13 +52,17 @@ func TestNoType(t *testing.T) {
 		}
 	}`
 
-	err = json.Unmarshal([]byte(j), &i, "kego.io/system", map[string]string{})
+	err = unpacker([]byte(j), &i, "kego.io/system", map[string]string{})
 	assert.Error(t, err)
-	assert.EqualError(t, err, "json: cannot unmarshal kego.io/system:f into Go value of type system.C")
+	assert.Contains(t, err.Error(), "json: cannot unmarshal kego.io/system:f into Go value of type system.C")
 
 }
 
 func TestNative(t *testing.T) {
+	testNative(t, unmarshalFunc)
+	testNative(t, unpackFunc)
+}
+func testNative(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		StrHere  String
@@ -84,7 +92,7 @@ func TestNative(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -105,6 +113,10 @@ func TestNative(t *testing.T) {
 }
 
 func TestNativeDefaults(t *testing.T) {
+	testNativeDefaults(t, unmarshalFunc)
+	testNativeDefaults(t, unpackFunc)
+}
+func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		StrHere    String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\"}}"`
@@ -128,7 +140,7 @@ func TestNativeDefaults(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -149,6 +161,10 @@ func TestNativeDefaults(t *testing.T) {
 }
 
 func TestNativeDefaultsShort(t *testing.T) {
+	testNativeDefaultsShort(t, unmarshalFunc)
+	testNativeDefaultsShort(t, unpackFunc)
+}
+func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		StrHere    String `kego:"{\"default\":{\"value\":\"a\"}}"`
@@ -172,7 +188,7 @@ func TestNativeDefaultsShort(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -193,6 +209,10 @@ func TestNativeDefaultsShort(t *testing.T) {
 }
 
 func TestDefaultCustomUnmarshal(t *testing.T) {
+	testDefaultCustomUnmarshal(t, unmarshalFunc)
+	testDefaultCustomUnmarshal(t, unpackFunc)
+}
+func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 
 	// If we're generating the type structs, we probably don't have the
 	// custom marshal function, so we add the type and context data in
@@ -224,7 +244,7 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"a.b/c": "c"})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -239,6 +259,10 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 }
 
 func TestReferenceType(t *testing.T) {
+	testReferenceType(t, unmarshalFunc)
+	testReferenceType(t, unpackFunc)
+}
+func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		Ref Reference
@@ -255,7 +279,7 @@ func TestReferenceType(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -268,6 +292,10 @@ func TestReferenceType(t *testing.T) {
 }
 
 func TestReferenceEmpty(t *testing.T) {
+	testReferenceEmpty(t, unmarshalFunc)
+	testReferenceEmpty(t, unpackFunc)
+}
+func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		Ref Reference
@@ -283,7 +311,7 @@ func TestReferenceEmpty(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -293,6 +321,10 @@ func TestReferenceEmpty(t *testing.T) {
 }
 
 func TestReferencePath(t *testing.T) {
+	testReferencePath(t, unmarshalFunc)
+	testReferencePath(t, unpackFunc)
+}
+func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		Ref Reference
@@ -309,7 +341,7 @@ func TestReferencePath(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -322,6 +354,10 @@ func TestReferencePath(t *testing.T) {
 }
 
 func TestReferenceImport(t *testing.T) {
+	testReferenceImport(t, unmarshalFunc)
+	testReferenceImport(t, unpackFunc)
+}
+func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		Ref Reference
@@ -338,7 +374,7 @@ func TestReferenceImport(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -351,6 +387,10 @@ func TestReferenceImport(t *testing.T) {
 }
 
 func TestReferenceDefault(t *testing.T) {
+	testReferenceDefault(t, unmarshalFunc)
+	testReferenceDefault(t, unpackFunc)
+}
+func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
 		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkga\":\"pkga\"}}}"`
@@ -368,7 +408,7 @@ func TestReferenceDefault(t *testing.T) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := json.Unmarshal([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)

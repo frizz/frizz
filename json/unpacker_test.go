@@ -151,5 +151,4 @@ func TestUnpackContext(t *testing.T) {
 	assert.Equal(t, 2, len(a.D))
 	assert.Equal(t, "bar", a.D["foo"])
 	assert.Equal(t, "qux a.b/c g", a.D["baz"])
-
 }
