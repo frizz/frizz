@@ -15,21 +15,28 @@ type unpackStruct struct {
 }
 
 func Unpack(in interface{}, out *interface{}, path string, aliases map[string]string) error {
-	v := reflect.ValueOf(out)
 	us := &unpackStruct{}
-	typ, err := us.getType(in, reflect.Value{}, path, aliases)
+	typ, err := us.getTypeFromField(in, reflect.Value{}, path, aliases)
 	if err != nil {
-		return kerr.New("NUHCPRKRXT", err, "getType (global)")
+		return kerr.New("NUHCPRKRXT", err, "getTypeFromField (global)")
 	}
 	if typ == nil {
 		return kerr.New("GREMVFEUMH", nil, "Unknown global type")
 	}
-	setType(v, typ)
+	p := getEmptyValue(typ)
+
 	ob, ok := in.(map[string]interface{})
 	if !ok {
 		return kerr.New("XOOUKLGORQ", nil, "Type %T should be map[string]interface{}")
 	}
-	err = us.unpackObject(ob, v, path, aliases)
+	err = us.unpackObject(ob, p, path, aliases)
+
+	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
+		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
+		v := reflect.ValueOf(out)
+		v.Elem().Set(p)
+	}
+
 	if us.unknownPackage != "" {
 		return UnknownPackageError{us.unknownPackage}
 	}
@@ -38,6 +45,31 @@ func Unpack(in interface{}, out *interface{}, path string, aliases map[string]st
 	}
 	if err != nil {
 		return kerr.New("MAVALNTKXP", err, "unpack (global)")
+	}
+	return nil
+}
+
+func UnpackFragment(in interface{}, out *interface{}, typ reflect.Type, path string, aliases map[string]string) error {
+
+	us := &unpackStruct{}
+	p := getEmptyValue(typ)
+
+	_, _, _, _, p = indirect(p, false, false, false)
+
+	err := us.unpack(in, p, path, aliases)
+	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
+		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
+		v := reflect.ValueOf(out)
+		v.Elem().Set(p)
+	}
+	if us.unknownPackage != "" {
+		return UnknownPackageError{us.unknownPackage}
+	}
+	if us.unknownType != "" {
+		return UnknownTypeError{us.unknownType}
+	}
+	if err != nil {
+		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
 	}
 	return nil
 }
@@ -88,7 +120,7 @@ func (us *unpackStruct) unpackLiteral(in interface{}, v reflect.Value, path stri
 	switch value := in.(type) {
 	case nil:
 		switch v.Kind() {
-		case reflect.Interface, reflect.Ptr, reflect.Map, reflect.Slice:
+		case reflect.Interface, reflect.Ptr:
 			v.Set(reflect.Zero(v.Type()))
 			// otherwise, ignore null for primitives/string
 		}
@@ -244,21 +276,23 @@ func (us *unpackStruct) unpackObject(in map[string]interface{}, v reflect.Value,
 	concreteTypePath := ""
 	concreteTypeName := ""
 
-	val := getValue(v)
+	_, _, _, _, val := indirect(v, false, false, false)
 
 	// If the type we're unmarshaling into is an interface, we should scan for a "type"
 	// attribute and initialise the correct type.
-	if val.Kind() == reflect.Interface {
+	switch val.Kind() {
+	case reflect.Interface:
 		// This sets the value of v to the correct type based on the "type" attribute.
-		typ, err := us.getType(in, v, path, aliases)
+		typ, err := us.getTypeFromField(in, v, path, aliases)
 		if err != nil {
-			return kerr.New("BGJEIXFQHL", err, "getType (interface)")
+			return kerr.New("BGJEIXFQHL", err, "getTypeFromField (interface) %s", v.String())
 		}
 		if typ != nil {
-			setType(v, typ)
+			if err := setType(v, typ); err != nil {
+				return kerr.New("KBWJCMHWYF", err, "setType")
+			}
 		}
-	}
-	if val.Kind() == reflect.Struct {
+	case reflect.Struct:
 		// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
 		// attribute, so we should add it back in if it's missing so the system:base object is
 		// correct.
@@ -373,7 +407,7 @@ func (us *unpackStruct) unpackObject(in map[string]interface{}, v reflect.Value,
 	return nil
 }
 
-func (us *unpackStruct) getType(in interface{}, iface reflect.Value, path string, aliases map[string]string) (reflect.Type, error) {
+func (us *unpackStruct) getTypeFromField(in interface{}, iface reflect.Value, path string, aliases map[string]string) (reflect.Type, error) {
 	m, ok := in.(map[string]interface{})
 	if !ok {
 		return nil, kerr.New("ELEOKRXTGJ", nil, "Type %T should be map[string]interface{}", in)
@@ -396,6 +430,10 @@ func (us *unpackStruct) getType(in interface{}, iface reflect.Value, path string
 			return nil, kerr.New("KXBNXCCRYH", err, "GetReferencePartsFromTypeString")
 		}
 	}
+	return us.getType(typePath, typeName, iface), nil
+}
+
+func (us *unpackStruct) getType(typePath string, typeName string, iface reflect.Value) reflect.Type {
 	typ, _, ok := GetType(typePath, typeName)
 	if !ok && iface.Kind() == reflect.Interface {
 
@@ -407,5 +445,5 @@ func (us *unpackStruct) getType(in interface{}, iface reflect.Value, path string
 	if typ == nil {
 		us.unknownType = typePath + ":" + typeName
 	}
-	return typ, nil
+	return typ
 }

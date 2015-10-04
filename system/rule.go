@@ -39,6 +39,40 @@ type RuleHolder struct {
 	ParentType *Type
 }
 
+func (r *RuleHolder) GetReflectType() (reflect.Type, error) {
+	switch r.ParentType.Native.Value {
+	case "object", "number", "bool", "string":
+		typ, _, ok := json.GetType(r.ParentType.Id.Package, r.ParentType.Id.Name)
+		if !ok {
+			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.ParentType.Id.Value())
+		}
+		if r.ParentType.Native.Value != "object" && typ.Kind() == reflect.Ptr {
+			return typ.Elem(), nil
+		}
+		return typ, nil
+	case "array", "map":
+		c, ok := r.Rule.(CollectionRule)
+		if !ok {
+			return nil, kerr.New("GSYSHQOWNH", nil, "Map types must have rule that implements CollectionRule")
+		}
+		itemsRule := c.GetItemsRule()
+		items, err := NewRuleHolder(itemsRule)
+		if err != nil {
+			return nil, kerr.New("EDEMPPVUNW", err, "NewRuleHolder")
+		}
+		itemsType, err := items.GetReflectType()
+		if err != nil {
+			return nil, kerr.New("LMKEHHWHKL", err, "GetReflectType")
+		}
+		if r.ParentType.Native.Value == "map" {
+			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
+		}
+		return reflect.SliceOf(itemsType), nil
+	default:
+		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.ParentType.Native.Value)
+	}
+}
+
 func NewMinimalRuleHolder(t *Type) *RuleHolder {
 	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t}
 }

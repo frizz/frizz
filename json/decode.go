@@ -21,6 +21,8 @@ import (
 	"unicode"
 	"unicode/utf16"
 	"unicode/utf8"
+
+	"kego.io/kerr"
 )
 
 // Unmarshal parses the JSON-encoded data and stores the result
@@ -497,20 +499,6 @@ func indirect(v reflect.Value, decodingNull bool, unmarshalers bool, unpackers b
 	return nil, nil, nil, nil, v
 }
 
-// getValue walks down v allocating pointers as needed.
-func getValue(v reflect.Value) reflect.Value {
-	for {
-		if v.Kind() != reflect.Ptr {
-			break
-		}
-		if v.IsNil() {
-			v.Set(reflect.New(v.Type().Elem()))
-		}
-		v = v.Elem()
-	}
-	return v
-}
-
 // array consumes an array from d.data[d.off-1:], decoding into the value v.
 // the first byte of the array ('[') has been read already.
 func (d *decodeState) array(v reflect.Value, context *ctx) {
@@ -812,30 +800,66 @@ func (d *decodeState) setType(typeName string, v reflect.Value, context *ctx) {
 		typ, _ = GetInterface(v.Type())
 	}
 
-	if typ != nil {
-		setType(v, typ)
-	} else {
+	if typ == nil {
 		d.unknownType = path + ":" + name
+		return
 	}
+
+	if err := setType(v, typ); err != nil {
+		d.saveError(kerr.New("IOBHNASQUE", err, "setType"))
+	}
+
 }
 
-func setType(v reflect.Value, typ reflect.Type) {
-	// If we find a type, we should update v with the new type. However, if we are
-	// unmarshaling into a known type, we don't usually need to change the type
-	// of v. In this case v.Type() will be something like system.Foo and typ will be
-	// something like *system.Foo, so typ.Elem() will be system.Foo.
-	if v.Type() != typ.Elem() {
-		if v.CanSet() {
-			// This is where a we are internally unmarshaling into an interface,
-			// and we can set the value of v directly.
-			v.Set(reflect.New(typ.Elem()))
-		} else if v.Elem().CanSet() {
-			// This is where a pointer to a nil interface has been provided
-			// to the Unmarshal function. We can't set the value of v
-			// directly, but we can set v.Elem()
-			v.Elem().Set(reflect.New(typ.Elem()))
-		}
+func setType(v reflect.Value, typ reflect.Type) error {
+
+	if !v.CanSet() &&
+		v.Kind() == reflect.Ptr &&
+		v.Elem().Kind() == reflect.Interface &&
+		v.Elem().Type().NumMethod() == 0 {
+		// If we're unmarshaling into a *interface{} we must set
+		// the interface{} bit (the Elem).
+		v = v.Elem()
 	}
+
+	if v.Type() == typ {
+		return nil
+	}
+
+	if !v.CanSet() {
+		return kerr.New("HDJOTUDTIR", nil, "Can't set type %s", typ.String())
+	}
+
+	val := getEmptyValue(typ)
+
+	v.Set(val)
+
+	return nil
+}
+
+func getEmptyValue(typ reflect.Type) reflect.Value {
+
+	/*
+		var val reflect.Value
+		if typ.Kind() == reflect.Map {
+			val = reflect.New(typ).Elem()
+			val.Set(reflect.MakeMap(typ))
+		} else if typ.Kind() == reflect.Slice {
+			val = reflect.New(typ).Elem()
+			val.Set(reflect.MakeSlice(typ, 0, 0))
+		} else {
+			val = reflect.New(typ).Elem()
+			val.Set(reflect.Zero(typ))
+		}
+	*/
+
+	val := reflect.New(typ).Elem()
+
+	// this ensures value is set
+	indirect(val, false, false, false)
+	//getValue(val)
+
+	return val
 }
 
 func GetReferencePartsFromTypeString(typeString string, localPath string, aliases map[string]string) (path string, name string, err error) {
@@ -896,14 +920,15 @@ func (d *decodeState) object(v reflect.Value, context *ctx, typed bool) {
 	concreteTypePath := ""
 	concreteTypeName := ""
 	if typed {
-		val := getValue(v)
+		_, _, _, _, val := indirect(v, false, false, false)
+
 		// If the type we're unmarshaling into is an interface, we should scan for a "type"
 		// attribute and initialise the correct type.
-		if val.Kind() == reflect.Interface {
+		switch val.Kind() {
+		case reflect.Interface:
 			// If needed, this sets the value of v to the correct type based on the "type" attribute.
 			d.scanForType(v, context)
-		}
-		if val.Kind() == reflect.Struct {
+		case reflect.Struct:
 			// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
 			// attribute, so we should add it back in if it's missing so the system:base object is
 			// correct.

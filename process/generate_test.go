@@ -39,9 +39,24 @@ func TestGenerateSource(t *testing.T) {
 
 	ty := &system.Type{
 		Object_base: &system.Object_base{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
+		Native:      system.NewString("object"),
 	}
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
+
+	tyn := &system.Type{
+		Object_base: &system.Object_base{Id: system.NewReference("b.c/d", "an"), Type: system.NewReference("kego.io/system", "type")},
+		Native:      system.NewString("bool"),
+	}
+	system.Register("b.c/d", "an", tyn, 0)
+	defer system.Unregister("b.c/d", "an")
+
+	tyi := &system.Type{
+		Object_base: &system.Object_base{Id: system.NewReference("b.c/d", "ai"), Type: system.NewReference("kego.io/system", "type")},
+		Interface:   true,
+	}
+	system.Register("b.c/d", "ai", tyi, 0)
+	defer system.Unregister("b.c/d", "ai")
 
 	source, err := GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
@@ -53,6 +68,14 @@ func TestGenerateSource(t *testing.T) {
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Object_base\n}\n")
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), 0x0)\n")
+
+	source, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	assert.NoError(t, err)
+	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"an\", reflect.TypeOf(An{}), 0x0)\n")
+
+	source, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	assert.NoError(t, err)
+	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"ai\", reflect.TypeOf((*Ai)(nil)).Elem(), 0x0)\n")
 
 	source, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)

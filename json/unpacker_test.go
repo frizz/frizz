@@ -66,9 +66,6 @@ func TestUnpack(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`
 	a := &UnpackA{}
 	err := UnmarshalPlain([]byte(in), a)
-	if err != nil {
-		panic(err)
-	}
 	assert.NoError(t, err)
 	assert.NotNil(t, a)
 	assert.Equal(t, "foo bar", string(a.B))
@@ -139,9 +136,6 @@ func TestUnpackContext(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`
 	a := &UnpackContextA{}
 	err := UnmarshalPlainContext([]byte(in), a, "a.b/c", map[string]string{"d.e/f": "g"})
-	if err != nil {
-		panic(err)
-	}
 	assert.NoError(t, err)
 	assert.NotNil(t, a)
 	assert.Equal(t, "foo bar a.b/c g", string(a.B))

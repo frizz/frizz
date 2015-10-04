@@ -8,6 +8,9 @@ import (
 )
 
 type Node struct {
+	Parent      *Node
+	Key         string
+	Index       int
 	ValueString string
 	ValueNumber float64
 	ValueBool   bool
@@ -22,7 +25,7 @@ type Node struct {
 }
 
 func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) error {
-	if err := n.extract(in, true, nil, path, aliases); err != nil {
+	if err := n.extract(nil, "", -1, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "get (read)")
 	}
 	return nil
@@ -30,17 +33,34 @@ func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) er
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(value interface{}, exists bool, rule *system.RuleHolder, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, value interface{}, exists bool, rule *system.RuleHolder, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(value, rule, path, aliases)
 	if err != nil {
 		return kerr.New("RBDBRRUVMM", err, "extractObjectType")
 	}
 
+	n.Parent = parent
+	n.Key = key
+	n.Index = index
 	n.Rule = rule
 	n.Type = objectType
 	n.Null = value == nil
 	n.Missing = !exists
+
+	if rule == nil {
+		if err := json.Unpack(value, &n.Value, path, aliases); err != nil {
+			return kerr.New("CQMWGPLYIJ", err, "Unpack")
+		}
+	} else {
+		t, err := rule.GetReflectType()
+		if err != nil {
+			return kerr.New("DQJDYPIANO", err, "GetReflectType")
+		}
+		if err := json.UnpackFragment(value, &n.Value, t, path, aliases); err != nil {
+			return kerr.New("PEVKGFFHLL", err, "UnpackFragment")
+		}
+	}
 
 	if n.Null && objectType.Native.Value != "object" {
 		// For null input, we should skip processing the value or children, unless
@@ -90,7 +110,7 @@ func (n *Node) extract(value interface{}, exists bool, rule *system.RuleHolder, 
 		}
 		for i, child := range a {
 			childNode := &Node{}
-			if err := childNode.extract(child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, "", i, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -111,7 +131,7 @@ func (n *Node) extract(value interface{}, exists bool, rule *system.RuleHolder, 
 		n.Map = map[string]*Node{}
 		for name, child := range m {
 			childNode := &Node{}
-			if err := childNode.extract(child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -139,7 +159,7 @@ func (n *Node) extract(value interface{}, exists bool, rule *system.RuleHolder, 
 			}
 			child, ok := o[name]
 			childNode := &Node{}
-			if err := childNode.extract(child, ok, rule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, child, ok, rule, path, aliases); err != nil {
 				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
 			n.Fields[name] = childNode

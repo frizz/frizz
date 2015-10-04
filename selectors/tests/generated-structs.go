@@ -270,6 +270,7 @@ func init() {
 	json.Register("kego.io/selectors/tests", "diagram", reflect.TypeOf(&Diagram{}), 0x2076b0eaf334855b)
 	json.Register("kego.io/selectors/tests", "expr", reflect.TypeOf(&Expr{}), 0x6214e678b1df35e3)
 	json.Register("kego.io/selectors/tests", "gallery", reflect.TypeOf(&Gallery{}), 0xa2261dbb985b3d3)
+	json.Register("kego.io/selectors/tests", "image", reflect.TypeOf((*Image)(nil)).Elem(), 0x2a2a6f416ac31013)
 	json.Register("kego.io/selectors/tests", "instance", reflect.TypeOf(&Instance{}), 0x91954502a09aa42a)
 	json.Register("kego.io/selectors/tests", "instanceItem", reflect.TypeOf(&InstanceItem{}), 0x2dca71ec3918c621)
 	json.Register("kego.io/selectors/tests", "kid", reflect.TypeOf(&Kid{}), 0x3b576fd38b04a2eb)

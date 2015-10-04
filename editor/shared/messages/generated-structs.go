@@ -54,6 +54,7 @@ func init() {
 	json.Register("kego.io/editor/shared/messages", "@message", reflect.TypeOf(&Message_rule{}), 0xaabb15d6475cfec1)
 	json.Register("kego.io/editor/shared/messages", "@sourceRequest", reflect.TypeOf(&SourceRequest_rule{}), 0xe7f2816c1a88470b)
 	json.Register("kego.io/editor/shared/messages", "@sourceResponse", reflect.TypeOf(&SourceResponse_rule{}), 0x4421b9f7cf76b1b0)
+	json.Register("kego.io/editor/shared/messages", "message", reflect.TypeOf((*Message)(nil)).Elem(), 0xaabb15d6475cfec1)
 	json.Register("kego.io/editor/shared/messages", "sourceRequest", reflect.TypeOf(&SourceRequest{}), 0xe7f2816c1a88470b)
 	json.Register("kego.io/editor/shared/messages", "sourceResponse", reflect.TypeOf(&SourceResponse{}), 0x4421b9f7cf76b1b0)
 }

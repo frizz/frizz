@@ -50,5 +50,6 @@ func init() {
 	json.Register("kego.io/demo/common/images", "@image", reflect.TypeOf(&Image_rule{}), 0x1117cdef6aab34e4)
 	json.Register("kego.io/demo/common/images", "@photo", reflect.TypeOf(&Photo_rule{}), 0xf2b64533e434a543)
 	json.Register("kego.io/demo/common/images", "icon", reflect.TypeOf(&Icon{}), 0x7c5035ca01145c14)
+	json.Register("kego.io/demo/common/images", "image", reflect.TypeOf((*Image)(nil)).Elem(), 0x1117cdef6aab34e4)
 	json.Register("kego.io/demo/common/images", "photo", reflect.TypeOf(&Photo{}), 0xf2b64533e434a543)
 }

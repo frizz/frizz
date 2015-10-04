@@ -21,6 +21,9 @@ type settings struct {
 	aliases   map[string]string
 }
 
+func (s settings) Aliases() map[string]string {
+	return s.aliases
+}
 func (s settings) Path() string {
 	return s.path
 }

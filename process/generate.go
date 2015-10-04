@@ -83,18 +83,26 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		{
 			for _, hashed := range types {
 				typ := hashed.Object.(*system.Type)
-				if typ.Interface {
-					continue
-				}
 				jsonRegisterType := generator.Reference("kego.io/json", "Register", set.path, g.Imports.Add)
-				pkg := strconv.Quote(typ.Id.Package)
-				name := strconv.Quote(typ.Id.Name)
 				reflectTypeOf := generator.Reference("reflect", "TypeOf", set.path, g.Imports.Add)
-				typOf := fmt.Sprintf("%s(&%s{})", reflectTypeOf, system.GoName(typ.Id.Name))
+				reflectTypeOfParams := ""
+				if typ.Interface {
+					// reflect.TypeOf((*Foo)(nil)).Elem()
+					reflectTypeOfParams = fmt.Sprintf("((*%s)(nil)).Elem()", system.GoName(typ.Id.Name))
+				} else if typ.Native.Value == "object" {
+					// reflect.TypeOf(&Foo{})
+					reflectTypeOfParams = fmt.Sprintf("(&%s{})", system.GoName(typ.Id.Name))
+				} else {
+					// reflect.TypeOf(Foo{})
+					reflectTypeOfParams = fmt.Sprintf("(%s{})", system.GoName(typ.Id.Name))
+				}
+				typOf := fmt.Sprint(reflectTypeOf, reflectTypeOfParams)
 				// e.g.
-				// json.Register("kego.io/gallery/data", "@gallery", reflect.TypeOf(&Gallery_rule{}))
-				// json.Register("kego.io/gallery/data", "gallery", reflect.TypeOf(&Gallery{}))
-				g.Printf("%s(%s, %s, %s, %#v)\n", jsonRegisterType, pkg, name, typOf, hashed.Hash)
+				// json.Register("kego.io/foo", "@gallery", reflect.TypeOf(&Gallery_rule{}), 0x123)
+				// json.Register("kego.io/foo", "gallery", reflect.TypeOf(&Gallery{}), 0x123)
+				// json.Register("kego.io/foo", "string", reflect.TypeOf(String{}), 0x123)
+				// json.Register("kego.io/foo", "iface", reflect.TypeOf((*Iface)(nil)).Elem(), 0x123)
+				g.Printf("%s(%s, %s, %s, %#v)\n", jsonRegisterType, strconv.Quote(typ.Id.Package), strconv.Quote(typ.Id.Name), typOf, hashed.Hash)
 			}
 		}
 		g.Println("}")
