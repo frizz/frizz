@@ -15,12 +15,12 @@ type unpackStruct struct {
 }
 
 func Unpack(in Unpackable, out *interface{}, path string, aliases map[string]string) error {
-	us := &unpackStruct{}
 
 	if in.UpType() != J_MAP {
 		return kerr.New("XOOUKLGORQ", nil, "Type %s should be J_MAP", in.UpType())
 	}
 
+	us := &unpackStruct{}
 	typ, err := us.getTypeFromField(in, reflect.Value{}, path, aliases)
 	if err != nil {
 		return kerr.New("NUHCPRKRXT", err, "getTypeFromField (global)")
@@ -28,41 +28,32 @@ func Unpack(in Unpackable, out *interface{}, path string, aliases map[string]str
 	if typ == nil {
 		return kerr.New("GREMVFEUMH", nil, "Unknown global type")
 	}
-	p := getEmptyValue(typ)
 
-	err = us.unpackObject(in, p, path, aliases)
-
-	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
-		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
-		v := reflect.ValueOf(out)
-		v.Elem().Set(p)
-	}
-
-	if us.unknownPackage != "" {
-		return UnknownPackageError{us.unknownPackage}
-	}
-	if us.unknownType != "" {
-		return UnknownTypeError{us.unknownType}
-	}
-	if err != nil {
-		return kerr.New("MAVALNTKXP", err, "unpack (global)")
-	}
-	return nil
+	// we don't wrap the error in kerr because in can return special
+	// error types
+	return us.unpackFragment(in, out, typ, path, aliases)
 }
 
 func UnpackFragment(in Unpackable, out *interface{}, typ reflect.Type, path string, aliases map[string]string) error {
 
 	us := &unpackStruct{}
+	// we don't wrap the error in kerr because in can return special
+	// error types
+	return us.unpackFragment(in, out, typ, path, aliases)
+}
+
+func (us *unpackStruct) unpackFragment(in Unpackable, out *interface{}, typ reflect.Type, path string, aliases map[string]string) error {
+
 	p := getEmptyValue(typ)
 
-	_, _, _, _, p = indirect(p, false, false, false)
-
 	err := us.unpack(in, p, path, aliases)
+
 	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
 		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
 		v := reflect.ValueOf(out)
 		v.Elem().Set(p)
 	}
+
 	if us.unknownPackage != "" {
 		return UnknownPackageError{us.unknownPackage}
 	}
@@ -104,6 +95,7 @@ func (us *unpackStruct) unpack(in Unpackable, v reflect.Value, path string, alia
 }
 
 func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path string, aliases map[string]string) error {
+
 	wantptr := in == nil
 	_, _, up, cup, pv := indirect(v, wantptr, false, true)
 	if up != nil {
@@ -423,9 +415,11 @@ func (us *unpackStruct) unpackObject(in Unpackable, v reflect.Value, path string
 }
 
 func (us *unpackStruct) getTypeFromField(in Unpackable, iface reflect.Value, path string, aliases map[string]string) (reflect.Type, error) {
+
 	if in.UpType() != J_MAP {
 		return nil, kerr.New("LCJRIHJXFU", nil, "Type %s should be J_MAP", in.UpType())
 	}
+
 	m := in.UpMap()
 	t, ok := m["type"]
 	if !ok {
@@ -448,6 +442,7 @@ func (us *unpackStruct) getTypeFromField(in Unpackable, iface reflect.Value, pat
 }
 
 func (us *unpackStruct) getType(typePath string, typeName string, iface reflect.Value) reflect.Type {
+
 	typ, _, ok := GetType(typePath, typeName)
 	if !ok && iface.Kind() == reflect.Interface {
 

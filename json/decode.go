@@ -839,25 +839,10 @@ func setType(v reflect.Value, typ reflect.Type) error {
 
 func getEmptyValue(typ reflect.Type) reflect.Value {
 
-	/*
-		var val reflect.Value
-		if typ.Kind() == reflect.Map {
-			val = reflect.New(typ).Elem()
-			val.Set(reflect.MakeMap(typ))
-		} else if typ.Kind() == reflect.Slice {
-			val = reflect.New(typ).Elem()
-			val.Set(reflect.MakeSlice(typ, 0, 0))
-		} else {
-			val = reflect.New(typ).Elem()
-			val.Set(reflect.Zero(typ))
-		}
-	*/
-
 	val := reflect.New(typ).Elem()
 
 	// this ensures value is set
 	indirect(val, false, false, false)
-	//getValue(val)
 
 	return val
 }
