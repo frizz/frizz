@@ -11,6 +11,9 @@ import (
 func TestMarshal(t *testing.T) {
 	testMarshal(t, unmarshalFunc)
 	testMarshal(t, unpackFunc)
+
+	// needs types
+	//testMarshal(t, repackFunc)
 }
 func testMarshal(t *testing.T, unpacker unpackerFunc) {
 
@@ -147,17 +150,17 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	var s String
 
-	err := s.Unpack(`foo "bar"`)
+	err := s.Unpack(json.NewJsonUnpacker(`foo "bar"`))
 	assert.NoError(t, err)
 	assert.True(t, s.Exists)
 	assert.Equal(t, `foo "bar"`, s.Value)
 
-	err = s.Unpack(nil)
+	err = s.Unpack(json.NewJsonUnpacker(nil))
 	assert.NoError(t, err)
 	assert.False(t, s.Exists)
 	assert.Equal(t, "", s.Value)
 
-	err = s.Unpack(1)
+	err = s.Unpack(json.NewJsonUnpacker(1.0))
 	assert.IsError(t, err, "IXASCXOPMG")
 
 }

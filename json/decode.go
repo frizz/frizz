@@ -142,11 +142,11 @@ type Unmarshaler interface {
 }
 
 type Unpacker interface {
-	Unpack(interface{}) error
+	Unpack(Unpackable) error
 }
 
 type ContextUnpacker interface {
-	Unpack(interface{}, string, map[string]string) error
+	Unpack(Unpackable, string, map[string]string) error
 }
 
 // An UnmarshalTypeError describes a JSON value that was
@@ -525,7 +525,7 @@ func (d *decodeState) array(v reflect.Value, context *ctx) {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(i); err != nil {
+		if err := up.Unpack(NewJsonUnpacker(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -538,7 +538,7 @@ func (d *decodeState) array(v reflect.Value, context *ctx) {
 			d.error(err)
 			return
 		}
-		if err := cup.Unpack(i, context.Package, context.Aliases); err != nil {
+		if err := cup.Unpack(NewJsonUnpacker(i), context.Package, context.Aliases); err != nil {
 			d.error(err)
 			return
 		}
@@ -963,7 +963,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, typed bool) {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(i); err != nil {
+		if err := up.Unpack(NewJsonUnpacker(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -976,7 +976,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, typed bool) {
 			d.error(err)
 			return
 		}
-		if err := cup.Unpack(i, context.Package, context.Aliases); err != nil {
+		if err := cup.Unpack(NewJsonUnpacker(i), context.Package, context.Aliases); err != nil {
 			d.error(err)
 			return
 		}
@@ -1161,7 +1161,7 @@ func initialiseUnmarshaledObject(v reflect.Value, foundFields []field, typed boo
 				var d decodeState
 				err := checkValid(*def.Value, &d.scan)
 				if err != nil {
-					d.error(err)
+					return kerr.New("XCLKSFIKEE", err, "checkValid (default)")
 				}
 				d.init(*def.Value)
 				if def.Type != "" {
@@ -1169,7 +1169,7 @@ func initialiseUnmarshaledObject(v reflect.Value, foundFields []field, typed boo
 				}
 				err = d.unmarshalValue(subv.Addr(), context, true)
 				if err != nil {
-					d.error(err)
+					return kerr.New("PHUDKAKHMN", err, "unmarshalValue (default)")
 				}
 			}
 		}
@@ -1301,7 +1301,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(i); err != nil {
+		if err := up.Unpack(NewJsonUnpacker(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -1313,7 +1313,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			d.error(err)
 			return
 		}
-		if err := cup.Unpack(i, context.Package, context.Aliases); err != nil {
+		if err := cup.Unpack(NewJsonUnpacker(i), context.Package, context.Aliases); err != nil {
 			d.error(err)
 			return
 		}

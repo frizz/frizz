@@ -66,19 +66,18 @@ func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]str
 	return true, "", nil
 }
 
-func (out *Int) Unpack(in interface{}) error {
-	if in == nil {
+func (out *Int) Unpack(in json.Unpackable) error {
+	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
 		out.Value = 0
 		return nil
 	}
-	f, ok := in.(float64)
-	if !ok {
-		return kerr.New("UJUBDGVYGF", nil, "Can't unpack %T into system.Int", in)
+	if in.UpType() != json.J_NUMBER {
+		return kerr.New("UJUBDGVYGF", nil, "Can't unpack %s into system.Int", in.UpType())
 	}
-	i := math.Floor(f)
-	if i != f {
-		return kerr.New("KVEOETSIJY", nil, "%v is not an integer", f)
+	i := math.Floor(in.UpNumber())
+	if i != in.UpNumber() {
+		return kerr.New("KVEOETSIJY", nil, "%v is not an integer", in.UpNumber())
 	}
 	out.Exists = true
 	out.Value = int(i)

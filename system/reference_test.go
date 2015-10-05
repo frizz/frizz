@@ -3,6 +3,7 @@ package system
 import (
 	"testing"
 
+	"kego.io/json"
 	"kego.io/kerr/assert"
 )
 
@@ -35,7 +36,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	}
 
 	r := reset()
-	err := r.Unpack(nil, "", map[string]string{})
+	err := r.Unpack(json.NewJsonUnpacker(nil), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.False(t, r.Exists)
 	assert.Equal(t, "", r.Package)
@@ -43,12 +44,12 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "", r.Value())
 
 	r = reset()
-	err = r.Unpack("a.b/c:d", "", map[string]string{})
+	err = r.Unpack(json.NewJsonUnpacker("a.b/c:d"), "", map[string]string{})
 	assert.EqualError(t, err, "Unknown package a.b/c")
 	assert.False(t, r.Exists)
 
 	r = reset()
-	err = r.Unpack("a.b/c:d", "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack(json.NewJsonUnpacker("a.b/c:d"), "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -56,7 +57,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack("a.b/c:@d", "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack(json.NewJsonUnpacker("a.b/c:@d"), "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	assert.True(t, r.Exists)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -64,7 +65,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
-	err = r.Unpack("a:b", "", map[string]string{})
+	err = r.Unpack(json.NewJsonUnpacker("a:b"), "", map[string]string{})
 	assert.False(t, r.Exists)
 }
 

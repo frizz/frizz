@@ -11,6 +11,9 @@ import (
 func TestNoType(t *testing.T) {
 	testNoType(t, unmarshalFunc)
 	testNoType(t, unpackFunc)
+
+	// needs types
+	//testNoType(t, repackFunc)
 }
 func testNoType(t *testing.T, unpacker unpackerFunc) {
 	type C struct {
@@ -61,6 +64,8 @@ func testNoType(t *testing.T, unpacker unpackerFunc) {
 func TestNative(t *testing.T) {
 	testNative(t, unmarshalFunc)
 	testNative(t, unpackFunc)
+	// needs types
+	//testNative(t, repackFunc)
 }
 func testNative(t *testing.T, unpacker unpackerFunc) {
 
@@ -115,6 +120,9 @@ func testNative(t *testing.T, unpacker unpackerFunc) {
 func TestNativeDefaults(t *testing.T) {
 	testNativeDefaults(t, unmarshalFunc)
 	testNativeDefaults(t, unpackFunc)
+
+	// needs types
+	//testNativeDefaults(t, repackFunc)
 }
 func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 
@@ -163,6 +171,9 @@ func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 func TestNativeDefaultsShort(t *testing.T) {
 	testNativeDefaultsShort(t, unmarshalFunc)
 	testNativeDefaultsShort(t, unpackFunc)
+
+	// needs types
+	//testNativeDefaultsShort(t, repackFunc)
 }
 func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 
@@ -211,6 +222,9 @@ func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 func TestDefaultCustomUnmarshal(t *testing.T) {
 	testDefaultCustomUnmarshal(t, unmarshalFunc)
 	testDefaultCustomUnmarshal(t, unpackFunc)
+
+	// needs types
+	//testDefaultCustomUnmarshal(t, repackFunc)
 }
 func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 
@@ -261,6 +275,9 @@ func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 func TestReferenceType(t *testing.T) {
 	testReferenceType(t, unmarshalFunc)
 	testReferenceType(t, unpackFunc)
+
+	// needs types
+	//testReferenceType(t, repackFunc)
 }
 func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 
@@ -294,6 +311,9 @@ func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 func TestReferenceEmpty(t *testing.T) {
 	testReferenceEmpty(t, unmarshalFunc)
 	testReferenceEmpty(t, unpackFunc)
+
+	//needs types
+	//testReferenceEmpty(t, repackFunc)
 }
 func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 
@@ -323,6 +343,9 @@ func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 func TestReferencePath(t *testing.T) {
 	testReferencePath(t, unmarshalFunc)
 	testReferencePath(t, unpackFunc)
+
+	// needs types
+	//testReferencePath(t, repackFunc)
 }
 func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 
@@ -356,6 +379,9 @@ func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 func TestReferenceImport(t *testing.T) {
 	testReferenceImport(t, unmarshalFunc)
 	testReferenceImport(t, unpackFunc)
+
+	//needs types
+	//testReferenceImport(t, repackFunc)
 }
 func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 
@@ -389,6 +415,9 @@ func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 func TestReferenceDefault(t *testing.T) {
 	testReferenceDefault(t, unmarshalFunc)
 	testReferenceDefault(t, unpackFunc)
+
+	//needs types
+	//testReferenceDefault(t, repackFunc)
 }
 func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
 

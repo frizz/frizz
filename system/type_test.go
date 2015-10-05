@@ -9,6 +9,7 @@ import (
 func TestBool(t *testing.T) {
 	testBool(t, unmarshalFunc)
 	testBool(t, unpackFunc)
+	testBool(t, repackFunc)
 }
 func testBool(t *testing.T, unpacker unpackerFunc) {
 
@@ -46,6 +47,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 func TestType(t *testing.T) {
 	testType(t, unmarshalFunc)
 	testType(t, unpackFunc)
+	testType(t, repackFunc)
 }
 func testType(t *testing.T, unpacker unpackerFunc) {
 

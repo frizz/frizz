@@ -7,13 +7,13 @@ import (
 
 	"kego.io/editor/client/tree"
 	"kego.io/kerr"
-	"kego.io/node"
+	"kego.io/system"
 )
 
 type entry struct {
 	name  string
 	index int
-	node  *node.Node
+	node  *system.Node
 	label *dom.HTMLDivElement
 }
 

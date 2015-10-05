@@ -1,10 +1,8 @@
-package node // import "kego.io/node"
+package system
 
 import (
 	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/system"
-	_ "kego.io/system/types"
 )
 
 type Node struct {
@@ -20,11 +18,12 @@ type Node struct {
 	Array       []*Node
 	Map         map[string]*Node
 	Fields      map[string]*Node
-	Rule        *system.RuleHolder
-	Type        *system.Type
+	Rule        *RuleHolder
+	Type        *Type
+	JsonType    int
 }
 
-func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) error {
+func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
 	if err := n.extract(nil, "", -1, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "get (read)")
 	}
@@ -33,9 +32,9 @@ func (n *Node) Unpack(in interface{}, path string, aliases map[string]string) er
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, value interface{}, exists bool, rule *system.RuleHolder, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, exists bool, rule *RuleHolder, path string, aliases map[string]string) error {
 
-	objectType, err := extractType(value, rule, path, aliases)
+	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
 		return kerr.New("RBDBRRUVMM", err, "extractObjectType")
 	}
@@ -45,11 +44,14 @@ func (n *Node) extract(parent *Node, key string, index int, value interface{}, e
 	n.Index = index
 	n.Rule = rule
 	n.Type = objectType
-	n.Null = value == nil
+	n.Null = in == nil || in.UpType() == json.J_NULL
 	n.Missing = !exists
+	if !n.Null {
+		n.JsonType = in.UpType()
+	}
 
 	if rule == nil {
-		if err := json.Unpack(value, &n.Value, path, aliases); err != nil {
+		if err := json.Unpack(in, &n.Value, path, aliases); err != nil {
 			return kerr.New("CQMWGPLYIJ", err, "Unpack")
 		}
 	} else {
@@ -57,7 +59,7 @@ func (n *Node) extract(parent *Node, key string, index int, value interface{}, e
 		if err != nil {
 			return kerr.New("DQJDYPIANO", err, "GetReflectType")
 		}
-		if err := json.UnpackFragment(value, &n.Value, t, path, aliases); err != nil {
+		if err := json.UnpackFragment(in, &n.Value, t, path, aliases); err != nil {
 			return kerr.New("PEVKGFFHLL", err, "UnpackFragment")
 		}
 	}
@@ -78,37 +80,33 @@ func (n *Node) extract(parent *Node, key string, index int, value interface{}, e
 
 	switch objectType.Native.Value {
 	case "string":
-		s, ok := value.(string)
-		if !ok {
-			return kerr.New("RKKSUYTCIA", nil, "Type %T should be a string", value)
+		if in.UpType() != json.J_STRING {
+			return kerr.New("RKKSUYTCIA", nil, "Type %s should be a string", in.UpType())
 		}
-		n.ValueString = s
+		n.ValueString = in.UpString()
 	case "number":
-		f, ok := value.(float64)
-		if !ok {
-			return kerr.New("RNSWFUUTHB", nil, "Type %T should be a float64", value)
+		if in.UpType() != json.J_NUMBER {
+			return kerr.New("RNSWFUUTHB", nil, "Type %s should be a float64", in.UpType())
 		}
-		n.ValueNumber = f
+		n.ValueNumber = in.UpNumber()
 	case "bool":
-		b, ok := value.(bool)
-		if !ok {
-			return kerr.New("QGKJRAQUQI", nil, "Type %T should be a bool", value)
+		if in.UpType() != json.J_BOOL {
+			return kerr.New("QGKJRAQUQI", nil, "Type %s should be a bool", in.UpType())
 		}
-		n.ValueBool = b
+		n.ValueBool = in.UpBool()
 	case "array":
-		a, ok := value.([]interface{})
-		if !ok {
-			return kerr.New("CTJQUOKRTK", nil, "Type %T should be a []interface{}", value)
+		if in.UpType() != json.J_ARRAY {
+			return kerr.New("CTJQUOKRTK", nil, "Type %s should be a []interface{}", in.UpType())
 		}
-		c, ok := n.Rule.Rule.(system.CollectionRule)
+		c, ok := n.Rule.Rule.(CollectionRule)
 		if !ok {
-			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *system.CollectionRule for array types", n.Rule.Rule)
+			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *CollectionRule for array types", n.Rule.Rule)
 		}
-		childRule, err := system.NewRuleHolder(c.GetItemsRule())
+		childRule, err := NewRuleHolder(c.GetItemsRule())
 		if err != nil {
 			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
-		for i, child := range a {
+		for i, child := range in.UpArray() {
 			childNode := &Node{}
 			if err := childNode.extract(n, "", i, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
@@ -116,20 +114,19 @@ func (n *Node) extract(parent *Node, key string, index int, value interface{}, e
 			n.Array = append(n.Array, childNode)
 		}
 	case "map":
-		m, ok := value.(map[string]interface{})
-		if !ok {
-			return kerr.New("IPWEPTWVYY", nil, "Type %T should be a map[string]interface{}", value)
+		if in.UpType() != json.J_MAP {
+			return kerr.New("IPWEPTWVYY", nil, "Type %s should be a map[string]interface{}", in.UpType())
 		}
-		c, ok := n.Rule.Rule.(system.CollectionRule)
+		c, ok := n.Rule.Rule.(CollectionRule)
 		if !ok {
-			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *system.CollectionRule for map types", n.Rule.Rule)
+			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *CollectionRule for map types", n.Rule.Rule)
 		}
-		childRule, err := system.NewRuleHolder(c.GetItemsRule())
+		childRule, err := NewRuleHolder(c.GetItemsRule())
 		if err != nil {
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
 		n.Map = map[string]*Node{}
-		for name, child := range m {
+		for name, child := range in.UpMap() {
 			childNode := &Node{}
 			if err := childNode.extract(n, name, -1, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
@@ -137,34 +134,33 @@ func (n *Node) extract(parent *Node, key string, index int, value interface{}, e
 			n.Map[name] = childNode
 		}
 	case "object":
-		o := map[string]interface{}{}
-		if value != nil {
-			var ok bool
-			o, ok = value.(map[string]interface{})
-			if !ok {
-				return kerr.New("CVCRNWMDYF", nil, "Type %T should be a map[string]interface{}", value)
+		m := map[string]json.Unpackable{}
+		if in != nil && in.UpType() != json.J_NULL {
+			if in.UpType() != json.J_MAP {
+				return kerr.New("CVCRNWMDYF", nil, "Type %s should be a map[string]interface{}", in.UpType())
 			}
+			m = in.UpMap()
 		}
 		n.Fields = map[string]*Node{}
 
-		fields := map[string]system.Rule{}
+		fields := map[string]Rule{}
 		if err := extractFields(fields, n.Type); err != nil {
 			return kerr.New("LPWTOSATQE", err, "extractFields (%s)", n.Type.Id.Value())
 		}
 
 		for name, r := range fields {
-			rule, err := system.NewRuleHolder(r)
+			rule, err := NewRuleHolder(r)
 			if err != nil {
 				return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 			}
-			child, ok := o[name]
+			child, ok := m[name]
 			childNode := &Node{}
 			if err := childNode.extract(n, name, -1, child, ok, rule, path, aliases); err != nil {
 				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
 			n.Fields[name] = childNode
 		}
-		for name, _ := range o {
+		for name, _ := range m {
 			_, ok := fields[name]
 			if !ok {
 				return kerr.New("SRANLETJRS", nil, "Extra field %s", name)
@@ -174,7 +170,7 @@ func (n *Node) extract(parent *Node, key string, index int, value interface{}, e
 	return nil
 }
 
-func extractType(value interface{}, rule *system.RuleHolder, path string, aliases map[string]string) (*system.Type, error) {
+func extractType(in json.Unpackable, rule *RuleHolder, path string, aliases map[string]string) (*Type, error) {
 
 	if rule != nil && !rule.ParentType.Interface {
 		// If we have a rule, and it's not an interface, then we just return the
@@ -182,17 +178,17 @@ func extractType(value interface{}, rule *system.RuleHolder, path string, aliase
 		return rule.ParentType, nil
 	}
 
-	ob, ok := value.(map[string]interface{})
-	if !ok {
-		return nil, kerr.New("DLSQRFLINL", nil, "Input %T should be an object if rule is nil or an interface type", value)
+	if in.UpType() != json.J_MAP {
+		return nil, kerr.New("DLSQRFLINL", nil, "Input %s should be J_MAP if rule is nil or an interface type", in.UpType())
 	}
+	ob := in.UpMap()
 	typeField, ok := ob["type"]
 	if !ok {
 		return nil, kerr.New("HBJVDKAKBJ", nil, "Input must have type field if rule is nil or an interface type")
 	}
-	var r system.Reference
+	var r Reference
 	if err := r.Unpack(typeField, path, aliases); err != nil {
-		return nil, kerr.New("YXHGIBXCOC", err, "UnmarshalInterface (type)")
+		return nil, kerr.New("YXHGIBXCOC", err, "Unpack (type)")
 	}
 	t, ok := r.GetType()
 	if !ok {
@@ -202,22 +198,22 @@ func extractType(value interface{}, rule *system.RuleHolder, path string, aliase
 
 }
 
-func extractFields(fields map[string]system.Rule, t *system.Type) error {
+func extractFields(fields map[string]Rule, t *Type) error {
 
-	getType := func(r system.Reference) (*system.Type, error) {
-		g, ok := system.GetGlobal(r.Package, r.Name)
+	getType := func(r Reference) (*Type, error) {
+		g, ok := GetGlobal(r.Package, r.Name)
 		if !ok {
 			return nil, kerr.New("GJPKXQBKYH", nil, "Can't find global %s", r.Value())
 		}
-		t, ok := g.Object.(*system.Type)
+		t, ok := g.Object.(*Type)
 		if !ok {
-			return nil, kerr.New("BKYQWKFTIA", nil, "Global %T should *system.Type", g)
+			return nil, kerr.New("BKYQWKFTIA", nil, "Global %T should *Type", g)
 		}
 		return t, nil
 	}
 	if !t.Basic && !t.Interface {
-		// All types apart from Basic types embed system:$object (system.Object_base)
-		ob, err := getType(system.NewReference("kego.io/system", "$object"))
+		// All types apart from Basic types embed system:$object (Object_base)
+		ob, err := getType(NewReference("kego.io/system", "$object"))
 		if err != nil {
 			return kerr.New("YRFWOTIGFT", err, "getType (system:$object)")
 		}

@@ -16,18 +16,17 @@ func NewBool(b bool) Bool {
 	return Bool{Value: b, Exists: true}
 }
 
-func (out *Bool) Unpack(in interface{}) error {
-	if in == nil {
+func (out *Bool) Unpack(in json.Unpackable) error {
+	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
 		out.Value = false
 		return nil
 	}
-	b, ok := in.(bool)
-	if !ok {
-		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %T into system.Bool", in)
+	if in.UpType() != json.J_BOOL {
+		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %s into system.Bool", in.UpType())
 	}
 	out.Exists = true
-	out.Value = b
+	out.Value = in.UpBool()
 	return nil
 }
 

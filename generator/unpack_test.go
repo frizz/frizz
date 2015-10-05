@@ -12,5 +12,5 @@ func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]str
 	if err := json.UnmarshalPlain(data, &j); err != nil {
 		return err
 	}
-	return json.Unpack(j, i, path, aliases)
+	return json.Unpack(json.NewJsonUnpacker(j), i, path, aliases)
 }

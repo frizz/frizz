@@ -6,7 +6,7 @@ import (
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/node"
+	"kego.io/system"
 )
 
 type source struct {
@@ -55,7 +55,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", m)
 	}
 
-	n := &node.Node{}
+	n := &system.Node{}
 	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, app.path, app.aliases); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}

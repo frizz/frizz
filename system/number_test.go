@@ -3,6 +3,7 @@ package system
 import (
 	"testing"
 
+	"kego.io/json"
 	"kego.io/kerr/assert"
 )
 
@@ -99,17 +100,17 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 
 	var n Number
 
-	err := n.Unpack(1.2)
+	err := n.Unpack(json.NewJsonUnpacker(1.2))
 	assert.NoError(t, err)
 	assert.True(t, n.Exists)
 	assert.Equal(t, 1.2, n.Value)
 
-	err = n.Unpack(nil)
+	err = n.Unpack(json.NewJsonUnpacker(nil))
 	assert.NoError(t, err)
 	assert.False(t, n.Exists)
 	assert.Equal(t, 0.0, n.Value)
 
-	err = n.Unpack("foo")
+	err = n.Unpack(json.NewJsonUnpacker("foo"))
 	assert.IsError(t, err, "YHXBFTONCW")
 
 }

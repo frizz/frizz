@@ -17,50 +17,51 @@ type UnpackValue string
 type UnpackArray []string
 type UnpackObject map[string]string
 
-func (u *UnpackValue) Unpack(i interface{}) error {
-	s, ok := i.(string)
-	if !ok {
+func (u *UnpackValue) Unpack(in Unpackable) error {
+	if in.UpType() != J_STRING {
 		return kerr.New("FUGBYYGFUL", nil, "Should be string")
 	}
-	*u = UnpackValue(fmt.Sprint(s, " bar"))
+	*u = UnpackValue(fmt.Sprint(in.UpString(), " bar"))
 	return nil
 }
 
-func (u *UnpackArray) Unpack(i interface{}) error {
-	a, ok := i.([]interface{})
-	if !ok {
+var _ Unpacker = (*UnpackValue)(nil)
+
+func (u *UnpackArray) Unpack(in Unpackable) error {
+	if in.UpType() != J_ARRAY {
 		return kerr.New("MYARYRIJLL", nil, "Should be array")
 	}
 	out := []string{}
-	for _, child := range a {
-		childString, ok := child.(string)
-		if !ok {
+	for _, child := range in.UpArray() {
+		if child.UpType() != J_STRING {
 			return kerr.New("OJPLBQMLLE", nil, "Children should be strings")
 		}
-		out = append(out, childString)
+		out = append(out, child.UpString())
 	}
 	out = append(out, "bar")
 	*u = UnpackArray(out)
 	return nil
 }
 
-func (u *UnpackObject) Unpack(i interface{}) error {
-	m, ok := i.(map[string]interface{})
-	if !ok {
+var _ Unpacker = (*UnpackArray)(nil)
+
+func (u *UnpackObject) Unpack(in Unpackable) error {
+	if in.UpType() != J_MAP {
 		return kerr.New("TMXIJXIGQK", nil, "Should be map")
 	}
 	out := map[string]string{}
-	for name, child := range m {
-		childString, ok := child.(string)
-		if !ok {
+	for name, child := range in.UpMap() {
+		if child.UpType() != J_STRING {
 			return kerr.New("QCEPMOJQCS", nil, "Children should be strings")
 		}
-		out[name] = childString
+		out[name] = child.UpString()
 	}
 	out["baz"] = "qux"
 	*u = UnpackObject(out)
 	return nil
 }
+
+var _ Unpacker = (*UnpackObject)(nil)
 
 func TestUnpack(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`
@@ -87,50 +88,51 @@ type UnpackContextValue string
 type UnpackContextArray []string
 type UnpackContextObject map[string]string
 
-func (u *UnpackContextValue) Unpack(i interface{}, path string, aliases map[string]string) error {
-	s, ok := i.(string)
-	if !ok {
+func (u *UnpackContextValue) Unpack(in Unpackable, path string, aliases map[string]string) error {
+	if in.UpType() != J_STRING {
 		return kerr.New("CUFSESRMCX", nil, "Should be string")
 	}
-	*u = UnpackContextValue(fmt.Sprint(s, " bar ", path, " ", aliases["d.e/f"]))
+	*u = UnpackContextValue(fmt.Sprint(in.UpString(), " bar ", path, " ", aliases["d.e/f"]))
 	return nil
 }
 
-func (u *UnpackContextArray) Unpack(i interface{}, path string, aliases map[string]string) error {
-	a, ok := i.([]interface{})
-	if !ok {
+var _ ContextUnpacker = (*UnpackContextValue)(nil)
+
+func (u *UnpackContextArray) Unpack(in Unpackable, path string, aliases map[string]string) error {
+	if in.UpType() != J_ARRAY {
 		return kerr.New("UXJTIVMLLG", nil, "Should be array")
 	}
 	out := []string{}
-	for _, child := range a {
-		childString, ok := child.(string)
-		if !ok {
+	for _, child := range in.UpArray() {
+		if child.UpType() != J_STRING {
 			return kerr.New("WFLWABUHTJ", nil, "Children should be strings")
 		}
-		out = append(out, childString)
+		out = append(out, child.UpString())
 	}
 	out = append(out, fmt.Sprint("bar ", path, " ", aliases["d.e/f"]))
 	*u = UnpackContextArray(out)
 	return nil
 }
 
-func (u *UnpackContextObject) Unpack(i interface{}, path string, aliases map[string]string) error {
-	m, ok := i.(map[string]interface{})
-	if !ok {
+var _ ContextUnpacker = (*UnpackContextArray)(nil)
+
+func (u *UnpackContextObject) Unpack(in Unpackable, path string, aliases map[string]string) error {
+	if in.UpType() != J_MAP {
 		return kerr.New("ACCJBEXHYG", nil, "Should be map")
 	}
 	out := map[string]string{}
-	for name, child := range m {
-		childString, ok := child.(string)
-		if !ok {
+	for name, child := range in.UpMap() {
+		if child.UpType() != J_STRING {
 			return kerr.New("CCNJNICMAQ", nil, "Children should be strings")
 		}
-		out[name] = childString
+		out[name] = child.UpString()
 	}
 	out["baz"] = fmt.Sprint("qux ", path, " ", aliases["d.e/f"])
 	*u = UnpackContextObject(out)
 	return nil
 }
+
+var _ ContextUnpacker = (*UnpackContextObject)(nil)
 
 func TestUnpackContext(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`

@@ -116,18 +116,17 @@ func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]
 	return true, "", nil
 }
 
-func (out *String) Unpack(in interface{}) error {
-	if in == nil {
+func (out *String) Unpack(in json.Unpackable) error {
+	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
 		out.Value = ""
 		return nil
 	}
-	s, ok := in.(string)
-	if !ok {
-		return kerr.New("IXASCXOPMG", nil, "Can't unpack %T into system.String", in)
+	if in.UpType() != json.J_STRING {
+		return kerr.New("IXASCXOPMG", nil, "Can't unpack %s into system.String", in.UpType())
 	}
 	out.Exists = true
-	out.Value = s
+	out.Value = in.UpString()
 	return nil
 }
 

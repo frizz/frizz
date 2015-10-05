@@ -69,6 +69,9 @@ func TestRuleTypes(t *testing.T) {
 func TestInitialiseAnonymousFields(t *testing.T) {
 	testInitialiseAnonymousFields(t, unmarshalFunc)
 	testInitialiseAnonymousFields(t, unpackFunc)
+
+	// needs types
+	//testInitialiseAnonymousFields(t, repackFunc)
 }
 func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
 

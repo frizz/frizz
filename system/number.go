@@ -86,18 +86,17 @@ func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]
 	return true, "", nil
 }
 
-func (out *Number) Unpack(in interface{}) error {
-	if in == nil {
+func (out *Number) Unpack(in json.Unpackable) error {
+	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
 		out.Value = 0.0
 		return nil
 	}
-	f, ok := in.(float64)
-	if !ok {
-		return kerr.New("YHXBFTONCW", nil, "Can't unpack %T into system.Number", in)
+	if in.UpType() != json.J_NUMBER {
+		return kerr.New("YHXBFTONCW", nil, "Can't unpack %s into system.Number", in.UpType())
 	}
 	out.Exists = true
-	out.Value = f
+	out.Value = in.UpNumber()
 	return nil
 }
 

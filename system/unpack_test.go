@@ -1,6 +1,8 @@
 package system
 
-import "kego.io/json"
+import (
+	"kego.io/json"
+)
 
 type unpackerFunc func([]byte, *interface{}, string, map[string]string) error
 
@@ -12,5 +14,12 @@ func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]str
 	if err := json.UnmarshalPlain(data, &j); err != nil {
 		return err
 	}
-	return json.Unpack(j, i, path, aliases)
+	return json.Unpack(json.NewJsonUnpacker(j), i, path, aliases)
+}
+func repackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+	var n Node
+	if err := json.UnmarshalPlainContext(data, &n, path, aliases); err != nil {
+		return err
+	}
+	return json.Unpack(&n, i, path, aliases)
 }

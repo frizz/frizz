@@ -70,25 +70,24 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 
 func NewReferenceFromString(in string, path string, aliases map[string]string) (*Reference, error) {
 	r := &Reference{}
-	err := r.Unpack(in, path, aliases)
+	err := r.Unpack(json.NewJsonUnpacker(in), path, aliases)
 	if err != nil {
 		return nil, kerr.New("VXRGOQHWNB", err, "Unpack")
 	}
 	return r, nil
 }
 
-func (out *Reference) Unpack(in interface{}, path string, aliases map[string]string) error {
-	if in == nil {
+func (out *Reference) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
+	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
 		out.Name = ""
 		out.Package = ""
 		return nil
 	}
-	s, ok := in.(string)
-	if !ok {
-		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %T into system.Reference", in)
+	if in.UpType() != json.J_STRING {
+		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into system.Reference", in.UpType())
 	}
-	path, name, err := json.GetReferencePartsFromTypeString(s, path, aliases)
+	path, name, err := json.GetReferencePartsFromTypeString(in.UpString(), path, aliases)
 	if err != nil {
 		// We need to clear the reference, because when we're scanning for
 		// aliases we need to tolerate unknown import errors here
