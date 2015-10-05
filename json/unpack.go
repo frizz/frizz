@@ -110,7 +110,6 @@ func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path strin
 		}
 		return nil
 	}
-
 	v = pv
 
 	typ := J_NULL
@@ -218,8 +217,6 @@ func (us *unpackStruct) unpackArray(in Unpackable, v reflect.Value, path string,
 		return nil
 	}
 	v = pv
-
-	_, _, _, _, v = indirect(v, false, false, false)
 
 	// Check type of target.
 	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
