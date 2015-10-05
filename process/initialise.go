@@ -71,9 +71,9 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 
 	}
 
-	aliases, err := ScanForAliases(set)
+	aliases, err := ScanForPackage(set)
 	if err != nil {
-		return settings{}, kerr.New("IAAETYCHSW", err, "ScanForAliases")
+		return settings{}, kerr.New("IAAETYCHSW", err, "ScanForPackage")
 	}
 	set.aliases = aliases
 

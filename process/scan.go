@@ -14,13 +14,13 @@ import (
 	"kego.io/system"
 )
 
-func ScanForAliases(set settings) (map[string]string, error) {
+func ScanForPackage(set settings) (map[string]string, error) {
 
 	aliases := map[string]string{}
 
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
-		if i, ok := ob.(*system.Imports); ok {
-			for path, alias := range i.Imports {
+		if i, ok := ob.(*system.Package); ok {
+			for path, alias := range i.Import {
 				aliases[path] = alias
 			}
 		}

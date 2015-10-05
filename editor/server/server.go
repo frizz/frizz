@@ -136,9 +136,9 @@ func initialise(path string) (aliases map[string]string, err error) {
 	if err != nil {
 		return nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
-	aliases, err = process.ScanForAliases(set)
+	aliases, err = process.ScanForPackage(set)
 	if err != nil {
-		return nil, kerr.New("ASQLIYWNLN", err, "process.ScanForAliases")
+		return nil, kerr.New("ASQLIYWNLN", err, "process.ScanForPackage")
 	}
 	if err := process.ScanForTypes(false, set); err != nil {
 		return nil, kerr.New("BIVHXIAIKJ", err, "process.ScanForTypes")

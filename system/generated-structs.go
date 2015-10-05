@@ -26,12 +26,6 @@ type Rule_base struct {
 	Selector string `json:"selector"`
 }
 
-// Automatically created basic rule for aliases
-type Aliases_rule struct {
-	*Object_base
-	*Rule_base
-}
-
 // Restriction rules for arrays
 type Array_rule struct {
 	*Object_base
@@ -52,12 +46,6 @@ type Bool_rule struct {
 	*Rule_base
 	// Default value if this is missing or null
 	Default Bool `json:"default"`
-}
-
-// Automatically created basic rule for imports
-type Imports_rule struct {
-	*Object_base
-	*Rule_base
 }
 
 // Restriction rules for integers
@@ -110,6 +98,12 @@ type Object_rule struct {
 	*Rule_base
 }
 
+// Automatically created basic rule for package
+type Package_rule struct {
+	*Object_base
+	*Rule_base
+}
+
 // Restriction rules for references
 type Reference_rule struct {
 	*Object_base
@@ -150,28 +144,23 @@ type Type_rule struct {
 	*Rule_base
 }
 
-// Lists aliases used in this package.
-type Aliases struct {
-	*Object_base
-	// Map of path to alias.
-	Aliases map[string]string `json:"aliases"`
-}
-
 // This is the native json array data type
 type Array struct {
 	*Object_base
 }
 
-// Lists imports used in this package.
-type Imports struct {
-	*Object_base
-	// Map of path to alias.
-	Imports map[string]string `json:"imports"`
-}
-
 // This is the native json object data type.
 type Map struct {
 	*Object_base
+}
+
+// Package info - forms the root node of the package
+type Package struct {
+	*Object_base
+	// The global map is populated with all the global objects in the package
+	Global map[string]Object `json:"global"`
+	// Map of import aliases used in this package: key = package path, value = alias.
+	Import map[string]string `json:"import"`
 }
 
 // This is the most basic type.
@@ -200,26 +189,24 @@ type Type struct {
 func init() {
 	json.Register("kego.io/system", "$object", reflect.TypeOf(&Object_base{}), 0xa80f42e03150e43e)
 	json.Register("kego.io/system", "$rule", reflect.TypeOf(&Rule_base{}), 0x61f37939f1737cbf)
-	json.Register("kego.io/system", "@aliases", reflect.TypeOf(&Aliases_rule{}), 0xa201259ad19e56d5)
 	json.Register("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}), 0xf6f09a20ac87e96f)
 	json.Register("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}), 0x849d95e096ea903a)
-	json.Register("kego.io/system", "@imports", reflect.TypeOf(&Imports_rule{}), 0x9bb5dc657899f549)
 	json.Register("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}), 0x9f6cffbf2042e2aa)
 	json.Register("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}), 0xb95cdb828f1494cc)
 	json.Register("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}), 0x14f986941edf71e9)
 	json.Register("kego.io/system", "@object", reflect.TypeOf(&Object_rule{}), 0xa80f42e03150e43e)
+	json.Register("kego.io/system", "@package", reflect.TypeOf(&Package_rule{}), 0x45625b24c593f855)
 	json.Register("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}), 0x67e9d97dde75d10f)
 	json.Register("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}), 0x61f37939f1737cbf)
 	json.Register("kego.io/system", "@string", reflect.TypeOf(&String_rule{}), 0xe1e0d90cd0a489ca)
 	json.Register("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}), 0xe6e176a06eb36092)
-	json.Register("kego.io/system", "aliases", reflect.TypeOf(&Aliases{}), 0xa201259ad19e56d5)
 	json.Register("kego.io/system", "array", reflect.TypeOf(Array{}), 0xf6f09a20ac87e96f)
 	json.Register("kego.io/system", "bool", reflect.TypeOf(Bool{}), 0x849d95e096ea903a)
-	json.Register("kego.io/system", "imports", reflect.TypeOf(&Imports{}), 0x9bb5dc657899f549)
 	json.Register("kego.io/system", "int", reflect.TypeOf(Int{}), 0x9f6cffbf2042e2aa)
 	json.Register("kego.io/system", "map", reflect.TypeOf(Map{}), 0xb95cdb828f1494cc)
 	json.Register("kego.io/system", "number", reflect.TypeOf(Number{}), 0x14f986941edf71e9)
 	json.Register("kego.io/system", "object", reflect.TypeOf((*Object)(nil)).Elem(), 0xa80f42e03150e43e)
+	json.Register("kego.io/system", "package", reflect.TypeOf(&Package{}), 0x45625b24c593f855)
 	json.Register("kego.io/system", "reference", reflect.TypeOf(Reference{}), 0x67e9d97dde75d10f)
 	json.Register("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)).Elem(), 0x61f37939f1737cbf)
 	json.Register("kego.io/system", "string", reflect.TypeOf(String{}), 0xe1e0d90cd0a489ca)

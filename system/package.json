@@ -1,0 +1,23 @@
+{
+	"description": "Package info - forms the root node of the package",
+	"type": "type",
+	"id": "package",
+	"fields": {
+		"import": {
+			"description": "Map of import aliases used in this package: key = package path, value = alias.",
+			"type": "@map",
+			"items": {
+				"type": "json:@string"
+			},
+			"optional": true
+		},
+		"global": {
+			"description": "The global map is populated with all the global objects in the package",
+			"type": "@map",
+			"items": {
+				"type": "@object"
+			},
+			"optional": true
+		}
+	}
+}

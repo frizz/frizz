@@ -196,9 +196,9 @@ func TestImport(t *testing.T) {
 			title:
 				type: elements:title
 				text: Heading`,
-		"imports.yaml": fmt.Sprintf(`
-			type: system:imports
-			imports:
+		"site.yaml": fmt.Sprintf(`
+			type: system:package
+			import:
 				%s: elements`, path),
 		"site_test.go": `
 			package site
