@@ -22,6 +22,7 @@ type Branch struct {
 	opener   *dom.HTMLAnchorElement
 	inner    *dom.HTMLDivElement
 	content  *dom.HTMLDivElement
+	selected bool
 }
 
 func (b *Branch) Initialise() {
@@ -45,6 +46,10 @@ func (b *Branch) Append(child *Branch) *Branch {
 		contentDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 		contentDiv.SetAttribute("class", "content")
 
+		contentDiv.AddEventListener("click", true, func(e dom.Event) {
+			child.Select(true)
+		})
+
 		innerDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 		innerDiv.SetAttribute("class", "children")
 
@@ -66,6 +71,24 @@ func (b *Branch) Append(child *Branch) *Branch {
 	child.Initialise()
 	b.update()
 	return child
+}
+
+func (b *Branch) Select(state bool) {
+
+	if state {
+		if b.Tree.selected != nil {
+			b.Tree.selected.Select(false)
+		}
+		b.content.Class().Add("selected")
+		b.Tree.selected = b
+		b.selected = true
+		return
+	}
+
+	// un-select
+	b.content.Class().Remove("selected")
+	b.Tree.selected = nil
+	b.selected = false
 }
 
 func (b *Branch) Each(f func(*Branch) error) error {
@@ -146,6 +169,10 @@ func (b *Branch) afterStateChange() {
 		// property is set correctly
 		next.update()
 	}
+	if b.Tree.selected != nil && !b.Tree.selected.IsVisible() {
+		// if the selected branch is now invisible, we should un-select it.
+		b.Tree.selected.Select(false)
+	}
 }
 
 // update assumes parent and index are sources of truth, and updates
@@ -204,6 +231,17 @@ func (b *Branch) update() {
 	}
 }
 
+func (b *Branch) canOpen() bool {
+	async, isAsync := b.item.(AsyncItem)
+	if isAsync && !async.ContentLoaded() {
+		return true
+	}
+	if len(b.children) == 0 {
+		return false
+	}
+	return true
+}
+
 // lastVisible returns the last visible descendant in list order
 func (b *Branch) lastVisible() *Branch {
 	i := b
@@ -232,4 +270,37 @@ func (b *Branch) nextVisible() *Branch {
 	}
 	// return the next sibling of the first ancestor that has one
 	return i.siblings[i.index+1]
+}
+
+func (b *Branch) IsDescendantOf(ancestor *Branch) bool {
+	test := b.parent
+	for test != nil {
+		if test == ancestor {
+			return true
+		}
+		test = test.parent
+	}
+	return false
+}
+
+func (b *Branch) IsAncestorOf(child *Branch) bool {
+	test := child.parent
+	for test != nil {
+		if test == b {
+			return true
+		}
+		test = test.parent
+	}
+	return false
+}
+
+func (b *Branch) IsVisible() bool {
+	test := b.parent
+	for test != nil {
+		if !test.open {
+			return false
+		}
+		test = test.parent
+	}
+	return true
 }

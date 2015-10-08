@@ -243,7 +243,6 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 				<style>
 					.node {
-						margin-top: 4px;
 						position: relative;
 						margin-left: 15px;
 					}
@@ -252,15 +251,23 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 						margin-left: 20px;
 					}
 					.toggle {
+						cursor: pointer;
 						position: absolute;
-						left: -25px;
-						top: 0px;
+						left: -20px;
+						top: 2px;
 						width: 15px;
 					}
 					.toggle svg {
 						opacity: 0.5;
 						height: 20px;
 						width: 20px;
+					}
+					.content {
+						padding: 2px 5px 2px 5px;
+						cursor: pointer;
+					}
+					.content.selected {
+						background-color: #eeeeee;
 					}
 				</style>
 			</head>

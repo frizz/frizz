@@ -69,6 +69,10 @@ func Start(path string) error {
 	t := tree.New(nav, app.conn, items.Root(), app.fail, app.path, app.aliases)
 	items.AddPackage(packageNode, t.Root, info.Sources)
 
+	window.AddEventListener("keydown", true, func(e dom.Event) {
+		t.KeyboardEvent(e.(*dom.KeyboardEvent))
+	})
+
 	go func() {
 		err, open := <-app.fail
 		if !open {
