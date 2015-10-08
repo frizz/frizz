@@ -3,7 +3,7 @@ package tree
 import "honnef.co/go/js/dom"
 
 type Item interface {
-	Initialise(dom.Element)
+	Initialise(*dom.HTMLDivElement)
 }
 
 type AsyncItem interface {
@@ -14,4 +14,4 @@ type AsyncItem interface {
 type root struct {
 }
 
-func (r *root) Initialise(div dom.Element) {}
+func (r *root) Initialise(div *dom.HTMLDivElement) {}

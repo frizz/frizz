@@ -14,7 +14,7 @@ import (
 
 // TODO: this is WIP - currently stuck getting comments to line up.
 // TODO: See http://stackoverflow.com/questions/31628613 for my question.
-func TestAst(t *testing.T) {
+func TestAstGen(t *testing.T) {
 
 	t.Skip()
 

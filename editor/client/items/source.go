@@ -1,8 +1,9 @@
-package client
+package items
 
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/tree"
+	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -14,12 +15,14 @@ type source struct {
 	loaded bool
 	label  *dom.HTMLDivElement
 	branch *tree.Branch
+	conn   *connection.Conn
+	pkg    *pkg
 }
 
 var _ tree.Item = (*source)(nil)
 var _ tree.AsyncItem = (*source)(nil)
 
-func (s *source) Initialise(div dom.Element) {
+func (s *source) Initialise(div *dom.HTMLDivElement) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	label.SetTextContent(s.name)
 	s.label = label
@@ -37,11 +40,11 @@ func (s *source) LoadContent() chan bool {
 		return successChannel
 	}
 
-	responseChannel := app.conn.Request(messages.NewSourceRequest(s.name))
+	responseChannel := s.branch.Tree.Conn.Request(messages.NewSourceRequest(s.name))
 
 	go func() {
 		if err := s.awaitSourceResponse(responseChannel, successChannel); err != nil {
-			app.fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
+			s.branch.Tree.Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
 		}
 	}()
 
@@ -59,14 +62,12 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 	}
 
 	n := &system.Node{}
-	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, app.path, app.aliases); err != nil {
+	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, s.pkg.path, s.pkg.aliases); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
 	child := &entry{index: -1, name: gr.Name.Value, node: n}
-	if err := addEntryChildren(child, s.branch); err != nil {
-		return kerr.New("PFVRMGEJMF", err, "addEntryChildren (root)")
-	}
+	addEntryChildren(child, s.branch)
 
 	s.loaded = true
 	successChannel <- true
@@ -77,9 +78,10 @@ func (s *source) ContentLoaded() bool {
 	return s.loaded
 }
 
-func addSource(name string, parent *tree.Branch) {
-	s := &source{name: name}
-	n := tree.NewBranch(s)
-	s.branch = n
-	parent.AppendBranches(n)
+func (p *pkg) addSource(name string, parent *tree.Branch) *source {
+	s := &source{name: name, pkg: p}
+	b := parent.Tree.Branch(s)
+	s.branch = b
+	parent.Append(b)
+	return s
 }

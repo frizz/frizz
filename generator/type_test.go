@@ -48,20 +48,24 @@ func TestFormatTag(t *testing.T) {
 		RuleType:   ruleType,
 		ParentType: parentType,
 	}
-	s, err := formatTag("n", []byte("null"), r, "d.e/f", map[string]string{})
+	s, err := formatTag("n", false, []byte("null"), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
-	s, err = formatTag("n", []byte(`"a"`), r, "d.e/f", map[string]string{})
+	s, err = formatTag("n", true, []byte("null"), r, "d.e/f", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "`json:\"-\"`", s)
+
+	s, err = formatTag("n", false, []byte(`"a"`), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"a\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	parentType.Id = system.NewReference("kego.io/system", "string")
-	s, err = formatTag("n", []byte(`"a"`), r, "d.e/f", map[string]string{})
+	s, err = formatTag("n", false, []byte(`"a"`), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
 
-	_, err = formatTag("n", []byte(`foo`), r, "d.e/f", map[string]string{})
+	_, err = formatTag("n", false, []byte(`foo`), r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "LKBWJTMJCF")
 }
 
@@ -150,30 +154,34 @@ func TestGetTag(t *testing.T) {
 	}
 
 	// rule has no default field
-	s, err := getTag("n", r, "d.e/f", map[string]string{})
+	s, err := getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
+	s, err = getTag("n", true, r, "d.e/f", map[string]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "`json:\"-\"`", s)
+
 	r.Rule = &ruleStructB{Default: system.NewString("c")}
-	s, err = getTag("n", r, "d.e/f", map[string]string{})
+	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Object_base: &system.Object_base{Id: system.NewReference("d.e/f", "f")}}}
-	s, err = getTag("n", r, "d.e/f", map[string]string{})
+	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Object_base: &system.Object_base{Id: system.NewReference("d.e/f", "f")}, throwError: true}}
-	s, err = getTag("n", r, "d.e/f", map[string]string{})
+	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "YIEMHYFVCD")
 
 	r.Rule = &ruleStructD{Default: make(typeThatWillCauseJsonMarshalToError)}
-	s, err = getTag("n", r, "d.e/f", map[string]string{})
+	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "QQDOLAJKLU")
 
 	r.Rule = &ruleStructE{Default: structWithoutCustomMarshaler{A: "b"}}
-	s, err = getTag("n", r, "d.e/f", map[string]string{})
+	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":{\\\"A\\\":\\\"b\\\"},\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
@@ -184,6 +192,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/json", "@string"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	i := Imports{}
 	s, err := Type("n", p, "kego.io/system", i.Add)
@@ -194,6 +203,19 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@string"),
 		},
+		Rule_base: &system.Rule_base{
+			Exclude: true,
+		},
+	}
+	s, err = Type("n", p, "kego.io/system", i.Add)
+	assert.NoError(t, err)
+	assert.Equal(t, "String `json:\"-\"`", s)
+
+	p = &system.String_rule{
+		Object_base: &system.Object_base{
+			Type: system.NewReference("kego.io/system", "@string"),
+		},
+		Rule_base: &system.Rule_base{},
 	}
 	s, err = Type("n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
@@ -209,6 +231,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@type"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	s, err = Type("n", pt, "kego.io/system", i.Add)
 	assert.NoError(t, err)
@@ -220,6 +243,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@type"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	s, err = Type("n", pt, "kego.io/a", i.Add)
 	assert.NoError(t, err)
@@ -245,6 +269,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("b.c/d", "@a"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	ia := Imports{"b.c/d": Import{Path: "b.c/d", Name: "d", Alias: "d"}}
 	s, err = Type("n", pa, "kego.io/system", ia.Add)
@@ -259,7 +284,8 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@string"),
 		},
-		Default: system.NewString("a"),
+		Rule_base: &system.Rule_base{},
+		Default:   system.NewString("a"),
 	}
 	s, err = Type("n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
@@ -269,6 +295,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@map"),
 		},
+		Rule_base: &system.Rule_base{},
 		Items: &system.String_rule{
 			Object_base: &system.Object_base{
 				Type: system.NewReference("kego.io/system", "@string"),
@@ -283,6 +310,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@array"),
 		},
+		Rule_base: &system.Rule_base{},
 		Items: &system.String_rule{
 			Object_base: &system.Object_base{
 				Type: system.NewReference("kego.io/system", "@string"),
@@ -297,6 +325,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@map"),
 		},
+		Rule_base: &system.Rule_base{},
 		Items: &system.Array_rule{
 			Object_base: &system.Object_base{
 				Type: system.NewReference("kego.io/system", "@array"),
@@ -316,6 +345,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@map"),
 		},
+		Rule_base: &system.Rule_base{},
 		Items: &system.Array_rule{
 			Object_base: &system.Object_base{
 				Type: system.NewReference("kego.io/system", "@array"),
@@ -340,6 +370,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("a.b/c", "notFoundType"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	i := Imports{}
 	_, err := Type("n", p, "kego.io/system", i.Add)
@@ -351,6 +382,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("kego.io/system", "@map"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	_, err = Type("n", pm, "kego.io/system", i.Add)
 	// Collection item @map doesn't have Items field, so errors at collectionPrefixInnerRule
@@ -377,6 +409,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		Object_base: &system.Object_base{
 			Type: system.NewReference("b.c/d", "@a"),
 		},
+		Rule_base: &system.Rule_base{},
 	}
 	_, err = Type("n", pa, "kego.io/system", i.Add)
 	// This used to throw an error but since we moved to dynamic imports, it

@@ -231,11 +231,12 @@ func root(w http.ResponseWriter, req *http.Request, path string, aliases map[str
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 				<style>
 					.node {
+						margin-top: 4px;
 						position: relative;
-						margin-left: 30px;
+						margin-left: 15px;
 					}
 					.root {
-						margin-left: 0px;
+						margin-left: 20px;
 					}
 					.toggle {
 						position: absolute;

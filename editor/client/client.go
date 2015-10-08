@@ -9,6 +9,7 @@ import (
 
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
+	"kego.io/editor/client/items"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
@@ -58,10 +59,9 @@ func Start(path string) error {
 
 	nav := body.GetElementsByClassName("mdl-navigation")[0]
 	// We create a new root tree element
-	root := tree.New(nav)
-	for _, name := range info.Sources {
-		addSource(name, root)
-	}
+	t := tree.New(nav, app.conn)
+	p := items.AddPackage(app.path, app.aliases, t.Root)
+	p.AddSources(info.Sources)
 
 	go func() {
 		err, open := <-app.fail
