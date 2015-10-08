@@ -12,12 +12,13 @@
 			"optional": true
 		},
 		"global": {
-			"description": "The global map is populated with all the global objects in the package",
+			"description": "The global map is populated with all the global objects in the package. This is a special field that is populated by the system when scanning the package. Don't add this field in your json file.",
 			"type": "@map",
 			"items": {
 				"type": "@object"
 			},
-			"optional": true
+			"optional": true,
+			"exclude": true
 		}
 	}
 }

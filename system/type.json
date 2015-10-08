@@ -36,11 +36,6 @@
 			"type": "json:@bool",
 			"optional": true
 		},
-		"exclude": {
-			"description": "Exclude this type from the generated json?",
-			"type": "json:@bool",
-			"optional": true
-		},
 		"fields": {
 			"description": "Each field is listed with it's type",
 			"type": "@map",

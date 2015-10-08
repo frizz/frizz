@@ -33,7 +33,7 @@ func Type(fieldName string, field system.Rule, path string, getAlias func(string
 	name := Reference(inner.ParentType.Id.Package, system.GoName(inner.ParentType.Id.Name), path, getAlias)
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
-	tag, err := getTag(fieldName, inner, "", map[string]string{})
+	tag, err := getTag(fieldName, field.Rule().Exclude, inner, "", map[string]string{})
 	if err != nil {
 		return "", kerr.New("CSJHNCMHRU", err, "getTag")
 	}
@@ -75,7 +75,7 @@ func getPointer(t *system.Type) string {
 	return ""
 }
 
-func formatTag(fieldName string, defaultBytes []byte, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
+func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
 
 	kegoTag := ""
 	if defaultBytes != nil && string(defaultBytes) != "null" {
@@ -111,7 +111,11 @@ func formatTag(fieldName string, defaultBytes []byte, r *system.RuleHolder, path
 
 	tag := ""
 	tag = addSubTag(tag, "kego", kegoTag)
-	tag = addSubTag(tag, "json", fieldName)
+	if exclude {
+		tag = addSubTag(tag, "json", "-")
+	} else {
+		tag = addSubTag(tag, "json", fieldName)
+	}
 
 	if strconv.CanBackquote(tag) {
 		return "`" + tag + "`", nil
@@ -129,12 +133,12 @@ func addSubTag(tag string, name string, content string) string {
 	return fmt.Sprintf("%s%s:%s", tag, name, strconv.Quote(content))
 }
 
-func getTag(fieldName string, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
+func getTag(fieldName string, exclude bool, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
 
 	value, pointer, ok, err := system.RuleFieldByReflection(r.Rule, "Default")
 	if !ok {
 		// Doesn't have a default field
-		return formatTag(fieldName, nil, r, path, aliases)
+		return formatTag(fieldName, exclude, nil, r, path, aliases)
 	}
 
 	// If we have a marshaler, we have to call it manually
@@ -143,7 +147,7 @@ func getTag(fieldName string, r *system.RuleHolder, path string, aliases map[str
 		if err != nil {
 			return "", kerr.New("YIEMHYFVCD", err, "m.MarshalJSON")
 		}
-		return formatTag(fieldName, defaultBytes, r, path, aliases)
+		return formatTag(fieldName, exclude, defaultBytes, r, path, aliases)
 	}
 
 	defaultBytes, err := json.MarshalPlain(value)
@@ -151,5 +155,5 @@ func getTag(fieldName string, r *system.RuleHolder, path string, aliases map[str
 		return "", kerr.New("QQDOLAJKLU", err, "json.Marshal (typed)")
 	}
 
-	return formatTag(fieldName, defaultBytes, r, path, aliases)
+	return formatTag(fieldName, exclude, defaultBytes, r, path, aliases)
 }

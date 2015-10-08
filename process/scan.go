@@ -18,11 +18,19 @@ func ScanForPackage(set settings) (map[string]string, error) {
 
 	aliases := map[string]string{}
 
+	found := false
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
-		if i, ok := ob.(*system.Package); ok {
-			for path, alias := range i.Import {
+		if p, ok := ob.(*system.Package); ok {
+			if found {
+				return kerr.New("NCUXDSPSDA", nil, "Found two package objects. Each package should only have one.")
+			}
+			if len(p.Global) > 0 {
+				return kerr.New("KTRWGUBEJB", nil, "Package json file should not contain 'global' field.")
+			}
+			for path, alias := range p.Import {
 				aliases[path] = alias
 			}
+			found = true
 		}
 		return nil
 	}

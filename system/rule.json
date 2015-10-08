@@ -17,6 +17,11 @@
 				"description": "Json selector defining what nodes this rule should be applied to.",
 				"type": "json:@string",
 				"optional": true
+			},
+			"exclude": {
+				"description": "Special field that should be excluded when marshaling - e.g. package.global",
+				"type": "json:@bool",
+				"optional": true
 			}
 		}
 	}

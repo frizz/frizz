@@ -30,7 +30,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		}
 		for _, hashed := range types {
 			typ := hashed.Object.(*system.Type)
-			if typ.Interface || typ.IsNativeValue() || typ.Exclude {
+			if typ.Interface || typ.IsNativeValue() {
 				continue
 			}
 			if typ.Description != "" {
