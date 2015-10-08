@@ -251,6 +251,15 @@ func root(w http.ResponseWriter, req *http.Request, path string, aliases map[str
 				</style>
 			</head>
 			<body id="body" info="` + attribute + `">
+				<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+					<div class="mdl-layout__drawer">
+						<span class="mdl-layout-title"></span>
+						<nav class="mdl-navigation"></nav>
+					</div>
+					<main class="mdl-layout__content">
+						<div class="page-content"></div>
+					</main>
+				</div>
 			</body>
 			<script src="script.js"></script>
 		</html>`)

@@ -13,8 +13,11 @@ type source struct {
 	name   string
 	loaded bool
 	label  *dom.HTMLDivElement
-	node   *tree.Node
+	branch *tree.Branch
 }
+
+var _ tree.Item = (*source)(nil)
+var _ tree.AsyncItem = (*source)(nil)
 
 func (s *source) Initialise(div dom.Element) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
@@ -61,7 +64,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 	}
 
 	child := &entry{index: -1, name: gr.Name.Value, node: n}
-	if err := addEntryChildren(child, s.node); err != nil {
+	if err := addEntryChildren(child, s.branch); err != nil {
 		return kerr.New("PFVRMGEJMF", err, "addEntryChildren (root)")
 	}
 
@@ -74,12 +77,9 @@ func (s *source) ContentLoaded() bool {
 	return s.loaded
 }
 
-var _ tree.Item = (*source)(nil)
-var _ tree.AsyncItem = (*source)(nil)
-
-func addSource(name string, parent *tree.Node) {
+func addSource(name string, parent *tree.Branch) {
 	s := &source{name: name}
-	n := tree.NewNode(s)
-	s.node = n
-	parent.AppendNodes(n)
+	n := tree.NewBranch(s)
+	s.branch = n
+	parent.AppendBranches(n)
 }

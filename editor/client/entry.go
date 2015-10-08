@@ -17,6 +17,8 @@ type entry struct {
 	label *dom.HTMLDivElement
 }
 
+var _ tree.Item = (*entry)(nil)
+
 func (e *entry) Initialise(div dom.Element) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 
@@ -57,11 +59,9 @@ func shortenString(in string) string {
 	return in
 }
 
-var _ tree.Item = (*entry)(nil)
-
-func addEntry(en *entry, parent *tree.Node) error {
-	n := tree.NewNode(en)
-	parent.AppendNodes(n)
+func addEntry(en *entry, parent *tree.Branch) error {
+	n := tree.NewBranch(en)
+	parent.AppendBranches(n)
 	n.Open()
 
 	if en.node == nil {
@@ -70,28 +70,28 @@ func addEntry(en *entry, parent *tree.Node) error {
 	return addEntryChildren(en, n)
 }
 
-func addEntryChildren(en *entry, n *tree.Node) error {
+func addEntryChildren(en *entry, n *tree.Branch) error {
 	switch en.node.Type.Native.Value {
 	case "array":
-		for i, childHelperNode := range en.node.Array {
-			child := &entry{index: i, node: childHelperNode}
+		for i, childNode := range en.node.Array {
+			child := &entry{index: i, node: childNode}
 			if err := addEntry(child, n); err != nil {
 				return kerr.New("MJTEOBEYVQ", err, "addEntry (array)")
 			}
 		}
 	case "map":
-		for name, childHelperNode := range en.node.Map {
-			child := &entry{name: name, index: -1, node: childHelperNode}
+		for name, childNode := range en.node.Map {
+			child := &entry{name: name, index: -1, node: childNode}
 			if err := addEntry(child, n); err != nil {
 				return kerr.New("RWNXXYDUCS", err, "addEntry (map)")
 			}
 		}
 	case "object":
-		for name, childHelperNode := range en.node.Fields {
-			if childHelperNode.Missing {
+		for name, childNode := range en.node.Fields {
+			if childNode.Missing {
 				continue
 			}
-			child := &entry{name: name, index: -1, node: childHelperNode}
+			child := &entry{name: name, index: -1, node: childNode}
 			if err := addEntry(child, n); err != nil {
 				return kerr.New("VJOGBGNGIB", err, "addEntry (fields)")
 			}

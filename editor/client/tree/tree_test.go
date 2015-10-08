@@ -55,13 +55,13 @@ func TestTree2(t *testing.T) {
 	test(t, "1a1e", r)
 }
 
-func test(t *testing.T, expected string, root *Node) {
+func test(t *testing.T, expected string, root *Branch) {
 	f, b := testString(root)
 	assert.Equal(t, expected, f)
 	assert.Equal(t, expected, b)
 }
 
-func testString(root *Node) (forwards string, backwards string) {
+func testString(root *Branch) (forwards string, backwards string) {
 	n := root
 	for n.next != nil {
 		n = n.next

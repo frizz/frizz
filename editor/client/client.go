@@ -56,8 +56,9 @@ func Start(path string) error {
 	app.conn = connection.New(s, app.fail, app.path, app.aliases)
 	go handle(app.conn.Receive)
 
+	nav := body.GetElementsByClassName("mdl-navigation")[0]
 	// We create a new root tree element
-	root := tree.New(body)
+	root := tree.New(nav)
 	for _, name := range info.Sources {
 		addSource(name, root)
 	}

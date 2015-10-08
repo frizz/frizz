@@ -5,15 +5,15 @@ import (
 	"kego.io/kerr"
 )
 
-type Node struct {
+type Branch struct {
 	root     bool
 	item     Item
-	parent   *Node
-	children []*Node
+	parent   *Branch
+	children []*Branch
 	index    int
-	siblings []*Node
-	next     *Node
-	prev     *Node
+	siblings []*Branch
+	next     *Branch
+	prev     *Branch
 	open     bool
 	opening  bool
 	level    int
@@ -23,8 +23,8 @@ type Node struct {
 	content  *dom.HTMLDivElement
 }
 
-func New(parent dom.Element) *Node {
-	node := &Node{root: true, open: true, item: &root{}}
+func New(parent dom.Element) *Branch {
+	node := &Branch{root: true, open: true, item: &root{}}
 	// We must tolerate passing in a nil dom element in order to run tests in pure go
 	if parent != nil {
 		nodeDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
@@ -46,26 +46,26 @@ func New(parent dom.Element) *Node {
 	node.Initialise()
 	return node
 }
-func (n *Node) Item() Item {
+func (n *Branch) Item() Item {
 	return n.item
 }
 
-func (n *Node) Initialise() {
+func (n *Branch) Initialise() {
 	// We must tolerate having a nil dom element in order to run tests in pure go
 	if n.element != nil {
 		n.item.Initialise(n.content)
 	}
 }
 
-func NewNode(item Item) *Node {
-	return &Node{item: item}
+func NewBranch(item Item) *Branch {
+	return &Branch{item: item}
 }
 
-func (n *Node) AppendItem(item Item) *Node {
-	return n.AppendNodes(NewNode(item))
+func (n *Branch) AppendItem(item Item) *Branch {
+	return n.AppendBranches(NewBranch(item))
 }
 
-func (n *Node) AppendNodes(nodes ...*Node) *Node {
+func (n *Branch) AppendBranches(nodes ...*Branch) *Branch {
 	for _, child := range nodes {
 		child.parent = n
 		// We must tolerate passing in a nil dom element in order to run tests in pure go
@@ -104,7 +104,7 @@ func (n *Node) AppendNodes(nodes ...*Node) *Node {
 	return nodes[0]
 }
 
-func (n *Node) Each(f func(*Node) error) error {
+func (n *Branch) Each(f func(*Branch) error) error {
 	c := n
 	for c != nil {
 		if err := f(c); err != nil {
@@ -115,7 +115,7 @@ func (n *Node) Each(f func(*Node) error) error {
 	return nil
 }
 
-func (n *Node) Open() *Node {
+func (n *Branch) Open() *Branch {
 	if n.root {
 		return n
 	}
@@ -154,7 +154,7 @@ func (n *Node) Open() *Node {
 	return n
 }
 
-func (n *Node) Close() *Node {
+func (n *Branch) Close() *Branch {
 	if n.root {
 		return n
 	}
@@ -167,7 +167,7 @@ func (n *Node) Close() *Node {
 	return n
 }
 
-func (n *Node) Toggle() *Node {
+func (n *Branch) Toggle() *Branch {
 	if n.open {
 		return n.Close()
 	} else {
@@ -175,7 +175,7 @@ func (n *Node) Toggle() *Node {
 	}
 }
 
-func (n *Node) afterStateChange() {
+func (n *Branch) afterStateChange() {
 	n.update()
 	if next := n.nextVisible(); next != nil {
 		// we must also update the next in the list to ensure it's prev
@@ -186,10 +186,10 @@ func (n *Node) afterStateChange() {
 
 // update assumes parent and index are sources of truth, and updates
 // siblings, prev and next, and updates the children
-func (n *Node) update() {
+func (n *Branch) update() {
 	if n.parent == nil {
 		// special case for the root node
-		n.siblings = []*Node{n}
+		n.siblings = []*Branch{n}
 		n.level = 0
 	} else {
 		n.siblings = n.parent.children
@@ -241,7 +241,7 @@ func (n *Node) update() {
 }
 
 // lastVisible returns the last visible descendant in list order
-func (n *Node) lastVisible() *Node {
+func (n *Branch) lastVisible() *Branch {
 	i := n
 	for i.open && len(i.children) > 0 {
 		// if the node is open, test it's last child
@@ -254,7 +254,7 @@ func (n *Node) lastVisible() *Node {
 // nextVisible returns the next sibling. If we're the last sibling,
 // we find the nearest ancestor that has a next sibling, or nil if
 // we're at the end of the tree.
-func (n *Node) nextVisible() *Node {
+func (n *Branch) nextVisible() *Branch {
 	i := n
 	for i.index >= len(i.siblings)-1 {
 		// if the node is the last of the siblings,
