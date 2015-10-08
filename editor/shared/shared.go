@@ -7,4 +7,6 @@ type Info struct {
 	Aliases map[string]string
 	// Array of source names
 	Sources []string
+	// Package object
+	Package string
 }

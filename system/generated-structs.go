@@ -159,10 +159,8 @@ type Map struct {
 // Package info - forms the root node of the package
 type Package struct {
 	*Object_base
-	// The global map is populated with all the global objects in the package. This is a special field that is populated by the system when scanning the package. Don't add this field in your json file.
-	Global map[string]Object `json:"-"`
 	// Map of import aliases used in this package: key = package path, value = alias.
-	Import map[string]string `json:"import"`
+	Aliases map[string]string `json:"aliases"`
 }
 
 // This is the most basic type.
@@ -195,7 +193,7 @@ func init() {
 	json.Register("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}), 0xb95cdb828f1494cc)
 	json.Register("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}), 0x14f986941edf71e9)
 	json.Register("kego.io/system", "@object", reflect.TypeOf(&Object_rule{}), 0xa80f42e03150e43e)
-	json.Register("kego.io/system", "@package", reflect.TypeOf(&Package_rule{}), 0x552151a05f038130)
+	json.Register("kego.io/system", "@package", reflect.TypeOf(&Package_rule{}), 0x5168e36553335f0b)
 	json.Register("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}), 0x67e9d97dde75d10f)
 	json.Register("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}), 0x8365876b3555b5d)
 	json.Register("kego.io/system", "@string", reflect.TypeOf(&String_rule{}), 0xe1e0d90cd0a489ca)
@@ -206,7 +204,7 @@ func init() {
 	json.Register("kego.io/system", "map", reflect.TypeOf(Map{}), 0xb95cdb828f1494cc)
 	json.Register("kego.io/system", "number", reflect.TypeOf(Number{}), 0x14f986941edf71e9)
 	json.Register("kego.io/system", "object", reflect.TypeOf((*Object)(nil)).Elem(), 0xa80f42e03150e43e)
-	json.Register("kego.io/system", "package", reflect.TypeOf(&Package{}), 0x552151a05f038130)
+	json.Register("kego.io/system", "package", reflect.TypeOf(&Package{}), 0x5168e36553335f0b)
 	json.Register("kego.io/system", "reference", reflect.TypeOf(Reference{}), 0x67e9d97dde75d10f)
 	json.Register("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)).Elem(), 0x8365876b3555b5d)
 	json.Register("kego.io/system", "string", reflect.TypeOf(String{}), 0xe1e0d90cd0a489ca)

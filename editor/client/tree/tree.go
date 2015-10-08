@@ -7,15 +7,17 @@ import (
 
 type Tree struct {
 	Root     *Branch
-	selected *Branch
 	Conn     *connection.Conn
 	Fail     chan error
+	Path     string
+	Aliases  map[string]string
+	selected *Branch
 }
 
-func New(parent dom.Element, conn *connection.Conn) *Tree {
+func New(parent dom.Element, conn *connection.Conn, root Item, fail chan error, path string, aliases map[string]string) *Tree {
 
-	tree := &Tree{Conn: conn}
-	tree.Root = &Branch{Tree: tree, root: true, open: true, item: &root{}}
+	tree := &Tree{Conn: conn, Fail: fail, Path: path, Aliases: aliases}
+	tree.Root = &Branch{Tree: tree, root: true, open: true, item: root}
 
 	// We must tolerate passing in a nil dom element in order to run tests in pure go
 	if parent == nil {

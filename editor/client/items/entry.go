@@ -10,6 +10,7 @@ import (
 )
 
 type entry struct {
+	*item
 	name  string
 	index int
 	node  *system.Node
@@ -44,34 +45,47 @@ func shortenString(in string) string {
 	return in
 }
 
-func addEntry(name string, index int, node *system.Node, parent *tree.Branch) *entry {
-	e := &entry{name: name, index: index, node: node}
-	b := parent.Tree.Branch(e)
-	parent.Append(b)
-	b.Open()
+func addEntry(name string, index int, node *system.Node, parentBranch *tree.Branch) *entry {
 
-	if e.node != nil {
-		addEntryChildren(e, b)
+	if node.Parent != nil && node.Parent.Type.Native.Value == "object" {
+		// Don't display "type" or "id" nodes if the parent is an object (maps are ok!)
+		if name == "type" || name == "id" {
+			return nil
+		}
 	}
-	return e
+
+	newEntry := &entry{item: &item{tree: parentBranch.Tree}, name: name, index: index, node: node}
+	newBranch := parentBranch.Tree.Branch(newEntry)
+	newEntry.branch = newBranch
+
+	parentBranch.Append(newBranch)
+
+	addNodeChildren(node, newBranch)
+
+	newBranch.Close()
+
+	return newEntry
 }
 
-func addEntryChildren(en *entry, n *tree.Branch) {
-	switch en.node.Type.Native.Value {
+func addNodeChildren(n *system.Node, b *tree.Branch) {
+	if n == nil {
+		return
+	}
+	switch n.Type.Native.Value {
 	case "array":
-		for i, childNode := range en.node.Array {
-			addEntry("", i, childNode, n)
+		for i, childNode := range n.Array {
+			addEntry("", i, childNode, b)
 		}
 	case "map":
-		for name, childNode := range en.node.Map {
-			addEntry(name, -1, childNode, n)
+		for name, childNode := range n.Map {
+			addEntry(name, -1, childNode, b)
 		}
 	case "object":
-		for name, childNode := range en.node.Fields {
+		for name, childNode := range n.Fields {
 			if childNode.Missing {
 				continue
 			}
-			addEntry(name, -1, childNode, n)
+			addEntry(name, -1, childNode, b)
 		}
 	}
 }

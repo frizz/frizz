@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"kego.io/kerr"
+	"kego.io/system"
 )
 
 type settings struct {
@@ -71,11 +72,14 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 
 	}
 
-	aliases, err := ScanForPackage(set)
-	if err != nil {
+	if err := ScanForPackage(set); err != nil {
 		return settings{}, kerr.New("IAAETYCHSW", err, "ScanForPackage")
 	}
-	set.aliases = aliases
+	p, ok := system.GetPackage(set.path)
+	if !ok {
+		return settings{}, kerr.New("BHLJNCIWUJ", nil, "Package not found")
+	}
+	set.aliases = p.Aliases
 
 	return set, nil
 }

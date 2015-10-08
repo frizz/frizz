@@ -10,8 +10,3 @@ type AsyncItem interface {
 	LoadContent() chan bool
 	ContentLoaded() bool
 }
-
-type root struct {
-}
-
-func (r *root) Initialise(div *dom.HTMLDivElement) {}

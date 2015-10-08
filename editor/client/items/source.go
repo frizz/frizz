@@ -11,12 +11,13 @@ import (
 )
 
 type source struct {
+	*item
 	name   string
 	loaded bool
 	label  *dom.HTMLDivElement
-	branch *tree.Branch
 	conn   *connection.Conn
 	pkg    *pkg
+	data   *data
 }
 
 var _ tree.Item = (*source)(nil)
@@ -62,12 +63,12 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 	}
 
 	n := &system.Node{}
-	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, s.pkg.path, s.pkg.aliases); err != nil {
+	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, s.tree.Path, s.tree.Aliases); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
 	child := &entry{index: -1, name: gr.Name.Value, node: n}
-	addEntryChildren(child, s.branch)
+	addNodeChildren(child.node, s.branch)
 
 	s.loaded = true
 	successChannel <- true
@@ -78,10 +79,18 @@ func (s *source) ContentLoaded() bool {
 	return s.loaded
 }
 
-func (p *pkg) addSource(name string, parent *tree.Branch) *source {
-	s := &source{name: name, pkg: p}
-	b := parent.Tree.Branch(s)
-	s.branch = b
-	parent.Append(b)
-	return s
+func (d *data) addSource(name string, parent *tree.Branch) *source {
+	newSource := &source{item: &item{tree: parent.Tree}, name: name, data: d, pkg: d.pkg}
+	newBranch := parent.Tree.Branch(newSource)
+	newSource.branch = newBranch
+
+	parent.Append(newBranch)
+
+	return newSource
+}
+
+func (d *data) addSources(sources []string) {
+	for _, name := range sources {
+		d.addSource(name, d.branch)
+	}
 }

@@ -14,30 +14,34 @@ import (
 	"kego.io/system"
 )
 
-func ScanForPackage(set settings) (map[string]string, error) {
-
-	aliases := map[string]string{}
+func ScanForPackage(set settings) error {
 
 	found := false
-	scanner := func(ob interface{}, source []byte, hash uint64) error {
+	var pkg *system.Package
+	var hash uint64
+	scanner := func(ob interface{}, source []byte, h uint64) error {
 		if p, ok := ob.(*system.Package); ok {
 			if found {
 				return kerr.New("NCUXDSPSDA", nil, "Found two package objects. Each package should only have one.")
 			}
-			if len(p.Global) > 0 {
-				return kerr.New("KTRWGUBEJB", nil, "Package json file should not contain 'global' field.")
-			}
-			for path, alias := range p.Import {
-				aliases[path] = alias
-			}
+			pkg = p
+			hash = h
 			found = true
 		}
 		return nil
 	}
 	if err := scanPath(true, true, scanner, set); err != nil {
-		return nil, err
+		return kerr.New("KOFQKHLSIT", err, "scanPath")
 	}
-	return aliases, nil
+	if pkg == nil {
+		pkg = &system.Package{
+			Object_base: &system.Object_base{
+				Type: system.NewReference("kego.io/system", "package"),
+			},
+		}
+	}
+	system.RegisterPackage(set.path, pkg, hash)
+	return nil
 }
 
 func ScanForGlobals(set settings) error {

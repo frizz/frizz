@@ -14,7 +14,9 @@ import (
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/js/console"
+	"kego.io/ke"
 	"kego.io/kerr"
+	"kego.io/system"
 )
 
 type appData struct {
@@ -45,6 +47,11 @@ func Start(path string) error {
 	app.aliases = info.Aliases
 	app.fail = make(chan error)
 
+	packageNode := &system.Node{}
+	if err := ke.UnmarshalNode([]byte(info.Package), packageNode, app.path, app.aliases); err != nil {
+		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
+	}
+
 	// We dial the websocket connection to the server
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))
 	if err != nil {
@@ -59,9 +66,8 @@ func Start(path string) error {
 
 	nav := body.GetElementsByClassName("mdl-navigation")[0]
 	// We create a new root tree element
-	t := tree.New(nav, app.conn)
-	p := items.AddPackage(app.path, app.aliases, t.Root)
-	p.AddSources(info.Sources)
+	t := tree.New(nav, app.conn, items.Root(), app.fail, app.path, app.aliases)
+	items.AddPackage(packageNode, t.Root, info.Sources)
 
 	go func() {
 		err, open := <-app.fail

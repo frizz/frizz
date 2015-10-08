@@ -24,6 +24,7 @@ import (
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
+	"kego.io/ke"
 	"kego.io/process"
 	"kego.io/system"
 )
@@ -31,6 +32,7 @@ import (
 type appData struct {
 	path    string
 	aliases map[string]string
+	pkg     *system.Package
 	verbose bool
 	fail    chan error
 }
@@ -41,11 +43,12 @@ func Start(path string, verbose bool) error {
 
 	app.path = path
 	app.verbose = verbose
-	aliases, err := initialise(path)
+	pkg, err := initialise(path)
 	if err != nil {
 		return kerr.New("SWSQDFXIEV", err, "initialise")
 	}
-	app.aliases = aliases
+	app.aliases = pkg.Aliases
+	app.pkg = pkg
 
 	if verbose {
 		fmt.Println("Starting editor server... ")
@@ -56,7 +59,7 @@ func Start(path string, verbose bool) error {
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
 	http.HandleFunc("/script.js", func(w http.ResponseWriter, req *http.Request) {
-		if err := script(w, req, path, aliases, false, &mapping); err != nil {
+		if err := script(w, req, path, false, &mapping); err != nil {
 			app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
 			return
 		}
@@ -69,7 +72,7 @@ func Start(path string, verbose bool) error {
 	//	}
 	//})
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if err := root(w, req, path, aliases); err != nil {
+		if err := root(w, req, app.pkg, app.path, app.aliases); err != nil {
 			app.fail <- kerr.New("QOMJGNOCQF", err, "root")
 			return
 		}
@@ -81,7 +84,7 @@ func Start(path string, verbose bool) error {
 		} else {
 			ws.PayloadType = 0x1 // string messages
 		}
-		c := connection.New(ws, app.fail, path, aliases)
+		c := connection.New(ws, app.fail, app.path, app.aliases)
 
 		sourceRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })
@@ -131,25 +134,28 @@ func getSource(in chan messages.Message, conn *connection.Conn) error {
 	}
 }
 
-func initialise(path string) (aliases map[string]string, err error) {
+func initialise(path string) (pkg *system.Package, err error) {
 	set, err := process.InitialiseManually(true, false, false, false, path)
 	if err != nil {
 		return nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
-	aliases, err = process.ScanForPackage(set)
-	if err != nil {
+	if err := process.ScanForPackage(set); err != nil {
 		return nil, kerr.New("ASQLIYWNLN", err, "process.ScanForPackage")
 	}
 	if err := process.ScanForTypes(false, set); err != nil {
 		return nil, kerr.New("BIVHXIAIKJ", err, "process.ScanForTypes")
 	}
-	if err = process.ScanForSource(set); err != nil {
+	if err := process.ScanForSource(set); err != nil {
 		return nil, kerr.New("DLUESVWHXO", err, "process.ScanForSource")
 	}
-	return aliases, nil
+	p, ok := system.GetPackage(path)
+	if !ok {
+		return nil, kerr.New("IHIYKRRYWL", nil, "package not found")
+	}
+	return p.Package, nil
 }
 
-func script(w http.ResponseWriter, req *http.Request, packagePath string, aliases map[string]string, mapper bool, mapping *[]byte) error {
+func script(w http.ResponseWriter, req *http.Request, packagePath string, mapper bool, mapping *[]byte) error {
 
 	options := &build.Options{CreateMapFile: true}
 	s := build.NewSession(options)
@@ -198,7 +204,7 @@ func script(w http.ResponseWriter, req *http.Request, packagePath string, aliase
 	return nil
 }
 
-func root(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string) error {
+func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path string, aliases map[string]string) error {
 
 	sources := system.GetAllSourceInPackage(path)
 
@@ -207,10 +213,16 @@ func root(w http.ResponseWriter, req *http.Request, path string, aliases map[str
 		names = append(names, hashed.Id.Name)
 	}
 
+	b, err := ke.MarshalContext(pkg, path, aliases)
+	if err != nil {
+		return kerr.New("OUBOTYGPKU", err, "MarshalContext")
+	}
+
 	info := shared.Info{
 		Path:    path,
 		Aliases: aliases,
 		Sources: names,
+		Package: string(b),
 	}
 	marshalled, err := json.Marshal(info)
 	if err != nil {
@@ -236,6 +248,7 @@ func root(w http.ResponseWriter, req *http.Request, path string, aliases map[str
 						margin-left: 15px;
 					}
 					.root {
+						margin-top: -10px;
 						margin-left: 20px;
 					}
 					.toggle {

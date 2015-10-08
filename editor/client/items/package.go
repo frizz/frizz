@@ -3,35 +3,39 @@ package items
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/tree"
+	"kego.io/system"
 )
 
 type pkg struct {
-	path    string
-	aliases map[string]string
-	label   *dom.HTMLDivElement
-	branch  *tree.Branch
+	*item
+	node  *system.Node
+	label *dom.HTMLDivElement
+	data  *data
 }
 
 var _ tree.Item = (*source)(nil)
 
 func (p *pkg) Initialise(div *dom.HTMLDivElement) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-	label.SetTextContent(p.path)
+	label.SetTextContent(p.tree.Path)
 	p.label = label
 	div.AppendChild(label)
 }
 
-func (p *pkg) AddSources(sources []string) {
-	for _, name := range sources {
-		p.addSource(name, p.branch)
-	}
-}
+func AddPackage(node *system.Node, parentBranch *tree.Branch, sources []string) *pkg {
+	newPackage := &pkg{item: &item{tree: parentBranch.Tree}, node: node}
+	newBranch := parentBranch.Tree.Branch(newPackage)
+	newPackage.branch = newBranch
 
-func AddPackage(path string, aliases map[string]string, parent *tree.Branch) *pkg {
-	p := &pkg{path: path, aliases: aliases}
-	b := parent.Tree.Branch(p)
-	p.branch = b
-	parent.Append(b)
-	b.Open()
-	return p
+	parentBranch.Append(newBranch)
+
+	addNodeChildren(node, newBranch)
+
+	newPackage.addData()
+
+	newPackage.data.addSources(sources)
+
+	newBranch.Open()
+
+	return newPackage
 }
