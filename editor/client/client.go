@@ -24,6 +24,7 @@ type appData struct {
 	aliases map[string]string
 	fail    chan error
 	conn    *connection.Conn
+	spinner *dom.HTMLDivElement
 }
 
 var app appData
@@ -64,6 +65,8 @@ func Start(path string) error {
 	app.conn = connection.New(s, app.fail, app.path, app.aliases)
 	go handle(app.conn.Receive)
 
+	app.spinner = body.GetElementsByClassName("mdl-spinner")[0].(*dom.HTMLDivElement)
+
 	nav := body.GetElementsByClassName("mdl-navigation")[0].(*dom.BasicHTMLElement)
 	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
 	// We create a new root tree element
@@ -86,6 +89,8 @@ func Start(path string) error {
 		}
 		app.conn.Close()
 	}()
+
+	app.spinner.Style().Set("display", "none")
 
 	return nil
 }

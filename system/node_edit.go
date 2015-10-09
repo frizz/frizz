@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"honnef.co/go/js/dom"
+	"kego.io/editor/mdl"
 	"kego.io/json"
 )
 
@@ -20,37 +21,36 @@ type NodeEditor struct {
 	initialized bool
 }
 
-func (e *NodeEditor) Initialize(content *dom.HTMLDivElement) {
-	if e.initialized {
-		return
-	}
-	e.panel = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-	// panel should be hidden by default
-	e.panel.Style().Set("display", "none")
+func (e *NodeEditor) Initialized() bool {
+	return e.initialized
+}
 
-	typeLabel := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-	typeLabel.SetTextContent(e.Type.Id.Value())
-	e.panel.AppendChild(typeLabel)
+func (e *NodeEditor) Initialize(panel *dom.HTMLDivElement) {
 
+	e.panel = panel
+
+	/*
+		if e.Key != "" {
+			nameLabel := dom.GetWindow().Document().CreateElement("h1").(*dom.HTMLHeadingElement)
+			nameLabel.SetTextContent(e.Key)
+			e.panel.AppendChild(nameLabel)
+		}
+
+		typeLabel := dom.GetWindow().Document().CreateElement("h2").(*dom.HTMLHeadingElement)
+		typeLabel.SetTextContent(e.Type.Id.Value())
+		e.panel.AppendChild(typeLabel)
+	*/
 	switch e.JsonType {
 	case json.J_STRING:
-		e.input = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
-		e.input.Type = "text"
-		e.input.Value = e.ValueString
-		e.panel.AppendChild(e.input)
+		tb := mdl.NewTextbox("textbox1", e.ValueString, e.Node.Key)
+		e.panel.AppendChild(tb)
 	case json.J_NUMBER:
-		e.input = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
-		e.input.Type = "text"
-		e.input.Value = strconv.FormatFloat(e.ValueNumber, 'f', -1, 64)
-		e.panel.AppendChild(e.input)
+		tb := mdl.NewTextbox("textbox1", strconv.FormatFloat(e.ValueNumber, 'f', -1, 64), e.Node.Key)
+		e.panel.AppendChild(tb)
 	case json.J_BOOL:
-		e.input = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
-		e.input.Type = "checkbox"
-		e.input.Checked = e.ValueBool
-		e.panel.AppendChild(e.input)
+		cb := mdl.NewCheckbox("checkbox1", e.ValueBool, e.Node.Key)
+		e.panel.AppendChild(cb)
 	}
-
-	content.AppendChild(e.panel)
 
 	e.initialized = true
 }

@@ -39,12 +39,21 @@ func TestTree(t *testing.T) {
 
 func TestTree2(t *testing.T) {
 	tree := New(nil, nil, nil, nil, nil, "", map[string]string{})
-	a := tree.Root.Append(tree.Branch(&dummy{"a"})).Open()
-	a.Append(tree.Branch(&dummy{"b"})).Open().
-		Append(tree.Branch(&dummy{"c"})).Open().
-		Append(tree.Branch(&dummy{"d"})).Open()
 
-	tree.Root.Append(tree.Branch(&dummy{"e"})).Open()
+	a := tree.Root.Append(tree.Branch(&dummy{"a"}))
+	a.Open()
+
+	b := a.Append(tree.Branch(&dummy{"b"}))
+	b.Open()
+
+	c := b.Append(tree.Branch(&dummy{"c"}))
+	c.Open()
+
+	d := c.Append(tree.Branch(&dummy{"d"}))
+	d.Open()
+
+	e := tree.Root.Append(tree.Branch(&dummy{"e"}))
+	e.Open()
 
 	test(t, "1a2b3c4d1e", tree)
 	a.Close()

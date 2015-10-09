@@ -44,14 +44,18 @@ func (b *Branch) Append(child *Branch) *Branch {
 		opener := dom.GetWindow().Document().CreateElement("a").(*dom.HTMLAnchorElement)
 		opener.SetAttribute("class", "toggle")
 		opener.AddEventListener("click", true, func(e dom.Event) {
-			child.Toggle()
+			if child.canOpen() {
+				child.Toggle()
+			} else {
+				child.Select(false)
+			}
 		})
 
 		contentDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 		contentDiv.SetAttribute("class", "content")
 
 		contentDiv.AddEventListener("click", true, func(e dom.Event) {
-			child.Select(true)
+			child.Select(false)
 		})
 
 		innerDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
@@ -79,32 +83,103 @@ func (b *Branch) Append(child *Branch) *Branch {
 	return child
 }
 
-func (b *Branch) Select(state bool) {
+func (b *Branch) Select(fromKeyboard bool) {
 
-	if state {
-		if b.Tree.selected != nil {
-			b.Tree.selected.Select(false)
-		}
-		b.content.Class().Add("selected")
-		b.Tree.selected = b
-		b.selected = true
+	if b.Tree.selected != nil {
+		b.Tree.selected.Unselect()
+	}
+	b.content.Class().Add("selected")
+	b.Tree.selected = b
+	b.selected = true
 
-		if b.isAsyncAndNotLoaded() {
-			// wait 50ms before showing the edit panel so we don't
-			// spam lots of requests if we scroll quickly
-			go func() {
-				time.Sleep(time.Millisecond * 50)
-				if b.selected {
-					b.showEditPanel()
-				}
-			}()
-		} else {
-			b.showEditPanel()
-		}
+	alsoOpenNode := !fromKeyboard && b.canOpen() && !b.open
 
+	if fromKeyboard && b.isAsyncAndNotLoaded() {
+		// wait 50ms before showing the edit panel so we don't generate
+		// lots of content load requests if we scroll quickly. We only
+		// do this for keyboard events.
+		go func() {
+			time.Sleep(time.Millisecond * 50)
+			if b.selected {
+				b.showEditPanel(alsoOpenNode)
+			}
+		}()
+	} else {
+		b.showEditPanel(alsoOpenNode)
+	}
+
+	return
+}
+
+func (b *Branch) showEditPanel(alsoOpenNode bool) {
+
+	if b.root {
 		return
 	}
 
+	if b.editor != nil && b.Tree.editor != nil && b.editor == b.Tree.editor {
+		return
+	}
+
+	if b.Tree.editor != nil {
+		b.Tree.editor.Hide()
+		b.Tree.editor = nil
+	}
+
+	done, ok := b.ensureContentLoaded()
+
+	if !ok {
+		// if the operation should be cancelled, we should return immediately
+		return
+	}
+
+	success := func() {
+		if b.editor == nil {
+			hn, ok := b.item.(HasNode)
+			if !ok {
+				return
+			}
+			n := hn.Node()
+			he, ok := n.Value.(system.HasEditor)
+			if ok {
+				b.editor = he.GetEditor(n)
+			} else {
+				b.editor = n.GetEditor()
+			}
+
+		}
+		if !b.editor.Initialized() {
+			panel := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+			panel.Style().Set("display", "none")
+			panel.Class().SetString("mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid")
+			b.Tree.content.AppendChild(panel)
+			b.editor.Initialize(panel)
+		}
+		if b.Tree.editor != nil {
+			b.Tree.editor.Hide()
+		}
+		b.editor.Show()
+		b.Tree.editor = b.editor
+
+		if alsoOpenNode {
+			b.Open()
+		}
+	}
+
+	if done == nil {
+		// if the done chanel is nil, the operation was synchronous, so we should call success synchronously
+		success()
+	} else {
+		go func() {
+			// block and wait until the response arrives
+			<-done
+			success()
+		}()
+	}
+	return
+}
+
+func (b *Branch) Unselect() {
 	// un-select
 	b.content.Class().Remove("selected")
 	b.Tree.selected = nil
@@ -122,94 +197,74 @@ func (b *Branch) Each(f func(*Branch) error) error {
 	return nil
 }
 
-func (b *Branch) showEditPanel() {
+func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 
-	if b.root {
-		return
-	}
-
-	if b.editor != nil && b.Tree.editor != nil && b.editor == b.Tree.editor {
-		return
-	}
-
-	if b.Tree.editor != nil {
-		b.Tree.editor.Hide()
-		b.Tree.editor = nil
-	}
-
-	b.ensureContentLoaded(func() {
-		if b.editor == nil {
-			hn, ok := b.item.(HasNode)
-			if !ok {
-				return
-			}
-			n := hn.Node()
-			he, ok := n.Value.(system.HasEditor)
-			if ok {
-				b.editor = he.GetEditor(n)
-			} else {
-				b.editor = n.GetEditor()
-			}
-
-		}
-		b.editor.Initialize(b.Tree.content)
-		if b.Tree.editor != nil {
-			b.Tree.editor.Hide()
-		}
-		b.editor.Show()
-		b.Tree.editor = b.editor
-	})
-
-	return
-}
-
-func (b *Branch) ensureContentLoaded(afterLoad func()) {
+	done = make(chan bool, 1)
 
 	if async, ok := b.item.(AsyncItem); ok && !async.ContentLoaded() {
 
 		if b.loading {
 			// if we're already in the process of loading the contents, we should
 			// cancel the operation
-			return
+			return nil, false
 		}
 
 		// load content asynchronously
 		b.loading = true
-		successChannel := async.LoadContent()
+		responseChannel := async.LoadContent()
+
 		go func() {
-			<-successChannel
-			afterLoad()
+			<-responseChannel
+			b.loading = false
+			done <- true
 		}()
 
-	} else {
+		return done, true
 
+	} else {
 		// if item is not async or content is already loaded, just
 		// open the node.
-		afterLoad()
+		return nil, true
 	}
 }
 
-func (b *Branch) Open() *Branch {
+func (b *Branch) Open() {
 
 	if b.root {
-		return b
+		return
 	}
 
-	b.ensureContentLoaded(func() {
+	done, ok := b.ensureContentLoaded()
+
+	if !ok {
+		// if the operation should be cancelled, we should return immediately
+		return
+	}
+
+	success := func() {
 		if b.inner != nil {
 			b.inner.Style().Set("display", "block")
 		}
 		b.open = true
-		b.loading = false
 		b.afterStateChange()
-	})
+	}
 
-	return b
+	if done == nil {
+		// if the done chanel is nil, the operation was synchronous, so we should call success synchronously
+		success()
+	} else {
+		go func() {
+			// block and wait until the response arrives
+			<-done
+			success()
+		}()
+	}
+	return
 }
 
-func (b *Branch) Close() *Branch {
+func (b *Branch) Close() {
 	if b.root {
-		return b
+		return
 	}
 	if b.inner != nil {
 		b.inner.Style().Set("display", "none")
@@ -217,14 +272,14 @@ func (b *Branch) Close() *Branch {
 	b.open = false
 	b.loading = false
 	b.afterStateChange()
-	return b
+	return
 }
 
-func (b *Branch) Toggle() *Branch {
+func (b *Branch) Toggle() {
 	if b.open {
-		return b.Close()
+		b.Close()
 	} else {
-		return b.Open()
+		b.Open()
 	}
 }
 
@@ -237,7 +292,7 @@ func (b *Branch) afterStateChange() {
 	}
 	if b.Tree.selected != nil && !b.Tree.selected.IsVisible() {
 		// if the selected branch is now invisible, we should un-select it.
-		b.Tree.selected.Select(false)
+		b.Tree.selected.Unselect()
 	}
 }
 

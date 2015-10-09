@@ -38,12 +38,12 @@ func (s *source) Initialise(div *dom.HTMLDivElement) {
 
 func (s *source) LoadContent() chan bool {
 
-	successChannel := make(chan bool)
+	successChannel := make(chan bool, 1)
 
 	if s.loaded {
 		// if the data is already loaded, we return the success channel
 		// and immediately signal it. This has to be done with a goroutine.
-		go func() { successChannel <- true }()
+		successChannel <- true
 		return successChannel
 	}
 

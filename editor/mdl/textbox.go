@@ -1,0 +1,36 @@
+package mdl
+
+import (
+	"github.com/gopherjs/gopherjs/js"
+	"honnef.co/go/js/dom"
+)
+
+type Textbox struct {
+	*dom.HTMLDivElement
+	Input *dom.HTMLInputElement
+	Label *dom.HTMLLabelElement
+}
+
+func NewTextbox(id string, value string, label string) *Textbox {
+	t := &Textbox{}
+	t.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+	t.Class().SetString("mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
+
+	t.Input = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
+	t.Input.Class().Add("mdl-textfield__input")
+	t.Input.SetID(id)
+	t.Input.Type = "text"
+	t.Input.Value = value
+
+	t.AppendChild(t.Input)
+
+	t.Label = dom.GetWindow().Document().CreateElement("label").(*dom.HTMLLabelElement)
+	t.Label.Class().Add("mdl-textfield__label")
+	t.Label.For = id
+	t.Label.SetTextContent(label)
+	t.AppendChild(t.Label)
+
+	js.Global.Get("componentHandler").Call("upgradeElement", t)
+
+	return t
+}

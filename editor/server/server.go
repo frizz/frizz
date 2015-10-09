@@ -235,9 +235,8 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 			<head>
 				<meta charset="utf-8">
 
-				<link rel="stylesheet"
-					href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.indigo-pink.min.css">
-				<script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js"></script>
+				<link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.indigo-pink.min.css">
+				<script src="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.min.js"></script>
 				<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
@@ -269,15 +268,21 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 					.content.selected {
 						background-color: #eeeeee;
 					}
+					.mdl-spinner {
+						position: absolute;
+						left: 50%;
+						top: 50%;
+					}
 				</style>
 			</head>
 			<body id="body" info="` + attribute + `">
+				<div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
 				<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
 					<div class="mdl-layout__drawer">
 						<span class="mdl-layout-title"></span>
 						<nav class="mdl-navigation"></nav>
 					</div>
-					<main class="mdl-layout__content">
+					<main class="mdl-layout__content mdl-color--grey-100">
 						<div class="page-content"></div>
 					</main>
 				</div>
