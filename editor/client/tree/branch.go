@@ -92,8 +92,6 @@ func (b *Branch) Select(fromKeyboard bool) {
 	b.Tree.selected = b
 	b.selected = true
 
-	alsoOpenNode := !fromKeyboard && b.canOpen() && !b.open
-
 	if fromKeyboard && b.isAsyncAndNotLoaded() {
 		// wait 50ms before showing the edit panel so we don't generate
 		// lots of content load requests if we scroll quickly. We only
@@ -101,17 +99,17 @@ func (b *Branch) Select(fromKeyboard bool) {
 		go func() {
 			time.Sleep(time.Millisecond * 50)
 			if b.selected {
-				b.showEditPanel(alsoOpenNode)
+				b.showEditPanel(fromKeyboard)
 			}
 		}()
 	} else {
-		b.showEditPanel(alsoOpenNode)
+		b.showEditPanel(fromKeyboard)
 	}
 
 	return
 }
 
-func (b *Branch) showEditPanel(alsoOpenNode bool) {
+func (b *Branch) showEditPanel(fromKeyboard bool) {
 
 	if b.root {
 		return
@@ -161,7 +159,8 @@ func (b *Branch) showEditPanel(alsoOpenNode bool) {
 		b.editor.Show()
 		b.Tree.editor = b.editor
 
-		if alsoOpenNode {
+		if !fromKeyboard && b.canOpen() && !b.open {
+			// if we clicked on an item, and it's not open, we should open it
 			b.Open()
 		}
 	}

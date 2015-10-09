@@ -1,6 +1,9 @@
 package system
 
-import "honnef.co/go/js/dom"
+import (
+	"honnef.co/go/js/dom"
+	"kego.io/editor/mdl"
+)
 
 type HasEditor interface {
 	GetEditor(node *Node) Editor
@@ -38,18 +41,16 @@ func (s *StringEditor) Initialize(panel *dom.HTMLDivElement) {
 
 	s.panel = panel
 
-	/*
-		<div class="mdl-textfield mdl-js-textfield">
-			<input class="mdl-textfield__input" type="text" id="sample1" />
-			<label class="mdl-textfield__label" for="sample1">Text...</label>
-		  </div>
-	*/
+	cb := mdl.NewCheckbox("checkbox1", s.Exists, "Exists")
+	s.panel.AppendChild(cb)
 
-	s.textbox = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
-	s.textbox.Type = "text"
-	s.textbox.Value = s.Value
+	tb := mdl.NewTextbox("textbox1", s.Value, s.node.Key)
+	s.panel.AppendChild(tb)
 
-	s.panel.AppendChild(s.textbox)
+	cb.Input.AddEventListener("change", true, func(e dom.Event) {
+		tb.SetDisabled(!cb.Input.Checked)
+	})
+
 	s.initialized = true
 }
 

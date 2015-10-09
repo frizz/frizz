@@ -34,3 +34,15 @@ func NewTextbox(id string, value string, label string) *Textbox {
 
 	return t
 }
+
+func (t *Textbox) SetDisabled(state bool) {
+	//console.Log("setting disabled", state)
+	if state {
+		t.Input.Disabled = true
+		t.Class().Add("is-disabled")
+	} else {
+		t.Input.Disabled = false
+		t.Class().Remove("is-disabled")
+	}
+	js.Global.Get("componentHandler").Call("upgradeElement", t)
+}
