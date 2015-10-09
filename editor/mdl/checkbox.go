@@ -11,7 +11,10 @@ type Checkbox struct {
 	Span  *dom.HTMLSpanElement
 }
 
-func NewCheckbox(id string, value bool, label string) *Checkbox {
+func NewCheckbox(value bool, label string) *Checkbox {
+
+	id := randomId()
+
 	c := &Checkbox{}
 	c.HTMLLabelElement = dom.GetWindow().Document().CreateElement("label").(*dom.HTMLLabelElement)
 	c.Class().SetString("mdl-switch mdl-js-switch mdl-js-ripple-effect")

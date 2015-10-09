@@ -124,7 +124,7 @@ func getSource(in chan messages.Message, conn *connection.Conn) error {
 		if !ok {
 			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.sourceRequest", m)
 		}
-		hashed, ok := system.GetSource(app.path, request.Name.Value)
+		hashed, ok := system.GetSource(system.NewReference(app.path, request.Name.Value))
 		data := ""
 		if ok {
 			data = string(hashed.Source)
@@ -208,9 +208,14 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 
 	sources := system.GetAllSourceInPackage(path)
 
-	names := []string{}
+	data := []string{}
+	types := []string{}
 	for _, hashed := range sources {
-		names = append(names, hashed.Id.Name)
+		if hashed.Type == system.NewReference("kego.io/system", "type") {
+			types = append(types, hashed.Id.Name)
+		} else {
+			data = append(data, hashed.Id.Name)
+		}
 	}
 
 	b, err := ke.MarshalContext(pkg, path, aliases)
@@ -221,7 +226,8 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 	info := shared.Info{
 		Path:    path,
 		Aliases: aliases,
-		Sources: names,
+		Data:    data,
+		Types:   types,
 		Package: string(b),
 	}
 	marshalled, err := json.Marshal(info)

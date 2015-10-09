@@ -17,7 +17,7 @@ func (s String) GetEditor(node *Node) Editor {
 
 type Editor interface {
 	Initialized() bool
-	Initialize(*dom.HTMLDivElement)
+	Initialize(*dom.HTMLDivElement, string, map[string]string) error
 	Update()
 	Show()
 	Hide()
@@ -31,38 +31,43 @@ type StringEditor struct {
 	panel       *dom.HTMLDivElement
 	textbox     *dom.HTMLInputElement
 	initialized bool
+	path        string
+	aliases     map[string]string
 }
 
-func (s *StringEditor) Initialized() bool {
-	return s.initialized
+func (e *StringEditor) Initialized() bool {
+	return e.initialized
 }
 
-func (s *StringEditor) Initialize(panel *dom.HTMLDivElement) {
+func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
 
-	s.panel = panel
+	e.panel = panel
+	e.path = path
+	e.aliases = aliases
 
-	cb := mdl.NewCheckbox("checkbox1", s.Exists, "Exists")
-	s.panel.AppendChild(cb)
+	cb := mdl.NewCheckbox(e.Exists, "Exists")
+	e.panel.AppendChild(cb)
 
-	tb := mdl.NewTextbox("textbox1", s.Value, s.node.Key)
-	s.panel.AppendChild(tb)
+	tb := mdl.NewTextbox(e.Value, e.node.Key)
+	e.panel.AppendChild(tb)
 
 	cb.Input.AddEventListener("change", true, func(e dom.Event) {
 		tb.SetDisabled(!cb.Input.Checked)
 	})
 
-	s.initialized = true
+	e.initialized = true
+	return nil
 }
 
-func (s *StringEditor) Show() {
-	s.panel.Style().Set("display", "block")
+func (e *StringEditor) Show() {
+	e.panel.Style().Set("display", "block")
 }
-func (s *StringEditor) Hide() {
-	s.panel.Style().Set("display", "none")
+func (e *StringEditor) Hide() {
+	e.panel.Style().Set("display", "none")
 }
 
-func (s *StringEditor) Update() {
-	if s.Exists {
-		s.node.ValueString = s.textbox.Value
+func (e *StringEditor) Update() {
+	if e.Exists {
+		e.node.ValueString = e.textbox.Value
 	}
 }

@@ -132,6 +132,12 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 	}
 
 	success := func() {
+
+		if !fromKeyboard && b.canOpen() && !b.open {
+			// if we clicked on an item, and it's not open, we should open it
+			b.Open()
+		}
+
 		if b.editor == nil {
 			hn, ok := b.item.(HasNode)
 			if !ok {
@@ -144,14 +150,20 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 			} else {
 				b.editor = n.GetEditor()
 			}
-
+		}
+		if b.editor == nil {
+			return
 		}
 		if !b.editor.Initialized() {
 			panel := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 			panel.Style().Set("display", "none")
 			panel.Class().SetString("mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid")
 			b.Tree.content.AppendChild(panel)
-			b.editor.Initialize(panel)
+			if err := b.editor.Initialize(panel, b.Tree.Path, b.Tree.Aliases); err != nil {
+				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
+				return
+			}
+
 		}
 		if b.Tree.editor != nil {
 			b.Tree.editor.Hide()
@@ -159,10 +171,6 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 		b.editor.Show()
 		b.Tree.editor = b.editor
 
-		if !fromKeyboard && b.canOpen() && !b.open {
-			// if we clicked on an item, and it's not open, we should open it
-			b.Open()
-		}
 	}
 
 	if done == nil {

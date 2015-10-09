@@ -71,7 +71,7 @@ func Start(path string) error {
 	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
 	// We create a new root tree element
 	t := tree.New(nav, content, app.conn, items.Root(), app.fail, app.path, app.aliases)
-	items.AddPackage(packageNode, t.Root, info.Sources)
+	items.AddPackage(packageNode, t.Root, info.Data, info.Types)
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {
 		t.KeyboardEvent(e.(*dom.KeyboardEvent))

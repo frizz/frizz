@@ -11,7 +11,10 @@ type Textbox struct {
 	Label *dom.HTMLLabelElement
 }
 
-func NewTextbox(id string, value string, label string) *Textbox {
+func NewTextbox(value string, label string) *Textbox {
+
+	id := randomId()
+
 	t := &Textbox{}
 	t.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	t.Class().SetString("mdl-textfield mdl-js-textfield mdl-textfield--floating-label")

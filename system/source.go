@@ -14,37 +14,37 @@ var sourceRegistry struct {
 
 type SourceHashed struct {
 	Id     Reference
+	Type   Reference
 	Source []byte
 	Hash   uint64
 }
 
-func RegisterSource(path string, name string, source []byte, hash uint64) error {
+func RegisterSource(id Reference, typ Reference, source []byte, hash uint64) error {
 	sourceRegistry.Lock()
 	defer sourceRegistry.Unlock()
 	if sourceRegistry.m == nil {
 		sourceRegistry.m = make(map[Reference]SourceHashed)
 	}
-	r := NewReference(path, name)
-	if h, found := sourceRegistry.m[r]; found && h.Hash != hash {
-		return kerr.New("ANBTDVMCYE", nil, "Source %s already exists", r.String())
+	if h, found := sourceRegistry.m[id]; found && h.Hash != hash {
+		return kerr.New("ANBTDVMCYE", nil, "Source %s already exists", id.String())
 	}
-	sourceRegistry.m[r] = SourceHashed{r, source, hash}
+	sourceRegistry.m[id] = SourceHashed{id, typ, source, hash}
 	return nil
 }
 
-func UnregisterSource(path string, name string) {
+func UnregisterSource(id Reference) {
 	sourceRegistry.Lock()
 	defer sourceRegistry.Unlock()
 	if sourceRegistry.m == nil {
 		return
 	}
-	delete(sourceRegistry.m, NewReference(path, name))
+	delete(sourceRegistry.m, id)
 }
 
-func GetSource(path string, name string) (hashed SourceHashed, found bool) {
+func GetSource(id Reference) (hashed SourceHashed, found bool) {
 	sourceRegistry.RLock()
 	defer sourceRegistry.RUnlock()
-	hashed, found = sourceRegistry.m[NewReference(path, name)]
+	hashed, found = sourceRegistry.m[id]
 	return
 }
 

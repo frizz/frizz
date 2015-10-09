@@ -89,7 +89,7 @@ func ScanForSource(set settings) error {
 			// Anything without an ID is not a global
 			return nil
 		}
-		if err := system.RegisterSource(b.Id.Package, b.Id.Name, source, hash); err != nil {
+		if err := system.RegisterSource(b.Id, b.Type, source, hash); err != nil {
 			return kerr.New("DFDDLHNYUW", err, "system.RegisterSource")
 		}
 		return nil

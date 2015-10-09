@@ -18,7 +18,7 @@ type source struct {
 	label  *dom.HTMLDivElement
 	conn   *connection.Conn
 	pkg    *pkg
-	data   *data
+	data   *holder
 }
 
 var _ tree.Item = (*source)(nil)
@@ -86,7 +86,7 @@ func (s *source) ContentLoaded() bool {
 	return s.loaded
 }
 
-func (d *data) addSource(name string, parent *tree.Branch) *source {
+func (d *holder) addSource(name string, parent *tree.Branch) *source {
 	newSource := &source{item: &item{tree: parent.Tree}, name: name, data: d, pkg: d.pkg}
 	newBranch := parent.Tree.Branch(newSource)
 	newSource.branch = newBranch
@@ -96,7 +96,7 @@ func (d *data) addSource(name string, parent *tree.Branch) *source {
 	return newSource
 }
 
-func (d *data) addSources(sources []string) {
+func (d *holder) addSources(sources []string) {
 	for _, name := range sources {
 		d.addSource(name, d.branch)
 	}

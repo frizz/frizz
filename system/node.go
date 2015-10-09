@@ -7,8 +7,9 @@ import (
 
 type Node struct {
 	Parent      *Node
-	Key         string
-	Index       int
+	Key         string    // in an object or a map, this is the key
+	Index       int       // in an array, this is the index
+	Origin      Reference // in an object, this is the type that the field originated from
 	ValueString string
 	ValueNumber float64
 	ValueBool   bool
@@ -24,7 +25,7 @@ type Node struct {
 }
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
-	if err := n.extract(nil, "", -1, in, true, nil, path, aliases); err != nil {
+	if err := n.extract(nil, "", -1, Reference{}, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "get (read)")
 	}
 	return nil
@@ -32,7 +33,7 @@ func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, exists bool, rule *RuleHolder, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, origin Reference, in json.Unpackable, exists bool, rule *RuleHolder, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
@@ -44,11 +45,14 @@ func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, 
 	n.Index = index
 	n.Rule = rule
 	n.Type = objectType
-	n.Null = in == nil || in.UpType() == json.J_NULL
 	n.Missing = !exists
-	if !n.Null {
+	n.Origin = origin
+	if in != nil {
 		n.JsonType = in.UpType()
+	} else {
+		n.JsonType = json.J_NULL
 	}
+	n.Null = n.JsonType == json.J_NULL
 
 	if rule == nil {
 		if err := json.Unpack(in, &n.Value, path, aliases); err != nil {
@@ -108,7 +112,7 @@ func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, 
 		}
 		for i, child := range in.UpArray() {
 			childNode := &Node{}
-			if err := childNode.extract(n, "", i, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, "", i, Reference{}, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -128,7 +132,7 @@ func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, 
 		n.Map = map[string]*Node{}
 		for name, child := range in.UpMap() {
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, Reference{}, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -143,19 +147,19 @@ func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, 
 		}
 		n.Fields = map[string]*Node{}
 
-		fields := map[string]Rule{}
+		fields := map[string]*Field{}
 		if err := extractFields(fields, n.Type); err != nil {
 			return kerr.New("LPWTOSATQE", err, "extractFields (%s)", n.Type.Id.Value())
 		}
 
-		for name, r := range fields {
-			rule, err := NewRuleHolder(r)
+		for name, f := range fields {
+			rule, err := NewRuleHolder(f.Rule)
 			if err != nil {
 				return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 			}
 			child, ok := m[name]
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, child, ok, rule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, f.Origin, child, ok, rule, path, aliases); err != nil {
 				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
 			n.Fields[name] = childNode
@@ -168,6 +172,11 @@ func (n *Node) extract(parent *Node, key string, index int, in json.Unpackable, 
 		}
 	}
 	return nil
+}
+
+type Field struct {
+	Rule   Rule
+	Origin Reference
 }
 
 func extractType(in json.Unpackable, rule *RuleHolder, path string, aliases map[string]string) (*Type, error) {
@@ -198,7 +207,7 @@ func extractType(in json.Unpackable, rule *RuleHolder, path string, aliases map[
 
 }
 
-func extractFields(fields map[string]Rule, t *Type) error {
+func extractFields(fields map[string]*Field, t *Type) error {
 
 	getType := func(r Reference) (*Type, error) {
 		g, ok := GetGlobal(r.Package, r.Name)
@@ -247,7 +256,7 @@ func extractFields(fields map[string]Rule, t *Type) error {
 		if _, ok := fields[name]; ok {
 			return kerr.New("BARXPFXQNB", nil, "Duplicate field %s", name)
 		}
-		fields[name] = rule
+		fields[name] = &Field{rule, t.Id}
 	}
 	return nil
 }
