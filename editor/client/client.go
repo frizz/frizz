@@ -64,9 +64,10 @@ func Start(path string) error {
 	app.conn = connection.New(s, app.fail, app.path, app.aliases)
 	go handle(app.conn.Receive)
 
-	nav := body.GetElementsByClassName("mdl-navigation")[0]
+	nav := body.GetElementsByClassName("mdl-navigation")[0].(*dom.BasicHTMLElement)
+	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
 	// We create a new root tree element
-	t := tree.New(nav, app.conn, items.Root(), app.fail, app.path, app.aliases)
+	t := tree.New(nav, content, app.conn, items.Root(), app.fail, app.path, app.aliases)
 	items.AddPackage(packageNode, t.Root, info.Sources)
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {

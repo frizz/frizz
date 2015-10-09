@@ -13,7 +13,12 @@ type pkg struct {
 	data  *data
 }
 
-var _ tree.Item = (*source)(nil)
+var _ tree.Item = (*pkg)(nil)
+var _ tree.HasNode = (*pkg)(nil)
+
+func (p *pkg) Node() *system.Node {
+	return p.node
+}
 
 func (p *pkg) Initialise(div *dom.HTMLDivElement) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)

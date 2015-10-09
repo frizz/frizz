@@ -13,8 +13,8 @@ import (
 	"kego.io/system"
 )
 
-// Messages are all localhost so we shouldn't need more than 100ms timeout.
-var TIMEOUT = time.Millisecond * 100
+// Messages are all localhost so we shouldn't need more than 200ms timeout.
+var TIMEOUT = time.Millisecond * 200
 
 // Pass messages as strings makes debugging easier. Perhaps binary in production?
 var MESSAGE_TYPE = M_STRING

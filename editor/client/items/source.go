@@ -12,6 +12,7 @@ import (
 
 type source struct {
 	*item
+	node   *system.Node
 	name   string
 	loaded bool
 	label  *dom.HTMLDivElement
@@ -22,6 +23,11 @@ type source struct {
 
 var _ tree.Item = (*source)(nil)
 var _ tree.AsyncItem = (*source)(nil)
+var _ tree.HasNode = (*source)(nil)
+
+func (s *source) Node() *system.Node {
+	return s.node
+}
 
 func (s *source) Initialise(div *dom.HTMLDivElement) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
@@ -67,8 +73,9 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.Message, succ
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
-	child := &entry{index: -1, name: gr.Name.Value, node: n}
-	addNodeChildren(child.node, s.branch)
+	s.node = n
+
+	addNodeChildren(n, s.branch)
 
 	s.loaded = true
 	successChannel <- true

@@ -21,7 +21,7 @@ func (i *dummy) Initialise(div *dom.HTMLDivElement) {
 var _ = Item(&dummy{})
 
 func TestTree(t *testing.T) {
-	tree := New(nil, nil, nil, nil, "", map[string]string{})
+	tree := New(nil, nil, nil, nil, nil, "", map[string]string{})
 	a := tree.Root.Append(tree.Branch(&dummy{"a"}))
 	b := tree.Root.Append(tree.Branch(&dummy{"b"}))
 	test(t, "1a1b", tree)
@@ -38,7 +38,7 @@ func TestTree(t *testing.T) {
 }
 
 func TestTree2(t *testing.T) {
-	tree := New(nil, nil, nil, nil, "", map[string]string{})
+	tree := New(nil, nil, nil, nil, nil, "", map[string]string{})
 	a := tree.Root.Append(tree.Branch(&dummy{"a"})).Open()
 	a.Append(tree.Branch(&dummy{"b"})).Open().
 		Append(tree.Branch(&dummy{"c"})).Open().

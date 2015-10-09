@@ -1,8 +1,11 @@
 package tree // import "kego.io/editor/client/tree"
 
 import (
+	"time"
+
 	"honnef.co/go/js/dom"
 	"kego.io/kerr"
+	"kego.io/system"
 )
 
 type Branch struct {
@@ -16,13 +19,14 @@ type Branch struct {
 	next     *Branch
 	prev     *Branch
 	open     bool
-	opening  bool
+	loading  bool
 	level    int
 	element  *dom.HTMLDivElement
 	opener   *dom.HTMLAnchorElement
 	inner    *dom.HTMLDivElement
 	content  *dom.HTMLDivElement
 	selected bool
+	editor   system.Editor
 }
 
 func (b *Branch) Initialise() {
@@ -52,6 +56,8 @@ func (b *Branch) Append(child *Branch) *Branch {
 
 		innerDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 		innerDiv.SetAttribute("class", "children")
+		// children should be hidden by default
+		innerDiv.Style().Set("display", "none")
 
 		nodeDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 		nodeDiv.SetAttribute("class", "node")
@@ -82,6 +88,20 @@ func (b *Branch) Select(state bool) {
 		b.content.Class().Add("selected")
 		b.Tree.selected = b
 		b.selected = true
+
+		if b.isAsyncAndNotLoaded() {
+			// wait 50ms before showing the edit panel so we don't
+			// spam lots of requests if we scroll quickly
+			go func() {
+				time.Sleep(time.Millisecond * 50)
+				if b.selected {
+					b.showEditPanel()
+				}
+			}()
+		} else {
+			b.showEditPanel()
+		}
+
 		return
 	}
 
@@ -102,41 +122,87 @@ func (b *Branch) Each(f func(*Branch) error) error {
 	return nil
 }
 
-func (b *Branch) Open() *Branch {
+func (b *Branch) showEditPanel() {
+
 	if b.root {
-		return b
+		return
 	}
 
-	if b.opening {
-		// if we're already in the process of opening the node, we should cancel the open operation
-		return b
+	if b.editor != nil && b.Tree.editor != nil && b.editor == b.Tree.editor {
+		return
 	}
 
-	opened := func() {
-		if b.inner != nil {
-			b.inner.Style().Set("display", "block")
+	if b.Tree.editor != nil {
+		b.Tree.editor.Hide()
+		b.Tree.editor = nil
+	}
+
+	b.ensureContentLoaded(func() {
+		if b.editor == nil {
+			hn, ok := b.item.(HasNode)
+			if !ok {
+				return
+			}
+			n := hn.Node()
+			he, ok := n.Value.(system.HasEditor)
+			if ok {
+				b.editor = he.GetEditor(n)
+			} else {
+				b.editor = n.GetEditor()
+			}
+
 		}
-		b.open = true
-		b.opening = false
-		b.afterStateChange()
-	}
+		b.editor.Initialize(b.Tree.content)
+		if b.Tree.editor != nil {
+			b.Tree.editor.Hide()
+		}
+		b.editor.Show()
+		b.Tree.editor = b.editor
+	})
+
+	return
+}
+
+func (b *Branch) ensureContentLoaded(afterLoad func()) {
 
 	if async, ok := b.item.(AsyncItem); ok && !async.ContentLoaded() {
 
+		if b.loading {
+			// if we're already in the process of loading the contents, we should
+			// cancel the operation
+			return
+		}
+
 		// load content asynchronously
-		b.opening = true
+		b.loading = true
 		successChannel := async.LoadContent()
 		go func() {
 			<-successChannel
-			opened()
+			afterLoad()
 		}()
 
 	} else {
 
 		// if item is not async or content is already loaded, just
 		// open the node.
-		opened()
+		afterLoad()
 	}
+}
+
+func (b *Branch) Open() *Branch {
+
+	if b.root {
+		return b
+	}
+
+	b.ensureContentLoaded(func() {
+		if b.inner != nil {
+			b.inner.Style().Set("display", "block")
+		}
+		b.open = true
+		b.loading = false
+		b.afterStateChange()
+	})
 
 	return b
 }
@@ -149,7 +215,7 @@ func (b *Branch) Close() *Branch {
 		b.inner.Style().Set("display", "none")
 	}
 	b.open = false
-	b.opening = false
+	b.loading = false
 	b.afterStateChange()
 	return b
 }
@@ -218,8 +284,7 @@ func (b *Branch) update() {
 		minus := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>`
 		point := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`
 
-		async, isAsync := b.item.(AsyncItem)
-		if isAsync && !async.ContentLoaded() {
+		if b.isAsyncAndNotLoaded() {
 			b.opener.SetInnerHTML(plus)
 		} else if b.children == nil || len(b.children) == 0 {
 			b.opener.SetInnerHTML(point)
@@ -231,9 +296,16 @@ func (b *Branch) update() {
 	}
 }
 
-func (b *Branch) canOpen() bool {
+func (b *Branch) isAsyncAndNotLoaded() bool {
 	async, isAsync := b.item.(AsyncItem)
 	if isAsync && !async.ContentLoaded() {
+		return true
+	}
+	return false
+}
+
+func (b *Branch) canOpen() bool {
+	if b.isAsyncAndNotLoaded() {
 		return true
 	}
 	if len(b.children) == 0 {

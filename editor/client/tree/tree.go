@@ -3,6 +3,7 @@ package tree // import "kego.io/editor/client/tree"
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/shared/connection"
+	"kego.io/system"
 )
 
 type Tree struct {
@@ -12,13 +13,14 @@ type Tree struct {
 	Path     string
 	Aliases  map[string]string
 	selected *Branch
+	editor   system.Editor
+	content  *dom.HTMLDivElement
 }
 
 func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
-	e.PreventDefault()
 	switch e.KeyCode {
-	case 38:
-		// up
+	case 38: // up
+		e.PreventDefault()
 		if t.selected == nil {
 			b := t.Root.lastVisible()
 			if b != nil {
@@ -27,11 +29,11 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 			return
 		}
 		b := t.selected.prev
-		if b != nil {
+		if b != nil && !b.root {
 			b.Select(true)
 		}
-	case 40:
-		// down
+	case 40: // down
+		e.PreventDefault()
 		if t.selected == nil {
 			b := t.Root.children[0]
 			if b != nil {
@@ -43,8 +45,8 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 		if b != nil {
 			b.Select(true)
 		}
-	case 37:
-		// left
+	case 37: // left
+		e.PreventDefault()
 		if t.selected == nil {
 			return
 		}
@@ -56,8 +58,8 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 		if b != nil && !b.root {
 			b.Select(true)
 		}
-	case 39:
-		// right
+	case 39: // right
+		e.PreventDefault()
 		if t.selected == nil {
 			return
 		}
@@ -68,9 +70,9 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 	}
 }
 
-func New(parent dom.Element, conn *connection.Conn, root Item, fail chan error, path string, aliases map[string]string) *Tree {
+func New(parent *dom.BasicHTMLElement, content *dom.HTMLDivElement, conn *connection.Conn, root Item, fail chan error, path string, aliases map[string]string) *Tree {
 
-	tree := &Tree{Conn: conn, Fail: fail, Path: path, Aliases: aliases}
+	tree := &Tree{Conn: conn, Fail: fail, Path: path, Aliases: aliases, content: content}
 	tree.Root = &Branch{Tree: tree, root: true, open: true, item: root}
 
 	// We must tolerate passing in a nil dom element in order to run tests in pure go

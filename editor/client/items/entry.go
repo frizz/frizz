@@ -18,6 +18,11 @@ type entry struct {
 }
 
 var _ tree.Item = (*entry)(nil)
+var _ tree.HasNode = (*entry)(nil)
+
+func (e *entry) Node() *system.Node {
+	return e.node
+}
 
 func (e *entry) Initialise(div *dom.HTMLDivElement) {
 	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
