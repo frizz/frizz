@@ -49,6 +49,10 @@ func (c *Conn) senderInternal() error {
 	if err := ke.NewEncoder(c.socket).Encode(m); err != nil {
 		if err == io.EOF {
 			// Closing the fail channel exits the app gracefully
+			if c.debug {
+				c.fail <- kerr.New("HHLJYVNLJM", nil, "Connection closed")
+				return nil
+			}
 			close(c.fail)
 			return nil
 		}

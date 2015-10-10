@@ -20,7 +20,10 @@ import (
 
 	"net/url"
 
+	"strings"
+
 	"github.com/gopherjs/gopherjs/build"
+	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
@@ -35,12 +38,14 @@ type appData struct {
 	pkg     *system.Package
 	verbose bool
 	fail    chan error
+	debug   bool // in debug mode we don't exit the server on connection close
 }
 
 var app appData
 
 func Start(path string, verbose bool) error {
 
+	app.debug = true
 	app.path = path
 	app.verbose = verbose
 	pkg, err := initialise(path)
@@ -84,7 +89,7 @@ func Start(path string, verbose bool) error {
 		} else {
 			ws.PayloadType = 0x1 // string messages
 		}
-		c := connection.New(ws, app.fail, app.path, app.aliases)
+		c := connection.New(ws, app.fail, app.path, app.aliases, app.debug)
 
 		sourceRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })
@@ -97,15 +102,18 @@ func Start(path string, verbose bool) error {
 
 	go handle(func() error { return serve() })
 
-	err, open := <-app.fail
-	if !open {
-		// Channel has been closed, so app should gracefully exit.
-		if verbose {
-			fmt.Println("Exiting editor server (finished)... ")
+	for {
+		err, open := <-app.fail
+		if !open {
+			// Channel has been closed, so app should gracefully exit.
+			if verbose {
+				fmt.Println("Exiting editor server (finished)... ")
+			}
+		} else {
+			// Error received, so app should display error.
+			//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
+			fmt.Println(err)
 		}
-	} else {
-		// Error received, so app should display error.
-		return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 	}
 
 	return nil
@@ -208,6 +216,14 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 
 	sources := system.GetAllSourceInPackage(path)
 
+	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
+		if strings.HasSuffix(req.URL.Path, ".css") {
+			w.Header().Set("Content-Type", "text/css")
+		}
+		w.Write(b)
+		return nil
+	}
+
 	data := []string{}
 	types := []string{}
 	for _, hashed := range sources {
@@ -241,9 +257,9 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 			<head>
 				<meta charset="utf-8">
 
-				<link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.indigo-pink.min.css">
-				<script src="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.min.js"></script>
-				<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+				<link rel="stylesheet" href="/material.min.css">
+				<script src="/material.min.js"></script>
+				<link rel="stylesheet" href="/icon.css">
 
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 				<style>
@@ -328,6 +344,9 @@ func serve() error {
 		return kerr.New("TUCBTWMRNN", err, "http.Serve")
 	}
 
+	if app.debug {
+		return kerr.New("ATUTBOICGJ", nil, "Connection closed")
+	}
 	close(app.fail)
 	return nil
 

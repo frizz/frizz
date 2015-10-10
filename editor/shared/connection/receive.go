@@ -26,6 +26,10 @@ func (c *Conn) Receive() error {
 		if err := ke.NewDecoder(c.socket, messages.Path, messages.Aliases).Decode(&i); err != nil {
 			if err == io.EOF {
 				// Closing the fail channel exits the app gracefully
+				if c.debug {
+					c.fail <- kerr.New("BFWXLLOSHQ", nil, "Connection closed")
+					return nil
+				}
 				close(c.fail)
 				return nil
 			}

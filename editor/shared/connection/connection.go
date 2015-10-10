@@ -32,9 +32,10 @@ type Conn struct {
 	// This wait group is only used in the tests to signal when all the
 	// outgoing messages have finished sending.
 	outwg *sync.WaitGroup
+	debug bool // in debug mode we don't exit the server on connection close
 }
 
-func New(socket io.ReadWriteCloser, fail chan error, path string, aliases map[string]string) *Conn {
+func New(socket io.ReadWriteCloser, fail chan error, path string, aliases map[string]string, debug bool) *Conn {
 	c := &Conn{
 		socket:   socket,
 		fail:     fail,
@@ -45,6 +46,7 @@ func New(socket io.ReadWriteCloser, fail chan error, path string, aliases map[st
 		requests: map[string]chan messages.Message{},
 		subs:     map[system.Reference]chan messages.Message{},
 		outwg:    &sync.WaitGroup{},
+		debug:    debug,
 	}
 	go c.handle(c.sender)
 	return c

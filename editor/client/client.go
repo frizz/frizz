@@ -62,7 +62,7 @@ func Start(path string) error {
 	// socket allows us to specify the message type - binary or string.
 	s := &socket{ws, connection.MESSAGE_TYPE}
 
-	app.conn = connection.New(s, app.fail, app.path, app.aliases)
+	app.conn = connection.New(s, app.fail, app.path, app.aliases, false)
 	go handle(app.conn.Receive)
 
 	app.spinner = body.GetElementsByClassName("mdl-spinner")[0].(*dom.HTMLDivElement)
