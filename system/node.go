@@ -174,11 +174,6 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, in
 	return nil
 }
 
-type Field struct {
-	Rule   Rule
-	Origin Reference
-}
-
 func extractType(in json.Unpackable, rule *RuleHolder, path string, aliases map[string]string) (*Type, error) {
 
 	if rule != nil && !rule.ParentType.Interface {
@@ -256,7 +251,7 @@ func extractFields(fields map[string]*Field, t *Type) error {
 		if _, ok := fields[name]; ok {
 			return kerr.New("BARXPFXQNB", nil, "Duplicate field %s", name)
 		}
-		fields[name] = &Field{rule, t.Id}
+		fields[name] = &Field{Name: name, Rule: rule, Origin: t.Id}
 	}
 	return nil
 }

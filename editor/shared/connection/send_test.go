@@ -18,7 +18,7 @@ func doTest(t *testing.T, f func(*Conn, *mocks.MockReadWriteCloser)) {
 	socket := mocks.NewMockReadWriteCloser(ctl)
 	fail := make(chan error)
 
-	c := New(socket, fail, "kego.io/editor/shared/messages", map[string]string{})
+	c := New(socket, fail, false, "kego.io/editor/shared/messages", map[string]string{})
 
 	f(c, socket)
 

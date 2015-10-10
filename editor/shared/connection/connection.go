@@ -35,7 +35,7 @@ type Conn struct {
 	debug bool // in debug mode we don't exit the server on connection close
 }
 
-func New(socket io.ReadWriteCloser, fail chan error, path string, aliases map[string]string, debug bool) *Conn {
+func New(socket io.ReadWriteCloser, fail chan error, debug bool, path string, aliases map[string]string) *Conn {
 	c := &Conn{
 		socket:   socket,
 		fail:     fail,

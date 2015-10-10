@@ -66,11 +66,11 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 				}
 
 				for _, nf := range typ.SortedFields() {
-					b := nf.Field.(system.Object).Object()
+					b := nf.Rule.(system.Object).Object()
 					if b.Description != "" {
 						g.Println("// ", b.Description)
 					}
-					descriptor, err := generator.Type(nf.Name, nf.Field, set.path, g.Imports.Add)
+					descriptor, err := generator.Type(nf.Name, nf.Rule, set.path, g.Imports.Add)
 					if err != nil {
 						return nil, kerr.New("GDSKJDEKQD", err, "generator.Type")
 					}

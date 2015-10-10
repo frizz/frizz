@@ -89,7 +89,7 @@ func Start(path string, verbose bool) error {
 		} else {
 			ws.PayloadType = 0x1 // string messages
 		}
-		c := connection.New(ws, app.fail, app.path, app.aliases, app.debug)
+		c := connection.New(ws, app.fail, app.debug, app.path, app.aliases)
 
 		sourceRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })

@@ -35,7 +35,7 @@ func TestNoTimeout(t *testing.T) {
 
 func testTimeout(t *testing.T) (chan messages.Message, chan error) {
 	fail := make(chan error)
-	c := New(nil, fail, "kego.io/editor/shared/messages", map[string]string{})
+	c := New(nil, fail, false, "kego.io/editor/shared/messages", map[string]string{})
 
 	outcome := make(chan error, 1)
 

@@ -70,27 +70,28 @@ func (t *Type) FullName() string {
 	return t.Id.Value()
 }
 
-func (t *Type) SortedFields() []NamedField {
-	fields := SortableNamedFields{}
-	for name, field := range t.Fields {
-		fields = append(fields, NamedField{Name: name, Field: field})
+func (t *Type) SortedFields() []Field {
+	fields := SortableFields{}
+	for name, rule := range t.Fields {
+		fields = append(fields, Field{Name: name, Rule: rule, Origin: t.Id})
 	}
 	sort.Sort(fields)
-	return []NamedField(fields)
+	return []Field(fields)
 }
 
-type NamedField struct {
-	Name  string
-	Field Rule
+type Field struct {
+	Name   string
+	Rule   Rule
+	Origin Reference
 }
-type SortableNamedFields []NamedField
+type SortableFields []Field
 
-func (s SortableNamedFields) Len() int {
+func (s SortableFields) Len() int {
 	return len(s)
 }
-func (s SortableNamedFields) Swap(i, j int) {
+func (s SortableFields) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
-func (s SortableNamedFields) Less(i, j int) bool {
+func (s SortableFields) Less(i, j int) bool {
 	return s[i].Name < s[j].Name
 }
