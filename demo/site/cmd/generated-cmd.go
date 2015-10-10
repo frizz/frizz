@@ -21,7 +21,7 @@ import (
 // This starts the local editor server and opens a browser. This
 // simulates the ke command without running it.
 func main() {
-	if err := server.Start("kego.io/demo/site", true); err != nil {
+	if err := server.Start("kego.io/demo/site", true, true); err != nil {
 		fmt.Println(process.FormatError(err))
 		os.Exit(1)
 	}

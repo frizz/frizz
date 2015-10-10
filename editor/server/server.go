@@ -43,9 +43,9 @@ type appData struct {
 
 var app appData
 
-func Start(path string, verbose bool) error {
+func Start(path string, verbose bool, debug bool) error {
 
-	app.debug = true
+	app.debug = debug
 	app.path = path
 	app.verbose = verbose
 	pkg, err := initialise(path)
@@ -113,6 +113,9 @@ func Start(path string, verbose bool) error {
 			// Error received, so app should display error.
 			//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 			fmt.Println(err)
+		}
+		if !app.debug {
+			return nil
 		}
 	}
 

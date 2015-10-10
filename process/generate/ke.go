@@ -44,7 +44,7 @@ func KeCommand(set *settings.Settings) (source []byte, err error) {
 				os.Exit(1)
 			}
 			if set.Edit {
-				if err = server.Start(set.Path, set.Verbose); err != nil {
+				if err = server.Start(set.Path, set.Verbose, false); err != nil {
 					fmt.Println(process.FormatError(err))
 					os.Exit(1)
 				}
