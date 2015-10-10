@@ -21,7 +21,7 @@ func TestGenerate_path(t *testing.T) {
 		"a.json": `{"type": "system:type", "id": "a"}`,
 	})
 
-	err = Generate(S_STRUCTS, settings{dir: dir, path: path})
+	err = Generate(S_STRUCTS, Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 
 	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated-structs.go"))
@@ -41,7 +41,7 @@ func TestRunCommand(t *testing.T) {
 		"d.go":   `package d`,
 	})
 
-	err = RunCommand(C_TYPES, settings{dir: dir, path: path})
+	err = RunCommand(C_TYPES, Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 
 	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
@@ -62,7 +62,7 @@ func TestGenerate(t *testing.T) {
 		"d.go":   `package d`,
 	})
 
-	set := settings{dir: dir, path: path}
+	set := Settings{Dir: dir, Path: path}
 	err = Generate(S_STRUCTS, set)
 	assert.NoError(t, err)
 

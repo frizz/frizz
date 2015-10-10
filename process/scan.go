@@ -14,7 +14,7 @@ import (
 	"kego.io/system"
 )
 
-func ScanForPackage(set settings) error {
+func ScanForPackage(set Settings) error {
 
 	found := false
 	var pkg *system.Package
@@ -40,11 +40,11 @@ func ScanForPackage(set settings) error {
 			},
 		}
 	}
-	system.RegisterPackage(set.path, pkg, hash)
+	system.RegisterPackage(set.Path, pkg, hash)
 	return nil
 }
 
-func ScanForGlobals(set settings) error {
+func ScanForGlobals(set Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if _, ok := ob.(*system.Type); ok {
 			return nil
@@ -66,7 +66,7 @@ func ScanForGlobals(set settings) error {
 	return scanPath(false, false, scanner, set)
 }
 
-func HasSourceFiles(set settings) (bool, error) {
+func HasSourceFiles(set Settings) (bool, error) {
 	hasFiles := false
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		hasFiles = true
@@ -78,7 +78,7 @@ func HasSourceFiles(set settings) (bool, error) {
 	return hasFiles, nil
 }
 
-func ScanForSource(set settings) error {
+func ScanForSource(set Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		o, ok := ob.(system.Object)
 		if !ok {
@@ -97,7 +97,7 @@ func ScanForSource(set settings) error {
 	return scanPath(false, false, scanner, set)
 }
 
-func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
+func ScanForTypes(ignoreUnknownTypes bool, set Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
@@ -158,7 +158,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set settings) error {
 	return scanPath(ignoreUnknownTypes, false, scanner, set)
 }
 
-func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set settings) error {
+func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set Settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -170,17 +170,17 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 		return nil
 	}
 
-	if set.recursive {
-		if err := filepath.Walk(set.dir, walker); err != nil {
+	if set.Recursive {
+		if err := filepath.Walk(set.Dir, walker); err != nil {
 			return kerr.New("XHHQSAVCKK", err, "filepath.Walk (scanning for types)")
 		}
 	} else {
-		files, err := ioutil.ReadDir(set.dir)
+		files, err := ioutil.ReadDir(set.Dir)
 		if err != nil {
 			return kerr.New("CDYLDBLHKT", err, "ioutil.ReadDir")
 		}
 		for _, f := range files {
-			if err := walker(filepath.Join(set.dir, f.Name()), f, nil); err != nil {
+			if err := walker(filepath.Join(set.Dir, f.Name()), f, nil); err != nil {
 				return kerr.New("IAPRUHFTAD", err, "walker")
 			}
 		}
@@ -189,7 +189,7 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set settings) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set Settings) error {
 
 	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
@@ -205,10 +205,10 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 	return nil
 }
 
-func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set settings) error {
+func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set Settings) error {
 
 	var i interface{}
-	err := json.Unmarshal(file, &i, set.path, set.aliases)
+	err := json.Unmarshal(file, &i, set.Path, set.Aliases)
 
 	if ut, ok := err.(json.UnknownTypeError); ok {
 		if !ignoreUnknownTypes {
@@ -226,7 +226,7 @@ func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownP
 }
 
 // openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.
-func openFile(filePath string, set settings) ([]byte, uint64, error) {
+func openFile(filePath string, set Settings) ([]byte, uint64, error) {
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil, 0, nil
@@ -245,12 +245,12 @@ func openFile(filePath string, set settings) ([]byte, uint64, error) {
 		bytes = j
 	}
 
-	relative, err := filepath.Rel(set.dir, filePath)
+	relative, err := filepath.Rel(set.Dir, filePath)
 	if err != nil {
 		return nil, 0, kerr.New("MDNIWARJEG", err, "filepath.Rel")
 	}
 
-	hash, err := getHash(relative, set.path, set.aliases, bytes)
+	hash, err := getHash(relative, set.Path, set.Aliases, bytes)
 	if err != nil {
 		return nil, 0, kerr.New("GKUPQSADWQ", err, "getHash")
 	}

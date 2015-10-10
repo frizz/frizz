@@ -28,11 +28,11 @@ func testUnpack(t *testing.T, path string) {
 	err = process.ScanForSource(set)
 	assert.NoError(t, err)
 
-	sha := system.GetAllSourceInPackage(set.Path())
+	sha := system.GetAllSourceInPackage(set.Path)
 
 	for _, sh := range sha {
 		var n system.Node
-		err := ke.UnmarshalNode(sh.Source, &n, set.Path(), set.Aliases())
+		err := ke.UnmarshalNode(sh.Source, &n, set.Path, set.Aliases)
 		assert.NoError(t, err, sh.Id.Name)
 	}
 }

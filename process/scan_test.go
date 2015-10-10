@@ -30,7 +30,7 @@ func TestScan(t *testing.T) {
 		}`,
 	})
 
-	err = ScanForTypes(false, settings{dir: dir, path: path})
+	err = ScanForTypes(false, Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 	defer system.Unregister(path, "b")
 
@@ -72,7 +72,7 @@ func TestScan_rule(t *testing.T) {
 		}`,
 	})
 
-	err = ScanForTypes(false, settings{dir: dir, path: path})
+	err = ScanForTypes(false, Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 	defer system.Unregister(path, "b")
 	defer system.Unregister(path, "@b")
@@ -87,10 +87,10 @@ func TestScan_rule(t *testing.T) {
 
 func TestScan_errors(t *testing.T) {
 
-	err := ScanForTypes(false, settings{dir: "/this-folder-doesnt-exist", recursive: true})
+	err := ScanForTypes(false, Settings{Dir: "/this-folder-doesnt-exist", Recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
-	err = ScanForTypes(false, settings{dir: "/this-folder-doesnt-exist", recursive: false})
+	err = ScanForTypes(false, Settings{Dir: "/this-folder-doesnt-exist", Recursive: false})
 	assert.IsError(t, err, "CDYLDBLHKT")
 
 	n, err := pkgtest.CreateTemporaryNamespace()
@@ -101,11 +101,11 @@ func TestScan_errors(t *testing.T) {
 		"a.json": "foo",
 	})
 
-	err = ScanForTypes(false, settings{dir: dir, path: path, recursive: true})
+	err = ScanForTypes(false, Settings{Dir: dir, Path: path, Recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 	assert.HasError(t, err, "DHTURNTIXE")
 
-	err = ScanForTypes(false, settings{dir: dir, path: path, recursive: false})
+	err = ScanForTypes(false, Settings{Dir: dir, Path: path, Recursive: false})
 	assert.IsError(t, err, "IAPRUHFTAD")
 	assert.HasError(t, err, "DHTURNTIXE")
 

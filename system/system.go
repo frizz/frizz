@@ -1,24 +1,37 @@
 //go:generate ke kego.io/system
 package system // import "kego.io/system"
 
-import (
-	"fmt"
-	"strings"
+import "strings"
+
+const (
+	INTERFACE_PREFIX string = "^"
+	RULE_PREFIX             = "£"
 )
 
 func GoName(id string) string {
-	if id == "" {
+
+	if len(id) == 0 {
 		return ""
 	}
-	if strings.HasPrefix(id, "@") {
-		// Rules are prefixed with @ in the json ID, and suffixed with _rule in the
-		// golang type name.
-		return fmt.Sprintf("%s%s_rule", strings.ToUpper(id[1:2]), id[2:])
-	} else if strings.HasPrefix(id, "$") {
-		// Base types are prefixed with $ in the json ID, and suffixed with _base in the
-		// golang type name.
-		return fmt.Sprintf("%s%s_base", strings.ToUpper(id[1:2]), id[2:])
-	} else {
-		return fmt.Sprintf("%s%s", strings.ToUpper(id[0:1]), id[1:])
+
+	cap := func(s string, skipFirstCharacter bool) string {
+		if skipFirstCharacter {
+			return strings.ToUpper(s[1:2]) + s[2:]
+		} else {
+			return strings.ToUpper(s[0:1]) + s[1:]
+		}
+	}
+
+	switch id[0:1] {
+	case INTERFACE_PREFIX:
+		return cap(id, true) + "Interface"
+	case RULE_PREFIX:
+		return cap(id, true) + "Rule"
+	case "@":
+		return cap(id, true) + "_rule"
+	case "$":
+		return cap(id, true) + "_base"
+	default:
+		return cap(id, false)
 	}
 }

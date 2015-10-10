@@ -33,16 +33,16 @@ func TestInitialise(t *testing.T) {
 
 	set, err := InitialiseAutomatic()
 	assert.NoError(t, err)
-	assert.Equal(t, dirA, set.dir)
-	assert.Equal(t, pathA, set.path)
+	assert.Equal(t, dirA, set.Dir)
+	assert.Equal(t, pathA, set.Path)
 
 	err = os.Chdir("/")
 	assert.NoError(t, err)
 
 	set, err = InitialiseManually(false, false, false, false, pathB)
 	assert.NoError(t, err)
-	assert.Equal(t, dirB, set.dir)
-	assert.Equal(t, pathB, set.path)
+	assert.Equal(t, dirB, set.Dir)
+	assert.Equal(t, pathB, set.Path)
 
 	_, err = InitialiseManually(false, false, false, false, "")
 	assert.IsError(t, err, "PSRAWHQCPV")

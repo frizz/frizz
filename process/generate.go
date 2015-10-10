@@ -14,13 +14,13 @@ import (
 	"kego.io/system"
 )
 
-func GenerateSource(file sourceType, set settings) (source []byte, err error) {
+func GenerateSource(file sourceType, set Settings) (source []byte, err error) {
 	b := bytes.NewBuffer(nil)
 	switch file {
 	case S_STRUCTS:
 		filter := system.NewReference("kego.io/system", "type")
-		types := system.GetAllGlobalsInPackage(set.path, &filter)
-		g, err := generator.New(set.path, b)
+		types := system.GetAllGlobalsInPackage(set.Path, &filter)
+		g, err := generator.New(set.Path, b)
 		if err != nil {
 			return nil, kerr.New("WPIPODJIGV", err, "generator.New")
 		}
@@ -42,11 +42,11 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 				sort.Sort(embedsSortable)
 				embeds := []system.Reference(embedsSortable)
 				for _, embed := range embeds {
-					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), set.path, g.Imports.Add))
+					g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), set.Path, g.Imports.Add))
 				}
 
 				if !typ.Basic {
-					g.Println("*", generator.Reference("kego.io/system", "Object_base", set.path, g.Imports.Add))
+					g.Println("*", generator.Reference("kego.io/system", "Object_base", set.Path, g.Imports.Add))
 				}
 				interfacesSortable := system.SortableReferences(typ.Is)
 				sort.Sort(interfacesSortable)
@@ -61,7 +61,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 						return nil, kerr.New("AOMVIJBFJA", nil, "%T is not a *system.Type", h.Object)
 					}
 					if t.Base != nil {
-						g.Println("*", generator.Reference(t.Base.Id.Package, system.GoName(t.Base.Id.Name), set.path, g.Imports.Add))
+						g.Println("*", generator.Reference(t.Base.Id.Package, system.GoName(t.Base.Id.Name), set.Path, g.Imports.Add))
 					}
 				}
 
@@ -70,7 +70,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 					if b.Description != "" {
 						g.Println("// ", b.Description)
 					}
-					descriptor, err := generator.Type(nf.Name, nf.Rule, set.path, g.Imports.Add)
+					descriptor, err := generator.Type(nf.Name, nf.Rule, set.Path, g.Imports.Add)
 					if err != nil {
 						return nil, kerr.New("GDSKJDEKQD", err, "generator.Type")
 					}
@@ -83,8 +83,8 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		{
 			for _, hashed := range types {
 				typ := hashed.Object.(*system.Type)
-				jsonRegisterType := generator.Reference("kego.io/json", "Register", set.path, g.Imports.Add)
-				reflectTypeOf := generator.Reference("reflect", "TypeOf", set.path, g.Imports.Add)
+				jsonRegisterType := generator.Reference("kego.io/json", "Register", set.Path, g.Imports.Add)
+				reflectTypeOf := generator.Reference("reflect", "TypeOf", set.Path, g.Imports.Add)
 				reflectTypeOfParams := ""
 				if typ.Interface {
 					// reflect.TypeOf((*Foo)(nil)).Elem()
@@ -114,9 +114,9 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		}
 		g.Imports.Anonymous("kego.io/system")
 		g.Imports.Anonymous("kego.io/system/types")
-		g.Imports.Anonymous(set.path)
-		g.Imports.Anonymous(fmt.Sprint(set.path, "/types"))
-		for p, _ := range set.aliases {
+		g.Imports.Anonymous(set.Path)
+		g.Imports.Anonymous(fmt.Sprint(set.Path, "/types"))
+		for p, _ := range set.Aliases {
 			g.Imports.Anonymous(p)
 			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
@@ -129,10 +129,10 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		*/
 		g.Println("func main() {")
 		{
-			clientStart := generator.Reference("kego.io/editor/client", "Start", set.path, g.Imports.Add)
-			g.Println("if err := ", clientStart, "(", strconv.Quote(set.path), "); err != nil {")
+			clientStart := generator.Reference("kego.io/editor/client", "Start", set.Path, g.Imports.Add)
+			g.Println("if err := ", clientStart, "(", strconv.Quote(set.Path), "); err != nil {")
 			{
-				consoleError := generator.Reference("kego.io/js/console", "Error", set.path, g.Imports.Add)
+				consoleError := generator.Reference("kego.io/js/console", "Error", set.Path, g.Imports.Add)
 				g.Println(consoleError, "(err.Error())")
 			}
 			g.Println("}")
@@ -141,8 +141,8 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		g.Build()
 	case S_TYPES:
 		filter := system.NewReference("kego.io/system", "type")
-		types := system.GetAllGlobalsInPackage(set.path, &filter)
-		typesPath := fmt.Sprintf("%s/types", set.path)
+		types := system.GetAllGlobalsInPackage(set.Path, &filter)
+		typesPath := fmt.Sprintf("%s/types", set.Path)
 		g, err := generator.New(typesPath, b)
 		if err != nil {
 			return nil, kerr.New("KYIKJQXPMR", err, "generator.New")
@@ -154,7 +154,7 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 		if typesPath != "kego.io/system/types" {
 			g.Imports.Anonymous("kego.io/system/types")
 		}
-		for p, _ := range set.aliases {
+		for p, _ := range set.Aliases {
 			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
 		g.Println("func init() {")
@@ -190,19 +190,19 @@ func GenerateSource(file sourceType, set settings) (source []byte, err error) {
 	return
 }
 
-func GenerateCommand(file commandType, set settings) (source []byte, err error) {
+func GenerateCommand(file commandType, set Settings) (source []byte, err error) {
 	b := bytes.NewBuffer(nil)
 	switch file {
 	case C_STRUCTS:
-		g := generator.NewWithName(set.path, "main", b)
+		g := generator.NewWithName(set.Path, "main", b)
 		g.Imports.Add("os")
 		g.Imports.Add("fmt")
 		g.Imports.Add("kego.io/process")
 		g.Imports.Anonymous("kego.io/system")
-		if set.path != "kego.io/system" {
+		if set.Path != "kego.io/system" {
 			g.Imports.Anonymous("kego.io/system/types")
 		}
-		for p, _ := range set.aliases {
+		for p, _ := range set.Aliases {
 			g.Imports.Anonymous(p)
 			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
@@ -220,16 +220,16 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 			}`)
 		g.Build()
 	case C_TYPES:
-		g := generator.NewWithName(set.path, "main", b)
+		g := generator.NewWithName(set.Path, "main", b)
 		g.Imports.Add("os")
 		g.Imports.Add("fmt")
 		g.Imports.Add("kego.io/process")
 		g.Imports.Anonymous("kego.io/system")
-		if set.path != "kego.io/system" {
+		if set.Path != "kego.io/system" {
 			g.Imports.Anonymous("kego.io/system/types")
 		}
-		g.Imports.Anonymous(set.path)
-		for p, _ := range set.aliases {
+		g.Imports.Anonymous(set.Path)
+		for p, _ := range set.Aliases {
 			g.Imports.Anonymous(p)
 			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
@@ -251,31 +251,31 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 			}`)
 		g.Build()
 	case C_KE:
-		g := generator.NewWithName(set.path, "main", b)
+		g := generator.NewWithName(set.Path, "main", b)
 		g.Imports.Add("os")
 		g.Imports.Add("fmt")
 		g.Imports.Add("kego.io/process")
 		g.Imports.Add("kego.io/editor/server")
 		g.Imports.Anonymous("kego.io/system")
 		g.Imports.Anonymous("kego.io/system/types")
-		g.Imports.Anonymous(set.path)
-		g.Imports.Anonymous(fmt.Sprint(set.path, "/types"))
-		for p, _ := range set.aliases {
+		g.Imports.Anonymous(set.Path)
+		g.Imports.Anonymous(fmt.Sprint(set.Path, "/types"))
+		for p, _ := range set.Aliases {
 			g.Imports.Anonymous(p)
 			g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 		}
 		g.Print(`
 			func main() {
 				update := false
-				recursive := ` + fmt.Sprint(set.recursive) + `
-				path := ` + strconv.Quote(set.path) + `
+				recursive := ` + fmt.Sprint(set.Recursive) + `
+				path := ` + strconv.Quote(set.Path) + `
 				set, err := process.InitialiseCommand(update, recursive, path)
 				if err != nil {
 					fmt.Println(err)
 			        os.Exit(1)
 				}
 				if typesChanged, err := process.ValidateCommand(set); err != nil {
-					if !typesChanged || !set.Verbose() {
+					if !typesChanged || !set.Verbose {
 						// when ValidateCommand detects the types have changed, it
 						// spawns a ke command. In verbose mode this will output any
 						// error so we don't need to print the error
@@ -283,8 +283,8 @@ func GenerateCommand(file commandType, set settings) (source []byte, err error) 
 					}
 					os.Exit(1)
 				}
-				if set.Edit() {
-					if err = server.Start(set.Path(), set.Verbose()); err != nil {
+				if set.Edit {
+					if err = server.Start(set.Path, set.Verbose); err != nil {
 						fmt.Println(process.FormatError(err))
 						os.Exit(1)
 					}

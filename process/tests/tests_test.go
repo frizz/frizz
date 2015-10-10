@@ -236,5 +236,5 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		}
 	}
 
-	return set.Path(), nil
+	return set.Path, nil
 }

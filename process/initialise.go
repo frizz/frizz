@@ -12,79 +12,66 @@ import (
 	"kego.io/system"
 )
 
-type settings struct {
-	dir       string
-	edit      bool
-	update    bool
-	recursive bool
-	verbose   bool
-	path      string
-	aliases   map[string]string
+type Settings struct {
+	Dir       string
+	Edit      bool
+	Update    bool
+	Recursive bool
+	Verbose   bool
+	Path      string
+	Aliases   map[string]string
 }
 
-func (s settings) Aliases() map[string]string {
-	return s.aliases
-}
-func (s settings) Path() string {
-	return s.path
-}
-func (s settings) Verbose() bool {
-	return s.verbose
-}
-func (s settings) Edit() bool {
-	return s.edit
-}
-
-func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (settings, error) {
-	set := settings{}
-	set.edit = edit
-	set.update = update
-	set.recursive = recursive
-	set.verbose = verbose
+func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (Settings, error) {
+	set := Settings{}
+	set.Edit = edit
+	set.Update = update
+	set.Recursive = recursive
+	set.Verbose = verbose
 	if path == "" {
 
 		dir, err := os.Getwd()
 		if err != nil {
-			return settings{}, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
+			return Settings{}, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
 		}
-		set.dir = dir
+		set.Dir = dir
 
-		pathFromDir, err := getPackagePath(set.dir, os.Getenv("GOPATH"))
+		pathFromDir, err := getPackagePath(set.Dir, os.Getenv("GOPATH"))
 		if err != nil {
-			return settings{}, kerr.New("PSRAWHQCPV", err, "getPackage")
+			return Settings{}, kerr.New("PSRAWHQCPV", err, "getPackage")
 		}
-		set.path = pathFromDir
+		set.Path = pathFromDir
 
 	} else {
 
-		set.path = path
+		set.Path = path
 
-		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", set.path).CombinedOutput()
+		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", set.Path).CombinedOutput()
 		if err == nil {
-			set.dir = strings.TrimSpace(string(out))
+			set.Dir = strings.TrimSpace(string(out))
 		} else {
-			dir, err := getPackageDir(set.path, os.Getenv("GOPATH"))
+			dir, err := getPackageDir(set.Path, os.Getenv("GOPATH"))
 			if err != nil {
-				return settings{}, kerr.New("GXTUPMHETV", err, "Can't find %s", set.path)
+				return Settings{}, kerr.New("GXTUPMHETV", err, "Can't find %s", set.Path)
 			}
-			set.dir = dir
+			set.Dir = dir
 		}
 
 	}
 
 	if err := ScanForPackage(set); err != nil {
-		return settings{}, kerr.New("IAAETYCHSW", err, "ScanForPackage")
+		return Settings{}, kerr.New("IAAETYCHSW", err, "ScanForPackage")
 	}
-	p, ok := system.GetPackage(set.path)
+	p, ok := system.GetPackage(set.Path)
 	if !ok {
-		return settings{}, kerr.New("BHLJNCIWUJ", nil, "Package not found")
+		return Settings{}, kerr.New("BHLJNCIWUJ", nil, "Package not found")
 	}
-	set.aliases = p.Aliases
+	set.Aliases = p.Aliases
 
 	return set, nil
 }
 
-func InitialiseCommand(update bool, recursive bool, path string) (settings, error) {
+func InitialiseCommand(update bool, recursive bool, path string) (Settings, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
@@ -95,13 +82,13 @@ func InitialiseCommand(update bool, recursive bool, path string) (settings, erro
 
 	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path)
 	if err != nil {
-		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
+		return Settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
 	return set, nil
 }
 
-func InitialiseAutomatic() (settings, error) {
+func InitialiseAutomatic() (Settings, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
@@ -116,7 +103,7 @@ func InitialiseAutomatic() (settings, error) {
 
 	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg)
 	if err != nil {
-		return settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
+		return Settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
 	return set, nil

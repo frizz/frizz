@@ -14,13 +14,13 @@ import (
 	"kego.io/system"
 )
 
-func ValidateCommand(set settings) (typesChanged bool, err error) {
-	if set.verbose {
+func ValidateCommand(set Settings) (typesChanged bool, err error) {
+	if set.Verbose {
 		fmt.Print("Validating... ")
 	}
 	if err := Validate(set); err != nil {
 		if _, ok := kerr.Source(err).(TypesChangedError); ok {
-			if set.verbose {
+			if set.Verbose {
 				fmt.Println("Types have changed - rebuilding...")
 			}
 			if err := RunAllCommands(set); err != nil {
@@ -30,13 +30,13 @@ func ValidateCommand(set settings) (typesChanged bool, err error) {
 		}
 		return false, err
 	}
-	if set.verbose {
+	if set.Verbose {
 		fmt.Println("OK.")
 	}
 	return false, nil
 }
 
-func Validate(set settings) error {
+func Validate(set Settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -48,17 +48,17 @@ func Validate(set settings) error {
 		return nil
 	}
 
-	if set.recursive {
-		if err := filepath.Walk(set.dir, walker); err != nil {
+	if set.Recursive {
+		if err := filepath.Walk(set.Dir, walker); err != nil {
 			return kerr.New("GCKFJQJUXK", err, "filepath.Walk")
 		}
 	} else {
-		files, err := ioutil.ReadDir(set.dir)
+		files, err := ioutil.ReadDir(set.Dir)
 		if err != nil {
 			return kerr.New("RJXRHBYVUW", err, "ioutil.ReadDir")
 		}
 		for _, f := range files {
-			if err := walker(filepath.Join(set.dir, f.Name()), f, nil); err != nil {
+			if err := walker(filepath.Join(set.Dir, f.Name()), f, nil); err != nil {
 				return kerr.New("UJBOWKFUMS", err, "walker")
 			}
 		}
@@ -67,7 +67,7 @@ func Validate(set settings) error {
 	return nil
 }
 
-func validateFile(filePath string, set settings) error {
+func validateFile(filePath string, set Settings) error {
 
 	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
@@ -83,9 +83,9 @@ func validateFile(filePath string, set settings) error {
 	return nil
 }
 
-func validateBytes(bytes []byte, hash uint64, set settings) error {
+func validateBytes(bytes []byte, hash uint64, set Settings) error {
 	var i interface{}
-	err := json.Unmarshal(bytes, &i, set.path, set.aliases)
+	err := json.Unmarshal(bytes, &i, set.Path, set.Aliases)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "json.NewDecoder: unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
@@ -93,7 +93,7 @@ func validateBytes(bytes []byte, hash uint64, set settings) error {
 	} else if err != nil {
 		return kerr.New("QIVNOQKCQF", err, "json.NewDecoder.Decode")
 	}
-	if err := validateUnknown(i, hash, set.path, set.aliases); err != nil {
+	if err := validateUnknown(i, hash, set.Path, set.Aliases); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "validateUnknown")
 	}
 	return nil

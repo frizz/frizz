@@ -11,7 +11,7 @@ import (
 
 func TestGenerateCommand_errors(t *testing.T) {
 
-	_, err := GenerateCommand(C_TYPES, settings{path: "\""})
+	_, err := GenerateCommand(C_TYPES, Settings{Path: "\""})
 	// Quote in the path will generate malformed source
 	assert.IsError(t, err, "CRBYOUOHPG")
 
@@ -21,11 +21,11 @@ func TestGenerateCommand_errors(t *testing.T) {
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
 
-	_, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d"})
+	_, err = GenerateSource(S_STRUCTS, Settings{Path: "b.c/d"})
 	// Corrupt type ID causes error from source formatter
 	assert.IsError(t, err, "CRBYOUOHPG")
 
-	_, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"\"": "\""}})
+	_, err = GenerateSource(S_TYPES, Settings{Path: "b.c/d", Aliases: map[string]string{"\"": "\""}})
 	// Quote in the alias path will generate malformed source
 	assert.IsError(t, err, "CRBYOUOHPG")
 }
@@ -58,7 +58,7 @@ func TestGenerateSource(t *testing.T) {
 	system.Register("b.c/d", "ai", tyi, 0)
 	defer system.Unregister("b.c/d", "ai")
 
-	source, err := GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err := GenerateSource(S_STRUCTS, Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
@@ -69,15 +69,15 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Object_base\n}\n")
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), 0x0)\n")
 
-	source, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err = GenerateSource(S_STRUCTS, Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"an\", reflect.TypeOf(An{}), 0x0)\n")
 
-	source, err = GenerateSource(S_STRUCTS, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err = GenerateSource(S_STRUCTS, Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"ai\", reflect.TypeOf((*Ai)(nil)).Elem(), 0x0)\n")
 
-	source, err = GenerateSource(S_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err = GenerateSource(S_TYPES, Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package types")
 	imp = getImports(t, string(source))
@@ -88,7 +88,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "system.Register(\"b.c/d\", \"a\", ptr1, 0x0)")
 
-	source, err = GenerateCommand(C_TYPES, settings{path: "b.c/d", aliases: map[string]string{"f.g/h": "e"}})
+	source, err = GenerateCommand(C_TYPES, Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package main\n")
 	imp = getImports(t, string(source))

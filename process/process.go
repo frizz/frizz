@@ -41,26 +41,26 @@ func FormatError(err error) string {
 	return err.Error()
 }
 
-func KeCommand(set settings) error {
+func KeCommand(set Settings) error {
 
-	for p, a := range set.aliases {
-		if set.verbose {
-			if set.update {
+	for p, a := range set.Aliases {
+		if set.Verbose {
+			if set.Update {
 				fmt.Print("Updating package ", a, "... ")
 			} else {
 				fmt.Print("Getting package ", a, "... ")
 			}
 		}
 		params := []string{"get"}
-		if set.update {
+		if set.Update {
 			params = append(params, "-u")
 		}
-		if set.verbose {
+		if set.Verbose {
 			params = append(params, "-v")
 		}
 		params = append(params, p)
 
-		combined, stdout, stderr := logger(set.verbose)
+		combined, stdout, stderr := logger(set.Verbose)
 		cmd := exec.Command("go", params...)
 		cmd.Stdout = stdout
 		cmd.Stderr = stderr
@@ -68,7 +68,7 @@ func KeCommand(set settings) error {
 		if err := cmd.Run(); err != nil {
 			return kerr.New("HHKSTQMAKG", err, "go get command: %s", combined.String())
 		} else {
-			if set.verbose {
+			if set.Verbose {
 				fmt.Println("OK.")
 			}
 		}
@@ -80,7 +80,7 @@ func KeCommand(set settings) error {
 	return nil
 }
 
-func RunAllCommands(set settings) error {
+func RunAllCommands(set Settings) error {
 	if err := RunCommand(C_STRUCTS, set); err != nil {
 		return err
 	}
@@ -97,14 +97,14 @@ func RunAllCommands(set settings) error {
 // for a command is generated. This command is then compiled and run with
 // "go run". When run, this command generates the extra types data in
 // the "types" subpackage.
-func RunCommand(file commandType, set settings) error {
+func RunCommand(file commandType, set Settings) error {
 
 	source, err := GenerateCommand(file, set)
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, "Generate")
 	}
 
-	outputDir, err := ioutil.TempDir(set.dir, "temporary")
+	outputDir, err := ioutil.TempDir(set.Dir, "temporary")
 	if err != nil {
 		return kerr.New("HWOPVXYMCT", err, "ioutil.TempDir")
 	}
@@ -112,18 +112,18 @@ func RunCommand(file commandType, set settings) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	keCommandPath := filepath.Join(set.dir, "ke")
+	keCommandPath := filepath.Join(set.Dir, "ke")
 
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
 	if file == C_KE {
-		if set.verbose {
+		if set.Verbose {
 			fmt.Print("Building ", file, " command... ")
 		}
 
-		combined, stdout, stderr := logger(set.verbose)
+		combined, stdout, stderr := logger(set.Verbose)
 		cmd := exec.Command("go", "build", "-o", keCommandPath, outputPath)
 		cmd.Stdout = stdout
 		cmd.Stderr = stderr
@@ -131,11 +131,11 @@ func RunCommand(file commandType, set settings) error {
 		if err := cmd.Run(); err != nil {
 			return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
 		}
-		if set.verbose {
+		if set.Verbose {
 			fmt.Println("OK.")
 		}
 
-		if set.verbose {
+		if set.Verbose {
 			fmt.Print(combined.String())
 		}
 	}
@@ -143,38 +143,38 @@ func RunCommand(file commandType, set settings) error {
 	command := ""
 	params := []string{}
 
-	if set.verbose {
+	if set.Verbose {
 		fmt.Println("Running", file, "command...")
 	}
 	if file == C_KE {
 		command = keCommandPath
-		if set.verbose {
+		if set.Verbose {
 			params = append(params, "-v")
 		}
-		if set.edit {
+		if set.Edit {
 			params = append(params, "-e")
 		}
 	} else {
 		command = "go"
 		params = []string{"run", outputPath}
 
-		if set.update {
+		if set.Update {
 			params = append(params, "-u")
 		}
-		if set.recursive {
+		if set.Recursive {
 			params = append(params, "-r")
 		}
-		if set.verbose {
+		if set.Verbose {
 			params = append(params, "-v")
 		}
-		if set.edit {
+		if set.Edit {
 			params = append(params, "-e")
 		}
 
-		params = append(params, set.path)
+		params = append(params, set.Path)
 	}
 
-	combined, stdout, stderr := logger(set.verbose)
+	combined, stdout, stderr := logger(set.Verbose)
 
 	cmd := exec.Command(command, params...)
 	cmd.Stdout = stdout
@@ -223,17 +223,17 @@ func logger(verbose bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.W
 // file == F_CMD_KE: this is the temporary command that we create in order
 // to run the validation and start the editor
 //
-func Generate(file sourceType, set settings) error {
+func Generate(file sourceType, set Settings) error {
 
-	if set.verbose {
+	if set.Verbose {
 		fmt.Print("Generating ", file, "... ")
 	}
 
-	outputDir := set.dir
+	outputDir := set.Dir
 	if file == S_TYPES {
-		outputDir = filepath.Join(set.dir, "types")
+		outputDir = filepath.Join(set.Dir, "types")
 	} else if file == S_EDITOR {
-		outputDir = filepath.Join(set.dir, "editor")
+		outputDir = filepath.Join(set.Dir, "editor")
 	}
 
 	// We only tolerate unknown types when we're initially building the struct files. At all other
@@ -265,7 +265,7 @@ func Generate(file sourceType, set settings) error {
 
 	// We only backup in the system structs and types files because they are the only
 	// generated files we ever need to roll back
-	backup := set.path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
+	backup := set.Path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
 
 	// Filenames:
 	// generated-globals.go
@@ -277,7 +277,7 @@ func Generate(file sourceType, set settings) error {
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "save")
 	} else {
-		if set.verbose {
+		if set.Verbose {
 			fmt.Println("OK.")
 		}
 	}
