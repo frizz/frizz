@@ -8,6 +8,7 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process"
+	"kego.io/process/generate"
 	"kego.io/process/pkgtest"
 	_ "kego.io/system"
 	_ "kego.io/system/types"
@@ -49,7 +50,7 @@ func SkipTestNonDestructiveGeneration(t *testing.T) {
 	set, err := process.InitialiseManually(false, false, false, verbose, path)
 	assert.NoError(t, err)
 
-	s, err := process.GenerateSource(process.S_STRUCTS, set)
+	s, err := generate.Structs(set)
 	assert.NoError(t, err)
 
 	assert.Contains(t, string(s), "package a")

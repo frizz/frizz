@@ -3,51 +3,48 @@ package generator
 import (
 	"testing"
 
-	"bytes"
-
 	"kego.io/kerr/assert"
 )
 
 func TestNew(t *testing.T) {
-	b := bytes.NewBuffer(nil)
-	g, err := New("a.b/c", b)
-	assert.NoError(t, err)
+	g := New("a.b/c")
 	assert.Equal(t, 0, len(g.Imports))
 	assert.Equal(t, "a.b/c", g.path)
 	assert.Equal(t, "c", g.name)
 }
 
 func TestNewWithName(t *testing.T) {
-	b := bytes.NewBuffer(nil)
-	g := NewWithName("a.b/c", "d", b)
+	g := WithName("a.b/c", "d")
 	assert.Equal(t, 0, len(g.Imports))
 	assert.Equal(t, "a.b/c", g.path)
 	assert.Equal(t, "d", g.name)
 }
 
 func TestGenerator(t *testing.T) {
-	b := bytes.NewBuffer(nil)
-	g, err := New("a.b/c", b)
+	g := New("a.b/c")
+	b, err := g.Build()
 	assert.NoError(t, err)
-	g.Build()
-	assert.Equal(t, "package c", b.String())
-	b.Reset()
+	assert.Equal(t, "package c\n", string(b))
+	g.buffer.Reset()
 
 	g.Imports.Anonymous("e.f/g")
-	g.Build()
-	assert.Equal(t, "package c\n\nimport (\n_ \"e.f/g\"\n)\n", b.String())
-	b.Reset()
+	b, err = g.Build()
+	assert.NoError(t, err)
+	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n)\n", string(b))
+	g.buffer.Reset()
 
 	alias := g.Imports.Add("h.i/j")
 	assert.Equal(t, "j", alias)
 
-	g.Build()
-	assert.Equal(t, "package c\n\nimport (\n_ \"e.f/g\"\n \"h.i/j\"\n)\n", b.String())
-	b.Reset()
+	b, err = g.Build()
+	assert.NoError(t, err)
+	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n\t\"h.i/j\"\n)\n", string(b))
+	g.buffer.Reset()
 
-	g.Print("foo")
-	g.Println("bar")
-	g.Printf("baz\n%s", "qux")
-	g.Build()
-	assert.Equal(t, "package c\n\nimport (\n_ \"e.f/g\"\n \"h.i/j\"\n)\nfoobar\nbaz\nqux", b.String())
+	g.Print("var ")
+	g.Println("foo string")
+	g.Printf("var bar int\n%s", "var baz bool")
+	b, err = g.Build()
+	assert.NoError(t, err)
+	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n\t\"h.i/j\"\n)\n\nvar foo string\nvar bar int\nvar baz bool\n", string(b))
 }

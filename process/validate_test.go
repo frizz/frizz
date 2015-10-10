@@ -6,6 +6,7 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process/pkgtest"
+	"kego.io/process/settings"
 	"kego.io/system"
 )
 
@@ -36,7 +37,7 @@ func Validate_NeedsTypes(t *testing.T) {
 	system.Register(path, "a", &system.Type{}, hash)
 	defer system.Unregister(path, "a")
 
-	err = Validate(Settings{Dir: dir, Path: path})
+	err = Validate(&settings.Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 
 }
@@ -69,7 +70,7 @@ func TestValidate_error1(t *testing.T) {
 	system.Register(path, "b", &system.Type{}, hash)
 	defer system.Unregister(path, "b")
 
-	err = Validate(Settings{Dir: dir, Path: path})
+	err = Validate(&settings.Settings{Dir: dir, Path: path})
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "YLONAMFUAG")
 

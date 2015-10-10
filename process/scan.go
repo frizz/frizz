@@ -11,10 +11,11 @@ import (
 	"github.com/surge/cityhash"
 	"kego.io/json"
 	"kego.io/kerr"
+	"kego.io/process/settings"
 	"kego.io/system"
 )
 
-func ScanForPackage(set Settings) error {
+func ScanForPackage(set *settings.Settings) error {
 
 	found := false
 	var pkg *system.Package
@@ -44,7 +45,7 @@ func ScanForPackage(set Settings) error {
 	return nil
 }
 
-func ScanForGlobals(set Settings) error {
+func ScanForGlobals(set *settings.Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if _, ok := ob.(*system.Type); ok {
 			return nil
@@ -66,7 +67,7 @@ func ScanForGlobals(set Settings) error {
 	return scanPath(false, false, scanner, set)
 }
 
-func HasSourceFiles(set Settings) (bool, error) {
+func HasSourceFiles(set *settings.Settings) (bool, error) {
 	hasFiles := false
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		hasFiles = true
@@ -78,7 +79,7 @@ func HasSourceFiles(set Settings) (bool, error) {
 	return hasFiles, nil
 }
 
-func ScanForSource(set Settings) error {
+func ScanForSource(set *settings.Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		o, ok := ob.(system.Object)
 		if !ok {
@@ -97,7 +98,7 @@ func ScanForSource(set Settings) error {
 	return scanPath(false, false, scanner, set)
 }
 
-func ScanForTypes(ignoreUnknownTypes bool, set Settings) error {
+func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
@@ -158,7 +159,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set Settings) error {
 	return scanPath(ignoreUnknownTypes, false, scanner, set)
 }
 
-func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set Settings) error {
+func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -189,7 +190,7 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set Settings) error {
+func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
 
 	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
@@ -205,7 +206,7 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 	return nil
 }
 
-func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set Settings) error {
+func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
 
 	var i interface{}
 	err := json.Unmarshal(file, &i, set.Path, set.Aliases)
@@ -226,7 +227,7 @@ func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownP
 }
 
 // openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.
-func openFile(filePath string, set Settings) ([]byte, uint64, error) {
+func openFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil, 0, nil

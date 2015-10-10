@@ -1,61 +1,70 @@
 package generator // import "kego.io/generator"
 
 import (
+	"bytes"
 	"fmt"
-	"io"
+	"go/format"
+
+	"kego.io/kerr"
 )
 
-type generator struct {
+type Generator struct {
 	path       string
 	name       string
 	Imports    Imports
 	statements []string
-	writer     io.Writer
+	buffer     *bytes.Buffer
 }
 
-func New(path string, writer io.Writer) (*generator, error) {
+func New(path string) *Generator {
 	name := getPackageName(path)
-	return &generator{path: path, name: name, Imports: Imports{}, writer: writer}, nil
+	return &Generator{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
 }
-func NewWithName(path string, name string, writer io.Writer) *generator {
-	return &generator{path: path, name: name, Imports: Imports{}, writer: writer}
+func WithName(path string, name string) *Generator {
+	return &Generator{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
 }
 
-func (g *generator) Print(args ...interface{}) *generator {
+func (g *Generator) Print(args ...interface{}) *Generator {
 	g.statements = append(g.statements, fmt.Sprint(args...))
 	return g
 }
-func (g *generator) Printf(f string, args ...interface{}) *generator {
+func (g *Generator) Printf(f string, args ...interface{}) *Generator {
 	g.statements = append(g.statements, fmt.Sprintf(f, args...))
 	return g
 }
-func (g *generator) Println(args ...interface{}) *generator {
+func (g *Generator) Println(args ...interface{}) *Generator {
 	g.statements = append(g.statements, fmt.Sprint(args...)+"\n")
 	return g
 }
 
-func (g *generator) Build() {
-	w := g.writer
-	fmt.Fprintf(w, "package %s", g.name)
+func (g *Generator) Build() ([]byte, error) {
+	b := g.buffer
+	fmt.Fprintf(b, "package %s", g.name)
 	if len(g.Imports) > 0 {
-		fmt.Fprintf(w, "\n\n")
-		fmt.Fprintf(w, "import (")
+		fmt.Fprintf(b, "\n\n")
+		fmt.Fprintf(b, "import (")
 		// The packages should build in the same order to make our tests work reproducibly, so
 		// we use the sorted packages() array rather than ranging over the map
 		for _, path := range g.Imports.packages() {
-			fmt.Fprintf(w, "\n")
+			fmt.Fprintf(b, "\n")
 			imp := g.Imports[path]
 			alias := ""
 			if imp.Alias != imp.Name {
 				// if the alias is the same as the package name, we can omit the alias
 				alias = imp.Alias
 			}
-			fmt.Fprintf(w, "%s \"%s\"", alias, path)
+			fmt.Fprintf(b, "%s \"%s\"", alias, path)
 		}
-		fmt.Fprintf(w, "\n")
-		fmt.Fprintf(w, ")\n")
+		fmt.Fprintf(b, "\n")
+		fmt.Fprintf(b, ")\n")
 	}
 	for _, statement := range g.statements {
-		fmt.Fprintf(w, "%s", statement)
+		fmt.Fprintf(b, "%s", statement)
 	}
+
+	source, err := format.Source(b.Bytes())
+	if err != nil {
+		return nil, kerr.New("CRBYOUOHPG", err, "format.Source: %s", b.String())
+	}
+	return source, nil
 }

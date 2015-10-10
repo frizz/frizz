@@ -10,11 +10,12 @@ import (
 
 	"kego.io/json"
 	"kego.io/kerr"
+	"kego.io/process/settings"
 	"kego.io/selectors"
 	"kego.io/system"
 )
 
-func ValidateCommand(set Settings) (typesChanged bool, err error) {
+func ValidateCommand(set *settings.Settings) (typesChanged bool, err error) {
 	if set.Verbose {
 		fmt.Print("Validating... ")
 	}
@@ -36,7 +37,7 @@ func ValidateCommand(set Settings) (typesChanged bool, err error) {
 	return false, nil
 }
 
-func Validate(set Settings) error {
+func Validate(set *settings.Settings) error {
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -67,7 +68,7 @@ func Validate(set Settings) error {
 	return nil
 }
 
-func validateFile(filePath string, set Settings) error {
+func validateFile(filePath string, set *settings.Settings) error {
 
 	bytes, hash, err := openFile(filePath, set)
 	if err != nil {
@@ -83,7 +84,7 @@ func validateFile(filePath string, set Settings) error {
 	return nil
 }
 
-func validateBytes(bytes []byte, hash uint64, set Settings) error {
+func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
 	var i interface{}
 	err := json.Unmarshal(bytes, &i, set.Path, set.Aliases)
 	if up, ok := err.(json.UnknownPackageError); ok {

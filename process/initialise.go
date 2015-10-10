@@ -9,21 +9,12 @@ import (
 	"strings"
 
 	"kego.io/kerr"
+	"kego.io/process/settings"
 	"kego.io/system"
 )
 
-type Settings struct {
-	Dir       string
-	Edit      bool
-	Update    bool
-	Recursive bool
-	Verbose   bool
-	Path      string
-	Aliases   map[string]string
-}
-
-func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (Settings, error) {
-	set := Settings{}
+func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (*settings.Settings, error) {
+	set := settings.New()
 	set.Edit = edit
 	set.Update = update
 	set.Recursive = recursive
@@ -32,13 +23,13 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 
 		dir, err := os.Getwd()
 		if err != nil {
-			return Settings{}, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
+			return nil, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
 		}
 		set.Dir = dir
 
 		pathFromDir, err := getPackagePath(set.Dir, os.Getenv("GOPATH"))
 		if err != nil {
-			return Settings{}, kerr.New("PSRAWHQCPV", err, "getPackage")
+			return nil, kerr.New("PSRAWHQCPV", err, "getPackage")
 		}
 		set.Path = pathFromDir
 
@@ -52,7 +43,7 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 		} else {
 			dir, err := getPackageDir(set.Path, os.Getenv("GOPATH"))
 			if err != nil {
-				return Settings{}, kerr.New("GXTUPMHETV", err, "Can't find %s", set.Path)
+				return nil, kerr.New("GXTUPMHETV", err, "Can't find %s", set.Path)
 			}
 			set.Dir = dir
 		}
@@ -60,18 +51,18 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 	}
 
 	if err := ScanForPackage(set); err != nil {
-		return Settings{}, kerr.New("IAAETYCHSW", err, "ScanForPackage")
+		return nil, kerr.New("IAAETYCHSW", err, "ScanForPackage")
 	}
 	p, ok := system.GetPackage(set.Path)
 	if !ok {
-		return Settings{}, kerr.New("BHLJNCIWUJ", nil, "Package not found")
+		return nil, kerr.New("BHLJNCIWUJ", nil, "Package not found")
 	}
 	set.Aliases = p.Aliases
 
 	return set, nil
 }
 
-func InitialiseCommand(update bool, recursive bool, path string) (Settings, error) {
+func InitialiseCommand(update bool, recursive bool, path string) (*settings.Settings, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
@@ -82,13 +73,13 @@ func InitialiseCommand(update bool, recursive bool, path string) (Settings, erro
 
 	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path)
 	if err != nil {
-		return Settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
+		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
 	return set, nil
 }
 
-func InitialiseAutomatic() (Settings, error) {
+func InitialiseAutomatic() (*settings.Settings, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
@@ -103,7 +94,7 @@ func InitialiseAutomatic() (Settings, error) {
 
 	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg)
 	if err != nil {
-		return Settings{}, kerr.New("UKAMOSMQST", err, "InitialiseManually")
+		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
 	return set, nil

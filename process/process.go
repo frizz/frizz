@@ -12,6 +12,8 @@ import (
 	"bytes"
 
 	"kego.io/kerr"
+	"kego.io/process/generate"
+	"kego.io/process/settings"
 )
 
 type sourceType string
@@ -41,7 +43,7 @@ func FormatError(err error) string {
 	return err.Error()
 }
 
-func KeCommand(set Settings) error {
+func KeCommand(set *settings.Settings) error {
 
 	for p, a := range set.Aliases {
 		if set.Verbose {
@@ -80,7 +82,7 @@ func KeCommand(set Settings) error {
 	return nil
 }
 
-func RunAllCommands(set Settings) error {
+func RunAllCommands(set *settings.Settings) error {
 	if err := RunCommand(C_STRUCTS, set); err != nil {
 		return err
 	}
@@ -97,11 +99,20 @@ func RunAllCommands(set Settings) error {
 // for a command is generated. This command is then compiled and run with
 // "go run". When run, this command generates the extra types data in
 // the "types" subpackage.
-func RunCommand(file commandType, set Settings) error {
+func RunCommand(file commandType, set *settings.Settings) error {
 
-	source, err := GenerateCommand(file, set)
+	var source []byte
+	var err error
+	switch file {
+	case C_KE:
+		source, err = generate.KeCommand(set)
+	case C_STRUCTS:
+		source, err = generate.StructsCommand(set)
+	case C_TYPES:
+		source, err = generate.TypesCommand(set)
+	}
 	if err != nil {
-		return kerr.New("SPRFABSRWK", err, "Generate")
+		return kerr.New("SPRFABSRWK", err, "generate command: %s", file)
 	}
 
 	outputDir, err := ioutil.TempDir(set.Dir, "temporary")
@@ -223,22 +234,11 @@ func logger(verbose bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.W
 // file == F_CMD_KE: this is the temporary command that we create in order
 // to run the validation and start the editor
 //
-func Generate(file sourceType, set Settings) error {
+func Generate(file sourceType, set *settings.Settings) error {
 
 	if set.Verbose {
 		fmt.Print("Generating ", file, "... ")
 	}
-
-	outputDir := set.Dir
-	if file == S_TYPES {
-		outputDir = filepath.Join(set.Dir, "types")
-	} else if file == S_EDITOR {
-		outputDir = filepath.Join(set.Dir, "editor")
-	}
-
-	// We only tolerate unknown types when we're initially building the struct files. At all other
-	// times, the generated structs should provide all types.
-	ignoreUnknownTypes := file == S_STRUCTS
 
 	if file == S_STRUCTS {
 		hasFiles, err := HasSourceFiles(set)
@@ -251,6 +251,12 @@ func Generate(file sourceType, set Settings) error {
 	}
 
 	if file == S_STRUCTS || file == S_TYPES {
+
+		// We only tolerate unknown types when we're initially building the
+		// struct files. At all other times, the generated structs should
+		// provide all types.
+		ignoreUnknownTypes := file == S_STRUCTS
+
 		// When generating structs or types, we need to scan for types. All other runs will have
 		// them compiled in the types sub-package.
 		if err := ScanForTypes(ignoreUnknownTypes, set); err != nil {
@@ -258,21 +264,32 @@ func Generate(file sourceType, set Settings) error {
 		}
 	}
 
-	source, err := GenerateSource(file, set)
+	var outputDir string
+	var filename string
+	var source []byte
+	var err error
+
+	switch file {
+	case S_STRUCTS:
+		outputDir = set.Dir
+		filename = "generated-structs.go"
+		source, err = generate.Structs(set)
+	case S_TYPES:
+		outputDir = filepath.Join(set.Dir, "types")
+		filename = "generated-types.go"
+		source, err = generate.Types(set)
+	case S_EDITOR:
+		outputDir = filepath.Join(set.Dir, "editor")
+		filename = "generated-editor.go"
+		source, err = generate.Editor(set)
+	}
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "GenerateSource")
+		return kerr.New("XFNESBLBTQ", err, "generate: %s", file)
 	}
 
 	// We only backup in the system structs and types files because they are the only
 	// generated files we ever need to roll back
 	backup := set.Path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
-
-	// Filenames:
-	// generated-globals.go
-	// generated-structs.go
-	// generated-types.go
-	// generated-editor.go
-	filename := fmt.Sprintf("generated-%s.go", file)
 
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "save")

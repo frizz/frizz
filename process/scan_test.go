@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"kego.io/process/pkgtest"
+	"kego.io/process/settings"
 )
 
 func TestScan(t *testing.T) {
@@ -30,7 +31,7 @@ func TestScan(t *testing.T) {
 		}`,
 	})
 
-	err = ScanForTypes(false, Settings{Dir: dir, Path: path})
+	err = ScanForTypes(false, &settings.Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 	defer system.Unregister(path, "b")
 
@@ -72,7 +73,7 @@ func TestScan_rule(t *testing.T) {
 		}`,
 	})
 
-	err = ScanForTypes(false, Settings{Dir: dir, Path: path})
+	err = ScanForTypes(false, &settings.Settings{Dir: dir, Path: path})
 	assert.NoError(t, err)
 	defer system.Unregister(path, "b")
 	defer system.Unregister(path, "@b")
@@ -87,10 +88,10 @@ func TestScan_rule(t *testing.T) {
 
 func TestScan_errors(t *testing.T) {
 
-	err := ScanForTypes(false, Settings{Dir: "/this-folder-doesnt-exist", Recursive: true})
+	err := ScanForTypes(false, &settings.Settings{Dir: "/this-folder-doesnt-exist", Recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 
-	err = ScanForTypes(false, Settings{Dir: "/this-folder-doesnt-exist", Recursive: false})
+	err = ScanForTypes(false, &settings.Settings{Dir: "/this-folder-doesnt-exist", Recursive: false})
 	assert.IsError(t, err, "CDYLDBLHKT")
 
 	n, err := pkgtest.CreateTemporaryNamespace()
@@ -101,11 +102,11 @@ func TestScan_errors(t *testing.T) {
 		"a.json": "foo",
 	})
 
-	err = ScanForTypes(false, Settings{Dir: dir, Path: path, Recursive: true})
+	err = ScanForTypes(false, &settings.Settings{Dir: dir, Path: path, Recursive: true})
 	assert.IsError(t, err, "XHHQSAVCKK")
 	assert.HasError(t, err, "DHTURNTIXE")
 
-	err = ScanForTypes(false, Settings{Dir: dir, Path: path, Recursive: false})
+	err = ScanForTypes(false, &settings.Settings{Dir: dir, Path: path, Recursive: false})
 	assert.IsError(t, err, "IAPRUHFTAD")
 	assert.HasError(t, err, "DHTURNTIXE")
 
