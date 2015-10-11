@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/websocket"
 
 	"kego.io/kerr"
+	"kego.io/process/scan"
 
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"
@@ -150,14 +151,14 @@ func initialise(path string) (pkg *system.Package, err error) {
 	if err != nil {
 		return nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
-	if err := process.ScanForPackage(set); err != nil {
-		return nil, kerr.New("ASQLIYWNLN", err, "process.ScanForPackage")
+	if err := scan.ScanForPackage(set); err != nil {
+		return nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
 	}
-	if err := process.ScanForTypes(false, set); err != nil {
-		return nil, kerr.New("BIVHXIAIKJ", err, "process.ScanForTypes")
+	if err := scan.ScanForTypes(false, set); err != nil {
+		return nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
 	}
-	if err := process.ScanForSource(set); err != nil {
-		return nil, kerr.New("DLUESVWHXO", err, "process.ScanForSource")
+	if err := scan.ScanForSource(set); err != nil {
+		return nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
 	}
 	p, ok := system.GetPackage(path)
 	if !ok {

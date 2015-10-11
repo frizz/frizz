@@ -1,4 +1,4 @@
-package tests
+package tests_test
 
 import (
 	"os"
@@ -9,7 +9,7 @@ import (
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/generate"
-	"kego.io/process/pkgtest"
+	"kego.io/process/tests"
 	_ "kego.io/system"
 	_ "kego.io/system/types"
 )
@@ -22,11 +22,11 @@ func SkipTestNonDestructiveGeneration(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	namespaceDir, err := pkgtest.CreateTemporaryNamespace()
+	namespaceDir, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespaceDir)
 
-	path, _, _, err := pkgtest.CreateTemporaryPackage(namespaceDir, "a", map[string]string{
+	path, _, _, err := tests.CreateTemporaryPackage(namespaceDir, "a", map[string]string{
 		"a.yaml": `
 			type: system:type
 			id: b

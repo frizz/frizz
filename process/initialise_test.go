@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/pkgtest"
+	"kego.io/process/tests"
 )
 
 func TestInitialise(t *testing.T) {
@@ -15,15 +15,15 @@ func TestInitialise(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Chdir(current)
 
-	namespace, err := pkgtest.CreateTemporaryNamespace()
+	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	pathA, dirA, _, err := pkgtest.CreateTemporaryPackage(namespace, "a", map[string]string{
+	pathA, dirA, _, err := tests.CreateTemporaryPackage(namespace, "a", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"a.go":   "package a",
 	})
-	pathB, dirB, _, err := pkgtest.CreateTemporaryPackage(namespace, "b", map[string]string{
+	pathB, dirB, _, err := tests.CreateTemporaryPackage(namespace, "b", map[string]string{
 		"b.json": `{"type": "system:type", "id": "b"}`,
 		"b.go":   "package b",
 	})
@@ -70,11 +70,11 @@ func TestGetPackageDir(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Chdir(current)
 
-	namespace, err := pkgtest.CreateTemporaryNamespace()
+	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
-	pathA, dirA, _, err := pkgtest.CreateTemporaryPackage(namespace, "a", nil)
+	pathA, dirA, _, err := tests.CreateTemporaryPackage(namespace, "a", nil)
 
 	dir, err := getPackageDir(pathA, os.Getenv("GOPATH"))
 	assert.NoError(t, err)

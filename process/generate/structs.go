@@ -51,7 +51,7 @@ func Structs(set *settings.Settings) (source []byte, err error) {
 			for _, iface := range interfaces {
 				h, ok := system.GetGlobal(iface.Package, iface.Name)
 				if !ok {
-					return nil, kerr.New("UHIRQKNEEV", nil, "Can't find type %s", iface)
+					return nil, kerr.New("UHIRQKNEEV", nil, "Can't find type %s", iface.Value())
 				}
 				t, ok := h.Object.(*system.Type)
 				if !ok {

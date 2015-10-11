@@ -1,4 +1,4 @@
-package process
+package scan // import "kego.io/process/scan"
 
 import (
 	"fmt"
@@ -192,7 +192,7 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 
 func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
 
-	bytes, hash, err := openFile(filePath, set)
+	bytes, hash, err := OpenFile(filePath, set)
 	if err != nil {
 		return kerr.New("JHSOCKOTHE", err, "openFile")
 	}
@@ -227,7 +227,7 @@ func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownP
 }
 
 // openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.
-func openFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
+func OpenFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil, 0, nil
@@ -251,7 +251,7 @@ func openFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
 		return nil, 0, kerr.New("MDNIWARJEG", err, "filepath.Rel")
 	}
 
-	hash, err := getHash(relative, set.Path, set.Aliases, bytes)
+	hash, err := GetHash(relative, set.Path, set.Aliases, bytes)
 	if err != nil {
 		return nil, 0, kerr.New("GKUPQSADWQ", err, "getHash")
 	}
@@ -261,7 +261,7 @@ func openFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
 }
 
 // gets the hash of a file, including data about the file path, package path and import aliases
-func getHash(relativeFilePath string, packagePath string, aliases map[string]string, content []byte) (uint64, error) {
+func GetHash(relativeFilePath string, packagePath string, aliases map[string]string, content []byte) (uint64, error) {
 
 	if aliases == nil {
 		// to stop null / {} confusion in json

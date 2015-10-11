@@ -1,4 +1,4 @@
-package process
+package scan
 
 import (
 	"testing"
@@ -8,17 +8,17 @@ import (
 
 	"os"
 
-	"kego.io/process/pkgtest"
 	"kego.io/process/settings"
+	"kego.io/process/tests"
 )
 
 func TestScan(t *testing.T) {
 
-	n, err := pkgtest.CreateTemporaryNamespace()
+	n, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(n)
 
-	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -45,11 +45,11 @@ func TestScan(t *testing.T) {
 
 func TestScan_rule(t *testing.T) {
 
-	n, err := pkgtest.CreateTemporaryNamespace()
+	n, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(n)
 
-	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -94,11 +94,11 @@ func TestScan_errors(t *testing.T) {
 	err = ScanForTypes(false, &settings.Settings{Dir: "/this-folder-doesnt-exist", Recursive: false})
 	assert.IsError(t, err, "CDYLDBLHKT")
 
-	n, err := pkgtest.CreateTemporaryNamespace()
+	n, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(n)
 
-	path, dir, _, err := pkgtest.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": "foo",
 	})
 

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"kego.io/kerr"
+	"kego.io/process/scan"
 	"kego.io/process/settings"
 	"kego.io/system"
 )
@@ -50,8 +51,8 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 
 	}
 
-	if err := ScanForPackage(set); err != nil {
-		return nil, kerr.New("IAAETYCHSW", err, "ScanForPackage")
+	if err := scan.ScanForPackage(set); err != nil {
+		return nil, kerr.New("IAAETYCHSW", err, "scan.ScanForPackage")
 	}
 	p, ok := system.GetPackage(set.Path)
 	if !ok {

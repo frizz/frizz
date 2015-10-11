@@ -14,6 +14,7 @@ import (
 	"kego.io/ke"
 	"kego.io/kerr/assert"
 	"kego.io/process"
+	"kego.io/process/scan"
 	"kego.io/system"
 	_ "kego.io/system/types"
 )
@@ -25,7 +26,7 @@ func TestUnpack(t *testing.T) {
 func testUnpack(t *testing.T, path string) {
 	set, err := process.InitialiseManually(false, false, false, false, path)
 	assert.NoError(t, err)
-	err = process.ScanForSource(set)
+	err = scan.ScanForSource(set)
 	assert.NoError(t, err)
 
 	sha := system.GetAllSourceInPackage(set.Path)

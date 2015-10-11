@@ -1,4 +1,4 @@
-package tests
+package tests_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process"
-	"kego.io/process/pkgtest"
+	"kego.io/process/tests"
 )
 
 func TestInt(t *testing.T) {
@@ -17,7 +17,7 @@ func TestInt(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	namespace, err := pkgtest.CreateTemporaryNamespace()
+	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
@@ -71,7 +71,7 @@ func TestSelector(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	namespace, err := pkgtest.CreateTemporaryNamespace()
+	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
@@ -116,7 +116,7 @@ func TestRules(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	namespace, err := pkgtest.CreateTemporaryNamespace()
+	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
 
@@ -169,7 +169,7 @@ func TestImport(t *testing.T) {
 		t.Skip("Skipping long-running end-to-end tests")
 	}
 
-	namespaceDir, err := pkgtest.CreateTemporaryNamespace()
+	namespaceDir, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespaceDir)
 
@@ -215,7 +215,7 @@ func TestImport(t *testing.T) {
 
 func runKego(namespace string, name string, files map[string]string) (string, error) {
 
-	path, _, tests, err := pkgtest.CreateTemporaryPackage(namespace, name, files)
+	path, _, tests, err := tests.CreateTemporaryPackage(namespace, name, files)
 	if err != nil {
 		return "", err
 	}

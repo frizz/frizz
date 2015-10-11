@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/pkgtest"
+	"kego.io/process/tests"
 )
 
 func TestGuessPackageName(t *testing.T) {
@@ -29,16 +29,16 @@ func TestGuessPackageName(t *testing.T) {
 
 func TestGetPackageName(t *testing.T) {
 
-	dir, err := pkgtest.CreateTemporaryNamespace()
+	dir, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 
-	path, _, _, err := pkgtest.CreateTemporaryPackage(dir, "a", map[string]string{})
+	path, _, _, err := tests.CreateTemporaryPackage(dir, "a", map[string]string{})
 	assert.NoError(t, err)
 	name := getPackageName(path)
 	assert.Equal(t, "a", name)
 
-	path, _, _, err = pkgtest.CreateTemporaryPackage(dir, "b", map[string]string{
+	path, _, _, err = tests.CreateTemporaryPackage(dir, "b", map[string]string{
 		"foo.go": "package c",
 	})
 	assert.NoError(t, err)

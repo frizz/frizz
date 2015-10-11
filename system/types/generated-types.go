@@ -1,8 +1,6 @@
 package types
 
-import (
-	"kego.io/system"
-)
+import "kego.io/system"
 
 func init() {
 	ptr0 := &system.Object_base{Description: "This is the base type for the object interface. All ke objects have this type embedded.", Id: system.Reference{Package: "kego.io/system", Name: "$object", Exists: true}, Rules: []system.Rule(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
