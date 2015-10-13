@@ -5,7 +5,7 @@ interface: true
 rule:
   description: Restriction rules for images
   type: system:type
-  is: ["system:rule"]
+  embed: ["system:rule"]
   fields:
     secure:
       type: system:@bool

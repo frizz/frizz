@@ -4,8 +4,6 @@ import (
 	"reflect"
 
 	"fmt"
-
-	"github.com/go-errors/errors"
 )
 
 type Pointer struct {
@@ -27,7 +25,7 @@ func Build(object interface{}, pointers *[]Pointer, path string, getAlias func(s
 
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr {
-		panic(errors.New("Must be pointer"))
+		panic("Must be pointer")
 	}
 	if pointer, ok := findPointer(pointers, value.Pointer()); ok {
 		return pointer

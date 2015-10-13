@@ -79,9 +79,9 @@ func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
 
 func validateUnknown(data interface{}, hash uint64, path string, aliases map[string]string) error {
 
-	ob, ok := data.(system.Object)
+	ob, ok := data.(system.ObjectInterface)
 	if !ok {
-		return kerr.New("RSSFIFHCOF", nil, "data %T does not implement system.Object", data)
+		return kerr.New("RSSFIFHCOF", nil, "data %T does not implement system.ObjectInterface", data)
 	}
 
 	if ty, ok := ob.(*system.Type); ok {
@@ -94,16 +94,16 @@ func validateUnknown(data interface{}, hash uint64, path string, aliases map[str
 		}
 	}
 
-	t, ok := ob.Object().Type.GetType()
+	t, ok := ob.GetObject().Type.GetType()
 	if !ok {
-		return kerr.New("BNQTCEDVGV", nil, "Type.GetType %s not found", ob.Object().Type.Value())
+		return kerr.New("BNQTCEDVGV", nil, "Type.GetType %s not found", ob.GetObject().Type.Value())
 	}
 
 	partialRuleHolder := system.NewMinimalRuleHolder(t)
 
 	rules := t.Rules
 	if system.RulesApplyToObjects(data) {
-		rules = append(rules, data.(system.Object).Object().Rules...)
+		rules = append(rules, data.(system.ObjectInterface).GetObject().Rules...)
 	}
 
 	return validateObject(partialRuleHolder, rules, data, path, aliases)
@@ -118,7 +118,7 @@ type ValidationError struct {
 	kerr.Struct
 }
 
-func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
+func validateObject(rule *system.RuleHolder, rules []system.RuleInterface, data interface{}, path string, aliases map[string]string) error {
 
 	// Validate the actual object
 	if v, ok := data.(system.Validator); ok {
@@ -154,7 +154,7 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 
 		for _, rule := range rules {
 
-			base := rule.Rule()
+			base := rule.GetRule()
 
 			selector := ":root"
 			if base.Selector != "" {
@@ -190,14 +190,14 @@ func validateObject(rule *system.RuleHolder, rules []system.Rule, data interface
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
 		}
-		rules := rule.Rule.(system.Object).Object().Rules
+		rules := rule.Rule.(system.ObjectInterface).GetObject().Rules
 		return validateArrayChildren(items, rules, data, path, aliases)
 	case "map":
 		items, err := rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
 		}
-		rules := rule.Rule.(system.Object).Object().Rules
+		rules := rule.Rule.(system.ObjectInterface).GetObject().Rules
 		return validateMapChildren(items, rules, data, path, aliases)
 	}
 
@@ -216,9 +216,9 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		return kerr.New("FJBEEDBLOK", nil, "value.Kind %s (%T) must be Struct", value.Kind(), data)
 	}
 
-	rules := []system.Rule{}
+	rules := []system.RuleInterface{}
 	if system.RulesApplyToObjects(data) {
-		rules = data.(system.Object).Object().Rules
+		rules = data.(system.ObjectInterface).GetObject().Rules
 	}
 
 	for name, field := range itemsRule.ParentType.Fields {
@@ -226,23 +226,23 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		if err != nil {
 			return kerr.New("XTUKWWRDHH", err, "system.GetField (%s)", name)
 		}
-		if !field.Rule().Optional && !found {
+		if !field.GetRule().Optional && !found {
 			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
 		}
 		childRule, err := system.NewRuleHolder(field)
 		if err != nil {
 			return kerr.New("IQOXVXBLRO", err, "system.NewRuleHolder (%s)", name)
 		}
-		ob, ok := field.(system.Object)
+		ob, ok := field.(system.ObjectInterface)
 		if !ok {
-			return kerr.New("XRTVWVUAMP", nil, "field does not implement system.Object")
+			return kerr.New("XRTVWVUAMP", nil, "field does not implement system.ObjectInterface")
 		}
 
-		allRules := append(rules, ob.Object().Rules...)
+		allRules := append(rules, ob.GetObject().Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(childRule.Rule.(system.Object).Object().Rules) > 0 {
-			allRules = append(allRules, childRule.Rule.(system.Object).Object().Rules...)
+		if len(childRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
+			allRules = append(allRules, childRule.Rule.(system.ObjectInterface).GetObject().Rules...)
 		}
 
 		if err = validateObject(childRule, allRules, child, path, aliases); err != nil {
@@ -253,7 +253,7 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
+func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.RuleInterface, data interface{}, path string, aliases map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Slice {
@@ -261,8 +261,8 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, da
 	}
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Rule.(system.Object).Object().Rules) > 0 {
-		rules = append(rules, itemsRule.Rule.(system.Object).Object().Rules...)
+	if len(itemsRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
+		rules = append(rules, itemsRule.Rule.(system.ObjectInterface).GetObject().Rules...)
 	}
 
 	for i := 0; i < value.Len(); i++ {
@@ -275,7 +275,7 @@ func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.Rule, da
 }
 
 // TODO: Generate some code to remove the reflection from this
-func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data interface{}, path string, aliases map[string]string) error {
+func validateMapChildren(itemsRule *system.RuleHolder, rules []system.RuleInterface, data interface{}, path string, aliases map[string]string) error {
 
 	value := reflect.Indirect(reflect.ValueOf(data))
 	if value.Kind() != reflect.Map {
@@ -286,8 +286,8 @@ func validateMapChildren(itemsRule *system.RuleHolder, rules []system.Rule, data
 	}
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Rule.(system.Object).Object().Rules) > 0 {
-		rules = append(rules, itemsRule.Rule.(system.Object).Object().Rules...)
+	if len(itemsRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
+		rules = append(rules, itemsRule.Rule.(system.ObjectInterface).GetObject().Rules...)
 	}
 
 	for _, key := range value.MapKeys() {

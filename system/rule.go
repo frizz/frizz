@@ -7,39 +7,40 @@ import (
 	"kego.io/kerr"
 )
 
-type Rule interface {
-	Rule() *Rule_base
-}
-
 // Enforcer is a rule with properties that need to be enforced against data.
 type Enforcer interface {
 	Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error)
 }
 
-func (b *Rule_base) Rule() *Rule_base {
-	return b
-}
-
 type CollectionRule interface {
-	GetItemsRule() Rule
+	GetItemsRule() RuleInterface
 }
 
 func init() {
 	type dummyRule struct {
-		*Object_base
-		*Rule_base
+		*Object
+		*Rule
 		Default interface{}
 	}
-	json.RegisterInterface(reflect.TypeOf((*Rule)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
+	json.RegisterInterface(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
 }
 
 type RuleHolder struct {
-	Rule       Rule
+	Rule       RuleInterface
 	RuleType   *Type
 	ParentType *Type
 }
 
 func (r *RuleHolder) GetReflectType() (reflect.Type, error) {
+
+	if r.Rule.GetRule().Interface {
+		typ, _, ok := json.GetTypeInterface(r.ParentType.Id.Package, r.ParentType.Id.Name)
+		if !ok {
+			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.ParentType.Id.Value())
+		}
+		return typ, nil
+	}
+
 	switch r.ParentType.Native.Value {
 	case "object", "number", "bool", "string":
 		typ, _, ok := json.GetType(r.ParentType.Id.Package, r.ParentType.Id.Name)
@@ -76,7 +77,7 @@ func (r *RuleHolder) GetReflectType() (reflect.Type, error) {
 func NewMinimalRuleHolder(t *Type) *RuleHolder {
 	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t}
 }
-func NewRuleHolder(r Rule) (*RuleHolder, error) {
+func NewRuleHolder(r RuleInterface) (*RuleHolder, error) {
 	rt, pt, err := ruleTypes(r)
 	if err != nil {
 		return nil, kerr.New("VRCWUGOTMA", err, "ruleTypes")
@@ -84,7 +85,7 @@ func NewRuleHolder(r Rule) (*RuleHolder, error) {
 	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt}, nil
 }
 
-func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
+func ruleTypes(r RuleInterface) (ruleType *Type, parentType *Type, err error) {
 	ruleReference, err := ruleTypeReference(r)
 	if err != nil {
 		return nil, nil, kerr.New("BNEKIFYDDL", err, "ruleTypeReference")
@@ -104,12 +105,12 @@ func ruleTypes(r Rule) (ruleType *Type, parentType *Type, err error) {
 	return rt, pt, nil
 }
 
-func ruleTypeReference(r Rule) (*Reference, error) {
-	ob, ok := r.(Object)
+func ruleTypeReference(r RuleInterface) (*Reference, error) {
+	ob, ok := r.(ObjectInterface)
 	if !ok {
-		return nil, kerr.New("VKFNPJDNVB", nil, "r does not implement Object")
+		return nil, kerr.New("VKFNPJDNVB", nil, "r does not implement ObjectInterface")
 	}
-	return &ob.Object().Type, nil
+	return &ob.GetObject().Type, nil
 
 }
 
@@ -125,7 +126,7 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !ok {
 		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleFieldByReflection could not find Items field")
 	}
-	rule, ok := items.(Rule)
+	rule, ok := items.(RuleInterface)
 	if !ok {
 		return nil, kerr.New("DIFVRMVWMC", nil, "items is not a rule")
 	}

@@ -4,8 +4,8 @@ package system // import "kego.io/system"
 import "strings"
 
 const (
-	INTERFACE_PREFIX string = "^"
-	RULE_PREFIX             = "£"
+	INTERFACE_PREFIX string = "$"
+	RULE_PREFIX             = "@"
 )
 
 func GoName(id string) string {
@@ -27,11 +27,20 @@ func GoName(id string) string {
 		return cap(id, true) + "Interface"
 	case RULE_PREFIX:
 		return cap(id, true) + "Rule"
-	case "@":
-		return cap(id, true) + "_rule"
-	case "$":
-		return cap(id, true) + "_base"
 	default:
 		return cap(id, false)
 	}
+}
+
+func GoInterfaceName(typeOrRuleName string) string {
+
+	if len(typeOrRuleName) == 0 {
+		return ""
+	}
+
+	if strings.HasPrefix(typeOrRuleName, RULE_PREFIX) {
+		typeOrRuleName = typeOrRuleName[1:]
+	}
+
+	return GoName(INTERFACE_PREFIX + typeOrRuleName)
 }

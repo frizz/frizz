@@ -13,11 +13,11 @@ var registry struct {
 }
 
 type Hashed struct {
-	Object Object
+	Object ObjectInterface
 	Hash   uint64
 }
 
-func Register(path string, name string, ob Object, hash uint64) error {
+func Register(path string, name string, ob ObjectInterface, hash uint64) error {
 	registry.Lock()
 	defer registry.Unlock()
 	if registry.m == nil {
@@ -57,7 +57,7 @@ func GetAllGlobalsInPackage(path string, filter *Reference) []Hashed {
 		if ref.Package != path {
 			continue
 		}
-		if filter != nil && h.Object.Object().Type != *filter {
+		if filter != nil && h.Object.GetObject().Type != *filter {
 			continue
 		}
 		out = append(out, h)
@@ -75,5 +75,5 @@ func (s SortableHashed) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 func (s SortableHashed) Less(i, j int) bool {
-	return s[i].Object.Object().Id.Value() < s[j].Object.Object().Id.Value()
+	return s[i].Object.GetObject().Id.Value() < s[j].Object.GetObject().Id.Value()
 }

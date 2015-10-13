@@ -10,28 +10,28 @@ import (
 )
 
 // Send sends a message to the connection.
-func (c *Conn) Send(message messages.Message) {
+func (c *Conn) Send(message messages.MessageInterface) {
 	c.outwg.Add(1)
 	c.out <- message
 }
 
 // Request sends a message and expects a response
-func (c *Conn) Request(message messages.Message) chan messages.Message {
+func (c *Conn) Request(message messages.MessageInterface) chan messages.MessageInterface {
 	responseChannel := c.sendRequestAndReturnResponseChannel(message)
 	outputChannel := c.applyTimeout(TIMEOUT, responseChannel)
 	return outputChannel
 }
-func (c *Conn) sendRequestAndReturnResponseChannel(message messages.Message) chan messages.Message {
-	responseChannel := make(chan messages.Message)
-	c.requests[message.Message().Guid.Value] = responseChannel
+func (c *Conn) sendRequestAndReturnResponseChannel(message messages.MessageInterface) chan messages.MessageInterface {
+	responseChannel := make(chan messages.MessageInterface)
+	c.requests[message.GetMessage().Guid.Value] = responseChannel
 	c.outwg.Add(1)
 	c.out <- message
 	return responseChannel
 }
 
 // Respond sends a message as a reply to a request
-func (c *Conn) Respond(message messages.Message, requestGuid string) {
-	message.Message().Request = system.NewString(requestGuid)
+func (c *Conn) Respond(message messages.MessageInterface, requestGuid string) {
+	message.GetMessage().Request = system.NewString(requestGuid)
 	c.outwg.Add(1)
 	c.out <- message
 }

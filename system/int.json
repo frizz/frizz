@@ -6,7 +6,7 @@
 	"rule": {
 		"description": "Restriction rules for integers",
 		"type": "type",
-		"is": ["rule"],
+		"embed": ["rule"],
 		"fields": {
 			"default": {
 				"description": "Default value if this property is omitted",

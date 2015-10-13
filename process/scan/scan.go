@@ -36,7 +36,7 @@ func ScanForPackage(set *settings.Settings) error {
 	}
 	if pkg == nil {
 		pkg = &system.Package{
-			Object_base: &system.Object_base{
+			Object: &system.Object{
 				Type: system.NewReference("kego.io/system", "package"),
 			},
 		}
@@ -50,11 +50,11 @@ func ScanForGlobals(set *settings.Settings) error {
 		if _, ok := ob.(*system.Type); ok {
 			return nil
 		}
-		o, ok := ob.(system.Object)
+		o, ok := ob.(system.ObjectInterface)
 		if !ok {
 			return nil
 		}
-		b := o.Object()
+		b := o.GetObject()
 		if !b.Id.Exists {
 			// Anything without an ID is not a global
 			return nil
@@ -81,11 +81,11 @@ func HasSourceFiles(set *settings.Settings) (bool, error) {
 
 func ScanForSource(set *settings.Settings) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
-		o, ok := ob.(system.Object)
+		o, ok := ob.(system.ObjectInterface)
 		if !ok {
 			return nil
 		}
-		b := o.Object()
+		b := o.GetObject()
 		if !b.Id.Exists {
 			// Anything without an ID is not a global
 			return nil
@@ -106,23 +106,6 @@ func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
 				return kerr.New("XIANHMCTKB", err, "system.Register (type)")
 			}
 
-			if t.Base != nil {
-
-				if !t.Interface {
-					return kerr.New("OOUDHHYVOE", nil, "Only interface types can have a base type")
-				}
-
-				if t.Base.Id.Exists {
-					return kerr.New("OINLQNXBJK", nil, "Base types should not have id specified")
-				}
-
-				t.Base.Id = system.NewReference(t.Id.Package, fmt.Sprint("$", t.Id.Name))
-
-				if err := system.Register(t.Base.Id.Package, t.Base.Id.Name, t.Base, hash); err != nil {
-					return kerr.New("DRKPPLVLRO", err, "system.Register (base)")
-				}
-			}
-
 			if t.Rule != nil {
 
 				if t.Rule.Id.Exists {
@@ -140,12 +123,12 @@ func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
 				// If the rule is missing, automatically create a default.
 				ref := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
 				rule := &system.Type{
-					Object_base: &system.Object_base{
+					Object: &system.Object{
 						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
 						Type:        system.NewReference("kego.io/system", "type"),
 						Id:          ref,
 					},
-					Is:        []system.Reference{system.NewReference("kego.io/system", "rule")},
+					Embed:     []system.Reference{system.NewReference("kego.io/system", "rule")},
 					Native:    system.NewString("object"),
 					Interface: false,
 				}

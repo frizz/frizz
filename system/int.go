@@ -19,7 +19,7 @@ func NewInt(n int) Int {
 	return Int{Value: n, Exists: true}
 }
 
-func (r *Int_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *IntRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 
 	i, ok := data.(Int)
 	if !ok {

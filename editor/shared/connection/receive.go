@@ -11,8 +11,8 @@ import (
 
 // Register registers a channel for messages of a specific type. Replies
 // are not send to the registered channels.
-func (c *Conn) Subscribe(t system.Reference) chan messages.Message {
-	ch := make(chan messages.Message)
+func (c *Conn) Subscribe(t system.Reference) chan messages.MessageInterface {
+	ch := make(chan messages.MessageInterface)
 	c.subs[t] = ch
 	return ch
 }
@@ -36,12 +36,12 @@ func (c *Conn) Receive() error {
 			return kerr.New("GJTKHMTWYY", err, "ke.Unmarshal")
 		}
 
-		m, ok := i.(messages.Message)
+		m, ok := i.(messages.MessageInterface)
 		if !ok {
-			return kerr.New("FYWKSPGYXY", nil, "Received type %T does not implement messages.Message", i)
+			return kerr.New("FYWKSPGYXY", nil, "Received type %T does not implement messages.MessageInterface", i)
 		}
 
-		requestGuid := m.Message().Request
+		requestGuid := m.GetMessage().Request
 		if requestGuid.Exists {
 			reply, ok := c.requests[requestGuid.Value]
 			if !ok {
@@ -52,7 +52,7 @@ func (c *Conn) Receive() error {
 			continue
 		}
 
-		t := m.(system.Object).Object().Type
+		t := m.(system.ObjectInterface).GetObject().Type
 		subscriber, ok := c.subs[t]
 		if !ok {
 			return kerr.New("USAYKUNHSC", nil, "Subscriber not found for %s", t.Value())

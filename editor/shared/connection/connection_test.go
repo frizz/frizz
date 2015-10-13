@@ -13,7 +13,7 @@ func TestTimeout(t *testing.T) {
 
 	input, outcome := testTimeout(t)
 
-	time.Sleep(time.Millisecond * 15)
+	time.Sleep(time.Millisecond * 100)
 	input <- messages.NewSourceRequest("a")
 
 	err := <-outcome
@@ -25,7 +25,7 @@ func TestNoTimeout(t *testing.T) {
 
 	input, outcome := testTimeout(t)
 
-	time.Sleep(time.Millisecond * 5)
+	time.Sleep(time.Millisecond * 10)
 	input <- messages.NewSourceRequest("a")
 
 	err := <-outcome
@@ -33,14 +33,14 @@ func TestNoTimeout(t *testing.T) {
 
 }
 
-func testTimeout(t *testing.T) (chan messages.Message, chan error) {
+func testTimeout(t *testing.T) (chan messages.MessageInterface, chan error) {
 	fail := make(chan error)
 	c := New(nil, fail, false, "kego.io/editor/shared/messages", map[string]string{})
 
 	outcome := make(chan error, 1)
 
-	input := make(chan messages.Message, 1)
-	output := c.applyTimeout(time.Millisecond*10, input)
+	input := make(chan messages.MessageInterface, 1)
+	output := c.applyTimeout(time.Millisecond*50, input)
 
 	go func() {
 		select {

@@ -23,11 +23,11 @@ func testMarshal(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	type A struct {
-		*Object_base
+		*Object
 		B String `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer json.Unregister("kego.io/system", "a")
@@ -49,18 +49,18 @@ func testMarshal(t *testing.T, unpacker unpackerFunc) {
 func TestMarshal1(t *testing.T) {
 
 	type A struct {
-		*Object_base
+		*Object
 		B String `json:"b"`
 		C String `json:"c"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer json.Unregister("kego.io/system", "a")
 
 	a := A{
-		Object_base: &Object_base{
+		Object: &Object{
 			Type: NewReference("kego.io/system", "a"),
 		},
 		B: NewString("d"),
@@ -74,17 +74,17 @@ func TestMarshal1(t *testing.T) {
 func TestMarshal2(t *testing.T) {
 
 	type A struct {
-		*Object_base
+		*Object
 		B String `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer json.Unregister("kego.io/system", "a")
 
 	a := A{
-		Object_base: &Object_base{
+		Object: &Object{
 			Type: NewReference("kego.io/system", "a"),
 		},
 		B: NewString("c"),
@@ -106,17 +106,17 @@ func TestMarshal2(t *testing.T) {
 func TestMarshal3(t *testing.T) {
 
 	type A struct {
-		*Object_base
+		*Object
 		B String `json:"b"`
 	}
 
-	json.Register("c.d/e", "a", reflect.TypeOf(&A{}), 0)
+	json.Register("c.d/e", "a", reflect.TypeOf(&A{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer json.Unregister("c.d/e", "a")
 
 	a := A{
-		Object_base: &Object_base{
+		Object: &Object{
 			Type: NewReference("c.d/e", "a"),
 		},
 		B: NewString("c"),
@@ -192,37 +192,37 @@ func TestStringString(t *testing.T) {
 }
 
 func TestStringRule_Validate(t *testing.T) {
-	r := &String_rule{}
+	r := &StringRule{}
 	ok, message, err := r.Validate("", map[string]string{})
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
-	r = &String_rule{Pattern: NewString("[")}
+	r = &StringRule{Pattern: NewString("[")}
 	ok, message, err = r.Validate("", map[string]string{})
 	assert.NoError(t, err)
 	assert.False(t, ok)
 	assert.Equal(t, "Pattern: regex does not compile: [", message)
 
-	r = &String_rule{MaxLength: NewInt(10)}
+	r = &StringRule{MaxLength: NewInt(10)}
 	ok, message, err = r.Validate("", map[string]string{})
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
-	r = &String_rule{MaxLength: NewInt(10), MinLength: NewInt(5)}
+	r = &StringRule{MaxLength: NewInt(10), MinLength: NewInt(5)}
 	ok, message, err = r.Validate("", map[string]string{})
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
-	r = &String_rule{MaxLength: NewInt(5), MinLength: NewInt(5)}
+	r = &StringRule{MaxLength: NewInt(5), MinLength: NewInt(5)}
 	ok, message, err = r.Validate("", map[string]string{})
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
-	r = &String_rule{MaxLength: NewInt(4), MinLength: NewInt(5)}
+	r = &StringRule{MaxLength: NewInt(4), MinLength: NewInt(5)}
 	ok, message, err = r.Validate("", map[string]string{})
 	assert.NoError(t, err)
 	assert.False(t, ok)
@@ -230,7 +230,7 @@ func TestStringRule_Validate(t *testing.T) {
 }
 
 func TestStringRule_Enforce(t *testing.T) {
-	r := String_rule{Rule_base: &Rule_base{Optional: false}, Equal: NewString("a"), MaxLength: NewInt(1)}
+	r := StringRule{Rule: &Rule{Optional: false}, Equal: NewString("a"), MaxLength: NewInt(1)}
 	ok, message, err := r.Enforce(NewString("a"), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
@@ -249,7 +249,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	ok, message, err = r.Enforce("a", "", map[string]string{})
 	assert.IsError(t, err, "SXFBXGQSEA")
 
-	r = String_rule{Rule_base: &Rule_base{Optional: false}, MaxLength: NewInt(1)}
+	r = StringRule{Rule: &Rule{Optional: false}, MaxLength: NewInt(1)}
 	ok, message, err = r.Enforce(NewString("ab"), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxLength: length must not be greater than 1", message)
@@ -260,7 +260,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MaxLength: value must exist", message)
 	assert.False(t, ok)
 
-	r = String_rule{Rule_base: &Rule_base{Optional: false}, Enum: []string{"a", "b"}}
+	r = StringRule{Rule: &Rule{Optional: false}, Enum: []string{"a", "b"}}
 	ok, message, err = r.Enforce(String{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Enum: value must exist", message)
@@ -276,13 +276,13 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.Equal(t, "Enum: value must be one of: [a b]", message)
 	assert.False(t, ok)
 
-	r = String_rule{Rule_base: &Rule_base{Optional: false}, Pattern: NewString(`[`)}
+	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
 	ok, message, err = r.Enforce(NewString(""), "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: regex does not compile: [", message)
 	assert.False(t, ok)
 
-	r = String_rule{Rule_base: &Rule_base{Optional: false}, Pattern: NewString(`^foo\d`)}
+	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`^foo\d`)}
 	ok, message, err = r.Enforce(String{}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: value must exist", message)

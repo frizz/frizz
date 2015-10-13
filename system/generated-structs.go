@@ -6,34 +6,12 @@ import (
 	"kego.io/json"
 )
 
-// This is the base type for the object interface. All ke objects have this type embedded.
-type Object_base struct {
-	// Description for the developer
-	Description string `json:"description"`
-	// All global objects should have an id.
-	Id Reference `json:"id"`
-	// Extra validation rules for this object or descendants
-	Rules []Rule `json:"rules"`
-	// Type of the object.
-	Type Reference `json:"type"`
-}
-
-// All rules will have this embedded in them.
-type Rule_base struct {
-	// Special field that should be excluded when marshaling - e.g. package.global
-	Exclude bool `json:"exclude"`
-	// If this rule is a field, this specifies that the field is optional
-	Optional bool `json:"optional"`
-	// Json selector defining what nodes this rule should be applied to.
-	Selector string `json:"selector"`
-}
-
 // Restriction rules for arrays
-type Array_rule struct {
-	*Object_base
-	*Rule_base
+type ArrayRule struct {
+	*Object
+	*Rule
 	// This is a rule object, defining the type and restrictions on the value of the items
-	Items Rule `json:"items"`
+	Items RuleInterface `json:"items"`
 	// This is the maximum number of items allowed in the array
 	MaxItems Int `json:"maxItems"`
 	// This is the minimum number of items allowed in the array
@@ -43,17 +21,17 @@ type Array_rule struct {
 }
 
 // Restriction rules for bools
-type Bool_rule struct {
-	*Object_base
-	*Rule_base
+type BoolRule struct {
+	*Object
+	*Rule
 	// Default value if this is missing or null
 	Default Bool `json:"default"`
 }
 
 // Restriction rules for integers
-type Int_rule struct {
-	*Object_base
-	*Rule_base
+type IntRule struct {
+	*Object
+	*Rule
 	// Default value if this property is omitted
 	Default Int `json:"default"`
 	// This provides an upper bound for the restriction
@@ -65,11 +43,11 @@ type Int_rule struct {
 }
 
 // Restriction rules for maps
-type Map_rule struct {
-	*Object_base
-	*Rule_base
+type MapRule struct {
+	*Object
+	*Rule
 	// This is a rule object, defining the type and restrictions on the value of the items.
-	Items Rule `json:"items"`
+	Items RuleInterface `json:"items"`
 	// This is the maximum number of items alowed in the array
 	MaxItems Int `json:"maxItems"`
 	// This is the minimum number of items alowed in the array
@@ -77,9 +55,9 @@ type Map_rule struct {
 }
 
 // Restriction rules for numbers
-type Number_rule struct {
-	*Object_base
-	*Rule_base
+type NumberRule struct {
+	*Object
+	*Rule
 	// Default value if this property is omitted
 	Default Number `json:"default"`
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
@@ -95,35 +73,35 @@ type Number_rule struct {
 }
 
 // Automatically created basic rule for object
-type Object_rule struct {
-	*Object_base
-	*Rule_base
+type ObjectRule struct {
+	*Object
+	*Rule
 }
 
 // Automatically created basic rule for package
-type Package_rule struct {
-	*Object_base
-	*Rule_base
+type PackageRule struct {
+	*Object
+	*Rule
 }
 
 // Restriction rules for references
-type Reference_rule struct {
-	*Object_base
-	*Rule_base
+type ReferenceRule struct {
+	*Object
+	*Rule
 	// Default value of this is missing or null
 	Default Reference `json:"default"`
 }
 
 // Automatically created basic rule for rule
-type Rule_rule struct {
-	*Object_base
-	*Rule_base
+type RuleRule struct {
+	*Object
+	*Rule
 }
 
 // Restriction rules for strings
-type String_rule struct {
-	*Object_base
-	*Rule_base
+type StringRule struct {
+	*Object
+	*Rule
 	// Default value of this is missing or null
 	Default String `json:"default"`
 	// The value of this string is restricted to one of the provided values
@@ -141,39 +119,135 @@ type String_rule struct {
 }
 
 // Automatically created basic rule for type
-type Type_rule struct {
-	*Object_base
-	*Rule_base
+type TypeRule struct {
+	*Object
+	*Rule
+}
+type BoolInterface interface {
+	GetBool() *Bool
 }
 
-// This is the native json array data type
-type Array struct {
-	*Object_base
+func (o *Bool) GetBool() *Bool {
+	if o == nil {
+		return &Bool{}
+	}
+	return o
 }
 
-// This is the native json object data type.
-type Map struct {
-	*Object_base
+type IntInterface interface {
+	GetInt() *Int
+}
+
+func (o *Int) GetInt() *Int {
+	if o == nil {
+		return &Int{}
+	}
+	return o
+}
+
+type NumberInterface interface {
+	GetNumber() *Number
+}
+
+func (o *Number) GetNumber() *Number {
+	if o == nil {
+		return &Number{}
+	}
+	return o
+}
+
+// This is the base type for the object interface. All ke objects have this type embedded.
+type Object struct {
+	// Description for the developer
+	Description string `json:"description"`
+	// All global objects should have an id.
+	Id Reference `json:"id"`
+	// Extra validation rules for this object or descendants
+	Rules []RuleInterface `json:"rules"`
+	// Type of the object.
+	Type Reference `json:"type"`
+}
+type ObjectInterface interface {
+	GetObject() *Object
+}
+
+func (o *Object) GetObject() *Object {
+	if o == nil {
+		return &Object{}
+	}
+	return o
 }
 
 // Package info - forms the root node of the package
 type Package struct {
-	*Object_base
+	*Object
 	// Map of import aliases used in this package: key = package path, value = alias.
 	Aliases map[string]string `json:"aliases"`
+}
+type PackageInterface interface {
+	GetPackage() *Package
+}
+
+func (o *Package) GetPackage() *Package {
+	if o == nil {
+		return &Package{}
+	}
+	return o
+}
+
+type ReferenceInterface interface {
+	GetReference() *Reference
+}
+
+func (o *Reference) GetReference() *Reference {
+	if o == nil {
+		return &Reference{}
+	}
+	return o
+}
+
+// All rules will have this embedded in them.
+type Rule struct {
+	// Special field that should be excluded when marshaling - e.g. package.global
+	Exclude bool `json:"exclude"`
+	// Use the single method getter interface for this type
+	Interface bool `json:"interface"`
+	// If this rule is a field, this specifies that the field is optional
+	Optional bool `json:"optional"`
+	// Json selector defining what nodes this rule should be applied to.
+	Selector string `json:"selector"`
+}
+type RuleInterface interface {
+	GetRule() *Rule
+}
+
+func (o *Rule) GetRule() *Rule {
+	if o == nil {
+		return &Rule{}
+	}
+	return o
+}
+
+type StringInterface interface {
+	GetString() *String
+}
+
+func (o *String) GetString() *String {
+	if o == nil {
+		return &String{}
+	}
+	return o
 }
 
 // This is the most basic type.
 type Type struct {
-	*Object_base
-	// Optionally this is a type which is embedded in each object that implements this interface.
-	Base *Type `json:"base"`
+	*Object
 	// Basic types don't have system:object added by default to the embedded types.
 	Basic bool `json:"basic"`
 	// Types which this should embed - system:object is always added unless basic = true.
 	Embed []Reference `json:"embed"`
 	// Each field is listed with it's type
-	Fields map[string]Rule `json:"fields"`
+	Fields map[string]RuleInterface `json:"fields"`
 	// Is this type an interface?
 	Interface bool `json:"interface"`
 	// Array of interface types that this type should support
@@ -183,30 +257,35 @@ type Type struct {
 	// Type that defines restriction rules for this type.
 	Rule *Type `json:"rule"`
 }
+type TypeInterface interface {
+	GetType() *Type
+}
 
+func (o *Type) GetType() *Type {
+	if o == nil {
+		return &Type{}
+	}
+	return o
+}
 func init() {
-	json.Register("kego.io/system", "$object", reflect.TypeOf(&Object_base{}), 0xa80f42e03150e43e)
-	json.Register("kego.io/system", "$rule", reflect.TypeOf(&Rule_base{}), 0x8365876b3555b5d)
-	json.Register("kego.io/system", "@array", reflect.TypeOf(&Array_rule{}), 0xf6f09a20ac87e96f)
-	json.Register("kego.io/system", "@bool", reflect.TypeOf(&Bool_rule{}), 0x849d95e096ea903a)
-	json.Register("kego.io/system", "@int", reflect.TypeOf(&Int_rule{}), 0x9f6cffbf2042e2aa)
-	json.Register("kego.io/system", "@map", reflect.TypeOf(&Map_rule{}), 0xb95cdb828f1494cc)
-	json.Register("kego.io/system", "@number", reflect.TypeOf(&Number_rule{}), 0x14f986941edf71e9)
-	json.Register("kego.io/system", "@object", reflect.TypeOf(&Object_rule{}), 0xa80f42e03150e43e)
-	json.Register("kego.io/system", "@package", reflect.TypeOf(&Package_rule{}), 0x5168e36553335f0b)
-	json.Register("kego.io/system", "@reference", reflect.TypeOf(&Reference_rule{}), 0x67e9d97dde75d10f)
-	json.Register("kego.io/system", "@rule", reflect.TypeOf(&Rule_rule{}), 0x8365876b3555b5d)
-	json.Register("kego.io/system", "@string", reflect.TypeOf(&String_rule{}), 0xe1e0d90cd0a489ca)
-	json.Register("kego.io/system", "@type", reflect.TypeOf(&Type_rule{}), 0x9a6d7f2bf8effa6f)
-	json.Register("kego.io/system", "array", reflect.TypeOf(Array{}), 0xf6f09a20ac87e96f)
-	json.Register("kego.io/system", "bool", reflect.TypeOf(Bool{}), 0x849d95e096ea903a)
-	json.Register("kego.io/system", "int", reflect.TypeOf(Int{}), 0x9f6cffbf2042e2aa)
-	json.Register("kego.io/system", "map", reflect.TypeOf(Map{}), 0xb95cdb828f1494cc)
-	json.Register("kego.io/system", "number", reflect.TypeOf(Number{}), 0x14f986941edf71e9)
-	json.Register("kego.io/system", "object", reflect.TypeOf((*Object)(nil)).Elem(), 0xa80f42e03150e43e)
-	json.Register("kego.io/system", "package", reflect.TypeOf(&Package{}), 0x5168e36553335f0b)
-	json.Register("kego.io/system", "reference", reflect.TypeOf(Reference{}), 0x67e9d97dde75d10f)
-	json.Register("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)).Elem(), 0x8365876b3555b5d)
-	json.Register("kego.io/system", "string", reflect.TypeOf(String{}), 0xe1e0d90cd0a489ca)
-	json.Register("kego.io/system", "type", reflect.TypeOf(&Type{}), 0x9a6d7f2bf8effa6f)
+	json.Register("kego.io/system", "@array", reflect.TypeOf(&ArrayRule{}), nil, 7974503418364850785)
+	json.Register("kego.io/system", "@bool", reflect.TypeOf(&BoolRule{}), nil, 11092538838457238262)
+	json.Register("kego.io/system", "@int", reflect.TypeOf(&IntRule{}), nil, 14978258480540711733)
+	json.Register("kego.io/system", "@map", reflect.TypeOf(&MapRule{}), nil, 9348274211988509508)
+	json.Register("kego.io/system", "@number", reflect.TypeOf(&NumberRule{}), nil, 4117207956434057366)
+	json.Register("kego.io/system", "@object", reflect.TypeOf(&ObjectRule{}), nil, 9849996233444553044)
+	json.Register("kego.io/system", "@package", reflect.TypeOf(&PackageRule{}), nil, 5866188538977148683)
+	json.Register("kego.io/system", "@reference", reflect.TypeOf(&ReferenceRule{}), nil, 17067036908016315687)
+	json.Register("kego.io/system", "@rule", reflect.TypeOf(&RuleRule{}), nil, 12761314134647754082)
+	json.Register("kego.io/system", "@string", reflect.TypeOf(&StringRule{}), nil, 12589443105519283292)
+	json.Register("kego.io/system", "@type", reflect.TypeOf(&TypeRule{}), nil, 10828715750116313960)
+	json.Register("kego.io/system", "bool", reflect.TypeOf(Bool{}), reflect.TypeOf((*BoolInterface)(nil)).Elem(), 11092538838457238262)
+	json.Register("kego.io/system", "int", reflect.TypeOf(Int{}), reflect.TypeOf((*IntInterface)(nil)).Elem(), 14978258480540711733)
+	json.Register("kego.io/system", "number", reflect.TypeOf(Number{}), reflect.TypeOf((*NumberInterface)(nil)).Elem(), 4117207956434057366)
+	json.Register("kego.io/system", "object", reflect.TypeOf(&Object{}), reflect.TypeOf((*ObjectInterface)(nil)).Elem(), 9849996233444553044)
+	json.Register("kego.io/system", "package", reflect.TypeOf(&Package{}), reflect.TypeOf((*PackageInterface)(nil)).Elem(), 5866188538977148683)
+	json.Register("kego.io/system", "reference", reflect.TypeOf(Reference{}), reflect.TypeOf((*ReferenceInterface)(nil)).Elem(), 17067036908016315687)
+	json.Register("kego.io/system", "rule", reflect.TypeOf(&Rule{}), reflect.TypeOf((*RuleInterface)(nil)).Elem(), 12761314134647754082)
+	json.Register("kego.io/system", "string", reflect.TypeOf(String{}), reflect.TypeOf((*StringInterface)(nil)).Elem(), 12589443105519283292)
+	json.Register("kego.io/system", "type", reflect.TypeOf(&Type{}), reflect.TypeOf((*TypeInterface)(nil)).Elem(), 10828715750116313960)
 }

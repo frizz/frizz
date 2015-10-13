@@ -49,10 +49,10 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 			err = ke.Unmarshal(json_document, &i, "kego.io/selectors/tests", map[string]string{})
 			assert.NoError(t, err)
 
-			ob, ok := i.(system.Object)
+			ob, ok := i.(system.ObjectInterface)
 			assert.True(t, ok)
 
-			ty, ok := ob.Object().Type.GetType()
+			ty, ok := ob.GetObject().Type.GetType()
 
 			r := system.NewMinimalRuleHolder(ty)
 
@@ -334,11 +334,11 @@ func comparison(actual *Element, expected interface{}, path string, aliases map[
 		if !ok {
 			return false, kerr.New("OJEQQPYXJP", nil, "expected %T is not map[string]interface{} (object)", expected)
 		}
-		ob, ok := actual.Data.(system.Object)
+		ob, ok := actual.Data.(system.ObjectInterface)
 		if !ok {
-			return false, kerr.New("KQJCVJSTKH", nil, "actual %T does not implement system.Object")
+			return false, kerr.New("KQJCVJSTKH", nil, "actual %T does not implement system.ObjectInterface")
 		}
-		parentType, ok := ob.Object().Type.GetType()
+		parentType, ok := ob.GetObject().Type.GetType()
 		if !ok {
 			return false, kerr.New("TWVUMUFLST", nil, "Type.GetType couldn't find type")
 		}

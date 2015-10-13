@@ -43,7 +43,7 @@ func TestScan(t *testing.T) {
 
 }
 
-func TestScan_rule(t *testing.T) {
+func TestScanRule(t *testing.T) {
 
 	n, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)

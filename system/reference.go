@@ -56,7 +56,7 @@ func (r *Reference) RuleToParentType() (*Reference, error) {
 	if !r.Exists {
 		return nil, kerr.New("OSQKOWGVWX", nil, "Reference is nil")
 	}
-	if !strings.HasPrefix(r.Name, "@") {
+	if !strings.HasPrefix(r.Name, RULE_PREFIX) {
 		return nil, kerr.New("HBKCDXQBYG", nil, "Type %s is not a rule type", r.Name)
 	}
 	newType := r.Name[1:]

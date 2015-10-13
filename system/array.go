@@ -8,7 +8,7 @@ import (
 	"kego.io/kerr"
 )
 
-func (r *Array_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *ArrayRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 
 	if !r.MaxItems.Exists && !r.MinItems.Exists && !r.UniqueItems {
 		// We should return early here in order to prevent needless reflection
@@ -55,8 +55,8 @@ func (r *Array_rule) Enforce(data interface{}, path string, aliases map[string]s
 	return true, "", nil
 }
 
-func (a *Array_rule) GetItemsRule() Rule {
+func (a *ArrayRule) GetItemsRule() RuleInterface {
 	return a.Items
 }
 
-var _ CollectionRule = (*Array_rule)(nil)
+var _ CollectionRule = (*ArrayRule)(nil)

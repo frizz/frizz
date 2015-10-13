@@ -23,53 +23,60 @@ import (
 	system:string, system:bool and system:number.
 */
 
-type JsonNumber_rule struct {
-	*Object_base
-	*Rule_base
+type JsonNumberRule struct {
+	*Object
+	*Rule
 }
-type JsonString_rule struct {
-	*Object_base
-	*Rule_base
+type JsonStringRule struct {
+	*Object
+	*Rule
 }
-type JsonBool_rule struct {
-	*Object_base
-	*Rule_base
+type JsonBoolRule struct {
+	*Object
+	*Rule
+}
+
+type JsonStringInterface interface {
+	String() string
+}
+type JsonNumberInterface interface {
+	Number() float64
+}
+type JsonBoolInterface interface {
+	Bool() bool
 }
 
 func init() {
-	json.Register("kego.io/json", "number", reflect.TypeOf(float64(1.1)), 0)
-	json.Register("kego.io/json", "string", reflect.TypeOf(string("")), 0)
-	json.Register("kego.io/json", "bool", reflect.TypeOf(bool(true)), 0)
-	json.Register("kego.io/json", "@number", reflect.TypeOf(&JsonNumber_rule{}), 0)
-	json.Register("kego.io/json", "@string", reflect.TypeOf(&JsonString_rule{}), 0)
-	json.Register("kego.io/json", "@bool", reflect.TypeOf(&JsonBool_rule{}), 0)
+	json.Register("kego.io/json", "number", reflect.TypeOf(float64(1.1)), reflect.TypeOf((*JsonNumberInterface)(nil)).Elem(), 0)
+	json.Register("kego.io/json", "string", reflect.TypeOf(string("")), reflect.TypeOf((*JsonStringInterface)(nil)).Elem(), 0)
+	json.Register("kego.io/json", "bool", reflect.TypeOf(bool(true)), reflect.TypeOf((*JsonBoolInterface)(nil)).Elem(), 0)
+	json.Register("kego.io/json", "@number", reflect.TypeOf(&JsonNumberRule{}), nil, 0)
+	json.Register("kego.io/json", "@string", reflect.TypeOf(&JsonStringRule{}), nil, 0)
+	json.Register("kego.io/json", "@bool", reflect.TypeOf(&JsonBoolRule{}), nil, 0)
 
 	tr := NewReference("kego.io/system", "type")
-	or := NewReference("kego.io/system", "object")
 
 	makeRule := func(name string) *Type {
 		return &Type{
-			Object_base: &Object_base{
-				Id:   NewReference("kego.io/json", fmt.Sprint("@", name)),
+			Object: &Object{
+				Id:   NewReference("kego.io/json", fmt.Sprint(RULE_PREFIX, name)),
 				Type: tr},
-			Embed:     []Reference{or},
 			Interface: false,
-			Is:        []Reference{NewReference("kego.io/system", "rule")},
+			Embed:     []Reference{NewReference("kego.io/system", "rule")},
 			Native:    NewString("object"),
-			Fields:    map[string]Rule{},
+			Fields:    map[string]RuleInterface{},
 			Rule:      (*Type)(nil)}
 	}
 
 	makeType := func(name string) *Type {
 		return &Type{
-			Object_base: &Object_base{
+			Object: &Object{
 				Id:   NewReference("kego.io/json", name),
 				Type: tr},
-			Embed:     []Reference{or},
 			Interface: false,
 			Is:        []Reference(nil),
 			Native:    NewString(name),
-			Fields:    map[string]Rule(nil),
+			Fields:    map[string]RuleInterface{},
 			Rule:      makeRule(name)}
 	}
 

@@ -129,7 +129,7 @@ func handle(f func() error) {
 	}
 }
 
-func getSource(in chan messages.Message, conn *connection.Conn) error {
+func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 	for {
 		m := <-in
 		request, ok := m.(*messages.SourceRequest)

@@ -59,7 +59,7 @@ func (s *source) LoadContent() chan bool {
 
 }
 
-func (s *source) awaitSourceResponse(responseChannel chan messages.Message, successChannel chan bool) error {
+func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterface, successChannel chan bool) error {
 
 	m := <-responseChannel
 

@@ -13,7 +13,7 @@ func TestFoo(t *testing.T) {
 	s := `{
 		"description": "Restriction rules for bools",
 		"type": "type",
-		"is": ["rule"],
+		"embed": ["rule"],
 		"fields": {
 			"default": {
 				"description": "Default value if this is missing or null",

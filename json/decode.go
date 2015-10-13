@@ -672,17 +672,18 @@ type typeRef struct {
 	name string
 }
 type typeDef struct {
-	typ  reflect.Type
-	hash uint64
+	typ   reflect.Type
+	iface reflect.Type
+	hash  uint64
 }
 
-func Register(path string, name string, typ reflect.Type, hash uint64) {
+func Register(path string, name string, typ reflect.Type, iface reflect.Type, hash uint64) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {
 		types.m = make(map[typeRef]typeDef)
 	}
-	types.m[typeRef{path, name}] = typeDef{typ, hash}
+	types.m[typeRef{path, name}] = typeDef{typ, iface, hash}
 }
 func Unregister(path string, name string) {
 	types.Lock()
@@ -697,6 +698,14 @@ func GetType(path string, name string) (reflect.Type, uint64, bool) {
 	defer types.RUnlock()
 	if t, ok := types.m[typeRef{path, name}]; ok {
 		return t.typ, t.hash, true
+	}
+	return nil, 0, false
+}
+func GetTypeInterface(path string, name string) (reflect.Type, uint64, bool) {
+	types.RLock()
+	defer types.RUnlock()
+	if t, ok := types.m[typeRef{path, name}]; ok {
+		return t.iface, t.hash, true
 	}
 	return nil, 0, false
 }

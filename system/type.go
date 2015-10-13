@@ -81,7 +81,7 @@ func (t *Type) SortedFields() []Field {
 
 type Field struct {
 	Name   string
-	Rule   Rule
+	Rule   RuleInterface
 	Origin Reference
 }
 type SortableFields []Field

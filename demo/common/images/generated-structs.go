@@ -9,33 +9,43 @@ import (
 )
 
 // Automatically created basic rule for icon
-type Icon_rule struct {
-	*system.Object_base
-	*system.Rule_base
+type IconRule struct {
+	*system.Object
+	*system.Rule
 }
 
 // Restriction rules for images
-type Image_rule struct {
-	*system.Object_base
-	*system.Rule_base
+type ImageRule struct {
+	*system.Object
+	*system.Rule
 	Secure system.Bool `json:"secure"`
 }
 
 // Automatically created basic rule for photo
-type Photo_rule struct {
-	*system.Object_base
-	*system.Rule_base
+type PhotoRule struct {
+	*system.Object
+	*system.Rule
 }
 
 // This is a type of image, which just contains the url of the image
 type Icon struct {
-	*system.Object_base
+	*system.Object
 	Url system.String `json:"url"`
+}
+type IconInterface interface {
+	GetIcon() *Icon
+}
+
+func (o *Icon) GetIcon() *Icon {
+	if o == nil {
+		return &Icon{}
+	}
+	return o
 }
 
 // This represents an image, and contains path, server and protocol separately
 type Photo struct {
-	*system.Object_base
+	*system.Object
 	// The path for the url - e.g. /foo/bar.jpg
 	Path system.String `json:"path"`
 	// The protocol for the url - e.g. http or https
@@ -44,12 +54,21 @@ type Photo struct {
 	Server system.String    `json:"server"`
 	Size   *units.Rectangle `json:"size"`
 }
+type PhotoInterface interface {
+	GetPhoto() *Photo
+}
 
+func (o *Photo) GetPhoto() *Photo {
+	if o == nil {
+		return &Photo{}
+	}
+	return o
+}
 func init() {
-	json.Register("kego.io/demo/common/images", "@icon", reflect.TypeOf(&Icon_rule{}), 0x7c5035ca01145c14)
-	json.Register("kego.io/demo/common/images", "@image", reflect.TypeOf(&Image_rule{}), 0x1117cdef6aab34e4)
-	json.Register("kego.io/demo/common/images", "@photo", reflect.TypeOf(&Photo_rule{}), 0xf2b64533e434a543)
-	json.Register("kego.io/demo/common/images", "icon", reflect.TypeOf(&Icon{}), 0x7c5035ca01145c14)
-	json.Register("kego.io/demo/common/images", "image", reflect.TypeOf((*Image)(nil)).Elem(), 0x1117cdef6aab34e4)
-	json.Register("kego.io/demo/common/images", "photo", reflect.TypeOf(&Photo{}), 0xf2b64533e434a543)
+	json.Register("kego.io/demo/common/images", "@icon", reflect.TypeOf(&IconRule{}), nil, 8957718800557693972)
+	json.Register("kego.io/demo/common/images", "@image", reflect.TypeOf(&ImageRule{}), nil, 946434339636669055)
+	json.Register("kego.io/demo/common/images", "@photo", reflect.TypeOf(&PhotoRule{}), nil, 17489242292114203971)
+	json.Register("kego.io/demo/common/images", "icon", reflect.TypeOf(&Icon{}), reflect.TypeOf((*IconInterface)(nil)).Elem(), 8957718800557693972)
+	json.Register("kego.io/demo/common/images", "image", reflect.TypeOf((*Image)(nil)).Elem(), nil, 946434339636669055)
+	json.Register("kego.io/demo/common/images", "photo", reflect.TypeOf(&Photo{}), reflect.TypeOf((*PhotoInterface)(nil)).Elem(), 17489242292114203971)
 }

@@ -11,7 +11,7 @@ import (
 
 // Type returns the Go source for the definition of the type of this property
 // [collection prefix][optional pointer][type name]
-func Type(fieldName string, field system.Rule, path string, getAlias func(string) string) (string, error) {
+func Type(fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
 
 	outer, err := system.NewRuleHolder(field)
 	if err != nil {
@@ -26,14 +26,21 @@ func Type(fieldName string, field system.Rule, path string, getAlias func(string
 		return "", kerr.New("SOGEFOPJHB", err, "collectionPrefixInnerRule")
 	}
 
-	// this returns a "*" if the type should be prefixed by it. Native and interface types
-	// don't have a *.
-	pointer := getPointer(inner.ParentType)
-
-	name := Reference(inner.ParentType.Id.Package, system.GoName(inner.ParentType.Id.Name), path, getAlias)
+	var name, pointer string
+	if inner.Rule.GetRule().Interface {
+		// if this is an interface rule, we print the interface name of the inner type,
+		// which never has a pointer asterisk.
+		pointer = ""
+		name = Reference(inner.ParentType.Id.Package, system.GoInterfaceName(inner.ParentType.Id.Name), path, getAlias)
+	} else {
+		// this returns a "*" if the type should be prefixed by it. Native and interface types
+		// don't have a *.
+		pointer = getPointer(inner.ParentType)
+		name = Reference(inner.ParentType.Id.Package, system.GoName(inner.ParentType.Id.Name), path, getAlias)
+	}
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
-	tag, err := getTag(fieldName, field.Rule().Exclude, inner, "", map[string]string{})
+	tag, err := getTag(fieldName, field.GetRule().Exclude, inner, "", map[string]string{})
 	if err != nil {
 		return "", kerr.New("CSJHNCMHRU", err, "getTag")
 	}
@@ -41,7 +48,7 @@ func Type(fieldName string, field system.Rule, path string, getAlias func(string
 		tag = " " + tag
 	}
 
-	return fmt.Sprintf("%s%s%s%s", prefix, pointer, name, tag), nil
+	return fmt.Sprint(prefix, pointer, name, tag), nil
 }
 
 // collectionPrefix recursively digs down through collection rules, recursively

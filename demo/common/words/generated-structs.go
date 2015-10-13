@@ -8,41 +8,60 @@ import (
 )
 
 // Automatically created basic rule for localizer
-type Localizer_rule struct {
-	*system.Object_base
-	*system.Rule_base
+type LocalizerRule struct {
+	*system.Object
+	*system.Rule
 }
 
 // Automatically created basic rule for simple
-type Simple_rule struct {
-	*system.Object_base
-	*system.Rule_base
+type SimpleRule struct {
+	*system.Object
+	*system.Rule
 }
 
 // Automatically created basic rule for translation
-type Translation_rule struct {
-	*system.Object_base
-	*system.Rule_base
+type TranslationRule struct {
+	*system.Object
+	*system.Rule
 }
 type Simple struct {
-	*system.Object_base
+	*system.Object
 	String system.String `json:"string"`
+}
+type SimpleInterface interface {
+	GetSimple() *Simple
+}
+
+func (o *Simple) GetSimple() *Simple {
+	if o == nil {
+		return &Simple{}
+	}
+	return o
 }
 
 // This represents a translated string
 type Translation struct {
-	*system.Object_base
+	*system.Object
 	// The original English string
 	English system.String `kego:"{\"default\":{\"value\":\"http\"}}" json:"english"`
 	// The translated strings
 	Translations map[string]system.String `json:"translations"`
 }
+type TranslationInterface interface {
+	GetTranslation() *Translation
+}
 
+func (o *Translation) GetTranslation() *Translation {
+	if o == nil {
+		return &Translation{}
+	}
+	return o
+}
 func init() {
-	json.Register("kego.io/demo/common/words", "@localizer", reflect.TypeOf(&Localizer_rule{}), 0x72d207b91bb0393)
-	json.Register("kego.io/demo/common/words", "@simple", reflect.TypeOf(&Simple_rule{}), 0xb367436bb1ddac59)
-	json.Register("kego.io/demo/common/words", "@translation", reflect.TypeOf(&Translation_rule{}), 0x20d3acc377a84c88)
-	json.Register("kego.io/demo/common/words", "localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), 0x72d207b91bb0393)
-	json.Register("kego.io/demo/common/words", "simple", reflect.TypeOf(&Simple{}), 0xb367436bb1ddac59)
-	json.Register("kego.io/demo/common/words", "translation", reflect.TypeOf(&Translation{}), 0x20d3acc377a84c88)
+	json.Register("kego.io/demo/common/words", "@localizer", reflect.TypeOf(&LocalizerRule{}), nil, 517105247315493779)
+	json.Register("kego.io/demo/common/words", "@simple", reflect.TypeOf(&SimpleRule{}), nil, 12927375385214954585)
+	json.Register("kego.io/demo/common/words", "@translation", reflect.TypeOf(&TranslationRule{}), nil, 2365424184825760904)
+	json.Register("kego.io/demo/common/words", "localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), nil, 517105247315493779)
+	json.Register("kego.io/demo/common/words", "simple", reflect.TypeOf(&Simple{}), reflect.TypeOf((*SimpleInterface)(nil)).Elem(), 12927375385214954585)
+	json.Register("kego.io/demo/common/words", "translation", reflect.TypeOf(&Translation{}), reflect.TypeOf((*TranslationInterface)(nil)).Elem(), 2365424184825760904)
 }

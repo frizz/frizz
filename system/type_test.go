@@ -21,7 +21,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 		"rule": {
 			"description": "Restriction rules for bools",
 			"type": "type",
-			"is": ["rule"],
+			"embed": ["rule"],
 			"fields": {
 				"default": {
 					"description": "Default value of this is missing or null",
@@ -107,9 +107,9 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	assert.Equal(t, "This is the most basic type.", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "object", f.Native.Value)
-	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(Object).Object().Description)
-	assert.Equal(t, true, f.Fields["interface"].Rule().Optional)
-	r, ok := f.Fields["interface"].(*Bool_rule)
+	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(ObjectInterface).GetObject().Description)
+	assert.Equal(t, true, f.Fields["interface"].GetRule().Optional)
+	r, ok := f.Fields["interface"].(*BoolRule)
 	assert.True(t, ok, "Wrong type %T\n", f.Fields["interface"])
 	assert.True(t, r.Default.Exists)
 	assert.Equal(t, false, r.Default.Value)
@@ -164,7 +164,7 @@ func TestTypeNativeValueGolangType(t *testing.T) {
 }
 
 func TestTypeGoName(t *testing.T) {
-	y := &Type{Object_base: &Object_base{Id: NewReference("a.b/c", "aa")}}
+	y := &Type{Object: &Object{Id: NewReference("a.b/c", "aa")}}
 	n := y.GoName()
 	assert.Equal(t, "Aa", n)
 }

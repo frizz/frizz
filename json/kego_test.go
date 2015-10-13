@@ -35,7 +35,7 @@ func testDecodeSimple(t *testing.T, unpacker unpackerFunc) {
 			Baz bool
 		}
 
-		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
+		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
 
 		// Clean up for the tests - don't normally need to unregister types
 		defer Unregister("kego.io/json", "foo")
@@ -93,7 +93,7 @@ func testDecodeDefaults(t *testing.T, unpacker unpackerFunc) {
 			Baz bool    `kego:"{\"default\":{\"value\":true}}"`
 		}
 
-		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
+		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
 
 		// Clean up for the tests - don't normally need to unregister types
 		defer Unregister("kego.io/json", "foo")
@@ -159,7 +159,7 @@ func testDecodeCollections(t *testing.T, unpacker unpackerFunc) {
 		"boolArray": [true, false, true]
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -203,8 +203,8 @@ func testDecodeEmbed(t *testing.T, unpacker unpackerFunc) {
 			Embed Bar
 		}
 
-		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-		Register("kego.io/json", "bar", reflect.TypeOf(&Bar{}), 0)
+		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+		Register("kego.io/json", "bar", reflect.TypeOf(&Bar{}), nil, 0)
 
 		// Clean up for the tests - don't normally need to unregister types
 		defer Unregister("kego.io/json", "foo")
@@ -285,8 +285,8 @@ func testDecodeEmbedCollections(t *testing.T, unpacker unpackerFunc) {
 		]
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "bar", reflect.TypeOf(&Bar{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "bar", reflect.TypeOf(&Bar{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -326,8 +326,8 @@ func testDecodeComposition(t *testing.T, unpacker unpackerFunc) {
 		"fooString": "b"
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "base", reflect.TypeOf(&Base{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "base", reflect.TypeOf(&Base{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -380,9 +380,9 @@ func testInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
+	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -421,9 +421,9 @@ func testNilInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
+	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -481,9 +481,9 @@ func testInterfaceCollections(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
+	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -543,9 +543,9 @@ func testInterfaceCollectionsComplex(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
+	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -579,9 +579,9 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 		Img Image
 	}
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
+	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer Unregister("kego.io/json", "foo")
@@ -649,9 +649,9 @@ func testDummyInterface(t *testing.T, unpacker unpackerFunc) {
 	}
 
 	RegisterInterface(reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf(&dummyImage{}))
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), 0)
+	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
+	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
+	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer UnregisterInterface(reflect.TypeOf((*Image)(nil)).Elem())

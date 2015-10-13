@@ -20,7 +20,7 @@ func NewNumber(n float64) Number {
 	return Number{Value: n, Exists: true}
 }
 
-func (r *Number_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *NumberRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 
 	n, ok := data.(Number)
 	if !ok {

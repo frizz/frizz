@@ -1,28 +1,28 @@
 {
-	"description": "This is one of several rule types, derived from the rules property of other types",
+	"description": "All rules will have this embedded in them.",
 	"type": "type",
 	"id": "rule",
-	"interface": true,
-	"base": {
-		"description": "All rules will have this embedded in them.",
-		"type": "type",
-		"basic": true,
-		"fields": {
-			"optional": {
-				"description": "If this rule is a field, this specifies that the field is optional",
-				"type": "json:@bool",
-				"optional": true
-			},
-			"selector": {
-				"description": "Json selector defining what nodes this rule should be applied to.",
-				"type": "json:@string",
-				"optional": true
-			},
-			"exclude": {
-				"description": "Special field that should be excluded when marshaling - e.g. package.global",
-				"type": "json:@bool",
-				"optional": true
-			}
+	"basic": true,
+	"fields": {
+		"optional": {
+			"description": "If this rule is a field, this specifies that the field is optional",
+			"type": "json:@bool",
+			"optional": true
+		},
+		"interface": {
+			"description": "Use the single method getter interface for this type",
+			"type": "json:@bool",
+			"optional": true
+		},
+		"selector": {
+			"description": "Json selector defining what nodes this rule should be applied to.",
+			"type": "json:@string",
+			"optional": true
+		},
+		"exclude": {
+			"description": "Special field that should be excluded when marshaling - e.g. package.global",
+			"type": "json:@bool",
+			"optional": true
 		}
 	}
 }

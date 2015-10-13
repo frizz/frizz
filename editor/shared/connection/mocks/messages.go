@@ -29,9 +29,9 @@ func (_m *MockMessage) EXPECT() *_MockMessageRecorder {
 	return _m.recorder
 }
 
-func (_m *MockMessage) Message() *messages.Message_base {
+func (_m *MockMessage) Message() *messages.Message {
 	ret := _m.ctrl.Call(_m, "Message")
-	ret0, _ := ret[0].(*messages.Message_base)
+	ret0, _ := ret[0].(*messages.Message)
 	return ret0
 }
 

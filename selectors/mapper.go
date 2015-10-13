@@ -70,9 +70,9 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		n.siblings = siblings
 	}
 
-	ob, ok := element.Data.(system.Object)
+	ob, ok := element.Data.(system.ObjectInterface)
 	if ok {
-		base := ob.Object()
+		base := ob.GetObject()
 		n.ktyperef = base.Type
 		n.ktype, ok = base.Type.GetType()
 		if !ok {

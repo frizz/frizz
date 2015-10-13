@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go/format"
 
+	"strings"
+
 	"kego.io/kerr"
 )
 
@@ -35,6 +37,18 @@ func (g *Generator) Printf(f string, args ...interface{}) *Generator {
 func (g *Generator) Println(args ...interface{}) *Generator {
 	g.statements = append(g.statements, fmt.Sprint(args...)+"\n")
 	return g
+}
+func (g *Generator) PrintFunctionCall(path string, name string, args ...interface{}) *Generator {
+	g.statements = append(g.statements, g.SprintFunctionCall(path, name, args...))
+	return g
+}
+func (g *Generator) SprintFunctionCall(path string, name string, args ...interface{}) string {
+	funcName := Reference(path, name, g.path, g.Imports.Add)
+	argsList := []string{}
+	for _, arg := range args {
+		argsList = append(argsList, fmt.Sprint(arg))
+	}
+	return fmt.Sprintf("%s(%s)", funcName, strings.Join(argsList, ", "))
 }
 
 func (g *Generator) Build() ([]byte, error) {

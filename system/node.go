@@ -176,7 +176,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, in
 
 func extractType(in json.Unpackable, rule *RuleHolder, path string, aliases map[string]string) (*Type, error) {
 
-	if rule != nil && !rule.ParentType.Interface {
+	if rule != nil && !rule.ParentType.Interface && !rule.Rule.GetRule().Interface {
 		// If we have a rule, and it's not an interface, then we just return the
 		// parent type of the rule.
 		return rule.ParentType, nil
@@ -216,26 +216,13 @@ func extractFields(fields map[string]*Field, t *Type) error {
 		return t, nil
 	}
 	if !t.Basic && !t.Interface {
-		// All types apart from Basic types embed system:$object (Object_base)
-		ob, err := getType(NewReference("kego.io/system", "$object"))
+		// All types apart from Basic types embed system:object
+		ob, err := getType(NewReference("kego.io/system", "object"))
 		if err != nil {
-			return kerr.New("YRFWOTIGFT", err, "getType (system:$object)")
+			return kerr.New("YRFWOTIGFT", err, "getType (system:object)")
 		}
 		if err := extractFields(fields, ob); err != nil {
-			return kerr.New("DTQEFALIMM", err, "extractFields (system:$object)")
-		}
-	}
-	for _, ifaceRef := range t.Is {
-		// All interfaces that have a base type are embedded
-		iface, err := getType(ifaceRef)
-		if err != nil {
-			return kerr.New("HQORJWWNJH", err, "getType (iface %s)", ifaceRef.Value())
-		}
-		if iface.Base == nil {
-			continue
-		}
-		if err := extractFields(fields, iface.Base); err != nil {
-			return kerr.New("WWILLDXRUI", err, "extractFields (iface %s)", ifaceRef.Value())
+			return kerr.New("DTQEFALIMM", err, "extractFields (system:object)")
 		}
 	}
 	for _, embedRef := range t.Embed {

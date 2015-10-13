@@ -6,6 +6,8 @@ import (
 
 	"sort"
 
+	"strings"
+
 	"kego.io/generator"
 	"kego.io/kerr"
 	"kego.io/process/settings"
@@ -27,82 +29,25 @@ func Structs(set *settings.Settings) (source []byte, err error) {
 	}
 	for _, hashed := range types {
 		typ := hashed.Object.(*system.Type)
-		if typ.Interface || typ.IsNativeValue() {
+		isRule := strings.HasPrefix(typ.Id.Name, system.RULE_PREFIX)
+
+		if typ.IsNativeCollection() {
 			continue
 		}
-		if typ.Description != "" {
-			g.Println("// ", typ.Description)
-		}
-		g.Println("type ", system.GoName(typ.Id.Name), " struct {")
-		{
-			embedsSortable := system.SortableReferences(typ.Embed)
-			sort.Sort(embedsSortable)
-			embeds := []system.Reference(embedsSortable)
-			for _, embed := range embeds {
-				g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), set.Path, g.Imports.Add))
-			}
 
-			if !typ.Basic {
-				g.Println("*", generator.Reference("kego.io/system", "Object_base", set.Path, g.Imports.Add))
+		if !typ.Interface && !typ.IsNativeValue() {
+			if err := printStructDefinition(g, typ, set); err != nil {
+				return nil, kerr.New("XKRYMXUIJD", err, "printNewStructDefinition")
 			}
-			interfacesSortable := system.SortableReferences(typ.Is)
-			sort.Sort(interfacesSortable)
-			interfaces := []system.Reference(interfacesSortable)
-			for _, iface := range interfaces {
-				h, ok := system.GetGlobal(iface.Package, iface.Name)
-				if !ok {
-					return nil, kerr.New("UHIRQKNEEV", nil, "Can't find type %s", iface.Value())
-				}
-				t, ok := h.Object.(*system.Type)
-				if !ok {
-					return nil, kerr.New("AOMVIJBFJA", nil, "%T is not a *system.Type", h.Object)
-				}
-				if t.Base != nil {
-					g.Println("*", generator.Reference(t.Base.Id.Package, system.GoName(t.Base.Id.Name), set.Path, g.Imports.Add))
-				}
-			}
+		}
 
-			for _, nf := range typ.SortedFields() {
-				b := nf.Rule.(system.Object).Object()
-				if b.Description != "" {
-					g.Println("// ", b.Description)
-				}
-				descriptor, err := generator.Type(nf.Name, nf.Rule, set.Path, g.Imports.Add)
-				if err != nil {
-					return nil, kerr.New("GDSKJDEKQD", err, "generator.Type")
-				}
-				g.Println(system.GoName(nf.Name), " ", descriptor)
-			}
+		if !typ.Interface && !isRule {
+			printInterfaceDefinition(g, typ)
+			printInterfaceImplementation(g, typ)
 		}
-		g.Println("}")
+
 	}
-	g.Println("func init() {")
-	{
-		for _, hashed := range types {
-			typ := hashed.Object.(*system.Type)
-			jsonRegisterType := generator.Reference("kego.io/json", "Register", set.Path, g.Imports.Add)
-			reflectTypeOf := generator.Reference("reflect", "TypeOf", set.Path, g.Imports.Add)
-			reflectTypeOfParams := ""
-			if typ.Interface {
-				// reflect.TypeOf((*Foo)(nil)).Elem()
-				reflectTypeOfParams = fmt.Sprintf("((*%s)(nil)).Elem()", system.GoName(typ.Id.Name))
-			} else if typ.Native.Value == "object" {
-				// reflect.TypeOf(&Foo{})
-				reflectTypeOfParams = fmt.Sprintf("(&%s{})", system.GoName(typ.Id.Name))
-			} else {
-				// reflect.TypeOf(Foo{})
-				reflectTypeOfParams = fmt.Sprintf("(%s{})", system.GoName(typ.Id.Name))
-			}
-			typOf := fmt.Sprint(reflectTypeOf, reflectTypeOfParams)
-			// e.g.
-			// json.Register("kego.io/foo", "@gallery", reflect.TypeOf(&Gallery_rule{}), 0x123)
-			// json.Register("kego.io/foo", "gallery", reflect.TypeOf(&Gallery{}), 0x123)
-			// json.Register("kego.io/foo", "string", reflect.TypeOf(String{}), 0x123)
-			// json.Register("kego.io/foo", "iface", reflect.TypeOf((*Iface)(nil)).Elem(), 0x123)
-			g.Printf("%s(%s, %s, %s, %#v)\n", jsonRegisterType, strconv.Quote(typ.Id.Package), strconv.Quote(typ.Id.Name), typOf, hashed.Hash)
-		}
-	}
-	g.Println("}")
+	printInitFunction(g, types, set)
 
 	b, err := g.Build()
 	if err != nil {
@@ -111,36 +56,114 @@ func Structs(set *settings.Settings) (source []byte, err error) {
 	return b, nil
 }
 
-func StructsCommand(set *settings.Settings) (source []byte, err error) {
+func printInterfaceDefinition(g *generator.Generator, typ *system.Type) {
+	g.Println("type ", system.GoInterfaceName(typ.Id.Name), " interface {")
+	{
+		g.Println("Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name))
+	}
+	g.Println("}")
+}
 
-	g := generator.WithName(set.Path, "main")
-	g.Imports.Add("os")
-	g.Imports.Add("fmt")
-	g.Imports.Add("kego.io/process")
-	g.Imports.Anonymous("kego.io/system")
-	if set.Path != "kego.io/system" {
-		g.Imports.Anonymous("kego.io/system/types")
+func printInterfaceImplementation(g *generator.Generator, typ *system.Type) {
+	g.Println("func (o *", system.GoName(typ.Id.Name), ") Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name), " {")
+	{
+		// TODO: don't like this in here... Maybe the json should create these?
+		g.Println("if o == nil {")
+		{
+			g.Println("return &", system.GoName(typ.Id.Name), "{}")
+		}
+		g.Println("}")
+		g.Println("return o")
 	}
-	for p, _ := range set.Aliases {
-		g.Imports.Anonymous(p)
-		g.Imports.Anonymous(fmt.Sprint(p, "/types"))
+	g.Println("}")
+}
+
+func printStructDefinition(g *generator.Generator, typ *system.Type, set *settings.Settings) error {
+	if typ.Description != "" {
+		g.Println("// ", typ.Description)
 	}
-	g.Print(`
-		func main() {
-			set, err := process.InitialiseAutomatic()
+	g.Println("type ", system.GoName(typ.Id.Name), " struct {")
+	{
+		if !typ.Basic {
+			g.Println("*", generator.Reference("kego.io/system", system.GoName("object"), set.Path, g.Imports.Add))
+		}
+
+		embedsSortable := system.SortableReferences(typ.Embed)
+		sort.Sort(embedsSortable)
+		embeds := []system.Reference(embedsSortable)
+		for _, embed := range embeds {
+			g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), set.Path, g.Imports.Add))
+		}
+
+		for _, nf := range typ.SortedFields() {
+			b := nf.Rule.(system.ObjectInterface).GetObject()
+			if b.Description != "" {
+				g.Println("// ", b.Description)
+			}
+			descriptor, err := generator.Type(nf.Name, nf.Rule, set.Path, g.Imports.Add)
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				return kerr.New("GDSKJDEKQD", err, "generator.TypeNew")
 			}
-			if err := process.Generate(process.S_STRUCTS, set); err != nil {
-				fmt.Println(process.FormatError(err))
-				os.Exit(1)
-			}
-		}`)
-
-	b, err := g.Build()
-	if err != nil {
-		return nil, kerr.New("CRBYOUOHPG", err, "Build")
+			g.Println(system.GoName(nf.Name), " ", descriptor)
+		}
 	}
-	return b, nil
+	g.Println("}")
+	return nil
+}
+
+func printInitFunction(g *generator.Generator, types []system.Hashed, set *settings.Settings) {
+	g.Println("func init() {")
+	{
+		for _, hashed := range types {
+
+			typ := hashed.Object.(*system.Type)
+			isRule := strings.HasPrefix(typ.Id.Name, system.RULE_PREFIX)
+
+			if typ.IsNativeCollection() {
+				continue
+			}
+
+			typeOf1 := ""
+			if typ.Interface {
+				typeOf1 = g.SprintFunctionCall(
+					"reflect",
+					"TypeOf",
+					fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.Name)),
+				) + ".Elem()"
+			} else if typ.Native.Value == "object" {
+				typeOf1 = g.SprintFunctionCall(
+					"reflect",
+					"TypeOf",
+					fmt.Sprintf("&%s{}", system.GoName(typ.Id.Name)),
+				)
+			} else {
+				typeOf1 = g.SprintFunctionCall(
+					"reflect",
+					"TypeOf",
+					fmt.Sprintf("%s{}", system.GoName(typ.Id.Name)),
+				)
+			}
+
+			typeOf2 := "nil"
+			if !typ.Interface && !isRule {
+				typeOf2 = g.SprintFunctionCall(
+					"reflect",
+					"TypeOf",
+					fmt.Sprintf("(*%s)(nil)", system.GoInterfaceName(typ.Id.Name)),
+				) + ".Elem()"
+			}
+
+			g.PrintFunctionCall(
+				"kego.io/json",
+				"Register",
+				strconv.Quote(typ.Id.Package),
+				strconv.Quote(typ.Id.Name),
+				typeOf1,
+				typeOf2,
+				hashed.Hash,
+			)
+			g.Println("")
+		}
+	}
+	g.Println("}")
 }

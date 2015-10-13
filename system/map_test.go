@@ -24,12 +24,12 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	type A struct {
-		*Object_base
+		*Object
 		E String            `json:"e"`
 		B map[string]String `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), 0)
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
 
 	// Clean up for the tests - don't normally need to unregister types
 	defer json.Unregister("kego.io/system", "a")
@@ -50,7 +50,7 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 
 func TestMapRule_Enforce(t *testing.T) {
 
-	r := Map_rule{MaxItems: NewInt(2)}
+	r := MapRule{MaxItems: NewInt(2)}
 	ok, message, err := r.Enforce(map[string]int{"foo": 1, "bar": 2}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
@@ -61,7 +61,7 @@ func TestMapRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", message)
 	assert.False(t, ok)
 
-	r = Map_rule{MinItems: NewInt(2)}
+	r = MapRule{MinItems: NewInt(2)}
 	ok, message, err = r.Enforce(map[string]int{"foo": 1, "bar": 2}, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)

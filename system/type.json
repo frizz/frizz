@@ -40,17 +40,13 @@
 			"description": "Each field is listed with it's type",
 			"type": "@map",
 			"items": {
-				"type": "@rule"
+				"type": "@rule",
+				"interface": true
 			},
 			"optional": true
 		},
 		"rule": {
 			"description": "Type that defines restriction rules for this type.",
-			"type": "@type",
-			"optional": true
-		},
-		"base": {
-			"description": "Optionally this is a type which is embedded in each object that implements this interface.",
 			"type": "@type",
 			"optional": true
 		}

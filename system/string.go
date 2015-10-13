@@ -18,7 +18,7 @@ func NewString(s string) String {
 	return String{Value: s, Exists: true}
 }
 
-func (r *String_rule) Validate(path string, aliases map[string]string) (ok bool, message string, err error) {
+func (r *StringRule) Validate(path string, aliases map[string]string) (ok bool, message string, err error) {
 	if r.MaxLength.Exists && r.MinLength.Exists {
 		if r.MaxLength.Value < r.MinLength.Value {
 			return false, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value, r.MinLength.Value), nil
@@ -32,7 +32,7 @@ func (r *String_rule) Validate(path string, aliases map[string]string) (ok bool,
 	return true, "", nil
 }
 
-func (r *String_rule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *StringRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 	s, ok := data.(String)
 	if !ok {
 		return false, "", kerr.New("SXFBXGQSEA", nil, "data %T should be system.String.", data)

@@ -24,10 +24,10 @@ type Conn struct {
 	fail     chan error
 	path     string
 	aliases  map[string]string
-	in       chan messages.Message
-	out      chan messages.Message
-	requests map[string]chan messages.Message
-	subs     map[system.Reference]chan messages.Message
+	in       chan messages.MessageInterface
+	out      chan messages.MessageInterface
+	requests map[string]chan messages.MessageInterface
+	subs     map[system.Reference]chan messages.MessageInterface
 
 	// This wait group is only used in the tests to signal when all the
 	// outgoing messages have finished sending.
@@ -41,10 +41,10 @@ func New(socket io.ReadWriteCloser, fail chan error, debug bool, path string, al
 		fail:     fail,
 		path:     path,
 		aliases:  aliases,
-		in:       make(chan messages.Message),
-		out:      make(chan messages.Message),
-		requests: map[string]chan messages.Message{},
-		subs:     map[system.Reference]chan messages.Message{},
+		in:       make(chan messages.MessageInterface),
+		out:      make(chan messages.MessageInterface),
+		requests: map[string]chan messages.MessageInterface{},
+		subs:     map[system.Reference]chan messages.MessageInterface{},
 		outwg:    &sync.WaitGroup{},
 		debug:    debug,
 	}
@@ -62,8 +62,8 @@ func (c *Conn) handle(f func() error) {
 	}
 }
 
-func (c *Conn) applyTimeout(duration time.Duration, input chan messages.Message) chan messages.Message {
-	output := make(chan messages.Message)
+func (c *Conn) applyTimeout(duration time.Duration, input chan messages.MessageInterface) chan messages.MessageInterface {
+	output := make(chan messages.MessageInterface)
 	go func() {
 		select {
 		case <-time.After(duration):

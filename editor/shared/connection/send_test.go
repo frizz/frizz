@@ -70,7 +70,7 @@ func TestRequestResponseChannel(t *testing.T) {
 		// sendRequestAndWaitForResponse is the first part of the Request method,
 		// which sends a request and stores the response channel in the requests
 		// map. We should check the response channel exists in the requests map.
-		r, ok := c.requests[m.Message().Guid.Value]
+		r, ok := c.requests[m.GetMessage().Guid.Value]
 		assert.True(t, ok)
 		assert.Equal(t, r, responseChannel)
 
@@ -86,7 +86,7 @@ func TestRespond(t *testing.T) {
 		// field, so we must clone the request and add it.
 		m1, err := clone(m, "kego.io/editor/shared/messages", map[string]string{})
 		assert.NoError(t, err)
-		m1.(messages.Message).Message().Request = system.NewString("c")
+		m1.(messages.MessageInterface).GetMessage().Request = system.NewString("c")
 		expected, _ := ke.Marshal(m1)
 		expected = append(expected, byte('\n'))
 
@@ -96,7 +96,7 @@ func TestRespond(t *testing.T) {
 	})
 }
 
-func clone(in system.Object, path string, aliases map[string]string) (system.Object, error) {
+func clone(in system.ObjectInterface, path string, aliases map[string]string) (system.ObjectInterface, error) {
 	b, err := ke.Marshal(in)
 	if err != nil {
 		return nil, kerr.New("WSTYPJHIVG", err, "ke.Marshal")
@@ -106,9 +106,9 @@ func clone(in system.Object, path string, aliases map[string]string) (system.Obj
 	if err != nil {
 		return nil, kerr.New("NGELVDDBRF", err, "ke.Unmarshal")
 	}
-	o, ok := i.(system.Object)
+	o, ok := i.(system.ObjectInterface)
 	if !ok {
-		return nil, kerr.New("HLMRUOUQEM", nil, "Unmarshaled object is not a system.Object")
+		return nil, kerr.New("HLMRUOUQEM", nil, "Unmarshaled object is not a system.ObjectInterface")
 	}
 	return o, nil
 }
