@@ -10,6 +10,7 @@ func (n *Node) GetEditor() Editor {
 		if n.Type.Native.Value == "object" {
 			return &NodeObjectEditor{Node: n}
 		}
+		return &NodeMapEditor{Node: n}
 	}
 	return nil
 }

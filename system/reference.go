@@ -173,6 +173,18 @@ func (r *Reference) GetType() (*Type, bool) {
 	return nil, false
 }
 
+func (t Reference) TypeInterfaceReference() Reference {
+	if !t.Exists {
+		return Reference{}
+	}
+	n := t.Name
+	if strings.HasPrefix(n, INTERFACE_PREFIX) || strings.HasPrefix(n, RULE_PREFIX) {
+		n = n[1:]
+	}
+	n = INTERFACE_PREFIX + n
+	return NewReference(t.Package, n)
+}
+
 func (s Reference) NativeString() (value string, exists bool) {
 	return s.Value(), s.Exists
 }
