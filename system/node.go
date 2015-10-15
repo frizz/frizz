@@ -21,11 +21,12 @@ type Node struct {
 	Fields      map[string]*Node
 	Rule        *RuleHolder
 	Type        *Type
-	JsonType    int
+	JsonType    json.Type
+	Siblings    int // this is used by the selectors package, it is only for maps and arrays, will be -1 for objects
 }
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
-	if err := n.extract(nil, "", -1, Reference{}, in, true, nil, path, aliases); err != nil {
+	if err := n.extract(nil, "", -1, Reference{}, -1, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "get (read)")
 	}
 	return nil
@@ -33,7 +34,7 @@ func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, origin Reference, in json.Unpackable, exists bool, rule *RuleHolder, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, origin Reference, siblings int, in json.Unpackable, exists bool, rule *RuleHolder, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
@@ -43,16 +44,29 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, in
 	n.Parent = parent
 	n.Key = key
 	n.Index = index
+	n.Siblings = siblings
 	n.Rule = rule
 	n.Type = objectType
 	n.Missing = !exists
 	n.Origin = origin
-	if in != nil {
-		n.JsonType = in.UpType()
-	} else {
+	if in == nil {
 		n.JsonType = json.J_NULL
+		n.Null = true
+	} else {
+		n.JsonType = in.UpType()
+		n.Null = n.JsonType == json.J_NULL
 	}
-	n.Null = n.JsonType == json.J_NULL
+
+	// for objects and maps, UpType() from the unpackable is always J_MAP,
+	// so we correct it for object types here.
+	if n.JsonType == json.J_MAP && n.Type.NativeJsonType() == json.J_OBJECT {
+		n.JsonType = json.J_OBJECT
+	}
+
+	// validate json type
+	if n.JsonType != json.J_NULL && n.JsonType != n.Type.NativeJsonType() {
+		return kerr.New("VEPLUIJXSN", nil, "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
+	}
 
 	if rule == nil {
 		if err := json.Unpack(in, &n.Value, path, aliases); err != nil {
@@ -110,9 +124,10 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, in
 		if err != nil {
 			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
-		for i, child := range in.UpArray() {
+		children := in.UpArray()
+		for i, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, "", i, Reference{}, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, "", i, Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -130,9 +145,10 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, in
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
 		n.Map = map[string]*Node{}
-		for name, child := range in.UpMap() {
+		children := in.UpMap()
+		for name, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, Reference{}, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -159,7 +175,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, in
 			}
 			child, ok := m[name]
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, f.Origin, child, ok, rule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, f.Origin, -1, child, ok, rule, path, aliases); err != nil {
 				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
 			n.Fields[name] = childNode

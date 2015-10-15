@@ -3,6 +3,7 @@ package system
 import (
 	"sort"
 
+	"kego.io/json"
 	"kego.io/kerr"
 )
 
@@ -27,6 +28,25 @@ func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
 		return nativeCollection
 	default:
 		return nativeObject
+	}
+}
+
+func (t *Type) NativeJsonType() json.Type {
+	switch t.Native.Value {
+	case "number":
+		return json.J_NUMBER
+	case "string":
+		return json.J_STRING
+	case "bool":
+		return json.J_BOOL
+	case "map":
+		return json.J_MAP
+	case "object":
+		return json.J_OBJECT
+	case "array":
+		return json.J_ARRAY
+	default:
+		return json.J_NULL
 	}
 }
 

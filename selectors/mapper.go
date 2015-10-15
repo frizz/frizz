@@ -1,35 +1,20 @@
 package selectors
 
 import (
+	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
 )
 
-type nativeType string
-
-const (
-	J_STRING  nativeType = "string"
-	J_NUMBER  nativeType = "number"
-	J_MAP     nativeType = "map"
-	J_OBJ     nativeType = "object"
-	J_ARRAY   nativeType = "array"
-	J_BOOLEAN nativeType = "boolean"
-	J_NULL    nativeType = "null"
-
-	// Not actually a type, obviously
-	J_OPER nativeType = "oper"
-)
-
 type node struct {
-	value      interface{}
-	native     nativeType
-	ktyperef   system.Reference
-	ktype      *system.Type
-	element    *Element
-	parent     *node
-	parent_key string
-	idx        int
-	siblings   int
+	Value    interface{}
+	JsonType json.Type
+	Type     *system.Type
+	element  *Element
+	Parent   *node
+	Key      string
+	Index    int
+	Siblings int
 }
 
 func (p *Parser) mapDocument() error {
@@ -56,67 +41,65 @@ func (p *Parser) getFlooredDocumentMap(n *node) ([]*node, error) {
 	return newMap, nil
 }
 
-func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_key string, idx int, siblings int) ([]*node, error) {
+func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, key string, index int, siblings int) ([]*node, error) {
 	n := node{}
-	n.parent = parent
+	n.Parent = parent
 	n.element = element
-	if len(parent_key) > 0 {
-		n.parent_key = parent_key
+	if len(key) > 0 {
+		n.Key = key
 	}
-	if idx > -1 {
-		n.idx = idx
+	if index > -1 {
+		n.Index = index
 	}
 	if siblings > -1 {
-		n.siblings = siblings
+		n.Siblings = siblings
 	}
 
-	ob, ok := element.Data.(system.ObjectInterface)
+	oi, ok := element.Data.(system.ObjectInterface)
 	if ok {
-		base := ob.GetObject()
-		n.ktyperef = base.Type
-		n.ktype, ok = base.Type.GetType()
+		o := oi.GetObject()
+		n.Type, ok = o.Type.GetType()
 		if !ok {
 			return nil, kerr.New("HGENTDRWHL", nil, "Type.GetType not found")
 		}
 	} else {
-		n.ktyperef = element.Rule.ParentType.Id
-		n.ktype = element.Rule.ParentType
+		n.Type = element.Rule.ParentType
 	}
 
-	switch n.ktype.Native.Value {
+	switch n.Type.Native.Value {
 	case "bool":
 		value, exists := element.Data.(system.NativeBool).NativeBool()
 		if !exists {
-			n.value = nil
-			n.native = J_NULL
+			n.Value = nil
+			n.JsonType = json.J_NULL
 			break
 		}
-		n.value = value
-		n.native = J_BOOLEAN
+		n.Value = value
+		n.JsonType = json.J_BOOL
 		break
 	case "number":
 		value, exists := element.Data.(system.NativeNumber).NativeNumber()
 		if !exists {
-			n.value = nil
-			n.native = J_NULL
+			n.Value = nil
+			n.JsonType = json.J_NULL
 			break
 		}
-		n.value = value
-		n.native = J_NUMBER
+		n.Value = value
+		n.JsonType = json.J_NUMBER
 		break
 	case "string":
 		value, exists := element.Data.(system.NativeString).NativeString()
 		if !exists {
-			n.value = nil
-			n.native = J_NULL
+			n.Value = nil
+			n.JsonType = json.J_NULL
 			break
 		}
-		n.value = value
-		n.native = J_STRING
+		n.Value = value
+		n.JsonType = json.J_STRING
 		break
 	case "array":
-		n.value = element.Data
-		n.native = J_ARRAY
+		n.Value = element.Data
+		n.JsonType = json.J_ARRAY
 		length := element.Value.Len()
 		itemsRule, err := element.Rule.ItemsRule()
 		if err != nil {
@@ -139,8 +122,8 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		}
 		break
 	case "map":
-		n.value = element.Data
-		n.native = J_MAP
+		n.Value = element.Data
+		n.JsonType = json.J_MAP
 		itemsRule, err := element.Rule.ItemsRule()
 		if err != nil {
 			return nil, kerr.New("SYGEFDHBTO", err, "jdoc.Rule.ItemsRule (map)")
@@ -165,9 +148,9 @@ func (p *Parser) getNodes(element *Element, nodes []*node, parent *node, parent_
 		}
 		break
 	case "object":
-		n.value = element.Data
-		n.native = J_OBJ
-		for key, field := range n.ktype.Fields {
+		n.Value = element.Data
+		n.JsonType = json.J_OBJECT
+		for key, field := range n.Type.Fields {
 			object, _, value, found, _, err := system.GetObjectField(element.Value, system.GoName(key))
 			if err != nil {
 				return nil, kerr.New("JMUJMBBLWU", err, "system.GetMapMember")

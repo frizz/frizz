@@ -7,10 +7,9 @@ func (n *Node) GetEditor() Editor {
 	case json.J_STRING, json.J_BOOL, json.J_NUMBER:
 		return &NodeValueEditor{Node: n}
 	case json.J_MAP:
-		if n.Type.Native.Value == "object" {
-			return &NodeObjectEditor{Node: n}
-		}
 		return &NodeMapEditor{Node: n}
+	case json.J_OBJECT:
+		return &NodeObjectEditor{Node: n}
 	}
 	return nil
 }

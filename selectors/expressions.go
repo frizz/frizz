@@ -1,10 +1,14 @@
 package selectors
 
-import "strings"
+import (
+	"strings"
+
+	"kego.io/json"
+)
 
 type exprElement struct {
 	value interface{}
-	typ   nativeType
+	typ   json.Type
 }
 
 var precedenceMap = map[string]int{
@@ -28,99 +32,99 @@ var precedenceMap = map[string]int{
 var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElement{
 	"*": func(lhs exprElement, rhs exprElement) exprElement {
 		value := getFloat64(lhs.value) * getFloat64(rhs.value)
-		return exprElement{value, J_NUMBER}
+		return exprElement{value, json.J_NUMBER}
 	},
 	"/": func(lhs exprElement, rhs exprElement) exprElement {
 		value := getFloat64(lhs.value) / getFloat64(rhs.value)
-		return exprElement{value, J_NUMBER}
+		return exprElement{value, json.J_NUMBER}
 	},
 	"%": func(lhs exprElement, rhs exprElement) exprElement {
 		value := float64(getInt32(lhs.value) % getInt32(rhs.value))
-		return exprElement{value, J_NUMBER}
+		return exprElement{value, json.J_NUMBER}
 	},
 	"+": func(lhs exprElement, rhs exprElement) exprElement {
 		value := getFloat64(lhs.value) + getFloat64(rhs.value)
-		return exprElement{value, J_NUMBER}
+		return exprElement{value, json.J_NUMBER}
 	},
 	"-": func(lhs exprElement, rhs exprElement) exprElement {
 		value := getFloat64(lhs.value) - getFloat64(rhs.value)
-		return exprElement{value, J_NUMBER}
+		return exprElement{value, json.J_NUMBER}
 	},
 	"<=": func(lhs exprElement, rhs exprElement) exprElement {
 		if getFloat64(lhs.value) <= getFloat64(rhs.value) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"<": func(lhs exprElement, rhs exprElement) exprElement {
 		if getFloat64(lhs.value) < getFloat64(rhs.value) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	">=": func(lhs exprElement, rhs exprElement) exprElement {
 		if getFloat64(lhs.value) > getFloat64(rhs.value) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	">": func(lhs exprElement, rhs exprElement) exprElement {
 		if getFloat64(lhs.value) > getFloat64(rhs.value) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"$=": func(lhs exprElement, rhs exprElement) exprElement {
 		lhs_str := getJsonString(lhs.value)
 		rhs_str := getJsonString(rhs.value)
 		if strings.HasSuffix(lhs_str, rhs_str) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"^=": func(lhs exprElement, rhs exprElement) exprElement {
 		lhs_str := getJsonString(lhs.value)
 		rhs_str := getJsonString(rhs.value)
 		if strings.Index(lhs_str, rhs_str) == 0 {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"*=": func(lhs exprElement, rhs exprElement) exprElement {
 		lhs_str := getJsonString(lhs.value)
 		rhs_str := getJsonString(rhs.value)
 		if strings.Index(lhs_str, rhs_str) != -1 {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"=": func(lhs exprElement, rhs exprElement) exprElement {
 		lhs_string := getJsonString(lhs.value)
 		rhs_string := getJsonString(rhs.value)
 		if lhs_string == rhs_string {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"!=": func(lhs exprElement, rhs exprElement) exprElement {
 		lhs_string := getJsonString(lhs.value)
 		rhs_string := getJsonString(rhs.value)
 		if lhs_string != rhs_string {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"&&": func(lhs exprElement, rhs exprElement) exprElement {
 		if lhs.value.(bool) && rhs.value.(bool) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 	"||": func(lhs exprElement, rhs exprElement) exprElement {
 		if lhs.value.(bool) || rhs.value.(bool) {
-			return exprElement{true, J_BOOLEAN}
+			return exprElement{true, json.J_BOOL}
 		}
-		return exprElement{false, J_BOOLEAN}
+		return exprElement{false, json.J_BOOL}
 	},
 }
 
@@ -130,7 +134,7 @@ func (p *Parser) evaluateExpressionWithPrecedence(elements []*exprElement, prece
 	var element *exprElement
 	for i = 0; i < len(elements); i++ {
 		element = elements[i]
-		if element.typ == J_OPER && precedenceMap[element.value.(string)] == precedenceLevel {
+		if element.typ == json.J_OPERATOR && precedenceMap[element.value.(string)] == precedenceLevel {
 			lhs := newExpression[len(newExpression)-1]
 			rhs := elements[i+1]
 			newExpression = newExpression[0 : len(newExpression)-1]
@@ -139,7 +143,7 @@ func (p *Parser) evaluateExpressionWithPrecedence(elements []*exprElement, prece
 				newExpression = append(newExpression, &result)
 			} else {
 				logger.Print("Cannot compare ", lhs.value, " and ", rhs.value, "; types differ: ", rhs.typ, " != ", lhs.typ)
-				newExpression = append(newExpression, &exprElement{false, J_BOOLEAN})
+				newExpression = append(newExpression, &exprElement{false, json.J_BOOL})
 			}
 			// Skip ahead an additional step more than normal
 			// since we just pulled off one more element than normal.
@@ -194,23 +198,23 @@ func (p *Parser) parseExpression(tokens []*token, current *node) exprElement {
 			i = i + j
 		} else if thisToken.typ == S_PVAR {
 			// This is for the value of the node being processed.
-			finalTokens = append(finalTokens, &exprElement{current.value, current.native})
+			finalTokens = append(finalTokens, &exprElement{current.Value, current.JsonType})
 		} else if thisToken.typ == S_STRING || thisToken.typ == S_BOOL || thisToken.typ == S_NIL || thisToken.typ == S_NUMBER {
 			// Let's copy these kinds of tokens down as expression elements.
-			var jType nativeType
+			var jType json.Type
 			switch thisToken.typ {
 			case S_BOOL:
-				jType = J_BOOLEAN
+				jType = json.J_BOOL
 			case S_NIL:
-				jType = J_NULL
+				jType = json.J_NULL
 			case S_NUMBER:
-				jType = J_NUMBER
+				jType = json.J_NUMBER
 			default:
-				jType = J_STRING
+				jType = json.J_STRING
 			}
 			finalTokens = append(finalTokens, &exprElement{thisToken.val, jType})
 		} else if thisToken.typ == S_BINOP {
-			finalTokens = append(finalTokens, &exprElement{thisToken.val, J_OPER})
+			finalTokens = append(finalTokens, &exprElement{thisToken.val, json.J_OPERATOR})
 		} else {
 			logger.Print("Unexpected token ", thisToken, " ignored.")
 		}

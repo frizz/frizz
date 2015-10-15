@@ -3,7 +3,7 @@ package json
 import "fmt"
 
 type Unpackable interface {
-	UpType() int
+	UpType() Type // Unpackable will never be J_OBJECT, only J_MAP
 	UpNumber() float64
 	UpString() string
 	UpBool() bool
@@ -24,7 +24,7 @@ func NewJsonUnpacker(v interface{}) *JsonUnpacker {
 
 var _ Unpackable = (*JsonUnpacker)(nil)
 
-func (j *JsonUnpacker) UpType() int {
+func (j *JsonUnpacker) UpType() Type {
 	if j == nil {
 		return J_NULL
 	}
@@ -78,12 +78,3 @@ func (j *JsonUnpacker) UpMap() map[string]Unpackable {
 func (j *JsonUnpacker) UpInterface() interface{} {
 	return j.value
 }
-
-const (
-	J_NULL = iota
-	J_STRING
-	J_BOOL
-	J_NUMBER
-	J_ARRAY
-	J_MAP
-)

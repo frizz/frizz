@@ -4,9 +4,14 @@ import "kego.io/json"
 
 var _ json.Unpackable = (*Node)(nil)
 
-func (n *Node) UpType() int {
+func (n *Node) UpType() json.Type {
 	if n == nil {
 		return json.J_NULL
+	}
+	if n.JsonType == json.J_OBJECT {
+		// unpackables are just a dumb collection of json values with no type
+		// information, so maps and objects are the same, so we only use J_MAP
+		return json.J_MAP
 	}
 	return n.JsonType
 }

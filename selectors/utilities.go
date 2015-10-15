@@ -1,9 +1,10 @@
 package selectors
 
 import (
-	"encoding/json"
 	"log"
 	"strconv"
+
+	"kego.io/json"
 )
 
 func nodeIsMemberOfHaystack(needle *node, haystack map[*Element]*node) bool {
@@ -21,9 +22,9 @@ func nodeIsMemberOfList(needle *node, haystack []*node) bool {
 }
 
 func appendAncestorsToHaystack(n *node, haystack map[*Element]*node) {
-	if n.parent != nil {
-		haystack[n.parent.element] = n.parent
-		appendAncestorsToHaystack(n.parent, haystack)
+	if n.Parent != nil {
+		haystack[n.Parent.element] = n.Parent
+		appendAncestorsToHaystack(n.Parent, haystack)
 	}
 }
 
@@ -31,10 +32,10 @@ func nodeIsChildOfHaystackMember(needle *node, haystack map[*Element]*node) bool
 	if nodeIsMemberOfHaystack(needle, haystack) {
 		return true
 	}
-	if needle.parent == nil {
+	if needle.Parent == nil {
 		return false
 	}
-	return nodeIsChildOfHaystackMember(needle.parent, haystack)
+	return nodeIsChildOfHaystackMember(needle.Parent, haystack)
 }
 
 func parents(lhs []*node, rhs []*node) []*node {
@@ -43,7 +44,7 @@ func parents(lhs []*node, rhs []*node) []*node {
 	lhsHaystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
-		if element.parent != nil && nodeIsMemberOfHaystack(element.parent, lhsHaystack) {
+		if element.Parent != nil && nodeIsMemberOfHaystack(element.Parent, lhsHaystack) {
 			results = append(results, element)
 		}
 	}
@@ -69,13 +70,13 @@ func siblings(lhs []*node, rhs []*node) []*node {
 	parents := make(map[*Element]*node, len(lhs))
 
 	for _, element := range lhs {
-		if element.parent != nil {
-			parents[element.parent.element] = element.parent
+		if element.Parent != nil {
+			parents[element.Parent.element] = element.Parent
 		}
 	}
 
 	for _, element := range rhs {
-		if element.parent != nil && nodeIsMemberOfHaystack(element.parent, parents) {
+		if element.Parent != nil && nodeIsMemberOfHaystack(element.Parent, parents) {
 			results = append(results, element)
 		}
 	}
@@ -135,19 +136,19 @@ func getJsonString(in interface{}) string {
 
 func exprElementIsTruthy(e exprElement) (bool, error) {
 	switch e.typ {
-	case J_STRING:
+	case json.J_STRING:
 		return len(e.value.(string)) > 0, nil
-	case J_NUMBER:
+	case json.J_NUMBER:
 		return e.value.(float64) > 0, nil
-	case J_OBJ:
+	case json.J_OBJECT:
 		return true, nil
-	case J_MAP:
+	case json.J_MAP:
 		return true, nil
-	case J_ARRAY:
+	case json.J_ARRAY:
 		return true, nil
-	case J_BOOLEAN:
+	case json.J_BOOL:
 		return e.value.(bool), nil
-	case J_NULL:
+	case json.J_NULL:
 		return false, nil
 	default:
 		return false, nil
