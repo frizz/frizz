@@ -143,157 +143,175 @@ func init() {
 	ptr133 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "image", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
 	ptr134 := &system.Type{Object: ptr133, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Interface: true, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 	ptr135 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "instance", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr136 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr136 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 	ptr137 := &system.Rule{}
-	ptr138 := &system.StringRule{Object: ptr136, Rule: ptr137, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr139 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr140 := &system.Rule{}
-	ptr141 := &system.StringRule{Object: ptr139, Rule: ptr140, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr142 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr138 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@instanceItem", Exists: true}}
+	ptr139 := &system.Rule{}
+	ptr140 := &tests.InstanceItemRule{Object: ptr138, Rule: ptr139}
+	ptr141 := &system.MapRule{Object: ptr136, Rule: ptr137, Items: ptr140, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr142 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 	ptr143 := &system.Rule{}
-	ptr144 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rightscaleLink", Exists: true}}
-	ptr145 := &system.Rule{}
-	ptr146 := &tests.RightscaleLinkRule{Object: ptr144, Rule: ptr145}
-	ptr147 := &system.ArrayRule{Object: ptr142, Rule: ptr143, Items: ptr146, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr148 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr144 := &system.StringRule{Object: ptr142, Rule: ptr143, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr145 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr146 := &system.Rule{}
+	ptr147 := &system.StringRule{Object: ptr145, Rule: ptr146, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr148 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
 	ptr149 := &system.Rule{}
-	ptr150 := &system.StringRule{Object: ptr148, Rule: ptr149, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr151 := &system.Type{Object: ptr135, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"cloud_type": ptr138, "display_name": ptr141, "links": ptr147, "name": ptr150}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr152 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "instanceItem", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr153 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr154 := &system.Rule{}
-	ptr155 := &system.StringRule{Object: ptr153, Rule: ptr154, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr156 := &system.Type{Object: ptr152, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"name": ptr155}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr157 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "kid", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr158 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr159 := &system.Rule{}
-	ptr160 := &system.StringRule{Object: ptr158, Rule: ptr159, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr161 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr162 := &system.Rule{}
-	ptr163 := &system.StringRule{Object: ptr161, Rule: ptr162, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr164 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
-	ptr165 := &system.Rule{Optional: true}
-	ptr166 := &system.BoolRule{Object: ptr164, Rule: ptr165, Default: system.Bool{}}
-	ptr167 := &system.Type{Object: ptr157, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"language": ptr160, "level": ptr163, "preferred": ptr166}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr168 := &system.Object{Description: "This represents an image, and contains path, server and protocol separately", Id: system.Reference{Package: "kego.io/selectors/tests", Name: "photo", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr169 := &system.Object{Description: "The path for the url - e.g. /foo/bar.jpg", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr170 := &system.Rule{}
-	ptr171 := &system.StringRule{Object: ptr169, Rule: ptr170, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 1, Exists: true}, MinLength: system.Int{Value: 0}, Pattern: system.String{Value: "^/.*$", Exists: true}}
-	ptr172 := &system.Object{Description: "The protocol for the url - e.g. http or https", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr173 := &system.Rule{Optional: true}
-	ptr174 := &system.StringRule{Object: ptr172, Rule: ptr173, Default: system.String{Value: "http", Exists: true}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr175 := &system.Object{Description: "The server for the url - e.g. www.google.com", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr150 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rightscaleLink", Exists: true}}
+	ptr151 := &system.Rule{}
+	ptr152 := &tests.RightscaleLinkRule{Object: ptr150, Rule: ptr151}
+	ptr153 := &system.ArrayRule{Object: ptr148, Rule: ptr149, Items: ptr152, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr154 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr155 := &system.Rule{}
+	ptr156 := &system.StringRule{Object: ptr154, Rule: ptr155, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr157 := &system.Type{Object: ptr135, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"child": ptr141, "cloud_type": ptr144, "display_name": ptr147, "links": ptr153, "name": ptr156}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr158 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "instanceItem", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr159 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr160 := &system.Rule{}
+	ptr161 := &system.StringRule{Object: ptr159, Rule: ptr160, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr162 := &system.Type{Object: ptr158, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"name": ptr161}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr163 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "kid", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr164 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr165 := &system.Rule{}
+	ptr166 := &system.StringRule{Object: ptr164, Rule: ptr165, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr167 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr168 := &system.Rule{}
+	ptr169 := &system.StringRule{Object: ptr167, Rule: ptr168, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr170 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@bool", Exists: true}}
+	ptr171 := &system.Rule{Optional: true}
+	ptr172 := &system.BoolRule{Object: ptr170, Rule: ptr171, Default: system.Bool{}}
+	ptr173 := &system.Type{Object: ptr163, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"language": ptr166, "level": ptr169, "preferred": ptr172}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr174 := &system.Object{Description: "This represents an image, and contains path, server and protocol separately", Id: system.Reference{Package: "kego.io/selectors/tests", Name: "photo", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr175 := &system.Object{Description: "The path for the url - e.g. /foo/bar.jpg", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 	ptr176 := &system.Rule{}
 	ptr177 := &system.StringRule{Object: ptr175, Rule: ptr176, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr178 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rectangle", Exists: true}}
+	ptr178 := &system.Object{Description: "The protocol for the url - e.g. http or https", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
 	ptr179 := &system.Rule{Optional: true}
-	ptr180 := &tests.RectangleRule{Object: ptr178, Rule: ptr179}
-	ptr181 := &system.Type{Object: ptr168, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"path": ptr171, "protocol": ptr174, "server": ptr177, "size": ptr180}, Is: []system.Reference{system.Reference{Package: "kego.io/selectors/tests", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr182 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "polykids", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr183 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-	ptr184 := &system.Rule{}
-	ptr185 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@kid", Exists: true}}
-	ptr186 := &system.Rule{}
-	ptr187 := &tests.KidRule{Object: ptr185, Rule: ptr186}
-	ptr188 := &system.ArrayRule{Object: ptr183, Rule: ptr184, Items: ptr187, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr189 := &system.Type{Object: ptr182, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"a": ptr188}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr190 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rectangle", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr191 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@int", Exists: true}}
+	ptr180 := &system.StringRule{Object: ptr178, Rule: ptr179, Default: system.String{Value: "http", Exists: true}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr181 := &system.Object{Description: "The server for the url - e.g. www.google.com", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr182 := &system.Rule{}
+	ptr183 := &system.StringRule{Object: ptr181, Rule: ptr182, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr184 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rectangle", Exists: true}}
+	ptr185 := &system.Rule{Optional: true}
+	ptr186 := &tests.RectangleRule{Object: ptr184, Rule: ptr185}
+	ptr187 := &system.Type{Object: ptr174, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"path": ptr177, "protocol": ptr180, "server": ptr183, "size": ptr186}, Is: []system.Reference{system.Reference{Package: "kego.io/selectors/tests", Name: "image", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr188 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "polykids", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr189 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr190 := &system.Rule{}
+	ptr191 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@kid", Exists: true}}
 	ptr192 := &system.Rule{}
-	ptr193 := &system.IntRule{Object: ptr191, Rule: ptr192, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
-	ptr194 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@int", Exists: true}}
-	ptr195 := &system.Rule{}
-	ptr196 := &system.IntRule{Object: ptr194, Rule: ptr195, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
-	ptr197 := &system.Type{Object: ptr190, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"height": ptr193, "width": ptr196}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr198 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rightscale", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr199 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-	ptr200 := &system.Rule{}
-	ptr201 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@instanceItem", Exists: true}}
-	ptr202 := &system.Rule{}
-	ptr203 := &tests.InstanceItemRule{Object: ptr201, Rule: ptr202}
-	ptr204 := &system.MapRule{Object: ptr199, Rule: ptr200, Items: ptr203, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr205 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr193 := &tests.KidRule{Object: ptr191, Rule: ptr192}
+	ptr194 := &system.ArrayRule{Object: ptr189, Rule: ptr190, Items: ptr193, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr195 := &system.Type{Object: ptr188, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"a": ptr194}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr196 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rectangle", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr197 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@int", Exists: true}}
+	ptr198 := &system.Rule{}
+	ptr199 := &system.IntRule{Object: ptr197, Rule: ptr198, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
+	ptr200 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@int", Exists: true}}
+	ptr201 := &system.Rule{}
+	ptr202 := &system.IntRule{Object: ptr200, Rule: ptr201, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
+	ptr203 := &system.Type{Object: ptr196, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"height": ptr199, "width": ptr202}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr204 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rightscale", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr205 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 	ptr206 := &system.Rule{}
-	ptr207 := &system.StringRule{Object: ptr205, Rule: ptr206, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr208 := &system.Type{Object: ptr198, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"child": ptr204, "name": ptr207}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr209 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rightscaleLink", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr210 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr211 := &system.Rule{}
-	ptr212 := &system.StringRule{Object: ptr210, Rule: ptr211, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr213 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr214 := &system.Rule{}
-	ptr215 := &system.StringRule{Object: ptr213, Rule: ptr214, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr216 := &system.Type{Object: ptr209, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"href": ptr212, "rel": ptr215}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr217 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rightscaleList", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr218 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-	ptr219 := &system.Rule{}
-	ptr220 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rightscale", Exists: true}}
-	ptr221 := &system.Rule{}
-	ptr222 := &tests.RightscaleRule{Object: ptr220, Rule: ptr221}
-	ptr223 := &system.ArrayRule{Object: ptr218, Rule: ptr219, Items: ptr222, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr224 := &system.Type{Object: ptr217, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"foo": ptr223}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr225 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "sibling", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr226 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-	ptr227 := &system.Rule{}
-	ptr228 := &system.NumberRule{Object: ptr226, Rule: ptr227, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
-	ptr229 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-	ptr230 := &system.Rule{}
-	ptr231 := &system.NumberRule{Object: ptr229, Rule: ptr230, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
-	ptr232 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@c", Exists: true}}
-	ptr233 := &system.Rule{}
-	ptr234 := &tests.CRule{Object: ptr232, Rule: ptr233}
-	ptr235 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-	ptr236 := &system.Rule{}
-	ptr237 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-	ptr238 := &system.Rule{}
-	ptr239 := &system.NumberRule{Object: ptr237, Rule: ptr238, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
-	ptr240 := &system.MapRule{Object: ptr235, Rule: ptr236, Items: ptr239, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr241 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-	ptr242 := &system.Rule{}
-	ptr243 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-	ptr244 := &system.Rule{}
-	ptr245 := &system.NumberRule{Object: ptr243, Rule: ptr244, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
-	ptr246 := &system.MapRule{Object: ptr241, Rule: ptr242, Items: ptr245, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr247 := &system.Type{Object: ptr225, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"a": ptr228, "b": ptr231, "c": ptr234, "d": ptr240, "e": ptr246}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr248 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "simple", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr249 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@simpleItem", Exists: true}}
-	ptr250 := &system.Rule{}
-	ptr251 := &tests.SimpleItemRule{Object: ptr249, Rule: ptr250}
-	ptr252 := &system.Type{Object: ptr248, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"a": ptr251}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr253 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "simpleItem", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr254 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr255 := &system.Rule{}
-	ptr256 := &system.StringRule{Object: ptr254, Rule: ptr255, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr257 := &system.Type{Object: ptr253, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"b": ptr256}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr258 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "typed", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr259 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@image", Exists: true}}
+	ptr207 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@instanceItem", Exists: true}}
+	ptr208 := &system.Rule{}
+	ptr209 := &tests.InstanceItemRule{Object: ptr207, Rule: ptr208}
+	ptr210 := &system.MapRule{Object: ptr205, Rule: ptr206, Items: ptr209, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr211 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr212 := &system.Rule{}
+	ptr213 := &system.StringRule{Object: ptr211, Rule: ptr212, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr214 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr215 := &system.Rule{}
+	ptr216 := &system.StringRule{Object: ptr214, Rule: ptr215, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr217 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr218 := &system.Rule{}
+	ptr219 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rightscaleLink", Exists: true}}
+	ptr220 := &system.Rule{}
+	ptr221 := &tests.RightscaleLinkRule{Object: ptr219, Rule: ptr220}
+	ptr222 := &system.ArrayRule{Object: ptr217, Rule: ptr218, Items: ptr221, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr223 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr224 := &system.Rule{}
+	ptr225 := &system.StringRule{Object: ptr223, Rule: ptr224, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr226 := &system.Type{Object: ptr204, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"child": ptr210, "cloud_type": ptr213, "display_name": ptr216, "links": ptr222, "name": ptr225}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr227 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rightscaleLink", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr228 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr229 := &system.Rule{}
+	ptr230 := &system.StringRule{Object: ptr228, Rule: ptr229, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr231 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr232 := &system.Rule{}
+	ptr233 := &system.StringRule{Object: ptr231, Rule: ptr232, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr234 := &system.Type{Object: ptr227, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"href": ptr230, "rel": ptr233}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr235 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "rightscaleList", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr236 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr237 := &system.Rule{}
+	ptr238 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@rightscale", Exists: true}}
+	ptr239 := &system.Rule{}
+	ptr240 := &tests.RightscaleRule{Object: ptr238, Rule: ptr239}
+	ptr241 := &system.ArrayRule{Object: ptr236, Rule: ptr237, Items: ptr240, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr242 := &system.Type{Object: ptr235, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"foo": ptr241}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr243 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "sibling", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr244 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr245 := &system.Rule{}
+	ptr246 := &system.NumberRule{Object: ptr244, Rule: ptr245, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+	ptr247 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr248 := &system.Rule{}
+	ptr249 := &system.NumberRule{Object: ptr247, Rule: ptr248, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+	ptr250 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@c", Exists: true}}
+	ptr251 := &system.Rule{}
+	ptr252 := &tests.CRule{Object: ptr250, Rule: ptr251}
+	ptr253 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+	ptr254 := &system.Rule{}
+	ptr255 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr256 := &system.Rule{}
+	ptr257 := &system.NumberRule{Object: ptr255, Rule: ptr256, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+	ptr258 := &system.MapRule{Object: ptr253, Rule: ptr254, Items: ptr257, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr259 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
 	ptr260 := &system.Rule{}
-	ptr261 := &tests.ImageRule{Object: ptr259, Rule: ptr260}
-	ptr262 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
-	ptr263 := &system.Rule{}
-	ptr264 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr265 := &system.Rule{}
-	ptr266 := &system.StringRule{Object: ptr264, Rule: ptr265, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr267 := &system.ArrayRule{Object: ptr262, Rule: ptr263, Items: ptr266, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr268 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr269 := &system.Rule{}
-	ptr270 := &system.StringRule{Object: ptr268, Rule: ptr269, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr271 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-	ptr272 := &system.Rule{}
-	ptr273 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@kid", Exists: true}}
-	ptr274 := &system.Rule{}
-	ptr275 := &tests.KidRule{Object: ptr273, Rule: ptr274}
-	ptr276 := &system.MapRule{Object: ptr271, Rule: ptr272, Items: ptr275, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr277 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+	ptr261 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr262 := &system.Rule{}
+	ptr263 := &system.NumberRule{Object: ptr261, Rule: ptr262, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+	ptr264 := &system.MapRule{Object: ptr259, Rule: ptr260, Items: ptr263, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr265 := &system.Type{Object: ptr243, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"a": ptr246, "b": ptr249, "c": ptr252, "d": ptr258, "e": ptr264}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr266 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "simple", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr267 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@simpleItem", Exists: true}}
+	ptr268 := &system.Rule{}
+	ptr269 := &tests.SimpleItemRule{Object: ptr267, Rule: ptr268}
+	ptr270 := &system.Type{Object: ptr266, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"a": ptr269}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr271 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "simpleItem", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr272 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr273 := &system.Rule{}
+	ptr274 := &system.StringRule{Object: ptr272, Rule: ptr273, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr275 := &system.Type{Object: ptr271, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"b": ptr274}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr276 := &system.Object{Id: system.Reference{Package: "kego.io/selectors/tests", Name: "typed", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
+	ptr277 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@image", Exists: true}}
 	ptr278 := &system.Rule{}
-	ptr279 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr280 := &system.Rule{}
-	ptr281 := &system.StringRule{Object: ptr279, Rule: ptr280, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr282 := &system.MapRule{Object: ptr277, Rule: ptr278, Items: ptr281, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr283 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
-	ptr284 := &system.Rule{}
-	ptr285 := &system.NumberRule{Object: ptr283, Rule: ptr284, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
-	ptr286 := &system.Type{Object: ptr258, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"avatar": ptr261, "drinkPreference": ptr267, "favoriteColor": ptr270, "kids": ptr276, "name": ptr282, "weight": ptr285}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
+	ptr279 := &tests.ImageRule{Object: ptr277, Rule: ptr278}
+	ptr280 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@array", Exists: true}}
+	ptr281 := &system.Rule{}
+	ptr282 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr283 := &system.Rule{}
+	ptr284 := &system.StringRule{Object: ptr282, Rule: ptr283, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr285 := &system.ArrayRule{Object: ptr280, Rule: ptr281, Items: ptr284, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr286 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr287 := &system.Rule{}
+	ptr288 := &system.StringRule{Object: ptr286, Rule: ptr287, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr289 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+	ptr290 := &system.Rule{}
+	ptr291 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/selectors/tests", Name: "@kid", Exists: true}}
+	ptr292 := &system.Rule{}
+	ptr293 := &tests.KidRule{Object: ptr291, Rule: ptr292}
+	ptr294 := &system.MapRule{Object: ptr289, Rule: ptr290, Items: ptr293, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr295 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
+	ptr296 := &system.Rule{}
+	ptr297 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
+	ptr298 := &system.Rule{}
+	ptr299 := &system.StringRule{Object: ptr297, Rule: ptr298, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
+	ptr300 := &system.MapRule{Object: ptr295, Rule: ptr296, Items: ptr299, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
+	ptr301 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@number", Exists: true}}
+	ptr302 := &system.Rule{}
+	ptr303 := &system.NumberRule{Object: ptr301, Rule: ptr302, Default: system.Number{}, Maximum: system.Number{}, Minimum: system.Number{}, MultipleOf: system.Number{}}
+	ptr304 := &system.Type{Object: ptr276, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"avatar": ptr279, "drinkPreference": ptr285, "favoriteColor": ptr288, "kids": ptr294, "name": ptr300, "weight": ptr303}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
 	system.Register("kego.io/selectors/tests", "@basic", ptr1, 0xe2f725e9d48b69d4)
 	system.Register("kego.io/selectors/tests", "@c", ptr3, 0x6a4bf0b03046c68a)
 	system.Register("kego.io/selectors/tests", "@collision", ptr5, 0x2f6382cf84b27ee7)
@@ -301,13 +319,13 @@ func init() {
 	system.Register("kego.io/selectors/tests", "@expr", ptr9, 0x6214e678b1df35e3)
 	system.Register("kego.io/selectors/tests", "@gallery", ptr11, 0xa2261dbb985b3d3)
 	system.Register("kego.io/selectors/tests", "@image", ptr13, 0x2a2a6f416ac31013)
-	system.Register("kego.io/selectors/tests", "@instance", ptr15, 0x91954502a09aa42a)
+	system.Register("kego.io/selectors/tests", "@instance", ptr15, 0xa7637e9d5bf458e9)
 	system.Register("kego.io/selectors/tests", "@instanceItem", ptr17, 0x2dca71ec3918c621)
 	system.Register("kego.io/selectors/tests", "@kid", ptr19, 0x3b576fd38b04a2eb)
-	system.Register("kego.io/selectors/tests", "@photo", ptr21, 0x9b14a4b75f8931a8)
+	system.Register("kego.io/selectors/tests", "@photo", ptr21, 0x6c010530199ae92f)
 	system.Register("kego.io/selectors/tests", "@polykids", ptr23, 0xebaffecb552df4d1)
 	system.Register("kego.io/selectors/tests", "@rectangle", ptr25, 0x21539507256190ab)
-	system.Register("kego.io/selectors/tests", "@rightscale", ptr27, 0x19db6e12b53f9744)
+	system.Register("kego.io/selectors/tests", "@rightscale", ptr27, 0xde456fd6916c6f51)
 	system.Register("kego.io/selectors/tests", "@rightscaleLink", ptr29, 0x127d9489c45697ea)
 	system.Register("kego.io/selectors/tests", "@rightscaleList", ptr31, 0x6a9527067852e20b)
 	system.Register("kego.io/selectors/tests", "@sibling", ptr33, 0xac837d672ff74ed6)
@@ -321,17 +339,17 @@ func init() {
 	system.Register("kego.io/selectors/tests", "expr", ptr124, 0x6214e678b1df35e3)
 	system.Register("kego.io/selectors/tests", "gallery", ptr132, 0xa2261dbb985b3d3)
 	system.Register("kego.io/selectors/tests", "image", ptr134, 0x2a2a6f416ac31013)
-	system.Register("kego.io/selectors/tests", "instance", ptr151, 0x91954502a09aa42a)
-	system.Register("kego.io/selectors/tests", "instanceItem", ptr156, 0x2dca71ec3918c621)
-	system.Register("kego.io/selectors/tests", "kid", ptr167, 0x3b576fd38b04a2eb)
-	system.Register("kego.io/selectors/tests", "photo", ptr181, 0x9b14a4b75f8931a8)
-	system.Register("kego.io/selectors/tests", "polykids", ptr189, 0xebaffecb552df4d1)
-	system.Register("kego.io/selectors/tests", "rectangle", ptr197, 0x21539507256190ab)
-	system.Register("kego.io/selectors/tests", "rightscale", ptr208, 0x19db6e12b53f9744)
-	system.Register("kego.io/selectors/tests", "rightscaleLink", ptr216, 0x127d9489c45697ea)
-	system.Register("kego.io/selectors/tests", "rightscaleList", ptr224, 0x6a9527067852e20b)
-	system.Register("kego.io/selectors/tests", "sibling", ptr247, 0xac837d672ff74ed6)
-	system.Register("kego.io/selectors/tests", "simple", ptr252, 0x7054dc6469f4db46)
-	system.Register("kego.io/selectors/tests", "simpleItem", ptr257, 0xac167d73687ccb1f)
-	system.Register("kego.io/selectors/tests", "typed", ptr286, 0x216d0e1d4c22bb2d)
+	system.Register("kego.io/selectors/tests", "instance", ptr157, 0xa7637e9d5bf458e9)
+	system.Register("kego.io/selectors/tests", "instanceItem", ptr162, 0x2dca71ec3918c621)
+	system.Register("kego.io/selectors/tests", "kid", ptr173, 0x3b576fd38b04a2eb)
+	system.Register("kego.io/selectors/tests", "photo", ptr187, 0x6c010530199ae92f)
+	system.Register("kego.io/selectors/tests", "polykids", ptr195, 0xebaffecb552df4d1)
+	system.Register("kego.io/selectors/tests", "rectangle", ptr203, 0x21539507256190ab)
+	system.Register("kego.io/selectors/tests", "rightscale", ptr226, 0xde456fd6916c6f51)
+	system.Register("kego.io/selectors/tests", "rightscaleLink", ptr234, 0x127d9489c45697ea)
+	system.Register("kego.io/selectors/tests", "rightscaleList", ptr242, 0x6a9527067852e20b)
+	system.Register("kego.io/selectors/tests", "sibling", ptr265, 0xac837d672ff74ed6)
+	system.Register("kego.io/selectors/tests", "simple", ptr270, 0x7054dc6469f4db46)
+	system.Register("kego.io/selectors/tests", "simpleItem", ptr275, 0xac167d73687ccb1f)
+	system.Register("kego.io/selectors/tests", "typed", ptr304, 0x216d0e1d4c22bb2d)
 }

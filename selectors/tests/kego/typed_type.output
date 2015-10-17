@@ -1,12 +1,15 @@
 {
+	"type": "kid",
 	"language": "Bulgarian",
 	"level": "advanced"
 }
 {
+	"type": "kid",
 	"language": "English",
 	"level": "native"
 }
 {
+	"type": "kid",
 	"language": "Spanish",
 	"level": "beginner",
 	"preferred": true

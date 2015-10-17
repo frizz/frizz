@@ -2,12 +2,10 @@ package selectors_test
 
 import (
 	"io/ioutil"
-	"reflect"
 	"strings"
 	"testing"
 
-	"encoding/json"
-
+	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
@@ -22,13 +20,13 @@ import (
 var parser *Parser
 var values []interface{}
 
-func getTestParser(testDocuments map[string]*Element, testName string) (*Parser, error) {
+func getTestParser(testDocuments map[string]*system.Node, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
 	return CreateParser(jsonDocument, "kego.io/selectors/tests", map[string]string{})
 }
 
 func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliases map[string]string) {
-	var testDocuments = make(map[string]*Element)
+	var testDocuments = make(map[string]*system.Node)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
 
@@ -45,27 +43,11 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 				t.Error("Error encountered while reading ", name, ": ", err)
 				continue
 			}
-			var i interface{}
-			err = ke.Unmarshal(json_document, &i, "kego.io/selectors/tests", map[string]string{})
-			assert.NoError(t, err)
+			n := &system.Node{}
+			err = ke.UnmarshalNode(json_document, n, "kego.io/selectors/tests", map[string]string{})
+			assert.NoError(t, err, name)
 
-			ob, ok := i.(system.ObjectInterface)
-			assert.True(t, ok)
-
-			ty, ok := ob.GetObject().Type.GetType()
-
-			r := system.NewMinimalRuleHolder(ty)
-
-			e := &Element{
-				Data:  i,
-				Value: reflect.ValueOf(i),
-				Rule:  r,
-			}
-			if err != nil {
-				t.Error("Error encountered while deserializing ", name, ": ", err)
-				continue
-			}
-			testDocuments[name[0:len(name)-len(".json")]] = e
+			testDocuments[name[0:len(name)-len(".json")]] = n
 		} else if strings.HasSuffix(name, ".output") {
 			output_document, err := ioutil.ReadFile(baseDirectory + name)
 			if err != nil {
@@ -110,9 +92,10 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 	}
 
 	for testName := range testOutput {
-		//if testName != "typed_interface" {
-		//	continue
-		//}
+		single := ""
+		if single != "" && testName != single {
+			continue
+		}
 		var passed bool = true
 		//t.Log("Running test ", testName)
 		parser, err := getTestParser(testDocuments, testName)
@@ -123,24 +106,30 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 		selectorString := testSelectors[testName]
 		expectedOutput := testOutput[testName]
 
-		results, err := parser.GetElements(selectorString)
+		results, err := parser.GetNodes(selectorString)
 		if err != nil {
 			t.Error("Test ", testName, "failed: ", err)
 			passed = false
 		}
+
+		//fmt.Println("Output")
+		//for i, n := range results {
+		//	fmt.Println(i, n.Type.Id.Value(), n.ValueString, n.Key, n.Null)
+		//}
+
 		if len(results) != len(expectedOutput) {
 			t.Error("Test ", testName, " failed due to number of results being mismatched; ", len(results), " != ", len(expectedOutput), ": [Actual] ", results, " != [Expected] ", expectedOutput)
 			passed = false
 		} else {
 			var expected = make([]interface{}, 0, 10)
-			var actual = make([]*Element, 0, 10)
+			var actual = make([]*system.Node, 0, 10)
 			//matchType := "string"
 
 			for idx, result := range results {
 				expectedEncoded := expectedOutput[idx]
 
 				var expectedJson interface{}
-				err := json.Unmarshal([]byte(expectedEncoded), &expectedJson)
+				err := json.UnmarshalPlain([]byte(expectedEncoded), &expectedJson)
 				if err != nil {
 					t.Error(
 						"Test ", testName, " failed due to a JSON decoding error while decoding expectation: ", err,
@@ -188,91 +177,51 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 	}
 }
 
-func comparison(actual *Element, expected interface{}, path string, aliases map[string]string) (bool, error) {
-	switch actual.Rule.ParentType.Native.Value {
-	case "string":
-		ns, ok := actual.Data.(system.NativeString)
-		if !ok {
-			return false, kerr.New("ENXGPAJVYL", nil, "actual.Data %T does not implement system.NativeString", actual.Data)
+func comparison(actual *system.Node, expected interface{}, path string, aliases map[string]string) (bool, error) {
+	switch actual.JsonType {
+	case json.J_NULL:
+		// If we're expecting null, return true
+		if expected == nil {
+			return true, nil
 		}
-		actualString, ok := ns.NativeString()
-		if !ok {
-			// If we're expecting null, return true
-			if expected == nil {
-				return true, nil
-			}
-			return false, kerr.New("IKMQTDAKSM", nil, "ns.NativeString returned false")
-		}
+		return false, kerr.New("IKMQTDAKSM", nil, "ns.NativeString returned false")
+	case json.J_STRING:
+		actualString := actual.ValueString
 		expectedString, ok := expected.(string)
 		if !ok {
 			return false, kerr.New("MPXARMUVPH", nil, "expected %T is not a string", expected)
 		}
 		return expectedString == actualString, nil
 		break
-	case "number":
-		nn, ok := actual.Data.(system.NativeNumber)
-		if !ok {
-			return false, kerr.New("LWVOBVJLAS", nil, "actual.Data %T does not implement system.NativeNumber", actual.Data)
-		}
-		actualNumber, ok := nn.NativeNumber()
-		if !ok {
-			// If we're expecting null, return true
-			if expected == nil {
-				return true, nil
-			}
-			return false, kerr.New("TIESASEDYJ", nil, "ns.NativeNumber returned false")
-		}
+	case json.J_NUMBER:
+		actualNumber := actual.ValueNumber
 		expectedNumber, ok := expected.(float64)
 		if !ok {
 			return false, kerr.New("GPOPXFJQSA", nil, "expected %T is not a float64", expected)
 		}
 		return expectedNumber == actualNumber, nil
 		break
-	case "bool":
-		nb, ok := actual.Data.(system.NativeBool)
-		if !ok {
-			return false, kerr.New("IKIBAMGJSG", nil, "actual.Data %T does not implement system.NativeBool", actual.Data)
-		}
-		actualBool, ok := nb.NativeBool()
-		if !ok {
-			// If we're expecting null, return true
-			if expected == nil {
-				return true, nil
-			}
-			return false, kerr.New("AAWULQRLHA", nil, "ns.NativeBool returned false")
-		}
+	case json.J_BOOL:
+		actualBool := actual.ValueBool
 		expectedBool, ok := expected.(bool)
 		if !ok {
 			return false, kerr.New("YEVEBUIQUH", nil, "expected %T is not a bool", expected)
 		}
 		return expectedBool == actualBool, nil
 		break
-	case "array":
+	case json.J_ARRAY:
 		expectedArray, ok := expected.([]interface{})
 		if !ok {
 			return false, kerr.New("AIHXLBFOQA", nil, "expected %T is not []interface{}", expected)
 		}
 
-		length := actual.Value.Len()
+		length := len(actual.Array)
 		expectedLength := len(expectedArray)
 		if length != expectedLength {
 			return false, nil
 		}
 
-		itemsRule, err := actual.Rule.ItemsRule()
-		if err != nil {
-			return false, kerr.New("IAOMSWSSGR", err, "actual.Rule.ItemsRule (array)")
-		}
-
-		for i := 0; i < length; i++ {
-			object, _, value, found, _, err := system.GetArrayMember(actual.Value, i)
-			if err != nil {
-				return false, kerr.New("YLYWUVDEXX", err, "system.GetArrayMember")
-			}
-			if !found {
-				return false, nil
-			}
-			child := &Element{Data: object, Rule: itemsRule, Value: value}
+		for i, child := range actual.Array {
 			match, err := comparison(child, expectedArray[i], path, aliases)
 			if err != nil {
 				return false, kerr.New("CTHINNYIRI", err, "comparison (array)")
@@ -282,35 +231,23 @@ func comparison(actual *Element, expected interface{}, path string, aliases map[
 			}
 		}
 		break
-	case "map":
+	case json.J_MAP:
 		expectedMap, ok := expected.(map[string]interface{})
 		if !ok {
 			return false, kerr.New("CCIRAQFFSR", nil, "expected %T is not map[string]interface{} (map)", expected)
 		}
-		itemsRule, err := actual.Rule.ItemsRule()
-		if err != nil {
-			return false, kerr.New("XOBKDDGNQR", err, "actual.Rule.ItemsRule (map)")
-		}
 		compareChild := func(key string) (bool, error) {
-			object, _, value, found, _, err := system.GetMapMember(actual.Value, key)
-			if err != nil {
-				return false, kerr.New("LVRSXLXCIJ", err, "system.GetMapMember")
-			}
-			if !found {
+			child, ok := actual.Map[key]
+			if !ok {
 				return false, nil
 			}
-			child := &Element{Data: object, Rule: itemsRule, Value: value}
 			match, err := comparison(child, expectedMap[key], path, aliases)
 			if err != nil {
 				return false, kerr.New("QTVTEIETXV", err, "getNodes (map)")
 			}
 			return match, nil
 		}
-		for _, k := range actual.Value.MapKeys() {
-			key, ok := k.Interface().(string)
-			if !ok {
-				return false, kerr.New("GLUYWFLJTN", nil, "Map nodes must be strings, not %T", k.Interface())
-			}
+		for key, _ := range actual.Map {
 			matched, err := compareChild(key)
 			if err != nil {
 				return false, kerr.New("EAQCUKTFBW", err, "compareChild map (actual)")
@@ -334,38 +271,21 @@ func comparison(actual *Element, expected interface{}, path string, aliases map[
 		if !ok {
 			return false, kerr.New("OJEQQPYXJP", nil, "expected %T is not map[string]interface{} (object)", expected)
 		}
-		ob, ok := actual.Data.(system.ObjectInterface)
-		if !ok {
-			return false, kerr.New("KQJCVJSTKH", nil, "actual %T does not implement system.ObjectInterface")
-		}
-		parentType, ok := ob.GetObject().Type.GetType()
-		if !ok {
-			return false, kerr.New("TWVUMUFLST", nil, "Type.GetType couldn't find type")
-		}
 		compareChild := func(key string) (bool, error) {
-			object, _, value, found, _, err := system.GetObjectField(actual.Value, system.GoName(key))
-			if err != nil {
-				return false, kerr.New("KOLTDOJSJY", err, "system.GetObjectField")
-			}
-			if !found {
+			child, ok := actual.Fields[key]
+			if !ok {
 				return false, nil
 			}
-			field, ok := parentType.Fields[key]
-			if !ok {
-				return false, kerr.New("DXRELESKCB", nil, "field %s not found in %s", key, actual.Rule.ParentType.Id)
-			}
-			itemRule, err := system.NewRuleHolder(field)
-			if err != nil {
-				return false, kerr.New("ERPYTUODXO", err, "system.NewRuleHolder")
-			}
-			child := &Element{Data: object, Rule: itemRule, Value: value}
 			match, err := comparison(child, expectedMap[key], path, aliases)
 			if err != nil {
 				return false, kerr.New("NNCBWVRAJC", err, "comparison (object)")
 			}
 			return match, nil
 		}
-		for key, _ := range parentType.Fields {
+		for key, field := range actual.Fields {
+			if field.Missing {
+				continue
+			}
 			matched, err := compareChild(key)
 			if err != nil {
 				return false, kerr.New("DIUQUBQAJN", err, "compareChild object (actual)")

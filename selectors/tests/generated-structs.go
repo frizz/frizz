@@ -232,10 +232,11 @@ func (o *Gallery) GetGallery() *Gallery {
 
 type Instance struct {
 	*system.Object
-	Cloud_type   system.String     `json:"cloud_type"`
-	Display_name system.String     `json:"display_name"`
-	Links        []*RightscaleLink `json:"links"`
-	Name         system.String     `json:"name"`
+	Child        map[string]*InstanceItem `json:"child"`
+	Cloud_type   system.String            `json:"cloud_type"`
+	Display_name system.String            `json:"display_name"`
+	Links        []*RightscaleLink        `json:"links"`
+	Name         system.String            `json:"name"`
 }
 type InstanceInterface interface {
 	GetInstance() *Instance
@@ -335,8 +336,11 @@ func (o *Rectangle) GetRectangle() *Rectangle {
 
 type Rightscale struct {
 	*system.Object
-	Child map[string]*InstanceItem `json:"child"`
-	Name  system.String            `json:"name"`
+	Child        map[string]*InstanceItem `json:"child"`
+	Cloud_type   system.String            `json:"cloud_type"`
+	Display_name system.String            `json:"display_name"`
+	Links        []*RightscaleLink        `json:"links"`
+	Name         system.String            `json:"name"`
 }
 type RightscaleInterface interface {
 	GetRightscale() *Rightscale
@@ -456,13 +460,13 @@ func init() {
 	json.Register("kego.io/selectors/tests", "@expr", reflect.TypeOf(&ExprRule{}), nil, 7067527121305810403)
 	json.Register("kego.io/selectors/tests", "@gallery", reflect.TypeOf(&GalleryRule{}), nil, 730253685925721043)
 	json.Register("kego.io/selectors/tests", "@image", reflect.TypeOf(&ImageRule{}), nil, 3038363225369546771)
-	json.Register("kego.io/selectors/tests", "@instance", reflect.TypeOf(&InstanceRule{}), nil, 10490366784616178730)
+	json.Register("kego.io/selectors/tests", "@instance", reflect.TypeOf(&InstanceRule{}), nil, 12061623441346025705)
 	json.Register("kego.io/selectors/tests", "@instanceItem", reflect.TypeOf(&InstanceItemRule{}), nil, 3299574936386455073)
 	json.Register("kego.io/selectors/tests", "@kid", reflect.TypeOf(&KidRule{}), nil, 4276009325572694763)
-	json.Register("kego.io/selectors/tests", "@photo", reflect.TypeOf(&PhotoRule{}), nil, 11174737682901840296)
+	json.Register("kego.io/selectors/tests", "@photo", reflect.TypeOf(&PhotoRule{}), nil, 7782507335219079471)
 	json.Register("kego.io/selectors/tests", "@polykids", reflect.TypeOf(&PolykidsRule{}), nil, 16983072869098321105)
 	json.Register("kego.io/selectors/tests", "@rectangle", reflect.TypeOf(&RectangleRule{}), nil, 2401426884243067051)
-	json.Register("kego.io/selectors/tests", "@rightscale", reflect.TypeOf(&RightscaleRule{}), nil, 1863203897477142340)
+	json.Register("kego.io/selectors/tests", "@rightscale", reflect.TypeOf(&RightscaleRule{}), nil, 16016330617166524241)
 	json.Register("kego.io/selectors/tests", "@rightscaleLink", reflect.TypeOf(&RightscaleLinkRule{}), nil, 1332384384196974570)
 	json.Register("kego.io/selectors/tests", "@rightscaleList", reflect.TypeOf(&RightscaleListRule{}), nil, 7680087648292233739)
 	json.Register("kego.io/selectors/tests", "@sibling", reflect.TypeOf(&SiblingRule{}), nil, 12430917278612541142)
@@ -476,13 +480,13 @@ func init() {
 	json.Register("kego.io/selectors/tests", "expr", reflect.TypeOf(&Expr{}), reflect.TypeOf((*ExprInterface)(nil)).Elem(), 7067527121305810403)
 	json.Register("kego.io/selectors/tests", "gallery", reflect.TypeOf(&Gallery{}), reflect.TypeOf((*GalleryInterface)(nil)).Elem(), 730253685925721043)
 	json.Register("kego.io/selectors/tests", "image", reflect.TypeOf((*Image)(nil)).Elem(), nil, 3038363225369546771)
-	json.Register("kego.io/selectors/tests", "instance", reflect.TypeOf(&Instance{}), reflect.TypeOf((*InstanceInterface)(nil)).Elem(), 10490366784616178730)
+	json.Register("kego.io/selectors/tests", "instance", reflect.TypeOf(&Instance{}), reflect.TypeOf((*InstanceInterface)(nil)).Elem(), 12061623441346025705)
 	json.Register("kego.io/selectors/tests", "instanceItem", reflect.TypeOf(&InstanceItem{}), reflect.TypeOf((*InstanceItemInterface)(nil)).Elem(), 3299574936386455073)
 	json.Register("kego.io/selectors/tests", "kid", reflect.TypeOf(&Kid{}), reflect.TypeOf((*KidInterface)(nil)).Elem(), 4276009325572694763)
-	json.Register("kego.io/selectors/tests", "photo", reflect.TypeOf(&Photo{}), reflect.TypeOf((*PhotoInterface)(nil)).Elem(), 11174737682901840296)
+	json.Register("kego.io/selectors/tests", "photo", reflect.TypeOf(&Photo{}), reflect.TypeOf((*PhotoInterface)(nil)).Elem(), 7782507335219079471)
 	json.Register("kego.io/selectors/tests", "polykids", reflect.TypeOf(&Polykids{}), reflect.TypeOf((*PolykidsInterface)(nil)).Elem(), 16983072869098321105)
 	json.Register("kego.io/selectors/tests", "rectangle", reflect.TypeOf(&Rectangle{}), reflect.TypeOf((*RectangleInterface)(nil)).Elem(), 2401426884243067051)
-	json.Register("kego.io/selectors/tests", "rightscale", reflect.TypeOf(&Rightscale{}), reflect.TypeOf((*RightscaleInterface)(nil)).Elem(), 1863203897477142340)
+	json.Register("kego.io/selectors/tests", "rightscale", reflect.TypeOf(&Rightscale{}), reflect.TypeOf((*RightscaleInterface)(nil)).Elem(), 16016330617166524241)
 	json.Register("kego.io/selectors/tests", "rightscaleLink", reflect.TypeOf(&RightscaleLink{}), reflect.TypeOf((*RightscaleLinkInterface)(nil)).Elem(), 1332384384196974570)
 	json.Register("kego.io/selectors/tests", "rightscaleList", reflect.TypeOf(&RightscaleList{}), reflect.TypeOf((*RightscaleListInterface)(nil)).Elem(), 7680087648292233739)
 	json.Register("kego.io/selectors/tests", "sibling", reflect.TypeOf(&Sibling{}), reflect.TypeOf((*SiblingInterface)(nil)).Elem(), 12430917278612541142)

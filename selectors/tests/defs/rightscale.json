@@ -10,6 +10,18 @@
 			"items": {
 				"type": "@instanceItem"
 			}
+		},
+		"cloud_type": {
+			"type": "system:@string"
+		},
+		"display_name": {
+			"type": "system:@string"
+		},
+		"links": {
+			"type": "system:@array",
+			"items": {
+				"type": "@rightscaleLink"
+			}
 		}
 	}
 

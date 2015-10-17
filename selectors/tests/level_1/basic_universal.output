@@ -53,6 +53,7 @@
 ]
 172
 {
+    "type": "basic",
     "name": {
         "first": "Lloyd",
         "last": "Hilaiel"
@@ -83,3 +84,4 @@
     ],
     "weight": 172
 }
+"basic"

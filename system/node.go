@@ -6,27 +6,27 @@ import (
 )
 
 type Node struct {
-	Parent      *Node
-	Key         string    // in an object or a map, this is the key
-	Index       int       // in an array, this is the index
-	Origin      Reference // in an object, this is the type that the field originated from
-	ValueString string
-	ValueNumber float64
-	ValueBool   bool
-	Value       interface{}
-	Null        bool
-	Missing     bool
-	Array       []*Node
-	Map         map[string]*Node
-	Fields      map[string]*Node
-	Rule        *RuleHolder
-	Type        *Type
-	JsonType    json.Type
-	Siblings    int // this is used by the selectors package, it is only for maps and arrays, will be -1 for objects
+	Parent        *Node
+	Key           string    // in an object or a map, this is the key
+	Index         int       // in an array, this is the index
+	Origin        Reference // in an object, this is the type that the field originated from
+	ValueString   string
+	ValueNumber   float64
+	ValueBool     bool
+	Value         interface{}
+	Null          bool
+	Missing       bool
+	Array         []*Node
+	Map           map[string]*Node
+	Fields        map[string]*Node
+	Rule          *RuleHolder
+	Type          *Type
+	JsonType      json.Type
+	ArraySiblings int // this is used by the selectors package, it is only for arrays, will be 0 for maps and objects
 }
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
-	if err := n.extract(nil, "", -1, Reference{}, -1, in, true, nil, path, aliases); err != nil {
+	if err := n.extract(nil, "", -1, Reference{}, 0, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "get (read)")
 	}
 	return nil
@@ -44,8 +44,11 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 	n.Parent = parent
 	n.Key = key
 	n.Index = index
-	n.Siblings = siblings
+	n.ArraySiblings = siblings
 	n.Rule = rule
+	if n.Rule == nil {
+		n.Rule = NewMinimalRuleHolder(objectType)
+	}
 	n.Type = objectType
 	n.Missing = !exists
 	n.Origin = origin
@@ -148,7 +151,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		children := in.UpMap()
 		for name, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, Reference{}, 0, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -175,7 +178,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 			}
 			child, ok := m[name]
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, f.Origin, -1, child, ok, rule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, f.Origin, 0, child, ok, rule, path, aliases); err != nil {
 				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
 			n.Fields[name] = childNode

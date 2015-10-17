@@ -16,9 +16,7 @@
 		},
 		"path": {
 			"description": "The path for the url - e.g. /foo/bar.jpg",
-			"type": "system:@string",
-			"maxLength": 1,
-			"pattern": "^/.*$"
+			"type": "system:@string"
 		},
 		"size": {
 			"type": "@rectangle",

@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
 
 	"kego.io/json"
+	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/process/scan"
 	"kego.io/process/settings"
@@ -62,51 +62,47 @@ func validateFile(filePath string, set *settings.Settings) error {
 }
 
 func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
-	var i interface{}
-	err := json.Unmarshal(bytes, &i, set.Path, set.Aliases)
+	n := &system.Node{}
+	err := ke.UnmarshalNode(bytes, n, set.Path, set.Aliases)
 	if up, ok := err.(json.UnknownPackageError); ok {
-		return kerr.New("QPOGRNXWMH", err, "json.NewDecoder: unknown package %s", up.UnknownPackage)
+		return kerr.New("QPOGRNXWMH", err, "unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
-		return kerr.New("PJABFRVFLF", nil, "json.NewDecoder: unknown type %s", ut.UnknownType)
+		return kerr.New("PJABFRVFLF", nil, "unknown type %s", ut.UnknownType)
 	} else if err != nil {
-		return kerr.New("QIVNOQKCQF", err, "json.NewDecoder.Decode")
+		return kerr.New("QIVNOQKCQF", err, "UnmarshalNode")
 	}
-	if err := validateUnknown(i, hash, set.Path, set.Aliases); err != nil {
+
+	if err := validateNode(n, hash, set.Path, set.Aliases); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "validateUnknown")
 	}
 	return nil
 }
 
-func validateUnknown(data interface{}, hash uint64, path string, aliases map[string]string) error {
+func validateNode(node *system.Node, hash uint64, path string, aliases map[string]string) error {
 
-	ob, ok := data.(system.ObjectInterface)
-	if !ok {
-		return kerr.New("RSSFIFHCOF", nil, "data %T does not implement system.ObjectInterface", data)
+	if node.Value == nil || node.Null || node.Missing {
+		return nil
 	}
 
-	if ty, ok := ob.(*system.Type); ok {
-		h, ok := system.GetGlobal(ty.Id.Package, ty.Id.Name)
+	if node.Type.Id == system.NewReference("kego.io", "type") {
+		h, ok := system.GetGlobal(node.Type.Id.Package, node.Type.Id.Name)
 		if !ok {
-			return TypesChangedError{kerr.New("XCBNOPEEUY", nil, "New type %s found - run kego again to rebuild", ty.Id.Value())}
+			return TypesChangedError{kerr.New("XCBNOPEEUY", nil, "New type %s found - run kego again to rebuild", node.Type.Id.Value())}
 		}
 		if hash != h.Hash {
-			return TypesChangedError{kerr.New("KRKBNITUON", nil, "Type %s has changed - run kego again to rebuild", ty.Id.Value())}
+			return TypesChangedError{kerr.New("KRKBNITUON", nil, "Type %s has changed - run kego again to rebuild", node.Type.Id.Value())}
 		}
 	}
 
-	t, ok := ob.GetObject().Type.GetType()
-	if !ok {
-		return kerr.New("BNQTCEDVGV", nil, "Type.GetType %s not found", ob.GetObject().Type.Value())
+	// Start with the rules from the type
+	rules := node.Type.Rules
+
+	// Add the rules from the object, but only if they apply
+	if system.RulesApplyToObjects(node.Value) {
+		rules = append(rules, node.Value.(system.ObjectInterface).GetObject().Rules...)
 	}
 
-	partialRuleHolder := system.NewMinimalRuleHolder(t)
-
-	rules := t.Rules
-	if system.RulesApplyToObjects(data) {
-		rules = append(rules, data.(system.ObjectInterface).GetObject().Rules...)
-	}
-
-	return validateObject(partialRuleHolder, rules, data, path, aliases)
+	return validateObject(node, rules, path, aliases)
 
 }
 
@@ -118,10 +114,14 @@ type ValidationError struct {
 	kerr.Struct
 }
 
-func validateObject(rule *system.RuleHolder, rules []system.RuleInterface, data interface{}, path string, aliases map[string]string) error {
+func validateObject(node *system.Node, rules []system.RuleInterface, path string, aliases map[string]string) error {
+
+	if node.Value == nil || node.Null || node.Missing {
+		return nil
+	}
 
 	// Validate the actual object
-	if v, ok := data.(system.Validator); ok {
+	if v, ok := node.Value.(system.Validator); ok {
 		ok, message, err := v.Validate(path, aliases)
 		if err != nil {
 			return kerr.New("RUGJLUAFAN", err, "v.Validate")
@@ -131,10 +131,10 @@ func validateObject(rule *system.RuleHolder, rules []system.RuleInterface, data 
 		}
 	}
 
-	if rule.Rule != nil {
-		e, ok := rule.Rule.(system.Enforcer)
+	if node.Rule.Rule != nil {
+		e, ok := node.Rule.Rule.(system.Enforcer)
 		if ok {
-			ok, message, err := e.Enforce(data, path, aliases)
+			ok, message, err := e.Enforce(node.Value, path, aliases)
 			if err != nil {
 				return kerr.New("EBEMISLGDX", err, "e.Enforce (main)")
 			}
@@ -146,8 +146,7 @@ func validateObject(rule *system.RuleHolder, rules []system.RuleInterface, data 
 
 	if rules != nil && len(rules) > 0 {
 
-		j := &selectors.Element{Data: data, Value: reflect.ValueOf(data), Rule: rule}
-		p, err := selectors.CreateParser(j, path, aliases)
+		p, err := selectors.CreateParser(node, path, aliases)
 		if err != nil {
 			return kerr.New("AIWLGYGGAY", err, "selectors.CreateParser")
 		}
@@ -165,12 +164,12 @@ func validateObject(rule *system.RuleHolder, rules []system.RuleInterface, data 
 			if !ok {
 				return kerr.New("ABVWHMMXGG", nil, "rule %T does not implement system.Enforcer", rule)
 			}
-			matches, err := p.GetElements(selector)
+			matches, err := p.GetNodes(selector)
 			if err != nil {
 				return kerr.New("UKOCCFJWAB", err, "p.GetJsonElements (%s)", selector)
 			}
 			for _, match := range matches {
-				ok, message, err := e.Enforce(match.Data, path, aliases)
+				ok, message, err := e.Enforce(match.Value, path, aliases)
 				if err != nil {
 					return kerr.New("MGHHDYTXVV", err, "e.Enforce")
 				}
@@ -182,56 +181,43 @@ func validateObject(rule *system.RuleHolder, rules []system.RuleInterface, data 
 	}
 
 	// Validate the children
-	switch rule.ParentType.Native.Value {
-	case "object":
-		return validateObjectChildren(rule, data, path, aliases)
-	case "array":
-		items, err := rule.ItemsRule()
+	switch node.Type.NativeJsonType() {
+	case json.J_OBJECT:
+		return validateObjectChildren(node, path, aliases)
+	case json.J_ARRAY:
+		items, err := node.Rule.ItemsRule()
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
 		}
-		rules := rule.Rule.(system.ObjectInterface).GetObject().Rules
-		return validateArrayChildren(items, rules, data, path, aliases)
-	case "map":
-		items, err := rule.ItemsRule()
+		rules := node.Rule.Rule.(system.ObjectInterface).GetObject().Rules
+		return validateArrayChildren(node, items, rules, path, aliases)
+	case json.J_MAP:
+		items, err := node.Rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
 		}
-		rules := rule.Rule.(system.ObjectInterface).GetObject().Rules
-		return validateMapChildren(items, rules, data, path, aliases)
+		rules := node.Rule.Rule.(system.ObjectInterface).GetObject().Rules
+		return validateMapChildren(node, items, rules, path, aliases)
 	}
 
 	return nil
 }
 
-// TODO: Generate some code to remove the reflection from this
-func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path string, aliases map[string]string) error {
+func validateObjectChildren(node *system.Node, path string, aliases map[string]string) error {
 
-	if data == nil {
+	if node.Value == nil || node.Null || node.Missing {
 		return nil
 	}
 
-	value := reflect.Indirect(reflect.ValueOf(data))
-	if value.Kind() != reflect.Struct {
-		return kerr.New("FJBEEDBLOK", nil, "value.Kind %s (%T) must be Struct", value.Kind(), data)
-	}
-
 	rules := []system.RuleInterface{}
-	if system.RulesApplyToObjects(data) {
-		rules = data.(system.ObjectInterface).GetObject().Rules
+	if system.RulesApplyToObjects(node.Value) {
+		rules = node.Value.(system.ObjectInterface).GetObject().Rules
 	}
 
-	for name, field := range itemsRule.ParentType.Fields {
-		child, _, _, found, _, err := system.GetObjectField(value, system.GoName(name))
-		if err != nil {
-			return kerr.New("XTUKWWRDHH", err, "system.GetField (%s)", name)
-		}
-		if !field.GetRule().Optional && !found {
+	for name, field := range node.Type.Fields {
+		child, ok := node.Fields[name]
+		if !field.GetRule().Optional && !ok {
 			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
-		}
-		childRule, err := system.NewRuleHolder(field)
-		if err != nil {
-			return kerr.New("IQOXVXBLRO", err, "system.NewRuleHolder (%s)", name)
 		}
 		ob, ok := field.(system.ObjectInterface)
 		if !ok {
@@ -241,59 +227,42 @@ func validateObjectChildren(itemsRule *system.RuleHolder, data interface{}, path
 		allRules := append(rules, ob.GetObject().Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(childRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
-			allRules = append(allRules, childRule.Rule.(system.ObjectInterface).GetObject().Rules...)
+		if len(child.Rule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
+			allRules = append(allRules, child.Rule.Rule.(system.ObjectInterface).GetObject().Rules...)
 		}
 
-		if err = validateObject(childRule, allRules, child, path, aliases); err != nil {
+		if err := validateObject(child, allRules, path, aliases); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "validateObject (%s)", name)
 		}
 	}
 	return nil
 }
 
-// TODO: Generate some code to remove the reflection from this
-func validateArrayChildren(itemsRule *system.RuleHolder, rules []system.RuleInterface, data interface{}, path string, aliases map[string]string) error {
-
-	value := reflect.Indirect(reflect.ValueOf(data))
-	if value.Kind() != reflect.Slice {
-		return kerr.New("HQOKLQABIA", nil, "value.Kind %s must be Slice", value.Kind())
-	}
+func validateArrayChildren(node *system.Node, itemsRule *system.RuleHolder, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
 		rules = append(rules, itemsRule.Rule.(system.ObjectInterface).GetObject().Rules...)
 	}
 
-	for i := 0; i < value.Len(); i++ {
-		child := value.Index(i).Interface()
-		if err := validateObject(itemsRule, rules, child, path, aliases); err != nil {
-			return kerr.New("DKVEPIWTPI", err, "validateObject")
+	for i, child := range node.Array {
+		if err := validateObject(child, rules, path, aliases); err != nil {
+			return kerr.New("DKVEPIWTPI", err, "validateObject array index %s", i)
 		}
 	}
 	return nil
 }
 
-// TODO: Generate some code to remove the reflection from this
-func validateMapChildren(itemsRule *system.RuleHolder, rules []system.RuleInterface, data interface{}, path string, aliases map[string]string) error {
-
-	value := reflect.Indirect(reflect.ValueOf(data))
-	if value.Kind() != reflect.Map {
-		return kerr.New("GMEQUWCFBQ", nil, "value.Kind %s must be Map", value.Kind())
-	}
-	if value.Type().Key() != reflect.TypeOf("") {
-		return kerr.New("BPEHPQWUSG", nil, "Map key %s must be string", value.Type().Key())
-	}
+func validateMapChildren(node *system.Node, itemsRule *system.RuleHolder, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
 		rules = append(rules, itemsRule.Rule.(system.ObjectInterface).GetObject().Rules...)
 	}
 
-	for _, key := range value.MapKeys() {
-		child := value.MapIndex(key).Interface()
-		if err := validateObject(itemsRule, rules, child, path, aliases); err != nil {
-			return kerr.New("YLONAMFUAG", err, "validateObject key %s %#v", key, child)
+	for n, child := range node.Map {
+		if err := validateObject(child, rules, path, aliases); err != nil {
+			return kerr.New("YLONAMFUAG", err, "validateObject map key %s", n)
 		}
 	}
 	return nil

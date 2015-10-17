@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"kego.io/json"
+	"kego.io/system"
 )
 
 type exprElement struct {
@@ -99,6 +100,10 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 		return exprElement{false, json.J_BOOL}
 	},
 	"=": func(lhs exprElement, rhs exprElement) exprElement {
+		if isNull(lhs.value) || isNull(rhs.value) {
+			result := isNull(lhs.value) && isNull(rhs.value)
+			return exprElement{result, json.J_BOOL}
+		}
 		lhs_string := getJsonString(lhs.value)
 		rhs_string := getJsonString(rhs.value)
 		if lhs_string == rhs_string {
@@ -107,6 +112,10 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 		return exprElement{false, json.J_BOOL}
 	},
 	"!=": func(lhs exprElement, rhs exprElement) exprElement {
+		if isNull(lhs.value) || isNull(rhs.value) {
+			result := !isNull(lhs.value) || !isNull(rhs.value)
+			return exprElement{result, json.J_BOOL}
+		}
 		lhs_string := getJsonString(lhs.value)
 		rhs_string := getJsonString(rhs.value)
 		if lhs_string != rhs_string {
@@ -115,13 +124,13 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 		return exprElement{false, json.J_BOOL}
 	},
 	"&&": func(lhs exprElement, rhs exprElement) exprElement {
-		if lhs.value.(bool) && rhs.value.(bool) {
+		if getBool(lhs.value) && getBool(rhs.value) {
 			return exprElement{true, json.J_BOOL}
 		}
 		return exprElement{false, json.J_BOOL}
 	},
 	"||": func(lhs exprElement, rhs exprElement) exprElement {
-		if lhs.value.(bool) || rhs.value.(bool) {
+		if getBool(lhs.value) || getBool(rhs.value) {
 			return exprElement{true, json.J_BOOL}
 		}
 		return exprElement{false, json.J_BOOL}
@@ -165,7 +174,7 @@ func (p *Parser) evaluateExpression(elements []*exprElement) exprElement {
 	return *elements[0]
 }
 
-func (p *Parser) parseExpression(tokens []*token, current *node) exprElement {
+func (p *Parser) parseExpression(tokens []*token, current *system.Node) exprElement {
 	var finalTokens []*exprElement
 
 	logger.Print("Parsing expression ", getFormattedTokens(tokens))

@@ -4,60 +4,90 @@ import (
 	"log"
 	"strconv"
 
+	"fmt"
+
 	"kego.io/json"
+	"kego.io/system"
 )
 
-func nodeIsMemberOfHaystack(needle *node, haystack map[*Element]*node) bool {
-	_, ok := haystack[needle.element]
+func nodeIsMemberOfHaystack(needle *system.Node, haystack map[*system.Node]*system.Node) bool {
+	_, ok := haystack[needle]
 	return ok
 }
 
-func nodeIsMemberOfList(needle *node, haystack []*node) bool {
+func nodeIsMemberOfList(needle *system.Node, haystack []*system.Node) bool {
 	for _, element := range haystack {
-		if element.element == needle.element {
+		if element == needle {
 			return true
 		}
 	}
 	return false
 }
 
-func appendAncestorsToHaystack(n *node, haystack map[*Element]*node) {
-	if n.Parent != nil {
-		haystack[n.Parent.element] = n.Parent
-		appendAncestorsToHaystack(n.Parent, haystack)
+func (p *Parser) appendAncestorsToHaystack(n *system.Node, haystack map[*system.Node]*system.Node) {
+	if !p.isRoot(n) {
+		haystack[n.Parent] = n.Parent
+		p.appendAncestorsToHaystack(n.Parent, haystack)
 	}
 }
 
-func nodeIsChildOfHaystackMember(needle *node, haystack map[*Element]*node) bool {
+func (p *Parser) nodeIsChildOfHaystackMember(needle *system.Node, haystack map[*system.Node]*system.Node) bool {
 	if nodeIsMemberOfHaystack(needle, haystack) {
 		return true
 	}
-	if needle.Parent == nil {
+	if p.isRoot(needle) {
 		return false
 	}
-	return nodeIsChildOfHaystackMember(needle.Parent, haystack)
+	return p.nodeIsChildOfHaystackMember(needle.Parent, haystack)
 }
 
-func parents(lhs []*node, rhs []*node) []*node {
-	var results []*node
+func (p *Parser) parents(lhs []*system.Node, rhs []*system.Node) []*system.Node {
+	var results []*system.Node
 
 	lhsHaystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
-		if element.Parent != nil && nodeIsMemberOfHaystack(element.Parent, lhsHaystack) {
+		if !p.isRoot(element) && nodeIsMemberOfHaystack(element.Parent, lhsHaystack) {
 			results = append(results, element)
 		}
 	}
 
 	return results
 }
+func (p *Parser) isRoot(n *system.Node) bool {
+	if n.Parent == nil {
+		return true
+	}
+	if n == p.root {
+		return true
+	}
+	return false
+}
+func (p *Parser) getKey(n *system.Node) string {
+	if p.isRoot(n) {
+		return ""
+	}
+	return n.Key
+}
+func (p *Parser) getIndex(n *system.Node) int {
+	if p.isRoot(n) {
+		return -1
+	}
+	return n.Index + 1
+}
+func (p *Parser) getSiblings(n *system.Node) int {
+	if p.isRoot(n) {
+		return 0
+	}
+	return n.ArraySiblings
+}
 
-func ancestors(lhs []*node, rhs []*node) []*node {
-	var results []*node
+func (p *Parser) ancestors(lhs []*system.Node, rhs []*system.Node) []*system.Node {
+	var results []*system.Node
 	haystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
-		if nodeIsChildOfHaystackMember(element, haystack) {
+		if p.nodeIsChildOfHaystackMember(element, haystack) {
 			results = append(results, element)
 		}
 	}
@@ -65,18 +95,18 @@ func ancestors(lhs []*node, rhs []*node) []*node {
 	return results
 }
 
-func siblings(lhs []*node, rhs []*node) []*node {
-	var results []*node
-	parents := make(map[*Element]*node, len(lhs))
+func (p *Parser) siblings(lhs []*system.Node, rhs []*system.Node) []*system.Node {
+	var results []*system.Node
+	parents := make(map[*system.Node]*system.Node, len(lhs))
 
 	for _, element := range lhs {
-		if element.Parent != nil {
-			parents[element.Parent.element] = element.Parent
+		if !p.isRoot(element) {
+			parents[element.Parent] = element.Parent
 		}
 	}
 
 	for _, element := range rhs {
-		if element.Parent != nil && nodeIsMemberOfHaystack(element.Parent, parents) {
+		if !p.isRoot(element) && nodeIsMemberOfHaystack(element.Parent, parents) {
 			results = append(results, element)
 		}
 	}
@@ -85,6 +115,17 @@ func siblings(lhs []*node, rhs []*node) []*node {
 }
 
 func getFloat64(in interface{}) float64 {
+	if as_node, ok := in.(*system.Node); ok {
+		return as_node.ValueNumber
+	}
+	as_nativeNum, ok := in.(system.NativeNumber)
+	if ok {
+		num, exists := as_nativeNum.NativeNumber()
+		if !exists {
+			return 0.0
+		}
+		return num
+	}
 	as_float, ok := in.(float64)
 	if ok {
 		return as_float
@@ -107,7 +148,7 @@ func getFloat64(in interface{}) float64 {
 			return value
 		}
 	}
-	panic("ERR")
+	panic(fmt.Sprintf("ERR: %T", in))
 	result := float64(-1)
 	log.Print("Error transforming ", in, " into Float64")
 	return result
@@ -121,7 +162,61 @@ func getInt32(in interface{}) int32 {
 	return value
 }
 
+func isNull(in interface{}) bool {
+	if in == nil {
+		return true
+	}
+	if n, ok := in.(system.NativeNumber); ok {
+		_, exists := n.NativeNumber()
+		return !exists
+	}
+	if n, ok := in.(system.NativeString); ok {
+		_, exists := n.NativeString()
+		return !exists
+	}
+	if n, ok := in.(system.NativeBool); ok {
+		_, exists := n.NativeBool()
+		return !exists
+	}
+	if n, ok := in.(*system.Node); ok {
+		return n.Null || n.Missing
+	}
+	return false
+}
+
+func getBool(in interface{}) bool {
+	as_node, ok := in.(*system.Node)
+	if ok {
+		return as_node.ValueBool
+	}
+	as_nativeBool, ok := in.(system.NativeBool)
+	if ok {
+		b, exists := as_nativeBool.NativeBool()
+		if !exists {
+			return false
+		}
+		return b
+	}
+	as_bool, ok := in.(bool)
+	if ok {
+		return as_bool
+	}
+	return false
+}
+
 func getJsonString(in interface{}) string {
+	as_node, ok := in.(*system.Node)
+	if ok {
+		return as_node.ValueString
+	}
+	as_nativeStr, ok := in.(system.NativeString)
+	if ok {
+		s, exists := as_nativeStr.NativeString()
+		if !exists {
+			return ""
+		}
+		return s
+	}
 	as_string, ok := in.(string)
 	if ok {
 		return as_string
@@ -159,10 +254,10 @@ func exprElementsMatch(lhs exprElement, rhs exprElement) bool {
 	return lhs.typ == rhs.typ
 }
 
-func getHaystackFromNodeList(nodes []*node) map[*Element]*node {
-	hashmap := make(map[*Element]*node, len(nodes))
+func getHaystackFromNodeList(nodes []*system.Node) map[*system.Node]*system.Node {
+	hashmap := make(map[*system.Node]*system.Node, len(nodes))
 	for _, node := range nodes {
-		hashmap[node.element] = node
+		hashmap[node] = node
 	}
 	return hashmap
 }

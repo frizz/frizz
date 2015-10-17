@@ -16,6 +16,12 @@
 			"items": {
 				"type": "@rightscaleLink"
 			}
+		},
+		"child": {
+			"type": "system:@map",
+			"items": {
+				"type": "@instanceItem"
+			}
 		}
 	}
 
