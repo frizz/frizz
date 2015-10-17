@@ -52,22 +52,6 @@ func NewReference(packagePath string, typeName string) Reference {
 	return r
 }
 
-func (r *Reference) RuleToParentType() (*Reference, error) {
-	if !r.Exists {
-		return nil, kerr.New("OSQKOWGVWX", nil, "Reference is nil")
-	}
-	if !strings.HasPrefix(r.Name, RULE_PREFIX) {
-		return nil, kerr.New("HBKCDXQBYG", nil, "Type %s is not a rule type", r.Name)
-	}
-	newType := r.Name[1:]
-	newRef := &Reference{
-		Package: r.Package,
-		Name:    newType,
-		Exists:  r.Exists,
-	}
-	return newRef, nil
-}
-
 func NewReferenceFromString(in string, path string, aliases map[string]string) (*Reference, error) {
 	r := &Reference{}
 	err := r.Unpack(json.NewJsonUnpacker(in), path, aliases)
@@ -173,16 +157,24 @@ func (r *Reference) GetType() (*Type, bool) {
 	return nil, false
 }
 
-func (t Reference) TypeInterfaceReference() Reference {
-	if !t.Exists {
+func (r Reference) ChangeToType() Reference {
+	return r.changeTo("")
+}
+func (r Reference) ChangeToRule() Reference {
+	return r.changeTo(RULE_PREFIX)
+}
+func (r Reference) ChangeToInterface() Reference {
+	return r.changeTo(INTERFACE_PREFIX)
+}
+func (r Reference) changeTo(prefix string) Reference {
+	if !r.Exists {
 		return Reference{}
 	}
-	n := t.Name
+	n := r.Name
 	if strings.HasPrefix(n, INTERFACE_PREFIX) || strings.HasPrefix(n, RULE_PREFIX) {
 		n = n[1:]
 	}
-	n = INTERFACE_PREFIX + n
-	return NewReference(t.Package, n)
+	return NewReference(r.Package, prefix+n)
 }
 
 func (s Reference) NativeString() (value string, exists bool) {

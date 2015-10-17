@@ -44,9 +44,9 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, al
 		}
 		origins.Cell(origin)
 
-		hold, err := field.Rule.ParentType.Id.ValueContext(e.path, e.aliases)
+		hold, err := field.Rule.HoldsDisplayType(e.path, e.aliases)
 		if err != nil {
-			return kerr.New("XDKOSFJVQV", err, "ValueContext")
+			return kerr.New("OYMARPFDGA", err, "ValueContext")
 		}
 		holds.Cell(hold)
 

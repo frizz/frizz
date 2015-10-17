@@ -7,23 +7,43 @@ import (
 	"kego.io/kerr/assert"
 )
 
-func TestReferenceRuleToParentType(t *testing.T) {
+func TestReferenceRuleChangeTo(t *testing.T) {
 
 	r := NewReference("a.b/c", "@d")
-	rp, err := r.RuleToParentType()
-	assert.NoError(t, err)
-	assert.Equal(t, "a.b/c", rp.Package)
-	assert.Equal(t, "d", rp.Name)
-	assert.Equal(t, "a.b/c:d", rp.Value())
-
-	r = Reference{}
-	rp, err = r.RuleToParentType()
-	assert.IsError(t, err, "OSQKOWGVWX")
+	r1 := r.ChangeToType()
+	assert.Equal(t, "a.b/c:d", r1.Value())
 
 	r = NewReference("a.b/c", "d")
-	rp, err = r.RuleToParentType()
-	assert.IsError(t, err, "HBKCDXQBYG")
+	r1 = r.ChangeToType()
+	assert.Equal(t, "a.b/c:d", r1.Value())
 
+	r = NewReference("a.b/c", "$d")
+	r1 = r.ChangeToType()
+	assert.Equal(t, "a.b/c:d", r1.Value())
+
+	r = NewReference("a.b/c", "@d")
+	r1 = r.ChangeToRule()
+	assert.Equal(t, "a.b/c:@d", r1.Value())
+
+	r = NewReference("a.b/c", "d")
+	r1 = r.ChangeToRule()
+	assert.Equal(t, "a.b/c:@d", r1.Value())
+
+	r = NewReference("a.b/c", "$d")
+	r1 = r.ChangeToRule()
+	assert.Equal(t, "a.b/c:@d", r1.Value())
+
+	r = NewReference("a.b/c", "@d")
+	r1 = r.ChangeToInterface()
+	assert.Equal(t, "a.b/c:$d", r1.Value())
+
+	r = NewReference("a.b/c", "d")
+	r1 = r.ChangeToInterface()
+	assert.Equal(t, "a.b/c:$d", r1.Value())
+
+	r = NewReference("a.b/c", "$d")
+	r1 = r.ChangeToInterface()
+	assert.Equal(t, "a.b/c:$d", r1.Value())
 }
 
 func TestReferenceUnmarshalJson(t *testing.T) {

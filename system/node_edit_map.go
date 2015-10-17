@@ -29,12 +29,11 @@ func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, alias
 
 	table := mdl.Table()
 
-	items := e.Rule.Rule.(CollectionRule).GetItemsRule()
-	itemsHolds := items.(ObjectInterface).GetObject().Type
-	if items.GetRule().Interface {
-		itemsHolds = itemsHolds.TypeInterfaceReference()
+	items, err := NewRuleHolder(e.Rule.Rule.(CollectionRule).GetItemsRule())
+	if err != nil {
+		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
 	}
-	hold, err := itemsHolds.ValueContext(e.path, e.aliases)
+	hold, err := items.HoldsDisplayType(e.path, e.aliases)
 	if err != nil {
 		return kerr.New("XDKOSFJVQV", err, "ValueContext")
 	}

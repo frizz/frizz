@@ -94,10 +94,7 @@ func ruleTypes(r RuleInterface) (ruleType *Type, parentType *Type, err error) {
 	if !ok {
 		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleReference.GetType: type %v not found", ruleReference.Value())
 	}
-	typeReference, err := ruleReference.RuleToParentType()
-	if err != nil {
-		return nil, nil, kerr.New("NXRCPQMUIE", err, "ruleReference.RuleToParentType")
-	}
+	typeReference := ruleReference.ChangeToType()
 	pt, ok := typeReference.GetType()
 	if !ok {
 		return nil, nil, kerr.New("KYCTDXKFYR", nil, "typeReference.GetType: type %v not found", typeReference.Value())
@@ -207,4 +204,17 @@ func returnValue(v reflect.Value) (object interface{}, pointer interface{}, valu
 		pointer = v.Addr().Interface()
 	}
 	return
+}
+
+// HoldsDisplayType returns the string to display when communicating to
+// the end user what type this rule holds.
+func (r *RuleHolder) HoldsDisplayType(path string, aliases map[string]string) (string, error) {
+	str, err := r.ParentType.Id.ValueContext(path, aliases)
+	if err != nil {
+		return "", kerr.New("OPIFCOHGWI", err, "ValueContext")
+	}
+	if r.Rule.GetRule().Interface || r.ParentType.Interface {
+		str += "*"
+	}
+	return str, nil
 }

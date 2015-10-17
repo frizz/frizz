@@ -52,8 +52,9 @@ func TestRuleTypes(t *testing.T) {
 		Object: &Object{Type: NewReference("a.b/c", "a")},
 	}
 	rt, pt, err = ruleTypes(r)
-	// A rule with a non rule type will cause ruleReference.RuleToParentType to error
-	assert.IsError(t, err, "NXRCPQMUIE")
+	// A rule with a non rule type will now not cause ruleReference.ChangeToType to error
+	assert.NoError(t, err)
+	assert.Equal(t, NewReference("a.b/c", "a"), pt.Id)
 
 	Register("a.b/c", "@b", ruleType, 0)
 	defer Unregister("a.b/c", "@b")
