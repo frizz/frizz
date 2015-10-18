@@ -39,6 +39,8 @@ func (r *MapRule) Enforce(data interface{}, path string, aliases map[string]stri
 	return true, "", nil
 }
 
+var _ Enforcer = (*MapRule)(nil)
+
 func (m *MapRule) GetItemsRule() RuleInterface {
 	return m.Items
 }

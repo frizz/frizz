@@ -32,6 +32,8 @@ func (r *StringRule) Validate(path string, aliases map[string]string) (ok bool, 
 	return true, "", nil
 }
 
+var _ Validator = (*StringRule)(nil)
+
 func (r *StringRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
 	s, ok := data.(String)
 	if !ok {
@@ -116,6 +118,8 @@ func (r *StringRule) Enforce(data interface{}, path string, aliases map[string]s
 	return true, "", nil
 }
 
+var _ Enforcer = (*StringRule)(nil)
+
 func (out *String) Unpack(in json.Unpackable) error {
 	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
@@ -155,6 +159,8 @@ type NativeString interface {
 func (s String) NativeString() (value string, exists bool) {
 	return s.Value, s.Exists
 }
+
+var _ NativeString = (*String)(nil)
 
 // We satisfy the json.EmptyAware interface to allow intelligent omission of
 // empty values when marshalling

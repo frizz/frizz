@@ -181,6 +181,8 @@ func (s Reference) NativeString() (value string, exists bool) {
 	return s.Value(), s.Exists
 }
 
+var _ NativeString = (*Reference)(nil)
+
 type SortableReferences []Reference
 
 func (s SortableReferences) Len() int {

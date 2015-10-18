@@ -86,6 +86,8 @@ func (r *NumberRule) Enforce(data interface{}, path string, aliases map[string]s
 	return true, "", nil
 }
 
+var _ Enforcer = (*NumberRule)(nil)
+
 func (out *Number) Unpack(in json.Unpackable) error {
 	if in == nil || in.UpType() == json.J_NULL {
 		out.Exists = false
@@ -129,6 +131,8 @@ type NativeNumber interface {
 func (n Number) NativeNumber() (value float64, exists bool) {
 	return n.Value, n.Exists
 }
+
+var _ NativeNumber = (*Number)(nil)
 
 // We satisfy the json.EmptyAware interface to allow intelligent omission of
 // empty values when marshalling
