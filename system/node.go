@@ -19,7 +19,7 @@ type Node struct {
 	Array         []*Node
 	Map           map[string]*Node
 	Fields        map[string]*Node
-	Rule          *RuleHolder
+	Rule          *RuleWrapper
 	Type          *Type
 	JsonType      json.Type
 	ArraySiblings int // this is used by the selectors package, it is only for arrays, will be 0 for maps and objects
@@ -27,18 +27,18 @@ type Node struct {
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
 	if err := n.extract(nil, "", -1, Reference{}, 0, in, true, nil, path, aliases); err != nil {
-		return kerr.New("FUYLKYTQYD", err, "get (read)")
+		return kerr.New("FUYLKYTQYD", err, "extract")
 	}
 	return nil
 }
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, origin Reference, siblings int, in json.Unpackable, exists bool, rule *RuleHolder, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, origin Reference, siblings int, in json.Unpackable, exists bool, rule *RuleWrapper, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
-		return kerr.New("RBDBRRUVMM", err, "extractObjectType")
+		return kerr.New("RBDBRRUVMM", err, "extractType")
 	}
 
 	n.Parent = parent
@@ -47,7 +47,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 	n.ArraySiblings = siblings
 	n.Rule = rule
 	if n.Rule == nil {
-		n.Rule = NewMinimalRuleHolder(objectType)
+		n.Rule = WrapEmptyRule(objectType)
 	}
 	n.Type = objectType
 	n.Missing = !exists
@@ -119,11 +119,11 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		if in.UpType() != json.J_ARRAY {
 			return kerr.New("CTJQUOKRTK", nil, "Type %s should be a []interface{}", in.UpType())
 		}
-		c, ok := n.Rule.Rule.(CollectionRule)
+		c, ok := n.Rule.Interface.(CollectionRule)
 		if !ok {
-			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *CollectionRule for array types", n.Rule.Rule)
+			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
 		}
-		childRule, err := NewRuleHolder(c.GetItemsRule())
+		childRule, err := WrapRule(c.GetItemsRule())
 		if err != nil {
 			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
@@ -139,11 +139,11 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		if in.UpType() != json.J_MAP {
 			return kerr.New("IPWEPTWVYY", nil, "Type %s should be a map[string]interface{}", in.UpType())
 		}
-		c, ok := n.Rule.Rule.(CollectionRule)
+		c, ok := n.Rule.Interface.(CollectionRule)
 		if !ok {
-			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *CollectionRule for map types", n.Rule.Rule)
+			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
 		}
-		childRule, err := NewRuleHolder(c.GetItemsRule())
+		childRule, err := WrapRule(c.GetItemsRule())
 		if err != nil {
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
@@ -172,7 +172,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		}
 
 		for name, f := range fields {
-			rule, err := NewRuleHolder(f.Rule)
+			rule, err := WrapRule(f.Rule)
 			if err != nil {
 				return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 			}
@@ -193,12 +193,12 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 	return nil
 }
 
-func extractType(in json.Unpackable, rule *RuleHolder, path string, aliases map[string]string) (*Type, error) {
+func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map[string]string) (*Type, error) {
 
-	if rule != nil && !rule.ParentType.Interface && !rule.Rule.GetRule().Interface {
+	if rule != nil && !rule.Type.Interface && !rule.Interface.GetRule().Interface {
 		// If we have a rule, and it's not an interface, then we just return the
 		// parent type of the rule.
-		return rule.ParentType, nil
+		return rule.Type, nil
 	}
 
 	if in.UpType() != json.J_MAP {

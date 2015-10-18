@@ -131,8 +131,8 @@ func validateObject(node *system.Node, rules []system.RuleInterface, path string
 		}
 	}
 
-	if node.Rule.Rule != nil {
-		e, ok := node.Rule.Rule.(system.Enforcer)
+	if node.Rule.Interface != nil {
+		e, ok := node.Rule.Interface.(system.Enforcer)
 		if ok {
 			ok, message, err := e.Enforce(node.Value, path, aliases)
 			if err != nil {
@@ -189,14 +189,14 @@ func validateObject(node *system.Node, rules []system.RuleInterface, path string
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
 		}
-		rules := node.Rule.Rule.(system.ObjectInterface).GetObject().Rules
+		rules := node.Rule.Interface.(system.ObjectInterface).GetObject().Rules
 		return validateArrayChildren(node, items, rules, path, aliases)
 	case json.J_MAP:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
 		}
-		rules := node.Rule.Rule.(system.ObjectInterface).GetObject().Rules
+		rules := node.Rule.Interface.(system.ObjectInterface).GetObject().Rules
 		return validateMapChildren(node, items, rules, path, aliases)
 	}
 
@@ -227,8 +227,8 @@ func validateObjectChildren(node *system.Node, path string, aliases map[string]s
 		allRules := append(rules, ob.GetObject().Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(child.Rule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
-			allRules = append(allRules, child.Rule.Rule.(system.ObjectInterface).GetObject().Rules...)
+		if len(child.Rule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
+			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject().Rules...)
 		}
 
 		if err := validateObject(child, allRules, path, aliases); err != nil {
@@ -238,11 +238,11 @@ func validateObjectChildren(node *system.Node, path string, aliases map[string]s
 	return nil
 }
 
-func validateArrayChildren(node *system.Node, itemsRule *system.RuleHolder, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateArrayChildren(node *system.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
-		rules = append(rules, itemsRule.Rule.(system.ObjectInterface).GetObject().Rules...)
+	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
+		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject().Rules...)
 	}
 
 	for i, child := range node.Array {
@@ -253,11 +253,11 @@ func validateArrayChildren(node *system.Node, itemsRule *system.RuleHolder, rule
 	return nil
 }
 
-func validateMapChildren(node *system.Node, itemsRule *system.RuleHolder, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateMapChildren(node *system.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Rule.(system.ObjectInterface).GetObject().Rules) > 0 {
-		rules = append(rules, itemsRule.Rule.(system.ObjectInterface).GetObject().Rules...)
+	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
+		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject().Rules...)
 	}
 
 	for n, child := range node.Map {

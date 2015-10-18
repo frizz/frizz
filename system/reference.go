@@ -138,14 +138,14 @@ func (r Reference) MarshalContextJSON(path string, aliases map[string]string) ([
 
 var _ json.ContextMarshaler = (*Reference)(nil)
 
-func (r *Reference) String() string {
+func (r Reference) String() string {
 	if !r.Exists {
 		return ""
 	}
 	return r.Value()
 }
 
-func (r *Reference) GetType() (*Type, bool) {
+func (r Reference) GetType() (*Type, bool) {
 	if !r.Exists {
 		return nil, false
 	}

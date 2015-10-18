@@ -29,7 +29,7 @@ func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, alias
 
 	table := mdl.Table()
 
-	items, err := NewRuleHolder(e.Rule.Rule.(CollectionRule).GetItemsRule())
+	items, err := WrapRule(e.Rule.Interface.(CollectionRule).GetItemsRule())
 	if err != nil {
 		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
 	}

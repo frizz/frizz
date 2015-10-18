@@ -13,7 +13,7 @@ import (
 // [collection prefix][optional pointer][type name]
 func Type(fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
 
-	outer, err := system.NewRuleHolder(field)
+	outer, err := system.WrapRule(field)
 	if err != nil {
 		return "", kerr.New("TFXFBIRXHN", err, "NewRuleHolder")
 	}
@@ -27,16 +27,16 @@ func Type(fieldName string, field system.RuleInterface, path string, getAlias fu
 	}
 
 	var name, pointer string
-	if inner.Rule.GetRule().Interface {
+	if inner.Interface.GetRule().Interface {
 		// if this is an interface rule, we print the interface name of the inner type,
 		// which never has a pointer asterisk.
 		pointer = ""
-		name = Reference(inner.ParentType.Id.Package, system.GoInterfaceName(inner.ParentType.Id.Name), path, getAlias)
+		name = Reference(inner.Type.Id.Package, system.GoInterfaceName(inner.Type.Id.Name), path, getAlias)
 	} else {
 		// this returns a "*" if the type should be prefixed by it. Native and interface types
 		// don't have a *.
-		pointer = getPointer(inner.ParentType)
-		name = Reference(inner.ParentType.Id.Package, system.GoName(inner.ParentType.Id.Name), path, getAlias)
+		pointer = getPointer(inner.Type)
+		name = Reference(inner.Type.Id.Package, system.GoName(inner.Type.Id.Name), path, getAlias)
 	}
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
@@ -55,8 +55,8 @@ func Type(fieldName string, field system.RuleInterface, path string, getAlias fu
 // calling itself as long as it finds a collection rule (map or array). It returns
 // the full collection prefix (e.g. any number of appended [] and map[string]'s)
 // and the inner (non collection) rule.
-func collectionPrefixInnerRule(prefix string, outer *system.RuleHolder) (fullPrefix string, inner *system.RuleHolder, err error) {
-	p := outer.ParentType
+func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
+	p := outer.Type
 	if p.IsNativeCollection() {
 		if p.Native.Value == "array" {
 			prefix += "[]"
@@ -82,12 +82,12 @@ func getPointer(t *system.Type) string {
 	return ""
 }
 
-func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
+func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.RuleWrapper, path string, aliases map[string]string) (string, error) {
 
 	kegoTag := ""
 	if defaultBytes != nil && string(defaultBytes) != "null" {
 		defaultRaw := json.RawMessage(defaultBytes)
-		t := r.ParentType.FullName()
+		t := r.Type.FullName()
 		var tag json.KegoTag
 		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
 			// If our default is one of the basic system native types, we know we can unmarshal it without
@@ -140,9 +140,9 @@ func addSubTag(tag string, name string, content string) string {
 	return fmt.Sprintf("%s%s:%s", tag, name, strconv.Quote(content))
 }
 
-func getTag(fieldName string, exclude bool, r *system.RuleHolder, path string, aliases map[string]string) (string, error) {
+func getTag(fieldName string, exclude bool, r *system.RuleWrapper, path string, aliases map[string]string) (string, error) {
 
-	value, pointer, ok, err := system.RuleFieldByReflection(r.Rule, "Default")
+	value, pointer, ok, err := system.RuleFieldByReflection(r.Interface, "Default")
 	if !ok {
 		// Doesn't have a default field
 		return formatTag(fieldName, exclude, nil, r, path, aliases)

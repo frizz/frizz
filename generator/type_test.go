@@ -43,10 +43,9 @@ func TestFormatTag(t *testing.T) {
 	defer system.Unregister("a.b/c", "a")
 	defer system.Unregister("a.b/c", "@a")
 
-	r := &system.RuleHolder{
-		Rule:       &ruleStruct{},
-		RuleType:   ruleType,
-		ParentType: parentType,
+	r := &system.RuleWrapper{
+		Interface: &ruleStruct{},
+		Type:      parentType,
 	}
 	s, err := formatTag("n", false, []byte("null"), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
@@ -147,10 +146,9 @@ func TestGetTag(t *testing.T) {
 		defer system.Unregister("a.b/c", fmt.Sprintf("@%s", letter))
 	}
 
-	r := &system.RuleHolder{
-		Rule:       &ruleStructA{},
-		RuleType:   ruleType,
-		ParentType: parentType,
+	r := &system.RuleWrapper{
+		Interface: &ruleStructA{},
+		Type:      parentType,
 	}
 
 	// rule has no default field
@@ -162,25 +160,25 @@ func TestGetTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"-\"`", s)
 
-	r.Rule = &ruleStructB{Default: system.NewString("c")}
+	r.Interface = &ruleStructB{Default: system.NewString("c")}
 	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
-	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Object: &system.Object{Id: system.NewReference("d.e/f", "f")}}}
+	r.Interface = &ruleStructC{Default: &structWithCustomMarshaler{Object: &system.Object{Id: system.NewReference("d.e/f", "f")}}}
 	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
-	r.Rule = &ruleStructC{Default: &structWithCustomMarshaler{Object: &system.Object{Id: system.NewReference("d.e/f", "f")}, throwError: true}}
+	r.Interface = &ruleStructC{Default: &structWithCustomMarshaler{Object: &system.Object{Id: system.NewReference("d.e/f", "f")}, throwError: true}}
 	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "YIEMHYFVCD")
 
-	r.Rule = &ruleStructD{Default: make(typeThatWillCauseJsonMarshalToError)}
+	r.Interface = &ruleStructD{Default: make(typeThatWillCauseJsonMarshalToError)}
 	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.IsError(t, err, "QQDOLAJKLU")
 
-	r.Rule = &ruleStructE{Default: structWithoutCustomMarshaler{A: "b"}}
+	r.Interface = &ruleStructE{Default: structWithoutCustomMarshaler{A: "b"}}
 	s, err = getTag("n", false, r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":{\\\"A\\\":\\\"b\\\"},\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
@@ -376,7 +374,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 	_, err := Type("n", p, "kego.io/system", i.Add)
 	// Item is an unregistered type, so errors at NewRuleHolder
 	assert.IsError(t, err, "TFXFBIRXHN")
-	assert.HasError(t, err, "PFGWISOHRR")
+	assert.HasError(t, err, "KYCTDXKFYR")
 
 	pm := &system.MapRule{
 		Object: &system.Object{

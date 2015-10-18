@@ -25,7 +25,7 @@ func checkReflectType(t *testing.T, path string, name string, field string, outp
 	assert.True(t, ok)
 	r, ok := ty.Fields[field]
 	assert.True(t, ok)
-	rh, err := system.NewRuleHolder(r)
+	rh, err := system.WrapRule(r)
 	assert.NoError(t, err)
 	rt, err := rh.GetReflectType()
 	assert.NoError(t, err)

@@ -8,9 +8,9 @@ import (
 	"kego.io/kerr/assert"
 )
 
-func TestRuleTypes(t *testing.T) {
+func TestWrapRule(t *testing.T) {
 
-	type nonRuleStruct struct {
+	type nonObjectStruct struct {
 		*Rule
 	}
 	type ruleStruct struct {
@@ -31,38 +31,20 @@ func TestRuleTypes(t *testing.T) {
 	r := &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "@a")},
 	}
-	rt, pt, err := ruleTypes(r)
+	w, err := WrapRule(r)
 	assert.NoError(t, err)
-	assert.Equal(t, "a", pt.Id.Name)
-	assert.Equal(t, "@a", rt.Id.Name)
+	assert.Equal(t, "a", w.Type.Id.Name)
 
-	r1 := nonRuleStruct{}
-	rt, pt, err = ruleTypes(r1)
-	// A non Object rule will cause ruleTypeReference to return an error
-	assert.IsError(t, err, "BNEKIFYDDL")
+	r1 := nonObjectStruct{}
+	w, err = WrapRule(r1)
+	// A non Object rule will cause an error
+	assert.IsError(t, err, "VKFNPJDNVB")
 
 	r = &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "unregistered")},
 	}
-	rt, pt, err = ruleTypes(r)
-	// An unregistered type will cause ruleReference.GetType to return an error
-	assert.IsError(t, err, "PFGWISOHRR")
-
-	r = &ruleStruct{
-		Object: &Object{Type: NewReference("a.b/c", "a")},
-	}
-	rt, pt, err = ruleTypes(r)
-	// A rule with a non rule type will now not cause ruleReference.ChangeToType to error
-	assert.NoError(t, err)
-	assert.Equal(t, NewReference("a.b/c", "a"), pt.Id)
-
-	Register("a.b/c", "@b", ruleType, 0)
-	defer Unregister("a.b/c", "@b")
-	r = &ruleStruct{
-		Object: &Object{Type: NewReference("a.b/c", "@b")},
-	}
-	rt, pt, err = ruleTypes(r)
-	// An rule type with an unregistered parent type typeReference.GetType to return an error
+	w, err = WrapRule(r)
+	// An unregistered type will cause WrapRule to return an error
 	assert.IsError(t, err, "KYCTDXKFYR")
 
 }
@@ -96,70 +78,7 @@ func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
 
 }
 
-func TestRuleTypeReference(t *testing.T) {
-
-	type ruleStruct struct {
-		*Object
-		*Rule
-	}
-	rs := &ruleStruct{
-		Object: &Object{Type: NewReference("a.b/c", "@a")},
-	}
-	r, err := ruleTypeReference(rs)
-	assert.NoError(t, err)
-	assert.Equal(t, "a.b/c:@a", r.Value())
-
-	/*
-		ri := map[string]interface{}{}
-		r, err = ruleTypeReference(ri, "", map[string]string{})
-		assert.IsError(t, err, "OLHOVKXEXN")
-
-		ri = map[string]interface{}{
-			"type": 1, //not a string
-		}
-		r, err = ruleTypeReference(ri, "", map[string]string{})
-		assert.IsError(t, err, "IILEXGQDXL")
-
-		ri = map[string]interface{}{
-			"type":     "a:b", // package will not be registered so UnmarshalJSON will error
-			"_path":    "a.b/c",
-			"_imports": map[string]string{},
-		}
-		r, err = ruleTypeReference(ri, "", map[string]string{})
-		assert.IsError(t, err, "QBTHPRVBWN")
-
-		ri = map[string]interface{}{
-			"type": "a.b/c:@a",
-		}
-		r, err = ruleTypeReference(rs, "", map[string]string{})
-		assert.NoError(t, err)
-		assert.Equal(t, "a.b/c:@a", r.Value)
-	*/
-
-	rsp := ruleStruct{}
-	r, err = ruleTypeReference(rsp)
-	// rsp has no base, so ruleTypeReference will return a zero base
-	assert.NoError(t, err)
-	assert.False(t, r.Exists)
-
-	/*
-		type structWithoutType struct{}
-		rwt := &structWithoutType{}
-		r, err = ruleTypeReference(rwt, "", map[string]string{})
-		assert.IsError(t, err, "NXYRAJITEV")
-
-		type structWithIntType struct {
-			Type int
-		}
-		rwi := &structWithIntType{
-			Type: 1,
-		}
-		r, err = ruleTypeReference(rwi, "", map[string]string{})
-		assert.IsError(t, err, "FHUPSRTRFE")
-	*/
-}
-
-func TestRuleHolderItemsRule(t *testing.T) {
+func TestRuleWrapperItemsRule(t *testing.T) {
 	type parentStruct struct {
 		*Object
 	}
@@ -182,12 +101,9 @@ func TestRuleHolderItemsRule(t *testing.T) {
 	defer Unregister("a.b/c", "a")
 	defer Unregister("a.b/c", "@a")
 
-	rh := &RuleHolder{
-		Rule:       &ruleStruct{},
-		RuleType:   ruleType,
-		ParentType: parentType,
-	}
-	_, err := rh.ItemsRule()
+	w, err := WrapRule(&ruleStruct{Object: &Object{Type: NewReference("a.b/c", "a")}})
+	assert.NoError(t, err)
+	_, err = w.ItemsRule()
 	assert.IsError(t, err, "VPAGXSTQHM")
 
 	parentType.Native = NewString("array")

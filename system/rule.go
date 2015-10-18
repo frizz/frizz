@@ -25,39 +25,38 @@ func init() {
 	json.RegisterInterface(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
 }
 
-type RuleHolder struct {
-	Rule       RuleInterface
-	RuleType   *Type
-	ParentType *Type
+type RuleWrapper struct {
+	Interface RuleInterface
+	Type      *Type
 }
 
-func (r *RuleHolder) GetReflectType() (reflect.Type, error) {
+func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
-	if r.Rule.GetRule().Interface {
-		typ, _, ok := json.GetTypeInterface(r.ParentType.Id.Package, r.ParentType.Id.Name)
+	if r.Interface.GetRule().Interface {
+		typ, _, ok := json.GetTypeInterface(r.Type.Id.Package, r.Type.Id.Name)
 		if !ok {
-			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.ParentType.Id.Value())
+			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.Type.Id.Value())
 		}
 		return typ, nil
 	}
 
-	switch r.ParentType.Native.Value {
+	switch r.Type.Native.Value {
 	case "object", "number", "bool", "string":
-		typ, _, ok := json.GetType(r.ParentType.Id.Package, r.ParentType.Id.Name)
+		typ, _, ok := json.GetType(r.Type.Id.Package, r.Type.Id.Name)
 		if !ok {
-			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.ParentType.Id.Value())
+			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.Type.Id.Value())
 		}
-		if r.ParentType.Native.Value != "object" && typ.Kind() == reflect.Ptr {
+		if r.Type.Native.Value != "object" && typ.Kind() == reflect.Ptr {
 			return typ.Elem(), nil
 		}
 		return typ, nil
 	case "array", "map":
-		c, ok := r.Rule.(CollectionRule)
+		c, ok := r.Interface.(CollectionRule)
 		if !ok {
 			return nil, kerr.New("GSYSHQOWNH", nil, "Map types must have rule that implements CollectionRule")
 		}
 		itemsRule := c.GetItemsRule()
-		items, err := NewRuleHolder(itemsRule)
+		items, err := WrapRule(itemsRule)
 		if err != nil {
 			return nil, kerr.New("EDEMPPVUNW", err, "NewRuleHolder")
 		}
@@ -65,58 +64,41 @@ func (r *RuleHolder) GetReflectType() (reflect.Type, error) {
 		if err != nil {
 			return nil, kerr.New("LMKEHHWHKL", err, "GetReflectType")
 		}
-		if r.ParentType.Native.Value == "map" {
+		if r.Type.Native.Value == "map" {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil
 	default:
-		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.ParentType.Native.Value)
+		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.Type.Native.Value)
 	}
 }
 
-func NewMinimalRuleHolder(t *Type) *RuleHolder {
-	return &RuleHolder{Rule: nil, RuleType: nil, ParentType: t}
+func WrapEmptyRule(t *Type) *RuleWrapper {
+	return &RuleWrapper{Interface: nil, Type: t}
 }
-func NewRuleHolder(r RuleInterface) (*RuleHolder, error) {
-	rt, pt, err := ruleTypes(r)
-	if err != nil {
-		return nil, kerr.New("VRCWUGOTMA", err, "ruleTypes")
-	}
-	return &RuleHolder{Rule: r, RuleType: rt, ParentType: pt}, nil
-}
+func WrapRule(r RuleInterface) (*RuleWrapper, error) {
 
-func ruleTypes(r RuleInterface) (ruleType *Type, parentType *Type, err error) {
-	ruleReference, err := ruleTypeReference(r)
-	if err != nil {
-		return nil, nil, kerr.New("BNEKIFYDDL", err, "ruleTypeReference")
-	}
-	rt, ok := ruleReference.GetType()
-	if !ok {
-		return nil, nil, kerr.New("PFGWISOHRR", nil, "ruleReference.GetType: type %v not found", ruleReference.Value())
-	}
-	typeReference := ruleReference.ChangeToType()
-	pt, ok := typeReference.GetType()
-	if !ok {
-		return nil, nil, kerr.New("KYCTDXKFYR", nil, "typeReference.GetType: type %v not found", typeReference.Value())
-	}
-	return rt, pt, nil
-}
-
-func ruleTypeReference(r RuleInterface) (*Reference, error) {
 	ob, ok := r.(ObjectInterface)
 	if !ok {
-		return nil, kerr.New("VKFNPJDNVB", nil, "r does not implement ObjectInterface")
+		return nil, kerr.New("VKFNPJDNVB", nil, "%T does not implement ObjectInterface", r)
 	}
-	return &ob.GetObject().Type, nil
 
+	// ob.GetObject().Type will be a @ rule type, so we change to the type,
+	// which will be the parent
+	t, ok := ob.GetObject().Type.ChangeToType().GetType()
+	if !ok {
+		return nil, kerr.New("KYCTDXKFYR", nil, "GetType: type %v not found", ob.GetObject().Type.ChangeToType().Value())
+	}
+
+	return &RuleWrapper{Interface: r, Type: t}, nil
 }
 
 // ItemsRule returns Items rule for a collection Rule.
-func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
-	if !r.ParentType.IsNativeCollection() {
-		return nil, kerr.New("VPAGXSTQHM", nil, "parentType %s is not a collection", r.ParentType.Id)
+func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
+	if !r.Type.IsNativeCollection() {
+		return nil, kerr.New("VPAGXSTQHM", nil, "parentType %s is not a collection", r.Type.Id)
 	}
-	items, _, ok, err := RuleFieldByReflection(r.Rule, "Items")
+	items, _, ok, err := RuleFieldByReflection(r.Interface, "Items")
 	if err != nil {
 		return nil, kerr.New("LIDXIQYGJD", err, "RuleFieldByReflection")
 	}
@@ -127,7 +109,7 @@ func (r *RuleHolder) ItemsRule() (*RuleHolder, error) {
 	if !ok {
 		return nil, kerr.New("DIFVRMVWMC", nil, "items is not a rule")
 	}
-	rh, err := NewRuleHolder(rule)
+	rh, err := WrapRule(rule)
 	if err != nil {
 		return nil, kerr.New("FGYMQPNBQJ", err, "NewRuleHolder")
 	}
@@ -208,12 +190,12 @@ func returnValue(v reflect.Value) (object interface{}, pointer interface{}, valu
 
 // HoldsDisplayType returns the string to display when communicating to
 // the end user what type this rule holds.
-func (r *RuleHolder) HoldsDisplayType(path string, aliases map[string]string) (string, error) {
-	str, err := r.ParentType.Id.ValueContext(path, aliases)
+func (r *RuleWrapper) HoldsDisplayType(path string, aliases map[string]string) (string, error) {
+	str, err := r.Type.Id.ValueContext(path, aliases)
 	if err != nil {
 		return "", kerr.New("OPIFCOHGWI", err, "ValueContext")
 	}
-	if r.Rule.GetRule().Interface || r.ParentType.Interface {
+	if r.Interface.GetRule().Interface || r.Type.Interface {
 		str += "*"
 	}
 	return str, nil
