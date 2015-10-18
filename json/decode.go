@@ -721,6 +721,16 @@ func GetTypeByReflectType(typ reflect.Type) (path string, name string, found boo
 	}
 	return "", "", false
 }
+func GetTypeByInterface(iface reflect.Type) (typ reflect.Type, found bool) {
+	types.RLock()
+	defer types.RUnlock()
+	for _, def := range types.m {
+		if def.iface == iface {
+			return def.typ, true
+		}
+	}
+	return nil, false
+}
 
 var nullLiteral = []byte("null")
 
@@ -1338,7 +1348,9 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(value))
 			} else {
-				d.saveError(&UnmarshalTypeError{"bool", v.Type()})
+				if err := setDefaultNativeValue(v, item, context); err != nil {
+					d.saveError(kerr.New("WTDRKGKGCC", err, "setDefaultNativeValue (bool)"))
+				}
 			}
 		}
 
@@ -1372,7 +1384,9 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(string(s)))
 			} else {
-				d.saveError(&UnmarshalTypeError{"string", v.Type()})
+				if err := setDefaultNativeValue(v, item, context); err != nil {
+					d.saveError(kerr.New("MNUCNWUWVF", err, "setDefaultNativeValue (string)"))
+				}
 			}
 		}
 
@@ -1403,7 +1417,9 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 				break
 			}
 			if v.NumMethod() != 0 {
-				d.saveError(&UnmarshalTypeError{"number", v.Type()})
+				if err := setDefaultNativeValue(v, item, context); err != nil {
+					d.saveError(kerr.New("XDFCYMETOK", err, "setDefaultNativeValue (number)"))
+				}
 				break
 			}
 			v.Set(reflect.ValueOf(n))
@@ -1433,6 +1449,23 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			v.SetFloat(n)
 		}
 	}
+}
+
+func setDefaultNativeValue(v reflect.Value, value []byte, context *ctx) error {
+	t, ok := GetTypeByInterface(v.Type())
+	if !ok {
+		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
+	}
+	p := reflect.New(t)
+
+	vali := p.Interface()
+
+	if err := UnmarshalPlainContext(value, vali, context.Package, context.Aliases); err != nil {
+		return kerr.New("IILXDLDADR", err, "UnmarshalPlain")
+	}
+
+	v.Set(reflect.ValueOf(vali))
+	return nil
 }
 
 // The xxxInterface routines build up a value to be stored

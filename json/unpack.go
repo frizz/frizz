@@ -134,7 +134,9 @@ func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path strin
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(in.UpBool()))
 			} else {
-				return &UnmarshalTypeError{"bool", v.Type()}
+				if err := setDefaultNativeValueUnpack(v, in, path, aliases); err != nil {
+					return kerr.New("DLQUIGTSLP", err, "setDefaultNativeValueUnpack (bool)")
+				}
 			}
 		}
 	case J_STRING:
@@ -157,7 +159,9 @@ func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path strin
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(in.UpString()))
 			} else {
-				return &UnmarshalTypeError{"string", v.Type()}
+				if err := setDefaultNativeValueUnpack(v, in, path, aliases); err != nil {
+					return kerr.New("PRTYFVSEFT", err, "setDefaultNativeValueUnpack (string)")
+				}
 			}
 		}
 	case J_NUMBER:
@@ -171,7 +175,10 @@ func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path strin
 			return &UnmarshalTypeError{"number", v.Type()}
 		case reflect.Interface:
 			if v.NumMethod() != 0 {
-				return &UnmarshalTypeError{"number", v.Type()}
+				if err := setDefaultNativeValueUnpack(v, in, path, aliases); err != nil {
+					return kerr.New("FYHICWEELI", err, "setDefaultNativeValueUnpack (number)")
+				}
+				break
 			}
 			v.Set(reflect.ValueOf(in.UpNumber()))
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -193,6 +200,20 @@ func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path strin
 			v.SetFloat(in.UpNumber())
 		}
 	}
+	return nil
+}
+
+func setDefaultNativeValueUnpack(v reflect.Value, in Unpackable, path string, aliases map[string]string) error {
+	t, ok := GetTypeByInterface(v.Type())
+	if !ok {
+		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
+	}
+	var i interface{}
+	err := UnpackFragment(in, &i, t, path, aliases)
+	if err != nil {
+		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
+	}
+	v.Set(reflect.ValueOf(i))
 	return nil
 }
 

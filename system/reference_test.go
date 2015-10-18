@@ -1,11 +1,51 @@
 package system
 
 import (
+	"reflect"
 	"testing"
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
 )
+
+func TestUnpackDefaultNativeTypeReference(t *testing.T) {
+	testUnpackDefaultNativeTypeReference(t, unmarshalFunc)
+	testUnpackDefaultNativeTypeReference(t, unpackFunc)
+
+	// needs types
+	//testUnpackDefaultNativeTypeReference(t, repackFunc)
+}
+func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
+
+	data := `{
+		"type": "a",
+		"b": "e:f"
+	}`
+
+	type A struct {
+		*Object
+		B ReferenceInterface `json:"b"`
+	}
+
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("kego.io/system", "a")
+
+	var i interface{}
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"c.d/e": "e"})
+	assert.NoError(t, err)
+
+	a, ok := i.(*A)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, a)
+	assert.Equal(t, NewReference("c.d/e", "f"), a.B.GetReference())
+
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":"c.d/e:f"}`, string(b))
+
+}
 
 func TestReferenceRuleChangeTo(t *testing.T) {
 

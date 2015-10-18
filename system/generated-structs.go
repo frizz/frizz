@@ -124,35 +124,26 @@ type TypeRule struct {
 	*Rule
 }
 type BoolInterface interface {
-	GetBool() *Bool
+	GetBool() Bool
 }
 
-func (o *Bool) GetBool() *Bool {
-	if o == nil {
-		return &Bool{}
-	}
+func (o Bool) GetBool() Bool {
 	return o
 }
 
 type IntInterface interface {
-	GetInt() *Int
+	GetInt() Int
 }
 
-func (o *Int) GetInt() *Int {
-	if o == nil {
-		return &Int{}
-	}
+func (o Int) GetInt() Int {
 	return o
 }
 
 type NumberInterface interface {
-	GetNumber() *Number
+	GetNumber() Number
 }
 
-func (o *Number) GetNumber() *Number {
-	if o == nil {
-		return &Number{}
-	}
+func (o Number) GetNumber() Number {
 	return o
 }
 
@@ -196,13 +187,10 @@ func (o *Package) GetPackage() *Package {
 }
 
 type ReferenceInterface interface {
-	GetReference() *Reference
+	GetReference() Reference
 }
 
-func (o *Reference) GetReference() *Reference {
-	if o == nil {
-		return &Reference{}
-	}
+func (o Reference) GetReference() Reference {
 	return o
 }
 
@@ -229,13 +217,10 @@ func (o *Rule) GetRule() *Rule {
 }
 
 type StringInterface interface {
-	GetString() *String
+	GetString() String
 }
 
-func (o *String) GetString() *String {
-	if o == nil {
-		return &String{}
-	}
+func (o String) GetString() String {
 	return o
 }
 

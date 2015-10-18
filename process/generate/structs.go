@@ -59,20 +59,30 @@ func Structs(set *settings.Settings) (source []byte, err error) {
 func printInterfaceDefinition(g *generator.Generator, typ *system.Type) {
 	g.Println("type ", system.GoInterfaceName(typ.Id.Name), " interface {")
 	{
-		g.Println("Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name))
+		ptrStar := "*"
+		if typ.IsNativeValue() {
+			ptrStar = ""
+		}
+		g.Println("Get", system.GoName(typ.Id.Name), "() ", ptrStar, system.GoName(typ.Id.Name))
 	}
 	g.Println("}")
 }
 
 func printInterfaceImplementation(g *generator.Generator, typ *system.Type) {
-	g.Println("func (o *", system.GoName(typ.Id.Name), ") Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name), " {")
+	ptrStar := "*"
+	if typ.IsNativeValue() {
+		ptrStar = ""
+	}
+	g.Println("func (o ", ptrStar, system.GoName(typ.Id.Name), ") Get", system.GoName(typ.Id.Name), "() ", ptrStar, system.GoName(typ.Id.Name), " {")
 	{
 		// TODO: don't like this in here... Maybe the json should create these?
-		g.Println("if o == nil {")
-		{
-			g.Println("return &", system.GoName(typ.Id.Name), "{}")
+		if !typ.IsNativeValue() {
+			g.Println("if o == nil {")
+			{
+				g.Println("return &", system.GoName(typ.Id.Name), "{}")
+			}
+			g.Println("}")
 		}
-		g.Println("}")
 		g.Println("return o")
 	}
 	g.Println("}")

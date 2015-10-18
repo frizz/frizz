@@ -1,11 +1,51 @@
 package system
 
 import (
+	"reflect"
 	"testing"
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
 )
+
+func TestUnpackDefaultNativeTypeBool(t *testing.T) {
+	testUnpackDefaultNativeTypeBool(t, unmarshalFunc)
+	testUnpackDefaultNativeTypeBool(t, unpackFunc)
+
+	// needs types
+	//testUnpackDefaultNativeTypeBool(t, repackFunc)
+}
+func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
+
+	data := `{
+		"type": "a",
+		"b": true
+	}`
+
+	type A struct {
+		*Object
+		B BoolInterface `json:"b"`
+	}
+
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("kego.io/system", "a")
+
+	var i interface{}
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+
+	a, ok := i.(*A)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, a)
+	assert.Equal(t, true, a.B.GetBool().Value)
+
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":true}`, string(b))
+
+}
 
 func TestNewBool(t *testing.T) {
 	b := NewBool(true)

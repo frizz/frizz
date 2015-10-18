@@ -13,6 +13,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"kego.io/kerr"
 )
 
 type T struct {
@@ -1246,8 +1248,10 @@ var decodeTypeErrorTests = []struct {
 func TestUnmarshalTypeError(t *testing.T) {
 	for _, item := range decodeTypeErrorTests {
 		err := UnmarshalPlain([]byte(item.src), item.dest)
-		if _, ok := err.(*UnmarshalTypeError); !ok {
-			t.Errorf("expected type error for UnmarshalPlain(%q, type %T): got %T",
+		_, isTypeError := err.(*UnmarshalTypeError)
+		_, isKerrError := err.(kerr.Struct)
+		if !isTypeError && !isKerrError {
+			t.Errorf("expected type error or kerr for UnmarshalPlain(%q, type %T): got %T",
 				item.src, item.dest, err)
 		}
 	}

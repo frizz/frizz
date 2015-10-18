@@ -195,15 +195,42 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 
 func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map[string]string) (*Type, error) {
 
+	if rule != nil && rule.Type.Interface && rule.Interface.GetRule().Interface {
+		return nil, kerr.New("TDXTPGVFAK", nil, "Can't have interface type and rule at the same time")
+	}
+
 	if rule != nil && !rule.Type.Interface && !rule.Interface.GetRule().Interface {
 		// If we have a rule, and it's not an interface, then we just return the
 		// parent type of the rule.
 		return rule.Type, nil
 	}
 
-	if in.UpType() != json.J_MAP {
-		return nil, kerr.New("DLSQRFLINL", nil, "Input %s should be J_MAP if rule is nil or an interface type", in.UpType())
+	// if the rule is nil (e.g. unpacking into an unknown type) or the type is an interface, we
+	// ensure the input is a map
+	if rule == nil || rule.Type.Interface {
+		switch in.UpType() {
+		case json.J_MAP:
+			break
+		default:
+			return nil, kerr.New("DLSQRFLINL", nil, "Input %s should be J_MAP if rule is nil or an interface type", in.UpType())
+		}
+
 	}
+
+	// if the rule is an interface rule, we ensure the input is a map or a native value
+	if rule != nil && rule.Interface.GetRule().Interface {
+		switch in.UpType() {
+		case json.J_MAP:
+			break
+		case json.J_STRING, json.J_NUMBER, json.J_BOOL:
+			// if the input value is a native value, we will be unpacking into the parent
+			// type of the rule
+			return rule.Type, nil
+		default:
+			return nil, kerr.New("SNYLGBJYTM", nil, "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.UpType())
+		}
+	}
+
 	ob := in.UpMap()
 	typeField, ok := ob["type"]
 	if !ok {
@@ -217,8 +244,8 @@ func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map
 	if !ok {
 		return nil, kerr.New("IJFMJJWVCA", nil, "Could not find type %s", r.Value())
 	}
-	return t, nil
 
+	return t, nil
 }
 
 func extractFields(fields map[string]*Field, t *Type) error {

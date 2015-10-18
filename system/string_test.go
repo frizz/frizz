@@ -8,6 +8,45 @@ import (
 	"kego.io/kerr/assert"
 )
 
+func TestUnpackDefaultNativeTypeString(t *testing.T) {
+	testUnpackDefaultNativeTypeString(t, unmarshalFunc)
+	testUnpackDefaultNativeTypeString(t, unpackFunc)
+
+	// needs types
+	//testUnpackDefaultNativeTypeString(t, repackFunc)
+}
+func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
+
+	data := `{
+		"type": "a",
+		"b": "c"
+	}`
+
+	type A struct {
+		*Object
+		B StringInterface `json:"b"`
+	}
+
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("kego.io/system", "a")
+
+	var i interface{}
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+
+	a, ok := i.(*A)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, a)
+	assert.Equal(t, "c", a.B.GetString().Value)
+
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
+
+}
+
 func TestMarshal(t *testing.T) {
 	testMarshal(t, unmarshalFunc)
 	testMarshal(t, unpackFunc)

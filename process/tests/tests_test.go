@@ -11,6 +11,32 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestDefaultInterfaceNativeType(t *testing.T) {
+
+	if testing.Short() {
+		t.Skip("Skipping long-running end-to-end tests")
+	}
+
+	namespace, err := tests.CreateTemporaryNamespace()
+	assert.NoError(t, err)
+	defer os.RemoveAll(namespace)
+
+	_, err = runKego(namespace, "a", map[string]string{
+		"foo.yaml": `
+			type: system:type
+			id: foo
+			fields:
+				baz:
+					type: system:@string
+					interface: true`,
+		"bar.yaml": `
+			type: foo
+			id: bar
+			baz: qux`,
+	})
+	assert.NoError(t, err)
+
+}
 func TestNeedsDummyRule(t *testing.T) {
 
 	if testing.Short() {

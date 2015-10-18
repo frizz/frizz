@@ -56,9 +56,11 @@ func (j *JsonUnpacker) UpBool() bool {
 func (j *JsonUnpacker) UpArray() []Unpackable {
 	if j.a == nil {
 		out := []Unpackable{}
-		in := j.value.([]interface{})
-		for _, v := range in {
-			out = append(out, NewJsonUnpacker(v))
+		in, ok := j.value.([]interface{})
+		if ok {
+			for _, v := range in {
+				out = append(out, NewJsonUnpacker(v))
+			}
 		}
 		j.a = out
 	}
@@ -67,9 +69,11 @@ func (j *JsonUnpacker) UpArray() []Unpackable {
 func (j *JsonUnpacker) UpMap() map[string]Unpackable {
 	if j.m == nil {
 		out := map[string]Unpackable{}
-		in := j.value.(map[string]interface{})
-		for n, v := range in {
-			out[n] = NewJsonUnpacker(v)
+		in, ok := j.value.(map[string]interface{})
+		if ok {
+			for n, v := range in {
+				out[n] = NewJsonUnpacker(v)
+			}
 		}
 		j.m = out
 	}

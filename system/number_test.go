@@ -1,11 +1,51 @@
 package system
 
 import (
+	"reflect"
 	"testing"
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
 )
+
+func TestUnpackDefaultNativeTypeNumber(t *testing.T) {
+	testUnpackDefaultNativeTypeNumber(t, unmarshalFunc)
+	testUnpackDefaultNativeTypeNumber(t, unpackFunc)
+
+	// needs types
+	//testUnpackDefaultNativeTypeNumber(t, repackFunc)
+}
+func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
+
+	data := `{
+		"type": "a",
+		"b": 1.2
+	}`
+
+	type A struct {
+		*Object
+		B NumberInterface `json:"b"`
+	}
+
+	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
+
+	// Clean up for the tests - don't normally need to unregister types
+	defer json.Unregister("kego.io/system", "a")
+
+	var i interface{}
+	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	assert.NoError(t, err)
+
+	a, ok := i.(*A)
+	assert.True(t, ok, "Type %T not correct", i)
+	assert.NotNil(t, a)
+	assert.Equal(t, 1.2, a.B.GetNumber().Value)
+
+	b, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"type":"kego.io/system:a","b":1.2}`, string(b))
+
+}
 
 func TestNumberRule_Enforce(t *testing.T) {
 	r := NumberRule{Rule: &Rule{Optional: false}, Minimum: NewNumber(1.5)}
