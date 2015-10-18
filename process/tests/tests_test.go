@@ -11,6 +11,34 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestNeedsDummyRule(t *testing.T) {
+
+	if testing.Short() {
+		t.Skip("Skipping long-running end-to-end tests")
+	}
+
+	namespace, err := tests.CreateTemporaryNamespace()
+	assert.NoError(t, err)
+	defer os.RemoveAll(namespace)
+
+	_, err = runKego(namespace, "a", map[string]string{
+		"foo.yaml": `
+			type: system:type
+			id: foo
+			fields:
+				bar:
+					type: system:@string
+			rule:
+				type: system:type
+				embed: ["system:rule"]
+				fields:
+					default:
+						type: "@foo"`,
+	})
+	assert.NoError(t, err)
+
+}
+
 func TestInt(t *testing.T) {
 
 	if testing.Short() {

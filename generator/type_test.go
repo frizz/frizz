@@ -383,9 +383,9 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		Rule: &system.Rule{},
 	}
 	_, err = Type("n", pm, "kego.io/system", i.Add)
-	// Collection item @map doesn't have Items field, so errors at collectionPrefixInnerRule
+	// Collection item @map doesn't have Items field, so errors at ItemsRule
 	assert.IsError(t, err, "SOGEFOPJHB")
-	assert.HasError(t, err, "VYTHGJTSNJ")
+	assert.HasError(t, err, "SUJLYBXPYS")
 
 	type a struct{}
 	type aRule struct {

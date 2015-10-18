@@ -96,24 +96,21 @@ func WrapRule(r RuleInterface) (*RuleWrapper, error) {
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 	if !r.Type.IsNativeCollection() {
-		return nil, kerr.New("VPAGXSTQHM", nil, "parentType %s is not a collection", r.Type.Id)
+		return nil, kerr.New("VPAGXSTQHM", nil, "%s is not a collection", r.Type.Id.Value())
 	}
-	items, _, ok, err := RuleFieldByReflection(r.Interface, "Items")
-	if err != nil {
-		return nil, kerr.New("LIDXIQYGJD", err, "RuleFieldByReflection")
-	}
+	c, ok := r.Interface.(CollectionRule)
 	if !ok {
-		return nil, kerr.New("VYTHGJTSNJ", nil, "RuleFieldByReflection could not find Items field")
+		return nil, kerr.New("TNRVQVJIFH", nil, "%T is not a CollectionRule", r.Interface)
 	}
-	rule, ok := items.(RuleInterface)
-	if !ok {
-		return nil, kerr.New("DIFVRMVWMC", nil, "items is not a rule")
+	ir := c.GetItemsRule()
+	if ir == nil {
+		return nil, kerr.New("SUJLYBXPYS", nil, "%s has nil items rule", r.Type.Id.Value())
 	}
-	rh, err := WrapRule(rule)
+	w, err := WrapRule(ir)
 	if err != nil {
-		return nil, kerr.New("FGYMQPNBQJ", err, "NewRuleHolder")
+		return nil, kerr.New("SDSMCXSWOF", err, "WrapRule")
 	}
-	return rh, nil
+	return w, nil
 }
 
 func RuleFieldByReflection(object interface{}, name string) (value interface{}, pointer interface{}, ok bool, err error) {
