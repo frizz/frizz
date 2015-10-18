@@ -142,14 +142,19 @@ func addSubTag(tag string, name string, content string) string {
 
 func getTag(fieldName string, exclude bool, r *system.RuleWrapper, path string, aliases map[string]string) (string, error) {
 
-	value, pointer, ok, err := system.RuleFieldByReflection(r.Interface, "Default")
+	dr, ok := r.Interface.(system.DefaultRule)
 	if !ok {
 		// Doesn't have a default field
 		return formatTag(fieldName, exclude, nil, r, path, aliases)
 	}
 
+	d := dr.GetDefault()
+	if d == nil {
+		return formatTag(fieldName, exclude, nil, r, path, aliases)
+	}
+
 	// If we have a marshaler, we have to call it manually
-	if m, ok := pointer.(json.Marshaler); ok {
+	if m, ok := d.(json.Marshaler); ok {
 		defaultBytes, err := m.MarshalJSON()
 		if err != nil {
 			return "", kerr.New("YIEMHYFVCD", err, "m.MarshalJSON")
@@ -157,7 +162,7 @@ func getTag(fieldName string, exclude bool, r *system.RuleWrapper, path string, 
 		return formatTag(fieldName, exclude, defaultBytes, r, path, aliases)
 	}
 
-	defaultBytes, err := json.MarshalPlain(value)
+	defaultBytes, err := json.MarshalPlain(d)
 	if err != nil {
 		return "", kerr.New("QQDOLAJKLU", err, "json.Marshal (typed)")
 	}

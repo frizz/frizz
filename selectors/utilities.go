@@ -166,17 +166,8 @@ func isNull(in interface{}) bool {
 	if in == nil {
 		return true
 	}
-	if n, ok := in.(system.NativeNumber); ok {
-		_, exists := n.NativeNumber()
-		return !exists
-	}
-	if n, ok := in.(system.NativeString); ok {
-		_, exists := n.NativeString()
-		return !exists
-	}
-	if n, ok := in.(system.NativeBool); ok {
-		_, exists := n.NativeBool()
-		return !exists
+	if e, ok := in.(json.EmptyAware); ok {
+		return e.Empty()
 	}
 	if n, ok := in.(*system.Node); ok {
 		return n.Null || n.Missing

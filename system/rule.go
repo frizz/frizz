@@ -15,13 +15,23 @@ type Enforcer interface {
 type CollectionRule interface {
 	GetItemsRule() RuleInterface
 }
+type DefaultRule interface {
+	GetDefault() interface{}
+}
+
+type dummyRule struct {
+	*Object
+	*Rule
+	Default interface{}
+}
+
+func (d *dummyRule) GetDefault() interface{} {
+	return d.Default
+}
+
+var _ DefaultRule = (*dummyRule)(nil)
 
 func init() {
-	type dummyRule struct {
-		*Object
-		*Rule
-		Default interface{}
-	}
 	json.RegisterInterface(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
 }
 

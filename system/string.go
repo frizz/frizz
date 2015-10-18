@@ -163,3 +163,9 @@ func (s String) Empty() bool {
 }
 
 var _ json.EmptyAware = (*String)(nil)
+
+func (r *StringRule) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ DefaultRule = (*StringRule)(nil)

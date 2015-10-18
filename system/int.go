@@ -117,3 +117,9 @@ func (i Int) Empty() bool {
 }
 
 var _ json.EmptyAware = (*Int)(nil)
+
+func (r *IntRule) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ DefaultRule = (*IntRule)(nil)

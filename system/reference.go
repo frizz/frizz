@@ -200,3 +200,9 @@ func (r Reference) Empty() bool {
 }
 
 var _ json.EmptyAware = (*Reference)(nil)
+
+func (r *ReferenceRule) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ DefaultRule = (*ReferenceRule)(nil)

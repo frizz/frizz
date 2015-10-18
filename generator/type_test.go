@@ -93,38 +93,68 @@ func TestMarshaler(t *testing.T) {
 // it's a convenient way to force an error.
 type typeThatWillCauseJsonMarshalToError chan string
 
+type structWithoutCustomMarshaler struct {
+	A string
+}
+
+type ruleStructA struct {
+	*system.Object
+	*system.Rule
+	B system.String
+}
+type ruleStructB struct {
+	*system.Object
+	*system.Rule
+	Default system.String
+}
+
+func (r *ruleStructB) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ system.DefaultRule = (*ruleStructB)(nil)
+
+type ruleStructC struct {
+	*system.Object
+	*system.Rule
+	Default *structWithCustomMarshaler
+}
+
+func (r *ruleStructC) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ system.DefaultRule = (*ruleStructC)(nil)
+
+type ruleStructD struct {
+	*system.Object
+	*system.Rule
+	Default typeThatWillCauseJsonMarshalToError
+}
+
+func (r *ruleStructD) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ system.DefaultRule = (*ruleStructD)(nil)
+
+type ruleStructE struct {
+	*system.Object
+	*system.Rule
+	Default structWithoutCustomMarshaler
+}
+
+func (r *ruleStructE) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ system.DefaultRule = (*ruleStructE)(nil)
+
 func TestGetTag(t *testing.T) {
 	type parentStruct struct {
 		*system.Object
 	}
-	type structWithoutCustomMarshaler struct {
-		A string
-	}
-	type ruleStructA struct {
-		*system.Object
-		*system.Rule
-		B system.String
-	}
-	type ruleStructB struct {
-		*system.Object
-		*system.Rule
-		Default system.String
-	}
-	type ruleStructC struct {
-		*system.Object
-		*system.Rule
-		Default *structWithCustomMarshaler
-	}
-	type ruleStructD struct {
-		*system.Object
-		*system.Rule
-		Default typeThatWillCauseJsonMarshalToError
-	}
-	type ruleStructE struct {
-		*system.Object
-		*system.Rule
-		Default structWithoutCustomMarshaler
-	}
+
 	parentType := &system.Type{
 		Object: &system.Object{Id: system.NewReference("a.b/c", "a"), Type: system.NewReference("kego.io/system", "type")},
 	}

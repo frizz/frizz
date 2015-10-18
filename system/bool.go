@@ -67,3 +67,9 @@ func (b Bool) Empty() bool {
 }
 
 var _ json.EmptyAware = (*Bool)(nil)
+
+func (r *BoolRule) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ DefaultRule = (*BoolRule)(nil)

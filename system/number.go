@@ -137,3 +137,9 @@ func (n Number) Empty() bool {
 }
 
 var _ json.EmptyAware = (*Number)(nil)
+
+func (r *NumberRule) GetDefault() interface{} {
+	return r.Default
+}
+
+var _ DefaultRule = (*NumberRule)(nil)
