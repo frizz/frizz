@@ -1,19 +1,21 @@
 package system
 
 import (
+	"fmt"
+
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 )
 
-type NodeMapEditor struct {
+type NodeArrayEditor struct {
 	*Node
 	*editorCommon
 }
 
-var _ Editor = (*NodeMapEditor)(nil)
+var _ Editor = (*NodeArrayEditor)(nil)
 
-func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
+func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
 
 	e.panel = panel
 	e.path = path
@@ -30,13 +32,13 @@ func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, alias
 		return kerr.New("XDKOSFJVQV", err, "ValueContext")
 	}
 
-	names := table.Column("name")
+	index := table.Column("index")
 	holds := table.Column("holds")
 	values := table.Column("value")
 
-	for name, item := range e.Map {
+	for i, item := range e.Map {
 
-		names.Cell(name)
+		index.Cell(fmt.Sprintf("%d", i))
 		holds.Cell(hold)
 
 		if item.Null {
@@ -56,7 +58,7 @@ func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, alias
 	return nil
 }
 
-func (e *NodeMapEditor) Update() {
+func (e *NodeArrayEditor) Update() {
 	//if e.Exists {
 	//	e.node.ValueString = e.input.Value
 	//}

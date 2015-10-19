@@ -10,18 +10,11 @@ import (
 
 type NodeValueEditor struct {
 	*Node
-	panel       *dom.HTMLDivElement
-	input       *dom.HTMLInputElement
-	initialized bool
-	path        string
-	aliases     map[string]string
+	*editorCommon
+	input *dom.HTMLInputElement
 }
 
 var _ Editor = (*NodeValueEditor)(nil)
-
-func (e *NodeValueEditor) Initialized() bool {
-	return e.initialized
-}
 
 func (e *NodeValueEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
 
@@ -54,13 +47,6 @@ func (e *NodeValueEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 
 	e.initialized = true
 	return nil
-}
-
-func (e *NodeValueEditor) Show() {
-	e.panel.Style().Set("display", "block")
-}
-func (e *NodeValueEditor) Hide() {
-	e.panel.Style().Set("display", "none")
 }
 
 func (e *NodeValueEditor) Update() {

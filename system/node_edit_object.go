@@ -8,18 +8,10 @@ import (
 
 type NodeObjectEditor struct {
 	*Node
-	path        string
-	aliases     map[string]string
-	panel       *dom.HTMLDivElement
-	input       *dom.HTMLInputElement
-	initialized bool
+	*editorCommon
 }
 
 var _ Editor = (*NodeObjectEditor)(nil)
-
-func (e *NodeObjectEditor) Initialized() bool {
-	return e.initialized
-}
 
 func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
 
@@ -65,13 +57,6 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, al
 
 	e.initialized = true
 	return nil
-}
-
-func (e *NodeObjectEditor) Show() {
-	e.panel.Style().Set("display", "block")
-}
-func (e *NodeObjectEditor) Hide() {
-	e.panel.Style().Set("display", "none")
 }
 
 func (e *NodeObjectEditor) Update() {

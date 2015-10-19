@@ -5,38 +5,19 @@ import (
 	"kego.io/editor/mdl"
 )
 
-type HasEditor interface {
-	GetEditor(node *Node) Editor
-}
-
-var _ HasEditor = String{}
-
 func (s String) GetEditor(node *Node) Editor {
 	return &StringEditor{String: s, node: node}
 }
 
-type Editor interface {
-	Initialized() bool
-	Initialize(*dom.HTMLDivElement, string, map[string]string) error
-	Update()
-	Show()
-	Hide()
-}
+var _ HasEditor = (*String)(nil)
 
 var _ Editor = (*StringEditor)(nil)
 
 type StringEditor struct {
 	String
-	node        *Node
-	panel       *dom.HTMLDivElement
-	textbox     *dom.HTMLInputElement
-	initialized bool
-	path        string
-	aliases     map[string]string
-}
-
-func (e *StringEditor) Initialized() bool {
-	return e.initialized
+	*editorCommon
+	node    *Node
+	textbox *dom.HTMLInputElement
 }
 
 func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
@@ -57,13 +38,6 @@ func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliase
 
 	e.initialized = true
 	return nil
-}
-
-func (e *StringEditor) Show() {
-	e.panel.Style().Set("display", "block")
-}
-func (e *StringEditor) Hide() {
-	e.panel.Style().Set("display", "none")
 }
 
 func (e *StringEditor) Update() {

@@ -10,6 +10,8 @@ func (n *Node) GetEditor() Editor {
 		return &NodeMapEditor{Node: n}
 	case json.J_OBJECT:
 		return &NodeObjectEditor{Node: n}
+	case json.J_ARRAY:
+		return &NodeArrayEditor{Node: n}
 	}
 	return nil
 }
