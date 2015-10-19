@@ -45,7 +45,7 @@ func TestFormatTag(t *testing.T) {
 
 	r := &system.RuleWrapper{
 		Interface: &ruleStruct{},
-		Type:      parentType,
+		Parent:    parentType,
 	}
 	s, err := formatTag("n", false, []byte("null"), r, "d.e/f", map[string]string{})
 	assert.NoError(t, err)
@@ -178,7 +178,7 @@ func TestGetTag(t *testing.T) {
 
 	r := &system.RuleWrapper{
 		Interface: &ruleStructA{},
-		Type:      parentType,
+		Parent:    parentType,
 	}
 
 	// rule has no default field

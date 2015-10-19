@@ -37,26 +37,27 @@ func init() {
 
 type RuleWrapper struct {
 	Interface RuleInterface
-	Type      *Type
+	Struct    *Rule
+	Parent    *Type
 }
 
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
-	if r.Interface.GetRule().Interface {
-		typ, _, ok := json.GetTypeInterface(r.Type.Id.Package, r.Type.Id.Name)
+	if r.Struct.Interface {
+		typ, _, ok := json.GetTypeInterface(r.Parent.Id.Package, r.Parent.Id.Name)
 		if !ok {
-			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.Type.Id.Value())
+			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.Parent.Id.Value())
 		}
 		return typ, nil
 	}
 
-	switch r.Type.Native.Value {
+	switch r.Parent.Native.Value {
 	case "object", "number", "bool", "string":
-		typ, _, ok := json.GetType(r.Type.Id.Package, r.Type.Id.Name)
+		typ, _, ok := json.GetType(r.Parent.Id.Package, r.Parent.Id.Name)
 		if !ok {
-			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.Type.Id.Value())
+			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.Parent.Id.Value())
 		}
-		if r.Type.Native.Value != "object" && typ.Kind() == reflect.Ptr {
+		if r.Parent.Native.Value != "object" && typ.Kind() == reflect.Ptr {
 			return typ.Elem(), nil
 		}
 		return typ, nil
@@ -74,17 +75,17 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		if err != nil {
 			return nil, kerr.New("LMKEHHWHKL", err, "GetReflectType")
 		}
-		if r.Type.Native.Value == "map" {
+		if r.Parent.Native.Value == "map" {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil
 	default:
-		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.Type.Native.Value)
+		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.Parent.Native.Value)
 	}
 }
 
 func WrapEmptyRule(t *Type) *RuleWrapper {
-	return &RuleWrapper{Interface: nil, Type: t}
+	return &RuleWrapper{Interface: nil, Parent: t}
 }
 func WrapRule(r RuleInterface) (*RuleWrapper, error) {
 
@@ -100,13 +101,13 @@ func WrapRule(r RuleInterface) (*RuleWrapper, error) {
 		return nil, kerr.New("KYCTDXKFYR", nil, "GetType: type %v not found", ob.GetObject().Type.ChangeToType().Value())
 	}
 
-	return &RuleWrapper{Interface: r, Type: t}, nil
+	return &RuleWrapper{Interface: r, Parent: t, Struct: r.GetRule()}, nil
 }
 
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
-	if !r.Type.IsNativeCollection() {
-		return nil, kerr.New("VPAGXSTQHM", nil, "%s is not a collection", r.Type.Id.Value())
+	if !r.Parent.IsNativeCollection() {
+		return nil, kerr.New("VPAGXSTQHM", nil, "%s is not a collection", r.Parent.Id.Value())
 	}
 	c, ok := r.Interface.(CollectionRule)
 	if !ok {
@@ -114,7 +115,7 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 	}
 	ir := c.GetItemsRule()
 	if ir == nil {
-		return nil, kerr.New("SUJLYBXPYS", nil, "%s has nil items rule", r.Type.Id.Value())
+		return nil, kerr.New("SUJLYBXPYS", nil, "%s has nil items rule", r.Parent.Id.Value())
 	}
 	w, err := WrapRule(ir)
 	if err != nil {
@@ -126,11 +127,11 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 // HoldsDisplayType returns the string to display when communicating to
 // the end user what type this rule holds.
 func (r *RuleWrapper) HoldsDisplayType(path string, aliases map[string]string) (string, error) {
-	str, err := r.Type.Id.ValueContext(path, aliases)
+	str, err := r.Parent.Id.ValueContext(path, aliases)
 	if err != nil {
 		return "", kerr.New("OPIFCOHGWI", err, "ValueContext")
 	}
-	if r.Interface.GetRule().Interface || r.Type.Interface {
+	if r.Struct.Interface || r.Parent.Interface {
 		str += "*"
 	}
 	return str, nil

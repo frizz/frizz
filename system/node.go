@@ -13,9 +13,9 @@ type Node struct {
 	ValueString   string
 	ValueNumber   float64
 	ValueBool     bool
-	Value         interface{}
-	Null          bool
-	Missing       bool
+	Value         interface{} // unmarshalled value
+	Null          bool        // null is true if the json is null or the field is missing
+	Missing       bool        // missing is only true if the field is missing
 	Array         []*Node
 	Map           map[string]*Node
 	Fields        map[string]*Node
@@ -195,19 +195,19 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 
 func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map[string]string) (*Type, error) {
 
-	if rule != nil && rule.Type.Interface && rule.Interface.GetRule().Interface {
+	if rule != nil && rule.Parent.Interface && rule.Struct.Interface {
 		return nil, kerr.New("TDXTPGVFAK", nil, "Can't have interface type and rule at the same time")
 	}
 
-	if rule != nil && !rule.Type.Interface && !rule.Interface.GetRule().Interface {
+	if rule != nil && !rule.Parent.Interface && !rule.Struct.Interface {
 		// If we have a rule, and it's not an interface, then we just return the
 		// parent type of the rule.
-		return rule.Type, nil
+		return rule.Parent, nil
 	}
 
 	// if the rule is nil (e.g. unpacking into an unknown type) or the type is an interface, we
 	// ensure the input is a map
-	if rule == nil || rule.Type.Interface {
+	if rule == nil || rule.Parent.Interface {
 		switch in.UpType() {
 		case json.J_MAP:
 			break
@@ -218,14 +218,14 @@ func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map
 	}
 
 	// if the rule is an interface rule, we ensure the input is a map or a native value
-	if rule != nil && rule.Interface.GetRule().Interface {
+	if rule != nil && rule.Struct.Interface {
 		switch in.UpType() {
 		case json.J_MAP:
 			break
 		case json.J_STRING, json.J_NUMBER, json.J_BOOL:
 			// if the input value is a native value, we will be unpacking into the parent
 			// type of the rule
-			return rule.Type, nil
+			return rule.Parent, nil
 		default:
 			return nil, kerr.New("SNYLGBJYTM", nil, "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.UpType())
 		}

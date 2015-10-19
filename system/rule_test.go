@@ -33,7 +33,7 @@ func TestWrapRule(t *testing.T) {
 	}
 	w, err := WrapRule(r)
 	assert.NoError(t, err)
-	assert.Equal(t, "a", w.Type.Id.Name)
+	assert.Equal(t, "a", w.Parent.Id.Name)
 
 	r1 := nonObjectStruct{}
 	w, err = WrapRule(r1)

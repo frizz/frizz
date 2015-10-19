@@ -27,16 +27,16 @@ func Type(fieldName string, field system.RuleInterface, path string, getAlias fu
 	}
 
 	var name, pointer string
-	if inner.Interface.GetRule().Interface {
+	if inner.Struct.Interface {
 		// if this is an interface rule, we print the interface name of the inner type,
 		// which never has a pointer asterisk.
 		pointer = ""
-		name = Reference(inner.Type.Id.Package, system.GoInterfaceName(inner.Type.Id.Name), path, getAlias)
+		name = Reference(inner.Parent.Id.Package, system.GoInterfaceName(inner.Parent.Id.Name), path, getAlias)
 	} else {
 		// this returns a "*" if the type should be prefixed by it. Native and interface types
 		// don't have a *.
-		pointer = getPointer(inner.Type)
-		name = Reference(inner.Type.Id.Package, system.GoName(inner.Type.Id.Name), path, getAlias)
+		pointer = getPointer(inner.Parent)
+		name = Reference(inner.Parent.Id.Package, system.GoName(inner.Parent.Id.Name), path, getAlias)
 	}
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
@@ -56,7 +56,7 @@ func Type(fieldName string, field system.RuleInterface, path string, getAlias fu
 // the full collection prefix (e.g. any number of appended [] and map[string]'s)
 // and the inner (non collection) rule.
 func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
-	p := outer.Type
+	p := outer.Parent
 	if p.IsNativeCollection() {
 		if p.Native.Value == "array" {
 			prefix += "[]"
@@ -87,7 +87,7 @@ func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.Ru
 	kegoTag := ""
 	if defaultBytes != nil && string(defaultBytes) != "null" {
 		defaultRaw := json.RawMessage(defaultBytes)
-		t := r.Type.FullName()
+		t := r.Parent.FullName()
 		var tag json.KegoTag
 		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
 			// If our default is one of the basic system native types, we know we can unmarshal it without
