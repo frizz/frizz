@@ -6,23 +6,22 @@ import (
 )
 
 type Node struct {
-	Parent        *Node
-	Key           string    // in an object or a map, this is the key
-	Index         int       // in an array, this is the index
-	Origin        Reference // in an object, this is the type that the field originated from
-	ValueString   string
-	ValueNumber   float64
-	ValueBool     bool
-	Value         interface{} // unmarshalled value
-	Null          bool        // null is true if the json is null or the field is missing
-	Missing       bool        // missing is only true if the field is missing
-	Array         []*Node
-	Map           map[string]*Node
-	Fields        map[string]*Node
-	Rule          *RuleWrapper
-	Type          *Type
-	JsonType      json.Type
-	ArraySiblings int // this is used by the selectors package, it is only for arrays, will be 0 for maps and objects
+	Parent      *Node
+	Key         string    // in an object or a map, this is the key
+	Index       int       // in an array, this is the index
+	Origin      Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
+	ValueString string
+	ValueNumber float64
+	ValueBool   bool
+	Value       interface{} // unmarshalled value
+	Null        bool        // null is true if the json is null or the field is missing
+	Missing     bool        // missing is only true if the field is missing
+	Array       []*Node
+	Map         map[string]*Node
+	Fields      map[string]*Node
+	Rule        *RuleWrapper
+	Type        *Type
+	JsonType    json.Type
 }
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
@@ -44,7 +43,6 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 	n.Parent = parent
 	n.Key = key
 	n.Index = index
-	n.ArraySiblings = siblings
 	n.Rule = rule
 	if n.Rule == nil {
 		n.Rule = WrapEmptyRule(objectType)

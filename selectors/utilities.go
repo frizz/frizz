@@ -79,7 +79,7 @@ func (p *Parser) getSiblings(n *system.Node) int {
 	if p.isRoot(n) {
 		return 0
 	}
-	return n.ArraySiblings
+	return len(n.Parent.Array)
 }
 
 func (p *Parser) ancestors(lhs []*system.Node, rhs []*system.Node) []*system.Node {
