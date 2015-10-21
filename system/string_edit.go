@@ -6,7 +6,7 @@ import (
 )
 
 func (s String) GetEditor(node *Node) Editor {
-	return &StringEditor{String: s, node: node}
+	return &StringEditor{String: s, node: node, editorCommon: &editorCommon{}}
 }
 
 var _ HasEditor = (*String)(nil)
@@ -16,8 +16,9 @@ var _ Editor = (*StringEditor)(nil)
 type StringEditor struct {
 	String
 	*editorCommon
-	node    *Node
-	textbox *dom.HTMLInputElement
+	node     *Node
+	textbox  *mdl.Textbox
+	checkbox *mdl.Checkbox
 }
 
 func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
@@ -26,14 +27,17 @@ func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliase
 	e.path = path
 	e.aliases = aliases
 
-	cb := mdl.NewCheckbox(e.Exists, "Exists")
-	e.panel.AppendChild(cb)
+	e.checkbox = mdl.NewCheckbox(e.Exists, "Exists")
+	e.panel.AppendChild(e.checkbox)
+	e.checkbox.Input.AddEventListener("change", true, func(ev dom.Event) {
+		e.textbox.SetDisabled(!e.checkbox.Input.Checked)
+		e.Update()
+	})
 
-	tb := mdl.NewTextbox(e.Value, e.node.Key)
-	e.panel.AppendChild(tb)
-
-	cb.Input.AddEventListener("change", true, func(e dom.Event) {
-		tb.SetDisabled(!cb.Input.Checked)
+	e.textbox = mdl.NewTextbox(e.Value, e.node.Key)
+	e.panel.AppendChild(e.textbox)
+	e.textbox.AddEventListener("change", true, func(ev dom.Event) {
+		e.Update()
 	})
 
 	e.initialized = true
@@ -41,7 +45,6 @@ func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliase
 }
 
 func (e *StringEditor) Update() {
-	if e.Exists {
-		e.node.ValueString = e.textbox.Value
-	}
+	e.node.ValueString = e.textbox.Input.Value
+	e.node.Null = !e.checkbox.Input.Checked
 }

@@ -22,17 +22,6 @@ func (e *NodeValueEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 	e.path = path
 	e.aliases = aliases
 
-	/*
-		if e.Key != "" {
-			nameLabel := dom.GetWindow().Document().CreateElement("h1").(*dom.HTMLHeadingElement)
-			nameLabel.SetTextContent(e.Key)
-			e.panel.AppendChild(nameLabel)
-		}
-
-		typeLabel := dom.GetWindow().Document().CreateElement("h2").(*dom.HTMLHeadingElement)
-		typeLabel.SetTextContent(e.Type.Id.Value())
-		e.panel.AppendChild(typeLabel)
-	*/
 	switch e.JsonType {
 	case json.J_STRING:
 		tb := mdl.NewTextbox(e.ValueString, e.Node.Key)

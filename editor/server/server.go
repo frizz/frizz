@@ -188,7 +188,7 @@ func script(w http.ResponseWriter, req *http.Request, packagePath string, mapper
 	}
 
 	buf := bytes.NewBuffer(nil)
-	pkg := &build.PackageData{Package: buildPkg}
+	pkg := &build.PackageData{Package: buildPkg.Package}
 	if err := s.BuildPackage(pkg); err != nil {
 		return kerr.New("TXUYQOUNQS", err, "s.BuildPackage")
 	}
