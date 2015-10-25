@@ -11,7 +11,6 @@ import (
 type NodeValueEditor struct {
 	*Node
 	*editorCommon
-	input *dom.HTMLInputElement
 }
 
 var _ Editor = (*NodeValueEditor)(nil)
@@ -26,12 +25,31 @@ func (e *NodeValueEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 	case json.J_STRING:
 		tb := mdl.NewTextbox(e.ValueString, e.Node.Key)
 		e.panel.AppendChild(tb)
+		tb.Input.AddEventListener("change", true, func(ev dom.Event) {
+			e.Missing = false
+			e.Null = false
+			e.ValueString = tb.Input.Value
+		})
 	case json.J_NUMBER:
 		tb := mdl.NewTextbox(strconv.FormatFloat(e.ValueNumber, 'f', -1, 64), e.Node.Key)
 		e.panel.AppendChild(tb)
+		tb.Input.AddEventListener("change", true, func(ev dom.Event) {
+			n, err := strconv.ParseFloat(tb.Input.Value, 64)
+			if err != nil {
+				// display a validation error
+			}
+			e.Missing = false
+			e.Null = false
+			e.ValueNumber = n
+		})
 	case json.J_BOOL:
 		cb := mdl.NewCheckbox(e.ValueBool, e.Node.Key)
 		e.panel.AppendChild(cb)
+		cb.Input.AddEventListener("change", true, func(ev dom.Event) {
+			e.Missing = false
+			e.Null = false
+			e.ValueBool = cb.Input.Checked
+		})
 	}
 
 	e.initialized = true

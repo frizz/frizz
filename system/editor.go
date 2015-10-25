@@ -4,7 +4,7 @@ import "honnef.co/go/js/dom"
 
 type Editor interface {
 	Initialized() bool
-	Initialize(*dom.HTMLDivElement, string, map[string]string) error
+	Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error
 	Update()
 	Show()
 	Hide()
