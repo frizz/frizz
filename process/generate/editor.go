@@ -23,7 +23,7 @@ func Editor(set *settings.Settings) (source []byte, err error) {
 	}
 	/*
 		func main() {
-			if err := client.Start("XXX"); err != nil {
+			if err := client.Start("foo.bar/baz"); err != nil {
 				console.Error(err.Error())
 			}
 		}

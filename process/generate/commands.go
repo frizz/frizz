@@ -69,10 +69,6 @@ func TypesCommand(set *settings.Settings) (source []byte, err error) {
 				fmt.Println(process.FormatError(err))
 				os.Exit(1)
 			}
-			if err := process.Generate(process.S_EDITOR, set); err != nil {
-				fmt.Println(process.FormatError(err))
-				os.Exit(1)
-			}
 		}`)
 
 	b, err := g.Build()

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"net"
 	"net/http"
-	"path"
+	"os"
 
 	"golang.org/x/net/websocket"
 
@@ -30,6 +30,9 @@ import (
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/process"
+	"kego.io/process/generate"
+	"kego.io/process/settings"
+	"kego.io/process/tests"
 	"kego.io/system"
 )
 
@@ -65,7 +68,7 @@ func Start(path string, verbose bool, debug bool) error {
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
 	http.HandleFunc("/script.js", func(w http.ResponseWriter, req *http.Request) {
-		if err := script(w, req, path, false, &mapping); err != nil {
+		if err := script(w, req, app.path, app.aliases, false, &mapping); err != nil {
 			app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
 			return
 		}
@@ -167,12 +170,31 @@ func initialise(path string) (pkg *system.Package, err error) {
 	return p.Package, nil
 }
 
-func script(w http.ResponseWriter, req *http.Request, packagePath string, mapper bool, mapping *[]byte) error {
+func script(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string, mapper bool, mapping *[]byte) error {
+
+	// This is the client code for the editor which we will compile to Javascript using GopherJs
+	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the
+	// source file to a temporary location and delete after we have compiled it to Javascript.
+	source, err := generate.Editor(&settings.Settings{Path: path, Aliases: aliases})
+	if err != nil {
+		return kerr.New("UWPDBQXURR", err, "generate.Editor")
+	}
+
+	namespace, err := tests.CreateTemporaryNamespace()
+	if err != nil {
+		return kerr.New("AFRRXCMOCM", err, "CreateTemporaryNamespace")
+	}
+	defer os.RemoveAll(namespace)
+
+	editorPath, _, _, err := tests.CreateTemporaryPackage(namespace, "a", map[string]string{"a.go": string(source)})
+	if err != nil {
+		return kerr.New("RDRIUFUOFY", err, "CreateTemporaryPackage")
+	}
 
 	options := &build.Options{CreateMapFile: true}
 	s := build.NewSession(options)
 
-	buildPkg, err := build.Import(path.Join(packagePath, "editor"), 0, s.InstallSuffix(), options.BuildTags)
+	buildPkg, err := build.Import(editorPath, 0, s.InstallSuffix(), options.BuildTags)
 	if err != nil {
 		return kerr.New("DNQVYTHSPT", err, "build.Import")
 	}

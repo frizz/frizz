@@ -16,7 +16,6 @@ type sourceType string
 const (
 	S_STRUCTS sourceType = "structs"
 	S_TYPES              = "types"
-	S_EDITOR             = "editor"
 )
 
 // Generate generates the source code from templates and writes the files
@@ -76,10 +75,6 @@ func Generate(file sourceType, set *settings.Settings) error {
 		outputDir = filepath.Join(set.Dir, "types")
 		filename = "generated-types.go"
 		source, err = generate.Types(set)
-	case S_EDITOR:
-		outputDir = filepath.Join(set.Dir, "editor")
-		filename = "generated-editor.go"
-		source, err = generate.Editor(set)
 	}
 	if err != nil {
 		return kerr.New("XFNESBLBTQ", err, "generate: %s", file)
