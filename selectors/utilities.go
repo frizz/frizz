@@ -8,14 +8,15 @@ import (
 
 	"kego.io/json"
 	"kego.io/system"
+	"kego.io/system/node"
 )
 
-func nodeIsMemberOfHaystack(needle *system.Node, haystack map[*system.Node]*system.Node) bool {
+func nodeIsMemberOfHaystack(needle *node.Node, haystack map[*node.Node]*node.Node) bool {
 	_, ok := haystack[needle]
 	return ok
 }
 
-func nodeIsMemberOfList(needle *system.Node, haystack []*system.Node) bool {
+func nodeIsMemberOfList(needle *node.Node, haystack []*node.Node) bool {
 	for _, element := range haystack {
 		if element == needle {
 			return true
@@ -24,14 +25,14 @@ func nodeIsMemberOfList(needle *system.Node, haystack []*system.Node) bool {
 	return false
 }
 
-func (p *Parser) appendAncestorsToHaystack(n *system.Node, haystack map[*system.Node]*system.Node) {
+func (p *Parser) appendAncestorsToHaystack(n *node.Node, haystack map[*node.Node]*node.Node) {
 	if !p.isRoot(n) {
 		haystack[n.Parent] = n.Parent
 		p.appendAncestorsToHaystack(n.Parent, haystack)
 	}
 }
 
-func (p *Parser) nodeIsChildOfHaystackMember(needle *system.Node, haystack map[*system.Node]*system.Node) bool {
+func (p *Parser) nodeIsChildOfHaystackMember(needle *node.Node, haystack map[*node.Node]*node.Node) bool {
 	if nodeIsMemberOfHaystack(needle, haystack) {
 		return true
 	}
@@ -41,8 +42,8 @@ func (p *Parser) nodeIsChildOfHaystackMember(needle *system.Node, haystack map[*
 	return p.nodeIsChildOfHaystackMember(needle.Parent, haystack)
 }
 
-func (p *Parser) parents(lhs []*system.Node, rhs []*system.Node) []*system.Node {
-	var results []*system.Node
+func (p *Parser) parents(lhs []*node.Node, rhs []*node.Node) []*node.Node {
+	var results []*node.Node
 
 	lhsHaystack := getHaystackFromNodeList(lhs)
 
@@ -54,7 +55,7 @@ func (p *Parser) parents(lhs []*system.Node, rhs []*system.Node) []*system.Node 
 
 	return results
 }
-func (p *Parser) isRoot(n *system.Node) bool {
+func (p *Parser) isRoot(n *node.Node) bool {
 	if n.Parent == nil {
 		return true
 	}
@@ -63,27 +64,27 @@ func (p *Parser) isRoot(n *system.Node) bool {
 	}
 	return false
 }
-func (p *Parser) getKey(n *system.Node) string {
+func (p *Parser) getKey(n *node.Node) string {
 	if p.isRoot(n) {
 		return ""
 	}
 	return n.Key
 }
-func (p *Parser) getIndex(n *system.Node) int {
+func (p *Parser) getIndex(n *node.Node) int {
 	if p.isRoot(n) {
 		return -1
 	}
 	return n.Index + 1
 }
-func (p *Parser) getSiblings(n *system.Node) int {
+func (p *Parser) getSiblings(n *node.Node) int {
 	if p.isRoot(n) {
 		return 0
 	}
 	return len(n.Parent.Array)
 }
 
-func (p *Parser) ancestors(lhs []*system.Node, rhs []*system.Node) []*system.Node {
-	var results []*system.Node
+func (p *Parser) ancestors(lhs []*node.Node, rhs []*node.Node) []*node.Node {
+	var results []*node.Node
 	haystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
@@ -95,9 +96,9 @@ func (p *Parser) ancestors(lhs []*system.Node, rhs []*system.Node) []*system.Nod
 	return results
 }
 
-func (p *Parser) siblings(lhs []*system.Node, rhs []*system.Node) []*system.Node {
-	var results []*system.Node
-	parents := make(map[*system.Node]*system.Node, len(lhs))
+func (p *Parser) siblings(lhs []*node.Node, rhs []*node.Node) []*node.Node {
+	var results []*node.Node
+	parents := make(map[*node.Node]*node.Node, len(lhs))
 
 	for _, element := range lhs {
 		if !p.isRoot(element) {
@@ -115,7 +116,7 @@ func (p *Parser) siblings(lhs []*system.Node, rhs []*system.Node) []*system.Node
 }
 
 func getFloat64(in interface{}) float64 {
-	if as_node, ok := in.(*system.Node); ok {
+	if as_node, ok := in.(*node.Node); ok {
 		return as_node.ValueNumber
 	}
 	as_nativeNum, ok := in.(system.NativeNumber)
@@ -169,14 +170,14 @@ func isNull(in interface{}) bool {
 	if e, ok := in.(json.EmptyAware); ok {
 		return e.Empty()
 	}
-	if n, ok := in.(*system.Node); ok {
+	if n, ok := in.(*node.Node); ok {
 		return n.Null || n.Missing
 	}
 	return false
 }
 
 func getBool(in interface{}) bool {
-	as_node, ok := in.(*system.Node)
+	as_node, ok := in.(*node.Node)
 	if ok {
 		return as_node.ValueBool
 	}
@@ -196,7 +197,7 @@ func getBool(in interface{}) bool {
 }
 
 func getJsonString(in interface{}) string {
-	as_node, ok := in.(*system.Node)
+	as_node, ok := in.(*node.Node)
 	if ok {
 		return as_node.ValueString
 	}
@@ -245,8 +246,8 @@ func exprElementsMatch(lhs exprElement, rhs exprElement) bool {
 	return lhs.typ == rhs.typ
 }
 
-func getHaystackFromNodeList(nodes []*system.Node) map[*system.Node]*system.Node {
-	hashmap := make(map[*system.Node]*system.Node, len(nodes))
+func getHaystackFromNodeList(nodes []*node.Node) map[*node.Node]*node.Node {
+	hashmap := make(map[*node.Node]*node.Node, len(nodes))
 	for _, node := range nodes {
 		hashmap[node] = node
 	}

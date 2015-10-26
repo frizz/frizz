@@ -1,4 +1,4 @@
-package system
+package node
 
 // Flatten returns a flat array of this node and all descendants
 func (n *Node) Flatten(removeMissing bool) []*Node {

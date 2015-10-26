@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type logHandler struct {
@@ -82,15 +82,15 @@ func EnableLogger() {
 	logger.Enabled = true
 }
 
-func getFormattedNodeMap(nodes map[*system.Node]*system.Node) []string {
-	output := make([]*system.Node, 0, len(nodes))
+func getFormattedNodeMap(nodes map[*node.Node]*node.Node) []string {
+	output := make([]*node.Node, 0, len(nodes))
 	for _, val := range nodes {
 		output = append(output, val)
 	}
 	return getFormattedNodeArray(output)
 }
 
-func getFormattedNodeArray(nodes []*system.Node) []string {
+func getFormattedNodeArray(nodes []*node.Node) []string {
 	var formatted []string
 	for _, n := range nodes {
 		if n != nil {

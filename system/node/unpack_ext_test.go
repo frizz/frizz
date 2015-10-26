@@ -1,4 +1,4 @@
-package system_test
+package node_test
 
 import (
 	"testing"
@@ -16,6 +16,7 @@ import (
 	"kego.io/process"
 	"kego.io/process/scan"
 	"kego.io/system"
+	"kego.io/system/node"
 	_ "kego.io/system/types"
 )
 
@@ -32,7 +33,7 @@ func testUnpack(t *testing.T, path string) {
 	sha := system.GetAllSourceInPackage(set.Path)
 
 	for _, sh := range sha {
-		var n system.Node
+		var n node.Node
 		err := ke.UnmarshalNode(sh.Source, &n, set.Path, set.Aliases)
 		assert.NoError(t, err, sh.Id.Name)
 	}

@@ -1,14 +1,18 @@
-package system
+package system_test
 
 import (
 	"testing"
 
+	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/system"
+	"kego.io/system/node"
 )
 
 func TestBool(t *testing.T) {
 	testBool(t, unmarshalFunc)
 	testBool(t, unpackFunc)
+	testBool(t, repackFunc)
 }
 func testBool(t *testing.T, unpacker unpackerFunc) {
 
@@ -34,7 +38,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	var i interface{}
 	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
-	f, ok := i.(*Type)
+	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, "This is the native json bool data type", f.Description)
@@ -46,6 +50,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 func TestType(t *testing.T) {
 	testType(t, unmarshalFunc)
 	testType(t, unpackFunc)
+	testType(t, repackFunc)
 }
 func testType(t *testing.T, unpacker unpackerFunc) {
 
@@ -99,70 +104,38 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	var i interface{}
 	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
-	f, ok := i.(*Type)
+	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, "This is the most basic type.", f.Description)
 	assert.True(t, f.Native.Exists)
 	assert.Equal(t, "object", f.Native.Value)
-	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(ObjectInterface).GetObject().Description)
+	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(system.ObjectInterface).GetObject().Description)
 	assert.Equal(t, true, f.Fields["interface"].GetRule().Optional)
-	r, ok := f.Fields["interface"].(*BoolRule)
+	r, ok := f.Fields["interface"].(*system.BoolRule)
 	assert.True(t, ok, "Wrong type %T\n", f.Fields["interface"])
 	assert.True(t, r.Default.Exists)
 	assert.Equal(t, false, r.Default.Value)
 
 }
 
-func TestUnregister(t *testing.T) {
-	Unregister("", "")
+type unpackerFunc func([]byte, *interface{}, string, map[string]string) error
+
+func unmarshalFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+	return json.Unmarshal(data, i, path, aliases)
+}
+func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+	var j interface{}
+	if err := json.UnmarshalPlain(data, &j); err != nil {
+		return err
+	}
+	return json.Unpack(json.NewJsonUnpacker(j), i, path, aliases)
 }
 
-func TestNativeGoType(t *testing.T) {
-	n, err := nativeGoType("string")
-	assert.NoError(t, err)
-	assert.Equal(t, "string", n)
-
-	n, err = nativeGoType("number")
-	assert.NoError(t, err)
-	assert.Equal(t, "float64", n)
-
-	n, err = nativeGoType("bool")
-	assert.NoError(t, err)
-	assert.Equal(t, "bool", n)
-
-	_, err = nativeGoType("a")
-	assert.IsError(t, err, "TXQIDRBJRH")
-}
-
-func TestTypeIsNativeType(t *testing.T) {
-	y := &Type{Native: NewString("bool")}
-	n := y.IsNativeObject()
-	assert.False(t, n)
-
-	y = &Type{Native: NewString("array")}
-	n = y.IsNativeObject()
-	assert.False(t, n)
-
-	y = &Type{Native: NewString("object")}
-	n = y.IsNativeObject()
-	assert.True(t, n)
-
-	// Will also return true for any other value
-	y = &Type{Native: NewString("a")}
-	n = y.IsNativeObject()
-	assert.True(t, n)
-}
-
-func TestTypeNativeValueGolangType(t *testing.T) {
-	y := &Type{Native: NewString("bool")}
-	n, err := y.NativeValueGolangType()
-	assert.NoError(t, err)
-	assert.Equal(t, "bool", n)
-}
-
-func TestTypeGoName(t *testing.T) {
-	y := &Type{Object: &Object{Id: NewReference("a.b/c", "aa")}}
-	n := y.GoName()
-	assert.Equal(t, "Aa", n)
+func repackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+	var n node.Node
+	if err := json.UnmarshalPlainContext(data, &n, path, aliases); err != nil {
+		return err
+	}
+	return json.Unpack(&n, i, path, aliases)
 }

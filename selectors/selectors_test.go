@@ -12,7 +12,7 @@ import (
 	. "kego.io/selectors"
 	_ "kego.io/selectors/tests"
 	_ "kego.io/selectors/tests/types"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 // Used for storing the results of the benchmarking tests below
@@ -20,13 +20,13 @@ import (
 var parser *Parser
 var values []interface{}
 
-func getTestParser(testDocuments map[string]*system.Node, testName string) (*Parser, error) {
+func getTestParser(testDocuments map[string]*node.Node, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
 	return CreateParser(jsonDocument, "kego.io/selectors/tests", map[string]string{})
 }
 
 func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliases map[string]string) {
-	var testDocuments = make(map[string]*system.Node)
+	var testDocuments = make(map[string]*node.Node)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
 
@@ -43,7 +43,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 				t.Error("Error encountered while reading ", name, ": ", err)
 				continue
 			}
-			n := &system.Node{}
+			n := &node.Node{}
 			err = ke.UnmarshalNode(json_document, n, "kego.io/selectors/tests", map[string]string{})
 			assert.NoError(t, err, name)
 
@@ -122,7 +122,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 			passed = false
 		} else {
 			var expected = make([]interface{}, 0, 10)
-			var actual = make([]*system.Node, 0, 10)
+			var actual = make([]*node.Node, 0, 10)
 			//matchType := "string"
 
 			for idx, result := range results {
@@ -177,7 +177,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 	}
 }
 
-func comparison(actual *system.Node, expected interface{}, path string, aliases map[string]string) (bool, error) {
+func comparison(actual *node.Node, expected interface{}, path string, aliases map[string]string) (bool, error) {
 	switch actual.JsonType {
 	case json.J_NULL:
 		// If we're expecting null, return true

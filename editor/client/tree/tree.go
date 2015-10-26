@@ -2,8 +2,8 @@ package tree // import "kego.io/editor/client/tree"
 
 import (
 	"honnef.co/go/js/dom"
+	"kego.io/editor"
 	"kego.io/editor/shared/connection"
-	"kego.io/system"
 )
 
 type Tree struct {
@@ -13,7 +13,7 @@ type Tree struct {
 	Path     string
 	Aliases  map[string]string
 	selected *Branch
-	editor   system.Editor
+	editor   editor.Editor
 	content  *dom.HTMLDivElement
 }
 

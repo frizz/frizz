@@ -7,12 +7,12 @@ import (
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type source struct {
 	*item
-	node   *system.Node
+	node   *node.Node
 	name   string
 	loaded bool
 	label  *dom.HTMLDivElement
@@ -25,7 +25,7 @@ var _ tree.Item = (*source)(nil)
 var _ tree.AsyncItem = (*source)(nil)
 var _ tree.HasNode = (*source)(nil)
 
-func (s *source) Node() *system.Node {
+func (s *source) Node() *node.Node {
 	return s.node
 }
 
@@ -68,7 +68,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", m)
 	}
 
-	n := &system.Node{}
+	n := &node.Node{}
 	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, s.tree.Path, s.tree.Aliases); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}

@@ -16,10 +16,3 @@ func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]str
 	}
 	return json.Unpack(json.NewJsonUnpacker(j), i, path, aliases)
 }
-func repackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
-	var n Node
-	if err := json.UnmarshalPlainContext(data, &n, path, aliases); err != nil {
-		return err
-	}
-	return json.Unpack(&n, i, path, aliases)
-}

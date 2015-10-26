@@ -12,6 +12,7 @@ import (
 	"kego.io/process/settings"
 	"kego.io/selectors"
 	"kego.io/system"
+	"kego.io/system/node"
 )
 
 func Validate(set *settings.Settings) error {
@@ -62,7 +63,7 @@ func validateFile(filePath string, set *settings.Settings) error {
 }
 
 func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
-	n := &system.Node{}
+	n := &node.Node{}
 	err := ke.UnmarshalNode(bytes, n, set.Path, set.Aliases)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "unknown package %s", up.UnknownPackage)
@@ -78,7 +79,7 @@ func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
 	return nil
 }
 
-func validateNode(node *system.Node, hash uint64, path string, aliases map[string]string) error {
+func validateNode(node *node.Node, hash uint64, path string, aliases map[string]string) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -114,7 +115,7 @@ type ValidationError struct {
 	kerr.Struct
 }
 
-func validateObject(node *system.Node, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateObject(node *node.Node, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -203,7 +204,7 @@ func validateObject(node *system.Node, rules []system.RuleInterface, path string
 	return nil
 }
 
-func validateObjectChildren(node *system.Node, path string, aliases map[string]string) error {
+func validateObjectChildren(node *node.Node, path string, aliases map[string]string) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -238,7 +239,7 @@ func validateObjectChildren(node *system.Node, path string, aliases map[string]s
 	return nil
 }
 
-func validateArrayChildren(node *system.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateArrayChildren(node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
@@ -253,7 +254,7 @@ func validateArrayChildren(node *system.Node, itemsRule *system.RuleWrapper, rul
 	return nil
 }
 
-func validateMapChildren(node *system.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateMapChildren(node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {

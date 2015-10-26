@@ -11,9 +11,6 @@ import (
 func TestMapMarshal(t *testing.T) {
 	testMapMarshal(t, unmarshalFunc)
 	testMapMarshal(t, unpackFunc)
-
-	// needs types
-	//testMapMarshal(t, repackFunc)
 }
 func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 

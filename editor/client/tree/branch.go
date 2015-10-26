@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"honnef.co/go/js/dom"
+	"kego.io/editor"
 	"kego.io/kerr"
-	"kego.io/system"
 )
 
 type Branch struct {
@@ -26,7 +26,7 @@ type Branch struct {
 	inner    *dom.HTMLDivElement
 	content  *dom.HTMLDivElement
 	selected bool
-	editor   system.Editor
+	editor   editor.Editor
 }
 
 func (b *Branch) Initialise() {
@@ -144,17 +144,17 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 				return
 			}
 			n := hn.Node()
-			he, ok := n.Value.(system.HasEditor)
-			if ok {
-				b.editor = he.GetEditor(n)
+			factory := editor.Get(n.Type.Id)
+			if factory != nil {
+				b.editor = factory(n)
 			} else {
-				b.editor = n.GetEditor()
+				b.editor = editor.Default(n)
 			}
 		}
 		if b.editor == nil {
 			return
 		}
-		if !b.editor.Initialized() {
+		if !b.editor.IsInitialized() {
 			panel := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 			panel.Style().Set("display", "none")
 			panel.Class().SetString("mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid")

@@ -11,9 +11,6 @@ import (
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {
 	testUnpackDefaultNativeTypeReference(t, unmarshalFunc)
 	testUnpackDefaultNativeTypeReference(t, unpackFunc)
-
-	// needs types
-	//testUnpackDefaultNativeTypeReference(t, repackFunc)
 }
 func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
 

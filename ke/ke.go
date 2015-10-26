@@ -6,7 +6,7 @@ import (
 
 	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 func Open(filename string, path string, aliases map[string]string) (value interface{}, err error) {
@@ -25,7 +25,7 @@ func Open(filename string, path string, aliases map[string]string) (value interf
 func Unmarshal(data []byte, v *interface{}, path string, aliases map[string]string) error {
 	return json.Unmarshal(data, v, path, aliases)
 }
-func UnmarshalNode(data []byte, n *system.Node, path string, aliases map[string]string) error {
+func UnmarshalNode(data []byte, n *node.Node, path string, aliases map[string]string) error {
 	return json.UnmarshalPlainContext(data, n, path, aliases)
 }
 

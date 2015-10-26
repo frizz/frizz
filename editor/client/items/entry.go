@@ -6,21 +6,21 @@ import (
 	"honnef.co/go/js/dom"
 
 	"kego.io/editor/client/tree"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type entry struct {
 	*item
 	name  string
 	index int
-	node  *system.Node
+	node  *node.Node
 	label *dom.HTMLDivElement
 }
 
 var _ tree.Item = (*entry)(nil)
 var _ tree.HasNode = (*entry)(nil)
 
-func (e *entry) Node() *system.Node {
+func (e *entry) Node() *node.Node {
 	return e.node
 }
 
@@ -50,7 +50,7 @@ func shortenString(in string) string {
 	return in
 }
 
-func addEntry(name string, index int, node *system.Node, parentBranch *tree.Branch) *entry {
+func addEntry(name string, index int, node *node.Node, parentBranch *tree.Branch) *entry {
 
 	if node.Parent != nil && node.Parent.Type.Native.Value == "object" {
 		// Don't display "type" or "id" nodes if the parent is an object (maps are ok!)
@@ -72,7 +72,7 @@ func addEntry(name string, index int, node *system.Node, parentBranch *tree.Bran
 	return newEntry
 }
 
-func addNodeChildren(n *system.Node, b *tree.Branch) {
+func addNodeChildren(n *node.Node, b *tree.Branch) {
 	if n == nil {
 		return
 	}

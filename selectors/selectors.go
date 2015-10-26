@@ -10,17 +10,18 @@ import (
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type Parser struct {
-	node      *system.Node
-	flattened []*system.Node
-	root      *system.Node // for when we create a new document without cloning the nodes
+	node      *node.Node
+	flattened []*node.Node
+	root      *node.Node // for when we create a new document without cloning the nodes
 	path      string
 	aliases   map[string]string
 }
 
-func CreateParser(node *system.Node, path string, aliases map[string]string) (*Parser, error) {
+func CreateParser(node *node.Node, path string, aliases map[string]string) (*Parser, error) {
 	parser := Parser{node: node, root: node, path: path, aliases: aliases}
 	parser.flattened = node.Flatten(true)
 
@@ -32,7 +33,7 @@ func CreateParser(node *system.Node, path string, aliases map[string]string) (*P
 	return &parser, nil
 }
 
-func (p *Parser) evaluateSelector(selector string) ([]*system.Node, error) {
+func (p *Parser) evaluateSelector(selector string) ([]*node.Node, error) {
 	tokens, err := lex(selector, selectorScanner)
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func (p *Parser) evaluateSelector(selector string) ([]*system.Node, error) {
 	return nodes, nil
 }
 
-func (p *Parser) GetNodes(selector string) ([]*system.Node, error) {
+func (p *Parser) GetNodes(selector string) ([]*node.Node, error) {
 	nodes, err := p.evaluateSelector(selector)
 	if err != nil {
 		return nil, err
@@ -81,12 +82,12 @@ func (p *Parser) GetValues(selector string) ([]interface{}, error) {
 	return results, nil
 }
 
-func (p *Parser) selectorProduction(tokens []*token, documentMap []*system.Node, recursionDepth int) ([]*system.Node, error) {
-	var results []*system.Node
+func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, recursionDepth int) ([]*node.Node, error) {
+	var results []*node.Node
 	var matched bool
 	var value interface{}
-	var validator func(*system.Node) (bool, error)
-	var validators = make([]func(*system.Node) (bool, error), 0, 10)
+	var validator func(*node.Node) (bool, error)
+	var validators = make([]func(*node.Node) (bool, error), 0, 10)
 	if len(tokens) > 0 {
 		logger.Print("selectorProduction(", recursionDepth, ") starting with ", tokens[0], " - ", len(tokens), " tokens remaining.")
 	}
@@ -222,8 +223,8 @@ func (p *Parser) match(tokens []*token, typ tokenType) (interface{}, []*token, e
 	return value, tokens, nil
 }
 
-func (p *Parser) matchNodes(validators []func(*system.Node) (bool, error), documentMap []*system.Node) ([]*system.Node, error) {
-	var matches []*system.Node
+func (p *Parser) matchNodes(validators []func(*node.Node) (bool, error), documentMap []*node.Node) ([]*node.Node, error) {
+	var matches []*node.Node
 	nodeCount := 0
 	if logger.Enabled {
 		nodeCount = len(documentMap)
@@ -251,17 +252,17 @@ func (p *Parser) matchNodes(validators []func(*system.Node) (bool, error), docum
 	return matches, nil
 }
 
-func (p *Parser) nativeProduction(value interface{}) func(*system.Node) (bool, error) {
+func (p *Parser) nativeProduction(value interface{}) func(*node.Node) (bool, error) {
 	logger.Print("Creating nativeProduction validator ", value)
-	return func(n *system.Node) (bool, error) {
+	return func(n *node.Node) (bool, error) {
 		logger.Print("nativeProduction ? ", n.JsonType, " == ", value)
 		return string(n.JsonType) == value, nil
 	}
 }
 
-func (p *Parser) kegoProduction(value interface{}) func(*system.Node) (bool, error) {
+func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error) {
 	logger.Print("Creating kegoProduction validator ", value)
-	return func(n *system.Node) (bool, error) {
+	return func(n *node.Node) (bool, error) {
 		tokenString := value.(string)
 		kegoType := tokenString[1 : len(tokenString)-1]
 		r, err := system.NewReferenceFromString(kegoType, p.path, p.aliases)
@@ -284,9 +285,9 @@ func (p *Parser) kegoProduction(value interface{}) func(*system.Node) (bool, err
 	}
 }
 
-func (p *Parser) keyProduction(value interface{}) func(*system.Node) (bool, error) {
+func (p *Parser) keyProduction(value interface{}) func(*node.Node) (bool, error) {
 	logger.Print("Creating keyProduction validator ", value)
-	return func(n *system.Node) (bool, error) {
+	return func(n *node.Node) (bool, error) {
 		logger.Print("keyProduction ? ", p.getKey(n), " == ", value)
 		if p.getKey(n) == "" {
 			return false, nil
@@ -301,7 +302,7 @@ func (p *Parser) keyProduction(value interface{}) func(*system.Node) (bool, erro
 	}
 }
 
-func nodeExists(n *system.Node) bool {
+func nodeExists(n *node.Node) bool {
 	switch n.JsonType {
 	case json.J_NULL:
 		return false
@@ -329,59 +330,59 @@ func nodeExists(n *system.Node) bool {
 		return true*/
 }
 
-func (p *Parser) universalProduction(value interface{}) func(*system.Node) (bool, error) {
+func (p *Parser) universalProduction(value interface{}) func(*node.Node) (bool, error) {
 	operator := value.(string)
 	if operator == "*" {
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("universalProduction ? true")
 			return true, nil
 		}
 	} else {
 		logger.Print("Error: Unexpected operator: ", operator)
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("Asserting false due to failed universalProduction")
 			return false, nil
 		}
 	}
 }
 
-func (p *Parser) pclassProduction(value interface{}) func(*system.Node) (bool, error) {
+func (p *Parser) pclassProduction(value interface{}) func(*node.Node) (bool, error) {
 	pclass := value.(string)
 	logger.Print("Creating pclassProduction validator ", pclass)
 	if pclass == "first-child" {
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("pclassProduction first-child ? ", p.getIndex(n), " == 1")
 			return p.getIndex(n) == 1, nil
 		}
 	} else if pclass == "last-child" {
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("pclassProduction last-child ? ", p.getSiblings(n), " > 0 AND ", p.getIndex(n), " == ", p.getSiblings(n))
 			return p.getSiblings(n) > 0 && p.getIndex(n) == p.getSiblings(n), nil
 		}
 	} else if pclass == "only-child" {
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("pclassProduction ony-child ? ", p.getSiblings(n), " == 1")
 			return p.getSiblings(n) == 1, nil
 		}
 	} else if pclass == "root" {
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("pclassProduction root ? ", n.Parent, " == nil")
 			return p.isRoot(n), nil
 		}
 	} else if pclass == "empty" {
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", json.J_ARRAY, " AND ", len(n.Value.(string)), " < 1")
 			return n.JsonType == json.J_ARRAY && len(n.Value.(string)) < 1, nil
 		}
 	}
 	logger.Print("Error: Unknown pclass: ", pclass)
-	return func(n *system.Node) (bool, error) {
+	return func(n *node.Node) (bool, error) {
 		logger.Print("Asserting false due to failed pclassProduction")
 		return false, nil
 	}
 }
 
-func (p *Parser) nthChildProduction(value interface{}, tokens []*token) (func(*system.Node) (bool, error), []*token) {
+func (p *Parser) nthChildProduction(value interface{}, tokens []*token) (func(*node.Node) (bool, error), []*token) {
 	nthChildRegexp := regexp.MustCompile(`^\s*\(\s*(?:([+\-]?)([0-9]*)n\s*(?:([+\-])\s*([0-9]))?|(odd|even)|([+\-]?[0-9]+))\s*\)`)
 	args, tokens, _ := p.match(tokens, S_EXPR)
 	var a int
@@ -440,7 +441,7 @@ func (p *Parser) nthChildProduction(value interface{}, tokens []*token) (func(*s
 		reverse = true
 	}
 
-	return func(n *system.Node) (bool, error) {
+	return func(n *node.Node) (bool, error) {
 		var b_str string
 		if b > 0 {
 			b_str = "+"
@@ -469,7 +470,7 @@ func (p *Parser) nthChildProduction(value interface{}, tokens []*token) (func(*s
 	}, tokens
 }
 
-func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, documentMap []*system.Node) (func(*system.Node) (bool, error), []*token) {
+func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, documentMap []*node.Node) (func(*node.Node) (bool, error), []*token) {
 	sargs, tokens, _ := p.match(tokens, S_EXPR)
 	pclass := value.(string)
 
@@ -492,7 +493,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		}
 		logme(sargs.(string), tokens)
 		var tokens_to_return []*token
-		return func(node *system.Node) (bool, error) {
+		return func(node *node.Node) (bool, error) {
 			result := p.parseExpression(tokens, node)
 			logger.Print("pclassFuncProduction expr ? ", result)
 			return exprElementIsTruthy(result)
@@ -503,7 +504,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		args, _ := lex(lexString, selectorScanner)
 		logme(lexString, args)
 
-		return func(n *system.Node) (bool, error) {
+		return func(n *node.Node) (bool, error) {
 
 			newParser, err := CreateParser(n, p.path, p.aliases)
 			if err != nil {
@@ -516,7 +517,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 			rvals, _ := newParser.selectorProduction(args, newParser.flattened, -100)
 			logger.DecreaseDepth()
 			logger.Print("pclassFuncProduction resursion completed with ", len(rvals), " results.")
-			ancestors := make(map[*system.Node]*system.Node, len(rvals))
+			ancestors := make(map[*node.Node]*node.Node, len(rvals))
 			for _, node := range rvals {
 				if !p.isRoot(node) {
 					ancestors[node.Parent] = node.Parent
@@ -531,7 +532,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		args, _ := lex(lexString, selectorScanner)
 		logme(lexString, args)
 
-		return func(node *system.Node) (bool, error) {
+		return func(node *node.Node) (bool, error) {
 			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", json.J_STRING, " AND ", strings.Count(node.Value.(string), args[0].val.(string)), " > 0")
 			return node.JsonType == json.J_STRING && strings.Count(node.Value.(string), args[0].val.(string)) > 0, nil
 		}, tokens
@@ -542,20 +543,20 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		logme(lexString, args)
 		if len(args) != 1 {
 			logger.Print("Error: val must have one argument, not ", len(args))
-			return func(node *system.Node) (bool, error) {
+			return func(node *node.Node) (bool, error) {
 				logger.Print("Asserting false due to failed pclassFuncProduction")
 				return false, nil
 			}, tokens
 		}
 		if args[0].typ == S_PAREN || args[0].typ == S_EMPTY || args[0].typ == S_BINOP {
 			logger.Print("Error: val has invalid argument ", args[0].typ)
-			return func(node *system.Node) (bool, error) {
+			return func(node *node.Node) (bool, error) {
 				logger.Print("Asserting false due to failed pclassFuncProduction")
 				return false, nil
 			}, tokens
 		}
 
-		return func(node *system.Node) (bool, error) {
+		return func(node *node.Node) (bool, error) {
 			lhsString := getJsonString(node)
 			rhsString := getJsonString(args[0].val)
 			logger.Print("pclassFuncProduction val ? ", lhsString, " == ", rhsString)
@@ -565,7 +566,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 	default:
 		// If we didn't find a known pclass, do not match anything.
 		logger.Print("Error: Unknown pclass: ", pclass)
-		return func(node *system.Node) (bool, error) {
+		return func(node *node.Node) (bool, error) {
 			logger.Print("Asserting false due to failed pclassFuncProduction")
 			return false, nil
 		}, tokens

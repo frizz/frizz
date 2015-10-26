@@ -16,7 +16,7 @@ import (
 	"kego.io/js/console"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type appData struct {
@@ -48,7 +48,7 @@ func Start(path string) error {
 	app.aliases = info.Aliases
 	app.fail = make(chan error)
 
-	packageNode := &system.Node{}
+	packageNode := &node.Node{}
 	if err := ke.UnmarshalNode([]byte(info.Package), packageNode, app.path, app.aliases); err != nil {
 		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
 	}

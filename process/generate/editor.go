@@ -15,6 +15,7 @@ func Editor(set *settings.Settings) (source []byte, err error) {
 
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous("kego.io/system/types")
+	g.Imports.Anonymous("kego.io/system/editors")
 	g.Imports.Anonymous(set.Path)
 	g.Imports.Anonymous(fmt.Sprint(set.Path, "/types"))
 	for p, _ := range set.Aliases {

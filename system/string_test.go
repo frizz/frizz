@@ -11,9 +11,6 @@ import (
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
 	testUnpackDefaultNativeTypeString(t, unmarshalFunc)
 	testUnpackDefaultNativeTypeString(t, unpackFunc)
-
-	// needs types
-	//testUnpackDefaultNativeTypeString(t, repackFunc)
 }
 func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 
@@ -50,9 +47,6 @@ func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 func TestMarshal(t *testing.T) {
 	testMarshal(t, unmarshalFunc)
 	testMarshal(t, unpackFunc)
-
-	// needs types
-	//testMarshal(t, repackFunc)
 }
 func testMarshal(t *testing.T, unpacker unpackerFunc) {
 

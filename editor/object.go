@@ -1,23 +1,24 @@
-package system
+package editor
 
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
+	"kego.io/system/node"
 )
 
 type NodeObjectEditor struct {
-	*Node
-	*editorCommon
+	*node.Node
+	*Common
 }
 
 var _ Editor = (*NodeObjectEditor)(nil)
 
 func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
 
-	e.panel = panel
-	e.path = path
-	e.aliases = aliases
+	e.Panel = panel
+	e.Path = path
+	e.Aliases = aliases
 
 	table := mdl.Table()
 
@@ -30,13 +31,13 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, al
 
 		names.Cell(name)
 
-		origin, err := field.Origin.ValueContext(e.path, e.aliases)
+		origin, err := field.Origin.ValueContext(e.Path, e.Aliases)
 		if err != nil {
 			return kerr.New("ACQLJXWYQX", err, "ValueContext")
 		}
 		origins.Cell(origin)
 
-		hold, err := field.Rule.HoldsDisplayType(e.path, e.aliases)
+		hold, err := field.Rule.HoldsDisplayType(e.Path, e.Aliases)
 		if err != nil {
 			return kerr.New("OYMARPFDGA", err, "ValueContext")
 		}
@@ -45,7 +46,7 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, al
 		if field.Missing || field.Null {
 			values.Cell("")
 		} else {
-			value, err := field.Type.Id.ValueContext(e.path, e.aliases)
+			value, err := field.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
@@ -53,14 +54,8 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, path string, al
 		}
 
 	}
-	e.panel.AppendChild(table.Build())
+	e.Panel.AppendChild(table.Build())
 
-	e.initialized = true
+	e.Initialized = true
 	return nil
-}
-
-func (e *NodeObjectEditor) Update() {
-	//if e.Exists {
-	//	e.node.ValueString = e.input.Value
-	//}
 }

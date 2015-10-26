@@ -2,7 +2,7 @@ package tree
 
 import (
 	"honnef.co/go/js/dom"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type Item interface {
@@ -15,5 +15,5 @@ type AsyncItem interface {
 }
 
 type HasNode interface {
-	Node() *system.Node
+	Node() *node.Node
 }

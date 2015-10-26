@@ -1,4 +1,4 @@
-package system
+package node
 
 import "kego.io/json"
 

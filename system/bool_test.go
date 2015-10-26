@@ -11,9 +11,6 @@ import (
 func TestUnpackDefaultNativeTypeBool(t *testing.T) {
 	testUnpackDefaultNativeTypeBool(t, unmarshalFunc)
 	testUnpackDefaultNativeTypeBool(t, unpackFunc)
-
-	// needs types
-	//testUnpackDefaultNativeTypeBool(t, repackFunc)
 }
 func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 

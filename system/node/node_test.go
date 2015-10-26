@@ -1,11 +1,12 @@
-package system_test
+package node_test
 
 import (
 	"testing"
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
-	"kego.io/system"
+	_ "kego.io/system"
+	"kego.io/system/node"
 	_ "kego.io/system/types"
 )
 
@@ -22,7 +23,7 @@ func TestFoo(t *testing.T) {
 			}
 		}
 	}`
-	n := &system.Node{}
+	n := &node.Node{}
 	err := json.UnmarshalPlainContext([]byte(s), n, "kego.io/system", map[string]string{})
 	assert.NoError(t, err)
 }

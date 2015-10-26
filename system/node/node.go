@@ -1,15 +1,16 @@
-package system
+package node // import "kego.io/system/node"
 
 import (
 	"kego.io/json"
 	"kego.io/kerr"
+	"kego.io/system"
 )
 
 type Node struct {
 	Parent      *Node
-	Key         string    // in an object or a map, this is the key
-	Index       int       // in an array, this is the index
-	Origin      Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
+	Key         string           // in an object or a map, this is the key
+	Index       int              // in an array, this is the index
+	Origin      system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
 	ValueString string
 	ValueNumber float64
 	ValueBool   bool
@@ -19,13 +20,13 @@ type Node struct {
 	Array       []*Node
 	Map         map[string]*Node
 	Fields      map[string]*Node
-	Rule        *RuleWrapper
-	Type        *Type
+	Rule        *system.RuleWrapper
+	Type        *system.Type
 	JsonType    json.Type
 }
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
-	if err := n.extract(nil, "", -1, Reference{}, 0, in, true, nil, path, aliases); err != nil {
+	if err := n.extract(nil, "", -1, system.Reference{}, 0, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "extract")
 	}
 	return nil
@@ -33,7 +34,7 @@ func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, origin Reference, siblings int, in json.Unpackable, exists bool, rule *RuleWrapper, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, origin system.Reference, siblings int, in json.Unpackable, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
@@ -45,7 +46,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 	n.Index = index
 	n.Rule = rule
 	if n.Rule == nil {
-		n.Rule = WrapEmptyRule(objectType)
+		n.Rule = system.WrapEmptyRule(objectType)
 	}
 	n.Type = objectType
 	n.Missing = !exists
@@ -117,18 +118,18 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		if in.UpType() != json.J_ARRAY {
 			return kerr.New("CTJQUOKRTK", nil, "Type %s should be a []interface{}", in.UpType())
 		}
-		c, ok := n.Rule.Interface.(CollectionRule)
+		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
 			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
 		}
-		childRule, err := WrapRule(c.GetItemsRule())
+		childRule, err := system.WrapRule(c.GetItemsRule())
 		if err != nil {
 			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
 		children := in.UpArray()
 		for i, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, "", i, Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, "", i, system.Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -137,11 +138,11 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		if in.UpType() != json.J_MAP {
 			return kerr.New("IPWEPTWVYY", nil, "Type %s should be a map[string]interface{}", in.UpType())
 		}
-		c, ok := n.Rule.Interface.(CollectionRule)
+		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
 			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
 		}
-		childRule, err := WrapRule(c.GetItemsRule())
+		childRule, err := system.WrapRule(c.GetItemsRule())
 		if err != nil {
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
@@ -149,7 +150,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		children := in.UpMap()
 		for name, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, Reference{}, 0, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, system.Reference{}, 0, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -164,13 +165,13 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 		}
 		n.Fields = map[string]*Node{}
 
-		fields := map[string]*Field{}
+		fields := map[string]*system.Field{}
 		if err := extractFields(fields, n.Type); err != nil {
 			return kerr.New("LPWTOSATQE", err, "extractFields (%s)", n.Type.Id.Value())
 		}
 
 		for name, f := range fields {
-			rule, err := WrapRule(f.Rule)
+			rule, err := system.WrapRule(f.Rule)
 			if err != nil {
 				return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 			}
@@ -191,7 +192,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin Reference, si
 	return nil
 }
 
-func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map[string]string) (*Type, error) {
+func extractType(in json.Unpackable, rule *system.RuleWrapper, path string, aliases map[string]string) (*system.Type, error) {
 
 	if rule != nil && rule.Parent.Interface && rule.Struct.Interface {
 		return nil, kerr.New("TDXTPGVFAK", nil, "Can't have interface type and rule at the same time")
@@ -234,7 +235,7 @@ func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map
 	if !ok {
 		return nil, kerr.New("HBJVDKAKBJ", nil, "Input must have type field if rule is nil or an interface type")
 	}
-	var r Reference
+	var r system.Reference
 	if err := r.Unpack(typeField, path, aliases); err != nil {
 		return nil, kerr.New("YXHGIBXCOC", err, "Unpack (type)")
 	}
@@ -246,14 +247,14 @@ func extractType(in json.Unpackable, rule *RuleWrapper, path string, aliases map
 	return t, nil
 }
 
-func extractFields(fields map[string]*Field, t *Type) error {
+func extractFields(fields map[string]*system.Field, t *system.Type) error {
 
-	getType := func(r Reference) (*Type, error) {
-		g, ok := GetGlobal(r.Package, r.Name)
+	getType := func(r system.Reference) (*system.Type, error) {
+		g, ok := system.GetGlobal(r.Package, r.Name)
 		if !ok {
 			return nil, kerr.New("GJPKXQBKYH", nil, "Can't find global %s", r.Value())
 		}
-		t, ok := g.Object.(*Type)
+		t, ok := g.Object.(*system.Type)
 		if !ok {
 			return nil, kerr.New("BKYQWKFTIA", nil, "Global %T should *Type", g)
 		}
@@ -261,7 +262,7 @@ func extractFields(fields map[string]*Field, t *Type) error {
 	}
 	if !t.Basic && !t.Interface {
 		// All types apart from Basic types embed system:object
-		ob, err := getType(NewReference("kego.io/system", "object"))
+		ob, err := getType(system.NewReference("kego.io/system", "object"))
 		if err != nil {
 			return kerr.New("YRFWOTIGFT", err, "getType (system:object)")
 		}
@@ -282,7 +283,7 @@ func extractFields(fields map[string]*Field, t *Type) error {
 		if _, ok := fields[name]; ok {
 			return kerr.New("BARXPFXQNB", nil, "Duplicate field %s", name)
 		}
-		fields[name] = &Field{Name: name, Rule: rule, Origin: t.Id}
+		fields[name] = &system.Field{Name: name, Rule: rule, Origin: t.Id}
 	}
 	return nil
 }

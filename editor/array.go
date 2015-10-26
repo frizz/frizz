@@ -1,4 +1,4 @@
-package system
+package editor
 
 import (
 	"fmt"
@@ -6,28 +6,30 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
+	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type NodeArrayEditor struct {
-	*Node
-	*editorCommon
+	*node.Node
+	*Common
 }
 
 var _ Editor = (*NodeArrayEditor)(nil)
 
 func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
 
-	e.panel = panel
-	e.path = path
-	e.aliases = aliases
+	e.Panel = panel
+	e.Path = path
+	e.Aliases = aliases
 
 	table := mdl.Table()
 
-	items, err := WrapRule(e.Rule.Interface.(CollectionRule).GetItemsRule())
+	items, err := system.WrapRule(e.Rule.Interface.(system.CollectionRule).GetItemsRule())
 	if err != nil {
 		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
 	}
-	hold, err := items.HoldsDisplayType(e.path, e.aliases)
+	hold, err := items.HoldsDisplayType(e.Path, e.Aliases)
 	if err != nil {
 		return kerr.New("XDKOSFJVQV", err, "ValueContext")
 	}
@@ -44,7 +46,7 @@ func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 		if item.Null {
 			values.Cell("")
 		} else {
-			val, err := item.Type.Id.ValueContext(e.path, e.aliases)
+			val, err := item.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
@@ -52,14 +54,8 @@ func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 		}
 
 	}
-	e.panel.AppendChild(table.Build())
+	e.Panel.AppendChild(table.Build())
 
-	e.initialized = true
+	e.Initialized = true
 	return nil
-}
-
-func (e *NodeArrayEditor) Update() {
-	//if e.Exists {
-	//	e.node.ValueString = e.input.Value
-	//}
 }

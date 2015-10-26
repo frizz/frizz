@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"kego.io/json"
-	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type exprElement struct {
@@ -174,7 +174,7 @@ func (p *Parser) evaluateExpression(elements []*exprElement) exprElement {
 	return *elements[0]
 }
 
-func (p *Parser) parseExpression(tokens []*token, current *system.Node) exprElement {
+func (p *Parser) parseExpression(tokens []*token, current *node.Node) exprElement {
 	var finalTokens []*exprElement
 
 	logger.Print("Parsing expression ", getFormattedTokens(tokens))
