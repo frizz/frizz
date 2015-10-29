@@ -1,6 +1,13 @@
 package editor // import "kego.io/editor"
 
-import "honnef.co/go/js/dom"
+import (
+	"honnef.co/go/js/dom"
+	"kego.io/system/node"
+)
+
+type Editable interface {
+	GetEditor(n *node.Node) Editor
+}
 
 type Editor interface {
 	Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error

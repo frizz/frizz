@@ -10,7 +10,7 @@ title:
 images:
   james:
     type: images:icon
-    url: https://www.foo.com/james.png
+    url: http://cdn.makeuseof.com/wp-content/uploads/2014/04/free-stock-photography-644x250.jpg
   dave:
     type: images:photo
     path: /dave.jpg

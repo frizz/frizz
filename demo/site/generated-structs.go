@@ -61,6 +61,9 @@ type Gallery1Interface interface {
 }
 
 func (o *Gallery1) GetGallery1() *Gallery1 {
+	if o == nil {
+		return &Gallery1{}
+	}
 	return o
 }
 
@@ -74,6 +77,9 @@ type Gallery1aInterface interface {
 }
 
 func (o *Gallery1a) GetGallery1a() *Gallery1a {
+	if o == nil {
+		return &Gallery1a{}
+	}
 	return o
 }
 
@@ -88,6 +94,9 @@ type Gallery2Interface interface {
 }
 
 func (o *Gallery2) GetGallery2() *Gallery2 {
+	if o == nil {
+		return &Gallery2{}
+	}
 	return o
 }
 
@@ -102,6 +111,9 @@ type Gallery2aInterface interface {
 }
 
 func (o *Gallery2a) GetGallery2a() *Gallery2a {
+	if o == nil {
+		return &Gallery2a{}
+	}
 	return o
 }
 
@@ -116,6 +128,9 @@ type Gallery2bInterface interface {
 }
 
 func (o *Gallery2b) GetGallery2b() *Gallery2b {
+	if o == nil {
+		return &Gallery2b{}
+	}
 	return o
 }
 
@@ -130,6 +145,9 @@ type Gallery3Interface interface {
 }
 
 func (o *Gallery3) GetGallery3() *Gallery3 {
+	if o == nil {
+		return &Gallery3{}
+	}
 	return o
 }
 
@@ -144,6 +162,9 @@ type Gallery3aInterface interface {
 }
 
 func (o *Gallery3a) GetGallery3a() *Gallery3a {
+	if o == nil {
+		return &Gallery3a{}
+	}
 	return o
 }
 func init() {

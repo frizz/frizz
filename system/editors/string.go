@@ -9,9 +9,12 @@ import (
 )
 
 func init() {
-	editor.Register(system.NewReference("kego.io/system", "string"), editor.Factory(func(n *node.Node) editor.Editor {
-		return &StringEditor{String: n.Value.(system.String), node: n, Common: &editor.Common{}}
-	}))
+	// Will leave this disabled for now... I think it's not really
+	// needed. "Exists" checkbox shouldn't be in the editor UI.
+
+	//editor.Register(system.NewReference("kego.io/system", "string"), editor.Factory(func(n *node.Node) editor.Editor {
+	//return &StringEditor{String: n.Value.(system.String), node: n, Common: &editor.Common{}}
+	//}))
 }
 
 var _ editor.Editor = (*StringEditor)(nil)
