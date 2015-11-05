@@ -9,11 +9,11 @@ type Item interface {
 	Initialise(*dom.HTMLDivElement)
 }
 
-type AsyncItem interface {
+type Async interface {
 	LoadContent() chan bool
 	ContentLoaded() bool
 }
 
-type HasNode interface {
+type Noder interface {
 	Node() *node.Node
 }

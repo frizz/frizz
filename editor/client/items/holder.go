@@ -5,6 +5,7 @@ import (
 	"kego.io/editor/client/tree"
 )
 
+// Holders (e.g. 'data' and 'types') hold groups of source nodes
 type holder struct {
 	*item
 	pkg   *pkg

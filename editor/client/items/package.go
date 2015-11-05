@@ -6,6 +6,8 @@ import (
 	"kego.io/system/node"
 )
 
+// Pkg is the top-level item. It holds the entry items for th package object, and
+// the "data" and "types" holder items.
 type pkg struct {
 	*item
 	node  *node.Node
@@ -15,7 +17,7 @@ type pkg struct {
 }
 
 var _ tree.Item = (*pkg)(nil)
-var _ tree.HasNode = (*pkg)(nil)
+var _ tree.Noder = (*pkg)(nil)
 
 func (p *pkg) Node() *node.Node {
 	return p.node

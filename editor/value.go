@@ -25,6 +25,7 @@ func (e *NodeValueEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 	switch e.JsonType {
 	case json.J_STRING:
 		tb := mdl.NewTextbox(e.ValueString, e.Node.Key)
+		tb.Style().Set("width", "100%")
 		e.Panel.AppendChild(tb)
 		tb.Input.AddEventListener("change", true, func(ev dom.Event) {
 			e.Missing = false

@@ -58,9 +58,9 @@ func TestTree2(t *testing.T) {
 	test(t, "1a2b3c4d1e", tree)
 	a.Close()
 	test(t, "1a1e", tree)
-	a.Toggle()
+	a.toggle()
 	test(t, "1a2b3c4d1e", tree)
-	a.Toggle()
+	a.toggle()
 	test(t, "1a1e", tree)
 }
 

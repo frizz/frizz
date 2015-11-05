@@ -22,8 +22,8 @@ type source struct {
 }
 
 var _ tree.Item = (*source)(nil)
-var _ tree.AsyncItem = (*source)(nil)
-var _ tree.HasNode = (*source)(nil)
+var _ tree.Async = (*source)(nil)
+var _ tree.Noder = (*source)(nil)
 
 func (s *source) Node() *node.Node {
 	return s.node

@@ -45,7 +45,7 @@ func (b *Branch) Append(child *Branch) *Branch {
 		opener.SetAttribute("class", "toggle")
 		opener.AddEventListener("click", true, func(e dom.Event) {
 			if child.canOpen() {
-				child.Toggle()
+				child.toggle()
 			} else {
 				child.Select(false)
 			}
@@ -139,7 +139,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 		}
 
 		if b.editor == nil {
-			hn, ok := b.item.(HasNode)
+			hn, ok := b.item.(Noder)
 			if !ok {
 				return
 			}
@@ -205,15 +205,18 @@ func (b *Branch) Each(f func(*Branch) error) error {
 	return nil
 }
 
+// ensureContentLoaded ensures the content is loaded. For asynchronous branches, it initializes the
+// load event and returns a done chanel. For synchronous branches (or asynchronous branches that are
+// already loaded), it returns nil so that the calling code can react synchronously.
 func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 
-	done = make(chan bool, 1)
+	if async, ok := b.item.(Async); ok && !async.ContentLoaded() {
 
-	if async, ok := b.item.(AsyncItem); ok && !async.ContentLoaded() {
+		done = make(chan bool, 1)
 
 		if b.loading {
-			// if we're already in the process of loading the contents, we should
-			// cancel the operation
+			// if we're already in the process of loading the contents, we should cancel the
+			// operation
 			return nil, false
 		}
 
@@ -230,12 +233,12 @@ func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 		return done, true
 
 	} else {
-		// if item is not async or content is already loaded, just
-		// open the node.
+		// if item is not async or content is already loaded, just open the node.
 		return nil, true
 	}
 }
 
+// Open opens the branch. For asynchronously loaded branches it initialises the load.
 func (b *Branch) Open() {
 
 	if b.root {
@@ -258,7 +261,8 @@ func (b *Branch) Open() {
 	}
 
 	if done == nil {
-		// if the done chanel is nil, the operation was synchronous, so we should call success synchronously
+		// if the done chanel is nil, the operation was synchronous, so we should call success
+		// synchronously
 		success()
 	} else {
 		go func() {
@@ -270,6 +274,7 @@ func (b *Branch) Open() {
 	return
 }
 
+// Close closes a branch and hides the children
 func (b *Branch) Close() {
 	if b.root {
 		return
@@ -283,7 +288,8 @@ func (b *Branch) Close() {
 	return
 }
 
-func (b *Branch) Toggle() {
+// toggle inverts the open/closed state of a branch
+func (b *Branch) toggle() {
 	if b.open {
 		b.Close()
 	} else {
@@ -291,21 +297,21 @@ func (b *Branch) Toggle() {
 	}
 }
 
+// afterStateChange is fired every time a branch is opened or closed.
 func (b *Branch) afterStateChange() {
 	b.update()
 	if next := b.nextVisible(); next != nil {
-		// we must also update the next in the list to ensure it's prev
-		// property is set correctly
+		// we must also update the next in the list to ensure it's prev property is set correctly
 		next.update()
 	}
-	if b.Tree.selected != nil && !b.Tree.selected.IsVisible() {
+	if b.Tree.selected != nil && !b.Tree.selected.isVisible() {
 		// if the selected branch is now invisible, we should un-select it.
 		b.Tree.selected.Unselect()
 	}
 }
 
-// update assumes parent and index are sources of truth, and updates
-// siblings, prev and next, and updates the children
+// update assumes parent and index are sources of truth, and updates siblings, prev and next, and
+// updates the children
 func (b *Branch) update() {
 	if b.parent == nil {
 		// special case for the root node
@@ -316,22 +322,19 @@ func (b *Branch) update() {
 		b.level = b.parent.level + 1
 	}
 	if b.index == 0 {
-		// at the start of a list of children, the previous in list
-		// order is always the parent
+		// at the start of a list of children, the previous in list order is always the parent
 		b.prev = b.parent
 	} else {
-		// in the middle of a list of children, the previous in list
-		// order is the lastVisible of the previous sibling.
+		// in the middle of a list of children, the previous in list order is the lastVisible of the
+		// previous sibling.
 		b.prev = b.parent.children[b.index-1].lastVisible()
 	}
 	if b.open && len(b.children) > 0 {
-		// if the node is open, the next in list order will be the
-		// first child
+		// if the node is open, the next in list order will be the first child
 		b.next = b.children[0]
 	} else {
-		// if it's closed, we use the nextVisible method to get the
-		// next sibling, or if we're the last sibling, the next sibling
-		// of the first ancestor that has one.
+		// if it's closed, we use the nextVisible method to get the next sibling, or if we're the
+		// last sibling, the next sibling of the first ancestor that has one.
 		b.next = b.nextVisible()
 	}
 	if b.open && len(b.children) > 0 {
@@ -359,14 +362,19 @@ func (b *Branch) update() {
 	}
 }
 
+// isAsyncAndNotLoaded is true if the branch loads it's contents asynchronously, and the contents
+// are not yet loaded
 func (b *Branch) isAsyncAndNotLoaded() bool {
-	async, isAsync := b.item.(AsyncItem)
+	async, isAsync := b.item.(Async)
 	if isAsync && !async.ContentLoaded() {
 		return true
 	}
 	return false
 }
 
+// canOpen gives us an indication of whether the branch can be opened. We use this to work out if we
+// should display the plus icon, or the empty icon. If a branch is async but the children aren't
+// loaded, we don't know if it has children or not. In that case we assume it can be opened.
 func (b *Branch) canOpen() bool {
 	if b.isAsyncAndNotLoaded() {
 		return true
@@ -388,17 +396,14 @@ func (b *Branch) lastVisible() *Branch {
 	return i
 }
 
-// nextVisible returns the next sibling. If we're the last sibling,
-// we find the nearest ancestor that has a next sibling, or nil if
-// we're at the end of the tree.
+// nextVisible returns the next sibling. If we're the last sibling, we find the nearest ancestor
+// that has a next sibling, or nil if we're at the end of the tree.
 func (b *Branch) nextVisible() *Branch {
 	i := b
 	for i.index >= len(i.siblings)-1 {
-		// if the node is the last of the siblings,
-		// test it's parent
+		// if the node is the last of the siblings, test it's parent
 		if i.root {
-			// if we get to the root node, we're testing the last visible
-			// node, so we return nil
+			// if we get to the root node, we're testing the last visible node, so we return nil
 			return nil
 		}
 		i = i.parent
@@ -407,7 +412,8 @@ func (b *Branch) nextVisible() *Branch {
 	return i.siblings[i.index+1]
 }
 
-func (b *Branch) IsDescendantOf(ancestor *Branch) bool {
+// isDescendantOf tells us if this branch is a direct descendant of the specified branch
+func (b *Branch) isDescendantOf(ancestor *Branch) bool {
 	test := b.parent
 	for test != nil {
 		if test == ancestor {
@@ -418,7 +424,8 @@ func (b *Branch) IsDescendantOf(ancestor *Branch) bool {
 	return false
 }
 
-func (b *Branch) IsAncestorOf(child *Branch) bool {
+// isAncestorOf tells us if this branch is a direct ancestor of the specified branch
+func (b *Branch) isAncestorOf(child *Branch) bool {
 	test := child.parent
 	for test != nil {
 		if test == b {
@@ -429,7 +436,9 @@ func (b *Branch) IsAncestorOf(child *Branch) bool {
 	return false
 }
 
-func (b *Branch) IsVisible() bool {
+// isVisible tells us if the branch is currently visible. For a branch to be visible, all it's
+// ancestors must be open.
+func (b *Branch) isVisible() bool {
 	test := b.parent
 	for test != nil {
 		if !test.open {

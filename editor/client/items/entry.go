@@ -9,6 +9,7 @@ import (
 	"kego.io/system/node"
 )
 
+// Entry items are nodes. Each branch inside a source branch are entry.
 type entry struct {
 	*item
 	name  string
@@ -18,7 +19,7 @@ type entry struct {
 }
 
 var _ tree.Item = (*entry)(nil)
-var _ tree.HasNode = (*entry)(nil)
+var _ tree.Noder = (*entry)(nil)
 
 func (e *entry) Node() *node.Node {
 	return e.node
