@@ -8,9 +8,9 @@ import (
 
 type Node struct {
 	Parent      *Node
-	Key         string           // in an object or a map, this is the key
-	Index       int              // in an array, this is the index
-	Origin      system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
+	Key         string            // in an object or a map, this is the key
+	Index       int               // in an array, this is the index
+	Origin      *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
 	ValueString string
 	ValueNumber float64
 	ValueBool   bool
@@ -26,7 +26,7 @@ type Node struct {
 }
 
 func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
-	if err := n.extract(nil, "", -1, system.Reference{}, 0, in, true, nil, path, aliases); err != nil {
+	if err := n.extract(nil, "", -1, &system.Reference{}, 0, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "extract")
 	}
 	return nil
@@ -34,7 +34,7 @@ func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, origin system.Reference, siblings int, in json.Unpackable, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Unpackable, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
@@ -84,7 +84,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin system.Refere
 		}
 	}
 
-	if n.Null && objectType.Native.Value != "object" {
+	if n.Null && objectType.Native.Value() != "object" {
 		// For null input, we should skip processing the value or children, unless
 		// the native type is object. For object types we should still process the
 		// child fields because information from the parent type is added.
@@ -98,7 +98,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin system.Refere
 		return nil
 	}
 
-	switch objectType.Native.Value {
+	switch objectType.Native.Value() {
 	case "string":
 		if in.UpType() != json.J_STRING {
 			return kerr.New("RKKSUYTCIA", nil, "Type %s should be a string", in.UpType())
@@ -129,7 +129,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin system.Refere
 		children := in.UpArray()
 		for i, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, "", i, system.Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, "", i, &system.Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -150,7 +150,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin system.Refere
 		children := in.UpMap()
 		for name, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, system.Reference{}, 0, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(n, name, -1, &system.Reference{}, 0, child, true, childRule, path, aliases); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -249,7 +249,7 @@ func extractType(in json.Unpackable, rule *system.RuleWrapper, path string, alia
 
 func extractFields(fields map[string]*system.Field, t *system.Type) error {
 
-	getType := func(r system.Reference) (*system.Type, error) {
+	getType := func(r *system.Reference) (*system.Type, error) {
 		g, ok := system.GetGlobal(r.Package, r.Name)
 		if !ok {
 			return nil, kerr.New("GJPKXQBKYH", nil, "Can't find global %s", r.Value())

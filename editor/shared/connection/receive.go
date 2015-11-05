@@ -42,18 +42,18 @@ func (c *Conn) Receive() error {
 		}
 
 		requestGuid := m.GetMessage().Request
-		if requestGuid.Exists {
-			reply, ok := c.requests[requestGuid.Value]
+		if requestGuid != nil {
+			reply, ok := c.requests[requestGuid.Value()]
 			if !ok {
 				return kerr.New("SRXAVLUFGW", nil, "Response received, but request %s not found", requestGuid)
 			}
 			reply <- m
-			delete(c.requests, requestGuid.Value)
+			delete(c.requests, requestGuid.Value())
 			continue
 		}
 
 		t := m.(system.ObjectInterface).GetObject().Type
-		subscriber, ok := c.subs[t]
+		subscriber, ok := c.subs[*t]
 		if !ok {
 			return kerr.New("USAYKUNHSC", nil, "Subscriber not found for %s", t.Value())
 		}

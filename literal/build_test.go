@@ -42,6 +42,45 @@ func TestBuild(t *testing.T) {
 
 }
 
+func TestBuildPlain(t *testing.T) {
+
+	type in int
+	type st string
+	type bo bool
+	type fl float64
+	type a struct {
+		Ain in
+		Ast st
+		Abo bo
+		Afl fl
+		Bin *in
+		Bst *st
+		Bbo *bo
+		Bfl *fl
+	}
+	vin := in(2)
+	vst := st("c")
+	vbo := bo(true)
+	vfl := fl(2.0)
+	foo := &a{vin, vst, vbo, vfl, &vin, &vst, &vbo, &vfl}
+
+	p := []Pointer{}
+	i := generator.Imports{}
+	n := Build(foo, &p, "", i.Add)
+
+	//for i, po := range p {
+	//	fmt.Println(i, po.Source)
+	//}
+
+	assert.Equal(t, "ptr4", n.Name)
+	assert.Equal(t, `literal.in(2)`, p[0].Source)
+	assert.Equal(t, `literal.st("c")`, p[1].Source)
+	assert.Equal(t, `literal.bo(true)`, p[2].Source)
+	assert.Equal(t, `literal.fl(2)`, p[3].Source)
+	assert.Equal(t, `&literal.a{Ain:literal.in(2), Ast:literal.st("c"), Abo:literal.bo(true), Afl:literal.fl(2), Bin:&ptr0, Bst:&ptr1, Bbo:&ptr2, Bfl:&ptr3}`, p[4].Source)
+
+}
+
 func TestOrder(t *testing.T) {
 	foo := &map[string]string{
 		"e": "f",

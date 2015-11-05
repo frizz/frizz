@@ -55,7 +55,7 @@ func ScanForGlobals(set *settings.Settings) error {
 			return nil
 		}
 		b := o.GetObject()
-		if !b.Id.Exists {
+		if b.Id == nil {
 			// Anything without an ID is not a global
 			return nil
 		}
@@ -86,11 +86,11 @@ func ScanForSource(set *settings.Settings) error {
 			return nil
 		}
 		b := o.GetObject()
-		if !b.Id.Exists {
+		if b.Id == nil {
 			// Anything without an ID is not a global
 			return nil
 		}
-		if err := system.RegisterSource(b.Id, b.Type, source, hash); err != nil {
+		if err := system.RegisterSource(*b.Id, *b.Type, source, hash); err != nil {
 			return kerr.New("DFDDLHNYUW", err, "system.RegisterSource")
 		}
 		return nil
@@ -108,7 +108,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
 
 			if t.Rule != nil {
 
-				if t.Rule.Id.Exists {
+				if t.Rule.Id != nil {
 					return kerr.New("LOTEAIWAAW", nil, "Rule types should not have id specified")
 				}
 
@@ -128,7 +128,7 @@ func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
 						Type:        system.NewReference("kego.io/system", "type"),
 						Id:          ref,
 					},
-					Embed:     []system.Reference{system.NewReference("kego.io/system", "rule")},
+					Embed:     []*system.Reference{system.NewReference("kego.io/system", "rule")},
 					Native:    system.NewString("object"),
 					Interface: false,
 				}

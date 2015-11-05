@@ -146,7 +146,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 			n := hn.Node()
 			if e, ok := n.Value.(editor.Editable); ok {
 				b.editor = e.GetEditor(n)
-			} else if factory := editor.Get(n.Type.Id); factory != nil {
+			} else if factory := editor.Get(*n.Type.Id); factory != nil {
 				b.editor = factory(n)
 			} else {
 				b.editor = editor.Default(n)

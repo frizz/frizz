@@ -51,14 +51,11 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		return typ, nil
 	}
 
-	switch r.Parent.Native.Value {
+	switch r.Parent.Native.Value() {
 	case "object", "number", "bool", "string":
 		typ, _, ok := json.GetType(r.Parent.Id.Package, r.Parent.Id.Name)
 		if !ok {
 			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.Parent.Id.Value())
-		}
-		if r.Parent.Native.Value != "object" && typ.Kind() == reflect.Ptr {
-			return typ.Elem(), nil
 		}
 		return typ, nil
 	case "array", "map":
@@ -75,12 +72,12 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		if err != nil {
 			return nil, kerr.New("LMKEHHWHKL", err, "GetReflectType")
 		}
-		if r.Parent.Native.Value == "map" {
+		if r.Parent.Native.Value() == "map" {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil
 	default:
-		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.Parent.Native.Value)
+		return nil, kerr.New("VDEORSSUWA", nil, "Unknown native %s", r.Parent.Native.Value())
 	}
 }
 

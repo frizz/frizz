@@ -70,7 +70,7 @@ func TestRequestResponseChannel(t *testing.T) {
 		// sendRequestAndWaitForResponse is the first part of the Request method,
 		// which sends a request and stores the response channel in the requests
 		// map. We should check the response channel exists in the requests map.
-		r, ok := c.requests[m.GetMessage().Guid.Value]
+		r, ok := c.requests[m.GetMessage().Guid.Value()]
 		assert.True(t, ok)
 		assert.Equal(t, r, responseChannel)
 

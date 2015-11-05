@@ -32,7 +32,7 @@ func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
 }
 
 func (t *Type) NativeJsonType() json.Type {
-	switch t.Native.Value {
+	switch t.Native.Value() {
 	case "number":
 		return json.J_NUMBER
 	case "string":
@@ -63,23 +63,26 @@ func nativeGoType(jsonNativeType string) (string, error) {
 	}
 }
 
+func (t *Type) IsJsonValue() bool {
+	return t.Id.Package == "kego.io/json"
+}
 func (t *Type) IsNativeValue() bool {
-	return nativeTypeClass(t.Native.Value) == nativeValue
+	return nativeTypeClass(t.Native.Value()) == nativeValue
 }
 func (t *Type) IsNativeCollection() bool {
-	return nativeTypeClass(t.Native.Value) == nativeCollection
+	return nativeTypeClass(t.Native.Value()) == nativeCollection
 }
 func (t *Type) IsNativeMap() bool {
-	return t.Native.Value == "map"
+	return t.Native.Value() == "map"
 }
 func (t *Type) IsNativeArray() bool {
-	return t.Native.Value == "array"
+	return t.Native.Value() == "array"
 }
 func (t *Type) IsNativeObject() bool {
-	return nativeTypeClass(t.Native.Value) == nativeObject
+	return nativeTypeClass(t.Native.Value()) == nativeObject
 }
 func (t *Type) NativeValueGolangType() (string, error) {
-	return nativeGoType(t.Native.Value)
+	return nativeGoType(t.Native.Value())
 }
 
 func (t *Type) GoName() string {
@@ -102,7 +105,7 @@ func (t *Type) SortedFields() []Field {
 type Field struct {
 	Name   string
 	Rule   RuleInterface
-	Origin Reference
+	Origin *Reference
 }
 type SortableFields []Field
 

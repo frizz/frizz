@@ -17,7 +17,10 @@ func TestGenerateCommand_errors(t *testing.T) {
 	assert.HasError(t, err, "CRBYOUOHPG")
 
 	ty := &system.Type{
-		Object: &system.Object{Id: system.NewReference("b.c/d", "a corrupt"), Type: system.NewReference("kego.io/system", "type")},
+		Object: &system.Object{
+			Id:   system.NewReference("b.c/d", "a corrupt"),
+			Type: system.NewReference("kego.io/system", "type")},
+		Native: system.NewString("object"),
 	}
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
@@ -39,21 +42,28 @@ func getImports(t *testing.T, source string) string {
 func TestGenerateSource(t *testing.T) {
 
 	ty := &system.Type{
-		Object: &system.Object{Id: system.NewReference("b.c/d", "a"), Type: system.NewReference("kego.io/system", "type")},
+		Object: &system.Object{
+			Id:   system.NewReference("b.c/d", "a"),
+			Type: system.NewReference("kego.io/system", "type")},
 		Native: system.NewString("object"),
 	}
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
 
 	tyn := &system.Type{
-		Object: &system.Object{Id: system.NewReference("b.c/d", "an"), Type: system.NewReference("kego.io/system", "type")},
+		Object: &system.Object{
+			Id:   system.NewReference("b.c/d", "an"),
+			Type: system.NewReference("kego.io/system", "type")},
 		Native: system.NewString("bool"),
 	}
 	system.Register("b.c/d", "an", tyn, 0)
 	defer system.Unregister("b.c/d", "an")
 
 	tyi := &system.Type{
-		Object:    &system.Object{Id: system.NewReference("b.c/d", "ai"), Type: system.NewReference("kego.io/system", "type")},
+		Object: &system.Object{
+			Id:   system.NewReference("b.c/d", "ai"),
+			Type: system.NewReference("kego.io/system", "type")},
+		Native:    system.NewString("object"),
 		Interface: true,
 	}
 	system.Register("b.c/d", "ai", tyi, 0)
@@ -68,11 +78,11 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "\t\"reflect\"\n")
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Object\n}\n")
-	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf(&A{}), reflect.TypeOf((*AInterface)(nil)).Elem(), 0)\n")
+	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem(), 0)\n")
 
 	source, err = Structs(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
-	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"an\", reflect.TypeOf(An{}), reflect.TypeOf((*AnInterface)(nil)).Elem(), 0)\n")
+	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"an\", reflect.TypeOf((*An)(nil)), reflect.TypeOf((*AnInterface)(nil)).Elem(), 0)\n")
 
 	source, err = Structs(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)
@@ -87,7 +97,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "\t_ \"kego.io/system/types\"\n")
 	assert.NotContains(t, imp, "\"b.c/d\"")
 	assert.NotContains(t, imp, "\"f.g/h\"")
-	assert.Contains(t, string(source), "system.Register(\"b.c/d\", \"a\", ptr1, 0x0)")
+	assert.Contains(t, string(source), "system.Register(\"b.c/d\", \"a\", ptr4, 0x0)")
 
 	source, err = TypesCommand(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
 	assert.NoError(t, err)

@@ -69,7 +69,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 	}
 
 	n := &node.Node{}
-	if err := ke.UnmarshalNode([]byte(gr.Data.Value), n, s.tree.Path, s.tree.Aliases); err != nil {
+	if err := ke.UnmarshalNode([]byte(gr.Data.Value()), n, s.tree.Path, s.tree.Aliases); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 

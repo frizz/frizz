@@ -302,10 +302,6 @@ func (e *encodeState) error(err error) {
 
 func isEmptyValue(v reflect.Value) bool {
 
-	if e, ok := v.Interface().(EmptyAware); ok {
-		return e.Empty()
-	}
-
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len() == 0
@@ -321,10 +317,6 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.IsNil()
 	}
 	return false
-}
-
-type EmptyAware interface {
-	Empty() bool
 }
 
 func (e *encodeState) reflectValue(v reflect.Value) {

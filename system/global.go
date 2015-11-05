@@ -23,7 +23,7 @@ func Register(path string, name string, ob ObjectInterface, hash uint64) error {
 	if registry.m == nil {
 		registry.m = make(map[Reference]Hashed)
 	}
-	r := NewReference(path, name)
+	r := *NewReference(path, name)
 	if h, found := registry.m[r]; found && h.Hash != hash {
 		return kerr.New("ANBTDVMCYE", nil, "Global %s already exists", r.String())
 	}
@@ -37,13 +37,13 @@ func Unregister(path string, name string) {
 	if registry.m == nil {
 		return
 	}
-	delete(registry.m, NewReference(path, name))
+	delete(registry.m, *NewReference(path, name))
 }
 
 func GetGlobal(path string, name string) (hashed Hashed, found bool) {
 	registry.RLock()
 	defer registry.RUnlock()
-	hashed, found = registry.m[NewReference(path, name)]
+	hashed, found = registry.m[*NewReference(path, name)]
 	return
 }
 
@@ -57,7 +57,7 @@ func GetAllGlobalsInPackage(path string, filter *Reference) []Hashed {
 		if ref.Package != path {
 			continue
 		}
-		if filter != nil && h.Object.GetObject().Type != *filter {
+		if filter != nil && *h.Object.GetObject().Type != *filter {
 			continue
 		}
 		out = append(out, h)

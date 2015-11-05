@@ -261,7 +261,7 @@ func TestImport(t *testing.T) {
 				"kego.io/kerr/assert"
 			)
 			func TestMain(t *testing.T) {
-				assert.Equal(t, "Heading", Site.Title.Text.Value)
+				assert.Equal(t, "Heading", Site.Title.Text.Value())
 			}`,
 	})
 	assert.NoError(t, err)

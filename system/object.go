@@ -14,7 +14,7 @@ func RulesApplyToObjects(object interface{}) bool {
 }
 
 func (b *Object) InitializeType(path string, name string) error {
-	if b.Type.Exists {
+	if b.Type != nil {
 		// We should return an error if we're trying to set the type to a different type
 		if path != b.Type.Package || name != b.Type.Name {
 			return json.InitializableTypeError{

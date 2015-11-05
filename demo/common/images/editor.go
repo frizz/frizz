@@ -29,8 +29,8 @@ func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases 
 	e.Path = path
 	e.Aliases = aliases
 
-	e.image = mdl.NewImage(e.Url.Value)
-	e.textbox = mdl.NewTextbox(e.Url.Value, "url")
+	e.image = mdl.NewImage(e.Url.Value())
+	e.textbox = mdl.NewTextbox(e.Url.Value(), "url")
 
 	e.Panel.AppendChild(e.image)
 	e.Panel.AppendChild(e.textbox)
@@ -47,13 +47,11 @@ func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases 
 
 func (e *IconEditor) Update() {
 	if e.textbox.Input.Value != "" {
-		e.Url.Exists = true
-		e.Url.Value = e.textbox.Input.Value
-		e.image.Src = e.Url.Value
+		e.Url.Set(e.textbox.Input.Value)
+		e.image.Src = e.Url.Value()
 		e.image.Style().Set("display", "block")
 	} else {
-		e.Url.Exists = false
-		e.Url.Value = ""
+		e.Url.Set("")
 		e.image.Src = ""
 		e.image.Style().Set("display", "none")
 	}

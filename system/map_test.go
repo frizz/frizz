@@ -22,8 +22,8 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 
 	type A struct {
 		*Object
-		E String            `json:"e"`
-		B map[string]String `json:"b"`
+		E *String            `json:"e"`
+		B map[string]*String `json:"b"`
 	}
 
 	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
@@ -37,7 +37,7 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, "d", a.B["c"].Value)
+	assert.Equal(t, "d", a.B["c"].Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)

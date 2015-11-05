@@ -85,9 +85,11 @@ func TestRuleWrapperItemsRule(t *testing.T) {
 	}
 	parentType := &Type{
 		Object: &Object{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Native: NewString("object"),
 	}
 	ruleType := &Type{
 		Object: &Object{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Native: NewString("object"),
 	}
 	json.Register("a.b/c", "a", reflect.TypeOf(&parentStruct{}), nil, 0)
 	json.Register("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), nil, 0)
@@ -98,7 +100,10 @@ func TestRuleWrapperItemsRule(t *testing.T) {
 	defer Unregister("a.b/c", "a")
 	defer Unregister("a.b/c", "@a")
 
-	w, err := WrapRule(&ruleStruct{Object: &Object{Type: NewReference("a.b/c", "a")}})
+	w, err := WrapRule(&ruleStruct{
+		Object: &Object{Type: NewReference("a.b/c", "a")},
+		Rule:   &Rule{},
+	})
 	assert.NoError(t, err)
 	_, err = w.ItemsRule()
 	assert.IsError(t, err, "VPAGXSTQHM")

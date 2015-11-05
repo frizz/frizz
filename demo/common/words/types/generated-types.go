@@ -6,34 +6,62 @@ import (
 )
 
 func init() {
-	ptr0 := &system.Object{Description: "Automatically created basic rule for localizer", Id: system.Reference{Package: "kego.io/demo/common/words", Name: "@localizer", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr1 := &system.Type{Object: ptr0, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Fields: map[string]system.RuleInterface(nil), Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr2 := &system.Object{Description: "Automatically created basic rule for simple", Id: system.Reference{Package: "kego.io/demo/common/words", Name: "@simple", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr3 := &system.Type{Object: ptr2, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Fields: map[string]system.RuleInterface(nil), Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr4 := &system.Object{Description: "Automatically created basic rule for translation", Id: system.Reference{Package: "kego.io/demo/common/words", Name: "@translation", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr5 := &system.Type{Object: ptr4, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Fields: map[string]system.RuleInterface(nil), Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr6 := &system.Object{Id: system.Reference{Package: "kego.io/demo/common/words", Name: "localizer", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr7 := &system.Type{Object: ptr6, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Interface: true, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr8 := &system.Object{Id: system.Reference{Package: "kego.io/demo/common/words", Name: "simple", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr9 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr10 := &system.Rule{}
-	ptr11 := &system.StringRule{Object: ptr9, Rule: ptr10, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr12 := &system.Type{Object: ptr8, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"string": ptr11}, Is: []system.Reference{system.Reference{Package: "kego.io/demo/common/words", Name: "localizer", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr13 := &system.Object{Description: "This represents a translated string", Id: system.Reference{Package: "kego.io/demo/common/words", Name: "translation", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr14 := &system.Object{Description: "The original English string", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr15 := &system.Rule{Optional: true}
-	ptr16 := &system.StringRule{Object: ptr14, Rule: ptr15, Default: system.String{Value: "http", Exists: true}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr17 := &system.Object{Description: "The translated strings", Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@map", Exists: true}}
-	ptr18 := &system.Rule{}
-	ptr19 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@string", Exists: true}}
-	ptr20 := &system.Rule{}
-	ptr21 := &system.StringRule{Object: ptr19, Rule: ptr20, Default: system.String{}, Enum: []string(nil), Equal: system.String{}, Format: system.String{}, MaxLength: system.Int{Value: 0}, MinLength: system.Int{Value: 0}, Pattern: system.String{}}
-	ptr22 := &system.MapRule{Object: ptr17, Rule: ptr18, Items: ptr21, MaxItems: system.Int{Value: 0}, MinItems: system.Int{Value: 0}}
-	ptr23 := &system.Type{Object: ptr13, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"english": ptr16, "translations": ptr22}, Is: []system.Reference{system.Reference{Package: "kego.io/demo/common/words", Name: "localizer", Exists: true}}, Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	system.Register("kego.io/demo/common/words", "@localizer", ptr1, 0x72d207b91bb0393)
-	system.Register("kego.io/demo/common/words", "@simple", ptr3, 0xb367436bb1ddac59)
-	system.Register("kego.io/demo/common/words", "@translation", ptr5, 0x20d3acc377a84c88)
-	system.Register("kego.io/demo/common/words", "localizer", ptr7, 0x72d207b91bb0393)
-	system.Register("kego.io/demo/common/words", "simple", ptr12, 0xb367436bb1ddac59)
-	system.Register("kego.io/demo/common/words", "translation", ptr23, 0x20d3acc377a84c88)
+	ptr0 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@localizer"}
+	ptr1 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr2 := &system.Object{Description: "Automatically created basic rule for localizer", Id: ptr0, Rules: []system.RuleInterface(nil), Type: ptr1}
+	ptr3 := &system.Reference{Package: "kego.io/system", Name: "rule"}
+	ptr4 := system.String("object")
+	ptr5 := &system.Type{Object: ptr2, Embed: []*system.Reference{ptr3}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr4, Rule: (*system.Type)(nil)}
+	ptr6 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@simple"}
+	ptr7 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr8 := &system.Object{Description: "Automatically created basic rule for simple", Id: ptr6, Rules: []system.RuleInterface(nil), Type: ptr7}
+	ptr9 := &system.Reference{Package: "kego.io/system", Name: "rule"}
+	ptr10 := system.String("object")
+	ptr11 := &system.Type{Object: ptr8, Embed: []*system.Reference{ptr9}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr10, Rule: (*system.Type)(nil)}
+	ptr12 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@translation"}
+	ptr13 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr14 := &system.Object{Description: "Automatically created basic rule for translation", Id: ptr12, Rules: []system.RuleInterface(nil), Type: ptr13}
+	ptr15 := &system.Reference{Package: "kego.io/system", Name: "rule"}
+	ptr16 := system.String("object")
+	ptr17 := &system.Type{Object: ptr14, Embed: []*system.Reference{ptr15}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr16, Rule: (*system.Type)(nil)}
+	ptr18 := &system.Reference{Package: "kego.io/demo/common/words", Name: "localizer"}
+	ptr19 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr20 := &system.Object{Id: ptr18, Rules: []system.RuleInterface(nil), Type: ptr19}
+	ptr21 := system.String("object")
+	ptr22 := &system.Type{Object: ptr20, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Interface: true, Is: []*system.Reference(nil), Native: &ptr21, Rule: (*system.Type)(nil)}
+	ptr23 := &system.Reference{Package: "kego.io/demo/common/words", Name: "simple"}
+	ptr24 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr25 := &system.Object{Id: ptr23, Rules: []system.RuleInterface(nil), Type: ptr24}
+	ptr26 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr27 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr26}
+	ptr28 := &system.Rule{}
+	ptr29 := &system.StringRule{Object: ptr27, Rule: ptr28, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr30 := &system.Reference{Package: "kego.io/demo/common/words", Name: "localizer"}
+	ptr31 := system.String("object")
+	ptr32 := &system.Type{Object: ptr25, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"string": ptr29}, Is: []*system.Reference{ptr30}, Native: &ptr31, Rule: (*system.Type)(nil)}
+	ptr33 := &system.Reference{Package: "kego.io/demo/common/words", Name: "translation"}
+	ptr34 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr35 := &system.Object{Description: "This represents a translated string", Id: ptr33, Rules: []system.RuleInterface(nil), Type: ptr34}
+	ptr36 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr37 := &system.Object{Description: "The original English string", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr36}
+	ptr38 := &system.Rule{Optional: true}
+	ptr39 := system.String("http")
+	ptr40 := &system.StringRule{Object: ptr37, Rule: ptr38, Default: &ptr39, Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr41 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr42 := &system.Object{Description: "The translated strings", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr41}
+	ptr43 := &system.Rule{}
+	ptr44 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr45 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr44}
+	ptr46 := &system.Rule{}
+	ptr47 := &system.StringRule{Object: ptr45, Rule: ptr46, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr48 := &system.MapRule{Object: ptr42, Rule: ptr43, Items: ptr47, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr49 := &system.Reference{Package: "kego.io/demo/common/words", Name: "localizer"}
+	ptr50 := system.String("object")
+	ptr51 := &system.Type{Object: ptr35, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"english": ptr40, "translations": ptr48}, Is: []*system.Reference{ptr49}, Native: &ptr50, Rule: (*system.Type)(nil)}
+	system.Register("kego.io/demo/common/words", "@localizer", ptr5, 0x72d207b91bb0393)
+	system.Register("kego.io/demo/common/words", "@simple", ptr11, 0xb367436bb1ddac59)
+	system.Register("kego.io/demo/common/words", "@translation", ptr17, 0x20d3acc377a84c88)
+	system.Register("kego.io/demo/common/words", "localizer", ptr22, 0x72d207b91bb0393)
+	system.Register("kego.io/demo/common/words", "simple", ptr32, 0xb367436bb1ddac59)
+	system.Register("kego.io/demo/common/words", "translation", ptr51, 0x20d3acc377a84c88)
 }

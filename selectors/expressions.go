@@ -100,8 +100,8 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 		return exprElement{false, json.J_BOOL}
 	},
 	"=": func(lhs exprElement, rhs exprElement) exprElement {
-		if isNull(lhs.value) || isNull(rhs.value) {
-			result := isNull(lhs.value) && isNull(rhs.value)
+		if isNull(lhs) || isNull(rhs) {
+			result := isNull(lhs) && isNull(rhs)
 			return exprElement{result, json.J_BOOL}
 		}
 		lhs_string := getJsonString(lhs.value)
@@ -112,8 +112,8 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 		return exprElement{false, json.J_BOOL}
 	},
 	"!=": func(lhs exprElement, rhs exprElement) exprElement {
-		if isNull(lhs.value) || isNull(rhs.value) {
-			result := !isNull(lhs.value) || !isNull(rhs.value)
+		if isNull(lhs) || isNull(rhs) {
+			result := !isNull(lhs) || !isNull(rhs)
 			return exprElement{result, json.J_BOOL}
 		}
 		lhs_string := getJsonString(lhs.value)

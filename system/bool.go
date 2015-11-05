@@ -1,74 +1,70 @@
 package system
 
 import (
-	"fmt"
-
 	"kego.io/json"
 	"kego.io/kerr"
 )
 
-type Bool struct {
-	Value  bool
-	Exists bool
+type Bool bool
+
+func NewBool(b bool) *Bool {
+	out := Bool(b)
+	return &out
 }
 
-func NewBool(b bool) Bool {
-	return Bool{Value: b, Exists: true}
+func (b *Bool) Value() bool {
+	return bool(*b)
+}
+
+func (b *Bool) Set(in bool) {
+	*b = Bool(in)
 }
 
 func (out *Bool) Unpack(in json.Unpackable) error {
 	if in == nil || in.UpType() == json.J_NULL {
-		out.Exists = false
-		out.Value = false
-		return nil
+		return kerr.New("FXCQGNYKIJ", nil, "Called Bool.Unpack with nil value")
 	}
 	if in.UpType() != json.J_BOOL {
-		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %s into system.Bool", in.UpType())
+		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %s into *system.Bool", in.UpType())
 	}
-	out.Exists = true
-	out.Value = in.UpBool()
+	*out = Bool(in.UpBool())
 	return nil
 }
 
 var _ json.Unpacker = (*Bool)(nil)
 
-func (b Bool) MarshalJSON() ([]byte, error) {
-	if !b.Exists {
+func (b *Bool) MarshalJSON() ([]byte, error) {
+	if b == nil {
 		return []byte("null"), nil
 	}
-	return []byte(formatBool(b.Value)), nil
+	return []byte(formatBool(b)), nil
 }
 
 var _ json.Marshaler = (*Bool)(nil)
 
 func (b *Bool) String() string {
-	if !b.Exists {
+	if b == nil {
 		return ""
 	}
-	return formatBool(b.Value)
+	return formatBool(b)
 }
 
-func formatBool(b bool) string {
-	return fmt.Sprintf("%v", b)
+func formatBool(b *Bool) string {
+	if *b {
+		return "true"
+	}
+	return "false"
 }
 
 type NativeBool interface {
-	NativeBool() (bool, bool)
+	NativeBool() bool
 }
 
-func (b Bool) NativeBool() (value bool, exists bool) {
-	return b.Value, b.Exists
+func (b Bool) NativeBool() bool {
+	return bool(b)
 }
 
 var _ NativeBool = (*Bool)(nil)
-
-// We satisfy the json.EmptyAware interface to allow intelligent omission of
-// empty values when marshalling
-func (b Bool) Empty() bool {
-	return !b.Exists
-}
-
-var _ json.EmptyAware = (*Bool)(nil)
 
 func (r *BoolRule) GetDefault() interface{} {
 	return r.Default

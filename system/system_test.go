@@ -65,15 +65,15 @@ func TestNative(t *testing.T) {
 func testNative(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		StrHere  String
-		StrEmpty String
-		StrNull  String
-		NumHere  Number
-		NumEmpty Number
-		NumNull  Number
-		BolHere  Bool
-		BolEmpty Bool
-		BolNull  Bool
+		StrHere  *String
+		StrEmpty *String
+		StrNull  *String
+		NumHere  *Number
+		NumEmpty *Number
+		NumNull  *Number
+		BolHere  *Bool
+		BolEmpty *Bool
+		BolNull  *Bool
 	}
 
 	data := `{
@@ -97,18 +97,18 @@ func testNative(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.StrHere.Exists)
-	assert.True(t, f.NumHere.Exists)
-	assert.True(t, f.BolHere.Exists)
-	assert.False(t, f.StrEmpty.Exists)
-	assert.False(t, f.NumEmpty.Exists)
-	assert.False(t, f.BolEmpty.Exists)
-	assert.False(t, f.StrNull.Exists)
-	assert.False(t, f.NumNull.Exists)
-	assert.False(t, f.BolNull.Exists)
-	assert.Equal(t, "a", f.StrHere.Value)
-	assert.Equal(t, 2.0, f.NumHere.Value)
-	assert.Equal(t, true, f.BolHere.Value)
+	assert.NotNil(t, f.StrHere)
+	assert.NotNil(t, f.NumHere)
+	assert.NotNil(t, f.BolHere)
+	assert.Nil(t, f.StrEmpty)
+	assert.Nil(t, f.NumEmpty)
+	assert.Nil(t, f.BolEmpty)
+	assert.Nil(t, f.StrNull)
+	assert.Nil(t, f.NumNull)
+	assert.Nil(t, f.BolNull)
+	assert.Equal(t, "a", f.StrHere.Value())
+	assert.Equal(t, 2.0, f.NumHere.Value())
+	assert.Equal(t, true, f.BolHere.Value())
 
 }
 
@@ -119,12 +119,12 @@ func TestNativeDefaults(t *testing.T) {
 func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		StrHere    String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\"}}"`
-		NumHere    Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":2,\"path\":\"kego.io/system\"}}"`
-		BolHere    Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
-		StrDefault String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"b\",\"path\":\"kego.io/system\"}}"`
-		NumDefault Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":3,\"path\":\"kego.io/system\"}}"`
-		BolDefault Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
+		StrHere    *String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\"}}"`
+		NumHere    *Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":2,\"path\":\"kego.io/system\"}}"`
+		BolHere    *Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
+		StrDefault *String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"b\",\"path\":\"kego.io/system\"}}"`
+		NumDefault *Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":3,\"path\":\"kego.io/system\"}}"`
+		BolDefault *Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
 	}
 
 	data := `{
@@ -145,18 +145,18 @@ func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.StrHere.Exists)
-	assert.True(t, f.NumHere.Exists)
-	assert.True(t, f.BolHere.Exists)
-	assert.True(t, f.StrDefault.Exists)
-	assert.True(t, f.NumDefault.Exists)
-	assert.True(t, f.BolDefault.Exists)
-	assert.Equal(t, "c", f.StrHere.Value)
-	assert.Equal(t, 4.0, f.NumHere.Value)
-	assert.Equal(t, false, f.BolHere.Value)
-	assert.Equal(t, "b", f.StrDefault.Value)
-	assert.Equal(t, 3.0, f.NumDefault.Value)
-	assert.Equal(t, true, f.BolDefault.Value)
+	assert.NotNil(t, f.StrHere)
+	assert.NotNil(t, f.NumHere)
+	assert.NotNil(t, f.BolHere)
+	assert.NotNil(t, f.StrDefault)
+	assert.NotNil(t, f.NumDefault)
+	assert.NotNil(t, f.BolDefault)
+	assert.Equal(t, "c", f.StrHere.Value())
+	assert.Equal(t, 4.0, f.NumHere.Value())
+	assert.Equal(t, false, f.BolHere.Value())
+	assert.Equal(t, "b", f.StrDefault.Value())
+	assert.Equal(t, 3.0, f.NumDefault.Value())
+	assert.Equal(t, true, f.BolDefault.Value())
 
 }
 
@@ -167,12 +167,12 @@ func TestNativeDefaultsShort(t *testing.T) {
 func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		StrHere    String `kego:"{\"default\":{\"value\":\"a\"}}"`
-		NumHere    Number `kego:"{\"default\":{\"value\":2}}"`
-		BolHere    Bool   `kego:"{\"default\":{\"value\":true}}"`
-		StrDefault String `kego:"{\"default\":{\"value\":\"b\"}}"`
-		NumDefault Number `kego:"{\"default\":{\"value\":3}}"`
-		BolDefault Bool   `kego:"{\"default\":{\"value\":true}}"`
+		StrHere    *String `kego:"{\"default\":{\"value\":\"a\"}}"`
+		NumHere    *Number `kego:"{\"default\":{\"value\":2}}"`
+		BolHere    *Bool   `kego:"{\"default\":{\"value\":true}}"`
+		StrDefault *String `kego:"{\"default\":{\"value\":\"b\"}}"`
+		NumDefault *Number `kego:"{\"default\":{\"value\":3}}"`
+		BolDefault *Bool   `kego:"{\"default\":{\"value\":true}}"`
 	}
 
 	data := `{
@@ -193,18 +193,18 @@ func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.StrHere.Exists)
-	assert.True(t, f.NumHere.Exists)
-	assert.True(t, f.BolHere.Exists)
-	assert.True(t, f.StrDefault.Exists)
-	assert.True(t, f.NumDefault.Exists)
-	assert.True(t, f.BolDefault.Exists)
-	assert.Equal(t, "c", f.StrHere.Value)
-	assert.Equal(t, 4.0, f.NumHere.Value)
-	assert.Equal(t, false, f.BolHere.Value)
-	assert.Equal(t, "b", f.StrDefault.Value)
-	assert.Equal(t, 3.0, f.NumDefault.Value)
-	assert.Equal(t, true, f.BolDefault.Value)
+	assert.NotNil(t, f.StrHere)
+	assert.NotNil(t, f.NumHere)
+	assert.NotNil(t, f.BolHere)
+	assert.NotNil(t, f.StrDefault)
+	assert.NotNil(t, f.NumDefault)
+	assert.NotNil(t, f.BolDefault)
+	assert.Equal(t, "c", f.StrHere.Value())
+	assert.Equal(t, 4.0, f.NumHere.Value())
+	assert.Equal(t, false, f.BolHere.Value())
+	assert.Equal(t, "b", f.StrDefault.Value())
+	assert.Equal(t, 3.0, f.NumDefault.Value())
+	assert.Equal(t, true, f.BolDefault.Value())
 
 }
 
@@ -224,14 +224,14 @@ func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 
 		// The value is just a, so we should be picking up the package
 		// kego.io/b from the local package path
-		Ref1 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\"}}"`
+		Ref1 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\"}}"`
 
 		// The value is a:b, so a is the package alias for kego.io/d
 		// which we find in the package aliases, and b is the type.
-		Ref2 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"aliases\":{\"kego.io/d\":\"a\"}}}"`
+		Ref2 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"aliases\":{\"kego.io/d\":\"a\"}}}"`
 
 		// The value is a full type with package path.
-		Ref3 Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"aliases\":{\"a.b/c\":\"c\"}}}"`
+		Ref3 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"aliases\":{\"a.b/c\":\"c\"}}}"`
 	}
 
 	data := `{
@@ -249,11 +249,11 @@ func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.Ref1.Exists)
+	assert.NotNil(t, f.Ref1)
 	assert.Equal(t, "kego.io/b:a", f.Ref1.Value())
-	assert.True(t, f.Ref2.Exists)
+	assert.NotNil(t, f.Ref2)
 	assert.Equal(t, "kego.io/d:b", f.Ref2.Value())
-	assert.True(t, f.Ref3.Exists)
+	assert.NotNil(t, f.Ref3)
 	assert.Equal(t, "a.b/c:d", f.Ref3.Value())
 
 }
@@ -265,7 +265,7 @@ func TestReferenceType(t *testing.T) {
 func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		Ref Reference
+		Ref *Reference
 	}
 
 	data := `{
@@ -284,7 +284,7 @@ func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.Ref.Exists)
+	assert.NotNil(t, f.Ref)
 	assert.Equal(t, "kego.io/system:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/system", f.Ref.Package)
 	assert.Equal(t, "typ", f.Ref.Name)
@@ -298,7 +298,7 @@ func TestReferenceEmpty(t *testing.T) {
 func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		Ref Reference
+		Ref *Reference
 	}
 
 	data := `{
@@ -316,7 +316,7 @@ func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.False(t, f.Ref.Exists)
+	assert.Nil(t, f.Ref)
 
 }
 
@@ -327,7 +327,7 @@ func TestReferencePath(t *testing.T) {
 func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		Ref Reference
+		Ref *Reference
 	}
 
 	data := `{
@@ -346,7 +346,7 @@ func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.Ref.Exists)
+	assert.NotNil(t, f.Ref)
 	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
 	assert.Equal(t, "typ", f.Ref.Name)
@@ -360,7 +360,7 @@ func TestReferenceImport(t *testing.T) {
 func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		Ref Reference
+		Ref *Reference
 	}
 
 	data := `{
@@ -379,7 +379,7 @@ func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.Ref.Exists)
+	assert.NotNil(t, f.Ref)
 	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
 	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
 	assert.Equal(t, "typ", f.Ref.Name)
@@ -393,8 +393,8 @@ func TestReferenceDefault(t *testing.T) {
 func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
 
 	type Foo struct {
-		RefHere    Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkga\":\"pkga\"}}}"`
-		RefDefault Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkgb\":\"pkgb\"}}}"`
+		RefHere    *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkga\":\"pkga\"}}}"`
+		RefDefault *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkgb\":\"pkgb\"}}}"`
 	}
 
 	data := `{
@@ -413,8 +413,8 @@ func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
-	assert.True(t, f.RefHere.Exists)
-	assert.True(t, f.RefDefault.Exists)
+	assert.NotNil(t, f.RefHere)
+	assert.NotNil(t, f.RefDefault)
 	assert.Equal(t, "kego.io/system:typc", f.RefHere.Value())
 	assert.Equal(t, "kego.io/system", f.RefHere.Package)
 	assert.Equal(t, "typc", f.RefHere.Name)

@@ -109,6 +109,7 @@ func (bp *buffer) WriteRune(r rune) error {
 
 type pp struct {
 	n         int
+	build     bool // are we running a build operation with pointers?
 	panicking bool
 	erroring  bool // printing an error condition
 	buf       buffer
@@ -162,6 +163,7 @@ var ppFree = sync.Pool{
 // newPrinter allocates a new pp struct or grabs a cached one.
 func newPrinter() *pp {
 	p := ppFree.Get().(*pp)
+	p.build = false
 	p.panicking = false
 	p.erroring = false
 	p.path = ""
@@ -878,26 +880,46 @@ func (p *pp) printReflectValue(value reflect.Value, verb rune, depth int) (wasSt
 	p.value = value
 BigSwitch:
 	switch f := value; f.Kind() {
-	case reflect.Bool:
-		p.fmtBool(f.Bool(), verb)
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		p.fmtInt64(f.Int(), verb)
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		p.fmtUint64(f.Uint(), verb)
-	case reflect.Float32, reflect.Float64:
-		if f.Type().Size() == 4 {
-			p.fmtFloat32(float32(f.Float()), verb)
-		} else {
-			p.fmtFloat64(f.Float(), verb)
+	case reflect.Bool,
+		reflect.Float64, reflect.Float32,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
+		reflect.Complex64, reflect.Complex128,
+		reflect.String:
+
+		// if the type is named - e.g. type A int, then the literal is A(1)
+		if p.build && f.Type().Kind().String() != f.Type().Name() {
+			p.WriteName(f.Type())
+			p.add('(')
 		}
-	case reflect.Complex64, reflect.Complex128:
-		if f.Type().Size() == 8 {
-			p.fmtComplex64(complex64(f.Complex()), verb)
-		} else {
-			p.fmtComplex128(f.Complex(), verb)
+
+		switch f.Kind() {
+		case reflect.Bool:
+			p.fmtBool(f.Bool(), verb)
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			p.fmtInt64(f.Int(), verb)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+			p.fmtUint64(f.Uint(), verb)
+		case reflect.Float32, reflect.Float64:
+			if f.Type().Size() == 4 {
+				p.fmtFloat32(float32(f.Float()), verb)
+			} else {
+				p.fmtFloat64(f.Float(), verb)
+			}
+		case reflect.Complex64, reflect.Complex128:
+			if f.Type().Size() == 8 {
+				p.fmtComplex64(complex64(f.Complex()), verb)
+			} else {
+				p.fmtComplex128(f.Complex(), verb)
+			}
+		case reflect.String:
+			p.fmtString(f.String(), verb)
 		}
-	case reflect.String:
-		p.fmtString(f.String(), verb)
+
+		// if the type is named - e.g. type A int, then the literal is A(1)
+		if p.build && f.Type().Kind().String() != f.Type().Name() {
+			p.add(')')
+		}
 	case reflect.Map:
 		if p.fmt.sharpV {
 			p.WriteName(f.Type())
@@ -945,14 +967,18 @@ BigSwitch:
 			val := getField(v, i)
 
 			if val.CanInterface() {
-				if val.Kind() == reflect.Bool && val.Interface().(bool) == false {
-					continue
-				}
-				if val.Kind() == reflect.Float64 && val.Interface().(float64) == 0 {
-					continue
-				}
-				if val.Kind() == reflect.String && val.Interface().(string) == "" {
-					continue
+				if val.Kind() == reflect.Bool {
+					if b, ok := val.Interface().(bool); ok && b == false {
+						continue
+					}
+				} else if val.Kind() == reflect.Float64 {
+					if f, ok := val.Interface().(float64); ok && f == 0 {
+						continue
+					}
+				} else if val.Kind() == reflect.String {
+					if s, ok := val.Interface().(string); ok && s == "" {
+						continue
+					}
 				}
 			}
 
@@ -1037,6 +1063,19 @@ BigSwitch:
 		}
 	case reflect.Ptr:
 		v := f.Pointer()
+
+		// Pointers to named basic types e.g. type A int; struct { Foo *A } need to have this notation:
+		// ptr0 := A(2); Foo: &ptr0
+		if p.build && isLiteralKind(f.Elem().Kind()) {
+			pointer, ok := findPointer(p.pointers, value.Pointer())
+			if !ok {
+				pointer = buildValue(value, p.pointers, p.path, p.getAlias)
+			}
+			p.add('&')
+			p.Write([]byte(pointer.Name))
+			break BigSwitch
+		}
+
 		// pointer to array or slice or struct? ok at top level
 		// but for embedded we add to pointers map and rebuild
 		if v != 0 && depth == 0 {
@@ -1057,7 +1096,7 @@ BigSwitch:
 		} else if v != 0 && depth > 0 {
 			pointer, ok := findPointer(p.pointers, value.Pointer())
 			if !ok {
-				pointer = Build(value.Interface(), p.pointers, p.path, p.getAlias)
+				pointer = buildValue(value, p.pointers, p.path, p.getAlias)
 			}
 			p.Write([]byte(pointer.Name))
 			break BigSwitch
@@ -1070,6 +1109,19 @@ BigSwitch:
 	}
 	p.value = oldValue
 	return wasString
+}
+
+func isLiteralKind(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Bool,
+		reflect.Float64, reflect.Float32,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
+		reflect.Complex64, reflect.Complex128,
+		reflect.String:
+		return true
+	}
+	return false
 }
 
 func sortKeys(values *[]reflect.Value) {

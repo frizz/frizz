@@ -11,13 +11,20 @@ import (
 )
 
 func TestGetPointer(t *testing.T) {
-	//!isNative && !isInterface => "*"
-	assert.Equal(t, "", getPointer(&system.Type{Native: system.NewString("bool"), Interface: false}))
-	assert.Equal(t, "", getPointer(&system.Type{Native: system.NewString("object"), Interface: true}))
-	assert.Equal(t, "", getPointer(&system.Type{Native: system.NewString("bool"), Interface: true}))
-	assert.Equal(t, "*", getPointer(&system.Type{Native: system.NewString("object"), Interface: false}))
-	assert.Equal(t, "*", getPointer(&system.Type{Native: system.NewString("map"), Interface: false}))
-	assert.Equal(t, "*", getPointer(&system.Type{Native: system.NewString("array"), Interface: false}))
+	//!kego.io/json && !isInterface => "*"
+	j := &system.Object{Id: system.NewReference("kego.io/json", "")}
+	s := &system.Object{Id: system.NewReference("kego.io/system", "")}
+	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("bool"), Interface: false}))
+	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("number"), Interface: false}))
+	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("string"), Interface: false}))
+	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("object"), Interface: false}))
+	assert.Equal(t, "", getPointer(&system.Type{Object: s, Native: system.NewString("object"), Interface: true}))
+	assert.Equal(t, "*", getPointer(&system.Type{Object: s, Native: system.NewString("bool"), Interface: false}))
+	assert.Equal(t, "", getPointer(&system.Type{Object: s, Native: system.NewString("object"), Interface: true}))
+	assert.Equal(t, "", getPointer(&system.Type{Object: s, Native: system.NewString("bool"), Interface: true}))
+	assert.Equal(t, "*", getPointer(&system.Type{Object: s, Native: system.NewString("object"), Interface: false}))
+	assert.Equal(t, "*", getPointer(&system.Type{Object: s, Native: system.NewString("map"), Interface: false}))
+	assert.Equal(t, "*", getPointer(&system.Type{Object: s, Native: system.NewString("array"), Interface: false}))
 }
 
 func TestFormatTag(t *testing.T) {
@@ -100,12 +107,12 @@ type structWithoutCustomMarshaler struct {
 type ruleStructA struct {
 	*system.Object
 	*system.Rule
-	B system.String
+	B *system.String
 }
 type ruleStructB struct {
 	*system.Object
 	*system.Rule
-	Default system.String
+	Default *system.String
 }
 
 func (r *ruleStructB) GetDefault() interface{} {
@@ -237,7 +244,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	s, err = Type("n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "String `json:\"-\"`", s)
+	assert.Equal(t, "*String `json:\"-\"`", s)
 
 	p = &system.StringRule{
 		Object: &system.Object{
@@ -247,11 +254,11 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	s, err = Type("n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "String `json:\"n\"`", s)
+	assert.Equal(t, "*String `json:\"n\"`", s)
 
 	s, err = Type("n", p, "kego.io/a", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "system.String `json:\"n\"`", s)
+	assert.Equal(t, "*system.String `json:\"n\"`", s)
 
 	// We're just using type here because it's a handy
 	// non-native type in the system package
@@ -282,8 +289,8 @@ func TestGoTypeDescriptor(t *testing.T) {
 		*system.Object
 		*system.Rule
 	}
-	tyr := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "@a")}}
-	ty := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "a")}}
+	tyr := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "@a")}, Native: system.NewString("object")}
+	ty := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "a")}, Native: system.NewString("object")}
 	json.Register("b.c/d", "a", reflect.TypeOf(&a{}), nil, 0)
 	json.Register("b.c/d", "@a", reflect.TypeOf(&aRule{}), nil, 0)
 	system.Register("b.c/d", "a", ty, 0)
@@ -317,7 +324,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	s, err = Type("n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
+	assert.Equal(t, "*String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
 
 	pm := &system.MapRule{
 		Object: &system.Object{
@@ -328,11 +335,12 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Object: &system.Object{
 				Type: system.NewReference("kego.io/system", "@string"),
 			},
+			Rule: &system.Rule{},
 		},
 	}
 	s, err = Type("n", pm, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "map[string]String `json:\"n\"`", s)
+	assert.Equal(t, "map[string]*String `json:\"n\"`", s)
 
 	par := &system.ArrayRule{
 		Object: &system.Object{
@@ -343,11 +351,12 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Object: &system.Object{
 				Type: system.NewReference("kego.io/system", "@string"),
 			},
+			Rule: &system.Rule{},
 		},
 	}
 	s, err = Type("n", par, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "[]String `json:\"n\"`", s)
+	assert.Equal(t, "[]*String `json:\"n\"`", s)
 
 	pm = &system.MapRule{
 		Object: &system.Object{
@@ -358,16 +367,18 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Object: &system.Object{
 				Type: system.NewReference("kego.io/system", "@array"),
 			},
+			Rule: &system.Rule{},
 			Items: &system.StringRule{
 				Object: &system.Object{
 					Type: system.NewReference("kego.io/system", "@string"),
 				},
+				Rule: &system.Rule{},
 			},
 		},
 	}
 	s, err = Type("n", pm, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "map[string][]String `json:\"n\"`", s)
+	assert.Equal(t, "map[string][]*String `json:\"n\"`", s)
 
 	pm = &system.MapRule{
 		Object: &system.Object{
@@ -378,17 +389,19 @@ func TestGoTypeDescriptor(t *testing.T) {
 			Object: &system.Object{
 				Type: system.NewReference("kego.io/system", "@array"),
 			},
+			Rule: &system.Rule{},
 			Items: &system.StringRule{
 				Object: &system.Object{
 					Type: system.NewReference("kego.io/system", "@string"),
 				},
+				Rule:    &system.Rule{},
 				Default: system.NewString("a"),
 			},
 		},
 	}
 	s, err = Type("n", pm, "kego.io/system", i.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "map[string][]String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
+	assert.Equal(t, "map[string][]*String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
 
 }
 
@@ -422,8 +435,8 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		*system.Object
 		*system.Rule
 	}
-	tyr := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "@a")}}
-	ty := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "a")}}
+	tyr := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "@a")}, Native: system.NewString("object")}
+	ty := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "a")}, Native: system.NewString("object")}
 	json.Register("b.c/d", "a", reflect.TypeOf(&a{}), nil, 0)
 	json.Register("b.c/d", "@a", reflect.TypeOf(&aRule{}), nil, 0)
 	system.Register("b.c/d", "a", ty, 0)
@@ -498,11 +511,11 @@ func testUnknownRule(t *testing.T, unpacker unpackerFunc) {
 
 	b, err := Type("n", f.Fields["foo"], "kego.io/gallery", imp.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "system.Bool `kego:\"{\\\"default\\\":{\\\"value\\\":true}}\" json:\"n\"`", b)
+	assert.Equal(t, "*system.Bool `kego:\"{\\\"default\\\":{\\\"value\\\":true}}\" json:\"n\"`", b)
 
 	r, err := Type("n", f.Fields["ref"], "kego.io/gallery", imp.Add)
 	assert.NoError(t, err)
-	assert.Equal(t, "system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\"}}\" json:\"n\"`", r)
+	assert.Equal(t, "*system.Reference `kego:\"{\\\"default\\\":{\\\"type\\\":\\\"kego.io/system:reference\\\",\\\"value\\\":\\\"kego.io/gallery:image\\\"}}\" json:\"n\"`", r)
 
 }
 

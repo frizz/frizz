@@ -96,7 +96,7 @@ func (us *unpackStruct) unpack(in Unpackable, v reflect.Value, path string, alia
 
 func (us *unpackStruct) unpackLiteral(in Unpackable, v reflect.Value, path string, aliases map[string]string) error {
 
-	wantptr := in == nil
+	wantptr := in == nil || in.UpType() == J_NULL
 	_, _, up, cup, pv := indirect(v, wantptr, false, true)
 	if up != nil {
 		if err := up.Unpack(in); err != nil {

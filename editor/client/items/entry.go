@@ -52,7 +52,7 @@ func shortenString(in string) string {
 
 func addEntry(name string, index int, node *node.Node, parentBranch *tree.Branch) *entry {
 
-	if node.Parent != nil && node.Parent.Type.Native.Value == "object" {
+	if node.Parent != nil && node.Parent.Type.Native.Value() == "object" {
 		// Don't display "type" or "id" nodes if the parent is an object (maps are ok!)
 		if name == "type" || name == "id" {
 			return nil
@@ -76,7 +76,7 @@ func addNodeChildren(n *node.Node, b *tree.Branch) {
 	if n == nil {
 		return
 	}
-	switch n.Type.Native.Value {
+	switch n.Type.Native.Value() {
 	case "array":
 		for i, childNode := range n.Array {
 			addEntry("", i, childNode, b)

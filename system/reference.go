@@ -13,18 +13,17 @@ import (
 type Reference struct {
 	Package string
 	Name    string
-	Exists  bool
 }
 
 func (r Reference) Value() string {
-	if !r.Exists {
+	if r.Package == "" && r.Name == "" {
 		return ""
 	}
 	return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
 func (r Reference) ValueContext(path string, aliases map[string]string) (string, error) {
-	if !r.Exists {
+	if r.Package == "" && r.Name == "" {
 		return "", nil
 	}
 	if r.Package == path {
@@ -44,9 +43,8 @@ func (r Reference) ValueContext(path string, aliases map[string]string) (string,
 	//return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
-func NewReference(packagePath string, typeName string) Reference {
-	r := Reference{}
-	r.Exists = true
+func NewReference(packagePath string, typeName string) *Reference {
+	r := &Reference{}
 	r.Package = packagePath
 	r.Name = typeName
 	return r
@@ -63,19 +61,15 @@ func NewReferenceFromString(in string, path string, aliases map[string]string) (
 
 func (out *Reference) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
 	if in == nil || in.UpType() == json.J_NULL {
-		out.Exists = false
-		out.Name = ""
-		out.Package = ""
-		return nil
+		return kerr.New("MOQVSKJXRB", nil, "Called Reference.Unpack with nil value")
 	}
 	if in.UpType() != json.J_STRING {
-		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into system.Reference", in.UpType())
+		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into *system.Reference", in.UpType())
 	}
 	path, name, err := json.GetReferencePartsFromTypeString(in.UpString(), path, aliases)
 	if err != nil {
 		// We need to clear the reference, because when we're scanning for
 		// aliases we need to tolerate unknown import errors here
-		out.Exists = false
 		out.Name = ""
 		out.Package = ""
 		if p, ok := err.(json.UnknownPackageError); ok {
@@ -85,7 +79,6 @@ func (out *Reference) Unpack(in json.Unpackable, path string, aliases map[string
 		}
 		return kerr.New("MSXBLEIGVJ", err, "json.GetReferencePartsFromTypeString")
 	}
-	out.Exists = true
 	out.Package = path
 	out.Name = name
 	return nil
@@ -96,7 +89,6 @@ var _ json.ContextUnpacker = (*Reference)(nil)
 func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases map[string]string) error {
 	s, ok := in.(string)
 	if !ok || s == "" {
-		out.Exists = false
 		out.Name = ""
 		out.Package = ""
 	} else {
@@ -104,20 +96,18 @@ func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases ma
 		if err != nil {
 			// We need to clear the reference, because when we're scanning for
 			// aliases we need to tolerate unknown import errors here
-			out.Exists = false
 			out.Name = ""
 			out.Package = ""
 			return err
 		}
-		out.Exists = true
 		out.Package = path
 		out.Name = name
 	}
 	return nil
 }
 
-func (r Reference) MarshalJSON() ([]byte, error) {
-	if !r.Exists {
+func (r *Reference) MarshalJSON() ([]byte, error) {
+	if r == nil {
 		return []byte("null"), nil
 	}
 	return []byte(strconv.Quote(r.Value())), nil
@@ -125,8 +115,8 @@ func (r Reference) MarshalJSON() ([]byte, error) {
 
 var _ json.Marshaler = (*Reference)(nil)
 
-func (r Reference) MarshalContextJSON(path string, aliases map[string]string) ([]byte, error) {
-	if !r.Exists {
+func (r *Reference) MarshalContextJSON(path string, aliases map[string]string) ([]byte, error) {
+	if r == nil {
 		return []byte("null"), nil
 	}
 	val, err := r.ValueContext(path, aliases)
@@ -139,14 +129,11 @@ func (r Reference) MarshalContextJSON(path string, aliases map[string]string) ([
 var _ json.ContextMarshaler = (*Reference)(nil)
 
 func (r Reference) String() string {
-	if !r.Exists {
-		return ""
-	}
 	return r.Value()
 }
 
 func (r Reference) GetType() (*Type, bool) {
-	if !r.Exists {
+	if r.Package == "" || r.Name == "" {
 		return nil, false
 	}
 	if h, ok := GetGlobal(r.Package, r.Name); ok {
@@ -167,23 +154,23 @@ func (r Reference) ChangeToInterface() Reference {
 	return r.changeTo(INTERFACE_PREFIX)
 }
 func (r Reference) changeTo(prefix string) Reference {
-	if !r.Exists {
+	if r.Package == "" || r.Name == "" {
 		return Reference{}
 	}
 	n := r.Name
 	if strings.HasPrefix(n, INTERFACE_PREFIX) || strings.HasPrefix(n, RULE_PREFIX) {
 		n = n[1:]
 	}
-	return NewReference(r.Package, prefix+n)
+	return *NewReference(r.Package, prefix+n)
 }
 
-func (s Reference) NativeString() (value string, exists bool) {
-	return s.Value(), s.Exists
+func (s Reference) NativeString() string {
+	return s.Value()
 }
 
 var _ NativeString = (*Reference)(nil)
 
-type SortableReferences []Reference
+type SortableReferences []*Reference
 
 func (s SortableReferences) Len() int {
 	return len(s)
@@ -194,14 +181,6 @@ func (s SortableReferences) Swap(i, j int) {
 func (s SortableReferences) Less(i, j int) bool {
 	return s[i].Value() < s[j].Value()
 }
-
-// We satisfy the json.EmptyAware interface to allow intelligent omission of
-// empty values when marshalling
-func (r Reference) Empty() bool {
-	return !r.Exists
-}
-
-var _ json.EmptyAware = (*Reference)(nil)
 
 func (r *ReferenceRule) GetDefault() interface{} {
 	return r.Default

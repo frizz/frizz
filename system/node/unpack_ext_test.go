@@ -38,3 +38,12 @@ func testUnpack(t *testing.T, path string) {
 		assert.NoError(t, err, sh.Id.Name)
 	}
 }
+
+func TestNodeUnpack(t *testing.T) {
+	j := `{"type":"system:package","aliases":{"kego.io/demo/common/images":"images","kego.io/demo/common/units":"units","kego.io/demo/common/words":"words"}}`
+
+	packageNode := &node.Node{}
+	err := ke.UnmarshalNode([]byte(j), packageNode, "kego.io/demo/site", map[string]string{})
+	assert.NoError(t, err)
+
+}

@@ -22,16 +22,30 @@ func findPointer(pointers *[]Pointer, v uintptr) (Pointer, bool) {
 }
 
 func Build(object interface{}, pointers *[]Pointer, path string, getAlias func(string) string) Pointer {
+	return buildValue(reflect.ValueOf(object), pointers, path, getAlias)
+}
+func buildValue(value reflect.Value, pointers *[]Pointer, path string, getAlias func(string) string) Pointer {
 
-	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Ptr {
 		panic("Must be pointer")
 	}
-	if pointer, ok := findPointer(pointers, value.Pointer()); ok {
+	ptr := value.Pointer()
+	if pointer, ok := findPointer(pointers, ptr); ok {
 		return pointer
 	}
 
+	switch value.Elem().Kind() {
+	case reflect.Bool,
+		reflect.Float64, reflect.Float32,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
+		reflect.Complex64, reflect.Complex128,
+		reflect.String:
+		value = value.Elem()
+	}
+
 	p := newPrinter()
+	p.build = true
 	p.path = path
 	p.getAlias = getAlias
 	p.pointers = pointers
@@ -42,7 +56,7 @@ func Build(object interface{}, pointers *[]Pointer, path string, getAlias func(s
 	p.printValue(value, 'v', 0)
 	s := string(p.buf)
 	p.free()
-	pointer := Pointer{Value: value.Pointer(), Name: fmt.Sprint("ptr", len(*p.pointers)), Source: s}
+	pointer := Pointer{Value: ptr, Name: fmt.Sprint("ptr", len(*p.pointers)), Source: s}
 	*p.pointers = append(*p.pointers, pointer)
 	return pointer
 

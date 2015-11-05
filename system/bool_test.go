@@ -36,7 +36,7 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, true, a.B.GetBool().Value)
+	assert.Equal(t, true, a.B.GetBool().Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)
@@ -46,28 +46,30 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 
 func TestNewBool(t *testing.T) {
 	b := NewBool(true)
-	assert.True(t, b.Exists)
-	assert.True(t, b.Value)
+	assert.True(t, b.Value())
+
+	b1 := NewBool(false)
+	assert.False(t, b1.Value())
 }
 
 func TestBoolUnmarshalJSON(t *testing.T) {
 
-	var b Bool
+	var b *Bool
 
-	err := b.Unpack(json.NewJsonUnpacker(true))
+	err := b.Unpack(json.NewJsonUnpacker(nil))
+	assert.IsError(t, err, "FXCQGNYKIJ")
+
+	b = NewBool(false)
+
+	err = b.Unpack(json.NewJsonUnpacker(true))
 	assert.NoError(t, err)
-	assert.True(t, b.Exists)
-	assert.True(t, b.Value)
+	assert.NotNil(t, b)
+	assert.True(t, b.Value())
 
 	err = b.Unpack(json.NewJsonUnpacker(false))
 	assert.NoError(t, err)
-	assert.True(t, b.Exists)
-	assert.False(t, b.Value)
-
-	err = b.Unpack(json.NewJsonUnpacker(nil))
-	assert.NoError(t, err)
-	assert.False(t, b.Exists)
-	assert.False(t, b.Value)
+	assert.NotNil(t, b)
+	assert.False(t, b.Value())
 
 	err = b.Unpack(json.NewJsonUnpacker("foo"))
 	assert.IsError(t, err, "GXQGNEPJYS")
@@ -75,17 +77,17 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 }
 func TestBoolMarshalJSON(t *testing.T) {
 
-	b := Bool{Exists: false, Value: false}
+	var b *Bool
 	ba, err := b.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
-	b = Bool{Exists: true, Value: false}
+	b = NewBool(false)
 	ba, err = b.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "false", string(ba))
 
-	b = Bool{Exists: true, Value: true}
+	b = NewBool(true)
 	ba, err = b.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "true", string(ba))
@@ -93,15 +95,15 @@ func TestBoolMarshalJSON(t *testing.T) {
 }
 func TestBoolString(t *testing.T) {
 
-	b := Bool{Exists: false, Value: false}
+	var b *Bool
 	s := b.String()
 	assert.Equal(t, "", s)
 
-	b = Bool{Exists: true, Value: false}
+	b = NewBool(false)
 	s = b.String()
 	assert.Equal(t, "false", s)
 
-	b = Bool{Exists: true, Value: true}
+	b = NewBool(true)
 	s = b.String()
 	assert.Equal(t, "true", s)
 

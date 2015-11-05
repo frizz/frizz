@@ -62,7 +62,7 @@ func init() {
 				Id:   NewReference("kego.io/json", fmt.Sprint(RULE_PREFIX, name)),
 				Type: tr},
 			Interface: false,
-			Embed:     []Reference{NewReference("kego.io/system", "rule")},
+			Embed:     []*Reference{NewReference("kego.io/system", "rule")},
 			Native:    NewString("object"),
 			Fields:    map[string]RuleInterface{},
 			Rule:      (*Type)(nil)}
@@ -74,7 +74,7 @@ func init() {
 				Id:   NewReference("kego.io/json", name),
 				Type: tr},
 			Interface: false,
-			Is:        []Reference(nil),
+			Is:        []*Reference(nil),
 			Native:    NewString(name),
 			Fields:    map[string]RuleInterface{},
 			Rule:      makeRule(name)}

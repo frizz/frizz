@@ -6,16 +6,25 @@ import (
 )
 
 func init() {
-	ptr0 := &system.Object{Description: "Automatically created basic rule for rectangle", Id: system.Reference{Package: "kego.io/demo/common/units", Name: "@rectangle", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr1 := &system.Type{Object: ptr0, Embed: []system.Reference{system.Reference{Package: "kego.io/system", Name: "rule", Exists: true}}, Fields: map[string]system.RuleInterface(nil), Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	ptr2 := &system.Object{Id: system.Reference{Package: "kego.io/demo/common/units", Name: "rectangle", Exists: true}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "type", Exists: true}}
-	ptr3 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@int", Exists: true}}
-	ptr4 := &system.Rule{}
-	ptr5 := &system.IntRule{Object: ptr3, Rule: ptr4, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
-	ptr6 := &system.Object{Id: system.Reference{}, Rules: []system.RuleInterface(nil), Type: system.Reference{Package: "kego.io/system", Name: "@int", Exists: true}}
-	ptr7 := &system.Rule{}
-	ptr8 := &system.IntRule{Object: ptr6, Rule: ptr7, Default: system.Int{Value: 0}, Maximum: system.Int{Value: 0}, Minimum: system.Int{Value: 0}, MultipleOf: system.Int{Value: 0}}
-	ptr9 := &system.Type{Object: ptr2, Embed: []system.Reference(nil), Fields: map[string]system.RuleInterface{"height": ptr5, "width": ptr8}, Is: []system.Reference(nil), Native: system.String{Value: "object", Exists: true}, Rule: (*system.Type)(nil)}
-	system.Register("kego.io/demo/common/units", "@rectangle", ptr1, 0xe9ce1340e46b290e)
-	system.Register("kego.io/demo/common/units", "rectangle", ptr9, 0xe9ce1340e46b290e)
+	ptr0 := &system.Reference{Package: "kego.io/demo/common/units", Name: "@rectangle"}
+	ptr1 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr2 := &system.Object{Description: "Automatically created basic rule for rectangle", Id: ptr0, Rules: []system.RuleInterface(nil), Type: ptr1}
+	ptr3 := &system.Reference{Package: "kego.io/system", Name: "rule"}
+	ptr4 := system.String("object")
+	ptr5 := &system.Type{Object: ptr2, Embed: []*system.Reference{ptr3}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr4, Rule: (*system.Type)(nil)}
+	ptr6 := &system.Reference{Package: "kego.io/demo/common/units", Name: "rectangle"}
+	ptr7 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr8 := &system.Object{Id: ptr6, Rules: []system.RuleInterface(nil), Type: ptr7}
+	ptr9 := &system.Reference{Package: "kego.io/system", Name: "@int"}
+	ptr10 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr9}
+	ptr11 := &system.Rule{}
+	ptr12 := &system.IntRule{Object: ptr10, Rule: ptr11, Default: (*system.Int)(nil), Maximum: (*system.Int)(nil), Minimum: (*system.Int)(nil), MultipleOf: (*system.Int)(nil)}
+	ptr13 := &system.Reference{Package: "kego.io/system", Name: "@int"}
+	ptr14 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr13}
+	ptr15 := &system.Rule{}
+	ptr16 := &system.IntRule{Object: ptr14, Rule: ptr15, Default: (*system.Int)(nil), Maximum: (*system.Int)(nil), Minimum: (*system.Int)(nil), MultipleOf: (*system.Int)(nil)}
+	ptr17 := system.String("object")
+	ptr18 := &system.Type{Object: ptr8, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"height": ptr12, "width": ptr16}, Is: []*system.Reference(nil), Native: &ptr17, Rule: (*system.Type)(nil)}
+	system.Register("kego.io/demo/common/units", "@rectangle", ptr5, 0xe9ce1340e46b290e)
+	system.Register("kego.io/demo/common/units", "rectangle", ptr18, 0xe9ce1340e46b290e)
 }

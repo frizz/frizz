@@ -36,7 +36,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, "c", a.B.GetString().Value)
+	assert.Equal(t, "c", a.B.GetString().Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)
@@ -71,7 +71,7 @@ func testMarshal(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, "c", a.B.Value)
+	assert.Equal(t, "c", a.B.Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)
@@ -83,8 +83,8 @@ func TestMarshal1(t *testing.T) {
 
 	type A struct {
 		*Object
-		B String `json:"b"`
-		C String `json:"c"`
+		B *String `json:"b"`
+		C *String `json:"c"`
 	}
 
 	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
@@ -108,7 +108,7 @@ func TestMarshal2(t *testing.T) {
 
 	type A struct {
 		*Object
-		B String `json:"b"`
+		B *String `json:"b"`
 	}
 
 	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
@@ -140,7 +140,7 @@ func TestMarshal3(t *testing.T) {
 
 	type A struct {
 		*Object
-		B String `json:"b"`
+		B *String `json:"b"`
 	}
 
 	json.Register("c.d/e", "a", reflect.TypeOf(&A{}), nil, 0)
@@ -175,23 +175,23 @@ func TestMarshal3(t *testing.T) {
 
 func TestNewString(t *testing.T) {
 	s := NewString("a")
-	assert.True(t, s.Exists)
-	assert.Equal(t, "a", s.Value)
+	assert.NotNil(t, s)
+	assert.Equal(t, "a", s.Value())
 }
 
 func TestStringUnmarshalJSON(t *testing.T) {
 
-	var s String
+	var s *String
 
-	err := s.Unpack(json.NewJsonUnpacker(`foo "bar"`))
-	assert.NoError(t, err)
-	assert.True(t, s.Exists)
-	assert.Equal(t, `foo "bar"`, s.Value)
+	err := s.Unpack(json.NewJsonUnpacker(nil))
+	assert.IsError(t, err, "PWTAHLCCWR")
 
-	err = s.Unpack(json.NewJsonUnpacker(nil))
+	s = NewString("")
+
+	err = s.Unpack(json.NewJsonUnpacker(`foo "bar"`))
 	assert.NoError(t, err)
-	assert.False(t, s.Exists)
-	assert.Equal(t, "", s.Value)
+	assert.NotNil(t, s)
+	assert.Equal(t, `foo "bar"`, s.Value())
 
 	err = s.Unpack(json.NewJsonUnpacker(1.0))
 	assert.IsError(t, err, "IXASCXOPMG")
@@ -200,12 +200,13 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 func TestStringMarshalJSON(t *testing.T) {
 
-	s := String{Exists: false, Value: ""}
+	var s *String
+
 	ba, err := s.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
-	s = String{Exists: true, Value: `foo "bar"`}
+	s = NewString(`foo "bar"`)
 	ba, err = s.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, `"foo \"bar\""`, string(ba))
@@ -214,11 +215,11 @@ func TestStringMarshalJSON(t *testing.T) {
 
 func TestStringString(t *testing.T) {
 
-	s := String{Exists: false, Value: ""}
+	var s *String
 	str := s.String()
 	assert.Equal(t, "", str)
 
-	s = String{Exists: true, Value: `foo "bar"`}
+	s = NewString(`foo "bar"`)
 	str = s.String()
 	assert.Equal(t, `foo "bar"`, str)
 
@@ -269,7 +270,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(String{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Equal: value must exist", message)
 	assert.False(t, ok)
@@ -288,13 +289,13 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MaxLength: length must not be greater than 1", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(String{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxLength: value must exist", message)
 	assert.False(t, ok)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Enum: []string{"a", "b"}}
-	ok, message, err = r.Enforce(String{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Enum: value must exist", message)
 	assert.False(t, ok)
@@ -316,7 +317,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	assert.False(t, ok)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`^foo\d`)}
-	ok, message, err = r.Enforce(String{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: value must exist", message)
 	assert.False(t, ok)

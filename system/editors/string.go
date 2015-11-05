@@ -20,11 +20,10 @@ func init() {
 var _ editor.Editor = (*StringEditor)(nil)
 
 type StringEditor struct {
-	system.String
+	*system.String
 	*editor.Common
-	node     *node.Node
-	textbox  *mdl.Textbox
-	checkbox *mdl.Checkbox
+	node    *node.Node
+	textbox *mdl.Textbox
 }
 
 func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
@@ -33,14 +32,7 @@ func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliase
 	e.Path = path
 	e.Aliases = aliases
 
-	e.checkbox = mdl.NewCheckbox(e.Exists, "Exists")
-	e.Panel.AppendChild(e.checkbox)
-	e.checkbox.Input.AddEventListener("change", true, func(ev dom.Event) {
-		e.textbox.SetDisabled(!e.checkbox.Input.Checked)
-		e.node.Null = !e.checkbox.Input.Checked
-	})
-
-	e.textbox = mdl.NewTextbox(e.Value, e.node.Key)
+	e.textbox = mdl.NewTextbox(e.Value(), e.node.Key)
 	e.Panel.AppendChild(e.textbox)
 	e.textbox.AddEventListener("change", true, func(ev dom.Event) {
 		e.node.ValueString = e.textbox.Input.Value

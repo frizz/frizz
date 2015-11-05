@@ -89,26 +89,21 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 		// Let's pre-load with some values so we check that when we
 		// load a null value, we clear all the fields
 		r := NewReference("a.b/c", "d")
-		return &r
+		return r
 	}
 
 	r := reset()
 	err := r.Unpack(json.NewJsonUnpacker(nil), "", map[string]string{})
-	assert.NoError(t, err)
-	assert.False(t, r.Exists)
-	assert.Equal(t, "", r.Package)
-	assert.Equal(t, "", r.Name)
-	assert.Equal(t, "", r.Value())
+	assert.IsError(t, err, "MOQVSKJXRB")
 
 	r = reset()
 	err = r.Unpack(json.NewJsonUnpacker("a.b/c:d"), "", map[string]string{})
 	assert.EqualError(t, err, "Unknown package a.b/c")
-	assert.False(t, r.Exists)
 
 	r = reset()
 	err = r.Unpack(json.NewJsonUnpacker("a.b/c:d"), "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
-	assert.True(t, r.Exists)
+	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
 	assert.Equal(t, "d", r.Name)
 	assert.Equal(t, "a.b/c:d", r.Value())
@@ -116,26 +111,28 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	r = reset()
 	err = r.Unpack(json.NewJsonUnpacker("a.b/c:@d"), "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
-	assert.True(t, r.Exists)
+	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
 	assert.Equal(t, "@d", r.Name)
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
 	err = r.Unpack(json.NewJsonUnpacker("a:b"), "", map[string]string{})
-	assert.False(t, r.Exists)
+	assert.EqualError(t, err, "Unknown package a")
 }
 
 func TestReferenceMarshalJson(t *testing.T) {
-	r := NewReference("a.b/c", "d")
+
+	var r *Reference
 	b, err := r.MarshalJSON()
+	assert.NoError(t, err)
+	assert.Equal(t, "null", string(b))
+
+	r = NewReference("a.b/c", "d")
+	b, err = r.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "\"a.b/c:d\"", string(b))
 
-	r = Reference{}
-	b, err = r.MarshalJSON()
-	assert.NoError(t, err)
-	assert.Equal(t, "null", string(b))
 }
 
 func TestReferenceGetType(t *testing.T) {
@@ -155,7 +152,7 @@ func TestReferenceGetType(t *testing.T) {
 	_, ok = r.GetType()
 	assert.False(t, ok)
 
-	r = Reference{}
+	r = &Reference{}
 	_, ok = r.GetType()
 	assert.False(t, ok)
 }

@@ -9,24 +9,30 @@ import (
 	"kego.io/kerr"
 )
 
-type String struct {
-	Value  string
-	Exists bool
+type String string
+
+func NewString(s string) *String {
+	out := String(s)
+	return &out
 }
 
-func NewString(s string) String {
-	return String{Value: s, Exists: true}
+func (s *String) Value() string {
+	return string(*s)
+}
+
+func (s *String) Set(in string) {
+	*s = String(in)
 }
 
 func (r *StringRule) Validate(path string, aliases map[string]string) (ok bool, message string, err error) {
-	if r.MaxLength.Exists && r.MinLength.Exists {
-		if r.MaxLength.Value < r.MinLength.Value {
-			return false, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value, r.MinLength.Value), nil
+	if r.MaxLength != nil && r.MinLength != nil {
+		if r.MaxLength.Value() < r.MinLength.Value() {
+			return false, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value(), r.MinLength.Value()), nil
 		}
 	}
-	if r.Pattern.Exists {
-		if _, err := regexp.Compile(r.Pattern.Value); err != nil {
-			return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value), nil
+	if r.Pattern != nil {
+		if _, err := regexp.Compile(r.Pattern.Value()); err != nil {
+			return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()), nil
 		}
 	}
 	return true, "", nil
@@ -35,77 +41,78 @@ func (r *StringRule) Validate(path string, aliases map[string]string) (ok bool, 
 var _ Validator = (*StringRule)(nil)
 
 func (r *StringRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
-	s, ok := data.(String)
-	if !ok {
-		return false, "", kerr.New("SXFBXGQSEA", nil, "data %T should be system.String.", data)
+
+	s, ok := data.(*String)
+	if !ok && data != nil {
+		return false, "", kerr.New("SXFBXGQSEA", nil, "data %T should be *system.String.", data)
 	}
 
 	// TODO: This restricts the value to one of several built-in formats
 	// TODO: Format String
-	if r.Format.Exists {
+	if r.Format != nil {
 		panic("TODO: Format rule implementation")
 	}
 
 	// This is a regex to match the value to
 	// Pattern String
-	if r.Pattern.Exists {
-		if !s.Exists && !r.Optional {
+	if r.Pattern != nil {
+		if s == nil && !r.Optional {
 			return false, "Pattern: value must exist", nil
 		}
-		if s.Exists {
-			reg, err := regexp.Compile(r.Pattern.Value)
+		if s != nil {
+			reg, err := regexp.Compile(r.Pattern.Value())
 			if err != nil {
-				return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value), nil
+				return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()), nil
 			}
-			if !reg.Match([]byte(s.Value)) {
-				return false, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value), nil
+			if !reg.Match([]byte(s.Value())) {
+				return false, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value()), nil
 			}
 		}
 	}
 
 	// This is a string that the value must match
 	// Equal String
-	if r.Equal.Exists {
-		if !s.Exists && !r.Optional {
+	if r.Equal != nil {
+		if s == nil && !r.Optional {
 			return false, "Equal: value must exist", nil
 		}
-		if s.Exists && s.Value != r.Equal.Value {
-			return false, fmt.Sprintf("Equal: value must equal '%s'", r.Equal.Value), nil
+		if s != nil && *s != *r.Equal {
+			return false, fmt.Sprintf("Equal: value must equal '%s'", r.Equal.Value()), nil
 		}
 	}
 
 	// The value must be longer or equal to the provided minimum length
 	// MinLength Int
-	if r.MinLength.Exists {
-		if !s.Exists && !r.Optional {
+	if r.MinLength != nil {
+		if s == nil && !r.Optional {
 			return false, "MinLength: value must exist", nil
 		}
-		if s.Exists && len(s.Value) < r.MinLength.Value {
-			return false, fmt.Sprintf("MinLength: length must not be less than %d", r.MinLength.Value), nil
+		if s != nil && len(s.Value()) < r.MinLength.Value() {
+			return false, fmt.Sprintf("MinLength: length must not be less than %d", r.MinLength.Value()), nil
 		}
 	}
 
 	// The value must be shorter or equal to the provided maximum length
 	// MaxLength Int
-	if r.MaxLength.Exists {
-		if !s.Exists && !r.Optional {
+	if r.MaxLength != nil {
+		if s == nil && !r.Optional {
 			return false, "MaxLength: value must exist", nil
 		}
-		if s.Exists && len(s.Value) > r.MaxLength.Value {
-			return false, fmt.Sprintf("MaxLength: length must not be greater than %d", r.MaxLength.Value), nil
+		if s != nil && len(s.Value()) > r.MaxLength.Value() {
+			return false, fmt.Sprintf("MaxLength: length must not be greater than %d", r.MaxLength.Value()), nil
 		}
 	}
 
 	// The value of this string is restricted to one of the provided values
 	// Enum []string
 	if len(r.Enum) > 0 {
-		if !s.Exists && !r.Optional {
+		if s == nil && !r.Optional {
 			return false, "Enum: value must exist", nil
 		}
-		if s.Exists {
+		if s != nil {
 			found := false
 			for _, e := range r.Enum {
-				if e == s.Value {
+				if e == s.Value() {
 					found = true
 				}
 			}
@@ -122,53 +129,43 @@ var _ Enforcer = (*StringRule)(nil)
 
 func (out *String) Unpack(in json.Unpackable) error {
 	if in == nil || in.UpType() == json.J_NULL {
-		out.Exists = false
-		out.Value = ""
-		return nil
+		return kerr.New("PWTAHLCCWR", nil, "Called String.Unpack with nil value")
 	}
 	if in.UpType() != json.J_STRING {
-		return kerr.New("IXASCXOPMG", nil, "Can't unpack %s into system.String", in.UpType())
+		return kerr.New("IXASCXOPMG", nil, "Can't unpack %s into *system.String", in.UpType())
 	}
-	out.Exists = true
-	out.Value = in.UpString()
+	s := NewString(in.UpString())
+	*out = *s
 	return nil
 }
 
 var _ json.Unpacker = (*String)(nil)
 
-func (s String) MarshalJSON() ([]byte, error) {
-	if !s.Exists {
+func (s *String) MarshalJSON() ([]byte, error) {
+	if s == nil {
 		return []byte("null"), nil
 	}
-	return []byte(strconv.Quote(s.Value)), nil
+	return []byte(strconv.Quote(s.Value())), nil
 }
 
 var _ json.Marshaler = (*String)(nil)
 
 func (s *String) String() string {
-	if !s.Exists {
+	if s == nil {
 		return ""
 	}
-	return s.Value
+	return s.Value()
 }
 
 type NativeString interface {
-	NativeString() (string, bool)
+	NativeString() string
 }
 
-func (s String) NativeString() (value string, exists bool) {
-	return s.Value, s.Exists
+func (s String) NativeString() string {
+	return string(s)
 }
 
 var _ NativeString = (*String)(nil)
-
-// We satisfy the json.EmptyAware interface to allow intelligent omission of
-// empty values when marshalling
-func (s String) Empty() bool {
-	return !s.Exists
-}
-
-var _ json.EmptyAware = (*String)(nil)
 
 func (r *StringRule) GetDefault() interface{} {
 	return r.Default

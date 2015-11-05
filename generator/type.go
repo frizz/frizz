@@ -58,9 +58,9 @@ func Type(fieldName string, field system.RuleInterface, path string, getAlias fu
 func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
 	p := outer.Parent
 	if p.IsNativeCollection() {
-		if p.Native.Value == "array" {
+		if p.Native.Value() == "array" {
 			prefix += "[]"
-		} else if p.Native.Value == "map" {
+		} else if p.Native.Value() == "map" {
 			prefix += "map[string]"
 		}
 		items, err := outer.ItemsRule()
@@ -74,9 +74,9 @@ func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPr
 }
 
 func getPointer(t *system.Type) string {
-	isNative := t.IsNativeValue()
+	isJson := t.IsJsonValue()
 	isInterface := t.Interface
-	if !isNative && !isInterface {
+	if !isJson && !isInterface {
 		return "*"
 	}
 	return ""

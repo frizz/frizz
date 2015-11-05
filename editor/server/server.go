@@ -95,7 +95,7 @@ func Start(path string, verbose bool, debug bool) error {
 		}
 		c := connection.New(ws, app.fail, app.debug, app.path, app.aliases)
 
-		sourceRequestsChannel := c.Subscribe(system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
+		sourceRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })
 
 		if err := c.Receive(); err != nil {
@@ -139,13 +139,13 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 		if !ok {
 			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.sourceRequest", m)
 		}
-		hashed, ok := system.GetSource(system.NewReference(app.path, request.Name.Value))
+		hashed, ok := system.GetSource(*system.NewReference(app.path, request.Name.Value()))
 		data := ""
 		if ok {
 			data = string(hashed.Source)
 		}
-		response := messages.NewSourceResponse(request.Name.Value, ok, data)
-		conn.Respond(response, request.Guid.Value)
+		response := messages.NewSourceResponse(request.Name.Value(), ok, data)
+		conn.Respond(response, request.Guid.Value())
 	}
 }
 
@@ -253,7 +253,7 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 	data := []string{}
 	types := []string{}
 	for _, hashed := range sources {
-		if hashed.Type == system.NewReference("kego.io/system", "type") {
+		if hashed.Type == *system.NewReference("kego.io/system", "type") {
 			types = append(types, hashed.Id.Name)
 		} else {
 			data = append(data, hashed.Id.Name)

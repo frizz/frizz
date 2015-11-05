@@ -16,8 +16,7 @@ import (
 
 func Structs(set *settings.Settings) (source []byte, err error) {
 
-	filter := system.NewReference("kego.io/system", "type")
-	types := system.GetAllGlobalsInPackage(set.Path, &filter)
+	types := system.GetAllGlobalsInPackage(set.Path, system.NewReference("kego.io/system", "type"))
 	g := generator.New(set.Path)
 
 	if len(types) == 0 {
@@ -59,30 +58,14 @@ func Structs(set *settings.Settings) (source []byte, err error) {
 func printInterfaceDefinition(g *generator.Generator, typ *system.Type) {
 	g.Println("type ", system.GoInterfaceName(typ.Id.Name), " interface {")
 	{
-		ptrStar := "*"
-		if typ.IsNativeValue() {
-			ptrStar = ""
-		}
-		g.Println("Get", system.GoName(typ.Id.Name), "() ", ptrStar, system.GoName(typ.Id.Name))
+		g.Println("Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name))
 	}
 	g.Println("}")
 }
 
 func printInterfaceImplementation(g *generator.Generator, typ *system.Type) {
-	ptrStar := "*"
-	if typ.IsNativeValue() {
-		ptrStar = ""
-	}
-	g.Println("func (o ", ptrStar, system.GoName(typ.Id.Name), ") Get", system.GoName(typ.Id.Name), "() ", ptrStar, system.GoName(typ.Id.Name), " {")
+	g.Println("func (o *", system.GoName(typ.Id.Name), ") Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name), " {")
 	{
-		// TODO: don't like this in here... Maybe the json should create these?
-		if !typ.IsNativeValue() {
-			g.Println("if o == nil {")
-			{
-				g.Println("return &", system.GoName(typ.Id.Name), "{}")
-			}
-			g.Println("}")
-		}
 		g.Println("return o")
 	}
 	g.Println("}")
@@ -100,7 +83,7 @@ func printStructDefinition(g *generator.Generator, typ *system.Type, set *settin
 
 		embedsSortable := system.SortableReferences(typ.Embed)
 		sort.Sort(embedsSortable)
-		embeds := []system.Reference(embedsSortable)
+		embeds := []*system.Reference(embedsSortable)
 		for _, embed := range embeds {
 			g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), set.Path, g.Imports.Add))
 		}
@@ -140,17 +123,11 @@ func printInitFunction(g *generator.Generator, types []system.Hashed, set *setti
 					"TypeOf",
 					fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.Name)),
 				) + ".Elem()"
-			} else if typ.Native.Value == "object" {
-				typeOf1 = g.SprintFunctionCall(
-					"reflect",
-					"TypeOf",
-					fmt.Sprintf("&%s{}", system.GoName(typ.Id.Name)),
-				)
 			} else {
 				typeOf1 = g.SprintFunctionCall(
 					"reflect",
 					"TypeOf",
-					fmt.Sprintf("%s{}", system.GoName(typ.Id.Name)),
+					fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.Name)),
 				)
 			}
 

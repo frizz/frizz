@@ -38,8 +38,8 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, "This is the native json bool data type", f.Description)
-	assert.True(t, f.Native.Exists)
-	assert.Equal(t, "bool", f.Native.Value)
+	assert.NotNil(t, f.Native)
+	assert.Equal(t, "bool", f.Native.Value())
 
 }
 
@@ -103,14 +103,14 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.Equal(t, "This is the most basic type.", f.Description)
-	assert.True(t, f.Native.Exists)
-	assert.Equal(t, "object", f.Native.Value)
+	assert.NotNil(t, f.Native)
+	assert.Equal(t, "object", f.Native.Value())
 	assert.Equal(t, "Is this type an interface?", f.Fields["interface"].(ObjectInterface).GetObject().Description)
 	assert.Equal(t, true, f.Fields["interface"].GetRule().Optional)
 	r, ok := f.Fields["interface"].(*BoolRule)
 	assert.True(t, ok, "Wrong type %T\n", f.Fields["interface"])
-	assert.True(t, r.Default.Exists)
-	assert.Equal(t, false, r.Default.Value)
+	assert.NotNil(t, r.Default)
+	assert.Equal(t, false, r.Default.Value())
 
 }
 

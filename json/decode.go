@@ -1456,7 +1456,7 @@ func setDefaultNativeValue(v reflect.Value, value []byte, context *ctx) error {
 	if !ok {
 		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
 	}
-	p := reflect.New(t)
+	p := reflect.New(t.Elem())
 
 	vali := p.Interface()
 

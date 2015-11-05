@@ -36,7 +36,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, 1.2, a.B.GetNumber().Value)
+	assert.Equal(t, 1.2, a.B.GetNumber().Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)
@@ -46,7 +46,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
 
 func TestNumberRule_Enforce(t *testing.T) {
 	r := NumberRule{Rule: &Rule{Optional: false}, Minimum: NewNumber(1.5)}
-	ok, message, err := r.Enforce(Number{}, "", map[string]string{})
+	ok, message, err := r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum: value must exist", message)
 	assert.False(t, ok)
@@ -73,7 +73,7 @@ func TestNumberRule_Enforce(t *testing.T) {
 	assert.False(t, ok)
 
 	r = NumberRule{Rule: &Rule{Optional: false}, Maximum: NewNumber(1.5)}
-	ok, message, err = r.Enforce(Number{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum: value must exist", message)
 	assert.False(t, ok)
@@ -100,7 +100,7 @@ func TestNumberRule_Enforce(t *testing.T) {
 	assert.False(t, ok)
 
 	r = NumberRule{Rule: &Rule{Optional: false}, MultipleOf: NewNumber(1.5)}
-	ok, message, err = r.Enforce(Number{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value must exist", message)
 	assert.False(t, ok)
@@ -129,23 +129,23 @@ func TestNumberRule_Enforce(t *testing.T) {
 
 func TestNewNumber(t *testing.T) {
 	n := NewNumber(1.2)
-	assert.True(t, n.Exists)
-	assert.Equal(t, 1.2, n.Value)
+	assert.NotNil(t, n)
+	assert.Equal(t, 1.2, n.Value())
 }
 
 func TestNumberUnmarshalJSON(t *testing.T) {
 
-	var n Number
+	var n *Number
 
-	err := n.Unpack(json.NewJsonUnpacker(1.2))
-	assert.NoError(t, err)
-	assert.True(t, n.Exists)
-	assert.Equal(t, 1.2, n.Value)
+	err := n.Unpack(json.NewJsonUnpacker(nil))
+	assert.IsError(t, err, "WHREWCCODC")
 
-	err = n.Unpack(json.NewJsonUnpacker(nil))
+	n = NewNumber(0.0)
+
+	err = n.Unpack(json.NewJsonUnpacker(1.2))
 	assert.NoError(t, err)
-	assert.False(t, n.Exists)
-	assert.Equal(t, 0.0, n.Value)
+	assert.NotNil(t, n)
+	assert.Equal(t, 1.2, n.Value())
 
 	err = n.Unpack(json.NewJsonUnpacker("foo"))
 	assert.IsError(t, err, "YHXBFTONCW")
@@ -154,17 +154,18 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 
 func TestNumberMarshalJSON(t *testing.T) {
 
-	n := Number{Exists: false, Value: 0.0}
+	var n *Number
+
 	ba, err := n.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
-	n = Number{Exists: true, Value: 1.2}
+	n = NewNumber(1.2)
 	ba, err = n.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "1.2", string(ba))
 
-	n = Number{Exists: true, Value: 1.0}
+	n = NewNumber(1.0)
 	ba, err = n.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "1", string(ba))
@@ -173,15 +174,15 @@ func TestNumberMarshalJSON(t *testing.T) {
 
 func TestNumberString(t *testing.T) {
 
-	n := Number{Exists: false, Value: 0.0}
+	n := NewNumber(0.0)
 	s := n.String()
-	assert.Equal(t, "", s)
+	assert.Equal(t, "0", s)
 
-	n = Number{Exists: true, Value: 1.2}
+	n = NewNumber(1.2)
 	s = n.String()
 	assert.Equal(t, "1.2", s)
 
-	n = Number{Exists: true, Value: 1.0}
+	n = NewNumber(1.0)
 	s = n.String()
 	assert.Equal(t, "1", s)
 

@@ -36,7 +36,7 @@ func testUnpackDefaultNativeTypeInt(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, 2, a.B.GetInt().Value)
+	assert.Equal(t, 2, a.B.GetInt().Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)
@@ -46,7 +46,7 @@ func testUnpackDefaultNativeTypeInt(t *testing.T, unpacker unpackerFunc) {
 
 func TestIntRule_Enforce(t *testing.T) {
 	r := IntRule{Rule: &Rule{Optional: false}, Minimum: NewInt(2)}
-	ok, message, err := r.Enforce(Int{}, "", map[string]string{})
+	ok, message, err := r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum: value must exist", message)
 	assert.False(t, ok)
@@ -67,7 +67,7 @@ func TestIntRule_Enforce(t *testing.T) {
 	assert.False(t, ok)
 
 	r = IntRule{Rule: &Rule{Optional: false}, Maximum: NewInt(2)}
-	ok, message, err = r.Enforce(Int{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum: value must exist", message)
 	assert.False(t, ok)
@@ -88,7 +88,7 @@ func TestIntRule_Enforce(t *testing.T) {
 	assert.False(t, ok)
 
 	r = IntRule{Rule: &Rule{Optional: false}, MultipleOf: NewInt(3)}
-	ok, message, err = r.Enforce(Int{}, "", map[string]string{})
+	ok, message, err = r.Enforce(nil, "", map[string]string{})
 	assert.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value must exist", message)
 	assert.False(t, ok)
@@ -117,28 +117,28 @@ func TestIntRule_Enforce(t *testing.T) {
 
 func TestNewInt(t *testing.T) {
 	n := NewInt(2)
-	assert.True(t, n.Exists)
-	assert.Equal(t, 2, n.Value)
+	assert.NotNil(t, n)
+	assert.Equal(t, 2, n.Value())
 }
 
 func TestIntUnmarshalJSON(t *testing.T) {
 
-	var i Int
+	var i *Int
 
-	err := i.Unpack(json.NewJsonUnpacker(2.0))
+	err := i.Unpack(json.NewJsonUnpacker(nil))
+	assert.IsError(t, err, "JEJANRWFMH")
+
+	i = NewInt(0)
+
+	err = i.Unpack(json.NewJsonUnpacker(2.0))
 	assert.NoError(t, err)
-	assert.True(t, i.Exists)
-	assert.Equal(t, 2, i.Value)
+	assert.NotNil(t, i)
+	assert.Equal(t, 2, i.Value())
 
 	err = i.Unpack(json.NewJsonUnpacker(-12.0))
 	assert.NoError(t, err)
-	assert.True(t, i.Exists)
-	assert.Equal(t, -12, i.Value)
-
-	err = i.Unpack(json.NewJsonUnpacker(nil))
-	assert.NoError(t, err)
-	assert.False(t, i.Exists)
-	assert.Equal(t, 0, i.Value)
+	assert.NotNil(t, i)
+	assert.Equal(t, -12, i.Value())
 
 	err = i.Unpack(json.NewJsonUnpacker("foo"))
 	assert.IsError(t, err, "UJUBDGVYGF")
@@ -150,17 +150,17 @@ func TestIntUnmarshalJSON(t *testing.T) {
 
 func TestIntMarshalJSON(t *testing.T) {
 
-	i := Int{Exists: false, Value: 0}
+	var i *Int
 	ba, err := i.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
-	i = Int{Exists: true, Value: 12}
+	i = NewInt(12)
 	ba, err = i.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "12", string(ba))
 
-	i = Int{Exists: true, Value: -101}
+	i = NewInt(-101)
 	ba, err = i.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, "-101", string(ba))
@@ -169,15 +169,15 @@ func TestIntMarshalJSON(t *testing.T) {
 
 func TestIntString(t *testing.T) {
 
-	i := Int{Exists: false, Value: 0}
+	var i *Int
 	s := i.String()
 	assert.Equal(t, "", s)
 
-	i = Int{Exists: true, Value: 12}
+	i = NewInt(12)
 	s = i.String()
 	assert.Equal(t, "12", s)
 
-	i = Int{Exists: true, Value: -101}
+	i = NewInt(-101)
 	s = i.String()
 	assert.Equal(t, "-101", s)
 

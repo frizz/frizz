@@ -42,7 +42,7 @@ func SkipTestNonDestructiveGeneration(t *testing.T) {
 		// This is a struct comment
 		type B struct {
 			// This is a field comment
-			C system.String
+			C *system.String
 		}`,
 	})
 

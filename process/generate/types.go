@@ -13,8 +13,7 @@ import (
 
 func Types(set *settings.Settings) (source []byte, err error) {
 
-	filter := system.NewReference("kego.io/system", "type")
-	types := system.GetAllGlobalsInPackage(set.Path, &filter)
+	types := system.GetAllGlobalsInPackage(set.Path, system.NewReference("kego.io/system", "type"))
 	typesPath := fmt.Sprintf("%s/types", set.Path)
 	g := generator.New(typesPath)
 

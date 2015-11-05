@@ -116,28 +116,23 @@ func (p *Parser) siblings(lhs []*node.Node, rhs []*node.Node) []*node.Node {
 }
 
 func getFloat64(in interface{}) float64 {
+	if in == nil {
+		return 0.0
+	}
 	if as_node, ok := in.(*node.Node); ok {
 		return as_node.ValueNumber
 	}
-	as_nativeNum, ok := in.(system.NativeNumber)
-	if ok {
-		num, exists := as_nativeNum.NativeNumber()
-		if !exists {
-			return 0.0
-		}
-		return num
+	if as_nativeNum, ok := in.(system.NativeNumber); ok {
+		return as_nativeNum.NativeNumber()
 	}
-	as_float, ok := in.(float64)
-	if ok {
+	if as_float, ok := in.(float64); ok {
 		return as_float
 	}
-	as_int, ok := in.(int64)
-	if ok {
+	if as_int, ok := in.(int64); ok {
 		value := float64(as_int)
 		return value
 	}
-	as_string, ok := in.(string)
-	if ok {
+	if as_string, ok := in.(string); ok {
 		parsed_float_string, err := strconv.ParseFloat(as_string, 64)
 		if err == nil {
 			value := parsed_float_string
@@ -163,54 +158,46 @@ func getInt32(in interface{}) int32 {
 	return value
 }
 
-func isNull(in interface{}) bool {
-	if in == nil {
+func isNull(in exprElement) bool {
+	if in.typ == json.J_NULL {
 		return true
 	}
-	if e, ok := in.(json.EmptyAware); ok {
-		return e.Empty()
+	if in.value == nil {
+		return true
 	}
-	if n, ok := in.(*node.Node); ok {
+	if n, ok := in.value.(*node.Node); ok {
 		return n.Null || n.Missing
 	}
 	return false
 }
 
 func getBool(in interface{}) bool {
-	as_node, ok := in.(*node.Node)
-	if ok {
+	if in == nil {
+		return false
+	}
+	if as_node, ok := in.(*node.Node); ok {
 		return as_node.ValueBool
 	}
-	as_nativeBool, ok := in.(system.NativeBool)
-	if ok {
-		b, exists := as_nativeBool.NativeBool()
-		if !exists {
-			return false
-		}
-		return b
+	if as_nativeBool, ok := in.(system.NativeBool); ok {
+		return as_nativeBool.NativeBool()
 	}
-	as_bool, ok := in.(bool)
-	if ok {
+	if as_bool, ok := in.(bool); ok {
 		return as_bool
 	}
 	return false
 }
 
 func getJsonString(in interface{}) string {
-	as_node, ok := in.(*node.Node)
-	if ok {
+	if in == nil {
+		return ""
+	}
+	if as_node, ok := in.(*node.Node); ok {
 		return as_node.ValueString
 	}
-	as_nativeStr, ok := in.(system.NativeString)
-	if ok {
-		s, exists := as_nativeStr.NativeString()
-		if !exists {
-			return ""
-		}
-		return s
+	if as_nativeStr, ok := in.(system.NativeString); ok {
+		return as_nativeStr.NativeString()
 	}
-	as_string, ok := in.(string)
-	if ok {
+	if as_string, ok := in.(string); ok {
 		return as_string
 	}
 	marshaled_result, err := json.Marshal(in)
