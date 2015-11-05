@@ -23,11 +23,9 @@ type IconEditor struct {
 
 var _ editor.Editor = (*IconEditor)(nil)
 
-func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
+func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, dirtyable editor.Dirtyable, path string, aliases map[string]string) error {
 
-	e.Panel = panel
-	e.Path = path
-	e.Aliases = aliases
+	e.Common.Initialize(panel, dirtyable, path, aliases)
 
 	e.image = mdl.NewImage(e.Url.Value())
 	e.textbox = mdl.NewTextbox(e.Url.Value(), "url")
@@ -41,7 +39,6 @@ func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases 
 
 	e.Update()
 
-	e.Initialized = true
 	return nil
 }
 

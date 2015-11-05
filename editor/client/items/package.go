@@ -11,7 +11,7 @@ import (
 type pkg struct {
 	*item
 	node  *node.Node
-	label *dom.HTMLDivElement
+	label *dom.HTMLSpanElement
 	data  *holder
 	types *holder
 }
@@ -23,11 +23,9 @@ func (p *pkg) Node() *node.Node {
 	return p.node
 }
 
-func (p *pkg) Initialise(div *dom.HTMLDivElement) {
-	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+func (p *pkg) Initialise(label *dom.HTMLSpanElement) {
 	label.SetTextContent(p.tree.Path)
 	p.label = label
-	div.AppendChild(label)
 }
 
 func AddPackage(node *node.Node, parentBranch *tree.Branch, sourcesData []string, sourcesTypes []string) *pkg {

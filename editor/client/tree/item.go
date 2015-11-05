@@ -6,7 +6,7 @@ import (
 )
 
 type Item interface {
-	Initialise(*dom.HTMLDivElement)
+	Initialise(*dom.HTMLSpanElement)
 }
 
 type Async interface {

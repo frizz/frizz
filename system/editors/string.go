@@ -26,11 +26,9 @@ type StringEditor struct {
 	textbox *mdl.Textbox
 }
 
-func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
+func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, dirtyable editor.Dirtyable, path string, aliases map[string]string) error {
 
-	e.Panel = panel
-	e.Path = path
-	e.Aliases = aliases
+	e.Common.Initialize(panel, dirtyable, path, aliases)
 
 	e.textbox = mdl.NewTextbox(e.Value(), e.node.Key)
 	e.Panel.AppendChild(e.textbox)
@@ -38,6 +36,5 @@ func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, path string, aliase
 		e.node.ValueString = e.textbox.Input.Value
 	})
 
-	e.Initialized = true
 	return nil
 }

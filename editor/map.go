@@ -15,11 +15,9 @@ type NodeMapEditor struct {
 
 var _ Editor = (*NodeMapEditor)(nil)
 
-func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
+func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
 
-	e.Panel = panel
-	e.Path = path
-	e.Aliases = aliases
+	e.Common.Initialize(panel, dirtyable, path, aliases)
 
 	table := mdl.Table()
 
@@ -54,6 +52,5 @@ func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, path string, alias
 	}
 	e.Panel.AppendChild(table.Build())
 
-	e.Initialized = true
 	return nil
 }

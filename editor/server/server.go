@@ -309,9 +309,11 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 						height: 20px;
 						width: 20px;
 					}
+					.label {
+						cursor: pointer;
+					}
 					.content {
 						padding: 2px 5px 2px 5px;
-						cursor: pointer;
 					}
 					.content.selected {
 						background-color: #eeeeee;
@@ -320,6 +322,12 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 						position: absolute;
 						left: 50%;
 						top: 50%;
+					}
+					.badge {
+						position: absolute;
+						margin-top: -2px;
+						margin-left: -3px;
+						opacity: 0.5;
 					}
 				</style>
 			</head>

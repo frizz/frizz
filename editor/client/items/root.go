@@ -13,4 +13,4 @@ func Root() *root {
 
 var _ tree.Item = (*root)(nil)
 
-func (r *root) Initialise(div *dom.HTMLDivElement) {}
+func (r *root) Initialise(label *dom.HTMLSpanElement) {}

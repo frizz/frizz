@@ -17,11 +17,9 @@ type NodeArrayEditor struct {
 
 var _ Editor = (*NodeArrayEditor)(nil)
 
-func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error {
+func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
 
-	e.Panel = panel
-	e.Path = path
-	e.Aliases = aliases
+	e.Common.Initialize(panel, dirtyable, path, aliases)
 
 	table := mdl.Table()
 
@@ -56,6 +54,5 @@ func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, path string, ali
 	}
 	e.Panel.AppendChild(table.Build())
 
-	e.Initialized = true
 	return nil
 }

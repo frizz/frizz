@@ -7,8 +7,12 @@ import (
 
 func Default(n *node.Node) Editor {
 	switch n.JsonType {
-	case json.J_STRING, json.J_BOOL, json.J_NUMBER:
-		return &NodeValueEditor{Node: n, Common: &Common{}}
+	case json.J_STRING:
+		return &NodeStringEditor{Node: n, Common: &Common{}}
+	case json.J_BOOL:
+		return &NodeBoolEditor{Node: n, Common: &Common{}}
+	case json.J_NUMBER:
+		return &NodeNumberEditor{Node: n, Common: &Common{}}
 	case json.J_MAP:
 		return &NodeMapEditor{Node: n, Common: &Common{}}
 	case json.J_OBJECT:

@@ -14,8 +14,8 @@ type dummy struct {
 	id string
 }
 
-func (i *dummy) Initialise(div *dom.HTMLDivElement) {
-	div.SetTextContent(i.id)
+func (i *dummy) Initialise(label *dom.HTMLSpanElement) {
+	label.SetTextContent(i.id)
 }
 
 var _ = Item(&dummy{})

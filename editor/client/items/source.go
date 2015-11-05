@@ -15,7 +15,7 @@ type source struct {
 	node   *node.Node
 	name   string
 	loaded bool
-	label  *dom.HTMLDivElement
+	label  *dom.HTMLSpanElement
 	conn   *connection.Conn
 	pkg    *pkg
 	data   *holder
@@ -29,11 +29,9 @@ func (s *source) Node() *node.Node {
 	return s.node
 }
 
-func (s *source) Initialise(div *dom.HTMLDivElement) {
-	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+func (s *source) Initialise(label *dom.HTMLSpanElement) {
 	label.SetTextContent(s.name)
 	s.label = label
-	div.AppendChild(label)
 }
 
 func (s *source) LoadContent() chan bool {

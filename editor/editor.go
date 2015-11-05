@@ -9,8 +9,12 @@ type Editable interface {
 	GetEditor(n *node.Node) Editor
 }
 
+type Dirtyable interface {
+	MarkDirty(bool)
+}
+
 type Editor interface {
-	Initialize(panel *dom.HTMLDivElement, path string, aliases map[string]string) error
+	Initialize(panel *dom.HTMLDivElement, d Dirtyable, path string, aliases map[string]string) error
 	Show()
 	Hide()
 	IsInitialized() bool
@@ -20,11 +24,23 @@ type Common struct {
 	Path        string
 	Aliases     map[string]string
 	Panel       *dom.HTMLDivElement
-	Initialized bool
+	initialized bool
+	dirtyable   Dirtyable
+}
+
+func (c *Common) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+
+	c.Panel = panel
+	c.Path = path
+	c.Aliases = aliases
+	c.dirtyable = dirtyable
+	c.initialized = true
+	return nil
+
 }
 
 func (e *Common) IsInitialized() bool {
-	return e.Initialized
+	return e.initialized
 }
 
 func (e *Common) Show() {

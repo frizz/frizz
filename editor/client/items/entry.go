@@ -15,7 +15,7 @@ type entry struct {
 	name  string
 	index int
 	node  *node.Node
-	label *dom.HTMLDivElement
+	label *dom.HTMLSpanElement
 }
 
 var _ tree.Item = (*entry)(nil)
@@ -25,8 +25,7 @@ func (e *entry) Node() *node.Node {
 	return e.node
 }
 
-func (e *entry) Initialise(div *dom.HTMLDivElement) {
-	label := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+func (e *entry) Initialise(label *dom.HTMLSpanElement) {
 
 	name := ""
 	if e.index > -1 {
@@ -37,7 +36,6 @@ func (e *entry) Initialise(div *dom.HTMLDivElement) {
 
 	label.SetTextContent(name)
 	e.label = label
-	div.AppendChild(label)
 }
 
 func shortenString(in string) string {

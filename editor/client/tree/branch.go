@@ -25,14 +25,17 @@ type Branch struct {
 	opener   *dom.HTMLAnchorElement
 	inner    *dom.HTMLDivElement
 	content  *dom.HTMLDivElement
+	label    *dom.HTMLSpanElement
+	badge    *dom.HTMLSpanElement
 	selected bool
 	editor   editor.Editor
+	dirty    map[*Branch]bool // map of dirty descendants
 }
 
 func (b *Branch) Initialise() {
 	// We must tolerate having a nil dom element in order to run tests in pure go
 	if b.element != nil {
-		b.item.Initialise(b.content)
+		b.item.Initialise(b.label)
 	}
 }
 
@@ -51,31 +54,42 @@ func (b *Branch) Append(child *Branch) *Branch {
 			}
 		})
 
-		contentDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-		contentDiv.SetAttribute("class", "content")
+		content := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+		content.SetAttribute("class", "content")
 
-		contentDiv.AddEventListener("click", true, func(e dom.Event) {
+		label := dom.GetWindow().Document().CreateElement("span").(*dom.HTMLSpanElement)
+		label.SetAttribute("class", "label")
+		label.AddEventListener("click", true, func(e dom.Event) {
 			child.Select(false)
 		})
 
-		innerDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-		innerDiv.SetAttribute("class", "children")
+		badge := dom.GetWindow().Document().CreateElement("span").(*dom.HTMLSpanElement)
+		badge.SetAttribute("class", "badge")
+		badge.SetInnerHTML(`<svg fill="#ff4081" height="12" width="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`)
+		badge.Style().Set("display", "none")
+
+		children := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+		children.SetAttribute("class", "children")
 		// children should be hidden by default
-		innerDiv.Style().Set("display", "none")
+		children.Style().Set("display", "none")
 
-		nodeDiv := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-		nodeDiv.SetAttribute("class", "node")
+		node := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+		node.SetAttribute("class", "node")
 
-		nodeDiv.AppendChild(opener)
-		nodeDiv.AppendChild(contentDiv)
-		nodeDiv.AppendChild(innerDiv)
+		node.AppendChild(opener)
+		node.AppendChild(content)
+		content.AppendChild(label)
+		content.AppendChild(badge)
+		node.AppendChild(children)
 
 		child.opener = opener
-		child.element = nodeDiv
-		child.inner = innerDiv
-		child.content = contentDiv
+		child.element = node
+		child.inner = children
+		child.content = content
+		child.label = label
+		child.badge = badge
 
-		b.inner.AppendChild(nodeDiv)
+		b.inner.AppendChild(node)
 	}
 	b.children = append(b.children, child)
 	child.Initialise()
@@ -160,7 +174,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 			panel.Style().Set("display", "none")
 			panel.Class().SetString("mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid")
 			b.Tree.content.AppendChild(panel)
-			if err := b.editor.Initialize(panel, b.Tree.Path, b.Tree.Aliases); err != nil {
+			if err := b.editor.Initialize(panel, b, b.Tree.Path, b.Tree.Aliases); err != nil {
 				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
 				return
 			}
@@ -308,6 +322,10 @@ func (b *Branch) afterStateChange() {
 		// if the selected branch is now invisible, we should un-select it.
 		b.Tree.selected.Unselect()
 	}
+	b.setDirtyIconState()
+	if b.parent != nil {
+		b.parent.setDirtyIconState()
+	}
 }
 
 // update assumes parent and index are sources of truth, and updates siblings, prev and next, and
@@ -447,4 +465,59 @@ func (b *Branch) isVisible() bool {
 		test = test.parent
 	}
 	return true
+}
+
+func (b *Branch) dirtyDescendant(state bool, descendant *Branch) {
+	if state {
+		if b.dirty == nil {
+			b.dirty = map[*Branch]bool{}
+		}
+		b.dirty[descendant] = true
+	} else {
+		if b.dirty != nil {
+			delete(b.dirty, descendant)
+		}
+	}
+	b.setDirtyIconState()
+}
+
+func (b *Branch) setDirtyIconState() {
+	if b.badge == nil {
+		return
+	}
+
+	if b.dirtyIconState() {
+		b.badge.Style().Set("display", "inline")
+		return
+	}
+
+	b.badge.Style().Set("display", "none")
+
+}
+
+func (b *Branch) dirtyIconState() bool {
+
+	if b.dirty == nil || len(b.dirty) == 0 {
+		return false
+	}
+
+	if b.dirty[b] == true {
+		// if this branch is dirty, show the icon
+		return true
+	}
+
+	if !b.open {
+		// if descendants are dirty, only show the icon if this branch is closed
+		return true
+	}
+
+	return false
+}
+
+func (b *Branch) MarkDirty(state bool) {
+	ancestor := b
+	for ancestor != nil {
+		ancestor.dirtyDescendant(state, b)
+		ancestor = ancestor.parent
+	}
 }
