@@ -29,14 +29,14 @@ type appData struct {
 
 var app appData
 var window dom.Window
-var doc dom.Document
-var body dom.Element
+var doc dom.HTMLDocument
+var body *dom.HTMLBodyElement
 
 func Start(path string) error {
 
 	window = dom.GetWindow()
-	doc = window.Document()
-	body = doc.GetElementByID("body")
+	doc = window.Document().(dom.HTMLDocument)
+	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
 
 	// We parse the json info attribute from the body tag
 	info, err := getInfo(body)
@@ -74,7 +74,16 @@ func Start(path string) error {
 	items.AddPackage(packageNode, t.Root, info.Data, info.Types)
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {
-		t.KeyboardEvent(e.(*dom.KeyboardEvent))
+		k := e.(*dom.KeyboardEvent)
+		switch doc.ActiveElement().TagName() {
+		case "INPUT", "TEXTAREA":
+			if k.KeyCode == 27 {
+				doc.ActiveElement().Blur()
+			}
+			return
+		default:
+			t.KeyboardEvent(k)
+		}
 	})
 
 	go func() {
