@@ -1,3 +1,6 @@
+// exit is a demonstrator for how to capture the Ctrl+C signal and exit gracefully. Unfortunately,
+// the cleanup code in the defer statements doesn't get executed, so more work is needed to wire up
+// the app for graceful exit on Ctrl+C.
 package main
 
 import (

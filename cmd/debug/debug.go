@@ -1,3 +1,5 @@
+// debug is a command for hooking tests up to the delve debugger - because for some reason only
+// commands (not tests) can be debugged
 package main
 
 import (
@@ -5,8 +7,6 @@ import (
 
 	_ "kego.io/system/types"
 )
-
-// This file is so that we can hook tests up to the debugger - because only apps can be debugged
 
 func main() {
 	tests := []testing.InternalTest{{"TestGo", TestGo}}

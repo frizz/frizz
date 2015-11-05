@@ -1,3 +1,5 @@
+// deps produces a list of packages ordered by their level in the dependence tree. The include
+// function allows irrelevant packages to be excluded.
 package main
 
 import (
