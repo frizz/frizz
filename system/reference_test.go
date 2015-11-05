@@ -93,15 +93,15 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	}
 
 	r := reset()
-	err := r.Unpack(json.NewJsonUnpacker(nil), "", map[string]string{})
+	err := r.Unpack(json.Pack(nil), "", map[string]string{})
 	assert.IsError(t, err, "MOQVSKJXRB")
 
 	r = reset()
-	err = r.Unpack(json.NewJsonUnpacker("a.b/c:d"), "", map[string]string{})
+	err = r.Unpack(json.Pack("a.b/c:d"), "", map[string]string{})
 	assert.EqualError(t, err, "Unknown package a.b/c")
 
 	r = reset()
-	err = r.Unpack(json.NewJsonUnpacker("a.b/c:d"), "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack(json.Pack("a.b/c:d"), "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -109,7 +109,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(json.NewJsonUnpacker("a.b/c:@d"), "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack(json.Pack("a.b/c:@d"), "", map[string]string{"a.b/c": "c"})
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -117,7 +117,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
-	err = r.Unpack(json.NewJsonUnpacker("a:b"), "", map[string]string{})
+	err = r.Unpack(json.Pack("a:b"), "", map[string]string{})
 	assert.EqualError(t, err, "Unknown package a")
 }
 

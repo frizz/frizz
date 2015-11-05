@@ -137,17 +137,17 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 
 	var n *Number
 
-	err := n.Unpack(json.NewJsonUnpacker(nil))
+	err := n.Unpack(json.Pack(nil))
 	assert.IsError(t, err, "WHREWCCODC")
 
 	n = NewNumber(0.0)
 
-	err = n.Unpack(json.NewJsonUnpacker(1.2))
+	err = n.Unpack(json.Pack(1.2))
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 	assert.Equal(t, 1.2, n.Value())
 
-	err = n.Unpack(json.NewJsonUnpacker("foo"))
+	err = n.Unpack(json.Pack("foo"))
 	assert.IsError(t, err, "YHXBFTONCW")
 
 }

@@ -18,7 +18,7 @@ func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]str
 	if err := UnmarshalPlain(data, &j); err != nil {
 		return err
 	}
-	return Unpack(NewJsonUnpacker(j), i, path, aliases)
+	return Unpack(Pack(j), i, path, aliases)
 }
 
 func TestDecodeSimple(t *testing.T) {

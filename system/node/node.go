@@ -25,7 +25,8 @@ type Node struct {
 	JsonType    json.Type
 }
 
-func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
+// Unpack unpacks a node from an unpackable
+func (n *Node) Unpack(in json.Packed, path string, aliases map[string]string) error {
 	if err := n.extract(nil, "", -1, &system.Reference{}, 0, in, true, nil, path, aliases); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "extract")
 	}
@@ -34,7 +35,7 @@ func (n *Node) Unpack(in json.Unpackable, path string, aliases map[string]string
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
-func (n *Node) extract(parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Unpackable, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
+func (n *Node) extract(parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
 	if err != nil {
@@ -55,7 +56,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		n.JsonType = json.J_NULL
 		n.Null = true
 	} else {
-		n.JsonType = in.UpType()
+		n.JsonType = in.Type()
 		n.Null = n.JsonType == json.J_NULL
 	}
 
@@ -100,23 +101,23 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 
 	switch objectType.Native.Value() {
 	case "string":
-		if in.UpType() != json.J_STRING {
-			return kerr.New("RKKSUYTCIA", nil, "Type %s should be a string", in.UpType())
+		if in.Type() != json.J_STRING {
+			return kerr.New("RKKSUYTCIA", nil, "Type %s should be a string", in.Type())
 		}
-		n.ValueString = in.UpString()
+		n.ValueString = in.String()
 	case "number":
-		if in.UpType() != json.J_NUMBER {
-			return kerr.New("RNSWFUUTHB", nil, "Type %s should be a float64", in.UpType())
+		if in.Type() != json.J_NUMBER {
+			return kerr.New("RNSWFUUTHB", nil, "Type %s should be a float64", in.Type())
 		}
-		n.ValueNumber = in.UpNumber()
+		n.ValueNumber = in.Number()
 	case "bool":
-		if in.UpType() != json.J_BOOL {
-			return kerr.New("QGKJRAQUQI", nil, "Type %s should be a bool", in.UpType())
+		if in.Type() != json.J_BOOL {
+			return kerr.New("QGKJRAQUQI", nil, "Type %s should be a bool", in.Type())
 		}
-		n.ValueBool = in.UpBool()
+		n.ValueBool = in.Bool()
 	case "array":
-		if in.UpType() != json.J_ARRAY {
-			return kerr.New("CTJQUOKRTK", nil, "Type %s should be a []interface{}", in.UpType())
+		if in.Type() != json.J_ARRAY {
+			return kerr.New("CTJQUOKRTK", nil, "Type %s should be a []interface{}", in.Type())
 		}
 		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
@@ -126,7 +127,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		if err != nil {
 			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
-		children := in.UpArray()
+		children := in.Array()
 		for i, child := range children {
 			childNode := &Node{}
 			if err := childNode.extract(n, "", i, &system.Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
@@ -135,8 +136,8 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 			n.Array = append(n.Array, childNode)
 		}
 	case "map":
-		if in.UpType() != json.J_MAP {
-			return kerr.New("IPWEPTWVYY", nil, "Type %s should be a map[string]interface{}", in.UpType())
+		if in.Type() != json.J_MAP {
+			return kerr.New("IPWEPTWVYY", nil, "Type %s should be a map[string]interface{}", in.Type())
 		}
 		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
@@ -147,7 +148,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
 		n.Map = map[string]*Node{}
-		children := in.UpMap()
+		children := in.Map()
 		for name, child := range children {
 			childNode := &Node{}
 			if err := childNode.extract(n, name, -1, &system.Reference{}, 0, child, true, childRule, path, aliases); err != nil {
@@ -156,12 +157,12 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 			n.Map[name] = childNode
 		}
 	case "object":
-		m := map[string]json.Unpackable{}
-		if in != nil && in.UpType() != json.J_NULL {
-			if in.UpType() != json.J_MAP {
-				return kerr.New("CVCRNWMDYF", nil, "Type %s should be a map[string]interface{}", in.UpType())
+		m := map[string]json.Packed{}
+		if in != nil && in.Type() != json.J_NULL {
+			if in.Type() != json.J_MAP {
+				return kerr.New("CVCRNWMDYF", nil, "Type %s should be a map[string]interface{}", in.Type())
 			}
-			m = in.UpMap()
+			m = in.Map()
 		}
 		n.Fields = map[string]*Node{}
 
@@ -192,7 +193,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 	return nil
 }
 
-func extractType(in json.Unpackable, rule *system.RuleWrapper, path string, aliases map[string]string) (*system.Type, error) {
+func extractType(in json.Packed, rule *system.RuleWrapper, path string, aliases map[string]string) (*system.Type, error) {
 
 	if rule != nil && rule.Parent.Interface && rule.Struct.Interface {
 		return nil, kerr.New("TDXTPGVFAK", nil, "Can't have interface type and rule at the same time")
@@ -207,18 +208,18 @@ func extractType(in json.Unpackable, rule *system.RuleWrapper, path string, alia
 	// if the rule is nil (e.g. unpacking into an unknown type) or the type is an interface, we
 	// ensure the input is a map
 	if rule == nil || rule.Parent.Interface {
-		switch in.UpType() {
+		switch in.Type() {
 		case json.J_MAP:
 			break
 		default:
-			return nil, kerr.New("DLSQRFLINL", nil, "Input %s should be J_MAP if rule is nil or an interface type", in.UpType())
+			return nil, kerr.New("DLSQRFLINL", nil, "Input %s should be J_MAP if rule is nil or an interface type", in.Type())
 		}
 
 	}
 
 	// if the rule is an interface rule, we ensure the input is a map or a native value
 	if rule != nil && rule.Struct.Interface {
-		switch in.UpType() {
+		switch in.Type() {
 		case json.J_MAP:
 			break
 		case json.J_STRING, json.J_NUMBER, json.J_BOOL:
@@ -226,11 +227,11 @@ func extractType(in json.Unpackable, rule *system.RuleWrapper, path string, alia
 			// type of the rule
 			return rule.Parent, nil
 		default:
-			return nil, kerr.New("SNYLGBJYTM", nil, "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.UpType())
+			return nil, kerr.New("SNYLGBJYTM", nil, "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.Type())
 		}
 	}
 
-	ob := in.UpMap()
+	ob := in.Map()
 	typeField, ok := ob["type"]
 	if !ok {
 		return nil, kerr.New("HBJVDKAKBJ", nil, "Input must have type field if rule is nil or an interface type")

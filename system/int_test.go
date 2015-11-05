@@ -125,25 +125,25 @@ func TestIntUnmarshalJSON(t *testing.T) {
 
 	var i *Int
 
-	err := i.Unpack(json.NewJsonUnpacker(nil))
+	err := i.Unpack(json.Pack(nil))
 	assert.IsError(t, err, "JEJANRWFMH")
 
 	i = NewInt(0)
 
-	err = i.Unpack(json.NewJsonUnpacker(2.0))
+	err = i.Unpack(json.Pack(2.0))
 	assert.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, 2, i.Value())
 
-	err = i.Unpack(json.NewJsonUnpacker(-12.0))
+	err = i.Unpack(json.Pack(-12.0))
 	assert.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, -12, i.Value())
 
-	err = i.Unpack(json.NewJsonUnpacker("foo"))
+	err = i.Unpack(json.Pack("foo"))
 	assert.IsError(t, err, "UJUBDGVYGF")
 
-	err = i.Unpack(json.NewJsonUnpacker(1.2))
+	err = i.Unpack(json.Pack(1.2))
 	assert.HasError(t, err, "KVEOETSIJY")
 
 }

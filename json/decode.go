@@ -142,11 +142,11 @@ type Unmarshaler interface {
 }
 
 type Unpacker interface {
-	Unpack(Unpackable) error
+	Unpack(Packed) error
 }
 
 type ContextUnpacker interface {
-	Unpack(Unpackable, string, map[string]string) error
+	Unpack(Packed, string, map[string]string) error
 }
 
 // An UnmarshalTypeError describes a JSON value that was
@@ -525,7 +525,7 @@ func (d *decodeState) array(v reflect.Value, context *ctx) {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(NewJsonUnpacker(i)); err != nil {
+		if err := up.Unpack(Pack(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -538,7 +538,7 @@ func (d *decodeState) array(v reflect.Value, context *ctx) {
 			d.error(err)
 			return
 		}
-		if err := cup.Unpack(NewJsonUnpacker(i), context.Package, context.Aliases); err != nil {
+		if err := cup.Unpack(Pack(i), context.Package, context.Aliases); err != nil {
 			d.error(err)
 			return
 		}
@@ -967,7 +967,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, typed bool) {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(NewJsonUnpacker(i)); err != nil {
+		if err := up.Unpack(Pack(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -980,7 +980,7 @@ func (d *decodeState) object(v reflect.Value, context *ctx, typed bool) {
 			d.error(err)
 			return
 		}
-		if err := cup.Unpack(NewJsonUnpacker(i), context.Package, context.Aliases); err != nil {
+		if err := cup.Unpack(Pack(i), context.Package, context.Aliases); err != nil {
 			d.error(err)
 			return
 		}
@@ -1305,7 +1305,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(NewJsonUnpacker(i)); err != nil {
+		if err := up.Unpack(Pack(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -1317,7 +1317,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			d.error(err)
 			return
 		}
-		if err := cup.Unpack(NewJsonUnpacker(i), context.Package, context.Aliases); err != nil {
+		if err := cup.Unpack(Pack(i), context.Package, context.Aliases); err != nil {
 			d.error(err)
 			return
 		}

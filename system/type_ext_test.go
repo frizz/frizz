@@ -44,7 +44,6 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	assert.Equal(t, "This is the native json bool data type", f.Description)
 	assert.NotNil(t, f.Native)
 	assert.Equal(t, "bool", f.Native.Value())
-
 }
 
 func TestType(t *testing.T) {
@@ -129,13 +128,13 @@ func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]str
 	if err := json.UnmarshalPlain(data, &j); err != nil {
 		return err
 	}
-	return json.Unpack(json.NewJsonUnpacker(j), i, path, aliases)
+	return json.Unpack(json.Pack(j), i, path, aliases)
 }
 
 func repackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
-	var n node.Node
-	if err := json.UnmarshalPlainContext(data, &n, path, aliases); err != nil {
+	n := &node.Node{}
+	if err := json.UnmarshalPlainContext(data, n, path, aliases); err != nil {
 		return err
 	}
-	return json.Unpack(&n, i, path, aliases)
+	return json.Unpack(node.Pack(n), i, path, aliases)
 }

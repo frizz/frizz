@@ -183,17 +183,17 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	var s *String
 
-	err := s.Unpack(json.NewJsonUnpacker(nil))
+	err := s.Unpack(json.Pack(nil))
 	assert.IsError(t, err, "PWTAHLCCWR")
 
 	s = NewString("")
 
-	err = s.Unpack(json.NewJsonUnpacker(`foo "bar"`))
+	err = s.Unpack(json.Pack(`foo "bar"`))
 	assert.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
-	err = s.Unpack(json.NewJsonUnpacker(1.0))
+	err = s.Unpack(json.Pack(1.0))
 	assert.IsError(t, err, "IXASCXOPMG")
 
 }

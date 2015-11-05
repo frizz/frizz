@@ -56,22 +56,22 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 
 	var b *Bool
 
-	err := b.Unpack(json.NewJsonUnpacker(nil))
+	err := b.Unpack(json.Pack(nil))
 	assert.IsError(t, err, "FXCQGNYKIJ")
 
 	b = NewBool(false)
 
-	err = b.Unpack(json.NewJsonUnpacker(true))
+	err = b.Unpack(json.Pack(true))
 	assert.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.True(t, b.Value())
 
-	err = b.Unpack(json.NewJsonUnpacker(false))
+	err = b.Unpack(json.Pack(false))
 	assert.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.False(t, b.Value())
 
-	err = b.Unpack(json.NewJsonUnpacker("foo"))
+	err = b.Unpack(json.Pack("foo"))
 	assert.IsError(t, err, "GXQGNEPJYS")
 
 }

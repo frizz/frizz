@@ -52,21 +52,21 @@ func NewReference(packagePath string, typeName string) *Reference {
 
 func NewReferenceFromString(in string, path string, aliases map[string]string) (*Reference, error) {
 	r := &Reference{}
-	err := r.Unpack(json.NewJsonUnpacker(in), path, aliases)
+	err := r.Unpack(json.Pack(in), path, aliases)
 	if err != nil {
 		return nil, kerr.New("VXRGOQHWNB", err, "Unpack")
 	}
 	return r, nil
 }
 
-func (out *Reference) Unpack(in json.Unpackable, path string, aliases map[string]string) error {
-	if in == nil || in.UpType() == json.J_NULL {
+func (out *Reference) Unpack(in json.Packed, path string, aliases map[string]string) error {
+	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("MOQVSKJXRB", nil, "Called Reference.Unpack with nil value")
 	}
-	if in.UpType() != json.J_STRING {
-		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into *system.Reference", in.UpType())
+	if in.Type() != json.J_STRING {
+		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into *system.Reference", in.Type())
 	}
-	path, name, err := json.GetReferencePartsFromTypeString(in.UpString(), path, aliases)
+	path, name, err := json.GetReferencePartsFromTypeString(in.String(), path, aliases)
 	if err != nil {
 		// We need to clear the reference, because when we're scanning for
 		// aliases we need to tolerate unknown import errors here

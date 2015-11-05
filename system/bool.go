@@ -20,14 +20,14 @@ func (b *Bool) Set(in bool) {
 	*b = Bool(in)
 }
 
-func (out *Bool) Unpack(in json.Unpackable) error {
-	if in == nil || in.UpType() == json.J_NULL {
+func (out *Bool) Unpack(in json.Packed) error {
+	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("FXCQGNYKIJ", nil, "Called Bool.Unpack with nil value")
 	}
-	if in.UpType() != json.J_BOOL {
-		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %s into *system.Bool", in.UpType())
+	if in.Type() != json.J_BOOL {
+		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %s into *system.Bool", in.Type())
 	}
-	*out = Bool(in.UpBool())
+	*out = Bool(in.Bool())
 	return nil
 }
 

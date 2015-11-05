@@ -94,14 +94,14 @@ func (r *NumberRule) Enforce(data interface{}, path string, aliases map[string]s
 
 var _ Enforcer = (*NumberRule)(nil)
 
-func (out *Number) Unpack(in json.Unpackable) error {
-	if in == nil || in.UpType() == json.J_NULL {
+func (out *Number) Unpack(in json.Packed) error {
+	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("WHREWCCODC", nil, "Called Number.Unpack with nil value")
 	}
-	if in.UpType() != json.J_NUMBER {
-		return kerr.New("YHXBFTONCW", nil, "Can't unpack %s into system.Number", in.UpType())
+	if in.Type() != json.J_NUMBER {
+		return kerr.New("YHXBFTONCW", nil, "Can't unpack %s into system.Number", in.Type())
 	}
-	*out = Number(in.UpNumber())
+	*out = Number(in.Number())
 	return nil
 }
 
