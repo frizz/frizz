@@ -1,4 +1,4 @@
-package items
+package branch
 
 import (
 	"honnef.co/go/js/dom"
@@ -12,7 +12,7 @@ import (
 )
 
 type source struct {
-	*item
+	*Common
 	node   *node.Node
 	name   string
 	loaded bool
@@ -23,7 +23,6 @@ type source struct {
 	editor editor.Editor
 }
 
-var _ tree.Item = (*source)(nil)
 var _ tree.Async = (*source)(nil)
 var _ tree.Editable = (*source)(nil)
 
@@ -31,9 +30,10 @@ func (s *source) Editor() editor.Editor {
 	return editor.Default(s.node)
 }
 
-func (s *source) Initialise(label *dom.HTMLSpanElement) {
-	label.SetTextContent(s.name)
-	s.label = label
+func (s *source) Initialise(parent tree.Branch) {
+	s.Common = &Common{this: s, tree: parent.Tree()}
+	s.Common.Initialise(parent)
+	s.Common.SetLabel(s.name)
 }
 
 func (s *source) LoadContent() chan bool {
@@ -47,11 +47,11 @@ func (s *source) LoadContent() chan bool {
 		return successChannel
 	}
 
-	responseChannel := s.branch.Tree.Conn.Request(messages.NewSourceRequest(s.name))
+	responseChannel := s.tree.Conn.Request(messages.NewSourceRequest(s.name))
 
 	go func() {
 		if err := s.awaitSourceResponse(responseChannel, successChannel); err != nil {
-			s.branch.Tree.Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
+			s.tree.Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
 		}
 	}()
 
@@ -75,7 +75,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 
 	s.node = n
 
-	addNodeChildren(n, s.branch)
+	addEntryChildren(n, s)
 
 	s.loaded = true
 	successChannel <- true
@@ -86,18 +86,17 @@ func (s *source) ContentLoaded() bool {
 	return s.loaded
 }
 
-func (d *holder) addSource(name string, parent *tree.Branch) *source {
-	newSource := &source{item: &item{tree: parent.Tree}, name: name, data: d, pkg: d.pkg}
-	newBranch := parent.Tree.Branch(newSource)
-	newSource.branch = newBranch
+func (parent *holder) addSource(name string) *source {
+	s := &source{name: name, data: parent, pkg: parent.pkg}
+	s.Initialise(parent)
 
-	parent.Append(newBranch)
+	parent.Append(s)
 
-	return newSource
+	return s
 }
 
-func (d *holder) addSources(sources []string) {
+func (parent *holder) addSources(sources []string) {
 	for _, name := range sources {
-		d.addSource(name, d.branch)
+		parent.addSource(name)
 	}
 }

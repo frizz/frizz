@@ -9,8 +9,8 @@ import (
 
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
-	"kego.io/editor/client/items"
 	"kego.io/editor/client/tree"
+	"kego.io/editor/client/tree/branch"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/js/console"
@@ -69,9 +69,13 @@ func Start(path string) error {
 
 	nav := body.GetElementsByClassName("mdl-navigation")[0].(*dom.BasicHTMLElement)
 	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
+
 	// We create a new root tree element
-	t := tree.New(nav, content, app.conn, items.Root(), app.fail, app.path, app.aliases)
-	items.AddPackage(packageNode, t.Root, info.Data, info.Types)
+	t := tree.New(content, app.conn, app.fail, app.path, app.aliases)
+	root := branch.NewRoot(t, nav)
+	t.Root = root
+
+	root.AddPackage(packageNode, info.Data, info.Types)
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {
 		k := e.(*dom.KeyboardEvent)
