@@ -33,7 +33,7 @@ func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, dirtyable editor.Dirt
 	e.Panel.AppendChild(e.image)
 	e.Panel.AppendChild(e.textbox)
 
-	e.textbox.AddEventListener("change", true, func(ev dom.Event) {
+	e.textbox.AddEventListener("input", true, func(ev dom.Event) {
 		e.Update()
 	})
 

@@ -10,7 +10,7 @@ title:
 images:
   james:
       type: images:icon
-      url: https://cdn.makeuseof.com/wp-content/uploads/2014/04/free-stock-photography-644x250.jpg
+      url: http://media.coindesk.com/2013/10/bitcoin-logo.png
   dave:
     type: images:photo
     path: /dave.jpg
