@@ -153,32 +153,18 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 		}
 
 		if b.editor == nil {
-			hn, ok := b.item.(Noder)
+			ed, ok := b.item.(Editable)
 			if !ok {
 				return
 			}
-			n := hn.Node()
-			if e, ok := n.Value.(editor.Editable); ok {
-				b.editor = e.GetEditor(n)
-			} else if factory := editor.Get(*n.Type.Id); factory != nil {
-				b.editor = factory(n)
-			} else {
-				b.editor = editor.Default(n)
+			b.editor = ed.Editor()
+			if err := b.editor.Initialize(b.Tree.content, b, b.Tree.Path, b.Tree.Aliases); err != nil {
+				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
+				return
 			}
 		}
 		if b.editor == nil {
 			return
-		}
-		if !b.editor.IsInitialized() {
-			panel := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
-			panel.Style().Set("display", "none")
-			panel.Class().SetString("mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid")
-			b.Tree.content.AppendChild(panel)
-			if err := b.editor.Initialize(panel, b, b.Tree.Path, b.Tree.Aliases); err != nil {
-				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
-				return
-			}
-
 		}
 		if b.Tree.editor != nil {
 			b.Tree.editor.Hide()

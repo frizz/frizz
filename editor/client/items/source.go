@@ -2,6 +2,7 @@ package items
 
 import (
 	"honnef.co/go/js/dom"
+	"kego.io/editor"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
@@ -19,14 +20,15 @@ type source struct {
 	conn   *connection.Conn
 	pkg    *pkg
 	data   *holder
+	editor editor.Editor
 }
 
 var _ tree.Item = (*source)(nil)
 var _ tree.Async = (*source)(nil)
-var _ tree.Noder = (*source)(nil)
+var _ tree.Editable = (*source)(nil)
 
-func (s *source) Node() *node.Node {
-	return s.node
+func (s *source) Editor() editor.Editor {
+	return editor.Default(s.node)
 }
 
 func (s *source) Initialise(label *dom.HTMLSpanElement) {

@@ -17,30 +17,27 @@ type Editor interface {
 	Initialize(panel *dom.HTMLDivElement, d Dirtyable, path string, aliases map[string]string) error
 	Show()
 	Hide()
-	IsInitialized() bool
 }
 
 type Common struct {
-	Path        string
-	Aliases     map[string]string
-	Panel       *dom.HTMLDivElement
-	initialized bool
-	dirtyable   Dirtyable
+	Path      string
+	Aliases   map[string]string
+	Panel     *dom.HTMLDivElement
+	dirtyable Dirtyable
 }
 
-func (c *Common) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (c *Common) Initialize(content *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
 
-	c.Panel = panel
+	c.Panel = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+	c.Panel.Style().Set("display", "none")
+	c.Panel.Class().SetString("mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid")
+	content.AppendChild(c.Panel)
+
 	c.Path = path
 	c.Aliases = aliases
 	c.dirtyable = dirtyable
-	c.initialized = true
 	return nil
 
-}
-
-func (e *Common) IsInitialized() bool {
-	return e.initialized
 }
 
 func (e *Common) Show() {

@@ -2,7 +2,7 @@ package tree
 
 import (
 	"honnef.co/go/js/dom"
-	"kego.io/system/node"
+	"kego.io/editor"
 )
 
 type Item interface {
@@ -14,6 +14,6 @@ type Async interface {
 	ContentLoaded() bool
 }
 
-type Noder interface {
-	Node() *node.Node
+type Editable interface {
+	Editor() editor.Editor
 }

@@ -5,6 +5,7 @@ import (
 
 	"honnef.co/go/js/dom"
 
+	"kego.io/editor"
 	"kego.io/editor/client/tree"
 	"kego.io/system/node"
 )
@@ -12,17 +13,27 @@ import (
 // Entry items are nodes. Each branch inside a source branch are entry.
 type entry struct {
 	*item
-	name  string
-	index int
-	node  *node.Node
-	label *dom.HTMLSpanElement
+	name   string
+	index  int
+	node   *node.Node
+	editor editor.Editor
+	label  *dom.HTMLSpanElement
 }
 
 var _ tree.Item = (*entry)(nil)
-var _ tree.Noder = (*entry)(nil)
+var _ tree.Editable = (*source)(nil)
 
-func (e *entry) Node() *node.Node {
-	return e.node
+func (e *entry) Editor() editor.Editor {
+
+	if ed, ok := e.node.Value.(editor.Editable); ok {
+		return ed.GetEditor(e.node)
+	}
+
+	if factory := editor.Get(*e.node.Type.Id); factory != nil {
+		return factory(e.node)
+	}
+
+	return editor.Default(e.node)
 }
 
 func (e *entry) Initialise(label *dom.HTMLSpanElement) {

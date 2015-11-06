@@ -2,6 +2,7 @@ package items
 
 import (
 	"honnef.co/go/js/dom"
+	"kego.io/editor"
 	"kego.io/editor/client/tree"
 	"kego.io/system/node"
 )
@@ -17,10 +18,10 @@ type pkg struct {
 }
 
 var _ tree.Item = (*pkg)(nil)
-var _ tree.Noder = (*pkg)(nil)
+var _ tree.Editable = (*source)(nil)
 
-func (p *pkg) Node() *node.Node {
-	return p.node
+func (p *pkg) Editor() editor.Editor {
+	return editor.Default(p.node)
 }
 
 func (p *pkg) Initialise(label *dom.HTMLSpanElement) {
