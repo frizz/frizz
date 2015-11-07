@@ -4,11 +4,10 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor"
 	"kego.io/editor/mdl"
-	"kego.io/system/node"
 )
 
-func (i *Icon) GetEditor(n *node.Node) editor.Editor {
-	return &IconEditor{Icon: n.Value.(*Icon), node: n, Common: &editor.Common{}}
+func (i *Icon) GetEditor(n *editor.Node) editor.Editor {
+	return &IconEditor{Icon: n.Value.(*Icon), Node: n, Common: &editor.Common{}}
 }
 
 var _ editor.Editable = (*Icon)(nil)
@@ -16,16 +15,20 @@ var _ editor.Editable = (*Icon)(nil)
 type IconEditor struct {
 	*Icon
 	*editor.Common
-	node    *node.Node
+	*editor.Node
 	image   *mdl.Image
 	textbox *mdl.Textbox
 }
 
 var _ editor.Editor = (*IconEditor)(nil)
 
-func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, dirtyable editor.Dirtyable, path string, aliases map[string]string) error {
+func (e *IconEditor) Layout() editor.Layout {
+	return editor.Block
+}
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, holder editor.Holder, path string, aliases map[string]string) error {
+
+	e.Common.Initialize(panel, holder, editor.Block, path, aliases)
 
 	e.image = mdl.NewImage(e.Url.Value())
 	e.textbox = mdl.NewTextbox(e.Url.Value(), "url")

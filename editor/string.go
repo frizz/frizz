@@ -3,20 +3,23 @@ package editor
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
-	"kego.io/system/node"
 )
 
 type NodeStringEditor struct {
-	*node.Node
+	*Node
 	*Common
 	original string
 }
 
+func (e *NodeStringEditor) Layout() Layout {
+	return Inline
+}
+
 var _ Editor = (*NodeStringEditor)(nil)
 
-func (e *NodeStringEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (e *NodeStringEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, Inline, path, aliases)
 
 	e.original = e.ValueString
 
@@ -27,7 +30,7 @@ func (e *NodeStringEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirty
 		e.Missing = false
 		e.Null = false
 		e.ValueString = tb.Input.Value
-		e.dirtyable.MarkDirty(e.Dirty())
+		e.holder.MarkDirty(e.Dirty())
 	})
 
 	return nil

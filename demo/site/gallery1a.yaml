@@ -5,3 +5,5 @@ fields:
   title:
     type: system:@string
     maxLength: 20
+  image:
+    type: images:@image

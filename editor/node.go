@@ -5,7 +5,24 @@ import (
 	"kego.io/system/node"
 )
 
-func Default(n *node.Node) Editor {
+type Node struct {
+	*node.Node
+}
+
+func (n *Node) Editor() Editor {
+
+	if ed, ok := n.Value.(Editable); ok {
+		return ed.GetEditor(n)
+	}
+
+	if factory := Get(*n.Type.Id); factory != nil {
+		return factory(n)
+	}
+
+	return Default(n)
+}
+
+func Default(n *Node) Editor {
 	switch n.JsonType {
 	case json.J_STRING:
 		return &NodeStringEditor{Node: n, Common: &Common{}}

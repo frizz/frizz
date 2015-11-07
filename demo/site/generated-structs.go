@@ -67,6 +67,7 @@ func (o *Gallery1) GetGallery1() *Gallery1 {
 // This represents a gallery - it's just a list of images
 type Gallery1a struct {
 	*system.Object
+	Image images.Image   `json:"image"`
 	Title *system.String `json:"title"`
 }
 type Gallery1aInterface interface {
@@ -148,14 +149,14 @@ func (o *Gallery3a) GetGallery3a() *Gallery3a {
 }
 func init() {
 	json.Register("kego.io/demo/site", "@gallery1", reflect.TypeOf((*Gallery1Rule)(nil)), nil, 9914653089594241493)
-	json.Register("kego.io/demo/site", "@gallery1a", reflect.TypeOf((*Gallery1aRule)(nil)), nil, 17736143005787605048)
+	json.Register("kego.io/demo/site", "@gallery1a", reflect.TypeOf((*Gallery1aRule)(nil)), nil, 16174768815172977328)
 	json.Register("kego.io/demo/site", "@gallery2", reflect.TypeOf((*Gallery2Rule)(nil)), nil, 4609417854725294272)
 	json.Register("kego.io/demo/site", "@gallery2a", reflect.TypeOf((*Gallery2aRule)(nil)), nil, 5335559691650145607)
 	json.Register("kego.io/demo/site", "@gallery2b", reflect.TypeOf((*Gallery2bRule)(nil)), nil, 10214881650404650557)
 	json.Register("kego.io/demo/site", "@gallery3", reflect.TypeOf((*Gallery3Rule)(nil)), nil, 3637886575604579657)
 	json.Register("kego.io/demo/site", "@gallery3a", reflect.TypeOf((*Gallery3aRule)(nil)), nil, 7797969851483200773)
 	json.Register("kego.io/demo/site", "gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem(), 9914653089594241493)
-	json.Register("kego.io/demo/site", "gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem(), 17736143005787605048)
+	json.Register("kego.io/demo/site", "gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem(), 16174768815172977328)
 	json.Register("kego.io/demo/site", "gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem(), 4609417854725294272)
 	json.Register("kego.io/demo/site", "gallery2a", reflect.TypeOf((*Gallery2a)(nil)), reflect.TypeOf((*Gallery2aInterface)(nil)).Elem(), 5335559691650145607)
 	json.Register("kego.io/demo/site", "gallery2b", reflect.TypeOf((*Gallery2b)(nil)), reflect.TypeOf((*Gallery2bInterface)(nil)).Elem(), 10214881650404650557)

@@ -5,19 +5,22 @@ import (
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type NodeMapEditor struct {
-	*node.Node
+	*Node
 	*Common
+}
+
+func (e *NodeMapEditor) Layout() Layout {
+	return Page
 }
 
 var _ Editor = (*NodeMapEditor)(nil)
 
-func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, Page, path, aliases)
 
 	table := mdl.Table()
 

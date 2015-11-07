@@ -4,19 +4,46 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
-	"kego.io/system/node"
 )
 
 type NodeObjectEditor struct {
-	*node.Node
+	*Node
 	*Common
+	editors []Editor
+}
+
+func (e *NodeObjectEditor) Layout() Layout {
+	return Page
 }
 
 var _ Editor = (*NodeObjectEditor)(nil)
 
-func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, Page, path, aliases)
+
+	e.initializeBlockEditors()
+
+	if err := e.initializeTable(); err != nil {
+		return kerr.New("KAVTMDDFYW", err, "initializeTable")
+	}
+
+	return nil
+}
+
+func (e *NodeObjectEditor) initializeBlockEditors() {
+	for _, field := range e.Fields {
+		node := Node{field}
+		ed := node.Editor()
+		if ed == nil || ed.Layout() == Page {
+			continue
+		}
+		e.editors = append(e.editors, ed)
+		ed.Initialize(e.Panel, e.holder, e.Path, e.Aliases)
+	}
+}
+
+func (e *NodeObjectEditor) initializeTable() error {
 
 	table := mdl.Table()
 
@@ -53,6 +80,5 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirty
 
 	}
 	e.Panel.AppendChild(table.Build())
-
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 )
 
 type source struct {
+	*editor.Node
 	branch *tree.Branch
 
 	name   string
@@ -17,7 +18,6 @@ type source struct {
 	holder *holder
 
 	loaded bool
-	node   *node.Node
 	editor editor.Editor
 }
 
@@ -44,10 +44,6 @@ func (parent *holder) addSources(sources []string) {
 }
 
 var _ tree.Editable = (*source)(nil)
-
-func (s *source) Editor() editor.Editor {
-	return editor.Default(s.node)
-}
 
 var _ tree.Async = (*source)(nil)
 
@@ -92,11 +88,14 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
-	s.node = n
+	s.Node = &editor.Node{n}
 
 	addEntryChildren(n, s.branch)
 
 	s.loaded = true
+
+	s.branch.Update()
+
 	successChannel <- true
 	return nil
 }

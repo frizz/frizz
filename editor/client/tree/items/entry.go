@@ -10,11 +10,11 @@ import (
 
 // Entry items are nodes. Each branch inside a source branch are entry.
 type entry struct {
+	*editor.Node
 	branch *tree.Branch
 
 	name   string
 	index  int
-	node   *node.Node
 	editor editor.Editor
 }
 
@@ -31,7 +31,14 @@ func (e *entry) Initialise(parent *tree.Branch) {
 }
 
 func addEntry(name string, index int, node *node.Node, parent *tree.Branch) *entry {
-	e := &entry{name: name, index: index, node: node}
+
+	editNode := editor.Node{node}
+	edit := editNode.Editor()
+	if edit.Layout() != editor.Page {
+		return nil
+	}
+
+	e := &entry{name: name, index: index, Node: &editor.Node{node}}
 	e.branch = tree.NewBranch(e, parent)
 	e.Initialise(parent)
 	parent.Append(e.branch)
@@ -67,16 +74,3 @@ func addEntryChildren(node *node.Node, parent *tree.Branch) {
 }
 
 var _ tree.Editable = (*entry)(nil)
-
-func (e *entry) Editor() editor.Editor {
-
-	if ed, ok := e.node.Value.(editor.Editable); ok {
-		return ed.GetEditor(e.node)
-	}
-
-	if factory := editor.Get(*e.node.Type.Id); factory != nil {
-		return factory(e.node)
-	}
-
-	return editor.Default(e.node)
-}

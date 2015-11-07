@@ -65,121 +65,125 @@ func init() {
 	ptr51 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery1a"}
 	ptr52 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr53 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr51, Rules: []system.RuleInterface(nil), Type: ptr52}
-	ptr54 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr54 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@image"}
 	ptr55 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr54}
 	ptr56 := &system.Rule{}
-	ptr57 := system.Int(20)
-	ptr58 := &system.StringRule{Object: ptr55, Rule: ptr56, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: &ptr57, MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
-	ptr59 := system.String("object")
-	ptr60 := &system.Type{Object: ptr53, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"title": ptr58}, Is: []*system.Reference(nil), Native: &ptr59, Rule: (*system.Type)(nil)}
-	ptr61 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2"}
-	ptr62 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr63 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr61, Rules: []system.RuleInterface(nil), Type: ptr62}
-	ptr64 := &system.Reference{Package: "kego.io/system", Name: "@map"}
-	ptr65 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr64}
-	ptr66 := &system.Rule{}
-	ptr67 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@photo"}
-	ptr68 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr67}
-	ptr69 := &system.Rule{}
-	ptr70 := &images.PhotoRule{Object: ptr68, Rule: ptr69}
-	ptr71 := &system.MapRule{Object: ptr65, Rule: ptr66, Items: ptr70, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr72 := &system.Reference{Package: "kego.io/system", Name: "@string"}
-	ptr73 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr72}
-	ptr74 := &system.Rule{}
-	ptr75 := &system.StringRule{Object: ptr73, Rule: ptr74, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
-	ptr76 := system.String("object")
-	ptr77 := &system.Type{Object: ptr63, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr71, "title": ptr75}, Is: []*system.Reference(nil), Native: &ptr76, Rule: (*system.Type)(nil)}
-	ptr78 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2a"}
-	ptr79 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr80 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr78, Rules: []system.RuleInterface(nil), Type: ptr79}
-	ptr81 := &system.Reference{Package: "kego.io/system", Name: "@map"}
-	ptr82 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr81}
-	ptr83 := &system.Rule{}
-	ptr84 := &system.Reference{Package: "kego.io/system", Name: "@string"}
-	ptr85 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr84}
-	ptr86 := &system.Rule{Selector: ".protocol"}
-	ptr87 := system.String("https")
-	ptr88 := &system.StringRule{Object: ptr85, Rule: ptr86, Default: (*system.String)(nil), Enum: []string(nil), Equal: &ptr87, Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
-	ptr89 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@photo"}
-	ptr90 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface{ptr88}, Type: ptr89}
-	ptr91 := &system.Rule{}
-	ptr92 := &images.PhotoRule{Object: ptr90, Rule: ptr91}
-	ptr93 := &system.MapRule{Object: ptr82, Rule: ptr83, Items: ptr92, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr94 := &system.Reference{Package: "kego.io/system", Name: "@string"}
-	ptr95 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr94}
-	ptr96 := &system.Rule{}
-	ptr97 := &system.StringRule{Object: ptr95, Rule: ptr96, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
-	ptr98 := system.String("object")
-	ptr99 := &system.Type{Object: ptr80, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr93, "title": ptr97}, Is: []*system.Reference(nil), Native: &ptr98, Rule: (*system.Type)(nil)}
-	ptr100 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2b"}
-	ptr101 := &system.Reference{Package: "kego.io/system", Name: "@int"}
-	ptr102 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr101}
-	ptr103 := &system.Rule{Selector: "{images:photo} .width"}
-	ptr104 := system.Int(800)
-	ptr105 := &system.IntRule{Object: ptr102, Rule: ptr103, Default: (*system.Int)(nil), Maximum: (*system.Int)(nil), Minimum: &ptr104, MultipleOf: (*system.Int)(nil)}
-	ptr106 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr107 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr100, Rules: []system.RuleInterface{ptr105}, Type: ptr106}
-	ptr108 := &system.Reference{Package: "kego.io/system", Name: "@map"}
-	ptr109 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr108}
-	ptr110 := &system.Rule{}
-	ptr111 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@photo"}
-	ptr112 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr111}
-	ptr113 := &system.Rule{}
-	ptr114 := &images.PhotoRule{Object: ptr112, Rule: ptr113}
-	ptr115 := &system.MapRule{Object: ptr109, Rule: ptr110, Items: ptr114, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr116 := &system.Reference{Package: "kego.io/system", Name: "@string"}
-	ptr117 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr116}
-	ptr118 := &system.Rule{}
-	ptr119 := &system.StringRule{Object: ptr117, Rule: ptr118, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
-	ptr120 := system.String("object")
-	ptr121 := &system.Type{Object: ptr107, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr115, "title": ptr119}, Is: []*system.Reference(nil), Native: &ptr120, Rule: (*system.Type)(nil)}
-	ptr122 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery3"}
-	ptr123 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr124 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr122, Rules: []system.RuleInterface(nil), Type: ptr123}
-	ptr125 := &system.Reference{Package: "kego.io/system", Name: "@map"}
-	ptr126 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr125}
-	ptr127 := &system.Rule{}
-	ptr128 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@image"}
-	ptr129 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr128}
-	ptr130 := &system.Rule{}
-	ptr131 := &images.ImageRule{Object: ptr129, Rule: ptr130, Secure: (*system.Bool)(nil)}
-	ptr132 := &system.MapRule{Object: ptr126, Rule: ptr127, Items: ptr131, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr133 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@localizer"}
-	ptr134 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr133}
-	ptr135 := &system.Rule{}
-	ptr136 := &words.LocalizerRule{Object: ptr134, Rule: ptr135}
-	ptr137 := system.String("object")
-	ptr138 := &system.Type{Object: ptr124, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr132, "title": ptr136}, Is: []*system.Reference(nil), Native: &ptr137, Rule: (*system.Type)(nil)}
-	ptr139 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery3a"}
-	ptr140 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr141 := &system.Object{Description: "This represents a gallery - it's just a list of images.", Id: ptr139, Rules: []system.RuleInterface(nil), Type: ptr140}
-	ptr142 := &system.Reference{Package: "kego.io/system", Name: "@map"}
-	ptr143 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr142}
-	ptr144 := &system.Rule{}
-	ptr145 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@image"}
-	ptr146 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr145}
-	ptr147 := &system.Rule{}
-	ptr148 := system.Bool(true)
-	ptr149 := &images.ImageRule{Object: ptr146, Rule: ptr147, Secure: &ptr148}
-	ptr150 := &system.MapRule{Object: ptr143, Rule: ptr144, Items: ptr149, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr151 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@localizer"}
-	ptr152 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr151}
-	ptr153 := &system.Rule{}
-	ptr154 := &words.LocalizerRule{Object: ptr152, Rule: ptr153}
-	ptr155 := system.String("object")
-	ptr156 := &system.Type{Object: ptr141, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr150, "title": ptr154}, Is: []*system.Reference(nil), Native: &ptr155, Rule: (*system.Type)(nil)}
+	ptr57 := &images.ImageRule{Object: ptr55, Rule: ptr56, Secure: (*system.Bool)(nil)}
+	ptr58 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr59 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr58}
+	ptr60 := &system.Rule{}
+	ptr61 := system.Int(20)
+	ptr62 := &system.StringRule{Object: ptr59, Rule: ptr60, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: &ptr61, MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr63 := system.String("object")
+	ptr64 := &system.Type{Object: ptr53, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"image": ptr57, "title": ptr62}, Is: []*system.Reference(nil), Native: &ptr63, Rule: (*system.Type)(nil)}
+	ptr65 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2"}
+	ptr66 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr67 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr65, Rules: []system.RuleInterface(nil), Type: ptr66}
+	ptr68 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr69 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr68}
+	ptr70 := &system.Rule{}
+	ptr71 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@photo"}
+	ptr72 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr71}
+	ptr73 := &system.Rule{}
+	ptr74 := &images.PhotoRule{Object: ptr72, Rule: ptr73}
+	ptr75 := &system.MapRule{Object: ptr69, Rule: ptr70, Items: ptr74, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr76 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr77 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr76}
+	ptr78 := &system.Rule{}
+	ptr79 := &system.StringRule{Object: ptr77, Rule: ptr78, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr80 := system.String("object")
+	ptr81 := &system.Type{Object: ptr67, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr75, "title": ptr79}, Is: []*system.Reference(nil), Native: &ptr80, Rule: (*system.Type)(nil)}
+	ptr82 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2a"}
+	ptr83 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr84 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr82, Rules: []system.RuleInterface(nil), Type: ptr83}
+	ptr85 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr86 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr85}
+	ptr87 := &system.Rule{}
+	ptr88 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr89 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr88}
+	ptr90 := &system.Rule{Selector: ".protocol"}
+	ptr91 := system.String("https")
+	ptr92 := &system.StringRule{Object: ptr89, Rule: ptr90, Default: (*system.String)(nil), Enum: []string(nil), Equal: &ptr91, Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr93 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@photo"}
+	ptr94 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface{ptr92}, Type: ptr93}
+	ptr95 := &system.Rule{}
+	ptr96 := &images.PhotoRule{Object: ptr94, Rule: ptr95}
+	ptr97 := &system.MapRule{Object: ptr86, Rule: ptr87, Items: ptr96, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr98 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr99 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr98}
+	ptr100 := &system.Rule{}
+	ptr101 := &system.StringRule{Object: ptr99, Rule: ptr100, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr102 := system.String("object")
+	ptr103 := &system.Type{Object: ptr84, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr97, "title": ptr101}, Is: []*system.Reference(nil), Native: &ptr102, Rule: (*system.Type)(nil)}
+	ptr104 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2b"}
+	ptr105 := &system.Reference{Package: "kego.io/system", Name: "@int"}
+	ptr106 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr105}
+	ptr107 := &system.Rule{Selector: "{images:photo} .width"}
+	ptr108 := system.Int(800)
+	ptr109 := &system.IntRule{Object: ptr106, Rule: ptr107, Default: (*system.Int)(nil), Maximum: (*system.Int)(nil), Minimum: &ptr108, MultipleOf: (*system.Int)(nil)}
+	ptr110 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr111 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr104, Rules: []system.RuleInterface{ptr109}, Type: ptr110}
+	ptr112 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr113 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr112}
+	ptr114 := &system.Rule{}
+	ptr115 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@photo"}
+	ptr116 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr115}
+	ptr117 := &system.Rule{}
+	ptr118 := &images.PhotoRule{Object: ptr116, Rule: ptr117}
+	ptr119 := &system.MapRule{Object: ptr113, Rule: ptr114, Items: ptr118, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr120 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr121 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr120}
+	ptr122 := &system.Rule{}
+	ptr123 := &system.StringRule{Object: ptr121, Rule: ptr122, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr124 := system.String("object")
+	ptr125 := &system.Type{Object: ptr111, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr119, "title": ptr123}, Is: []*system.Reference(nil), Native: &ptr124, Rule: (*system.Type)(nil)}
+	ptr126 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery3"}
+	ptr127 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr128 := &system.Object{Description: "This represents a gallery - it's just a list of images", Id: ptr126, Rules: []system.RuleInterface(nil), Type: ptr127}
+	ptr129 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr130 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr129}
+	ptr131 := &system.Rule{}
+	ptr132 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@image"}
+	ptr133 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr132}
+	ptr134 := &system.Rule{}
+	ptr135 := &images.ImageRule{Object: ptr133, Rule: ptr134, Secure: (*system.Bool)(nil)}
+	ptr136 := &system.MapRule{Object: ptr130, Rule: ptr131, Items: ptr135, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr137 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@localizer"}
+	ptr138 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr137}
+	ptr139 := &system.Rule{}
+	ptr140 := &words.LocalizerRule{Object: ptr138, Rule: ptr139}
+	ptr141 := system.String("object")
+	ptr142 := &system.Type{Object: ptr128, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr136, "title": ptr140}, Is: []*system.Reference(nil), Native: &ptr141, Rule: (*system.Type)(nil)}
+	ptr143 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery3a"}
+	ptr144 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr145 := &system.Object{Description: "This represents a gallery - it's just a list of images.", Id: ptr143, Rules: []system.RuleInterface(nil), Type: ptr144}
+	ptr146 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr147 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr146}
+	ptr148 := &system.Rule{}
+	ptr149 := &system.Reference{Package: "kego.io/demo/common/images", Name: "@image"}
+	ptr150 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr149}
+	ptr151 := &system.Rule{}
+	ptr152 := system.Bool(true)
+	ptr153 := &images.ImageRule{Object: ptr150, Rule: ptr151, Secure: &ptr152}
+	ptr154 := &system.MapRule{Object: ptr147, Rule: ptr148, Items: ptr153, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr155 := &system.Reference{Package: "kego.io/demo/common/words", Name: "@localizer"}
+	ptr156 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr155}
+	ptr157 := &system.Rule{}
+	ptr158 := &words.LocalizerRule{Object: ptr156, Rule: ptr157}
+	ptr159 := system.String("object")
+	ptr160 := &system.Type{Object: ptr145, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr154, "title": ptr158}, Is: []*system.Reference(nil), Native: &ptr159, Rule: (*system.Type)(nil)}
 	system.Register("kego.io/demo/site", "@gallery1", ptr5, 0x8997ec74747e71d5)
-	system.Register("kego.io/demo/site", "@gallery1a", ptr11, 0xf6237017f97fc838)
+	system.Register("kego.io/demo/site", "@gallery1a", ptr11, 0xe078528a307382b0)
 	system.Register("kego.io/demo/site", "@gallery2", ptr17, 0x3ff7f11dfc3e88c0)
 	system.Register("kego.io/demo/site", "@gallery2a", ptr23, 0x4a0bb74542b31d47)
 	system.Register("kego.io/demo/site", "@gallery2b", ptr29, 0x8dc28cbd83066e3d)
 	system.Register("kego.io/demo/site", "@gallery3", ptr35, 0x327c5e90f012bd49)
 	system.Register("kego.io/demo/site", "@gallery3a", ptr41, 0x6c37f443b6dc9d05)
 	system.Register("kego.io/demo/site", "gallery1", ptr50, 0x8997ec74747e71d5)
-	system.Register("kego.io/demo/site", "gallery1a", ptr60, 0xf6237017f97fc838)
-	system.Register("kego.io/demo/site", "gallery2", ptr77, 0x3ff7f11dfc3e88c0)
-	system.Register("kego.io/demo/site", "gallery2a", ptr99, 0x4a0bb74542b31d47)
-	system.Register("kego.io/demo/site", "gallery2b", ptr121, 0x8dc28cbd83066e3d)
-	system.Register("kego.io/demo/site", "gallery3", ptr138, 0x327c5e90f012bd49)
-	system.Register("kego.io/demo/site", "gallery3a", ptr156, 0x6c37f443b6dc9d05)
+	system.Register("kego.io/demo/site", "gallery1a", ptr64, 0xe078528a307382b0)
+	system.Register("kego.io/demo/site", "gallery2", ptr81, 0x3ff7f11dfc3e88c0)
+	system.Register("kego.io/demo/site", "gallery2a", ptr103, 0x4a0bb74542b31d47)
+	system.Register("kego.io/demo/site", "gallery2b", ptr125, 0x8dc28cbd83066e3d)
+	system.Register("kego.io/demo/site", "gallery3", ptr142, 0x327c5e90f012bd49)
+	system.Register("kego.io/demo/site", "gallery3a", ptr160, 0x6c37f443b6dc9d05)
 }

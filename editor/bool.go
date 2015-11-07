@@ -3,20 +3,23 @@ package editor
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
-	"kego.io/system/node"
 )
 
 type NodeBoolEditor struct {
-	*node.Node
+	*Node
 	*Common
 	original bool
 }
 
+func (e *NodeBoolEditor) Layout() Layout {
+	return Inline
+}
+
 var _ Editor = (*NodeBoolEditor)(nil)
 
-func (e *NodeBoolEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (e *NodeBoolEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, Inline, path, aliases)
 
 	e.original = e.ValueBool
 
@@ -26,7 +29,7 @@ func (e *NodeBoolEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyab
 		e.Missing = false
 		e.Null = false
 		e.ValueBool = cb.Input.Checked
-		e.dirtyable.MarkDirty(e.Dirty())
+		e.holder.MarkDirty(e.Dirty())
 	})
 
 	return nil

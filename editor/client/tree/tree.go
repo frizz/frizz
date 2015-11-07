@@ -18,9 +18,9 @@ type Tree struct {
 }
 
 func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
-	e.PreventDefault()
 	switch e.KeyCode {
 	case 38: // up
+		e.PreventDefault()
 		if t.Selected == nil {
 			b := t.Root.LastVisible()
 			if b != nil {
@@ -33,6 +33,7 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 			b.Select(true)
 		}
 	case 40: // down
+		e.PreventDefault()
 		if t.Selected == nil {
 			b := t.Root.children[0]
 			if b != nil {
@@ -45,6 +46,7 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 			b.Select(true)
 		}
 	case 37: // left
+		e.PreventDefault()
 		if t.Selected == nil {
 			return
 		}
@@ -57,6 +59,7 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 			b.Select(true)
 		}
 	case 39: // right
+		e.PreventDefault()
 		if t.Selected == nil {
 			return
 		}

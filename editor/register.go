@@ -4,10 +4,9 @@ import (
 	"sync"
 
 	"kego.io/system"
-	"kego.io/system/node"
 )
 
-type Factory func(*node.Node) Editor
+type Factory func(*Node) Editor
 
 var registry struct {
 	sync.RWMutex

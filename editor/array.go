@@ -7,19 +7,22 @@ import (
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type NodeArrayEditor struct {
-	*node.Node
+	*Node
 	*Common
+}
+
+func (e *NodeArrayEditor) Layout() Layout {
+	return Page
 }
 
 var _ Editor = (*NodeArrayEditor)(nil)
 
-func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, Page, path, aliases)
 
 	table := mdl.Table()
 

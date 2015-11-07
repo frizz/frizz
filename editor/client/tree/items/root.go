@@ -2,6 +2,7 @@ package items
 
 import (
 	"honnef.co/go/js/dom"
+	"kego.io/editor"
 	"kego.io/editor/client/tree"
 	"kego.io/system/node"
 )
@@ -33,7 +34,7 @@ func NewRoot(t *tree.Tree, nav *dom.BasicHTMLElement) *Root {
 }
 
 func (parent *Root) AddPackage(node *node.Node, sourcesData []string, sourcesTypes []string) *pkg {
-	p := &pkg{node: node}
+	p := &pkg{Node: &editor.Node{node}}
 	p.branch = tree.NewBranch(p, parent.branch)
 	p.Initialise()
 

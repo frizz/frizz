@@ -2,3 +2,6 @@ description: This is an instance of the gallery type containing two nested image
 type: gallery1a
 id: site1a
 title: Hello, world.
+image:
+  type: images:icon
+  url: https://www.cryptocoinsnews.com/wp-content/uploads/2014/10/Bitcoin-Logo.png

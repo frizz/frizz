@@ -1,13 +1,6 @@
 package editors // import "kego.io/system/editors"
 
-import (
-	"honnef.co/go/js/dom"
-	"kego.io/editor"
-	"kego.io/editor/mdl"
-	"kego.io/system"
-	"kego.io/system/node"
-)
-
+/*
 func init() {
 	// Will leave this disabled for now... I think it's not really
 	// needed. "Exists" checkbox shouldn't be in the editor UI.
@@ -26,9 +19,9 @@ type StringEditor struct {
 	textbox *mdl.Textbox
 }
 
-func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, dirtyable editor.Dirtyable, path string, aliases map[string]string) error {
+func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, holder editor.Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, path, aliases)
 
 	e.textbox = mdl.NewTextbox(e.Value(), e.node.Key)
 	e.Panel.AppendChild(e.textbox)
@@ -38,3 +31,4 @@ func (e *StringEditor) Initialize(panel *dom.HTMLDivElement, dirtyable editor.Di
 
 	return nil
 }
+*/

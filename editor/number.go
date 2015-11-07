@@ -5,20 +5,23 @@ import (
 
 	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
-	"kego.io/system/node"
 )
 
 type NodeNumberEditor struct {
-	*node.Node
+	*Node
 	*Common
 	original float64
 }
 
+func (e *NodeNumberEditor) Layout() Layout {
+	return Inline
+}
+
 var _ Editor = (*NodeNumberEditor)(nil)
 
-func (e *NodeNumberEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirtyable, path string, aliases map[string]string) error {
+func (e *NodeNumberEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, dirtyable, path, aliases)
+	e.Common.Initialize(panel, holder, Inline, path, aliases)
 
 	e.original = e.ValueNumber
 
@@ -32,7 +35,7 @@ func (e *NodeNumberEditor) Initialize(panel *dom.HTMLDivElement, dirtyable Dirty
 		e.Missing = false
 		e.Null = false
 		e.ValueNumber = n
-		e.dirtyable.MarkDirty(e.Dirty())
+		e.holder.MarkDirty(e.Dirty())
 	})
 
 	return nil
