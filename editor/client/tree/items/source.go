@@ -23,17 +23,15 @@ type source struct {
 
 var _ tree.Item = (*source)(nil)
 
-func (s *source) Initialise() {
+func (s *source) Initialise(parent *tree.Branch) {
+	s.branch = tree.NewBranch(s, parent)
 	s.branch.SetLabel(s.name)
 }
 
 func (parent *holder) addSource(name string) *source {
 	s := &source{name: name, holder: parent, pkg: parent.pkg}
-	s.branch = tree.NewBranch(s, parent.branch)
-	s.Initialise()
-
+	s.Initialise(parent.branch)
 	parent.branch.Append(s.branch)
-
 	return s
 }
 
@@ -90,7 +88,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 
 	s.Node = &editor.Node{n}
 
-	addEntryChildren(n, s.branch)
+	addEntryChildren(s.Node, s.branch, s.Node.Editor())
 
 	s.loaded = true
 

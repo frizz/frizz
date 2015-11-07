@@ -19,9 +19,9 @@ func (e *NodeNumberEditor) Layout() Layout {
 
 var _ Editor = (*NodeNumberEditor)(nil)
 
-func (e *NodeNumberEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
+func (e *NodeNumberEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, Inline, path, aliases)
+	e.Common.Initialize(panel, holder, layout, path, aliases)
 
 	e.original = e.ValueNumber
 

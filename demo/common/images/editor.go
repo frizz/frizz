@@ -26,9 +26,9 @@ func (e *IconEditor) Layout() editor.Layout {
 	return editor.Block
 }
 
-func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, holder editor.Holder, path string, aliases map[string]string) error {
+func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, editor.Block, path, aliases)
+	e.Common.Initialize(panel, holder, layout, path, aliases)
 
 	e.image = mdl.NewImage(e.Url.Value())
 	e.textbox = mdl.NewTextbox(e.Url.Value(), "url")

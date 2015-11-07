@@ -17,9 +17,9 @@ func (e *NodeStringEditor) Layout() Layout {
 
 var _ Editor = (*NodeStringEditor)(nil)
 
-func (e *NodeStringEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
+func (e *NodeStringEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, Inline, path, aliases)
+	e.Common.Initialize(panel, holder, layout, path, aliases)
 
 	e.original = e.ValueString
 

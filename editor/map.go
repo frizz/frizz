@@ -18,9 +18,9 @@ func (e *NodeMapEditor) Layout() Layout {
 
 var _ Editor = (*NodeMapEditor)(nil)
 
-func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
+func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, Page, path, aliases)
+	e.Common.Initialize(panel, holder, layout, path, aliases)
 
 	table := mdl.Table()
 

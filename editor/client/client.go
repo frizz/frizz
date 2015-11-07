@@ -9,6 +9,7 @@ import (
 
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
+	"kego.io/editor"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/client/tree/items"
 	"kego.io/editor/shared"
@@ -52,6 +53,7 @@ func Start(path string) error {
 	if err := ke.UnmarshalNode([]byte(info.Package), packageNode, app.path, app.aliases); err != nil {
 		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
 	}
+	editorNode := &editor.Node{packageNode}
 
 	// We dial the websocket connection to the server
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))
@@ -74,7 +76,7 @@ func Start(path string) error {
 	t := tree.New(content, app.conn, app.fail, app.path, app.aliases)
 	root := items.NewRoot(t, nav)
 
-	root.AddPackage(packageNode, info.Data, info.Types)
+	root.AddPackage(editorNode, info.Data, info.Types)
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {
 		k := e.(*dom.KeyboardEvent)

@@ -2,9 +2,7 @@ package items
 
 import (
 	"honnef.co/go/js/dom"
-	"kego.io/editor"
 	"kego.io/editor/client/tree"
-	"kego.io/system/node"
 )
 
 type Root struct {
@@ -31,27 +29,4 @@ func NewRoot(t *tree.Tree, nav *dom.BasicHTMLElement) *Root {
 
 	return r
 
-}
-
-func (parent *Root) AddPackage(node *node.Node, sourcesData []string, sourcesTypes []string) *pkg {
-	p := &pkg{Node: &editor.Node{node}}
-	p.branch = tree.NewBranch(p, parent.branch)
-	p.Initialise()
-
-	parent.branch.Append(p.branch)
-
-	addEntryChildren(node, p.branch)
-
-	data := p.addHolder("data")
-	data.branch.Open()
-	p.data = data
-	p.data.addSources(sourcesData)
-
-	types := p.addHolder("types")
-	p.types = types
-	p.types.addSources(sourcesTypes)
-
-	p.branch.Open()
-
-	return p
 }

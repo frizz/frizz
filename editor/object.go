@@ -18,9 +18,9 @@ func (e *NodeObjectEditor) Layout() Layout {
 
 var _ Editor = (*NodeObjectEditor)(nil)
 
-func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, path string, aliases map[string]string) error {
+func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, Page, path, aliases)
+	e.Common.Initialize(panel, holder, layout, path, aliases)
 
 	e.initializeBlockEditors()
 
@@ -39,7 +39,7 @@ func (e *NodeObjectEditor) initializeBlockEditors() {
 			continue
 		}
 		e.editors = append(e.editors, ed)
-		ed.Initialize(e.Panel, e.holder, e.Path, e.Aliases)
+		ed.Initialize(e.Panel, e.holder, Block, e.Path, e.Aliases)
 	}
 }
 
@@ -81,4 +81,8 @@ func (e *NodeObjectEditor) initializeTable() error {
 	}
 	e.Panel.AppendChild(table.Build())
 	return nil
+}
+
+func (e *NodeObjectEditor) AddChildTreeEntry(child Editor) bool {
+	return child.Layout() == Page
 }

@@ -5,7 +5,6 @@ import (
 
 	"kego.io/editor"
 	"kego.io/editor/client/tree"
-	"kego.io/system/node"
 )
 
 // Entry items are nodes. Each branch inside a source branch are entry.
@@ -13,9 +12,8 @@ type entry struct {
 	*editor.Node
 	branch *tree.Branch
 
-	name   string
-	index  int
-	editor editor.Editor
+	name  string
+	index int
 }
 
 var _ tree.Item = (*entry)(nil)
@@ -27,48 +25,47 @@ func (e *entry) Initialise(parent *tree.Branch) {
 	} else {
 		label = e.name
 	}
+	e.branch = tree.NewBranch(e, parent)
 	e.branch.SetLabel(label)
 }
 
-func addEntry(name string, index int, node *node.Node, parent *tree.Branch) *entry {
+func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) *entry {
 
-	editNode := editor.Node{node}
-	edit := editNode.Editor()
-	if edit.Layout() != editor.Page {
+	ed := node.Editor()
+	if !parentEditor.AddChildTreeEntry(ed) {
 		return nil
 	}
 
-	e := &entry{name: name, index: index, Node: &editor.Node{node}}
-	e.branch = tree.NewBranch(e, parent)
-	e.Initialise(parent)
-	parent.Append(e.branch)
+	e := &entry{name: name, index: index, Node: node}
+	e.Initialise(parentBranch)
+	parentBranch.Append(e.branch)
 
-	addEntryChildren(node, e.branch)
+	addEntryChildren(node, e.branch, ed)
 
 	e.branch.Close()
 
 	return e
 }
 
-func addEntryChildren(node *node.Node, parent *tree.Branch) {
-	if node == nil {
+func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) {
+	if parentNode == nil {
 		return
 	}
-	switch node.Type.Native.Value() {
+	switch parentNode.Type.Native.Value() {
 	case "array":
-		for i, childNode := range node.Array {
-			addEntry("", i, childNode, parent)
+		for i, child := range parentNode.Array {
+			addEntry("", i, &editor.Node{child}, parentBranch, parentEditor)
 		}
 	case "map":
-		for name, childNode := range node.Map {
-			addEntry(name, -1, childNode, parent)
+		for name, child := range parentNode.Map {
+			addEntry(name, -1, &editor.Node{child}, parentBranch, parentEditor)
 		}
 	case "object":
-		for name, childNode := range node.Fields {
-			if childNode.Missing {
+		for name, child := range parentNode.Fields {
+			if child.Missing {
 				continue
 			}
-			addEntry(name, -1, childNode, parent)
+			addEntry(name, -1, &editor.Node{child}, parentBranch, parentEditor)
 		}
 	}
 }

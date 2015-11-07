@@ -12,16 +12,14 @@ type holder struct {
 
 var _ tree.Item = (*holder)(nil)
 
-func (h *holder) Initialise() {
+func (h *holder) Initialise(parent *tree.Branch) {
+	h.branch = tree.NewBranch(h, parent)
 	h.branch.SetLabel(h.name)
 }
 
 func (parent *pkg) addHolder(name string) *holder {
 	h := &holder{name: name, pkg: parent}
-	h.branch = tree.NewBranch(h, parent.branch)
-	h.Initialise()
-
+	h.Initialise(parent.branch)
 	parent.branch.Append(h.branch)
-
 	return h
 }
