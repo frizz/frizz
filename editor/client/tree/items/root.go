@@ -1,4 +1,4 @@
-package branch
+package items
 
 import (
 	"honnef.co/go/js/dom"
@@ -7,10 +7,12 @@ import (
 )
 
 type Root struct {
-	*Common
+	branch *tree.Branch
 }
 
-func NewRoot(tree *tree.Tree, nav *dom.BasicHTMLElement) *Root {
+var _ tree.Item = (*Root)(nil)
+
+func NewRoot(t *tree.Tree, nav *dom.BasicHTMLElement) *Root {
 
 	element := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	element.SetAttribute("class", "node root")
@@ -22,21 +24,25 @@ func NewRoot(tree *tree.Tree, nav *dom.BasicHTMLElement) *Root {
 	element.AppendChild(inner)
 
 	r := &Root{}
-	r.Common = &Common{this: r, tree: tree, root: true, open: true, element: element, inner: inner}
+	r.branch = tree.NewRootBranch(t, element, inner)
+
+	t.Root = r.branch
+
 	return r
 
 }
 
 func (parent *Root) AddPackage(node *node.Node, sourcesData []string, sourcesTypes []string) *pkg {
 	p := &pkg{node: node}
-	p.Initialise(parent)
+	p.branch = tree.NewBranch(p, parent.branch)
+	p.Initialise()
 
-	parent.Append(p)
+	parent.branch.Append(p.branch)
 
-	addEntryChildren(node, p)
+	addEntryChildren(node, p.branch)
 
 	data := p.addHolder("data")
-	data.Open()
+	data.branch.Open()
 	p.data = data
 	p.data.addSources(sourcesData)
 
@@ -44,7 +50,7 @@ func (parent *Root) AddPackage(node *node.Node, sourcesData []string, sourcesTyp
 	p.types = types
 	p.types.addSources(sourcesTypes)
 
-	p.Open()
+	p.branch.Open()
 
 	return p
 }

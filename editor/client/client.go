@@ -10,7 +10,7 @@ import (
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/tree"
-	"kego.io/editor/client/tree/branch"
+	"kego.io/editor/client/tree/items"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/js/console"
@@ -72,8 +72,7 @@ func Start(path string) error {
 
 	// We create a new root tree element
 	t := tree.New(content, app.conn, app.fail, app.path, app.aliases)
-	root := branch.NewRoot(t, nav)
-	t.Root = root
+	root := items.NewRoot(t, nav)
 
 	root.AddPackage(packageNode, info.Data, info.Types)
 

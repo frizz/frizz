@@ -1,10 +1,8 @@
-package branch
+package items
 
 import (
-	"honnef.co/go/js/dom"
 	"kego.io/editor"
 	"kego.io/editor/client/tree"
-	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -12,28 +10,49 @@ import (
 )
 
 type source struct {
-	*Common
-	node   *node.Node
+	branch *tree.Branch
+
 	name   string
-	loaded bool
-	label  *dom.HTMLSpanElement
-	conn   *connection.Conn
 	pkg    *pkg
-	data   *holder
+	holder *holder
+
+	loaded bool
+	node   *node.Node
 	editor editor.Editor
 }
 
-var _ tree.Async = (*source)(nil)
+var _ tree.Item = (*source)(nil)
+
+func (s *source) Initialise() {
+	s.branch.SetLabel(s.name)
+}
+
+func (parent *holder) addSource(name string) *source {
+	s := &source{name: name, holder: parent, pkg: parent.pkg}
+	s.branch = tree.NewBranch(s, parent.branch)
+	s.Initialise()
+
+	parent.branch.Append(s.branch)
+
+	return s
+}
+
+func (parent *holder) addSources(sources []string) {
+	for _, name := range sources {
+		parent.addSource(name)
+	}
+}
+
 var _ tree.Editable = (*source)(nil)
 
 func (s *source) Editor() editor.Editor {
 	return editor.Default(s.node)
 }
 
-func (s *source) Initialise(parent tree.Branch) {
-	s.Common = &Common{this: s, tree: parent.Tree()}
-	s.Common.Initialise(parent)
-	s.Common.SetLabel(s.name)
+var _ tree.Async = (*source)(nil)
+
+func (s *source) ContentLoaded() bool {
+	return s.loaded
 }
 
 func (s *source) LoadContent() chan bool {
@@ -47,11 +66,11 @@ func (s *source) LoadContent() chan bool {
 		return successChannel
 	}
 
-	responseChannel := s.tree.Conn.Request(messages.NewSourceRequest(s.name))
+	responseChannel := s.branch.Tree.Conn.Request(messages.NewSourceRequest(s.name))
 
 	go func() {
 		if err := s.awaitSourceResponse(responseChannel, successChannel); err != nil {
-			s.tree.Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
+			s.branch.Tree.Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
 		}
 	}()
 
@@ -69,34 +88,15 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 	}
 
 	n := &node.Node{}
-	if err := ke.UnmarshalNode([]byte(gr.Data.Value()), n, s.tree.Path, s.tree.Aliases); err != nil {
+	if err := ke.UnmarshalNode([]byte(gr.Data.Value()), n, s.branch.Tree.Path, s.branch.Tree.Aliases); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
 	s.node = n
 
-	addEntryChildren(n, s)
+	addEntryChildren(n, s.branch)
 
 	s.loaded = true
 	successChannel <- true
 	return nil
-}
-
-func (s *source) ContentLoaded() bool {
-	return s.loaded
-}
-
-func (parent *holder) addSource(name string) *source {
-	s := &source{name: name, data: parent, pkg: parent.pkg}
-	s.Initialise(parent)
-
-	parent.Append(s)
-
-	return s
-}
-
-func (parent *holder) addSources(sources []string) {
-	for _, name := range sources {
-		parent.addSource(name)
-	}
 }
