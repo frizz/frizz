@@ -1,4 +1,4 @@
-description: This represents a gallery - it's just a list of images
+description: This represents a gallery - it has a localizer title and a map of images
 type: system:type
 id: gallery3
 fields:

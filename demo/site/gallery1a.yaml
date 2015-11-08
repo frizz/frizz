@@ -1,4 +1,4 @@
-description: This represents a gallery - it's just a list of images
+description: This represents a gallery - it has a title and an image
 type: system:type
 id: gallery1a
 fields:
@@ -6,4 +6,4 @@ fields:
     type: system:@string
     maxLength: 20
   image:
-    type: images:@image
+    type: images:@icon
