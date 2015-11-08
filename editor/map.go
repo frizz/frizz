@@ -36,27 +36,27 @@ func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliase
 		return kerr.New("XDKOSFJVQV", err, "ValueContext")
 	}
 
-	names := table.Column("name")
-	holds := table.Column("holds")
-	values := table.Column("value")
+	table.Head("name", "holds", "value")
 
 	for name, item := range e.Map {
 
-		names.Cell(name)
-		holds.Cell(hold)
+		r := table.Row()
+		r.Cell().Text(name)
+		r.Cell().Text(hold)
 
 		if item.Null {
-			values.Cell("")
+			r.Cell().Text("")
 		} else {
 			val, err := item.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
-			values.Cell(val)
+			r.Cell().Text(val)
 		}
 
 	}
-	e.AppendChild(table.Build())
+	table.Upgrade()
+	e.AppendChild(table)
 
 	return nil
 }

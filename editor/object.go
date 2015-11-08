@@ -50,39 +50,39 @@ func (e *ObjectEditor) initializeTable() error {
 
 	table := mdl.Table()
 
-	names := table.Column("name")
-	origins := table.Column("origin")
-	holds := table.Column("holds")
-	values := table.Column("value")
+	table.Head("name", "origin", "holds", "value")
 
 	for name, field := range e.Fields {
 
-		names.Cell(name)
+		r := table.Row()
+
+		r.Cell().Text(name)
 
 		origin, err := field.Origin.ValueContext(e.Path, e.Aliases)
 		if err != nil {
 			return kerr.New("ACQLJXWYQX", err, "ValueContext")
 		}
-		origins.Cell(origin)
+		r.Cell().Text(origin)
 
 		hold, err := field.Rule.HoldsDisplayType(e.Path, e.Aliases)
 		if err != nil {
 			return kerr.New("OYMARPFDGA", err, "ValueContext")
 		}
-		holds.Cell(hold)
+		r.Cell().Text(hold)
 
 		if field.Missing || field.Null {
-			values.Cell("")
+			r.Cell().Text("")
 		} else {
 			value, err := field.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
-			values.Cell(value)
+			r.Cell().Text(value)
 		}
 
 	}
-	e.AppendChild(table.Build())
+	table.Upgrade()
+	e.AppendChild(table)
 	return nil
 }
 

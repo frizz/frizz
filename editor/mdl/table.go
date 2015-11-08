@@ -6,56 +6,65 @@ import (
 )
 
 type table struct {
-	columns []*column
-}
-type column struct {
-	heading string
-	cells   []string
+	*dom.HTMLTableElement
+	head *dom.HTMLTableRowElement
+	body *dom.HTMLTableSectionElement
 }
 
 func Table() *table {
-	return &table{}
-}
-func (t *table) Column(heading string) *column {
-	c := &column{heading, []string{}}
-	t.columns = append(t.columns, c)
-	return c
-}
-func (c *column) Cell(value string) {
-	c.cells = append(c.cells, value)
-}
-func (t *table) Build() *dom.HTMLTableElement {
-
-	table := dom.GetWindow().Document().CreateElement("table").(*dom.HTMLTableElement)
-	table.Class().SetString("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
+	t := dom.GetWindow().Document().CreateElement("table").(*dom.HTMLTableElement)
+	t.Class().SetString("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
 
 	thead := dom.GetWindow().Document().CreateElement("thead").(*dom.HTMLTableSectionElement)
+	t.AppendChild(thead)
 
 	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
 	thead.AppendChild(tr)
 
-	for _, c := range t.columns {
+	tbody := dom.GetWindow().Document().CreateElement("tbody").(*dom.HTMLTableSectionElement)
+	t.AppendChild(tbody)
+
+	return &table{t, tr, tbody}
+}
+
+func (t *table) Head(columns ...string) {
+	for _, column := range columns {
 		th := dom.GetWindow().Document().CreateElement("th").(*dom.HTMLTableCellElement)
 		th.Class().Add("mdl-data-table__cell--non-numeric")
-		th.SetTextContent(c.heading)
-		tr.AppendChild(th)
+		th.SetTextContent(column)
+		t.head.AppendChild(th)
 	}
+}
 
-	tbody := dom.GetWindow().Document().CreateElement("tbody").(*dom.HTMLTableSectionElement)
+type row struct {
+	*dom.HTMLTableRowElement
+	table *table
+}
 
-	for i, _ := range t.columns[0].cells {
-		tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
-		tbody.AppendChild(tr)
+func (t *table) Row() *row {
+	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
+	t.body.AppendChild(tr)
+	return &row{tr, t}
+}
 
-		for j, _ := range t.columns {
-			td := dom.GetWindow().Document().CreateElement("td").(*dom.HTMLTableCellElement)
-			td.Class().Add("mdl-data-table__cell--non-numeric")
-			td.SetTextContent(t.columns[j].cells[i])
-			tr.AppendChild(td)
-		}
-	}
-	table.AppendChild(thead)
-	table.AppendChild(tbody)
-	js.Global.Get("componentHandler").Call("upgradeElement", table)
-	return table
+type cell struct {
+	*dom.HTMLTableCellElement
+	row *row
+}
+
+func (r *row) Cell() *cell {
+	td := dom.GetWindow().Document().CreateElement("td").(*dom.HTMLTableCellElement)
+	td.Class().Add("mdl-data-table__cell--non-numeric")
+	r.AppendChild(td)
+
+	return &cell{td, r}
+}
+
+func (c *cell) Text(text string) *cell {
+	c.SetTextContent(text)
+	return c
+}
+
+func (t *table) Upgrade() {
+	js.Global.Get("componentHandler").Call("upgradeElement", t)
 }

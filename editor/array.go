@@ -38,27 +38,28 @@ func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, alia
 		return kerr.New("XDKOSFJVQV", err, "ValueContext")
 	}
 
-	index := table.Column("index")
-	holds := table.Column("holds")
-	values := table.Column("value")
+	table.Head("index", "holds", "value")
 
 	for i, item := range e.Array {
 
-		index.Cell(fmt.Sprintf("%d", i))
-		holds.Cell(hold)
+		r := table.Row()
+
+		r.Cell().Text(fmt.Sprintf("%d", i))
+		r.Cell().Text(hold)
 
 		if item.Null {
-			values.Cell("")
+			r.Cell().Text("")
 		} else {
 			val, err := item.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
-			values.Cell(val)
+			r.Cell().Text(val)
 		}
 
 	}
-	e.AppendChild(table.Build())
+	table.Upgrade()
+	e.AppendChild(table)
 
 	return nil
 }
