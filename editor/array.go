@@ -42,7 +42,7 @@ func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, alia
 	holds := table.Column("holds")
 	values := table.Column("value")
 
-	for i, item := range e.Map {
+	for i, item := range e.Array {
 
 		index.Cell(fmt.Sprintf("%d", i))
 		holds.Cell(hold)
