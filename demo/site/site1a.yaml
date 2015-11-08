@@ -4,4 +4,4 @@ id: site1a
 title: Hello, world.
 image:
   type: images:icon
-  url: https://www.cryptocoinsnews.com/wp-content/uploads/2014/10/Bitcoin-Logo.png
+  url: /logo.png

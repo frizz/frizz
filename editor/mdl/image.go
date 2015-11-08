@@ -12,3 +12,11 @@ func NewImage(url string) *Image {
 	i.Src = url
 	return i
 }
+
+func (i *Image) Visibility(state bool) {
+	if state {
+		i.Style().Set("display", "block")
+	} else {
+		i.Style().Set("display", "block")
+	}
+}

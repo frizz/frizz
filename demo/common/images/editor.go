@@ -1,7 +1,6 @@
 package images
 
 import (
-	"honnef.co/go/js/dom"
 	"kego.io/editor"
 	"kego.io/editor/mdl"
 )
@@ -16,8 +15,9 @@ type IconEditor struct {
 	*Icon
 	*editor.Common
 	*editor.Node
+	Changes chan *Icon
 	image   *mdl.Image
-	textbox *mdl.Textbox
+	url     *editor.StringEditor
 }
 
 var _ editor.Editor = (*IconEditor)(nil)
@@ -26,34 +26,39 @@ func (e *IconEditor) Layout() editor.Layout {
 	return editor.Block
 }
 
-func (e *IconEditor) Initialize(panel *dom.HTMLDivElement, holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
+func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
+	e.Changes = make(chan *Icon, 1)
 
 	e.image = mdl.NewImage(e.Url.Value())
-	e.textbox = mdl.NewTextbox(e.Url.Value(), "url")
+	e.AppendChild(e.image)
 
-	e.Panel.AppendChild(e.image)
-	e.Panel.AppendChild(e.textbox)
+	e.url = editor.NewStringEditor(&editor.Node{e.Node.Fields["url"]})
+	e.url.Initialize(holder, editor.Block, path, aliases)
+	e.AppendChild(e.url)
 
-	e.textbox.AddEventListener("input", true, func(ev dom.Event) {
-		e.Update()
-	})
+	go func() {
+		for {
+			e.update(<-e.url.Changes)
+			e.notify()
+		}
+	}()
 
-	e.Update()
+	e.update(e.Url.Value())
 
 	return nil
 }
 
-func (e *IconEditor) Update() {
-	if e.textbox.Input.Value != "" {
-		e.Url.Set(e.textbox.Input.Value)
-		e.image.Src = e.Url.Value()
-		e.image.Style().Set("display", "block")
-	} else {
-		e.Url.Set("")
-		e.image.Src = ""
-		e.image.Style().Set("display", "none")
+func (e *IconEditor) update(url string) {
+	e.Url.Set(url)
+	e.image.Src = url
+	e.image.Visibility(url != "")
+}
+func (e *IconEditor) notify() {
+	select {
+	case e.Changes <- e.Icon:
+	default:
 	}
 }
 

@@ -3,26 +3,29 @@ package editor
 import (
 	"fmt"
 
-	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
 )
 
-type NodeArrayEditor struct {
+type ArrayEditor struct {
 	*Node
 	*Common
 }
 
-func (e *NodeArrayEditor) Layout() Layout {
+func NewArrayEditor(n *Node) *ArrayEditor {
+	return &ArrayEditor{Node: n, Common: &Common{}}
+}
+
+func (e *ArrayEditor) Layout() Layout {
 	return Page
 }
 
-var _ Editor = (*NodeArrayEditor)(nil)
+var _ Editor = (*ArrayEditor)(nil)
 
-func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
 
 	table := mdl.Table()
 
@@ -55,7 +58,7 @@ func (e *NodeArrayEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, l
 		}
 
 	}
-	e.Panel.AppendChild(table.Build())
+	e.AppendChild(table.Build())
 
 	return nil
 }

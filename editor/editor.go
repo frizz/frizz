@@ -1,5 +1,4 @@
 package editor // import "kego.io/editor"
-
 import "honnef.co/go/js/dom"
 
 type Editable interface {
@@ -19,7 +18,8 @@ const (
 )
 
 type Editor interface {
-	Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error
+	dom.Node
+	Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error
 	Show()
 	Hide()
 	Layout() Layout

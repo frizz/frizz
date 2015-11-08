@@ -5,36 +5,46 @@ import (
 	"kego.io/editor/mdl"
 )
 
-type NodeBoolEditor struct {
+type BoolEditor struct {
 	*Node
 	*Common
+	Changes  chan bool
 	original bool
 }
 
-func (e *NodeBoolEditor) Layout() Layout {
+func NewBoolEditor(n *Node) *BoolEditor {
+	return &BoolEditor{Node: n, Common: &Common{}}
+}
+
+func (e *BoolEditor) Layout() Layout {
 	return Inline
 }
 
-var _ Editor = (*NodeBoolEditor)(nil)
+var _ Editor = (*BoolEditor)(nil)
 
-func (e *NodeBoolEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
+	e.Changes = make(chan bool, 1)
 
 	e.original = e.ValueBool
 
 	cb := mdl.NewCheckbox(e.ValueBool, e.Node.Key)
-	e.Panel.AppendChild(cb)
 	cb.Input.AddEventListener("change", true, func(ev dom.Event) {
 		e.Missing = false
 		e.Null = false
 		e.ValueBool = cb.Input.Checked
 		e.holder.MarkDirty(e.Dirty())
+		select {
+		case e.Changes <- e.ValueBool:
+		default:
+		}
 	})
+	e.AppendChild(cb)
 
 	return nil
 }
 
-func (e *NodeBoolEditor) Dirty() bool {
+func (e *BoolEditor) Dirty() bool {
 	return e.ValueBool != e.original
 }

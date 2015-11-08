@@ -1,12 +1,6 @@
 package units
 
-import (
-	"strconv"
-
-	"honnef.co/go/js/dom"
-	"kego.io/editor"
-	"kego.io/editor/mdl"
-)
+import "kego.io/editor"
 
 func (i *Rectangle) GetEditor(n *editor.Node) editor.Editor {
 	return &RectangleEditor{Rectangle: n.Value.(*Rectangle), Node: n, Common: &editor.Common{}}
@@ -18,8 +12,9 @@ type RectangleEditor struct {
 	*Rectangle
 	*editor.Common
 	*editor.Node
-	height *mdl.Textbox
-	width  *mdl.Textbox
+	Changes chan *Rectangle
+	height  *editor.NumberEditor
+	width   *editor.NumberEditor
 }
 
 var _ editor.Editor = (*RectangleEditor)(nil)
@@ -28,34 +23,41 @@ func (e *RectangleEditor) Layout() editor.Layout {
 	return editor.Inline
 }
 
-func (e *RectangleEditor) Initialize(panel *dom.HTMLDivElement, holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
+func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
+	e.Changes = make(chan *Rectangle, 1)
 
-	e.height = mdl.NewTextbox(e.Rectangle.Height.String(), "height")
-	e.width = mdl.NewTextbox(e.Rectangle.Width.String(), "width")
-	e.width.Style().Set("width", "50%")
+	e.height = editor.NewNumberEditor(&editor.Node{e.Node.Fields["height"]})
+	e.height.Initialize(holder, editor.Inline, path, aliases)
 	e.height.Style().Set("width", "50%")
 
-	e.Panel.AppendChild(e.height)
-	e.Panel.AppendChild(e.width)
+	e.width = editor.NewNumberEditor(&editor.Node{e.Node.Fields["width"]})
+	e.width.Initialize(holder, editor.Inline, path, aliases)
+	e.width.Style().Set("width", "50%")
 
-	e.height.AddEventListener("input", true, func(ev dom.Event) {
-		e.Update()
-	})
+	e.AppendChild(e.height)
+	e.AppendChild(e.width)
 
-	e.width.AddEventListener("input", true, func(ev dom.Event) {
-		e.Update()
-	})
-
-	e.Update()
+	go func() {
+		for {
+			select {
+			case height := <-e.height.Changes:
+				e.Height.Set(int(height))
+				e.update()
+			case width := <-e.width.Changes:
+				e.Width.Set(int(width))
+				e.update()
+			}
+		}
+	}()
 
 	return nil
 }
 
-func (e *RectangleEditor) Update() {
-	height, _ := strconv.Atoi(e.height.Input.Value)
-	e.Height.Set(height)
-	width, _ := strconv.Atoi(e.width.Input.Value)
-	e.Width.Set(width)
+func (e *RectangleEditor) update() {
+	select {
+	case e.Changes <- e.Rectangle:
+	default:
+	}
 }

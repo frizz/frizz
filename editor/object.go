@@ -1,26 +1,28 @@
 package editor
 
 import (
-	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 )
 
-type NodeObjectEditor struct {
+type ObjectEditor struct {
 	*Node
 	*Common
-	editors []Editor
 }
 
-func (e *NodeObjectEditor) Layout() Layout {
+func NewObjectEditor(n *Node) *ObjectEditor {
+	return &ObjectEditor{Node: n, Common: &Common{}}
+}
+
+func (e *ObjectEditor) Layout() Layout {
 	return Page
 }
 
-var _ Editor = (*NodeObjectEditor)(nil)
+var _ Editor = (*ObjectEditor)(nil)
 
-func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *ObjectEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
 
 	e.initializeBlockEditors()
 
@@ -31,19 +33,20 @@ func (e *NodeObjectEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, 
 	return nil
 }
 
-func (e *NodeObjectEditor) initializeBlockEditors() {
+func (e *ObjectEditor) initializeBlockEditors() {
 	for _, field := range e.Fields {
 		node := Node{field}
 		ed := node.Editor()
 		if ed == nil || ed.Layout() == Page {
 			continue
 		}
-		e.editors = append(e.editors, ed)
-		ed.Initialize(e.Panel, e.holder, Block, e.Path, e.Aliases)
+		e.Editors = append(e.Editors, ed)
+		ed.Initialize(e.holder, Block, e.Path, e.Aliases)
+		e.AppendChild(ed)
 	}
 }
 
-func (e *NodeObjectEditor) initializeTable() error {
+func (e *ObjectEditor) initializeTable() error {
 
 	table := mdl.Table()
 
@@ -79,10 +82,10 @@ func (e *NodeObjectEditor) initializeTable() error {
 		}
 
 	}
-	e.Panel.AppendChild(table.Build())
+	e.AppendChild(table.Build())
 	return nil
 }
 
-func (e *NodeObjectEditor) AddChildTreeEntry(child Editor) bool {
+func (e *ObjectEditor) AddChildTreeEntry(child Editor) bool {
 	return child.Layout() == Page
 }

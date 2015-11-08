@@ -18,6 +18,7 @@ func NewTextbox(value string, label string) *Textbox {
 	t := &Textbox{}
 	t.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	t.Class().SetString("mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
+	t.Style().Set("width", "100%")
 
 	t.Input = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
 	t.Input.Class().Add("mdl-textfield__input")

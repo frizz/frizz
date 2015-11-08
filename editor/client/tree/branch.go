@@ -240,10 +240,11 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 				return
 			}
 			b.editor = ed.Editor()
-			if err := b.editor.Initialize(b.Tree.Content, b, editor.Page, b.Tree.Path, b.Tree.Aliases); err != nil {
+			if err := b.editor.Initialize(b, editor.Page, b.Tree.Path, b.Tree.Aliases); err != nil {
 				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
 				return
 			}
+			b.Tree.Content.AppendChild(b.editor)
 		}
 		if b.editor == nil {
 			return

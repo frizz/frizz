@@ -5,37 +5,54 @@ import (
 	"kego.io/editor/mdl"
 )
 
-type NodeStringEditor struct {
+type StringEditor struct {
 	*Node
 	*Common
+	Changes  chan string
 	original string
 }
 
-func (e *NodeStringEditor) Layout() Layout {
+func NewStringEditor(n *Node) *StringEditor {
+	return &StringEditor{Node: n, Common: &Common{}}
+}
+
+func (e *StringEditor) Layout() Layout {
 	return Inline
 }
 
-var _ Editor = (*NodeStringEditor)(nil)
+var _ Editor = (*StringEditor)(nil)
 
-func (e *NodeStringEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *StringEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
+	e.Changes = make(chan string, 1)
 
 	e.original = e.ValueString
 
 	tb := mdl.NewTextbox(e.ValueString, e.Node.Key)
 	tb.Style().Set("width", "100%")
-	e.Panel.AppendChild(tb)
+	e.AppendChild(tb)
 	tb.Input.AddEventListener("input", true, func(ev dom.Event) {
-		e.Missing = false
-		e.Null = false
-		e.ValueString = tb.Input.Value
-		e.holder.MarkDirty(e.Dirty())
+		e.update(tb.Input.Value)
+		e.notify()
 	})
 
 	return nil
 }
 
-func (e *NodeStringEditor) Dirty() bool {
+func (e *StringEditor) update(s string) {
+	e.Missing = false
+	e.Null = false
+	e.ValueString = s
+	e.holder.MarkDirty(e.Dirty())
+}
+func (e *StringEditor) notify() {
+	select {
+	case e.Changes <- e.ValueString:
+	default:
+	}
+}
+
+func (e *StringEditor) Dirty() bool {
 	return e.ValueString != e.original
 }

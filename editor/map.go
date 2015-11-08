@@ -1,26 +1,29 @@
 package editor
 
 import (
-	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
 )
 
-type NodeMapEditor struct {
+type MapEditor struct {
 	*Node
 	*Common
 }
 
-func (e *NodeMapEditor) Layout() Layout {
+func NewMapEditor(n *Node) *MapEditor {
+	return &MapEditor{Node: n, Common: &Common{}}
+}
+
+func (e *MapEditor) Layout() Layout {
 	return Page
 }
 
-var _ Editor = (*NodeMapEditor)(nil)
+var _ Editor = (*MapEditor)(nil)
 
-func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(panel, holder, layout, path, aliases)
+	e.Common.Initialize(holder, layout, path, aliases)
 
 	table := mdl.Table()
 
@@ -53,7 +56,7 @@ func (e *NodeMapEditor) Initialize(panel *dom.HTMLDivElement, holder Holder, lay
 		}
 
 	}
-	e.Panel.AppendChild(table.Build())
+	e.AppendChild(table.Build())
 
 	return nil
 }
