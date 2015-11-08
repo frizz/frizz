@@ -56,3 +56,7 @@ func (e *IconEditor) Update() {
 		e.image.Style().Set("display", "none")
 	}
 }
+
+func (e *IconEditor) AddChildTreeEntry(child editor.Editor) bool {
+	return false
+}
