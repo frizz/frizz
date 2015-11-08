@@ -36,6 +36,7 @@ func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path
 
 	e.url = editor.NewStringEditor(&editor.Node{e.Node.Fields["url"]})
 	e.url.Initialize(holder, editor.Block, path, aliases)
+	e.Editors = append(e.Editors, e.url)
 	e.AppendChild(e.url)
 
 	go func() {
@@ -54,7 +55,9 @@ func (e *IconEditor) update(url string) {
 	e.Url.Set(url)
 	e.image.Src = url
 	e.image.Visibility(url != "")
+	e.MarkDirty(e.Dirty())
 }
+
 func (e *IconEditor) notify() {
 	select {
 	case e.Changes <- e.Icon:

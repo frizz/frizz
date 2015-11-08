@@ -28,7 +28,7 @@ type Branch struct {
 	badge    *dom.HTMLSpanElement
 	selected bool
 	editor   editor.Editor
-	dirty    map[*Branch]bool // map of dirty descendants
+	dirty    map[interface{}]bool // map of dirty descendants
 }
 
 func (b *Branch) Level() int {
@@ -494,15 +494,15 @@ func (c *Branch) IsVisible() bool {
 	return true
 }
 
-func (c *Branch) DirtyDescendant(state bool, descendant *Branch) {
+func (c *Branch) DirtyDescendant(state bool, ob interface{}) {
 	if state {
 		if c.dirty == nil {
-			c.dirty = map[*Branch]bool{}
+			c.dirty = map[interface{}]bool{}
 		}
-		c.dirty[descendant] = true
+		c.dirty[ob] = true
 	} else {
 		if c.dirty != nil {
-			delete(c.dirty, descendant)
+			delete(c.dirty, ob)
 		}
 	}
 	c.SetDirtyIconState()
@@ -528,11 +528,6 @@ func (c *Branch) dirtyIconState() bool {
 		return false
 	}
 
-	if c.dirty[c] == true {
-		// if this branch is dirty, show the icon
-		return true
-	}
-
 	if !c.open {
 		// if descendants are dirty, only show the icon if this branch is closed
 		return true
@@ -541,10 +536,10 @@ func (c *Branch) dirtyIconState() bool {
 	return false
 }
 
-func (c *Branch) MarkDirty(state bool) {
+func (c *Branch) MarkDirty(ob interface{}, state bool) {
 	ancestor := c
 	for ancestor != nil {
-		ancestor.DirtyDescendant(state, c)
+		ancestor.DirtyDescendant(state, ob)
 		ancestor = ancestor.Parent
 	}
 }

@@ -44,8 +44,9 @@ func (e *StringEditor) update(s string) {
 	e.Missing = false
 	e.Null = false
 	e.ValueString = s
-	e.holder.MarkDirty(e.Dirty())
+	e.MarkDirty(e.Dirty())
 }
+
 func (e *StringEditor) notify() {
 	select {
 	case e.Changes <- e.ValueString:

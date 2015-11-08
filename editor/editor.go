@@ -6,7 +6,7 @@ type Editable interface {
 }
 
 type Holder interface {
-	MarkDirty(bool)
+	MarkDirty(ob interface{}, state bool)
 }
 
 type Layout int
@@ -24,4 +24,5 @@ type Editor interface {
 	Hide()
 	Layout() Layout
 	AddChildTreeEntry(child Editor) bool
+	Dirty() bool
 }

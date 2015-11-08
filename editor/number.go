@@ -41,7 +41,7 @@ func (e *NumberEditor) Initialize(holder Holder, layout Layout, path string, ali
 		e.Missing = false
 		e.Null = false
 		e.ValueNumber = n
-		e.holder.MarkDirty(e.Dirty())
+		e.MarkDirty(e.Dirty())
 		select {
 		case e.Changes <- e.ValueNumber:
 		default:

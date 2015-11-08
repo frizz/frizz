@@ -36,6 +36,9 @@ func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout,
 	e.width.Initialize(holder, editor.Inline, path, aliases)
 	e.width.Style().Set("width", "50%")
 
+	e.Editors = append(e.Editors, e.height)
+	e.Editors = append(e.Editors, e.width)
+
 	e.AppendChild(e.height)
 	e.AppendChild(e.width)
 
@@ -44,18 +47,18 @@ func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout,
 			select {
 			case height := <-e.height.Changes:
 				e.Height.Set(int(height))
-				e.update()
 			case width := <-e.width.Changes:
 				e.Width.Set(int(width))
-				e.update()
 			}
+			e.MarkDirty(e.Dirty())
+			e.notify()
 		}
 	}()
 
 	return nil
 }
 
-func (e *RectangleEditor) update() {
+func (e *RectangleEditor) notify() {
 	select {
 	case e.Changes <- e.Rectangle:
 	default:

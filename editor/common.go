@@ -30,18 +30,33 @@ func (c *Common) Initialize(holder Holder, layout Layout, path string, aliases m
 
 }
 
-func (e *Common) Show() {
-	if e.layout == Inline {
-		e.Style().Set("display", "inline-block")
+func (c *Common) Show() {
+	if c.layout == Inline {
+		c.Style().Set("display", "inline-block")
 	} else {
-		e.Style().Set("display", "block")
+		c.Style().Set("display", "block")
 	}
 }
 
-func (e *Common) Hide() {
-	e.Style().Set("display", "none")
+func (c *Common) Hide() {
+	c.Style().Set("display", "none")
 }
 
-func (e *Common) AddChildTreeEntry(child Editor) bool {
+func (c *Common) AddChildTreeEntry(child Editor) bool {
 	return true
+}
+
+func (c *Common) MarkDirty(dirty bool) {
+	// note we can't use c.Dirty() here because we need to call the overridden function on types
+	// with Common embedded.
+	c.holder.MarkDirty(c, dirty)
+}
+
+func (c *Common) Dirty() bool {
+	for _, e := range c.Editors {
+		if e.Dirty() {
+			return true
+		}
+	}
+	return false
 }

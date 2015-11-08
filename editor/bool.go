@@ -34,7 +34,7 @@ func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, alias
 		e.Missing = false
 		e.Null = false
 		e.ValueBool = cb.Input.Checked
-		e.holder.MarkDirty(e.Dirty())
+		e.MarkDirty(e.Dirty())
 		select {
 		case e.Changes <- e.ValueBool:
 		default:
