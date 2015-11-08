@@ -324,23 +324,31 @@ func (c *Branch) Open() {
 		return
 	}
 
-	success := func() {
+	success := func(fromAsync bool) {
+
 		if c.inner != nil {
 			c.inner.Style().Set("display", "block")
 		}
-		c.open = true
-		c.afterStateChange()
+
+		if fromAsync && !c.CanOpen() {
+			// if after loading the content, we can't we can't open the branch, this means we just
+			// there were no children. In this case we want to select the branch.
+			c.Select(false)
+		} else {
+			c.open = true
+			c.afterStateChange()
+		}
 	}
 
 	if done == nil {
 		// if the done chanel is nil, the operation was synchronous, so we should call success
 		// synchronously
-		success()
+		success(false)
 	} else {
 		go func() {
 			// block and wait until the response arrives
 			<-done
-			success()
+			success(true)
 		}()
 	}
 	return
