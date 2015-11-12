@@ -216,7 +216,7 @@ func validateObjectChildren(node *node.Node, path string, aliases map[string]str
 	}
 
 	for name, field := range node.Type.Fields {
-		child, ok := node.Fields[name]
+		child, ok := node.Map[name]
 		if !field.GetRule().Optional && !ok {
 			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
 		}

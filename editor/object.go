@@ -28,7 +28,7 @@ func (e *ObjectEditor) Initialize(holder Holder, layout Layout, path string, ali
 	table := mdl.Table()
 	table.Head("name", "origin", "holds", "value")
 
-	for name, field := range e.Fields {
+	for name, field := range e.Map {
 
 		node := &Node{field}
 		ed := node.Editor()

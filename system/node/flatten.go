@@ -12,8 +12,5 @@ func (n *Node) Flatten(removeMissing bool) []*Node {
 	for _, child := range SortNodeMap(n.Map) {
 		out = append(out, child.Node.Flatten(removeMissing)...)
 	}
-	for _, child := range SortNodeMap(n.Fields) {
-		out = append(out, child.Node.Flatten(removeMissing)...)
-	}
 	return out
 }

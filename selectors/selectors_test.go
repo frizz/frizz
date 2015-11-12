@@ -272,7 +272,7 @@ func comparison(actual *node.Node, expected interface{}, path string, aliases ma
 			return false, kerr.New("OJEQQPYXJP", nil, "expected %T is not map[string]interface{} (object)", expected)
 		}
 		compareChild := func(key string) (bool, error) {
-			child, ok := actual.Fields[key]
+			child, ok := actual.Map[key]
 			if !ok {
 				return false, nil
 			}
@@ -282,7 +282,7 @@ func comparison(actual *node.Node, expected interface{}, path string, aliases ma
 			}
 			return match, nil
 		}
-		for key, field := range actual.Fields {
+		for key, field := range actual.Map {
 			if field.Missing {
 				continue
 			}

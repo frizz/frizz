@@ -28,11 +28,11 @@ func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout,
 	e.Common.Initialize(holder, layout, path, aliases)
 	e.Changes = make(chan *Rectangle, 1)
 
-	e.height = editor.NewNumberEditor(&editor.Node{e.Node.Fields["height"]})
+	e.height = editor.NewNumberEditor(&editor.Node{e.Node.Map["height"]})
 	e.height.Initialize(holder, editor.Inline, path, aliases)
 	e.height.Style().Set("width", "50%")
 
-	e.width = editor.NewNumberEditor(&editor.Node{e.Node.Fields["width"]})
+	e.width = editor.NewNumberEditor(&editor.Node{e.Node.Map["width"]})
 	e.width.Initialize(holder, editor.Inline, path, aliases)
 	e.width.Style().Set("width", "50%")
 

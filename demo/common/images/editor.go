@@ -34,7 +34,7 @@ func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path
 	e.image = mdl.NewImage(e.Url.Value())
 	e.AppendChild(e.image)
 
-	e.url = editor.NewStringEditor(&editor.Node{e.Node.Fields["url"]})
+	e.url = editor.NewStringEditor(&editor.Node{e.Node.Map["url"]})
 	e.url.Initialize(holder, editor.Block, path, aliases)
 	e.Editors = append(e.Editors, e.url)
 	e.AppendChild(e.url)

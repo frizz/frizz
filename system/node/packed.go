@@ -42,9 +42,8 @@ func (p *packed) Array() []json.Packed {
 func (p *packed) Map() map[string]json.Packed {
 	out := map[string]json.Packed{}
 	for n, v := range p.n.Map {
-		out[n] = Pack(v)
-	}
-	for n, v := range p.n.Fields {
+		// v.Missing will only be true for object fields, not map items, so we don't need to
+		// make a special cae here
 		if !v.Missing {
 			out[n] = Pack(v)
 		}

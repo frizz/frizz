@@ -61,7 +61,7 @@ func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parent
 			addEntry(name, -1, &editor.Node{child}, parentBranch, parentEditor)
 		}
 	case "object":
-		for name, child := range parentNode.Fields {
+		for name, child := range parentNode.Map {
 			if child.Missing {
 				continue
 			}

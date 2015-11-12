@@ -19,7 +19,6 @@ type Node struct {
 	Missing     bool        // missing is only true if the field is missing
 	Array       []*Node
 	Map         map[string]*Node
-	Fields      map[string]*Node
 	Rule        *system.RuleWrapper
 	Type        *system.Type
 	JsonType    json.Type
@@ -164,7 +163,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 			}
 			m = in.Map()
 		}
-		n.Fields = map[string]*Node{}
+		n.Map = map[string]*Node{}
 
 		fields := map[string]*system.Field{}
 		if err := extractFields(fields, n.Type); err != nil {
@@ -181,7 +180,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 			if err := childNode.extract(n, name, -1, f.Origin, 0, child, ok, rule, path, aliases); err != nil {
 				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 			}
-			n.Fields[name] = childNode
+			n.Map[name] = childNode
 		}
 		for name, _ := range m {
 			_, ok := fields[name]
