@@ -88,7 +88,15 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 
 	s.Node = editor.NewNode(n, nil)
 
-	addEntryChildren(s.Node, s.branch, s.Node.Editor())
+	ed := s.Node.Editor()
+
+	if err := ed.Initialize(s.branch, editor.Page, s.branch.Tree.Path, s.branch.Tree.Aliases); err != nil {
+		return kerr.New("UOPUXTANHO", err, "Initialize")
+	}
+
+	if err := addEntryChildren(s.Node, s.branch, ed); err != nil {
+		return kerr.New("MLUGRXOWHC", err, "addEntryChildren")
+	}
 
 	s.loaded = true
 

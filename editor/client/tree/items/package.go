@@ -3,6 +3,7 @@ package items
 import (
 	"kego.io/editor"
 	"kego.io/editor/client/tree"
+	"kego.io/kerr"
 )
 
 // Pkg is the top-level item. It holds the entry items for th package object, and
@@ -22,13 +23,22 @@ func (p *pkg) Initialise(parent *tree.Branch) {
 	p.branch.SetLabel(p.branch.Tree.Path)
 }
 
-func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesTypes []string) *pkg {
+func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesTypes []string) error {
+
+	ed := node.Editor()
+
 	p := &pkg{Node: node}
 	p.Initialise(parent.branch)
 
 	parent.branch.Append(p.branch)
 
-	addEntryChildren(node, p.branch, node.Editor())
+	if err := ed.Initialize(p.branch, editor.Page, p.branch.Tree.Path, p.branch.Tree.Aliases); err != nil {
+		return kerr.New("NMIESKDFVN", err, "Initialize")
+	}
+
+	if err := addEntryChildren(node, p.branch, ed); err != nil {
+		return kerr.New("RBISWQVLFN", err, "addEntryChildren")
+	}
 
 	data := p.addHolder("data")
 	data.branch.Open()
@@ -41,7 +51,7 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 
 	p.branch.Open()
 
-	return p
+	return nil
 }
 
 var _ tree.Editable = (*pkg)(nil)

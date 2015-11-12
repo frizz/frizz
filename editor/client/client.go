@@ -76,7 +76,9 @@ func Start(path string) error {
 	t := tree.New(content, app.conn, app.fail, app.path, app.aliases)
 	root := items.NewRoot(t, nav)
 
-	root.AddPackage(editorNode, info.Data, info.Types)
+	if err := root.AddPackage(editorNode, info.Data, info.Types); err != nil {
+		return kerr.New("EAIHJLNBFA", err, "AddPackage")
+	}
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {
 		k := e.(*dom.KeyboardEvent)

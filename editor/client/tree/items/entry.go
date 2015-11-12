@@ -5,6 +5,7 @@ import (
 
 	"kego.io/editor"
 	"kego.io/editor/client/tree"
+	"kego.io/kerr"
 )
 
 // Entry items are nodes. Each branch inside a source branch are entry.
@@ -29,7 +30,7 @@ func (e *entry) Initialise(parent *tree.Branch) {
 	e.branch.SetLabel(label)
 }
 
-func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) *entry {
+func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) error {
 
 	ed := node.Editor()
 	if !parentEditor.AddChildTreeEntry(ed) {
@@ -40,34 +41,47 @@ func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Bran
 	e.Initialise(parentBranch)
 	parentBranch.Append(e.branch)
 
-	addEntryChildren(node, e.branch, ed)
+	if err := ed.Initialize(e.branch, editor.Page, e.branch.Tree.Path, e.branch.Tree.Aliases); err != nil {
+		return kerr.New("PMLOGADEVK", err, "Initialize")
+	}
+
+	if err := addEntryChildren(node, e.branch, ed); err != nil {
+		return kerr.New("UPRWSRECVR", err, "addEntryChildren")
+	}
 
 	e.branch.Close()
 
-	return e
+	return nil
 }
 
-func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) {
+func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) error {
 	if parentNode == nil {
-		return
+		return nil
 	}
 	switch parentNode.Type.Native.Value() {
 	case "array":
 		for i, child := range parentNode.Array {
-			addEntry("", i, child, parentBranch, parentEditor)
+			if err := addEntry("", i, child, parentBranch, parentEditor); err != nil {
+				return kerr.New("IOXSWBQDXH", err, "addEntry (array)")
+			}
 		}
 	case "map":
 		for name, child := range parentNode.Map {
-			addEntry(name, -1, child, parentBranch, parentEditor)
+			if err := addEntry(name, -1, child, parentBranch, parentEditor); err != nil {
+				return kerr.New("YVTQCADGJF", err, "addEntry (map)")
+			}
 		}
 	case "object":
 		for name, child := range parentNode.Map {
 			if child.Missing {
 				continue
 			}
-			addEntry(name, -1, child, parentBranch, parentEditor)
+			if err := addEntry(name, -1, child, parentBranch, parentEditor); err != nil {
+				return kerr.New("SIBWLRIXRG", err, "addEntry (object)")
+			}
 		}
 	}
+	return nil
 }
 
 var _ tree.Editable = (*entry)(nil)

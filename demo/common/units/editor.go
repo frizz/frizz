@@ -64,3 +64,7 @@ func (e *RectangleEditor) notify() {
 	default:
 	}
 }
+
+func (e *RectangleEditor) Focus() {
+	e.height.Focus()
+}
