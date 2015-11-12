@@ -1,4 +1,5 @@
 package editor // import "kego.io/editor"
+
 import "honnef.co/go/js/dom"
 
 type Editable interface {
@@ -6,6 +7,7 @@ type Editable interface {
 }
 
 type Holder interface {
+	Select(fromKeyboard bool)
 	MarkDirty(ob interface{}, state bool)
 }
 
@@ -25,4 +27,6 @@ type Editor interface {
 	Layout() Layout
 	AddChildTreeEntry(child Editor) bool
 	Dirty() bool
+	Select()
+	Focus()
 }

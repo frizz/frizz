@@ -60,3 +60,9 @@ func (c *Common) Dirty() bool {
 	}
 	return false
 }
+
+func (c *Common) Select() {
+	c.holder.Select(false)
+}
+
+func (c *Common) Focus() {}

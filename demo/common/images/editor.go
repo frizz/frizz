@@ -68,3 +68,7 @@ func (e *IconEditor) notify() {
 func (e *IconEditor) AddChildTreeEntry(child editor.Editor) bool {
 	return false
 }
+
+func (e *IconEditor) Focus() {
+	e.url.Focus()
+}

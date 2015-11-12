@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 )
@@ -24,65 +25,71 @@ func (e *ObjectEditor) Initialize(holder Holder, layout Layout, path string, ali
 
 	e.Common.Initialize(holder, layout, path, aliases)
 
-	e.initializeBlockEditors()
-
-	if err := e.initializeTable(); err != nil {
-		return kerr.New("KAVTMDDFYW", err, "initializeTable")
-	}
-
-	return nil
-}
-
-func (e *ObjectEditor) initializeBlockEditors() {
-	for _, field := range e.Fields {
-		node := Node{field}
-		ed := node.Editor()
-		if ed == nil || ed.Layout() == Page {
-			continue
-		}
-		e.Editors = append(e.Editors, ed)
-		ed.Initialize(e.holder, Block, e.Path, e.Aliases)
-		e.AppendChild(ed)
-	}
-}
-
-func (e *ObjectEditor) initializeTable() error {
-
 	table := mdl.Table()
-
 	table.Head("name", "origin", "holds", "value")
 
 	for name, field := range e.Fields {
 
-		r := table.Row()
+		node := &Node{field}
+		ed := node.Editor()
 
-		r.Cell().Text(name)
+		e.initializeBlockEditor(name, ed)
 
-		origin, err := field.Origin.ValueContext(e.Path, e.Aliases)
-		if err != nil {
-			return kerr.New("ACQLJXWYQX", err, "ValueContext")
-		}
-		r.Cell().Text(origin)
-
-		hold, err := field.Rule.HoldsDisplayType(e.Path, e.Aliases)
-		if err != nil {
-			return kerr.New("OYMARPFDGA", err, "ValueContext")
-		}
-		r.Cell().Text(hold)
-
-		if field.Missing || field.Null {
-			r.Cell().Text("")
-		} else {
-			value, err := field.Type.Id.ValueContext(e.Path, e.Aliases)
-			if err != nil {
-				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
-			}
-			r.Cell().Text(value)
+		if err := e.initializeTableRow(table, name, node, ed); err != nil {
+			return kerr.New("KAVTMDDFYW", err, "initializeTable")
 		}
 
 	}
+
 	table.Upgrade()
 	e.AppendChild(table)
+
+	return nil
+}
+
+func (e *ObjectEditor) initializeBlockEditor(name string, ed Editor) {
+	if ed == nil || ed.Layout() == Page {
+		return
+	}
+	e.Editors = append(e.Editors, ed)
+	ed.Initialize(e.holder, Block, e.Path, e.Aliases)
+	e.AppendChild(ed)
+}
+
+func (e *ObjectEditor) initializeTableRow(table *mdl.TableStruct, name string, node *Node, ed Editor) error {
+
+	r := table.Row()
+
+	r.Cell().Text(name)
+
+	origin, err := node.Origin.ValueContext(e.Path, e.Aliases)
+	if err != nil {
+		return kerr.New("ACQLJXWYQX", err, "ValueContext")
+	}
+	r.Cell().Text(origin)
+
+	hold, err := node.Rule.HoldsDisplayType(e.Path, e.Aliases)
+	if err != nil {
+		return kerr.New("OYMARPFDGA", err, "ValueContext")
+	}
+	r.Cell().Text(hold)
+
+	if node.Missing || node.Null {
+		r.Cell().Text("")
+	} else {
+		value, err := node.Type.Id.ValueContext(e.Path, e.Aliases)
+		if err != nil {
+			return kerr.New("RWHEKAOPHQ", err, "ValueContext")
+		}
+		cell := r.Cell()
+		a := mdl.Anchor().Text(value).Click(func(e dom.Event) {
+			e.(*dom.MouseEvent).PreventDefault()
+			ed.Select()
+			ed.Focus()
+		})
+		cell.AppendChild(a)
+	}
+
 	return nil
 }
 

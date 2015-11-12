@@ -5,13 +5,13 @@ import (
 	"honnef.co/go/js/dom"
 )
 
-type table struct {
+type TableStruct struct {
 	*dom.HTMLTableElement
 	head *dom.HTMLTableRowElement
 	body *dom.HTMLTableSectionElement
 }
 
-func Table() *table {
+func Table() *TableStruct {
 	t := dom.GetWindow().Document().CreateElement("table").(*dom.HTMLTableElement)
 	t.Class().SetString("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
 
@@ -24,10 +24,10 @@ func Table() *table {
 	tbody := dom.GetWindow().Document().CreateElement("tbody").(*dom.HTMLTableSectionElement)
 	t.AppendChild(tbody)
 
-	return &table{t, tr, tbody}
+	return &TableStruct{t, tr, tbody}
 }
 
-func (t *table) Head(columns ...string) {
+func (t *TableStruct) Head(columns ...string) {
 	for _, column := range columns {
 		th := dom.GetWindow().Document().CreateElement("th").(*dom.HTMLTableCellElement)
 		th.Class().Add("mdl-data-table__cell--non-numeric")
@@ -38,10 +38,10 @@ func (t *table) Head(columns ...string) {
 
 type row struct {
 	*dom.HTMLTableRowElement
-	table *table
+	table *TableStruct
 }
 
-func (t *table) Row() *row {
+func (t *TableStruct) Row() *row {
 	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
 	t.body.AppendChild(tr)
 	return &row{tr, t}
@@ -65,6 +65,6 @@ func (c *cell) Text(text string) *cell {
 	return c
 }
 
-func (t *table) Upgrade() {
+func (t *TableStruct) Upgrade() {
 	js.Global.Get("componentHandler").Call("upgradeElement", t)
 }

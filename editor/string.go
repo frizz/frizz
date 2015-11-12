@@ -10,6 +10,7 @@ type StringEditor struct {
 	*Common
 	Changes  chan string
 	original string
+	textbox  *mdl.Textbox
 }
 
 func NewStringEditor(n *Node) *StringEditor {
@@ -29,11 +30,11 @@ func (e *StringEditor) Initialize(holder Holder, layout Layout, path string, ali
 
 	e.original = e.ValueString
 
-	tb := mdl.NewTextbox(e.ValueString, e.Node.Key)
-	tb.Style().Set("width", "100%")
-	e.AppendChild(tb)
-	tb.Input.AddEventListener("input", true, func(ev dom.Event) {
-		e.update(tb.Input.Value)
+	e.textbox = mdl.NewTextbox(e.ValueString, e.Node.Key)
+	e.textbox.Style().Set("width", "100%")
+	e.AppendChild(e.textbox)
+	e.textbox.Input.AddEventListener("input", true, func(ev dom.Event) {
+		e.update(e.textbox.Input.Value)
 		e.notify()
 	})
 
@@ -56,4 +57,8 @@ func (e *StringEditor) notify() {
 
 func (e *StringEditor) Dirty() bool {
 	return e.ValueString != e.original
+}
+
+func (e *StringEditor) Focus() {
+	e.textbox.Input.Focus()
 }
