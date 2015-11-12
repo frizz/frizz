@@ -54,18 +54,18 @@ func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parent
 	switch parentNode.Type.Native.Value() {
 	case "array":
 		for i, child := range parentNode.Array {
-			addEntry("", i, &editor.Node{child}, parentBranch, parentEditor)
+			addEntry("", i, child, parentBranch, parentEditor)
 		}
 	case "map":
 		for name, child := range parentNode.Map {
-			addEntry(name, -1, &editor.Node{child}, parentBranch, parentEditor)
+			addEntry(name, -1, child, parentBranch, parentEditor)
 		}
 	case "object":
 		for name, child := range parentNode.Map {
 			if child.Missing {
 				continue
 			}
-			addEntry(name, -1, &editor.Node{child}, parentBranch, parentEditor)
+			addEntry(name, -1, child, parentBranch, parentEditor)
 		}
 	}
 }

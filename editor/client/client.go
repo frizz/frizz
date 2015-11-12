@@ -53,7 +53,7 @@ func Start(path string) error {
 	if err := ke.UnmarshalNode([]byte(info.Package), packageNode, app.path, app.aliases); err != nil {
 		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
 	}
-	editorNode := &editor.Node{packageNode}
+	editorNode := editor.NewNode(packageNode, nil)
 
 	// We dial the websocket connection to the server
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))

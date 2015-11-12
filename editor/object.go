@@ -30,12 +30,11 @@ func (e *ObjectEditor) Initialize(holder Holder, layout Layout, path string, ali
 
 	for name, field := range e.Map {
 
-		node := &Node{field}
-		ed := node.Editor()
+		ed := field.Editor()
 
 		e.initializeBlockEditor(name, ed)
 
-		if err := e.initializeTableRow(table, name, node, ed); err != nil {
+		if err := e.initializeTableRow(table, name, field, ed); err != nil {
 			return kerr.New("KAVTMDDFYW", err, "initializeTable")
 		}
 

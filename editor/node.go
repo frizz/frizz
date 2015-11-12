@@ -7,7 +7,23 @@ import (
 
 type Node struct {
 	*node.Node
-	//editor Editor
+	editor Editor
+	Parent *Node
+	Array  []*Node
+	Map    map[string]*Node
+}
+
+func NewNode(n *node.Node, parent *Node) *Node {
+	n1 := &Node{Node: n}
+	n1.Parent = parent
+	for _, child := range n.Array {
+		n1.Array = append(n1.Array, NewNode(child, n1))
+	}
+	n1.Map = map[string]*Node{}
+	for name, child := range n.Map {
+		n1.Map[name] = NewNode(child, n1)
+	}
+	return n1
 }
 
 func (n *Node) Editor() Editor {

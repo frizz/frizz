@@ -86,7 +86,7 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
-	s.Node = &editor.Node{n}
+	s.Node = editor.NewNode(n, nil)
 
 	addEntryChildren(s.Node, s.branch, s.Node.Editor())
 
