@@ -41,6 +41,12 @@ type row struct {
 	table *table
 }
 
+func (r *row) Click(action func(dom.Event)) *row {
+	r.AddEventListener("click", true, action)
+	r.Style().Set("cursor", "pointer")
+	return r
+}
+
 func (t *table) Row() *row {
 	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
 	t.body.AppendChild(tr)

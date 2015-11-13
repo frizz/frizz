@@ -5,17 +5,17 @@ import (
 	"honnef.co/go/js/dom"
 )
 
-type Checkbox struct {
+type checkbox struct {
 	*dom.HTMLLabelElement
 	Input *dom.HTMLInputElement
 	Span  *dom.HTMLSpanElement
 }
 
-func NewCheckbox(value bool, label string) *Checkbox {
+func Checkbox(value bool, label string) *checkbox {
 
 	id := randomId()
 
-	c := &Checkbox{}
+	c := &checkbox{}
 	c.HTMLLabelElement = dom.GetWindow().Document().CreateElement("label").(*dom.HTMLLabelElement)
 	c.Class().SetString("mdl-switch mdl-js-switch mdl-js-ripple-effect")
 	c.For = id

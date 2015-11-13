@@ -42,6 +42,16 @@ func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliase
 	for name, item := range e.Map {
 
 		r := table.Row()
+
+		if !item.Null {
+			ed := item.Editor()
+			r.Click(func(e dom.Event) {
+				e.(*dom.MouseEvent).PreventDefault()
+				ed.Select()
+				ed.Focus()
+			})
+		}
+
 		r.Cell().Text(name)
 		r.Cell().Text(hold)
 
@@ -52,14 +62,7 @@ func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliase
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
-			cell := r.Cell()
-			ed := item.Editor()
-			a := mdl.Anchor().Text(val).Click(func(e dom.Event) {
-				e.(*dom.MouseEvent).PreventDefault()
-				ed.Select()
-				ed.Focus()
-			})
-			cell.AppendChild(a)
+			r.Cell().Text(val)
 		}
 
 	}

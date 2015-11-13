@@ -49,11 +49,20 @@ func (e *ObjectEditor) initializeBlockEditors() {
 func (e *ObjectEditor) initializeTable() error {
 
 	table := mdl.Table()
-	table.Head("name", "origin", "holds", "value")
+	table.Head("name", "origin", "holds", "value", "options")
 
 	for name, node := range e.Map {
 
 		r := table.Row()
+
+		if !node.Missing && !node.Null {
+			ed := node.Editor()
+			r.Click(func(e dom.Event) {
+				e.(*dom.MouseEvent).PreventDefault()
+				ed.Select()
+				ed.Focus()
+			})
+		}
 
 		r.Cell().Text(name)
 
@@ -76,12 +85,13 @@ func (e *ObjectEditor) initializeTable() error {
 			if err != nil {
 				return kerr.New("LDAMPELUCM", err, "ValueContext")
 			}
-			cell := r.Cell()
-			ed := node.Editor()
-			a := mdl.Anchor().Text(value).Click(func(e dom.Event) {
-				e.(*dom.MouseEvent).PreventDefault()
-				ed.Select()
-				ed.Focus()
+			r.Cell().Text(value)
+		}
+
+		cell := r.Cell()
+		if node.Missing || node.Null {
+			a := mdl.Anchor().Text("add").Click(func(e dom.Event) {
+
 			})
 			cell.AppendChild(a)
 		}

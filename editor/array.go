@@ -46,6 +46,15 @@ func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, alia
 
 		r := table.Row()
 
+		if !item.Null {
+			ed := item.Editor()
+			r.Click(func(e dom.Event) {
+				e.(*dom.MouseEvent).PreventDefault()
+				ed.Select()
+				ed.Focus()
+			})
+		}
+
 		r.Cell().Text(fmt.Sprintf("%d", i))
 		r.Cell().Text(hold)
 
@@ -56,14 +65,7 @@ func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, alia
 			if err != nil {
 				return kerr.New("PYNPNMICPQ", err, "ValueContext")
 			}
-			cell := r.Cell()
-			ed := item.Editor()
-			a := mdl.Anchor().Text(val).Click(func(e dom.Event) {
-				e.(*dom.MouseEvent).PreventDefault()
-				ed.Select()
-				ed.Focus()
-			})
-			cell.AppendChild(a)
+			r.Cell().Text(val)
 		}
 
 	}

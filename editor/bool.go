@@ -29,7 +29,7 @@ func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, alias
 
 	e.original = e.ValueBool
 
-	cb := mdl.NewCheckbox(e.ValueBool, e.Node.Key)
+	cb := mdl.Checkbox(e.ValueBool, e.Node.Key)
 	cb.Input.AddEventListener("change", true, func(ev dom.Event) {
 		e.Missing = false
 		e.Null = false
