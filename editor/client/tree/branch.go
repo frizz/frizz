@@ -174,32 +174,43 @@ func (c *Branch) Append(child *Branch) {
 	c.Update()
 }
 
-func (c *Branch) Select(fromKeyboard bool) {
+func (b *Branch) Select(fromKeyboard bool) {
 
-	if c.IsRoot() {
+	if b.IsRoot() {
 		// we never select the root node
 		return
 	}
 
-	if c.Tree.Selected != nil {
-		c.Tree.Selected.Unselect()
+	if !b.IsVisible() {
+		// if the branch we're selecting isn't visible, we should open all it's closed ancestors.
+		ancestor := b.Parent
+		for ancestor != nil {
+			if !ancestor.open && ancestor.CanOpen() {
+				ancestor.Open()
+			}
+			ancestor = ancestor.Parent
+		}
 	}
-	c.content.Class().Add("selected")
-	c.Tree.Selected = c
-	c.selected = true
 
-	if fromKeyboard && c.isAsyncAndNotLoaded() {
+	if b.Tree.Selected != nil {
+		b.Tree.Selected.Unselect()
+	}
+	b.content.Class().Add("selected")
+	b.Tree.Selected = b
+	b.selected = true
+
+	if fromKeyboard && b.isAsyncAndNotLoaded() {
 		// wait 50ms before showing the edit panel so we don't generate
 		// lots of content load requests if we scroll quickly. We only
 		// do this for keyboard events.
 		go func() {
 			time.Sleep(time.Millisecond * 50)
-			if c.selected {
-				c.showEditPanel(fromKeyboard)
+			if b.selected {
+				b.showEditPanel(fromKeyboard)
 			}
 		}()
 	} else {
-		c.showEditPanel(fromKeyboard)
+		b.showEditPanel(fromKeyboard)
 	}
 
 	return
