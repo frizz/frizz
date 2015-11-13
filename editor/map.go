@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"honnef.co/go/js/dom"
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -51,7 +52,14 @@ func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliase
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}
-			r.Cell().Text(val)
+			cell := r.Cell()
+			ed := item.Editor()
+			a := mdl.Anchor().Text(val).Click(func(e dom.Event) {
+				e.(*dom.MouseEvent).PreventDefault()
+				ed.Select()
+				ed.Focus()
+			})
+			cell.AppendChild(a)
 		}
 
 	}

@@ -53,8 +53,6 @@ func (e *ObjectEditor) initializeTable() error {
 
 	for name, node := range e.Map {
 
-		ed := node.Editor()
-
 		r := table.Row()
 
 		r.Cell().Text(name)
@@ -76,9 +74,10 @@ func (e *ObjectEditor) initializeTable() error {
 		} else {
 			value, err := node.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
-				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
+				return kerr.New("LDAMPELUCM", err, "ValueContext")
 			}
 			cell := r.Cell()
+			ed := node.Editor()
 			a := mdl.Anchor().Text(value).Click(func(e dom.Event) {
 				e.(*dom.MouseEvent).PreventDefault()
 				ed.Select()

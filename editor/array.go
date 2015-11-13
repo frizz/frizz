@@ -3,6 +3,8 @@ package editor
 import (
 	"fmt"
 
+	"honnef.co/go/js/dom"
+
 	"kego.io/editor/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -52,9 +54,16 @@ func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, alia
 		} else {
 			val, err := item.Type.Id.ValueContext(e.Path, e.Aliases)
 			if err != nil {
-				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
+				return kerr.New("PYNPNMICPQ", err, "ValueContext")
 			}
-			r.Cell().Text(val)
+			cell := r.Cell()
+			ed := item.Editor()
+			a := mdl.Anchor().Text(val).Click(func(e dom.Event) {
+				e.(*dom.MouseEvent).PreventDefault()
+				ed.Select()
+				ed.Focus()
+			})
+			cell.AppendChild(a)
 		}
 
 	}
