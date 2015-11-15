@@ -36,6 +36,8 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 		return kerr.New("NMIESKDFVN", err, "Initialize")
 	}
 
+	p.branch.Listen(ed.Listen().Ch)
+
 	if err := addEntryChildren(node, p.branch, ed); err != nil {
 		return kerr.New("RBISWQVLFN", err, "addEntryChildren")
 	}

@@ -1,9 +1,13 @@
 package editor
 
-import "honnef.co/go/js/dom"
+import (
+	"honnef.co/go/js/dom"
+	"kego.io/editor/broadcast"
+)
 
 type Common struct {
 	*dom.HTMLDivElement
+	*broadcast.Broadcaster
 	Path    string
 	Aliases map[string]string
 	Editors []Editor
@@ -21,6 +25,10 @@ func (c *Common) Initialize(holder Holder, layout Layout, path string, aliases m
 	if layout == Inline {
 		c.Style().Set("display", "inline-block")
 	}
+
+	c.Broadcaster = broadcast.New(0)
+
+	holder.Listen(c.Listen().Ch)
 
 	c.Path = path
 	c.Aliases = aliases
@@ -46,10 +54,9 @@ func (c *Common) AddChildTreeEntry(child Editor) bool {
 	return true
 }
 
-func (c *Common) MarkDirty(dirty bool) {
-	// note we can't use c.Dirty() here because we need to call the overridden function on types
-	// with Common embedded.
-	c.holder.MarkDirty(c, dirty)
+// Notify sends a notification that the editor data has been changed.
+func (c *Common) Notify(editor Editor) {
+	c.Send(editor)
 }
 
 func (c *Common) Dirty() bool {

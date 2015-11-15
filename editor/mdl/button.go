@@ -11,23 +11,23 @@ Button
 </button>
 */
 
-type button struct {
+type ButtonStruct struct {
 	*dom.HTMLButtonElement
 }
 
-func Button() *button {
+func Button() *ButtonStruct {
 	b := dom.GetWindow().Document().CreateElement("button").(*dom.HTMLButtonElement)
 	b.Class().SetString("mdl-button mdl-js-button mdl-button--raised")
 	js.Global.Get("componentHandler").Call("upgradeElement", b)
-	return &button{b}
+	return &ButtonStruct{b}
 }
 
-func (b *button) Text(text string) *button {
+func (b *ButtonStruct) Text(text string) *ButtonStruct {
 	b.SetTextContent(text)
 	return b
 }
 
-func (b *button) Click(action func(dom.Event)) *button {
+func (b *ButtonStruct) Click(action func(dom.Event)) *ButtonStruct {
 	b.AddEventListener("click", true, action)
 	return b
 }

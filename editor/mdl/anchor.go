@@ -2,27 +2,27 @@ package mdl
 
 import "honnef.co/go/js/dom"
 
-type anchor struct {
+type AnchorStruct struct {
 	*dom.HTMLAnchorElement
 }
 
-func Anchor() *anchor {
+func Anchor() *AnchorStruct {
 	a := dom.GetWindow().Document().CreateElement("a").(*dom.HTMLAnchorElement)
 	a.Href = ""
-	return &anchor{a}
+	return &AnchorStruct{a}
 }
 
-func (a *anchor) Text(text string) *anchor {
+func (a *AnchorStruct) Text(text string) *AnchorStruct {
 	a.SetTextContent(text)
 	return a
 }
 
-func (a *anchor) Url(href string) *anchor {
+func (a *AnchorStruct) Url(href string) *AnchorStruct {
 	a.Href = href
 	return a
 }
 
-func (a *anchor) Click(action func(dom.Event)) *anchor {
+func (a *AnchorStruct) Click(action func(dom.Event)) *AnchorStruct {
 	a.AddEventListener("click", true, action)
 	return a
 }

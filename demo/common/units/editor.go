@@ -12,9 +12,8 @@ type RectangleEditor struct {
 	*Rectangle
 	*editor.Common
 	*editor.Node
-	Changes chan *Rectangle
-	height  *editor.NumberEditor
-	width   *editor.NumberEditor
+	height *editor.NumberEditor
+	width  *editor.NumberEditor
 }
 
 var _ editor.Editor = (*RectangleEditor)(nil)
@@ -26,7 +25,6 @@ func (e *RectangleEditor) Layout() editor.Layout {
 func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
 	e.Common.Initialize(holder, layout, path, aliases)
-	e.Changes = make(chan *Rectangle, 1)
 
 	e.height = editor.NewNumberEditor(e.Node.Map["height"])
 	e.height.Initialize(holder, editor.Inline, path, aliases)
@@ -43,28 +41,26 @@ func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout,
 	e.AppendChild(e.width)
 
 	go func() {
+		width := e.width.Listen().Ch
+		height := e.height.Listen().Ch
 		for {
 			select {
-			case height := <-e.height.Changes:
-				e.Height.Set(int(height))
-			case width := <-e.width.Changes:
-				e.Width.Set(int(width))
+			case ne := <-width:
+				e.Width.Set(int(ne.(*editor.NumberEditor).ValueNumber))
+			case ne := <-height:
+				e.Height.Set(int(ne.(*editor.NumberEditor).ValueNumber))
 			}
-			e.MarkDirty(e.Dirty())
-			e.notify()
+			e.Notify(e)
 		}
 	}()
 
 	return nil
 }
 
-func (e *RectangleEditor) notify() {
-	select {
-	case e.Changes <- e.Rectangle:
-	default:
-	}
-}
-
 func (e *RectangleEditor) Focus() {
 	e.height.Focus()
+}
+
+func (e *RectangleEditor) Value() interface{} {
+	return e.Rectangle
 }

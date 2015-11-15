@@ -15,9 +15,8 @@ type IconEditor struct {
 	*Icon
 	*editor.Common
 	*editor.Node
-	Changes chan *Icon
-	image   *mdl.Image
-	url     *editor.StringEditor
+	image *mdl.ImageStruct
+	url   *editor.StringEditor
 }
 
 var _ editor.Editor = (*IconEditor)(nil)
@@ -29,9 +28,8 @@ func (e *IconEditor) Layout() editor.Layout {
 func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
 	e.Common.Initialize(holder, layout, path, aliases)
-	e.Changes = make(chan *Icon, 1)
 
-	e.image = mdl.NewImage(e.Url.Value())
+	e.image = mdl.Image(e.Url.Value())
 	e.AppendChild(e.image)
 
 	e.url = editor.NewStringEditor(e.Node.Map["url"])
@@ -40,9 +38,9 @@ func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path
 	e.AppendChild(e.url)
 
 	go func() {
-		for {
-			e.update(<-e.url.Changes)
-			e.notify()
+		for se := range e.url.Listen().Ch {
+			e.update(se.(*editor.StringEditor).ValueString)
+			e.Notify(e)
 		}
 	}()
 
@@ -55,14 +53,6 @@ func (e *IconEditor) update(url string) {
 	e.Url.Set(url)
 	e.image.Src = url
 	e.image.Visibility(url != "")
-	e.MarkDirty(e.Dirty())
-}
-
-func (e *IconEditor) notify() {
-	select {
-	case e.Changes <- e.Icon:
-	default:
-	}
 }
 
 func (e *IconEditor) AddChildTreeEntry(child editor.Editor) bool {
@@ -71,4 +61,8 @@ func (e *IconEditor) AddChildTreeEntry(child editor.Editor) bool {
 
 func (e *IconEditor) Focus() {
 	e.url.Focus()
+}
+
+func (e *IconEditor) Value() interface{} {
+	return e.Icon
 }

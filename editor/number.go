@@ -12,7 +12,7 @@ type NumberEditor struct {
 	*Common
 	Changes  chan float64
 	original float64
-	textbox  *mdl.Textbox
+	textbox  *mdl.TextboxStruct
 }
 
 func NewNumberEditor(n *Node) *NumberEditor {
@@ -32,24 +32,25 @@ func (e *NumberEditor) Initialize(holder Holder, layout Layout, path string, ali
 
 	e.original = e.ValueNumber
 
-	e.textbox = mdl.NewTextbox(strconv.FormatFloat(e.ValueNumber, 'f', -1, 64), e.Node.Key)
+	e.textbox = mdl.Textbox(strconv.FormatFloat(e.ValueNumber, 'f', -1, 64), e.Node.Key)
 	e.AppendChild(e.textbox)
 	e.textbox.Input.AddEventListener("input", true, func(ev dom.Event) {
 		n, err := strconv.ParseFloat(e.textbox.Input.Value, 64)
 		if err != nil {
 			// display a validation error
 		}
-		e.Missing = false
-		e.Null = false
-		e.ValueNumber = n
-		e.MarkDirty(e.Dirty())
-		select {
-		case e.Changes <- e.ValueNumber:
-		default:
-		}
+		e.update(n)
+		e.Notify(e)
 	})
 
 	return nil
+}
+
+func (e *NumberEditor) update(n float64) {
+	e.Missing = false
+	e.Null = false
+	e.ValueNumber = n
+	e.Node.Value = n
 }
 
 func (e *NumberEditor) Dirty() bool {
@@ -58,4 +59,8 @@ func (e *NumberEditor) Dirty() bool {
 
 func (e *NumberEditor) Focus() {
 	e.textbox.Input.Focus()
+}
+
+func (e *NumberEditor) Value() interface{} {
+	return e.Node.Value
 }

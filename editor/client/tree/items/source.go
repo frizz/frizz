@@ -94,6 +94,8 @@ func (s *source) awaitSourceResponse(responseChannel chan messages.MessageInterf
 		return kerr.New("UOPUXTANHO", err, "Initialize")
 	}
 
+	s.branch.Listen(ed.Listen().Ch)
+
 	if err := addEntryChildren(s.Node, s.branch, ed); err != nil {
 		return kerr.New("MLUGRXOWHC", err, "addEntryChildren")
 	}

@@ -5,13 +5,13 @@ import (
 	"honnef.co/go/js/dom"
 )
 
-type table struct {
+type TableStruct struct {
 	*dom.HTMLTableElement
 	head *dom.HTMLTableRowElement
 	body *dom.HTMLTableSectionElement
 }
 
-func Table() *table {
+func Table() *TableStruct {
 	t := dom.GetWindow().Document().CreateElement("table").(*dom.HTMLTableElement)
 	t.Class().SetString("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
 
@@ -24,10 +24,10 @@ func Table() *table {
 	tbody := dom.GetWindow().Document().CreateElement("tbody").(*dom.HTMLTableSectionElement)
 	t.AppendChild(tbody)
 
-	return &table{t, tr, tbody}
+	return &TableStruct{t, tr, tbody}
 }
 
-func (t *table) Head(columns ...string) {
+func (t *TableStruct) Head(columns ...string) {
 	for _, column := range columns {
 		th := dom.GetWindow().Document().CreateElement("th").(*dom.HTMLTableCellElement)
 		th.Class().Add("mdl-data-table__cell--non-numeric")
@@ -36,29 +36,29 @@ func (t *table) Head(columns ...string) {
 	}
 }
 
-type row struct {
+type TableRowStruct struct {
 	*dom.HTMLTableRowElement
-	table *table
+	table *TableStruct
 }
 
-func (r *row) Click(action func(dom.Event)) *row {
+func (r *TableRowStruct) Click(action func(dom.Event)) *TableRowStruct {
 	r.AddEventListener("click", true, action)
 	r.Style().Set("cursor", "pointer")
 	return r
 }
 
-func (t *table) Row() *row {
+func (t *TableStruct) Row() *TableRowStruct {
 	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
 	t.body.AppendChild(tr)
-	return &row{tr, t}
+	return &TableRowStruct{tr, t}
 }
 
 type cell struct {
 	*dom.HTMLTableCellElement
-	row *row
+	row *TableRowStruct
 }
 
-func (r *row) Cell() *cell {
+func (r *TableRowStruct) Cell() *cell {
 	td := dom.GetWindow().Document().CreateElement("td").(*dom.HTMLTableCellElement)
 	td.Class().Add("mdl-data-table__cell--non-numeric")
 	r.AppendChild(td)
@@ -71,6 +71,6 @@ func (c *cell) Text(text string) *cell {
 	return c
 }
 
-func (t *table) Upgrade() {
+func (t *TableStruct) Upgrade() {
 	js.Global.Get("componentHandler").Call("upgradeElement", t)
 }

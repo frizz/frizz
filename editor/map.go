@@ -71,3 +71,7 @@ func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliase
 
 	return nil
 }
+
+func (e *MapEditor) Value() interface{} {
+	return e.Node.Value
+}

@@ -45,6 +45,8 @@ func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Bran
 		return kerr.New("PMLOGADEVK", err, "Initialize")
 	}
 
+	e.branch.Listen(ed.Listen().Ch)
+
 	if err := addEntryChildren(node, e.branch, ed); err != nil {
 		return kerr.New("UPRWSRECVR", err, "addEntryChildren")
 	}

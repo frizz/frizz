@@ -36,12 +36,16 @@ func (e *ObjectEditor) Initialize(holder Holder, layout Layout, path string, ali
 
 func (e *ObjectEditor) initializeBlockEditors() {
 	for _, node := range e.Map {
+		if node.Missing || node.Null {
+			continue
+		}
 		ed := node.Editor()
 		if ed == nil || ed.Layout() == Page {
 			continue
 		}
 		e.Editors = append(e.Editors, ed)
 		ed.Initialize(e.holder, Block, e.Path, e.Aliases)
+		e.holder.Listen(ed.Listen().Ch)
 		e.AppendChild(ed)
 	}
 }
@@ -63,7 +67,6 @@ func (e *ObjectEditor) initializeTable() error {
 				ed.Focus()
 			})
 		}
-
 		r.Cell().Text(name)
 
 		origin, err := node.Origin.ValueContext(e.Path, e.Aliases)
@@ -104,4 +107,8 @@ func (e *ObjectEditor) initializeTable() error {
 
 func (e *ObjectEditor) AddChildTreeEntry(child Editor) bool {
 	return child.Layout() == Page
+}
+
+func (e *ObjectEditor) Value() interface{} {
+	return e.Node.Value
 }

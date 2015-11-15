@@ -31,20 +31,25 @@ func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, alias
 
 	cb := mdl.Checkbox(e.ValueBool, e.Node.Key)
 	cb.Input.AddEventListener("change", true, func(ev dom.Event) {
-		e.Missing = false
-		e.Null = false
-		e.ValueBool = cb.Input.Checked
-		e.MarkDirty(e.Dirty())
-		select {
-		case e.Changes <- e.ValueBool:
-		default:
-		}
+		e.update(cb.Input.Checked)
+		e.Notify(e)
 	})
 	e.AppendChild(cb)
 
 	return nil
 }
 
+func (e *BoolEditor) update(b bool) {
+	e.Missing = false
+	e.Null = false
+	e.ValueBool = b
+	e.Node.Value = b
+}
+
 func (e *BoolEditor) Dirty() bool {
 	return e.ValueBool != e.original
+}
+
+func (e *BoolEditor) Value() interface{} {
+	return e.Node.Value
 }

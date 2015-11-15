@@ -85,8 +85,9 @@ func validateNode(node *node.Node, hash uint64, path string, aliases map[string]
 		return nil
 	}
 
-	if node.Type.Id == system.NewReference("kego.io", "type") {
-		h, ok := system.GetGlobal(node.Type.Id.Package, node.Type.Id.Name)
+	if *node.Type.Id == *system.NewReference("kego.io/system", "type") {
+		t := node.Value.(*system.Type)
+		h, ok := system.GetGlobal(t.Id.Package, t.Id.Name)
 		if !ok {
 			return TypesChangedError{kerr.New("XCBNOPEEUY", nil, "New type %s found - run kego again to rebuild", node.Type.Id.Value())}
 		}

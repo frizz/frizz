@@ -74,3 +74,7 @@ func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, alia
 
 	return nil
 }
+
+func (e *ArrayEditor) Value() interface{} {
+	return e.Node.Value
+}

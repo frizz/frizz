@@ -1,6 +1,9 @@
 package editor // import "kego.io/editor"
 
-import "honnef.co/go/js/dom"
+import (
+	"honnef.co/go/js/dom"
+	"kego.io/editor/broadcast"
+)
 
 type Editable interface {
 	GetEditor(n *Node) Editor
@@ -8,7 +11,7 @@ type Editable interface {
 
 type Holder interface {
 	Select(fromKeyboard bool)
-	MarkDirty(ob interface{}, state bool)
+	Listen(changes <-chan interface{})
 }
 
 type Layout int
@@ -29,4 +32,7 @@ type Editor interface {
 	Dirty() bool
 	Select()
 	Focus()
+	Value() interface{}
+	Send(v interface{})
+	Listen() *broadcast.Listener
 }

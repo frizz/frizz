@@ -5,17 +5,17 @@ import (
 	"honnef.co/go/js/dom"
 )
 
-type Textbox struct {
+type TextboxStruct struct {
 	*dom.HTMLDivElement
 	Input *dom.HTMLInputElement
 	Label *dom.HTMLLabelElement
 }
 
-func NewTextbox(value string, label string) *Textbox {
+func Textbox(value string, label string) *TextboxStruct {
 
 	id := randomId()
 
-	t := &Textbox{}
+	t := &TextboxStruct{}
 	t.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	t.Class().SetString("mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
 	t.Style().Set("width", "100%")
@@ -39,7 +39,7 @@ func NewTextbox(value string, label string) *Textbox {
 	return t
 }
 
-func (t *Textbox) SetDisabled(state bool) {
+func (t *TextboxStruct) SetDisabled(state bool) {
 	//console.Log("setting disabled", state)
 	if state {
 		t.Input.Disabled = true

@@ -28,7 +28,7 @@ type Branch struct {
 	badge    *dom.HTMLSpanElement
 	selected bool
 	editor   editor.Editor
-	dirty    map[interface{}]bool // map of dirty descendants
+	dirty    map[editor.Editor]bool // descendant editors that have changes
 }
 
 func (b *Branch) Level() int {
@@ -255,6 +255,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
 				return
 			}
+			b.Listen(b.editor.Listen().Ch)
 			b.Tree.Content.AppendChild(b.editor)
 		}
 		if b.editor == nil {
@@ -399,9 +400,9 @@ func (c *Branch) afterStateChange() {
 		// if the selected branch is now invisible, we should un-select it.
 		c.Tree.Selected.Unselect()
 	}
-	c.SetDirtyIconState()
+	c.setDirtyIconState()
 	if c.Parent != nil {
-		c.Parent.SetDirtyIconState()
+		c.Parent.setDirtyIconState()
 	}
 }
 
@@ -505,21 +506,21 @@ func (c *Branch) IsVisible() bool {
 	return true
 }
 
-func (c *Branch) DirtyDescendant(state bool, ob interface{}) {
+func (c *Branch) markEditorDirtyState(e editor.Editor, state bool) {
 	if state {
 		if c.dirty == nil {
-			c.dirty = map[interface{}]bool{}
+			c.dirty = map[editor.Editor]bool{}
 		}
-		c.dirty[ob] = true
+		c.dirty[e] = true
 	} else {
 		if c.dirty != nil {
-			delete(c.dirty, ob)
+			delete(c.dirty, e)
 		}
 	}
-	c.SetDirtyIconState()
+	c.setDirtyIconState()
 }
 
-func (c *Branch) SetDirtyIconState() {
+func (c *Branch) setDirtyIconState() {
 	if c.badge == nil {
 		return
 	}
@@ -547,10 +548,18 @@ func (c *Branch) dirtyIconState() bool {
 	return false
 }
 
-func (c *Branch) MarkDirty(ob interface{}, state bool) {
+func (c *Branch) notify(editor editor.Editor) {
 	ancestor := c
 	for ancestor != nil {
-		ancestor.DirtyDescendant(state, ob)
+		ancestor.markEditorDirtyState(editor, editor.Dirty())
 		ancestor = ancestor.Parent
 	}
+}
+
+func (b *Branch) Listen(changes <-chan interface{}) {
+	go func() {
+		for e := range changes {
+			b.notify(e.(editor.Editor))
+		}
+	}()
 }

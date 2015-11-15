@@ -5,3 +5,6 @@ title: Hello, world.
 image:
   type: images:icon
   url: /logo.png
+size:
+  width: 320
+  height: 240
