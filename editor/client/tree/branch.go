@@ -59,65 +59,65 @@ func NewBranch(item Item, parent *Branch) *Branch {
 	return b
 }
 
-func (c *Branch) initializeElement() {
+func (b *Branch) initializeElement() {
 	element := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	element.SetAttribute("class", "node")
 
-	c.element = element
+	b.element = element
 }
 
-func (c *Branch) initializeOpener() {
+func (b *Branch) initializeOpener() {
 	opener := dom.GetWindow().Document().CreateElement("a").(*dom.HTMLAnchorElement)
 	opener.SetAttribute("class", "toggle")
 	opener.AddEventListener("click", true, func(e dom.Event) {
-		if c.CanOpen() {
-			c.Toggle()
+		if b.CanOpen() {
+			b.Toggle()
 		} else {
-			c.Select(false)
+			b.Select(false)
 		}
 	})
 
-	c.opener = opener
-	c.element.AppendChild(opener)
+	b.opener = opener
+	b.element.AppendChild(opener)
 }
 
-func (c *Branch) initializeContent() {
+func (b *Branch) initializeContent() {
 	content := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	content.SetAttribute("class", "content")
 
-	c.content = content
-	c.element.AppendChild(content)
+	b.content = content
+	b.element.AppendChild(content)
 }
 
-func (c *Branch) initializeLabel() {
+func (b *Branch) initializeLabel() {
 	label := dom.GetWindow().Document().CreateElement("span").(*dom.HTMLSpanElement)
 	label.SetAttribute("class", "label")
 	label.AddEventListener("click", true, func(e dom.Event) {
-		c.Select(false)
+		b.Select(false)
 	})
 
-	c.label = label
-	c.content.AppendChild(label)
+	b.label = label
+	b.content.AppendChild(label)
 }
 
-func (c *Branch) initializeBadge() {
+func (b *Branch) initializeBadge() {
 	badge := dom.GetWindow().Document().CreateElement("span").(*dom.HTMLSpanElement)
 	badge.SetAttribute("class", "badge")
 	badge.SetInnerHTML(`<svg fill="#ff4081" height="12" width="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`)
 	badge.Style().Set("display", "none")
 
-	c.badge = badge
-	c.content.AppendChild(badge)
+	b.badge = badge
+	b.content.AppendChild(badge)
 }
 
-func (c *Branch) initializeInner() {
+func (b *Branch) initializeInner() {
 	inner := dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	inner.SetAttribute("class", "children")
 	// children should be hidden by default
 	inner.Style().Set("display", "none")
 
-	c.inner = inner
-	c.element.AppendChild(inner)
+	b.inner = inner
+	b.element.AppendChild(inner)
 }
 
 // lastVisible returns the last visible descendant in list order. If the branch is closed or has no
@@ -152,18 +152,18 @@ func (b *Branch) NextVisible(includeChildren bool) *Branch {
 }
 
 // prevVisible returns the previous visible branch in list order
-func (c *Branch) PrevVisible() *Branch {
-	if c.index == 0 {
+func (b *Branch) PrevVisible() *Branch {
+	if b.index == 0 {
 		// at the start of a list of children, the previous in list order is always the parent
-		return c.Parent
+		return b.Parent
 	}
 	// in the middle of a list of children, the previous in list order is the lastVisible of the
 	// previous sibling.
-	return c.Parent.children[c.index-1].LastVisible()
+	return b.Parent.children[b.index-1].LastVisible()
 }
 
-func (c *Branch) SetLabel(text string) {
-	c.label.SetTextContent(text)
+func (b *Branch) SetLabel(text string) {
+	b.label.SetTextContent(text)
 }
 
 func (c *Branch) Append(child *Branch) {
@@ -282,35 +282,35 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 	return
 }
 
-func (c *Branch) Unselect() {
+func (b *Branch) Unselect() {
 	// un-select
-	c.content.Class().Remove("selected")
-	c.Tree.Selected = nil
-	c.selected = false
+	b.content.Class().Remove("selected")
+	b.Tree.Selected = nil
+	b.selected = false
 }
 
 // ensureContentLoaded ensures the content is loaded. For asynchronous branches, it initializes the
 // load event and returns a done chanel. For synchronous branches (or asynchronous branches that are
 // already loaded), it returns nil so that the calling code can react synchronously.
-func (c *Branch) ensureContentLoaded() (done chan bool, success bool) {
+func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 
-	if async, ok := c.Item.(Async); ok && !async.ContentLoaded() {
+	if async, ok := b.Item.(Async); ok && !async.ContentLoaded() {
 
 		done = make(chan bool, 1)
 
-		if c.loading {
+		if b.loading {
 			// if we're already in the process of loading the contents, we should cancel the
 			// operation
 			return nil, false
 		}
 
 		// load content asynchronously
-		c.loading = true
+		b.loading = true
 		responseChannel := async.LoadContent()
 
 		go func() {
 			<-responseChannel
-			c.loading = false
+			b.loading = false
 			done <- true
 		}()
 
@@ -323,13 +323,13 @@ func (c *Branch) ensureContentLoaded() (done chan bool, success bool) {
 }
 
 // Open opens the branch. For asynchronously loaded branches it initialises the load.
-func (c *Branch) Open() {
+func (b *Branch) Open() {
 
-	if c.IsRoot() {
+	if b.IsRoot() {
 		return
 	}
 
-	done, ok := c.ensureContentLoaded()
+	done, ok := b.ensureContentLoaded()
 
 	if !ok {
 		// if the operation should be cancelled, we should return immediately
@@ -338,17 +338,17 @@ func (c *Branch) Open() {
 
 	success := func(fromAsync bool) {
 
-		if c.inner != nil {
-			c.inner.Style().Set("display", "block")
+		if b.inner != nil {
+			b.inner.Style().Set("display", "block")
 		}
 
-		if fromAsync && !c.CanOpen() {
+		if fromAsync && !b.CanOpen() {
 			// if after loading the content, we can't we can't open the branch, this means we just
 			// there were no children. In this case we want to select the branch.
-			c.Select(false)
+			b.Select(false)
 		} else {
-			c.open = true
-			c.afterStateChange()
+			b.open = true
+			b.afterStateChange()
 		}
 	}
 
@@ -367,89 +367,98 @@ func (c *Branch) Open() {
 }
 
 // Close closes a branch and hides the children
-func (c *Branch) Close() {
-	if c.IsRoot() {
-		return
-	}
-	if c.inner != nil {
-		c.inner.Style().Set("display", "none")
-	}
-	c.open = false
-	c.loading = false
-	c.afterStateChange()
+func (b *Branch) Close() {
+	b.close()
+	b.afterStateChange()
 	return
 }
 
+func (b *Branch) close() {
+	if b.IsRoot() {
+		return
+	}
+	if b.inner != nil {
+		b.inner.Style().Set("display", "none")
+	}
+	b.open = false
+	b.loading = false
+	for _, child := range b.children {
+		if child.open {
+			child.close()
+		}
+	}
+}
+
 // toggle inverts the open/closed state of a branch
-func (c *Branch) Toggle() {
-	if c.open {
-		c.Close()
+func (b *Branch) Toggle() {
+	if b.open {
+		b.Close()
 	} else {
-		c.Open()
+		b.Open()
 	}
 }
 
 // afterStateChange is fired every time a branch is opened or closed.
-func (c *Branch) afterStateChange() {
-	c.Update()
-	if next := c.NextVisible(false); next != nil {
+func (b *Branch) afterStateChange() {
+	b.Update()
+	if next := b.NextVisible(false); next != nil {
 		// we must also update the next in the list to ensure it's prev property is set correctly
 		next.Update()
 	}
-	if c.Tree.Selected != nil && !c.Tree.Selected.IsVisible() {
+	if b.Tree.Selected != nil && !b.Tree.Selected.IsVisible() {
 		// if the selected branch is now invisible, we should un-select it.
-		c.Tree.Selected.Unselect()
+		b.Tree.Selected.Unselect()
 	}
-	c.setDirtyIconState()
-	if c.Parent != nil {
-		c.Parent.setDirtyIconState()
+	b.setDirtyIconState()
+	if b.Parent != nil {
+		b.Parent.setDirtyIconState()
 	}
 }
 
 // update assumes parent and index are sources of truth, and updates siblings, prev and next, and
 // updates the children
-func (c *Branch) Update() {
-	if c.Parent == nil {
+func (b *Branch) Update() {
+	if b.Parent == nil {
 		// special case for the root node
-		c.siblings = []*Branch{c}
-		c.level = 0
+		b.siblings = []*Branch{b}
+		b.level = 0
 	} else {
-		c.siblings = c.Parent.children
-		c.level = c.Parent.level + 1
+		b.siblings = b.Parent.children
+		b.level = b.Parent.level + 1
 	}
-	c.prev = c.PrevVisible()
-	c.next = c.NextVisible(true)
+	b.prev = b.PrevVisible()
+	b.next = b.NextVisible(true)
 
-	if c.open && len(c.children) > 0 {
-		for index, child := range c.children {
-			child.Parent = c
+	if b.open && len(b.children) > 0 {
+		for index, child := range b.children {
+			child.Parent = b
 			child.index = index
 			child.Update()
 		}
 	}
-	if c.opener != nil {
+	if b.opener != nil {
 
 		plus := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>`
 		minus := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>`
 		point := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`
 		notLoaded := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 9c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zM7 9.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3 7c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-3-3c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3-6c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zM14 9c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0-1.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zm3 6c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm0-4c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm2-3.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm0-3.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>`
 
-		if c.isAsyncAndNotLoaded() {
-			c.opener.SetInnerHTML(notLoaded)
-		} else if c.children == nil || len(c.children) == 0 {
-			c.opener.SetInnerHTML(point)
-		} else if c.open {
-			c.opener.SetInnerHTML(minus)
+		if b.isAsyncAndNotLoaded() {
+			b.opener.SetInnerHTML(notLoaded)
+		} else if b.children == nil || len(b.children) == 0 {
+			b.opener.SetInnerHTML(point)
+		} else if b.open {
+			b.opener.SetInnerHTML(minus)
 		} else {
-			c.opener.SetInnerHTML(plus)
+			b.opener.SetInnerHTML(plus)
 		}
 	}
 }
 
 // isAsyncAndNotLoaded is true if the branch loads it's contents asynchronously, and the contents
 // are not yet loaded
-func (c *Branch) isAsyncAndNotLoaded() bool {
-	async, isAsync := c.Item.(Async)
+func (b *Branch) isAsyncAndNotLoaded() bool {
+	async, isAsync := b.Item.(Async)
 	if isAsync && !async.ContentLoaded() {
 		return true
 	}
@@ -459,19 +468,19 @@ func (c *Branch) isAsyncAndNotLoaded() bool {
 // canOpen gives us an indication of whether the branch can be opened. We use this to work out if we
 // should display the plus icon, or the empty icon. If a branch is async but the children aren't
 // loaded, we don't know if it has children or not. In that case we assume it can be opened.
-func (c *Branch) CanOpen() bool {
-	if c.isAsyncAndNotLoaded() {
+func (b *Branch) CanOpen() bool {
+	if b.isAsyncAndNotLoaded() {
 		return true
 	}
-	if len(c.children) == 0 {
+	if len(b.children) == 0 {
 		return false
 	}
 	return true
 }
 
 // isDescendantOf tells us if this branch is a direct descendant of the specified branch
-func (c *Branch) isDescendantOf(ancestor *Branch) bool {
-	test := c.Parent
+func (b *Branch) isDescendantOf(ancestor *Branch) bool {
+	test := b.Parent
 	for test != nil {
 		if test == ancestor {
 			return true
@@ -482,10 +491,10 @@ func (c *Branch) isDescendantOf(ancestor *Branch) bool {
 }
 
 // isAncestorOf tells us if this branch is a direct ancestor of the specified branch
-func (c *Branch) isAncestorOf(child *Branch) bool {
+func (b *Branch) isAncestorOf(child *Branch) bool {
 	test := child.Parent
 	for test != nil {
-		if test == c {
+		if test == b {
 			return true
 		}
 		test = test.Parent
@@ -495,8 +504,8 @@ func (c *Branch) isAncestorOf(child *Branch) bool {
 
 // isVisible tells us if the branch is currently visible. For a branch to be visible, all it's
 // ancestors must be open.
-func (c *Branch) IsVisible() bool {
-	test := c.Parent
+func (b *Branch) IsVisible() bool {
+	test := b.Parent
 	for test != nil {
 		if !test.open {
 			return false
@@ -506,41 +515,41 @@ func (c *Branch) IsVisible() bool {
 	return true
 }
 
-func (c *Branch) markEditorDirtyState(e editor.Editor, state bool) {
+func (b *Branch) markEditorDirtyState(e editor.Editor, state bool) {
 	if state {
-		if c.dirty == nil {
-			c.dirty = map[editor.Editor]bool{}
+		if b.dirty == nil {
+			b.dirty = map[editor.Editor]bool{}
 		}
-		c.dirty[e] = true
+		b.dirty[e] = true
 	} else {
-		if c.dirty != nil {
-			delete(c.dirty, e)
+		if b.dirty != nil {
+			delete(b.dirty, e)
 		}
 	}
-	c.setDirtyIconState()
+	b.setDirtyIconState()
 }
 
-func (c *Branch) setDirtyIconState() {
-	if c.badge == nil {
+func (b *Branch) setDirtyIconState() {
+	if b.badge == nil {
 		return
 	}
 
-	if c.dirtyIconState() {
-		c.badge.Style().Set("display", "inline")
+	if b.dirtyIconState() {
+		b.badge.Style().Set("display", "inline")
 		return
 	}
 
-	c.badge.Style().Set("display", "none")
+	b.badge.Style().Set("display", "none")
 
 }
 
-func (c *Branch) dirtyIconState() bool {
+func (b *Branch) dirtyIconState() bool {
 
-	if c.dirty == nil || len(c.dirty) == 0 {
+	if b.dirty == nil || len(b.dirty) == 0 {
 		return false
 	}
 
-	if !c.open {
+	if !b.open {
 		// if descendants are dirty, only show the icon if this branch is closed
 		return true
 	}
@@ -548,8 +557,8 @@ func (c *Branch) dirtyIconState() bool {
 	return false
 }
 
-func (c *Branch) notify(editor editor.Editor) {
-	ancestor := c
+func (b *Branch) notify(editor editor.Editor) {
+	ancestor := b
 	for ancestor != nil {
 		ancestor.markEditorDirtyState(editor, editor.Dirty())
 		ancestor = ancestor.Parent
