@@ -255,7 +255,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
 				return
 			}
-			b.Listen(b.editor.Listen().Ch)
+			b.ListenForEditorChanges(b.editor.Listen().Ch)
 			b.Tree.Content.AppendChild(b.editor)
 		}
 		if b.editor == nil {
@@ -565,7 +565,7 @@ func (b *Branch) notify(editor editor.Editor) {
 	}
 }
 
-func (b *Branch) Listen(changes <-chan interface{}) {
+func (b *Branch) ListenForEditorChanges(changes <-chan interface{}) {
 	go func() {
 		for e := range changes {
 			b.notify(e.(editor.Editor))
