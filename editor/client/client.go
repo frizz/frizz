@@ -11,7 +11,6 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor"
 	"kego.io/editor/client/tree"
-	"kego.io/editor/client/tree/items"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/js/console"
@@ -74,7 +73,7 @@ func Start(path string) error {
 
 	// We create a new root tree element
 	t := tree.New(content, app.conn, app.fail, app.path, app.aliases)
-	root := items.NewRoot(t, nav)
+	root := tree.NewRoot(t, nav)
 
 	if err := root.AddPackage(editorNode, info.Data, info.Types); err != nil {
 		return kerr.New("EAIHJLNBFA", err, "AddPackage")

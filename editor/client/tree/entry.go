@@ -1,36 +1,25 @@
-package items
+package tree
 
 import (
 	"fmt"
 
 	"kego.io/editor"
-	"kego.io/editor/client/tree"
 	"kego.io/kerr"
 )
 
 // Entry items are nodes. Each branch inside a source branch are entry.
 type entry struct {
+	*Branch
 	*editor.Node
-	branch *tree.Branch
 
 	name  string
 	index int
 }
 
-var _ tree.Item = (*entry)(nil)
+var _ BranchInterface = (*entry)(nil)
+var _ Editable = (*entry)(nil)
 
-func (e *entry) Initialise(parent *tree.Branch) {
-	label := ""
-	if e.index > -1 {
-		label = fmt.Sprint("[", e.index, "]")
-	} else {
-		label = e.name
-	}
-	e.branch = tree.NewBranch(e, parent)
-	e.branch.SetLabel(label)
-}
-
-func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Branch, parentEditor editor.EditorInterface) error {
+func addEntry(name string, index int, node *editor.Node, parentBranch BranchInterface, parentEditor editor.EditorInterface) error {
 
 	ed := node.Editor()
 	if !parentEditor.AddChildTreeEntry(ed) {
@@ -38,25 +27,32 @@ func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Bran
 	}
 
 	e := &entry{name: name, index: index, Node: node}
-	e.Initialise(parentBranch)
-	parentBranch.Append(e.branch)
+	e.Branch = NewBranch(e, parentBranch)
 
-	if err := ed.Initialize(e.branch, editor.Page, e.branch.Tree.Path, e.branch.Tree.Aliases); err != nil {
+	if index > -1 {
+		e.SetLabel(fmt.Sprint("[", index, "]"))
+	} else {
+		e.SetLabel(name)
+	}
+
+	parentBranch.Append(e)
+
+	if err := ed.Initialize(e, editor.Page, e.tree.Path, e.tree.Aliases); err != nil {
 		return kerr.New("PMLOGADEVK", err, "Initialize")
 	}
 
-	e.branch.ListenForEditorChanges(ed.Listen().Ch)
+	e.ListenForEditorChanges(ed.Listen().Ch)
 
-	if err := addEntryChildren(node, e.branch, ed); err != nil {
+	if err := addEntryChildren(node, e, ed); err != nil {
 		return kerr.New("UPRWSRECVR", err, "addEntryChildren")
 	}
 
-	e.branch.Close()
+	e.Close()
 
 	return nil
 }
 
-func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parentEditor editor.EditorInterface) error {
+func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, parentEditor editor.EditorInterface) error {
 	if parentNode == nil {
 		return nil
 	}
@@ -85,5 +81,3 @@ func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parent
 	}
 	return nil
 }
-
-var _ tree.Editable = (*entry)(nil)

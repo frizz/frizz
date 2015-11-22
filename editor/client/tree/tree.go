@@ -7,12 +7,12 @@ import (
 )
 
 type Tree struct {
-	Root     *Branch
+	Root     BranchInterface
 	Conn     *connection.Conn
 	Fail     chan error
 	Path     string
 	Aliases  map[string]string
-	Selected *Branch
+	Selected BranchInterface
 	Editor   editor.EditorInterface
 	Content  *dom.HTMLDivElement
 }
@@ -35,7 +35,7 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 	case 40: // down
 		e.PreventDefault()
 		if t.Selected == nil {
-			b := t.Root.children[0]
+			b := t.Root.FirstChild()
 			if b != nil {
 				b.Select(true)
 			}
@@ -50,11 +50,11 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 		if t.Selected == nil {
 			return
 		}
-		if t.Selected.open && t.Selected.CanOpen() {
+		if t.Selected.IsOpen() && t.Selected.CanOpen() {
 			t.Selected.Close()
 			return
 		}
-		b := t.Selected.Parent
+		b := t.Selected.GetParent()
 		if b != nil {
 			b.Select(true)
 		}
@@ -63,7 +63,7 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 		if t.Selected == nil {
 			return
 		}
-		if t.Selected.open || !t.Selected.CanOpen() {
+		if t.Selected.IsOpen() || !t.Selected.CanOpen() {
 			return
 		}
 		t.Selected.Open()

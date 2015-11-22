@@ -8,15 +8,51 @@ import (
 	"kego.io/kerr"
 )
 
+type BranchInterface interface {
+	Append(child BranchInterface)
+	PrevVisible() BranchInterface
+	LastVisible() BranchInterface
+	NextVisible(includeChildren bool) BranchInterface
+	FirstChild() BranchInterface
+	IsOpen() bool
+	CanOpen() bool
+	Select(fromKeyboard bool)
+	Unselect()
+	Open()
+	Close()
+	GetParent() BranchInterface
+	Update()
+	IsRoot() bool
+	GetTree() *Tree
+	IsFirstSibling() bool
+	IsLastSibling() bool
+	PrevSibling() BranchInterface
+	NextSibling() BranchInterface
+	GetElement() *dom.HTMLDivElement
+	IsVisible() bool
+	setDirtyIconState()
+	markEditorDirtyState(e editor.EditorInterface, state bool)
+	SetParent(parent BranchInterface)
+	SetIndex(index int)
+	GetChildren() []BranchInterface
+	GetLevel() int
+	HasChildren() bool
+	LastChild() BranchInterface
+}
+
+type Editable interface {
+	Editor() editor.EditorInterface
+}
+
 type Branch struct {
-	Tree     *Tree
-	Item     Item
-	Parent   *Branch
-	children []*Branch
+	tree     *Tree
+	self     BranchInterface
+	parent   BranchInterface
+	children []BranchInterface
 	index    int
-	siblings []*Branch
-	next     *Branch
-	prev     *Branch
+	siblings []BranchInterface
+	next     BranchInterface
+	prev     BranchInterface
 	open     bool
 	loading  bool
 	level    int
@@ -31,25 +67,55 @@ type Branch struct {
 	dirty    map[editor.EditorInterface]bool // descendant editors that have changes
 }
 
-func (b *Branch) Level() int {
+func (b *Branch) HasChildren() bool {
+	return len(b.children) > 0
+}
+
+func (b *Branch) GetChildren() []BranchInterface {
+	return b.children
+}
+
+func (b *Branch) SetParent(parent BranchInterface) {
+	b.parent = parent
+}
+
+func (b *Branch) SetIndex(index int) {
+	b.index = index
+}
+
+func (b *Branch) GetElement() *dom.HTMLDivElement {
+	return b.element
+}
+
+func (b *Branch) GetTree() *Tree {
+	return b.tree
+}
+
+func (b *Branch) GetLevel() int {
 	return b.level
 }
 
 func (b *Branch) IsRoot() bool {
-	return b.Parent == nil
+	return b.parent == nil
 }
 
-func NewRootBranch(tree *Tree, element *dom.HTMLDivElement, inner *dom.HTMLDivElement) *Branch {
-	return &Branch{
-		Tree:    tree,
-		open:    true,
-		element: element,
-		inner:   inner,
+func (b *Branch) IsOpen() bool {
+	return b.open
+}
+
+func (b *Branch) GetParent() BranchInterface {
+	return b.parent
+}
+
+func (b *Branch) FirstChild() BranchInterface {
+	if len(b.children) == 0 {
+		return nil
 	}
+	return b.children[0]
 }
 
-func NewBranch(item Item, parent *Branch) *Branch {
-	b := &Branch{Tree: parent.Tree, Parent: parent, Item: item}
+func NewBranch(iface BranchInterface, parent BranchInterface) *Branch {
+	b := &Branch{tree: parent.GetTree(), parent: parent, self: iface}
 	b.initializeElement()
 	b.initializeOpener()
 	b.initializeContent()
@@ -122,53 +188,79 @@ func (b *Branch) initializeInner() {
 
 // lastVisible returns the last visible descendant in list order. If the branch is closed or has no
 // children, we return the branch itself.
-func (b *Branch) LastVisible() *Branch {
-	i := b
-	for i.open && len(i.children) > 0 {
+func (b *Branch) LastVisible() BranchInterface {
+	i := b.self
+	for i.IsOpen() && i.HasChildren() {
 		// if the node is open, test it's last child
-		i = i.children[len(i.children)-1]
+		i = i.LastChild()
 	}
 	// return the first node we find that's closed
 	return i
 }
 
+func (b *Branch) LastChild() BranchInterface {
+	return b.children[len(b.children)-1]
+}
+
 // nextVisible returns the next visible branch in list order.
-func (b *Branch) NextVisible(includeChildren bool) *Branch {
+func (b *Branch) NextVisible(includeChildren bool) BranchInterface {
 	if includeChildren && b.open && len(b.children) > 0 {
 		// If the branch is open and has children, we return it's first child.
 		return b.children[0]
 	}
-	i := b
-	for i.index >= len(i.siblings)-1 {
+	i := b.self
+	for i.IsLastSibling() {
 		// if the node is the last of the siblings, test it's parent
 		if i.IsRoot() {
 			// if we get to the root node, we're testing the last visible node, so we return nil
 			return nil
 		}
-		i = i.Parent
+		i = i.GetParent()
 	}
 	// return the next sibling of the first ancestor that has one
-	return i.siblings[i.index+1]
+	return i.NextSibling()
+}
+
+func (b *Branch) NextSibling() BranchInterface {
+	if b.IsLastSibling() {
+		return nil
+	}
+	return b.siblings[b.index+1]
+}
+
+func (b *Branch) PrevSibling() BranchInterface {
+	if b.IsFirstSibling() {
+		return nil
+	}
+	return b.siblings[b.index-1]
+}
+
+func (b *Branch) IsFirstSibling() bool {
+	return b.index == 0
+}
+
+func (b *Branch) IsLastSibling() bool {
+	return b.index >= len(b.siblings)-1
 }
 
 // prevVisible returns the previous visible branch in list order
-func (b *Branch) PrevVisible() *Branch {
-	if b.index == 0 {
+func (b *Branch) PrevVisible() BranchInterface {
+	if b.IsFirstSibling() {
 		// at the start of a list of children, the previous in list order is always the parent
-		return b.Parent
+		return b.parent
 	}
 	// in the middle of a list of children, the previous in list order is the lastVisible of the
 	// previous sibling.
-	return b.Parent.children[b.index-1].LastVisible()
+	return b.PrevSibling().LastVisible()
 }
 
 func (b *Branch) SetLabel(text string) {
 	b.label.SetTextContent(text)
 }
 
-func (c *Branch) Append(child *Branch) {
+func (c *Branch) Append(child BranchInterface) {
 	if c.inner != nil {
-		c.inner.AppendChild(child.element)
+		c.inner.AppendChild(child.GetElement())
 	}
 	c.children = append(c.children, child)
 	c.Update()
@@ -183,20 +275,20 @@ func (b *Branch) Select(fromKeyboard bool) {
 
 	if !b.IsVisible() {
 		// if the branch we're selecting isn't visible, we should open all it's closed ancestors.
-		ancestor := b.Parent
+		ancestor := b.parent
 		for ancestor != nil {
-			if !ancestor.open && ancestor.CanOpen() {
+			if !ancestor.IsOpen() && ancestor.CanOpen() {
 				ancestor.Open()
 			}
-			ancestor = ancestor.Parent
+			ancestor = ancestor.GetParent()
 		}
 	}
 
-	if b.Tree.Selected != nil {
-		b.Tree.Selected.Unselect()
+	if b.tree.Selected != nil {
+		b.tree.Selected.Unselect()
 	}
 	b.content.Class().Add("selected")
-	b.Tree.Selected = b
+	b.tree.Selected = b.self
 	b.selected = true
 
 	if fromKeyboard && b.isAsyncAndNotLoaded() {
@@ -222,13 +314,13 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 		return
 	}
 
-	if b.editor != nil && b.Tree.Editor != nil && b.editor == b.Tree.Editor {
+	if b.editor != nil && b.tree.Editor != nil && b.editor == b.tree.Editor {
 		return
 	}
 
-	if b.Tree.Editor != nil {
-		b.Tree.Editor.Hide()
-		b.Tree.Editor = nil
+	if b.tree.Editor != nil {
+		b.tree.Editor.Hide()
+		b.tree.Editor = nil
 	}
 
 	done, ok := b.ensureContentLoaded()
@@ -246,26 +338,26 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 		}
 
 		if b.editor == nil {
-			ed, ok := b.Item.(Editable)
+			ed, ok := b.self.(Editable)
 			if !ok {
 				return
 			}
 			b.editor = ed.Editor()
-			if err := b.editor.Initialize(b, editor.Page, b.Tree.Path, b.Tree.Aliases); err != nil {
-				b.Tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
+			if err := b.editor.Initialize(b, editor.Page, b.tree.Path, b.tree.Aliases); err != nil {
+				b.tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
 				return
 			}
 			b.ListenForEditorChanges(b.editor.Listen().Ch)
-			b.Tree.Content.AppendChild(b.editor)
+			b.tree.Content.AppendChild(b.editor)
 		}
 		if b.editor == nil {
 			return
 		}
-		if b.Tree.Editor != nil {
-			b.Tree.Editor.Hide()
+		if b.tree.Editor != nil {
+			b.tree.Editor.Hide()
 		}
 		b.editor.Show()
-		b.Tree.Editor = b.editor
+		b.tree.Editor = b.editor
 
 	}
 
@@ -285,7 +377,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 func (b *Branch) Unselect() {
 	// un-select
 	b.content.Class().Remove("selected")
-	b.Tree.Selected = nil
+	b.tree.Selected = nil
 	b.selected = false
 }
 
@@ -294,7 +386,7 @@ func (b *Branch) Unselect() {
 // already loaded), it returns nil so that the calling code can react synchronously.
 func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 
-	if async, ok := b.Item.(Async); ok && !async.ContentLoaded() {
+	if async, ok := b.self.(AsyncInterface); ok && !async.ContentLoaded() {
 
 		done = make(chan bool, 1)
 
@@ -383,8 +475,8 @@ func (b *Branch) close() {
 	b.open = false
 	b.loading = false
 	for _, child := range b.children {
-		if child.open {
-			child.close()
+		if child.IsOpen() {
+			child.Close()
 		}
 	}
 }
@@ -405,46 +497,49 @@ func (b *Branch) afterStateChange() {
 		// we must also update the next in the list to ensure it's prev property is set correctly
 		next.Update()
 	}
-	if b.Tree.Selected != nil && !b.Tree.Selected.IsVisible() {
+	if b.tree.Selected != nil && !b.tree.Selected.IsVisible() {
 		// if the selected branch is now invisible, we should un-select it.
-		b.Tree.Selected.Unselect()
+		b.tree.Selected.Unselect()
 	}
 	b.setDirtyIconState()
-	if b.Parent != nil {
-		b.Parent.setDirtyIconState()
+	if b.parent != nil {
+		b.parent.setDirtyIconState()
 	}
 }
 
 // update assumes parent and index are sources of truth, and updates siblings, prev and next, and
 // updates the children
 func (b *Branch) Update() {
-	if b.Parent == nil {
+	if b.parent == nil {
 		// special case for the root node
-		b.siblings = []*Branch{b}
+		b.siblings = []BranchInterface{b.self}
 		b.level = 0
 	} else {
-		b.siblings = b.Parent.children
-		b.level = b.Parent.level + 1
+		b.siblings = b.parent.GetChildren()
+		b.level = b.parent.GetLevel() + 1
 	}
 	b.prev = b.PrevVisible()
 	b.next = b.NextVisible(true)
 
 	if b.open && len(b.children) > 0 {
 		for index, child := range b.children {
-			child.Parent = b
-			child.index = index
+			child.SetParent(b.self)
+			child.SetIndex(index)
 			child.Update()
 		}
 	}
 	if b.opener != nil {
 
 		plus := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>`
+
 		minus := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>`
+
 		point := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`
-		notLoaded := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 9c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zM7 9.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3 7c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-3-3c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3-6c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zM14 9c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0-1.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zm3 6c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm0-4c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm2-3.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm0-3.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>`
+
+		async := `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 9c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0 4c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zM7 9.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3 7c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-3-3c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3-6c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zM14 9c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0-1.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zm3 6c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm0-4c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm2-3.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm0-3.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>`
 
 		if b.isAsyncAndNotLoaded() {
-			b.opener.SetInnerHTML(notLoaded)
+			b.opener.SetInnerHTML(async)
 		} else if b.children == nil || len(b.children) == 0 {
 			b.opener.SetInnerHTML(point)
 		} else if b.open {
@@ -458,7 +553,7 @@ func (b *Branch) Update() {
 // isAsyncAndNotLoaded is true if the branch loads it's contents asynchronously, and the contents
 // are not yet loaded
 func (b *Branch) isAsyncAndNotLoaded() bool {
-	async, isAsync := b.Item.(Async)
+	async, isAsync := b.self.(AsyncInterface)
 	if isAsync && !async.ContentLoaded() {
 		return true
 	}
@@ -479,25 +574,25 @@ func (b *Branch) CanOpen() bool {
 }
 
 // isDescendantOf tells us if this branch is a direct descendant of the specified branch
-func (b *Branch) isDescendantOf(ancestor *Branch) bool {
-	test := b.Parent
+func (b *Branch) isDescendantOf(ancestor BranchInterface) bool {
+	test := b.parent
 	for test != nil {
 		if test == ancestor {
 			return true
 		}
-		test = test.Parent
+		test = test.GetParent()
 	}
 	return false
 }
 
 // isAncestorOf tells us if this branch is a direct ancestor of the specified branch
-func (b *Branch) isAncestorOf(child *Branch) bool {
-	test := child.Parent
-	for test != nil {
-		if test == b {
+func (b *Branch) isAncestorOf(child BranchInterface) bool {
+	current := child.GetParent()
+	for current != nil {
+		if current == b.self {
 			return true
 		}
-		test = test.Parent
+		current = current.GetParent()
 	}
 	return false
 }
@@ -505,12 +600,12 @@ func (b *Branch) isAncestorOf(child *Branch) bool {
 // isVisible tells us if the branch is currently visible. For a branch to be visible, all it's
 // ancestors must be open.
 func (b *Branch) IsVisible() bool {
-	test := b.Parent
+	test := b.parent
 	for test != nil {
-		if !test.open {
+		if !test.IsOpen() {
 			return false
 		}
-		test = test.Parent
+		test = test.GetParent()
 	}
 	return true
 }
@@ -558,10 +653,10 @@ func (b *Branch) dirtyIconState() bool {
 }
 
 func (b *Branch) notify(editor editor.EditorInterface) {
-	ancestor := b
-	for ancestor != nil {
-		ancestor.markEditorDirtyState(editor, editor.Dirty())
-		ancestor = ancestor.Parent
+	current := b.self
+	for current != nil {
+		current.markEditorDirtyState(editor, editor.Dirty())
+		current = current.GetParent()
 	}
 }
 
