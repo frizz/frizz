@@ -30,7 +30,7 @@ func (e *entry) Initialise(parent *tree.Branch) {
 	e.branch.SetLabel(label)
 }
 
-func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) error {
+func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Branch, parentEditor editor.EditorInterface) error {
 
 	ed := node.Editor()
 	if !parentEditor.AddChildTreeEntry(ed) {
@@ -56,7 +56,7 @@ func addEntry(name string, index int, node *editor.Node, parentBranch *tree.Bran
 	return nil
 }
 
-func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parentEditor editor.Editor) error {
+func addEntryChildren(parentNode *editor.Node, parentBranch *tree.Branch, parentEditor editor.EditorInterface) error {
 	if parentNode == nil {
 		return nil
 	}

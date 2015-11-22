@@ -4,24 +4,18 @@ import "kego.io/editor/mdl"
 
 type summary struct {
 	*mdl.TableStruct
+	path    string
+	aliases map[string]string
 }
 
-type objectSummary struct {
-	*summary
-}
-
-type objectSummaryRow struct {
+type summaryRow struct {
 	*mdl.TableRowStruct
+	node  *Node
+	table *summary
 }
 
-func newObjectSummaryRow() {
-
-}
-
-func NewObjectSummary(node *Node) *objectSummary {
-	s := &summary{TableStruct: mdl.Table()}
-	s.Head("name", "origin", "holds", "value", "options")
-	return nil
+type summaryCell struct {
+	*mdl.TableCellStruct
 }
 
 type mapSummary struct {

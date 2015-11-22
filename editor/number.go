@@ -9,25 +9,25 @@ import (
 
 type NumberEditor struct {
 	*Node
-	*Common
+	*Editor
 	Changes  chan float64
 	original float64
 	textbox  *mdl.TextboxStruct
 }
 
 func NewNumberEditor(n *Node) *NumberEditor {
-	return &NumberEditor{Node: n, Common: &Common{}}
+	return &NumberEditor{Node: n, Editor: &Editor{}}
 }
 
 func (e *NumberEditor) Layout() Layout {
 	return Inline
 }
 
-var _ Editor = (*NumberEditor)(nil)
+var _ EditorInterface = (*NumberEditor)(nil)
 
 func (e *NumberEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 	e.Changes = make(chan float64, 1)
 
 	e.original = e.ValueNumber
@@ -40,7 +40,7 @@ func (e *NumberEditor) Initialize(holder Holder, layout Layout, path string, ali
 			// display a validation error
 		}
 		e.update(n)
-		e.Notify(e)
+		e.Send(e)
 	})
 
 	return nil

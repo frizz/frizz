@@ -7,24 +7,24 @@ import (
 
 type BoolEditor struct {
 	*Node
-	*Common
+	*Editor
 	Changes  chan bool
 	original bool
 }
 
 func NewBoolEditor(n *Node) *BoolEditor {
-	return &BoolEditor{Node: n, Common: &Common{}}
+	return &BoolEditor{Node: n, Editor: &Editor{}}
 }
 
 func (e *BoolEditor) Layout() Layout {
 	return Inline
 }
 
-var _ Editor = (*BoolEditor)(nil)
+var _ EditorInterface = (*BoolEditor)(nil)
 
 func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 	e.Changes = make(chan bool, 1)
 
 	e.original = e.ValueBool
@@ -32,7 +32,7 @@ func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, alias
 	cb := mdl.Checkbox(e.ValueBool, e.Node.Key)
 	cb.Input.AddEventListener("change", true, func(ev dom.Event) {
 		e.update(cb.Input.Checked)
-		e.Notify(e)
+		e.Send(e)
 	})
 	e.AppendChild(cb)
 

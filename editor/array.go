@@ -12,22 +12,22 @@ import (
 
 type ArrayEditor struct {
 	*Node
-	*Common
+	*Editor
 }
 
 func NewArrayEditor(n *Node) *ArrayEditor {
-	return &ArrayEditor{Node: n, Common: &Common{}}
+	return &ArrayEditor{Node: n, Editor: &Editor{}}
 }
 
 func (e *ArrayEditor) Layout() Layout {
 	return Page
 }
 
-var _ Editor = (*ArrayEditor)(nil)
+var _ EditorInterface = (*ArrayEditor)(nil)
 
 func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 
 	table := mdl.Table()
 

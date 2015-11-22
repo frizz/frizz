@@ -18,7 +18,7 @@ type source struct {
 	holder *holder
 
 	loaded bool
-	editor editor.Editor
+	editor editor.EditorInterface
 }
 
 var _ tree.Item = (*source)(nil)

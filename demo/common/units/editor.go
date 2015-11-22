@@ -2,21 +2,21 @@ package units
 
 import "kego.io/editor"
 
-func (i *Rectangle) GetEditor(n *editor.Node) editor.Editor {
-	return &RectangleEditor{Rectangle: n.Value.(*Rectangle), Node: n, Common: &editor.Common{}}
+func (i *Rectangle) GetEditor(n *editor.Node) editor.EditorInterface {
+	return &RectangleEditor{Rectangle: n.Value.(*Rectangle), Node: n, Editor: &editor.Editor{}}
 }
 
 var _ editor.Editable = (*Rectangle)(nil)
 
 type RectangleEditor struct {
 	*Rectangle
-	*editor.Common
+	*editor.Editor
 	*editor.Node
 	height *editor.NumberEditor
 	width  *editor.NumberEditor
 }
 
-var _ editor.Editor = (*RectangleEditor)(nil)
+var _ editor.EditorInterface = (*RectangleEditor)(nil)
 
 func (e *RectangleEditor) Layout() editor.Layout {
 	return editor.Inline
@@ -24,7 +24,7 @@ func (e *RectangleEditor) Layout() editor.Layout {
 
 func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 
 	e.height = editor.NewNumberEditor(e.Node.Map["height"])
 	e.height.Initialize(holder, editor.Inline, path, aliases)
@@ -50,7 +50,7 @@ func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout,
 			case ne := <-height:
 				e.Height.Set(int(ne.(*editor.NumberEditor).ValueNumber))
 			}
-			e.Notify(e)
+			e.Send(e)
 		}
 	}()
 

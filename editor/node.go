@@ -1,32 +1,35 @@
 package editor
 
 import (
+	"github.com/tjgq/broadcast"
 	"kego.io/json"
 	"kego.io/system/node"
 )
 
 type Node struct {
 	*node.Node
-	editor Editor
-	Parent *Node
-	Array  []*Node
-	Map    map[string]*Node
+	editor  EditorInterface
+	Parent  *Node
+	Array   []*Node
+	Map     map[string]*Node
+	changes *broadcast.Broadcaster
 }
 
-func NewNode(n *node.Node, parent *Node) *Node {
-	n1 := &Node{Node: n}
-	n1.Parent = parent
-	for _, child := range n.Array {
-		n1.Array = append(n1.Array, NewNode(child, n1))
+func NewNode(inner *node.Node, parent *Node) *Node {
+	n := &Node{Node: inner}
+	n.Parent = parent
+	for _, child := range inner.Array {
+		n.Array = append(n.Array, NewNode(child, n))
 	}
-	n1.Map = map[string]*Node{}
-	for name, child := range n.Map {
-		n1.Map[name] = NewNode(child, n1)
+	n.Map = map[string]*Node{}
+	for name, child := range inner.Map {
+		n.Map[name] = NewNode(child, n)
 	}
-	return n1
+	n.changes = broadcast.New(0)
+	return n
 }
 
-func (n *Node) Editor() Editor {
+func (n *Node) Editor() EditorInterface {
 
 	if n.editor != nil {
 		return n.editor

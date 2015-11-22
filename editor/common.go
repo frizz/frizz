@@ -1,21 +1,29 @@
 package editor
 
 import (
+	"github.com/tjgq/broadcast"
 	"honnef.co/go/js/dom"
-	"kego.io/editor/broadcast"
 )
 
-type Common struct {
+type Editor struct {
 	*dom.HTMLDivElement
-	*broadcast.Broadcaster
 	Path    string
 	Aliases map[string]string
-	Editors []Editor
+	Editors []EditorInterface
 	layout  Layout
 	holder  Holder
+	changes *broadcast.Broadcaster
 }
 
-func (c *Common) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (c *Editor) Send(v interface{}) {
+	c.changes.Send(v)
+}
+
+func (c *Editor) Listen() *broadcast.Listener {
+	return c.changes.Listen()
+}
+
+func (c *Editor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
 	c.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	if layout == Page {
@@ -26,9 +34,9 @@ func (c *Common) Initialize(holder Holder, layout Layout, path string, aliases m
 		c.Style().Set("display", "inline-block")
 	}
 
-	c.Broadcaster = broadcast.New(0)
+	c.changes = broadcast.New(0)
 
-	holder.Listen(c.Listen().Ch)
+	holder.ListenForEditorChanges(c.changes.Listen().Ch)
 
 	c.Path = path
 	c.Aliases = aliases
@@ -38,7 +46,7 @@ func (c *Common) Initialize(holder Holder, layout Layout, path string, aliases m
 
 }
 
-func (c *Common) Show() {
+func (c *Editor) Show() {
 	if c.layout == Inline {
 		c.Style().Set("display", "inline-block")
 	} else {
@@ -46,20 +54,15 @@ func (c *Common) Show() {
 	}
 }
 
-func (c *Common) Hide() {
+func (c *Editor) Hide() {
 	c.Style().Set("display", "none")
 }
 
-func (c *Common) AddChildTreeEntry(child Editor) bool {
+func (c *Editor) AddChildTreeEntry(child EditorInterface) bool {
 	return true
 }
 
-// Notify sends a notification that the editor data has been changed.
-func (c *Common) Notify(editor Editor) {
-	c.Send(editor)
-}
-
-func (c *Common) Dirty() bool {
+func (c *Editor) Dirty() bool {
 	for _, e := range c.Editors {
 		if e.Dirty() {
 			return true
@@ -68,8 +71,8 @@ func (c *Common) Dirty() bool {
 	return false
 }
 
-func (c *Common) Select() {
+func (c *Editor) Select() {
 	c.holder.Select(false)
 }
 
-func (c *Common) Focus() {}
+func (c *Editor) Focus() {}

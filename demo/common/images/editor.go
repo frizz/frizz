@@ -5,21 +5,21 @@ import (
 	"kego.io/editor/mdl"
 )
 
-func (i *Icon) GetEditor(n *editor.Node) editor.Editor {
-	return &IconEditor{Icon: n.Value.(*Icon), Node: n, Common: &editor.Common{}}
+func (i *Icon) GetEditor(n *editor.Node) editor.EditorInterface {
+	return &IconEditor{Icon: n.Value.(*Icon), Node: n, Editor: &editor.Editor{}}
 }
 
 var _ editor.Editable = (*Icon)(nil)
 
 type IconEditor struct {
 	*Icon
-	*editor.Common
+	*editor.Editor
 	*editor.Node
 	image *mdl.ImageStruct
 	url   *editor.StringEditor
 }
 
-var _ editor.Editor = (*IconEditor)(nil)
+var _ editor.EditorInterface = (*IconEditor)(nil)
 
 func (e *IconEditor) Layout() editor.Layout {
 	return editor.Block
@@ -27,7 +27,7 @@ func (e *IconEditor) Layout() editor.Layout {
 
 func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 
 	e.image = mdl.Image(e.Url.Value())
 	e.AppendChild(e.image)
@@ -40,7 +40,7 @@ func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path
 	go func() {
 		for se := range e.url.Listen().Ch {
 			e.update(se.(*editor.StringEditor).ValueString)
-			e.Notify(e)
+			e.Send(e)
 		}
 	}()
 
@@ -55,7 +55,7 @@ func (e *IconEditor) update(url string) {
 	e.image.Visibility(url != "")
 }
 
-func (e *IconEditor) AddChildTreeEntry(child editor.Editor) bool {
+func (e *IconEditor) AddChildTreeEntry(child editor.EditorInterface) bool {
 	return false
 }
 

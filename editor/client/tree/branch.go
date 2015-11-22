@@ -27,8 +27,8 @@ type Branch struct {
 	label    *dom.HTMLSpanElement
 	badge    *dom.HTMLSpanElement
 	selected bool
-	editor   editor.Editor
-	dirty    map[editor.Editor]bool // descendant editors that have changes
+	editor   editor.EditorInterface
+	dirty    map[editor.EditorInterface]bool // descendant editors that have changes
 }
 
 func (b *Branch) Level() int {
@@ -515,10 +515,10 @@ func (b *Branch) IsVisible() bool {
 	return true
 }
 
-func (b *Branch) markEditorDirtyState(e editor.Editor, state bool) {
+func (b *Branch) markEditorDirtyState(e editor.EditorInterface, state bool) {
 	if state {
 		if b.dirty == nil {
-			b.dirty = map[editor.Editor]bool{}
+			b.dirty = map[editor.EditorInterface]bool{}
 		}
 		b.dirty[e] = true
 	} else {
@@ -557,7 +557,7 @@ func (b *Branch) dirtyIconState() bool {
 	return false
 }
 
-func (b *Branch) notify(editor editor.Editor) {
+func (b *Branch) notify(editor editor.EditorInterface) {
 	ancestor := b
 	for ancestor != nil {
 		ancestor.markEditorDirtyState(editor, editor.Dirty())
@@ -568,7 +568,7 @@ func (b *Branch) notify(editor editor.Editor) {
 func (b *Branch) ListenForEditorChanges(changes <-chan interface{}) {
 	go func() {
 		for e := range changes {
-			b.notify(e.(editor.Editor))
+			b.notify(e.(editor.EditorInterface))
 		}
 	}()
 }

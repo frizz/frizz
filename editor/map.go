@@ -9,22 +9,22 @@ import (
 
 type MapEditor struct {
 	*Node
-	*Common
+	*Editor
 }
 
 func NewMapEditor(n *Node) *MapEditor {
-	return &MapEditor{Node: n, Common: &Common{}}
+	return &MapEditor{Node: n, Editor: &Editor{}}
 }
 
 func (e *MapEditor) Layout() Layout {
 	return Page
 }
 
-var _ Editor = (*MapEditor)(nil)
+var _ EditorInterface = (*MapEditor)(nil)
 
 func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 
 	table := mdl.Table()
 

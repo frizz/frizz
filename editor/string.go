@@ -7,25 +7,25 @@ import (
 
 type StringEditor struct {
 	*Node
-	*Common
+	*Editor
 	Changes  chan string
 	original string
 	textbox  *mdl.TextboxStruct
 }
 
 func NewStringEditor(n *Node) *StringEditor {
-	return &StringEditor{Node: n, Common: &Common{}}
+	return &StringEditor{Node: n, Editor: &Editor{}}
 }
 
 func (e *StringEditor) Layout() Layout {
 	return Inline
 }
 
-var _ Editor = (*StringEditor)(nil)
+var _ EditorInterface = (*StringEditor)(nil)
 
 func (e *StringEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
 
-	e.Common.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, path, aliases)
 	e.Changes = make(chan string, 1)
 
 	e.original = e.ValueString
@@ -35,7 +35,7 @@ func (e *StringEditor) Initialize(holder Holder, layout Layout, path string, ali
 	e.AppendChild(e.textbox)
 	e.textbox.Input.AddEventListener("input", true, func(ev dom.Event) {
 		e.update(e.textbox.Input.Value)
-		e.Notify(e)
+		e.Send(e)
 	})
 
 	return nil

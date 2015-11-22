@@ -11,5 +11,5 @@ type Async interface {
 }
 
 type Editable interface {
-	Editor() editor.Editor
+	Editor() editor.EditorInterface
 }

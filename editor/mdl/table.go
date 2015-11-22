@@ -53,20 +53,20 @@ func (t *TableStruct) Row() *TableRowStruct {
 	return &TableRowStruct{tr, t}
 }
 
-type cell struct {
+type TableCellStruct struct {
 	*dom.HTMLTableCellElement
 	row *TableRowStruct
 }
 
-func (r *TableRowStruct) Cell() *cell {
+func (r *TableRowStruct) Cell() *TableCellStruct {
 	td := dom.GetWindow().Document().CreateElement("td").(*dom.HTMLTableCellElement)
 	td.Class().Add("mdl-data-table__cell--non-numeric")
 	r.AppendChild(td)
 
-	return &cell{td, r}
+	return &TableCellStruct{td, r}
 }
 
-func (c *cell) Text(text string) *cell {
+func (c *TableCellStruct) Text(text string) *TableCellStruct {
 	c.SetTextContent(text)
 	return c
 }

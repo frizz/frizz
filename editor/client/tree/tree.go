@@ -13,7 +13,7 @@ type Tree struct {
 	Path     string
 	Aliases  map[string]string
 	Selected *Branch
-	Editor   editor.Editor
+	Editor   editor.EditorInterface
 	Content  *dom.HTMLDivElement
 }
 
