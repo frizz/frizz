@@ -1,6 +1,6 @@
 package editor
 
-import "kego.io/editor/mdl"
+import "kego.io/editor/client/mdl"
 
 type summary struct {
 	*mdl.TableStruct

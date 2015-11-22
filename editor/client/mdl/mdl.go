@@ -1,4 +1,4 @@
-package mdl // import "kego.io/editor/mdl"
+package mdl // import "kego.io/editor/client/mdl"
 
 import (
 	"bytes"

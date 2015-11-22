@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"honnef.co/go/js/dom"
-	"kego.io/editor/mdl"
+	"kego.io/editor/client/mdl"
 )
 
 type NumberEditor struct {

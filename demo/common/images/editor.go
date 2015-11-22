@@ -2,7 +2,7 @@ package images
 
 import (
 	"kego.io/editor"
-	"kego.io/editor/mdl"
+	"kego.io/editor/client/mdl"
 )
 
 func (i *Icon) GetEditor(n *editor.Node) editor.EditorInterface {

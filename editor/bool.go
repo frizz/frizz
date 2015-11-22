@@ -2,7 +2,7 @@ package editor
 
 import (
 	"honnef.co/go/js/dom"
-	"kego.io/editor/mdl"
+	"kego.io/editor/client/mdl"
 )
 
 type BoolEditor struct {
