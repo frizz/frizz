@@ -22,7 +22,7 @@ func (e *RectangleEditor) Layout() editor.Layout {
 	return editor.Inline
 }
 
-func (e *RectangleEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
+func (e *RectangleEditor) Initialize(holder editor.BranchInterface, layout editor.Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
 

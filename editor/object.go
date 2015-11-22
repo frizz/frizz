@@ -11,6 +11,8 @@ type ObjectEditor struct {
 	*Editor
 }
 
+var _ EditorInterface = (*ObjectEditor)(nil)
+
 func NewObjectEditor(n *Node) *ObjectEditor {
 	return &ObjectEditor{Node: n, Editor: &Editor{}}
 }
@@ -19,9 +21,7 @@ func (e *ObjectEditor) Layout() Layout {
 	return Page
 }
 
-var _ EditorInterface = (*ObjectEditor)(nil)
-
-func (e *ObjectEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *ObjectEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
 
@@ -44,8 +44,8 @@ func (e *ObjectEditor) initializeBlockEditors() {
 			continue
 		}
 		e.Editors = append(e.Editors, ed)
-		ed.Initialize(e.holder, Block, e.Path, e.Aliases)
-		e.holder.ListenForEditorChanges(ed.Listen().Ch)
+		ed.Initialize(e.branch, Block, e.Path, e.Aliases)
+		e.branch.ListenForEditorChanges(ed.Listen().Ch)
 		e.AppendChild(ed)
 	}
 }

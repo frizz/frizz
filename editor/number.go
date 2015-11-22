@@ -10,10 +10,11 @@ import (
 type NumberEditor struct {
 	*Node
 	*Editor
-	Changes  chan float64
 	original float64
 	textbox  *mdl.TextboxStruct
 }
+
+var _ EditorInterface = (*NumberEditor)(nil)
 
 func NewNumberEditor(n *Node) *NumberEditor {
 	return &NumberEditor{Node: n, Editor: &Editor{}}
@@ -23,12 +24,9 @@ func (e *NumberEditor) Layout() Layout {
 	return Inline
 }
 
-var _ EditorInterface = (*NumberEditor)(nil)
-
-func (e *NumberEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *NumberEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
-	e.Changes = make(chan float64, 1)
 
 	e.original = e.ValueNumber
 

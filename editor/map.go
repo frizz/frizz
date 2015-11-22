@@ -12,6 +12,8 @@ type MapEditor struct {
 	*Editor
 }
 
+var _ EditorInterface = (*MapEditor)(nil)
+
 func NewMapEditor(n *Node) *MapEditor {
 	return &MapEditor{Node: n, Editor: &Editor{}}
 }
@@ -20,9 +22,7 @@ func (e *MapEditor) Layout() Layout {
 	return Page
 }
 
-var _ EditorInterface = (*MapEditor)(nil)
-
-func (e *MapEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *MapEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
 

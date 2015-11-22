@@ -15,6 +15,8 @@ type ArrayEditor struct {
 	*Editor
 }
 
+var _ EditorInterface = (*ArrayEditor)(nil)
+
 func NewArrayEditor(n *Node) *ArrayEditor {
 	return &ArrayEditor{Node: n, Editor: &Editor{}}
 }
@@ -23,9 +25,7 @@ func (e *ArrayEditor) Layout() Layout {
 	return Page
 }
 
-var _ EditorInterface = (*ArrayEditor)(nil)
-
-func (e *ArrayEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *ArrayEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
 

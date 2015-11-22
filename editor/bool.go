@@ -8,9 +8,10 @@ import (
 type BoolEditor struct {
 	*Node
 	*Editor
-	Changes  chan bool
 	original bool
 }
+
+var _ EditorInterface = (*BoolEditor)(nil)
 
 func NewBoolEditor(n *Node) *BoolEditor {
 	return &BoolEditor{Node: n, Editor: &Editor{}}
@@ -20,12 +21,9 @@ func (e *BoolEditor) Layout() Layout {
 	return Inline
 }
 
-var _ EditorInterface = (*BoolEditor)(nil)
-
-func (e *BoolEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *BoolEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
-	e.Changes = make(chan bool, 1)
 
 	e.original = e.ValueBool
 

@@ -25,7 +25,7 @@ func (e *IconEditor) Layout() editor.Layout {
 	return editor.Block
 }
 
-func (e *IconEditor) Initialize(holder editor.Holder, layout editor.Layout, path string, aliases map[string]string) error {
+func (e *IconEditor) Initialize(holder editor.BranchInterface, layout editor.Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
 

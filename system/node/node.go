@@ -70,7 +70,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		return kerr.New("VEPLUIJXSN", nil, "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
-	if n.Rule == nil {
+	if rule == nil {
 		if err := json.Unpack(in, &n.Value, path, aliases); err != nil {
 			return kerr.New("CQMWGPLYIJ", err, "Unpack")
 		}

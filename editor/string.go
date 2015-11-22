@@ -8,10 +8,11 @@ import (
 type StringEditor struct {
 	*Node
 	*Editor
-	Changes  chan string
 	original string
 	textbox  *mdl.TextboxStruct
 }
+
+var _ EditorInterface = (*StringEditor)(nil)
 
 func NewStringEditor(n *Node) *StringEditor {
 	return &StringEditor{Node: n, Editor: &Editor{}}
@@ -21,12 +22,9 @@ func (e *StringEditor) Layout() Layout {
 	return Inline
 }
 
-var _ EditorInterface = (*StringEditor)(nil)
-
-func (e *StringEditor) Initialize(holder Holder, layout Layout, path string, aliases map[string]string) error {
+func (e *StringEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, path, aliases)
-	e.Changes = make(chan string, 1)
 
 	e.original = e.ValueString
 

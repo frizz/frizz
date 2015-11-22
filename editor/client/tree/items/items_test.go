@@ -55,14 +55,22 @@ func TestTree2(t *testing.T) {
 	a := add("a", r.branch)
 	a.branch.Open()
 
+	test(t, "1a", tr)
+
 	b := add("b", a.branch)
 	b.branch.Open()
+
+	test(t, "1a2b", tr)
 
 	c := add("c", b.branch)
 	c.branch.Open()
 
+	test(t, "1a2b3c", tr)
+
 	d := add("d", c.branch)
 	d.branch.Open()
+
+	test(t, "1a2b3c4d", tr)
 
 	e := add("e", r.branch)
 	e.branch.Open()
@@ -71,7 +79,7 @@ func TestTree2(t *testing.T) {
 	a.branch.Close()
 	test(t, "1a1e", tr)
 	a.branch.Toggle()
-	test(t, "1a2b3c4d1e", tr)
+	test(t, "1a2b1e", tr)
 	a.branch.Toggle()
 	test(t, "1a1e", tr)
 }
