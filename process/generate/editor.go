@@ -34,7 +34,7 @@ func Editor(set *settings.Settings) (source []byte, err error) {
 		clientStart := generator.Reference("kego.io/editor/client", "Start", set.Path, g.Imports.Add)
 		g.Println("if err := ", clientStart, "(", strconv.Quote(set.Path), "); err != nil {")
 		{
-			consoleError := generator.Reference("kego.io/js/console", "Error", set.Path, g.Imports.Add)
+			consoleError := generator.Reference("kego.io/editor/client/console", "Error", set.Path, g.Imports.Add)
 			g.Println(consoleError, "(err.Error())")
 		}
 		g.Println("}")

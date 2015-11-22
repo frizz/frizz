@@ -22,7 +22,7 @@
 // Portions of this documentation are modifications based on work
 // created and shared by Google and used according to terms described
 // in the Creative Commons 3.0 Attribution License.
-package console // import "kego.io/js/console"
+package console // import "kego.io/editor/client/console"
 
 import (
 	"bytes"
