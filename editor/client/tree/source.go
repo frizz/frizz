@@ -71,3 +71,8 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 
 	return nil
 }
+
+// Disambiguate Parent from Branch / Node
+func (s *source) Parent() BranchInterface {
+	return s.Branch.parent
+}

@@ -20,23 +20,21 @@ type BranchInterface interface {
 	Unselect()
 	Open()
 	Close()
-	GetParent() BranchInterface
+	Parent() BranchInterface
 	Update()
-	IsRoot() bool
-	GetTree() *Tree
+	Tree() *Tree
 	IsFirstSibling() bool
 	IsLastSibling() bool
 	PrevSibling() BranchInterface
 	NextSibling() BranchInterface
-	GetElement() *dom.HTMLDivElement
+	Element() *dom.HTMLDivElement
 	IsVisible() bool
 	setDirtyIconState()
 	markEditorDirtyState(e editor.EditorInterface, state bool)
 	SetParent(parent BranchInterface)
 	SetIndex(index int)
-	GetChildren() []BranchInterface
-	GetLevel() int
-	HasChildren() bool
+	Children() []BranchInterface
+	Level() int
 	LastChild() BranchInterface
 }
 
@@ -50,7 +48,6 @@ type Branch struct {
 	parent   BranchInterface
 	children []BranchInterface
 	index    int
-	siblings []BranchInterface
 	next     BranchInterface
 	prev     BranchInterface
 	open     bool
@@ -67,11 +64,7 @@ type Branch struct {
 	dirty    map[editor.EditorInterface]bool // descendant editors that have changes
 }
 
-func (b *Branch) HasChildren() bool {
-	return len(b.children) > 0
-}
-
-func (b *Branch) GetChildren() []BranchInterface {
+func (b *Branch) Children() []BranchInterface {
 	return b.children
 }
 
@@ -83,27 +76,23 @@ func (b *Branch) SetIndex(index int) {
 	b.index = index
 }
 
-func (b *Branch) GetElement() *dom.HTMLDivElement {
+func (b *Branch) Element() *dom.HTMLDivElement {
 	return b.element
 }
 
-func (b *Branch) GetTree() *Tree {
+func (b *Branch) Tree() *Tree {
 	return b.tree
 }
 
-func (b *Branch) GetLevel() int {
+func (b *Branch) Level() int {
 	return b.level
-}
-
-func (b *Branch) IsRoot() bool {
-	return b.parent == nil
 }
 
 func (b *Branch) IsOpen() bool {
 	return b.open
 }
 
-func (b *Branch) GetParent() BranchInterface {
+func (b *Branch) Parent() BranchInterface {
 	return b.parent
 }
 
@@ -114,8 +103,8 @@ func (b *Branch) FirstChild() BranchInterface {
 	return b.children[0]
 }
 
-func NewBranch(iface BranchInterface, parent BranchInterface) *Branch {
-	b := &Branch{tree: parent.GetTree(), parent: parent, self: iface}
+func NewBranch(self BranchInterface, parent BranchInterface) *Branch {
+	b := &Branch{tree: parent.Tree(), parent: parent, self: self}
 	b.initializeElement()
 	b.initializeOpener()
 	b.initializeContent()
@@ -190,7 +179,7 @@ func (b *Branch) initializeInner() {
 // children, we return the branch itself.
 func (b *Branch) LastVisible() BranchInterface {
 	i := b.self
-	for i.IsOpen() && i.HasChildren() {
+	for i.IsOpen() && len(i.Children()) > 0 {
 		// if the node is open, test it's last child
 		i = i.LastChild()
 	}
@@ -211,11 +200,11 @@ func (b *Branch) NextVisible(includeChildren bool) BranchInterface {
 	i := b.self
 	for i.IsLastSibling() {
 		// if the node is the last of the siblings, test it's parent
-		if i.IsRoot() {
+		if i.Parent() == nil {
 			// if we get to the root node, we're testing the last visible node, so we return nil
 			return nil
 		}
-		i = i.GetParent()
+		i = i.Parent()
 	}
 	// return the next sibling of the first ancestor that has one
 	return i.NextSibling()
@@ -225,14 +214,20 @@ func (b *Branch) NextSibling() BranchInterface {
 	if b.IsLastSibling() {
 		return nil
 	}
-	return b.siblings[b.index+1]
+	if b.Parent() == nil {
+		return nil
+	}
+	return b.Parent().Children()[b.index+1]
 }
 
 func (b *Branch) PrevSibling() BranchInterface {
 	if b.IsFirstSibling() {
 		return nil
 	}
-	return b.siblings[b.index-1]
+	if b.Parent() == nil {
+		return nil
+	}
+	return b.Parent().Children()[b.index-1]
 }
 
 func (b *Branch) IsFirstSibling() bool {
@@ -240,7 +235,11 @@ func (b *Branch) IsFirstSibling() bool {
 }
 
 func (b *Branch) IsLastSibling() bool {
-	return b.index >= len(b.siblings)-1
+	if b.Parent() == nil {
+		// Only ever one root node.
+		return true
+	}
+	return b.index >= len(b.Parent().Children())-1
 }
 
 // prevVisible returns the previous visible branch in list order
@@ -260,7 +259,7 @@ func (b *Branch) SetLabel(text string) {
 
 func (c *Branch) Append(child BranchInterface) {
 	if c.inner != nil {
-		c.inner.AppendChild(child.GetElement())
+		c.inner.AppendChild(child.Element())
 	}
 	c.children = append(c.children, child)
 	c.Update()
@@ -268,7 +267,7 @@ func (c *Branch) Append(child BranchInterface) {
 
 func (b *Branch) Select(fromKeyboard bool) {
 
-	if b.IsRoot() {
+	if b.Parent() == nil {
 		// we never select the root node
 		return
 	}
@@ -280,7 +279,7 @@ func (b *Branch) Select(fromKeyboard bool) {
 			if !ancestor.IsOpen() && ancestor.CanOpen() {
 				ancestor.Open()
 			}
-			ancestor = ancestor.GetParent()
+			ancestor = ancestor.Parent()
 		}
 	}
 
@@ -310,7 +309,7 @@ func (b *Branch) Select(fromKeyboard bool) {
 
 func (b *Branch) showEditPanel(fromKeyboard bool) {
 
-	if b.IsRoot() {
+	if b.Parent() == nil {
 		return
 	}
 
@@ -386,7 +385,7 @@ func (b *Branch) Unselect() {
 // already loaded), it returns nil so that the calling code can react synchronously.
 func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 
-	if async, ok := b.self.(AsyncInterface); ok && !async.ContentLoaded() {
+	if async, ok := b.self.(AsyncInterface); ok && !async.Loaded() {
 
 		done = make(chan bool, 1)
 
@@ -417,7 +416,7 @@ func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 // Open opens the branch. For asynchronously loaded branches it initialises the load.
 func (b *Branch) Open() {
 
-	if b.IsRoot() {
+	if b.Parent() == nil {
 		return
 	}
 
@@ -466,7 +465,7 @@ func (b *Branch) Close() {
 }
 
 func (b *Branch) close() {
-	if b.IsRoot() {
+	if b.Parent() == nil {
 		return
 	}
 	if b.inner != nil {
@@ -512,11 +511,9 @@ func (b *Branch) afterStateChange() {
 func (b *Branch) Update() {
 	if b.parent == nil {
 		// special case for the root node
-		b.siblings = []BranchInterface{b.self}
 		b.level = 0
 	} else {
-		b.siblings = b.parent.GetChildren()
-		b.level = b.parent.GetLevel() + 1
+		b.level = b.parent.Level() + 1
 	}
 	b.prev = b.PrevVisible()
 	b.next = b.NextVisible(true)
@@ -554,7 +551,7 @@ func (b *Branch) Update() {
 // are not yet loaded
 func (b *Branch) isAsyncAndNotLoaded() bool {
 	async, isAsync := b.self.(AsyncInterface)
-	if isAsync && !async.ContentLoaded() {
+	if isAsync && !async.Loaded() {
 		return true
 	}
 	return false
@@ -580,19 +577,19 @@ func (b *Branch) isDescendantOf(ancestor BranchInterface) bool {
 		if test == ancestor {
 			return true
 		}
-		test = test.GetParent()
+		test = test.Parent()
 	}
 	return false
 }
 
 // isAncestorOf tells us if this branch is a direct ancestor of the specified branch
 func (b *Branch) isAncestorOf(child BranchInterface) bool {
-	current := child.GetParent()
+	current := child.Parent()
 	for current != nil {
 		if current == b.self {
 			return true
 		}
-		current = current.GetParent()
+		current = current.Parent()
 	}
 	return false
 }
@@ -605,7 +602,7 @@ func (b *Branch) IsVisible() bool {
 		if !test.IsOpen() {
 			return false
 		}
-		test = test.GetParent()
+		test = test.Parent()
 	}
 	return true
 }
@@ -656,7 +653,7 @@ func (b *Branch) notify(editor editor.EditorInterface) {
 	current := b.self
 	for current != nil {
 		current.markEditorDirtyState(editor, editor.Dirty())
-		current = current.GetParent()
+		current = current.Parent()
 	}
 }
 

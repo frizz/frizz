@@ -15,7 +15,7 @@ type dummy struct {
 
 func add(id string, parent BranchInterface) *dummy {
 	d := &dummy{id: id}
-	d.Branch = &Branch{tree: parent.GetTree(), parent: parent, self: d}
+	d.Branch = &Branch{tree: parent.Tree(), parent: parent, self: d}
 	parent.Append(d)
 	return d
 }
@@ -93,12 +93,12 @@ func testString(tree *Tree) (forwards string, backwards string) {
 	n := tree.Root
 	for n.NextVisible(true) != nil {
 		n = n.NextVisible(true)
-		forwards = fmt.Sprint(forwards, n.GetLevel(), n.(*dummy).id)
+		forwards = fmt.Sprint(forwards, n.Level(), n.(*dummy).id)
 	}
-	backwards = fmt.Sprint(n.GetLevel(), n.(*dummy).id)
-	for n.PrevVisible() != nil && !n.PrevVisible().IsRoot() {
+	backwards = fmt.Sprint(n.Level(), n.(*dummy).id)
+	for n.PrevVisible() != nil && !n.PrevVisible().Parent() == nil {
 		n = n.PrevVisible()
-		backwards = fmt.Sprint(n.GetLevel(), n.(*dummy).id, backwards)
+		backwards = fmt.Sprint(n.Level(), n.(*dummy).id, backwards)
 	}
 	return
 }

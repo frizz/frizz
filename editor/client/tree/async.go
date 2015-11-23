@@ -7,11 +7,11 @@ import (
 
 type AsyncInterface interface {
 	LoadContent() chan bool
-	ContentLoaded() bool
+	Loaded() bool
 	ContentRequest() messages.MessageInterface
 	ProcessResponse(messages.MessageInterface) error
 	Update()
-	GetTree() *Tree
+	Tree() *Tree
 }
 
 func NewAsync(self AsyncInterface) *Async {
@@ -25,7 +25,7 @@ type Async struct {
 	loaded bool
 }
 
-func (a *Async) ContentLoaded() bool {
+func (a *Async) Loaded() bool {
 	return a.loaded
 }
 
@@ -40,14 +40,14 @@ func (a *Async) LoadContent() chan bool {
 		return successChannel
 	}
 
-	responseChannel := a.self.GetTree().Conn.Request(a.self.ContentRequest())
+	responseChannel := a.self.Tree().Conn.Request(a.self.ContentRequest())
 
 	go func() {
 
 		m := <-responseChannel
 
 		if err := a.self.ProcessResponse(m); err != nil {
-			a.self.GetTree().Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
+			a.self.Tree().Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
 		}
 
 		a.loaded = true

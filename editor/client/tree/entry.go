@@ -11,7 +11,6 @@ import (
 type entry struct {
 	*Branch
 	*editor.Node
-
 	name  string
 	index int
 }
@@ -80,4 +79,9 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 		}
 	}
 	return nil
+}
+
+// Disambiguate Parent from Branch / Node
+func (e *entry) Parent() BranchInterface {
+	return e.Branch.parent
 }

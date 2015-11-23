@@ -54,7 +54,7 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 			t.Selected.Close()
 			return
 		}
-		b := t.Selected.GetParent()
+		b := t.Selected.Parent()
 		if b != nil {
 			b.Select(true)
 		}

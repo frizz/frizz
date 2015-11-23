@@ -18,19 +18,13 @@ type pkg struct {
 var _ BranchInterface = (*pkg)(nil)
 var _ Editable = (*pkg)(nil)
 
-func (p *pkg) Initialise(parent BranchInterface) {
-
-}
-
 func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesTypes []string) error {
 
 	ed := node.Editor()
 
 	p := &pkg{Node: node}
-
 	p.Branch = NewBranch(p, parent)
 	p.SetLabel(p.tree.Path)
-
 	parent.Append(p)
 
 	if err := ed.Initialize(p, editor.Page, p.tree.Path, p.tree.Aliases); err != nil {
@@ -55,4 +49,9 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 	p.Open()
 
 	return nil
+}
+
+// Disambiguate Parent from Branch / Node
+func (p *pkg) Parent() BranchInterface {
+	return p.Branch.parent
 }
