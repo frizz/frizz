@@ -31,10 +31,22 @@ func newRoot(tree *Tree, element *dom.HTMLDivElement, inner *dom.HTMLDivElement)
 	r := &Root{}
 	r.Branch = &Branch{
 		tree:    tree,
-		open:    true,
+		opened:  true,
 		element: element,
 		inner:   inner,
 		self:    r,
 	}
 	return r
+}
+
+func (r *Root) KeyboardSelectFirst() {
+	if b := r.firstChild(); b != nil {
+		b.Select(true)
+	}
+}
+
+func (r *Root) KeyboardSelectLast() {
+	if b := r.lastVisible(); b != nil {
+		b.Select(true)
+	}
 }

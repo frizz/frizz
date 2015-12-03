@@ -24,7 +24,7 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 
 	p := &pkg{Node: node}
 	p.Branch = NewBranch(p, parent)
-	p.SetLabel(p.tree.Path)
+	p.setLabel(p.tree.Path)
 	parent.Append(p)
 
 	if err := ed.Initialize(p, editor.Page, p.tree.Path, p.tree.Aliases); err != nil {
@@ -38,7 +38,7 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 	}
 
 	data := p.addHolder("data")
-	data.Open()
+	data.open()
 	p.data = data
 	p.data.addSources(sourcesData)
 
@@ -46,7 +46,7 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 	p.types = types
 	p.types.addSources(sourcesTypes)
 
-	p.Open()
+	p.open()
 
 	return nil
 }

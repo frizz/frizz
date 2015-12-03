@@ -1,23 +1,20 @@
 package tree
 
 import (
+	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
 	"kego.io/kerr"
 )
 
 type AsyncInterface interface {
-	LoadContent() chan bool
+	LoadContent(conn *connection.Conn, fail chan error) chan bool
 	Loaded() bool
 	ContentRequest() messages.MessageInterface
 	ProcessResponse(messages.MessageInterface) error
-	Update()
-	Tree() *Tree
 }
 
 func NewAsync(self AsyncInterface) *Async {
-	a := &Async{}
-	a.self = self
-	return a
+	return &Async{self: self}
 }
 
 type Async struct {
@@ -29,7 +26,7 @@ func (a *Async) Loaded() bool {
 	return a.loaded
 }
 
-func (a *Async) LoadContent() chan bool {
+func (a *Async) LoadContent(conn *connection.Conn, fail chan error) chan bool {
 
 	successChannel := make(chan bool, 1)
 
@@ -40,19 +37,17 @@ func (a *Async) LoadContent() chan bool {
 		return successChannel
 	}
 
-	responseChannel := a.self.Tree().Conn.Request(a.self.ContentRequest())
+	responseChannel := conn.Request(a.self.ContentRequest())
 
 	go func() {
 
 		m := <-responseChannel
 
 		if err := a.self.ProcessResponse(m); err != nil {
-			a.self.Tree().Fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
+			fail <- kerr.New("DLTCGMSREX", err, "awaitSourceResponse")
 		}
 
 		a.loaded = true
-
-		a.self.Update()
 
 		successChannel <- true
 

@@ -13,7 +13,7 @@ var _ BranchInterface = (*holder)(nil)
 func (parent *pkg) addHolder(name string) *holder {
 	h := &holder{name: name, pkg: parent}
 	h.Branch = NewBranch(h, parent)
-	h.SetLabel(name)
+	h.setLabel(name)
 	parent.Append(h)
 	return h
 }

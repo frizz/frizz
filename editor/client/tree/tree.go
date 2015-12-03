@@ -7,7 +7,7 @@ import (
 )
 
 type Tree struct {
-	Root     BranchInterface
+	Root     *Root
 	Conn     *connection.Conn
 	Fail     chan error
 	Path     string
@@ -22,51 +22,31 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 	case 38: // up
 		e.PreventDefault()
 		if t.Selected == nil {
-			b := t.Root.LastVisible()
-			if b != nil {
-				b.Select(true)
-			}
+			t.Root.KeyboardSelectLast()
 			return
 		}
-		b := t.Selected.PrevVisible()
-		if b != nil {
-			b.Select(true)
-		}
+		t.Selected.KeyboardSelectPrev()
 	case 40: // down
 		e.PreventDefault()
 		if t.Selected == nil {
-			b := t.Root.FirstChild()
-			if b != nil {
-				b.Select(true)
-			}
+			t.Root.KeyboardSelectFirst()
 			return
 		}
-		b := t.Selected.NextVisible(true)
-		if b != nil {
-			b.Select(true)
-		}
+		t.Selected.KeyboardSelectNext()
 	case 37: // left
 		e.PreventDefault()
 		if t.Selected == nil {
 			return
 		}
-		if t.Selected.IsOpen() && t.Selected.CanOpen() {
-			t.Selected.Close()
-			return
-		}
-		b := t.Selected.Parent()
-		if b != nil {
-			b.Select(true)
+		if success := t.Selected.KeyboardClose(); !success {
+			t.Selected.KeyboardSelectParent()
 		}
 	case 39: // right
 		e.PreventDefault()
 		if t.Selected == nil {
 			return
 		}
-		if t.Selected.IsOpen() || !t.Selected.CanOpen() {
-			return
-		}
-		t.Selected.Open()
+		t.Selected.KeyboardOpen()
 	}
 }
 

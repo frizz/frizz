@@ -15,9 +15,19 @@ type dummy struct {
 
 func add(id string, parent BranchInterface) *dummy {
 	d := &dummy{id: id}
-	d.Branch = &Branch{tree: parent.Tree(), parent: parent, self: d}
+	d.Branch = &Branch{tree: parent.branch().tree, parent: parent.branch(), self: d}
 	parent.Append(d)
 	return d
+}
+
+func (b *Branch) getLevel() int {
+	current := b
+	i := 0
+	for current.parent != nil {
+		current = current.parent
+		i++
+	}
+	return i
 }
 
 func TestTree(t *testing.T) {
@@ -35,14 +45,14 @@ func TestTree(t *testing.T) {
 
 	test(t, "1a1b", tr)
 
-	a.Open()
+	a.open()
 	test(t, "1a2c1b", tr)
 
-	b.Open()
+	b.open()
 	test(t, "1a2c1b2d", tr)
 
 	// close root should have no effect
-	tr.Root.Close()
+	tr.Root.close()
 	test(t, "1a2c1b2d", tr)
 }
 
@@ -52,34 +62,34 @@ func TestTree2(t *testing.T) {
 	tr.Root = r
 
 	a := add("a", r)
-	a.Open()
+	a.open()
 
 	test(t, "1a", tr)
 
 	b := add("b", a)
-	b.Open()
+	b.open()
 
 	test(t, "1a2b", tr)
 
 	c := add("c", b)
-	c.Open()
+	c.open()
 
 	test(t, "1a2b3c", tr)
 
 	d := add("d", c)
-	d.Open()
+	d.open()
 
 	test(t, "1a2b3c4d", tr)
 
 	e := add("e", r)
-	e.Open()
+	e.open()
 
 	test(t, "1a2b3c4d1e", tr)
-	a.Close()
+	a.close()
 	test(t, "1a1e", tr)
-	a.Toggle()
+	a.toggle()
 	test(t, "1a2b1e", tr)
-	a.Toggle()
+	a.toggle()
 	test(t, "1a1e", tr)
 }
 
@@ -90,15 +100,15 @@ func test(t *testing.T, expected string, tree *Tree) {
 }
 
 func testString(tree *Tree) (forwards string, backwards string) {
-	n := tree.Root
-	for n.NextVisible(true) != nil {
-		n = n.NextVisible(true)
-		forwards = fmt.Sprint(forwards, n.Level(), n.(*dummy).id)
+	n := tree.Root.Branch
+	for n.nextVisible(true) != nil {
+		n = n.nextVisible(true)
+		forwards = fmt.Sprint(forwards, n.getLevel(), n.self.(*dummy).id)
 	}
-	backwards = fmt.Sprint(n.Level(), n.(*dummy).id)
-	for n.PrevVisible() != nil && !n.PrevVisible().Parent() == nil {
-		n = n.PrevVisible()
-		backwards = fmt.Sprint(n.Level(), n.(*dummy).id, backwards)
+	backwards = fmt.Sprint(n.getLevel(), n.self.(*dummy).id)
+	for n.prevVisible() != nil && n.prevVisible().parent != nil {
+		n = n.prevVisible()
+		backwards = fmt.Sprint(n.getLevel(), n.self.(*dummy).id, backwards)
 	}
 	return
 }

@@ -29,9 +29,9 @@ func addEntry(name string, index int, node *editor.Node, parentBranch BranchInte
 	e.Branch = NewBranch(e, parentBranch)
 
 	if index > -1 {
-		e.SetLabel(fmt.Sprint("[", index, "]"))
+		e.setLabel(fmt.Sprint("[", index, "]"))
 	} else {
-		e.SetLabel(name)
+		e.setLabel(name)
 	}
 
 	parentBranch.Append(e)
@@ -46,7 +46,7 @@ func addEntry(name string, index int, node *editor.Node, parentBranch BranchInte
 		return kerr.New("UPRWSRECVR", err, "addEntryChildren")
 	}
 
-	e.Close()
+	e.close()
 
 	return nil
 }
@@ -79,9 +79,4 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 		}
 	}
 	return nil
-}
-
-// Disambiguate Parent from Branch / Node
-func (e *entry) Parent() BranchInterface {
-	return e.Branch.parent
 }

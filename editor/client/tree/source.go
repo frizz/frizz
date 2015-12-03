@@ -28,7 +28,7 @@ func (parent *holder) addSource(name string) *source {
 	s := &source{name: name, holder: parent, pkg: parent.pkg}
 	s.Branch = NewBranch(s, parent)
 	s.Async = NewAsync(s)
-	s.SetLabel(name)
+	s.setLabel(name)
 	parent.Append(s)
 	return s
 }
