@@ -9,33 +9,92 @@ import (
 )
 
 type BranchInterface interface {
+	TreeMember
+	Openable
+	Selectable
+	ListMember
+	DirtyIcon
+}
+
+type TreeMember interface {
+	// Append adds a child to the end of the children
 	Append(child BranchInterface)
-	PrevVisible() BranchInterface
-	LastVisible() BranchInterface
-	NextVisible(includeChildren bool) BranchInterface
-	FirstChild() BranchInterface
-	IsOpen() bool
-	CanOpen() bool
-	Select(fromKeyboard bool)
-	Unselect()
-	Open()
-	Close()
-	Parent() BranchInterface
+	// Update assumes parent and index are sources of truth, and updates siblings, prev and next,
+	// and updates the children
 	Update()
-	Tree() *Tree
+
+	// FirstChild returns the first child or nil if there are no children
+	FirstChild() BranchInterface
+	// LastChild returns the last child or nil if there are no children
+	LastChild() BranchInterface
+
+	// IsFirstSibling returns true if this is the first in the siblings list
 	IsFirstSibling() bool
+	// IsFirstSibling returns true if this is the last in the siblings list
 	IsLastSibling() bool
+
+	// PrevSibling returns the previous sibling, or nil if this is the first
 	PrevSibling() BranchInterface
+	// NextSibling returns the next sibling, or nil if this is the last
 	NextSibling() BranchInterface
+
+	BranchAccessors
+}
+
+// BranchAccessors provides simple accessors to the embedded branch struct
+type BranchAccessors interface {
+	Tree() *Tree
+	Parent() BranchInterface
+	Index() int
 	Element() *dom.HTMLDivElement
-	IsVisible() bool
-	setDirtyIconState()
-	markEditorDirtyState(e editor.EditorInterface, state bool)
-	SetParent(parent BranchInterface)
-	SetIndex(index int)
 	Children() []BranchInterface
 	Level() int
-	LastChild() BranchInterface
+	SetParent(parent BranchInterface)
+	SetIndex(index int)
+}
+
+type Openable interface {
+	// Open opens the branch. For asynchronously loaded branches it initialises the load.
+	Open()
+	// Close closes a branch and hides the children
+	Close()
+	// IsOpen returns the open state of the branch
+	IsOpen() bool
+	// CanOpen gives us an indication of whether the branch can be opened. We use this to work out
+	// if we should display the plus icon or the empty icon. If a branch is async but the children
+	// aren't loaded, we don't know if it has children or not. In that case we assume it can be
+	// opened.
+	CanOpen() bool
+	// IsVisible tells us if the branch is currently visible. For a branch to be visible, all it's
+	// ancestors must be open.
+	IsVisible() bool
+}
+
+type Selectable interface {
+	// Select highlights the branch and opens the edit panel. This may happen asynchronously if the
+	// contents are not loaded yet. If there are contents to be loaded, and the select action comes
+	// from keyboard input, we add a 50ms delay before
+	Select(fromKeyboard bool)
+	// Unselect clears the selected state and
+	Unselect()
+}
+
+type ListMember interface {
+	// PrevVisible returns the previous visible branch in list order
+	PrevVisible() BranchInterface
+	// NextVisible returns the next visible branch in list order.
+	NextVisible(includeChildren bool) BranchInterface
+	// LastVisible returns the last visible descendant in list order. If the branch is closed or has
+	// no children, we return the branch itself.
+	LastVisible() BranchInterface
+}
+
+type DirtyIcon interface {
+	// markEditorDirtyState marks a descendant editor as dirty
+	markEditorDirtyState(e editor.EditorInterface, state bool)
+	// setDirtyIconState sets the state of the dirty icon to the correct value based on the map of
+	// dirty descendant editors
+	setDirtyIconState()
 }
 
 type Editable interface {
@@ -43,14 +102,17 @@ type Editable interface {
 }
 
 type Branch struct {
-	tree     *Tree
-	self     BranchInterface
+	tree *Tree
+	self BranchInterface
+
 	parent   BranchInterface
 	children []BranchInterface
 	index    int
-	next     BranchInterface
-	prev     BranchInterface
 	open     bool
+
+	next BranchInterface
+	prev BranchInterface
+
 	loading  bool
 	level    int
 	element  *dom.HTMLDivElement
@@ -82,6 +144,10 @@ func (b *Branch) Element() *dom.HTMLDivElement {
 
 func (b *Branch) Tree() *Tree {
 	return b.tree
+}
+
+func (b *Branch) Index() int {
+	return b.index
 }
 
 func (b *Branch) Level() int {
@@ -178,7 +244,9 @@ func (b *Branch) initializeInner() {
 // lastVisible returns the last visible descendant in list order. If the branch is closed or has no
 // children, we return the branch itself.
 func (b *Branch) LastVisible() BranchInterface {
+
 	i := b.self
+
 	for i.IsOpen() && len(i.Children()) > 0 {
 		// if the node is open, test it's last child
 		i = i.LastChild()
@@ -188,6 +256,9 @@ func (b *Branch) LastVisible() BranchInterface {
 }
 
 func (b *Branch) LastChild() BranchInterface {
+	if len(b.children) == 0 {
+		return nil
+	}
 	return b.children[len(b.children)-1]
 }
 
@@ -211,23 +282,25 @@ func (b *Branch) NextVisible(includeChildren bool) BranchInterface {
 }
 
 func (b *Branch) NextSibling() BranchInterface {
-	if b.IsLastSibling() {
+	i := b.self
+	if i.IsLastSibling() {
 		return nil
 	}
-	if b.Parent() == nil {
+	if i.Parent() == nil {
 		return nil
 	}
-	return b.Parent().Children()[b.index+1]
+	return i.Parent().Children()[i.Index()+1]
 }
 
 func (b *Branch) PrevSibling() BranchInterface {
-	if b.IsFirstSibling() {
+	i := b.self
+	if i.IsFirstSibling() {
 		return nil
 	}
-	if b.Parent() == nil {
+	if i.Parent() == nil {
 		return nil
 	}
-	return b.Parent().Children()[b.index-1]
+	return i.Parent().Children()[i.Index()-1]
 }
 
 func (b *Branch) IsFirstSibling() bool {
@@ -262,7 +335,7 @@ func (c *Branch) Append(child BranchInterface) {
 		c.inner.AppendChild(child.Element())
 	}
 	c.children = append(c.children, child)
-	c.Update()
+	c.self.Update()
 }
 
 func (b *Branch) Select(fromKeyboard bool) {
@@ -491,18 +564,20 @@ func (b *Branch) Toggle() {
 
 // afterStateChange is fired every time a branch is opened or closed.
 func (b *Branch) afterStateChange() {
-	b.Update()
-	if next := b.NextVisible(false); next != nil {
+	i := b.self
+	t := i.Tree()
+	i.Update()
+	if next := i.NextVisible(false); next != nil {
 		// we must also update the next in the list to ensure it's prev property is set correctly
 		next.Update()
 	}
-	if b.tree.Selected != nil && !b.tree.Selected.IsVisible() {
+	if t.Selected != nil && !t.Selected.IsVisible() {
 		// if the selected branch is now invisible, we should un-select it.
-		b.tree.Selected.Unselect()
+		t.Selected.Unselect()
 	}
-	b.setDirtyIconState()
-	if b.parent != nil {
-		b.parent.setDirtyIconState()
+	i.setDirtyIconState()
+	if i.Parent() != nil {
+		i.Parent().setDirtyIconState()
 	}
 }
 
