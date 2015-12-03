@@ -29,7 +29,6 @@ type Branch struct {
 	index    int
 	opened   bool
 
-	loading  bool
 	element  *dom.HTMLDivElement
 	opener   *dom.HTMLAnchorElement
 	inner    *dom.HTMLDivElement
@@ -48,19 +47,18 @@ func NewBranch(self BranchInterface, parent BranchInterface) *Branch {
 }
 
 func (b *Branch) Append(child BranchInterface) {
-	b.append(child.branch())
+
+	branch := child.branch()
+
+	if b.inner != nil {
+		b.inner.AppendChild(branch.element)
+	}
+	b.children = append(b.children, branch)
+	b.updateVisibleDescendants(true, true)
 }
 
 func (b *Branch) branch() *Branch {
 	return b
-}
-
-func (b *Branch) append(child *Branch) {
-	if b.inner != nil {
-		b.inner.AppendChild(child.element)
-	}
-	b.children = append(b.children, child)
-	b.updateVisibleDescendants(true, true)
 }
 
 // updateVisibleDescendants works recursively for all open children. It calls updateParent and
@@ -74,9 +72,7 @@ func (b *Branch) updateVisibleDescendants(updateOpenerIcon bool, updateParent bo
 			if updateParent {
 				child.updateParent(index, b)
 			}
-			if updateOpenerIcon {
-				child.updateOpenerIcon()
-			}
+			child.updateVisibleDescendants(updateOpenerIcon, updateParent)
 		}
 	}
 }

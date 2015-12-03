@@ -66,7 +66,9 @@ func (b *Branch) closeWithoutUpdate() {
 		b.inner.Style().Set("display", "none")
 	}
 	b.opened = false
-	b.loading = false
+	if async, ok := b.self.(AsyncInterface); ok {
+		async.Cancel()
+	}
 	for _, child := range b.children {
 		if child.opened {
 			child.closeWithoutUpdate()
@@ -86,7 +88,7 @@ func (b *Branch) toggle() {
 // afterStateChange is fired every time a branch is opened or closed.
 func (b *Branch) afterStateChange() {
 	t := b.tree
-	b.updateVisibleDescendants(true, false)
+	b.updateVisibleDescendants(true, true)
 	if t.Selected != nil {
 		// if the selected branch is now hidden, we should un-select it.
 		t.Selected.UnselectIfHidden()

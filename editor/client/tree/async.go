@@ -7,10 +7,11 @@ import (
 )
 
 type AsyncInterface interface {
-	LoadContent(conn *connection.Conn, fail chan error) chan bool
+	LoadContent(conn *connection.Conn, fail chan error) (success chan bool, loading bool)
 	Loaded() bool
 	ContentRequest() messages.MessageInterface
 	ProcessResponse(messages.MessageInterface) error
+	Cancel()
 }
 
 func NewAsync(self AsyncInterface) *Async {
@@ -18,15 +19,24 @@ func NewAsync(self AsyncInterface) *Async {
 }
 
 type Async struct {
-	self   AsyncInterface
-	loaded bool
+	self    AsyncInterface
+	loading bool
+	loaded  bool
+}
+
+func (a *Async) Cancel() {
+	a.loading = false
 }
 
 func (a *Async) Loaded() bool {
 	return a.loaded
 }
 
-func (a *Async) LoadContent(conn *connection.Conn, fail chan error) chan bool {
+func (a *Async) LoadContent(conn *connection.Conn, fail chan error) (success chan bool, loading bool) {
+
+	if a.loading {
+		return nil, true
+	}
 
 	successChannel := make(chan bool, 1)
 
@@ -34,8 +44,10 @@ func (a *Async) LoadContent(conn *connection.Conn, fail chan error) chan bool {
 		// if the data is already loaded, we return the success channel
 		// and immediately signal it.
 		successChannel <- true
-		return successChannel
+		return successChannel, false
 	}
+
+	a.loading = true
 
 	responseChannel := conn.Request(a.self.ContentRequest())
 
@@ -48,11 +60,12 @@ func (a *Async) LoadContent(conn *connection.Conn, fail chan error) chan bool {
 		}
 
 		a.loaded = true
+		a.loading = false
 
 		successChannel <- true
 
 	}()
 
-	return successChannel
+	return successChannel, false
 
 }

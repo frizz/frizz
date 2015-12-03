@@ -40,7 +40,6 @@ func Textbox(value string, label string) *TextboxStruct {
 }
 
 func (t *TextboxStruct) SetDisabled(state bool) {
-	//console.Log("setting disabled", state)
 	if state {
 		t.Input.Disabled = true
 		t.Class().Add("is-disabled")

@@ -18,20 +18,17 @@ func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 
 		done = make(chan bool, 1)
 
-		if b.loading {
-			// if we're already in the process of loading the contents, we should cancel the
-			// operation
+		// load content asynchronously
+		responseChannel, loading := async.LoadContent(b.tree.Conn, b.tree.Fail)
+
+		if loading {
+			// if we're already in the middle of a async request, we should cancel the operation
 			return nil, false
 		}
-
-		// load content asynchronously
-		b.loading = true
-		responseChannel := async.LoadContent(b.tree.Conn, b.tree.Fail)
 
 		go func() {
 			<-responseChannel
 			b.updateOpenerIcon()
-			b.loading = false
 			done <- true
 		}()
 
