@@ -50,12 +50,6 @@ func (b *Branch) open() {
 
 // Close closes a branch and hides the children
 func (b *Branch) close() {
-	b.closeWithoutUpdate()
-	b.afterStateChange()
-	return
-}
-
-func (b *Branch) closeWithoutUpdate() {
 	if b.parent == nil {
 		return
 	}
@@ -71,9 +65,10 @@ func (b *Branch) closeWithoutUpdate() {
 	}
 	for _, child := range b.children {
 		if child.opened {
-			child.closeWithoutUpdate()
+			child.close()
 		}
 	}
+	b.afterStateChange()
 }
 
 // toggle inverts the open/closed state of a branch
