@@ -29,15 +29,16 @@ type Branch struct {
 	index    int
 	opened   bool
 
-	element  *dom.HTMLDivElement
-	opener   *dom.HTMLAnchorElement
-	inner    *dom.HTMLDivElement
-	content  *dom.HTMLDivElement
-	label    *dom.HTMLSpanElement
-	badge    *dom.HTMLSpanElement
-	selected bool
-	editor   editor.EditorInterface
-	dirty    map[editor.EditorInterface]bool // descendant editors that have changes
+	element    *dom.HTMLDivElement
+	opener     *dom.HTMLAnchorElement
+	inner      *dom.HTMLDivElement
+	content    *dom.HTMLDivElement
+	label      *dom.HTMLSpanElement
+	badge      *dom.HTMLSpanElement
+	selected   bool
+	editor     editor.EditorInterface
+	dirtyChild map[editor.EditorInterface]bool // editors of descendant branched that have changes
+	dirtySelf  map[editor.EditorInterface]bool // editors of this branch that have changes
 }
 
 func NewBranch(self BranchInterface, parent BranchInterface) *Branch {

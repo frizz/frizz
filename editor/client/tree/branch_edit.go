@@ -75,17 +75,27 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 	return
 }
 
-func (b *Branch) markEditorDirtyState(e editor.EditorInterface, state bool) {
-	if state {
-		if b.dirty == nil {
-			b.dirty = map[editor.EditorInterface]bool{}
-		}
-		b.dirty[e] = true
-	} else {
-		if b.dirty != nil {
-			delete(b.dirty, e)
-		}
+func (b *Branch) markEditorDirtyState(e editor.EditorInterface, state bool, self bool) {
+
+	if b.dirtySelf == nil {
+		b.dirtySelf = map[editor.EditorInterface]bool{}
 	}
+
+	if b.dirtyChild == nil {
+		b.dirtyChild = map[editor.EditorInterface]bool{}
+	}
+
+	m := b.dirtyChild
+	if self {
+		m = b.dirtySelf
+	}
+
+	if state {
+		m[e] = true
+	} else {
+		delete(m, e)
+	}
+
 	b.setDirtyIconState()
 }
 
@@ -105,22 +115,28 @@ func (b *Branch) setDirtyIconState() {
 
 func (b *Branch) dirtyIconState() bool {
 
-	if b.dirty == nil || len(b.dirty) == 0 {
-		return false
-	}
-
-	if !b.opened {
-		// if descendants are dirty, only show the icon if this branch is closed
+	if b.dirtySelf != nil && len(b.dirtySelf) > 0 {
+		// if an editor in this branch is dirty, always display the icon
 		return true
 	}
 
-	return false
+	if b.dirtyChild == nil || len(b.dirtyChild) == 0 {
+		// if there at no dirty editors in descendant branches, don't display the icon
+		return false
+	}
+
+	if b.opened {
+		// if descendants are dirty, only show the icon if this branch is closed
+		return false
+	}
+
+	return true
 }
 
 func (b *Branch) notify(editor editor.EditorInterface) {
 	current := b
 	for current != nil {
-		current.markEditorDirtyState(editor, editor.Dirty())
+		current.markEditorDirtyState(editor, editor.Dirty(), current == b)
 		current = current.parent
 	}
 }
