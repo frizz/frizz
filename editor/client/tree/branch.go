@@ -46,42 +46,20 @@ func NewBranch(self BranchInterface, parent BranchInterface) *Branch {
 	return b
 }
 
-func (b *Branch) Append(child BranchInterface) {
-
-	branch := child.branch()
-
+func (b *Branch) Append(c BranchInterface) {
+	child := c.branch()
 	if b.inner != nil {
-		b.inner.AppendChild(branch.element)
+		b.inner.AppendChild(child.element)
 	}
-	b.children = append(b.children, branch)
-	b.updateVisibleDescendants(true, true)
+	child.parent = b
+	child.index = len(b.children)
+	b.children = append(b.children, child)
+	b.updateOpenerIcon()
+	child.updateOpenerIcon()
 }
 
 func (b *Branch) branch() *Branch {
 	return b
-}
-
-// updateVisibleDescendants works recursively for all open children. It calls updateParent and
-// updateOpenerIcon for each descendant.
-func (b *Branch) updateVisibleDescendants(updateOpenerIcon bool, updateParent bool) {
-	if updateOpenerIcon {
-		b.updateOpenerIcon()
-	}
-	if b.opened && len(b.children) > 0 {
-		for index, child := range b.children {
-			if updateParent {
-				child.updateParent(index, b)
-			}
-			child.updateVisibleDescendants(updateOpenerIcon, updateParent)
-		}
-	}
-}
-
-// updateChildren assumes the children array is the only source of truth, and updates index and
-// parent properties of the children. It works recursively for all open children.
-func (b *Branch) updateParent(index int, parent *Branch) {
-	b.parent = parent
-	b.index = index
 }
 
 func (b *Branch) setLabel(text string) {

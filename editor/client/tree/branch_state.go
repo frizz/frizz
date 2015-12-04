@@ -88,11 +88,11 @@ func (b *Branch) toggle() {
 // afterStateChange is fired every time a branch is opened or closed.
 func (b *Branch) afterStateChange() {
 	t := b.tree
-	b.updateVisibleDescendants(true, true)
 	if t.Selected != nil {
 		// if the selected branch is now hidden, we should un-select it.
 		t.Selected.UnselectIfHidden()
 	}
+	b.updateOpenerIcon()
 	b.setDirtyIconState()
 	if b.parent != nil {
 		b.parent.setDirtyIconState()
