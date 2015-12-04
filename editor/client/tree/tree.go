@@ -17,6 +17,10 @@ type Tree struct {
 	Content  *dom.HTMLDivElement
 }
 
+func New(content *dom.HTMLDivElement, conn *connection.Conn, fail chan error, path string, aliases map[string]string) *Tree {
+	return &Tree{Content: content, Conn: conn, Fail: fail, Path: path, Aliases: aliases}
+}
+
 func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 	switch e.KeyCode {
 	case 38: // up
@@ -48,8 +52,4 @@ func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {
 		}
 		t.Selected.KeyboardOpen()
 	}
-}
-
-func New(content *dom.HTMLDivElement, conn *connection.Conn, fail chan error, path string, aliases map[string]string) *Tree {
-	return &Tree{Content: content, Conn: conn, Fail: fail, Path: path, Aliases: aliases}
 }

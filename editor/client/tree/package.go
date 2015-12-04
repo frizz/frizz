@@ -50,8 +50,3 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 
 	return nil
 }
-
-// Disambiguate Parent from Branch / Node
-func (p *pkg) Parent() BranchInterface {
-	return p.Branch.parent
-}
