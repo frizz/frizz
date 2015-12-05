@@ -69,12 +69,12 @@ func (e *ObjectEditor) Value() interface{} {
 	return e.Node.Value
 }
 
-func (e *ObjectEditor) AddField() {
-	e.Missing = false
-	e.Null = false
+func (e *ObjectEditor) AddField(node *Node) {
+	node.Missing = false
+	node.Null = false
 	// TODO: update e.Node.Value and other Node things
 	// TODO: add block editor, or somehow get the branch to add a child :/
-	e.Node.changes.Send(e.Node)
+	node.changes.Send(node)
 }
 
 type objectSummary struct {
@@ -164,7 +164,8 @@ func (r *objectSummaryRow) update() error {
 	if node.Missing || node.Null {
 		a := mdl.Anchor().Text("add").Click(func(e dom.Event) {
 			e.(*dom.MouseEvent).PreventDefault()
-			node.Parent.editor.(*ObjectEditor).AddField()
+			node.Parent.editor.(*ObjectEditor).AddField(node)
+
 		})
 		r.options.AppendChild(a)
 	}
