@@ -8,7 +8,7 @@ type ImageStruct struct {
 
 func Image(url string) *ImageStruct {
 	i := &ImageStruct{}
-	i.HTMLImageElement = dom.GetWindow().Document().CreateElement("img").(*dom.HTMLImageElement)
+	i.HTMLImageElement = get("img").(*dom.HTMLImageElement)
 	i.Src = url
 	return i
 }

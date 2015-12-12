@@ -7,7 +7,7 @@ type AnchorStruct struct {
 }
 
 func Anchor() *AnchorStruct {
-	a := dom.GetWindow().Document().CreateElement("a").(*dom.HTMLAnchorElement)
+	a := get("a").(*dom.HTMLAnchorElement)
 	a.Href = ""
 	return &AnchorStruct{a}
 }

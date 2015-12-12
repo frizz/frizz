@@ -12,16 +12,16 @@ type TableStruct struct {
 }
 
 func Table() *TableStruct {
-	t := dom.GetWindow().Document().CreateElement("table").(*dom.HTMLTableElement)
+	t := get("table").(*dom.HTMLTableElement)
 	t.Class().SetString("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
 
-	thead := dom.GetWindow().Document().CreateElement("thead").(*dom.HTMLTableSectionElement)
+	thead := get("thead").(*dom.HTMLTableSectionElement)
 	t.AppendChild(thead)
 
-	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
+	tr := get("tr").(*dom.HTMLTableRowElement)
 	thead.AppendChild(tr)
 
-	tbody := dom.GetWindow().Document().CreateElement("tbody").(*dom.HTMLTableSectionElement)
+	tbody := get("tbody").(*dom.HTMLTableSectionElement)
 	t.AppendChild(tbody)
 
 	return &TableStruct{t, tr, tbody}
@@ -29,7 +29,7 @@ func Table() *TableStruct {
 
 func (t *TableStruct) Head(columns ...string) {
 	for _, column := range columns {
-		th := dom.GetWindow().Document().CreateElement("th").(*dom.HTMLTableCellElement)
+		th := get("th").(*dom.HTMLTableCellElement)
 		th.Class().Add("mdl-data-table__cell--non-numeric")
 		th.SetTextContent(column)
 		t.head.AppendChild(th)
@@ -48,7 +48,7 @@ func (r *TableRowStruct) Click(action func(dom.Event)) *TableRowStruct {
 }
 
 func (t *TableStruct) Row() *TableRowStruct {
-	tr := dom.GetWindow().Document().CreateElement("tr").(*dom.HTMLTableRowElement)
+	tr := get("tr").(*dom.HTMLTableRowElement)
 	t.body.AppendChild(tr)
 	return &TableRowStruct{tr, t}
 }
@@ -59,7 +59,7 @@ type TableCellStruct struct {
 }
 
 func (r *TableRowStruct) Cell() *TableCellStruct {
-	td := dom.GetWindow().Document().CreateElement("td").(*dom.HTMLTableCellElement)
+	td := get("td").(*dom.HTMLTableCellElement)
 	td.Class().Add("mdl-data-table__cell--non-numeric")
 	r.AppendChild(td)
 

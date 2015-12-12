@@ -4,6 +4,7 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/mdl"
 	"kego.io/kerr"
+	"kego.io/system"
 )
 
 type ObjectEditor struct {
@@ -75,6 +76,31 @@ func (e *ObjectEditor) AddField(node *Node) {
 	// TODO: update e.Node.Value and other Node things
 	// TODO: add block editor, or somehow get the branch to add a child :/
 	node.changes.Send(node)
+
+	if node.Rule.Parent.Interface || node.Rule.Struct.Interface {
+		// This rule is an interface, so we must pop up UX to choose the concrete type.
+		card := mdl.Card("Choose a type", "Add")
+
+		options := map[string]string{}
+		hashedTypes := system.GetAllTypesThatImplementInterface(node.Rule.Parent, node.Rule.Struct.Interface)
+		for _, h := range hashedTypes {
+			displayName, err := h.Object.GetObject().Id.ValueContext(e.Path, e.Aliases)
+			if err != nil {
+				displayName = h.Object.GetObject().Id.String()
+			}
+			options[h.Object.GetObject().Id.String()] = displayName
+		}
+
+		dropdown := mdl.Select(options)
+		card.Content.AppendChild(dropdown)
+
+		return
+	}
+	e.InitialiseChildWithConcreteType(node, node.Rule.Parent)
+}
+
+func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Type) {
+
 }
 
 type objectSummary struct {

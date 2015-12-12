@@ -3,6 +3,8 @@ package mdl // import "kego.io/editor/client/mdl"
 import (
 	"bytes"
 	"math/rand"
+
+	"honnef.co/go/js/dom"
 )
 
 func randomId() string {
@@ -19,4 +21,8 @@ func randomId() string {
 		}
 	}
 	return result.String()
+}
+
+func get(tag string) dom.Element {
+	return dom.GetWindow().Document().CreateElement(tag)
 }

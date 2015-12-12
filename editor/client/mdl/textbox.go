@@ -16,11 +16,11 @@ func Textbox(value string, label string) *TextboxStruct {
 	id := randomId()
 
 	t := &TextboxStruct{}
-	t.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+	t.HTMLDivElement = get("div").(*dom.HTMLDivElement)
 	t.Class().SetString("mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
 	t.Style().Set("width", "100%")
 
-	t.Input = dom.GetWindow().Document().CreateElement("input").(*dom.HTMLInputElement)
+	t.Input = get("input").(*dom.HTMLInputElement)
 	t.Input.Class().Add("mdl-textfield__input")
 	t.Input.SetID(id)
 	t.Input.Type = "text"
@@ -28,7 +28,7 @@ func Textbox(value string, label string) *TextboxStruct {
 
 	t.AppendChild(t.Input)
 
-	t.Label = dom.GetWindow().Document().CreateElement("label").(*dom.HTMLLabelElement)
+	t.Label = get("label").(*dom.HTMLLabelElement)
 	t.Label.Class().Add("mdl-textfield__label")
 	t.Label.For = id
 	t.Label.SetTextContent(label)

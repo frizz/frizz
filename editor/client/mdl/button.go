@@ -16,7 +16,7 @@ type ButtonStruct struct {
 }
 
 func Button() *ButtonStruct {
-	b := dom.GetWindow().Document().CreateElement("button").(*dom.HTMLButtonElement)
+	b := get("button").(*dom.HTMLButtonElement)
 	b.Class().SetString("mdl-button mdl-js-button mdl-button--raised")
 	js.Global.Get("componentHandler").Call("upgradeElement", b)
 	return &ButtonStruct{b}

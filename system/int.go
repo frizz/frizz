@@ -17,6 +17,10 @@ func NewInt(i int) *Int {
 	return &out
 }
 
+func (i *Int) GetString() *String {
+	return NewString(i.String())
+}
+
 func (i *Int) Value() int {
 	return int(*i)
 }

@@ -55,7 +55,9 @@ type Gallery3aRule struct {
 // This represents a gallery - it just has a title
 type Gallery1 struct {
 	*system.Object
-	Title *system.String `json:"title"`
+	Bar   system.RuleInterface   `json:"bar"`
+	Foo   system.IntInterface    `json:"foo"`
+	Title system.StringInterface `json:"title"`
 }
 type Gallery1Interface interface {
 	GetGallery1() *Gallery1
@@ -150,14 +152,14 @@ func (o *Gallery3a) GetGallery3a() *Gallery3a {
 	return o
 }
 func init() {
-	json.Register("kego.io/demo/site", "@gallery1", reflect.TypeOf((*Gallery1Rule)(nil)), nil, 2519790172293374538)
+	json.Register("kego.io/demo/site", "@gallery1", reflect.TypeOf((*Gallery1Rule)(nil)), nil, 18124994774018985003)
 	json.Register("kego.io/demo/site", "@gallery1a", reflect.TypeOf((*Gallery1aRule)(nil)), nil, 7234649160741892262)
 	json.Register("kego.io/demo/site", "@gallery2", reflect.TypeOf((*Gallery2Rule)(nil)), nil, 1938792963787640012)
 	json.Register("kego.io/demo/site", "@gallery2a", reflect.TypeOf((*Gallery2aRule)(nil)), nil, 3956662793233262470)
 	json.Register("kego.io/demo/site", "@gallery2b", reflect.TypeOf((*Gallery2bRule)(nil)), nil, 13459768753991397545)
 	json.Register("kego.io/demo/site", "@gallery3", reflect.TypeOf((*Gallery3Rule)(nil)), nil, 7443957450467844980)
 	json.Register("kego.io/demo/site", "@gallery3a", reflect.TypeOf((*Gallery3aRule)(nil)), nil, 14112747451711469678)
-	json.Register("kego.io/demo/site", "gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem(), 2519790172293374538)
+	json.Register("kego.io/demo/site", "gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem(), 18124994774018985003)
 	json.Register("kego.io/demo/site", "gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem(), 7234649160741892262)
 	json.Register("kego.io/demo/site", "gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem(), 1938792963787640012)
 	json.Register("kego.io/demo/site", "gallery2a", reflect.TypeOf((*Gallery2a)(nil)), reflect.TypeOf((*Gallery2aInterface)(nil)).Elem(), 3956662793233262470)

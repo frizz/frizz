@@ -3,9 +3,19 @@ package system
 import (
 	"sort"
 
+	"reflect"
+
 	"kego.io/json"
 	"kego.io/kerr"
 )
+
+func (t *Type) Implements(i reflect.Type) bool {
+	ob, _, ok := json.GetType(t.Id.Package, t.Id.Name)
+	if !ok {
+		return false
+	}
+	return ob.Implements(i)
+}
 
 // Validator is a type that needs to have it's data validated.
 type Validator interface {

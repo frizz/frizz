@@ -4,3 +4,10 @@ id: gallery1
 fields:
   title:
     type: system:@string
+    interface: true
+  foo:
+    type: system:@int
+    interface: true
+  bar:
+    type: system:@rule
+    interface: true

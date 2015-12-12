@@ -4,6 +4,9 @@ import (
 	"sort"
 	"sync"
 
+	"reflect"
+
+	"kego.io/json"
 	"kego.io/kerr"
 )
 
@@ -62,6 +65,42 @@ func GetAllGlobalsInPackage(path string, filter *Reference) []Hashed {
 		}
 		out = append(out, h)
 	}
+	sort.Sort(out)
+	return []Hashed(out)
+}
+
+func GetAllTypesThatImplementInterface(typ *Type, rule bool) []Hashed {
+	registry.RLock()
+	defer registry.RUnlock()
+	out := SortableHashed{}
+
+	if typ.Interface && rule || !typ.Interface && !rule {
+		// we can't try to use a rule interface for an interface type, and we can't use a non
+		// interface type that doesn't have a rule type
+		return nil
+	}
+
+	var reflectType reflect.Type
+	if typ.Interface {
+		rt, _, ok := json.GetType(typ.Id.Package, typ.Id.Name)
+		if !ok {
+			return nil
+		}
+		reflectType = rt
+	} else { // => rule == true
+		rt, _, ok := json.GetTypeInterface(typ.Id.Package, typ.Id.Name)
+		if !ok {
+			return nil
+		}
+		reflectType = rt
+	}
+
+	for _, h := range registry.m {
+		if t, ok := h.Object.(*Type); ok && t.Implements(reflectType) {
+			out = append(out, h)
+		}
+	}
+
 	sort.Sort(out)
 	return []Hashed(out)
 }

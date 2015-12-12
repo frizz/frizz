@@ -84,17 +84,17 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		}
 	}
 
-	if n.Null && objectType.Native.Value() != "object" {
-		// For null input, we should skip processing the value or children, unless
-		// the native type is object. For object types we should still process the
-		// child fields because information from the parent type is added.
-		return nil
-	}
-
 	if n.Missing {
 		// If the field doesn't exist in the input json, we should add the field info, but
 		// we shouldn't try to add info for children. This would result in infinite recursion
 		// where one of the fields is the same type as the parent - e.g. Type.Rule.
+		return nil
+	}
+
+	if n.Null && objectType.Native.Value() != "object" {
+		// For null input, we should skip processing the value or children, unless
+		// the native type is object. For object types we should still process the
+		// child fields because information from the parent type is added.
 		return nil
 	}
 
@@ -207,6 +207,9 @@ func extractType(in json.Packed, rule *system.RuleWrapper, path string, aliases 
 	// if the rule is nil (e.g. unpacking into an unknown type) or the type is an interface, we
 	// ensure the input is a map
 	if rule == nil || rule.Parent.Interface {
+		if in == nil {
+			return nil, nil
+		}
 		switch in.Type() {
 		case json.J_MAP:
 			break
@@ -218,6 +221,9 @@ func extractType(in json.Packed, rule *system.RuleWrapper, path string, aliases 
 
 	// if the rule is an interface rule, we ensure the input is a map or a native value
 	if rule != nil && rule.Struct.Interface {
+		if in == nil {
+			return nil, nil
+		}
 		switch in.Type() {
 		case json.J_MAP:
 			break
