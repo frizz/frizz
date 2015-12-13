@@ -167,7 +167,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 
 		fields := map[string]*system.Field{}
 		if err := extractFields(fields, n.Type); err != nil {
-			return kerr.New("LPWTOSATQE", err, "extractFields (%s)", n.Type.Id.Value())
+			return kerr.New("LPWTOSATQE", err, "extractFields (%T)", n)
 		}
 
 		for name, f := range fields {

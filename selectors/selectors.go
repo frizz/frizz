@@ -263,6 +263,11 @@ func (p *Parser) nativeProduction(value interface{}) func(*node.Node) (bool, err
 func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error) {
 	logger.Print("Creating kegoProduction validator ", value)
 	return func(n *node.Node) (bool, error) {
+
+		if n.Null || n.Missing {
+			return false, nil
+		}
+
 		tokenString := value.(string)
 		kegoType := tokenString[1 : len(tokenString)-1]
 		r, err := system.NewReferenceFromString(kegoType, p.path, p.aliases)

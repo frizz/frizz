@@ -71,11 +71,11 @@ func (e *ObjectEditor) Value() interface{} {
 }
 
 func (e *ObjectEditor) AddField(node *Node) {
-	node.Missing = false
-	node.Null = false
+	//node.Missing = false
+	//node.Null = false
 	// TODO: update e.Node.Value and other Node things
 	// TODO: add block editor, or somehow get the branch to add a child :/
-	node.changes.Send(node)
+	//node.changes.Send(node)
 
 	if node.Rule.Parent.Interface || node.Rule.Struct.Interface {
 		// This rule is an interface, so we must pop up UX to choose the concrete type.

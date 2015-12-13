@@ -31,6 +31,10 @@ func NewNode(inner *node.Node, parent *Node) *Node {
 
 func (n *Node) Editor() EditorInterface {
 
+	if n.Null {
+		return nil
+	}
+
 	if n.editor != nil {
 		return n.editor
 	}
