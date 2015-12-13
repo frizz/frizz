@@ -9,6 +9,7 @@ var _ BranchInterface = (*Branch)(nil)
 var _ editor.BranchInterface = (*Branch)(nil)
 
 type BranchInterface interface {
+	SendFail(e error)
 	Append(child BranchInterface)
 	ListenForEditorChanges(changes <-chan interface{})
 	Selectable
@@ -65,4 +66,8 @@ func (b *Branch) branch() *Branch {
 
 func (b *Branch) setLabel(text string) {
 	b.label.SetTextContent(text)
+}
+
+func (b *Branch) SendFail(e error) {
+	b.tree.Fail <- e
 }

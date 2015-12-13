@@ -8,10 +8,11 @@ import (
 type CardStruct struct {
 	*dom.HTMLDivElement
 	Content *dom.HTMLDivElement
+	Result  chan bool
 }
 
 func Card(titleText string, buttonText string) *CardStruct {
-	c := &CardStruct{}
+	c := &CardStruct{Result: make(chan bool, 1)}
 	c.HTMLDivElement = get("div").(*dom.HTMLDivElement)
 	c.Class().SetString("demo-card-wide mdl-card mdl-shadow--2dp")
 	c.Style().Set("width", "512px")
@@ -41,8 +42,19 @@ func Card(titleText string, buttonText string) *CardStruct {
 	button := get("a").(*dom.HTMLAnchorElement)
 	button.Class().SetString("mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect")
 	button.SetTextContent(buttonText)
+	button.AddEventListener("click", true, func(e dom.Event) {
+		c.Result <- true
+	})
+
+	buttonCancel := get("a").(*dom.HTMLAnchorElement)
+	buttonCancel.Class().SetString("mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect")
+	buttonCancel.SetTextContent("Cancel")
+	buttonCancel.AddEventListener("click", true, func(e dom.Event) {
+		c.Result <- false
+	})
 
 	buttonDiv.AppendChild(button)
+	buttonDiv.AppendChild(buttonCancel)
 
 	c.AppendChild(titleDiv)
 	c.AppendChild(c.Content)
@@ -53,6 +65,10 @@ func Card(titleText string, buttonText string) *CardStruct {
 	js.Global.Get("componentHandler").Call("upgradeElement", c)
 
 	return c
+}
+
+func (c *CardStruct) Hide() {
+	c.ParentElement().RemoveChild(c)
 }
 
 /**

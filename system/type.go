@@ -9,6 +9,14 @@ import (
 	"kego.io/kerr"
 )
 
+func (t *Type) ZeroValue() interface{} {
+	rt, _, ok := json.GetType(t.Id.Package, t.Id.Name)
+	if !ok {
+		return nil
+	}
+	return reflect.Zero(rt).Interface()
+}
+
 func (t *Type) Implements(i reflect.Type) bool {
 	ob, _, ok := json.GetType(t.Id.Package, t.Id.Name)
 	if !ok {

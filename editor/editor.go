@@ -18,6 +18,7 @@ type Editable interface {
 }
 
 type BranchInterface interface {
+	SendFail(e error)
 	Select(fromKeyboard bool)
 	ListenForEditorChanges(changes <-chan interface{})
 }

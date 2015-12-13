@@ -71,35 +71,65 @@ func (e *ObjectEditor) Value() interface{} {
 }
 
 func (e *ObjectEditor) AddField(node *Node) {
-	//node.Missing = false
-	//node.Null = false
-	// TODO: update e.Node.Value and other Node things
-	// TODO: add block editor, or somehow get the branch to add a child :/
-	//node.changes.Send(node)
 
-	if node.Rule.Parent.Interface || node.Rule.Struct.Interface {
-		// This rule is an interface, so we must pop up UX to choose the concrete type.
-		card := mdl.Card("Choose a type", "Add")
-
-		options := map[string]string{}
-		hashedTypes := system.GetAllTypesThatImplementInterface(node.Rule.Parent, node.Rule.Struct.Interface)
-		for _, h := range hashedTypes {
-			displayName, err := h.Object.GetObject().Id.ValueContext(e.Path, e.Aliases)
-			if err != nil {
-				displayName = h.Object.GetObject().Id.String()
-			}
-			options[h.Object.GetObject().Id.String()] = displayName
-		}
-
-		dropdown := mdl.Select(options)
-		card.Content.AppendChild(dropdown)
-
+	if !node.Rule.Parent.Interface && !node.Rule.Struct.Interface {
+		// if the rule only permits a single concrete type, we initialise immediately with that type
+		e.InitialiseChildWithConcreteType(node, node.Rule.Parent)
 		return
 	}
-	e.InitialiseChildWithConcreteType(node, node.Rule.Parent)
+
+	// If the rule is an interface, so we must pop up UX to choose the concrete type.
+	hashedTypes := system.GetAllTypesThatImplementInterface(node.Rule.Parent, node.Rule.Struct.Interface)
+
+	if len(hashedTypes) == 1 {
+		// if only one type is compatible, don't show the popup, just add it.
+		e.InitialiseChildWithConcreteType(node, hashedTypes[0].Object.(*system.Type))
+		return
+	}
+
+	card := mdl.Card("Choose a type", "Add")
+	options := map[string]string{}
+
+	for _, h := range hashedTypes {
+		displayName, err := h.Object.GetObject().Id.ValueContext(e.Path, e.Aliases)
+		if err != nil {
+			// we shouldn't be able to get here
+			e.branch.SendFail(kerr.New("IPLHSXDWQK", err, "ValueContext"))
+		}
+		options[h.Object.GetObject().Id.String()] = displayName
+	}
+
+	dropdown := mdl.Select(options)
+	card.Content.AppendChild(dropdown)
+
+	go func() {
+		result := <-card.Result
+		if result {
+			r, err := system.NewReferenceFromString(dropdown.Value, e.Path, e.Aliases)
+			if err != nil {
+				e.branch.SendFail(kerr.New("KHJGQXORPD", err, "NewReferenceFromString"))
+			}
+			h, ok := system.GetGlobal(r.Package, r.Name)
+			if !ok {
+				e.branch.SendFail(kerr.New("WEADSXTPYC", nil, "Global %s not found", r.Value()))
+			}
+			t, ok := h.Object.(*system.Type)
+			if !ok {
+				e.branch.SendFail(kerr.New("FPOYMFLKVE", nil, "Global not a *Type"))
+			}
+			e.InitialiseChildWithConcreteType(node, t)
+		}
+		card.Hide()
+	}()
+
 }
 
 func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Type) {
+
+	if err := node.InitialiseWithConcreteType(t, e.Path, e.Aliases); err != nil {
+		e.branch.SendFail(kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType"))
+	}
+	node.changes.Send(node)
 
 }
 

@@ -34,6 +34,33 @@ func (n *Node) Unpack(in json.Packed, path string, aliases map[string]string) er
 
 var _ json.ContextUnpacker = (*Node)(nil)
 
+func (n *Node) InitialiseWithConcreteType(t *system.Type, path string, aliases map[string]string) error {
+
+	n.Type = t
+	n.Missing = false
+	n.Null = false
+	n.JsonType = t.NativeJsonType()
+	n.Value = t.ZeroValue()
+
+	switch t.Native.Value() {
+	case "string":
+		n.ValueString = ""
+	case "number":
+		n.ValueNumber = 0.0
+	case "bool":
+		n.ValueBool = false
+	case "array":
+		// nothing to do here
+	case "map":
+		n.Map = map[string]*Node{}
+	case "object":
+		if err := n.InitialiseFields(nil, path, aliases); err != nil {
+			return kerr.New("YIHFDLTIMW", err, "InitialiseFields")
+		}
+	}
+	return nil
+}
+
 func (n *Node) extract(parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
 
 	objectType, err := extractType(in, rule, path, aliases)
@@ -156,37 +183,44 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 			n.Map[name] = childNode
 		}
 	case "object":
-		m := map[string]json.Packed{}
-		if in != nil && in.Type() != json.J_NULL {
-			if in.Type() != json.J_MAP {
-				return kerr.New("CVCRNWMDYF", nil, "Type %s should be a map[string]interface{}", in.Type())
-			}
-			m = in.Map()
+		if err := n.InitialiseFields(in, path, aliases); err != nil {
+			return kerr.New("XCRYJWKPKP", err, "InitialiseFields")
 		}
-		n.Map = map[string]*Node{}
+	}
+	return nil
+}
 
-		fields := map[string]*system.Field{}
-		if err := extractFields(fields, n.Type); err != nil {
-			return kerr.New("LPWTOSATQE", err, "extractFields (%T)", n)
+func (n *Node) InitialiseFields(in json.Packed, path string, aliases map[string]string) error {
+	m := map[string]json.Packed{}
+	if in != nil && in.Type() != json.J_NULL {
+		if in.Type() != json.J_MAP {
+			return kerr.New("CVCRNWMDYF", nil, "Type %s should be a map[string]interface{}", in.Type())
 		}
+		m = in.Map()
+	}
+	n.Map = map[string]*Node{}
 
-		for name, f := range fields {
-			rule, err := system.WrapRule(f.Rule)
-			if err != nil {
-				return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
-			}
-			child, ok := m[name]
-			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, f.Origin, 0, child, ok, rule, path, aliases); err != nil {
-				return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
-			}
-			n.Map[name] = childNode
+	fields := map[string]*system.Field{}
+	if err := extractFields(fields, n.Type); err != nil {
+		return kerr.New("LPWTOSATQE", err, "extractFields (%T)", n)
+	}
+
+	for name, f := range fields {
+		rule, err := system.WrapRule(f.Rule)
+		if err != nil {
+			return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 		}
-		for name, _ := range m {
-			_, ok := fields[name]
-			if !ok {
-				return kerr.New("SRANLETJRS", nil, "Extra field %s", name)
-			}
+		child, ok := m[name]
+		childNode := &Node{}
+		if err := childNode.extract(n, name, -1, f.Origin, 0, child, ok, rule, path, aliases); err != nil {
+			return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
+		}
+		n.Map[name] = childNode
+	}
+	for name, _ := range m {
+		_, ok := fields[name]
+		if !ok {
+			return kerr.New("SRANLETJRS", nil, "Extra field %s", name)
 		}
 	}
 	return nil
