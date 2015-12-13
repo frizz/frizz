@@ -36,7 +36,7 @@ func addEntry(name string, index int, node *editor.Node, parentBranch BranchInte
 
 	parentBranch.Append(e)
 
-	if err := ed.Initialize(e, editor.Page, e.tree.Path, e.tree.Aliases); err != nil {
+	if err := ed.Initialize(e, editor.Page, e.tree.Fail, e.tree.Path, e.tree.Aliases); err != nil {
 		return kerr.New("PMLOGADEVK", err, "Initialize")
 	}
 

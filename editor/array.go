@@ -25,9 +25,9 @@ func (e *ArrayEditor) Layout() Layout {
 	return Page
 }
 
-func (e *ArrayEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
+func (e *ArrayEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
 
-	e.Editor.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, fail, path, aliases)
 
 	table := mdl.Table()
 

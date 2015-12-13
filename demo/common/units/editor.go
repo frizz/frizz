@@ -22,16 +22,16 @@ func (e *RectangleEditor) Layout() editor.Layout {
 	return editor.Inline
 }
 
-func (e *RectangleEditor) Initialize(holder editor.BranchInterface, layout editor.Layout, path string, aliases map[string]string) error {
+func (e *RectangleEditor) Initialize(holder editor.BranchInterface, layout editor.Layout, fail chan error, path string, aliases map[string]string) error {
 
-	e.Editor.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, fail, path, aliases)
 
 	e.height = editor.NewNumberEditor(e.Node.Map["height"])
-	e.height.Initialize(holder, editor.Inline, path, aliases)
+	e.height.Initialize(holder, editor.Inline, fail, path, aliases)
 	e.height.Style().Set("width", "50%")
 
 	e.width = editor.NewNumberEditor(e.Node.Map["width"])
-	e.width.Initialize(holder, editor.Inline, path, aliases)
+	e.width.Initialize(holder, editor.Inline, fail, path, aliases)
 	e.width.Style().Set("width", "50%")
 
 	e.Editors = append(e.Editors, e.height)

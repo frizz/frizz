@@ -59,7 +59,7 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 
 	ed := s.Node.Editor()
 
-	if err := ed.Initialize(s, editor.Page, s.tree.Path, s.tree.Aliases); err != nil {
+	if err := ed.Initialize(s, editor.Page, s.tree.Fail, s.tree.Path, s.tree.Aliases); err != nil {
 		return kerr.New("UOPUXTANHO", err, "Initialize")
 	}
 

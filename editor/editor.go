@@ -18,14 +18,13 @@ type Editable interface {
 }
 
 type BranchInterface interface {
-	SendFail(e error)
 	Select(fromKeyboard bool)
 	ListenForEditorChanges(changes <-chan interface{})
 }
 
 type EditorInterface interface {
 	dom.Node
-	Initialize(branch BranchInterface, layout Layout, path string, aliases map[string]string) error
+	Initialize(branch BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error
 	Show()
 	Hide()
 	Layout() Layout
@@ -40,6 +39,7 @@ type EditorInterface interface {
 
 type Editor struct {
 	*dom.HTMLDivElement
+	fail    chan error
 	Path    string
 	Aliases map[string]string
 	Editors []EditorInterface
@@ -56,7 +56,7 @@ func (c *Editor) Listen() *broadcast.Listener {
 	return c.changes.Listen()
 }
 
-func (c *Editor) Initialize(branch BranchInterface, layout Layout, path string, aliases map[string]string) error {
+func (c *Editor) Initialize(branch BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
 
 	c.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	if layout == Page {
@@ -75,6 +75,7 @@ func (c *Editor) Initialize(branch BranchInterface, layout Layout, path string, 
 	c.Aliases = aliases
 	c.branch = branch
 	c.layout = layout
+	c.fail = fail
 	return nil
 
 }

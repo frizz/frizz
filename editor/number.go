@@ -24,9 +24,9 @@ func (e *NumberEditor) Layout() Layout {
 	return Inline
 }
 
-func (e *NumberEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
+func (e *NumberEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
 
-	e.Editor.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, fail, path, aliases)
 
 	e.original = e.ValueNumber
 

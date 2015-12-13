@@ -22,9 +22,9 @@ func (e *ObjectEditor) Layout() Layout {
 	return Page
 }
 
-func (e *ObjectEditor) Initialize(holder BranchInterface, layout Layout, path string, aliases map[string]string) error {
+func (e *ObjectEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
 
-	e.Editor.Initialize(holder, layout, path, aliases)
+	e.Editor.Initialize(holder, layout, fail, path, aliases)
 
 	e.initializeBlockEditors()
 
@@ -45,7 +45,7 @@ func (e *ObjectEditor) initializeBlockEditors() {
 			continue
 		}
 		e.Editors = append(e.Editors, ed)
-		ed.Initialize(e.branch, Block, e.Path, e.Aliases)
+		ed.Initialize(e.branch, Block, e.fail, e.Path, e.Aliases)
 		e.branch.ListenForEditorChanges(ed.Listen().Ch)
 		e.AppendChild(ed)
 	}
@@ -94,7 +94,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 		displayName, err := h.Object.GetObject().Id.ValueContext(e.Path, e.Aliases)
 		if err != nil {
 			// we shouldn't be able to get here
-			e.branch.SendFail(kerr.New("IPLHSXDWQK", err, "ValueContext"))
+			e.fail <- kerr.New("IPLHSXDWQK", err, "ValueContext")
 		}
 		options[h.Object.GetObject().Id.String()] = displayName
 	}
@@ -107,15 +107,15 @@ func (e *ObjectEditor) AddField(node *Node) {
 		if result {
 			r, err := system.NewReferenceFromString(dropdown.Value, e.Path, e.Aliases)
 			if err != nil {
-				e.branch.SendFail(kerr.New("KHJGQXORPD", err, "NewReferenceFromString"))
+				e.fail <- kerr.New("KHJGQXORPD", err, "NewReferenceFromString")
 			}
 			h, ok := system.GetGlobal(r.Package, r.Name)
 			if !ok {
-				e.branch.SendFail(kerr.New("WEADSXTPYC", nil, "Global %s not found", r.Value()))
+				e.fail <- kerr.New("WEADSXTPYC", nil, "Global %s not found", r.Value())
 			}
 			t, ok := h.Object.(*system.Type)
 			if !ok {
-				e.branch.SendFail(kerr.New("FPOYMFLKVE", nil, "Global not a *Type"))
+				e.fail <- kerr.New("FPOYMFLKVE", nil, "Global not a *Type")
 			}
 			e.InitialiseChildWithConcreteType(node, t)
 		}
@@ -127,7 +127,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Type) {
 
 	if err := node.InitialiseWithConcreteType(t, e.Path, e.Aliases); err != nil {
-		e.branch.SendFail(kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType"))
+		e.fail <- kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType")
 	}
 	node.changes.Send(node)
 
