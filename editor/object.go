@@ -10,6 +10,7 @@ import (
 type ObjectEditor struct {
 	*Node
 	*Editor
+	editors *dom.HTMLDivElement
 }
 
 var _ EditorInterface = (*ObjectEditor)(nil)
@@ -25,6 +26,9 @@ func (e *ObjectEditor) Layout() Layout {
 func (e *ObjectEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
 
 	e.Editor.Initialize(holder, layout, fail, path, aliases)
+
+	e.editors = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
+	e.AppendChild(e.editors)
 
 	e.initializeBlockEditors()
 
@@ -44,11 +48,15 @@ func (e *ObjectEditor) initializeBlockEditors() {
 		if ed == nil || ed.Layout() == Page {
 			continue
 		}
-		e.Editors = append(e.Editors, ed)
-		ed.Initialize(e.branch, Block, e.fail, e.Path, e.Aliases)
-		e.branch.ListenForEditorChanges(ed.Listen().Ch)
-		e.AppendChild(ed)
+		e.initializeBlockEditor(ed)
 	}
+}
+
+func (e *ObjectEditor) initializeBlockEditor(ed EditorInterface) {
+	e.Editors = append(e.Editors, ed)
+	ed.Initialize(e.branch, Block, e.fail, e.Path, e.Aliases)
+	e.branch.ListenForEditorChanges(ed.Listen().Ch)
+	e.editors.AppendChild(ed)
 }
 
 func (e *ObjectEditor) initializeTable() error {
@@ -129,7 +137,22 @@ func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Typ
 	if err := node.InitialiseWithConcreteType(t, e.Path, e.Aliases); err != nil {
 		e.fail <- kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType")
 	}
+	// Updates the object summary table with the new node info
 	node.changes.Send(node)
+
+	ed := node.Editor()
+
+	if ed == nil {
+		return
+	}
+
+	if ed.Layout() == Page {
+		//TODO
+	} else {
+		e.initializeBlockEditor(ed)
+	}
+
+	ed.Focus()
 
 }
 
