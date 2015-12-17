@@ -20,6 +20,7 @@ type Editable interface {
 type BranchInterface interface {
 	Select(fromKeyboard bool)
 	ListenForEditorChanges(changes <-chan interface{})
+	AddFieldNode(node *Node)
 }
 
 type EditorInterface interface {

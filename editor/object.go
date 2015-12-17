@@ -147,7 +147,7 @@ func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Typ
 	}
 
 	if ed.Layout() == Page {
-		//TODO
+		e.branch.AddFieldNode(node)
 	} else {
 		e.initializeBlockEditor(ed)
 	}

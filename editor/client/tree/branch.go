@@ -7,10 +7,12 @@ import (
 
 var _ BranchInterface = (*Branch)(nil)
 var _ editor.BranchInterface = (*Branch)(nil)
+var _ editor.BranchInterface = (BranchInterface)(nil)
 
 type BranchInterface interface {
 	Append(child BranchInterface)
 	ListenForEditorChanges(changes <-chan interface{})
+	AddFieldNode(node *editor.Node)
 	Selectable
 	KeyboardActions
 	branch() *Branch
@@ -65,4 +67,8 @@ func (b *Branch) branch() *Branch {
 
 func (b *Branch) setLabel(text string) {
 	b.label.SetTextContent(text)
+}
+
+func (b *Branch) AddFieldNode(node *editor.Node) {
+	addEntry(node.Key, -1, node, b, b.editor)
 }
