@@ -137,6 +137,9 @@ func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Typ
 	if err := node.InitialiseWithConcreteType(t, e.Path, e.Aliases); err != nil {
 		e.fail <- kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType")
 	}
+
+	node.UpdateFromInnerNode()
+
 	// Updates the object summary table with the new node info
 	node.changes.Send(node)
 
@@ -244,7 +247,6 @@ func (r *objectSummaryRow) update() error {
 		a := mdl.Anchor().Text("add").Click(func(e dom.Event) {
 			e.(*dom.MouseEvent).PreventDefault()
 			node.Parent.editor.(*ObjectEditor).AddField(node)
-
 		})
 		r.options.AppendChild(a)
 	}

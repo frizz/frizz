@@ -15,16 +15,21 @@ type Node struct {
 	changes *broadcast.Broadcaster
 }
 
-func NewNode(inner *node.Node, parent *Node) *Node {
-	n := &Node{Node: inner}
-	n.Parent = parent
-	for _, child := range inner.Array {
+func (n *Node) UpdateFromInnerNode() {
+	n.Array = []*Node{}
+	for _, child := range n.Node.Array {
 		n.Array = append(n.Array, NewNode(child, n))
 	}
 	n.Map = map[string]*Node{}
-	for name, child := range inner.Map {
+	for name, child := range n.Node.Map {
 		n.Map[name] = NewNode(child, n)
 	}
+}
+
+func NewNode(inner *node.Node, parent *Node) *Node {
+	n := &Node{Node: inner}
+	n.Parent = parent
+	n.UpdateFromInnerNode()
 	n.changes = broadcast.New(0)
 	return n
 }

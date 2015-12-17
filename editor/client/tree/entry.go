@@ -27,7 +27,6 @@ func addEntry(name string, index int, node *editor.Node, parentBranch BranchInte
 
 	e := &entry{name: name, index: index, Node: node}
 	e.Branch = NewBranch(e, parentBranch)
-	e.editor = ed
 
 	if index > -1 {
 		e.setLabel(fmt.Sprint("[", index, "]"))
