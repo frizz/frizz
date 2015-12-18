@@ -3,6 +3,7 @@ package tree
 import (
 	"honnef.co/go/js/dom"
 	"kego.io/editor"
+	"kego.io/kerr"
 )
 
 var _ BranchInterface = (*Branch)(nil)
@@ -70,5 +71,9 @@ func (b *Branch) setLabel(text string) {
 }
 
 func (b *Branch) AddFieldNode(node *editor.Node) {
-	addEntry(node.Key, -1, node, b, b.editor)
+	e, err := addEntry(node.Key, -1, node, b, b.editor)
+	if err != nil {
+		b.tree.Fail <- kerr.New("CVUMGYVFEH", err, "addEntry (AddFieldNode)")
+	}
+	e.Branch.Select(false)
 }
