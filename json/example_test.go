@@ -12,6 +12,7 @@ import (
 	"os"
 	"strings"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 )
 
@@ -66,10 +67,10 @@ func ExampleDecoder() {
 	type Message struct {
 		Name, Text string
 	}
-	dec := json.NewDecoder(strings.NewReader(jsonStream), "", map[string]string{})
+	dec := json.NewDecoder(envctx.Empty, strings.NewReader(jsonStream))
 	for {
 		var m Message
-		if err := dec.DecodePlain(&m); err == io.EOF {
+		if err := dec.DecodeUntyped(&m); err == io.EOF {
 			break
 		} else if err != nil {
 			log.Fatal(err)

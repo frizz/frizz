@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -11,7 +13,7 @@ import (
 
 // Type returns the Go source for the definition of the type of this property
 // [collection prefix][optional pointer][type name]
-func Type(fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+func Type(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
 
 	outer, err := system.WrapRule(field)
 	if err != nil {
@@ -40,7 +42,7 @@ func Type(fieldName string, field system.RuleInterface, path string, getAlias fu
 	}
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
-	tag, err := getTag(fieldName, field.GetRule().Exclude, inner, "", map[string]string{})
+	tag, err := getTag(envctx.Empty, fieldName, field.GetRule().Exclude, inner)
 	if err != nil {
 		return "", kerr.New("CSJHNCMHRU", err, "getTag")
 	}
@@ -82,7 +84,12 @@ func getPointer(t *system.Type) string {
 	return ""
 }
 
-func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.RuleWrapper, path string, aliases map[string]string) (string, error) {
+func formatTag(ctx context.Context, fieldName string, exclude bool, defaultBytes []byte, r *system.RuleWrapper) (string, error) {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return "", kerr.New("QAAHJJKCUO", nil, "No env in ctx")
+	}
 
 	kegoTag := ""
 	if defaultBytes != nil && string(defaultBytes) != "null" {
@@ -90,9 +97,9 @@ func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.Ru
 		t := r.Parent.FullName()
 		var tag json.KegoTag
 		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
-			// If our default is one of the basic system native types, we know we can unmarshal it without
-			// the extra context, so we omit type, path and aliases. This makes the generated code easier to
-			// understand.
+			// If our default is one of the basic system native types, we know we can unmarshal it
+			// without the extra context, so we omit type, path and aliases. This makes the
+			// generated code easier to understand.
 			tag = json.KegoTag{
 				Default: &json.KegoDefault{
 					Value: &defaultRaw,
@@ -102,8 +109,8 @@ func formatTag(fieldName string, exclude bool, defaultBytes []byte, r *system.Ru
 			tag = json.KegoTag{
 				Default: &json.KegoDefault{
 					Value:   &defaultRaw,
-					Path:    path,
-					Aliases: aliases,
+					Path:    env.Path,
+					Aliases: env.Aliases,
 					Type:    t,
 				},
 			}
@@ -140,26 +147,26 @@ func addSubTag(tag string, name string, content string) string {
 	return fmt.Sprintf("%s%s:%s", tag, name, strconv.Quote(content))
 }
 
-func getTag(fieldName string, exclude bool, r *system.RuleWrapper, path string, aliases map[string]string) (string, error) {
+func getTag(ctx context.Context, fieldName string, exclude bool, r *system.RuleWrapper) (string, error) {
 
 	dr, ok := r.Interface.(system.DefaultRule)
 	if !ok {
 		// Doesn't have a default field
-		return formatTag(fieldName, exclude, nil, r, path, aliases)
+		return formatTag(ctx, fieldName, exclude, nil, r)
 	}
 
 	d := dr.GetDefault()
 	if d == nil {
-		return formatTag(fieldName, exclude, nil, r, path, aliases)
+		return formatTag(ctx, fieldName, exclude, nil, r)
 	}
 
 	// If we have a marshaler, we have to call it manually
 	if m, ok := d.(json.Marshaler); ok {
-		defaultBytes, err := m.MarshalJSON()
+		defaultBytes, err := m.MarshalJSON(ctx)
 		if err != nil {
 			return "", kerr.New("YIEMHYFVCD", err, "m.MarshalJSON")
 		}
-		return formatTag(fieldName, exclude, defaultBytes, r, path, aliases)
+		return formatTag(ctx, fieldName, exclude, defaultBytes, r)
 	}
 
 	defaultBytes, err := json.MarshalPlain(d)
@@ -167,5 +174,5 @@ func getTag(fieldName string, exclude bool, r *system.RuleWrapper, path string, 
 		return "", kerr.New("QQDOLAJKLU", err, "json.Marshal (typed)")
 	}
 
-	return formatTag(fieldName, exclude, defaultBytes, r, path, aliases)
+	return formatTag(ctx, fieldName, exclude, defaultBytes, r)
 }

@@ -8,6 +8,7 @@ import (
 
 	"sync"
 
+	"golang.org/x/net/context"
 	"kego.io/editor/shared/messages"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -22,8 +23,7 @@ var MESSAGE_TYPE = M_STRING
 type Conn struct {
 	socket   io.ReadWriteCloser
 	fail     chan error
-	path     string
-	aliases  map[string]string
+	ctx      context.Context
 	in       chan messages.MessageInterface
 	out      chan messages.MessageInterface
 	requests map[string]chan messages.MessageInterface
@@ -35,12 +35,11 @@ type Conn struct {
 	debug bool // in debug mode we don't exit the server on connection close
 }
 
-func New(socket io.ReadWriteCloser, fail chan error, debug bool, path string, aliases map[string]string) *Conn {
+func New(ctx context.Context, socket io.ReadWriteCloser, fail chan error, debug bool) *Conn {
 	c := &Conn{
 		socket:   socket,
 		fail:     fail,
-		path:     path,
-		aliases:  aliases,
+		ctx:      ctx,
 		in:       make(chan messages.MessageInterface),
 		out:      make(chan messages.MessageInterface),
 		requests: map[string]chan messages.MessageInterface{},

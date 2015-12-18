@@ -7,15 +7,23 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"github.com/ghodss/yaml"
 	"github.com/surge/cityhash"
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/process/settings"
 	"kego.io/system"
 )
 
-func ScanForPackage(set *settings.Settings) error {
+func ScanForPackage(ctx context.Context) error {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("SMFIIKLXFB", nil, "No env in ctx")
+	}
 
 	found := false
 	var pkg *system.Package
@@ -31,7 +39,7 @@ func ScanForPackage(set *settings.Settings) error {
 		}
 		return nil
 	}
-	if err := scanPath(true, true, scanner, set); err != nil {
+	if err := scanPath(ctx, true, true, scanner); err != nil {
 		return kerr.New("KOFQKHLSIT", err, "scanPath")
 	}
 	if pkg == nil {
@@ -41,11 +49,11 @@ func ScanForPackage(set *settings.Settings) error {
 			},
 		}
 	}
-	system.RegisterPackage(set.Path, pkg, hash)
+	system.RegisterPackage(env.Path, pkg, hash)
 	return nil
 }
 
-func ScanForGlobals(set *settings.Settings) error {
+func ScanForGlobals(ctx context.Context) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if _, ok := ob.(*system.Type); ok {
 			return nil
@@ -64,22 +72,22 @@ func ScanForGlobals(set *settings.Settings) error {
 		}
 		return nil
 	}
-	return scanPath(false, false, scanner, set)
+	return scanPath(ctx, false, false, scanner)
 }
 
-func HasSourceFiles(set *settings.Settings) (bool, error) {
+func HasSourceFiles(ctx context.Context) (bool, error) {
 	hasFiles := false
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		hasFiles = true
 		return nil
 	}
-	if err := scanPath(true, false, scanner, set); err != nil {
+	if err := scanPath(ctx, true, false, scanner); err != nil {
 		return false, kerr.New("VAMBAWHTCS", err, "scanPath (ScanForKegoFiles)")
 	}
 	return hasFiles, nil
 }
 
-func ScanForSource(set *settings.Settings) error {
+func ScanForSource(ctx context.Context) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		o, ok := ob.(system.ObjectInterface)
 		if !ok {
@@ -95,10 +103,10 @@ func ScanForSource(set *settings.Settings) error {
 		}
 		return nil
 	}
-	return scanPath(false, false, scanner, set)
+	return scanPath(ctx, false, false, scanner)
 }
 
-func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
+func ScanForTypes(ctx context.Context, ignoreUnknownTypes bool) error {
 	scanner := func(ob interface{}, source []byte, hash uint64) error {
 		if t, ok := ob.(*system.Type); ok {
 
@@ -139,32 +147,37 @@ func ScanForTypes(ignoreUnknownTypes bool, set *settings.Settings) error {
 		}
 		return nil
 	}
-	return scanPath(ignoreUnknownTypes, false, scanner, set)
+	return scanPath(ctx, ignoreUnknownTypes, false, scanner)
 }
 
-func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
+func scanPath(ctx context.Context, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error) error {
+
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("OFLQPRNCXX", nil, "No cmd in env")
+	}
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("RSYYBBHVQK", err, "walker (%s)", filePath)
 		}
-		if err := scanFile(filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan, set); err != nil {
+		if err := scanFile(ctx, filePath, ignoreUnknownTypes, ignoreUnknownPackages, scan); err != nil {
 			return kerr.New("EMFAEDUFRS", err, "processScannedFile (%s)", filePath)
 		}
 		return nil
 	}
 
-	if set.Recursive {
-		if err := filepath.Walk(set.Dir, walker); err != nil {
+	if cmd.Recursive {
+		if err := filepath.Walk(cmd.Dir, walker); err != nil {
 			return kerr.New("XHHQSAVCKK", err, "filepath.Walk (scanning for types)")
 		}
 	} else {
-		files, err := ioutil.ReadDir(set.Dir)
+		files, err := ioutil.ReadDir(cmd.Dir)
 		if err != nil {
 			return kerr.New("CDYLDBLHKT", err, "ioutil.ReadDir")
 		}
 		for _, f := range files {
-			if err := walker(filepath.Join(set.Dir, f.Name()), f, nil); err != nil {
+			if err := walker(filepath.Join(cmd.Dir, f.Name()), f, nil); err != nil {
 				return kerr.New("IAPRUHFTAD", err, "walker")
 			}
 		}
@@ -173,9 +186,9 @@ func scanPath(ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob 
 	return nil
 }
 
-func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
+func scanFile(ctx context.Context, filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error) error {
 
-	bytes, hash, err := OpenFile(filePath, set)
+	bytes, hash, err := OpenFile(ctx, filePath)
 	if err != nil {
 		return kerr.New("JHSOCKOTHE", err, "openFile")
 	}
@@ -183,16 +196,16 @@ func scanFile(filePath string, ignoreUnknownTypes bool, ignoreUnknownPackages bo
 		return nil
 	}
 
-	if err = scanBytes(bytes, hash, ignoreUnknownTypes, ignoreUnknownPackages, scan, set); err != nil {
+	if err = scanBytes(ctx, bytes, hash, ignoreUnknownTypes, ignoreUnknownPackages, scan); err != nil {
 		return kerr.New("DHTURNTIXE", err, "processReader (%s)", filePath)
 	}
 	return nil
 }
 
-func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error, set *settings.Settings) error {
+func scanBytes(ctx context.Context, file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error) error {
 
 	var i interface{}
-	err := json.Unmarshal(file, &i, set.Path, set.Aliases)
+	err := json.Unmarshal(ctx, file, &i)
 
 	if ut, ok := err.(json.UnknownTypeError); ok {
 		if !ignoreUnknownTypes {
@@ -210,7 +223,12 @@ func scanBytes(file []byte, hash uint64, ignoreUnknownTypes bool, ignoreUnknownP
 }
 
 // openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.
-func OpenFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
+func OpenFile(ctx context.Context, filePath string) ([]byte, uint64, error) {
+
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		return nil, 0, kerr.New("LKDJNNGXCW", nil, "No cmd in ctx")
+	}
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil, 0, nil
@@ -229,12 +247,12 @@ func OpenFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
 		bytes = j
 	}
 
-	relative, err := filepath.Rel(set.Dir, filePath)
+	relative, err := filepath.Rel(cmd.Dir, filePath)
 	if err != nil {
 		return nil, 0, kerr.New("MDNIWARJEG", err, "filepath.Rel")
 	}
 
-	hash, err := GetHash(relative, set.Path, set.Aliases, bytes)
+	hash, err := GetHash(ctx, relative, bytes)
 	if err != nil {
 		return nil, 0, kerr.New("GKUPQSADWQ", err, "getHash")
 	}
@@ -244,11 +262,11 @@ func OpenFile(filePath string, set *settings.Settings) ([]byte, uint64, error) {
 }
 
 // gets the hash of a file, including data about the file path, package path and import aliases
-func GetHash(relativeFilePath string, packagePath string, aliases map[string]string, content []byte) (uint64, error) {
+func GetHash(ctx context.Context, relativeFilePath string, content []byte) (uint64, error) {
 
-	if aliases == nil {
-		// to stop null / {} confusion in json
-		aliases = map[string]string{}
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return 0, kerr.New("QKTLWUKJKC", nil, "No env in ctx")
 	}
 
 	holder := struct {
@@ -256,7 +274,7 @@ func GetHash(relativeFilePath string, packagePath string, aliases map[string]str
 		Path    string
 		Aliases map[string]string
 		Content []byte
-	}{relativeFilePath, packagePath, aliases, content}
+	}{relativeFilePath, env.Path, env.Aliases, content}
 
 	bytes, err := json.MarshalPlain(holder)
 	if err != nil {

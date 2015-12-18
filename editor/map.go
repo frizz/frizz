@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/mdl"
 	"kego.io/kerr"
@@ -22,9 +23,9 @@ func (e *MapEditor) Layout() Layout {
 	return Page
 }
 
-func (e *MapEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
+func (e *MapEditor) Initialize(ctx context.Context, holder BranchInterface, layout Layout, fail chan error) error {
 
-	e.Editor.Initialize(holder, layout, fail, path, aliases)
+	e.Editor.Initialize(ctx, holder, layout, fail)
 
 	table := mdl.Table()
 
@@ -32,7 +33,7 @@ func (e *MapEditor) Initialize(holder BranchInterface, layout Layout, fail chan 
 	if err != nil {
 		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
 	}
-	hold, err := items.HoldsDisplayType(e.Path, e.Aliases)
+	hold, err := items.HoldsDisplayType(ctx)
 	if err != nil {
 		return kerr.New("XDKOSFJVQV", err, "ValueContext")
 	}
@@ -58,7 +59,7 @@ func (e *MapEditor) Initialize(holder BranchInterface, layout Layout, fail chan 
 		if item.Null {
 			r.Cell().Text("")
 		} else {
-			val, err := item.Type.Id.ValueContext(e.Path, e.Aliases)
+			val, err := item.Type.Id.ValueContext(ctx)
 			if err != nil {
 				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
 			}

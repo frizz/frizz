@@ -21,9 +21,9 @@ func (c *Conn) Receive() error {
 	for {
 
 		var i interface{}
-		// Here we unmarshal with messages.Path and messages.Alias because this
-		// is just a message, not an object from the local repo.
-		if err := ke.NewDecoder(c.socket, messages.Path, messages.Aliases).Decode(&i); err != nil {
+		// Here we unmarshal with the dummy messages.Ctx because this is just a message, not an
+		// object from the local repo.
+		if err := ke.NewDecoder(messages.Ctx, c.socket).Decode(&i); err != nil {
 			if err == io.EOF {
 				// Closing the fail channel exits the app gracefully
 				if c.debug {

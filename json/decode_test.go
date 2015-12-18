@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/kerr"
 )
 
@@ -59,7 +61,7 @@ type unmarshaler struct {
 	T bool
 }
 
-func (u *unmarshaler) UnmarshalJSON(b []byte, path string, aliases map[string]string) error {
+func (u *unmarshaler) UnmarshalJSON(ctx context.Context, b []byte) error {
 	*u = unmarshaler{true} // All we need to see that UnmarshalJSON is called.
 	return nil
 }
@@ -526,11 +528,11 @@ func TestUnmarshal(t *testing.T) {
 
 		// v = new(right-type)
 		v := reflect.New(reflect.TypeOf(tt.ptr).Elem())
-		dec := NewDecoder(bytes.NewReader(in), "", map[string]string{})
+		dec := NewDecoder(envctx.Empty, bytes.NewReader(in))
 		if tt.useNumber {
 			dec.UseNumber()
 		}
-		if err := dec.DecodePlain(v.Interface()); !reflect.DeepEqual(err, tt.err) {
+		if err := dec.DecodeUntyped(v.Interface()); !reflect.DeepEqual(err, tt.err) {
 			t.Errorf("#%d: %v, want %v", i, err, tt.err)
 			continue
 		} else if err != nil {
@@ -553,11 +555,11 @@ func TestUnmarshal(t *testing.T) {
 				continue
 			}
 			vv := reflect.New(reflect.TypeOf(tt.ptr).Elem())
-			dec = NewDecoder(bytes.NewReader(enc), "", map[string]string{})
+			dec = NewDecoder(envctx.Empty, bytes.NewReader(enc))
 			if tt.useNumber {
 				dec.UseNumber()
 			}
-			if err := dec.DecodePlain(vv.Interface()); err != nil {
+			if err := dec.DecodeUntyped(vv.Interface()); err != nil {
 				t.Errorf("#%d: error re-unmarshaling %#q: %v", i, enc, err)
 				continue
 			}
@@ -698,7 +700,7 @@ func TestErrorMessageFromMisusedString(t *testing.T) {
 	for n, tt := range wrongStringTests {
 		r := strings.NewReader(tt.in)
 		var s WrongString
-		err := NewDecoder(r, "", map[string]string{}).DecodePlain(&s)
+		err := NewDecoder(envctx.Empty, r).DecodeUntyped(&s)
 		got := fmt.Sprintf("%v", err)
 		if got != tt.err {
 			t.Errorf("%d. got err = %q, want %q", n, got, tt.err)
@@ -1061,9 +1063,9 @@ func TestEmptyString(t *testing.T) {
 		Number2 int `json:",string"`
 	}
 	data := `{"Number1":"1", "Number2":""}`
-	dec := NewDecoder(strings.NewReader(data), "", map[string]string{})
+	dec := NewDecoder(envctx.Empty, strings.NewReader(data))
 	var t2 T2
-	err := dec.DecodePlain(&t2)
+	err := dec.DecodeUntyped(&t2)
 	if err == nil {
 		t.Fatal("Decode: did not return error")
 	}
@@ -1304,7 +1306,7 @@ func TestUnmarshalUnexported(t *testing.T) {
 // as an RFC 3339 time in UTC.
 type Time3339 time.Time
 
-func (t *Time3339) UnmarshalJSON(b []byte, path string, aliases map[string]string) error {
+func (t *Time3339) UnmarshalJSON(ctx context.Context, b []byte) error {
 	if len(b) < 2 || b[0] != '"' || b[len(b)-1] != '"' {
 		return fmt.Errorf("types: failed to unmarshal non-string value %q as an RFC 3339 time", b)
 	}

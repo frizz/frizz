@@ -2,39 +2,44 @@ package generate
 
 import (
 	"fmt"
-	"strconv"
 
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/generator"
 	"kego.io/kerr"
-	"kego.io/process/settings"
 )
 
-func Editor(set *settings.Settings) (source []byte, err error) {
+func Editor(ctx context.Context) (source []byte, err error) {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return nil, kerr.New("TFXFCYUEWN", nil, "No env in ctx")
+	}
 
 	g := generator.New("main")
 
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous("kego.io/system/types")
 	g.Imports.Anonymous("kego.io/system/editors")
-	g.Imports.Anonymous(set.Path)
-	g.Imports.Anonymous(fmt.Sprint(set.Path, "/types"))
-	for p, _ := range set.Aliases {
+	g.Imports.Anonymous(env.Path)
+	g.Imports.Anonymous(fmt.Sprint(env.Path, "/types"))
+	for p, _ := range env.Aliases {
 		g.Imports.Anonymous(p)
 		g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 	}
 	/*
 		func main() {
-			if err := client.Start("foo.bar/baz"); err != nil {
+			if err := client.Start(); err != nil {
 				console.Error(err.Error())
 			}
 		}
 	*/
 	g.Println("func main() {")
 	{
-		clientStart := generator.Reference("kego.io/editor/client", "Start", set.Path, g.Imports.Add)
-		g.Println("if err := ", clientStart, "(", strconv.Quote(set.Path), "); err != nil {")
+		clientStart := generator.Reference("kego.io/editor/client", "Start", env.Path, g.Imports.Add)
+		g.Println("if err := ", clientStart, "(); err != nil {")
 		{
-			consoleError := generator.Reference("kego.io/editor/client/console", "Error", set.Path, g.Imports.Add)
+			consoleError := generator.Reference("kego.io/editor/client/console", "Error", env.Path, g.Imports.Add)
 			g.Println(consoleError, "(err.Error())")
 		}
 		g.Println("}")

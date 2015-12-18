@@ -2,11 +2,15 @@ package messages // import "kego.io/editor/shared/messages"
 
 import (
 	"github.com/twinj/uuid"
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/system"
 )
 
-var Path = "kego.io/editor/shared/messages"
-var Aliases = map[string]string{}
+var Ctx = envctx.NewContext(context.Background(), &envctx.Env{
+	Path:    "kego.io/editor/shared/messages",
+	Aliases: map[string]string{},
+})
 
 func NewMessage() *Message {
 	return &Message{

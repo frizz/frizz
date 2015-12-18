@@ -10,6 +10,9 @@ import (
 	"reflect"
 	"testing"
 	"unicode"
+
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 )
 
 type Optionals struct {
@@ -93,7 +96,7 @@ func TestStringTag(t *testing.T) {
 
 	// Verify that it round-trips.
 	var s2 StringTag
-	err = NewDecoder(bytes.NewReader(got), "", map[string]string{}).DecodePlain(&s2)
+	err = NewDecoder(envctx.Empty, bytes.NewReader(got)).DecodeUntyped(&s2)
 	if err != nil {
 		t.Fatalf("Decode: %v", err)
 	}
@@ -148,11 +151,11 @@ func TestUnsupportedValues(t *testing.T) {
 // Ref has Marshaler and Unmarshaler methods with pointer receiver.
 type Ref int
 
-func (*Ref) MarshalJSON() ([]byte, error) {
+func (*Ref) MarshalJSON(ctx context.Context) ([]byte, error) {
 	return []byte(`"ref"`), nil
 }
 
-func (r *Ref) UnmarshalJSON([]byte, string, map[string]string) error {
+func (r *Ref) UnmarshalJSON(context.Context, []byte) error {
 	*r = 12
 	return nil
 }
@@ -160,7 +163,7 @@ func (r *Ref) UnmarshalJSON([]byte, string, map[string]string) error {
 // Val has Marshaler methods with value receiver.
 type Val int
 
-func (Val) MarshalJSON() ([]byte, error) {
+func (Val) MarshalJSON(ctx context.Context) ([]byte, error) {
 	return []byte(`"val"`), nil
 }
 
@@ -216,7 +219,7 @@ func TestRefValMarshal(t *testing.T) {
 // C implements Marshaler and returns unescaped JSON.
 type C int
 
-func (C) MarshalJSON() ([]byte, error) {
+func (C) MarshalJSON(ctx context.Context) ([]byte, error) {
 	return []byte(`"<&>"`), nil
 }
 

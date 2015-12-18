@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"kego.io/context/envctx"
 	"kego.io/editor"
 	"kego.io/kerr"
 )
@@ -24,10 +25,16 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 
 	p := &pkg{Node: node}
 	p.Branch = NewBranch(p, parent)
-	p.setLabel(p.tree.Path)
+
+	env, ok := envctx.FromContext(p.tree.ctx)
+	if !ok {
+		return kerr.New("CROQODEYEL", nil, "No env in ctx")
+	}
+
+	p.setLabel(env.Path)
 	parent.Append(p)
 
-	if err := ed.Initialize(p, editor.Page, p.tree.Fail, p.tree.Path, p.tree.Aliases); err != nil {
+	if err := ed.Initialize(p.tree.ctx, p, editor.Page, p.tree.Fail); err != nil {
 		return kerr.New("NMIESKDFVN", err, "Initialize")
 	}
 

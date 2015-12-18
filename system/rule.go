@@ -3,13 +3,14 @@ package system
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
 )
 
 // Enforcer is a rule with properties that need to be enforced against data.
 type Enforcer interface {
-	Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error)
+	Enforce(ctx context.Context, data interface{}) (bool, string, error)
 }
 
 type CollectionRule interface {
@@ -123,8 +124,8 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 
 // HoldsDisplayType returns the string to display when communicating to
 // the end user what type this rule holds.
-func (r *RuleWrapper) HoldsDisplayType(path string, aliases map[string]string) (string, error) {
-	str, err := r.Parent.Id.ValueContext(path, aliases)
+func (r *RuleWrapper) HoldsDisplayType(ctx context.Context) (string, error) {
+	str, err := r.Parent.Id.ValueContext(ctx)
 	if err != nil {
 		return "", kerr.New("OPIFCOHGWI", err, "ValueContext")
 	}

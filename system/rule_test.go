@@ -6,6 +6,7 @@ import (
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestWrapRule(t *testing.T) {
@@ -66,7 +67,7 @@ func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
 		"type": "@b"
 	}`
 	var i interface{}
-	err := unpacker([]byte(j), &i, "a.b/c", map[string]string{})
+	err := unpacker(tests.PathCtx("a.b/c"), []byte(j), &i)
 	assert.NoError(t, err)
 	rs, ok := i.(*ruleStruct)
 	assert.True(t, ok)

@@ -1,6 +1,9 @@
 package units
 
-import "kego.io/editor"
+import (
+	"golang.org/x/net/context"
+	"kego.io/editor"
+)
 
 func (i *Rectangle) GetEditor(n *editor.Node) editor.EditorInterface {
 	return &RectangleEditor{Rectangle: n.Value.(*Rectangle), Node: n, Editor: &editor.Editor{}}
@@ -22,16 +25,16 @@ func (e *RectangleEditor) Layout() editor.Layout {
 	return editor.Inline
 }
 
-func (e *RectangleEditor) Initialize(holder editor.BranchInterface, layout editor.Layout, fail chan error, path string, aliases map[string]string) error {
+func (e *RectangleEditor) Initialize(ctx context.Context, holder editor.BranchInterface, layout editor.Layout, fail chan error) error {
 
-	e.Editor.Initialize(holder, layout, fail, path, aliases)
+	e.Editor.Initialize(ctx, holder, layout, fail)
 
 	e.height = editor.NewNumberEditor(e.Node.Map["height"])
-	e.height.Initialize(holder, editor.Inline, fail, path, aliases)
+	e.height.Initialize(ctx, holder, editor.Inline, fail)
 	e.height.Style().Set("width", "50%")
 
 	e.width = editor.NewNumberEditor(e.Node.Map["width"])
-	e.width.Initialize(holder, editor.Inline, fail, path, aliases)
+	e.width.Initialize(ctx, holder, editor.Inline, fail)
 	e.width.Style().Set("width", "50%")
 
 	e.Editors = append(e.Editors, e.height)

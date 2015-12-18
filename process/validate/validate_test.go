@@ -6,7 +6,6 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process/scan"
-	"kego.io/process/settings"
 	"kego.io/process/tests"
 	"kego.io/system"
 )
@@ -33,12 +32,12 @@ func Validate_NeedsTypes(t *testing.T) {
 	assert.NoError(t, err)
 
 	// this is a type, so we need to register it with a hash to stop validate erroring.
-	hash, err := scan.GetHash("a.json", path, map[string]string{}, []byte(files["a.json"]))
+	hash, err := scan.GetHash(tests.PathCtx(path), "a.json", []byte(files["a.json"]))
 	assert.NoError(t, err)
 	system.Register(path, "a", &system.Type{}, hash)
 	defer system.Unregister(path, "a")
 
-	err = Validate(&settings.Settings{Dir: dir, Path: path})
+	err = Validate(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}))
 	assert.NoError(t, err)
 
 }
@@ -66,12 +65,12 @@ func TestValidate_error1(t *testing.T) {
 	assert.NoError(t, err)
 
 	// this is a type, so we need to register it with a hash to stop validate erroring.
-	hash, err := scan.GetHash("b.json", path, map[string]string{}, []byte(files["b.json"]))
+	hash, err := scan.GetHash(tests.PathCtx(path), "b.json", []byte(files["b.json"]))
 	assert.NoError(t, err)
 	system.Register(path, "b", &system.Type{}, hash)
 	defer system.Unregister(path, "b")
 
-	err = Validate(&settings.Settings{Dir: dir, Path: path})
+	err = Validate(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}))
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "YLONAMFUAG")
 

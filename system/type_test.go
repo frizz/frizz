@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestBool(t *testing.T) {
@@ -32,7 +33,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -97,7 +98,7 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Type)
 	assert.True(t, ok, "Type %T not correct", i)

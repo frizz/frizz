@@ -3,8 +3,10 @@ package system_test
 import (
 	"testing"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -36,7 +38,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -101,7 +103,7 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -118,23 +120,23 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 
 }
 
-type unpackerFunc func([]byte, *interface{}, string, map[string]string) error
+type unpackerFunc func(ctx context.Context, data []byte, i *interface{}) error
 
-func unmarshalFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
-	return json.Unmarshal(data, i, path, aliases)
+func unmarshalFunc(ctx context.Context, data []byte, i *interface{}) error {
+	return json.Unmarshal(ctx, data, i)
 }
-func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
 	var j interface{}
 	if err := json.UnmarshalPlain(data, &j); err != nil {
 		return err
 	}
-	return json.Unpack(json.Pack(j), i, path, aliases)
+	return json.Unpack(ctx, json.Pack(j), i)
 }
 
-func repackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+func repackFunc(ctx context.Context, data []byte, i *interface{}) error {
 	n := &node.Node{}
-	if err := json.UnmarshalPlainContext(data, n, path, aliases); err != nil {
+	if err := json.UnmarshalUntyped(ctx, data, n); err != nil {
 		return err
 	}
-	return json.Unpack(node.Pack(n), i, path, aliases)
+	return json.Unpack(ctx, node.Pack(n), i)
 }

@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"kego.io/context/envctx"
 )
 
 // Test values for the stream test.
@@ -67,9 +69,9 @@ func TestDecoder(t *testing.T) {
 			}
 		}
 		out := make([]interface{}, i)
-		dec := NewDecoder(&buf, "", map[string]string{})
+		dec := NewDecoder(envctx.Empty, &buf)
 		for j := range out {
-			if err := dec.DecodePlain(&out[j]); err != nil {
+			if err := dec.DecodeUntyped(&out[j]); err != nil {
 				t.Fatalf("decode #%d/%d: %v", j, i, err)
 			}
 		}
@@ -90,8 +92,8 @@ func TestDecoderBuffered(t *testing.T) {
 	var m struct {
 		Name string
 	}
-	d := NewDecoder(r, "", map[string]string{})
-	err := d.DecodePlain(&m)
+	d := NewDecoder(envctx.Empty, r)
+	err := d.DecodeUntyped(&m)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +186,7 @@ func TestBlocking(t *testing.T) {
 
 		// If Decode reads beyond what w.Write writes above,
 		// it will block, and the test will deadlock.
-		if err := NewDecoder(r, "", map[string]string{}).DecodePlain(&val); err != nil {
+		if err := NewDecoder(envctx.Empty, r).DecodeUntyped(&val); err != nil {
 			t.Errorf("decoding %s: %v", enc, err)
 		}
 		r.Close()

@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/mdl"
 )
@@ -22,9 +23,9 @@ func (e *StringEditor) Layout() Layout {
 	return Inline
 }
 
-func (e *StringEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
+func (e *StringEditor) Initialize(ctx context.Context, holder BranchInterface, layout Layout, fail chan error) error {
 
-	e.Editor.Initialize(holder, layout, fail, path, aliases)
+	e.Editor.Initialize(ctx, holder, layout, fail)
 
 	e.original = e.ValueString
 

@@ -6,6 +6,7 @@ import (
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestNoType(t *testing.T) {
@@ -37,7 +38,7 @@ func testNoType(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker([]byte(j), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(j), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok)
@@ -52,7 +53,7 @@ func testNoType(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	err = unpacker([]byte(j), &i, "kego.io/system", map[string]string{})
+	err = unpacker(tests.PathCtx("kego.io/system"), []byte(j), &i)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "json: cannot unmarshal kego.io/system:f into Go value of type system.C")
 
@@ -92,7 +93,7 @@ func testNative(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -140,7 +141,7 @@ func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -188,7 +189,7 @@ func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -244,7 +245,7 @@ func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"a.b/c": "c"})
+	err := unpacker(tests.EnvCtx("kego.io/system", map[string]string{"a.b/c": "c"}), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -279,7 +280,7 @@ func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -311,7 +312,7 @@ func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -341,7 +342,7 @@ func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
+	err := unpacker(tests.EnvCtx("kego.io/system", map[string]string{"kego.io/pkg": "pkg"}), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -374,7 +375,7 @@ func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"kego.io/pkg": "pkg"})
+	err := unpacker(tests.EnvCtx("kego.io/system", map[string]string{"kego.io/pkg": "pkg"}), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -408,7 +409,7 @@ func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)

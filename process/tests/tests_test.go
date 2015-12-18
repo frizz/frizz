@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"testing"
 
+	"kego.io/context/envctx"
+	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/tests"
@@ -275,12 +277,17 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 	}
 
 	verbose := false
-	set, err := process.InitialiseManually(false, false, false, verbose, path)
+	ctx, err := process.InitialiseManually(false, false, false, verbose, path)
 	if err != nil {
 		return "", err
 	}
 
-	if err := process.KeCommand(set); err != nil {
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return "", kerr.New("PWXKBCCASN", nil, "No env in ctx")
+	}
+
+	if err := process.KeCommand(ctx); err != nil {
 		return "", err
 	}
 
@@ -290,5 +297,5 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		}
 	}
 
-	return set.Path, nil
+	return env.Path, nil
 }

@@ -24,6 +24,9 @@ import (
 	"strings"
 
 	"github.com/gopherjs/gopherjs/build"
+	"golang.org/x/net/context"
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
@@ -31,35 +34,45 @@ import (
 	"kego.io/ke"
 	"kego.io/process"
 	"kego.io/process/generate"
-	"kego.io/process/settings"
 	"kego.io/process/tests"
 	"kego.io/system"
 )
 
 type appData struct {
-	path    string
-	aliases map[string]string
-	pkg     *system.Package
-	verbose bool
-	fail    chan error
-	debug   bool // in debug mode we don't exit the server on connection close
+	pkg   *system.Package
+	fail  chan error
+	debug bool // in debug mode we don't exit the server on connection close
+	ctx   context.Context
+	cmd   *cmdctx.Cmd
+	env   *envctx.Env
 }
 
 var app appData
 
 func Start(path string, verbose bool, debug bool) error {
 
-	app.debug = debug
-	app.path = path
-	app.verbose = verbose
-	pkg, err := initialise(path)
+	ctx, pkg, err := initialise(path, verbose)
 	if err != nil {
 		return kerr.New("SWSQDFXIEV", err, "initialise")
 	}
-	app.aliases = pkg.Aliases
+
+	app.debug = debug
+	app.ctx = ctx
 	app.pkg = pkg
 
-	if verbose {
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("WHUTFJWEWD", nil, "Ne env in ctx")
+	}
+	app.env = env
+
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("JQLQHBRTNJ", nil, "Ne cmd in ctx")
+	}
+	app.cmd = cmd
+
+	if cmd.Verbose {
 		fmt.Println("Starting editor server... ")
 	}
 
@@ -68,7 +81,7 @@ func Start(path string, verbose bool, debug bool) error {
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
 	http.HandleFunc("/script.js", func(w http.ResponseWriter, req *http.Request) {
-		if err := script(w, req, app.path, app.aliases, false, &mapping); err != nil {
+		if err := script(ctx, w, req, false, &mapping); err != nil {
 			app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
 			return
 		}
@@ -81,7 +94,7 @@ func Start(path string, verbose bool, debug bool) error {
 	//	}
 	//})
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if err := root(w, req, app.pkg, app.path, app.aliases); err != nil {
+		if err := root(ctx, w, req, app.pkg); err != nil {
 			app.fail <- kerr.New("QOMJGNOCQF", err, "root")
 			return
 		}
@@ -93,7 +106,7 @@ func Start(path string, verbose bool, debug bool) error {
 		} else {
 			ws.PayloadType = 0x1 // string messages
 		}
-		c := connection.New(ws, app.fail, app.debug, app.path, app.aliases)
+		c := connection.New(ctx, ws, app.fail, app.debug)
 
 		sourceRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })
@@ -110,7 +123,7 @@ func Start(path string, verbose bool, debug bool) error {
 		err, open := <-app.fail
 		if !open {
 			// Channel has been closed, so app should gracefully exit.
-			if verbose {
+			if cmd.Verbose {
 				fmt.Println("Exiting editor server (finished)... ")
 			}
 		} else {
@@ -139,7 +152,7 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 		if !ok {
 			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.sourceRequest", m)
 		}
-		hashed, ok := system.GetSource(*system.NewReference(app.path, request.Name.Value()))
+		hashed, ok := system.GetSource(*system.NewReference(app.env.Path, request.Name.Value()))
 		data := ""
 		if ok {
 			data = string(hashed.Source)
@@ -149,33 +162,33 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 	}
 }
 
-func initialise(path string) (pkg *system.Package, err error) {
-	set, err := process.InitialiseManually(true, false, false, false, path)
+func initialise(path string, verbose bool) (context.Context, *system.Package, error) {
+	ctx, err := process.InitialiseManually(true, false, false, verbose, path)
 	if err != nil {
-		return nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
+		return nil, nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
-	if err := scan.ScanForPackage(set); err != nil {
-		return nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
+	if err := scan.ScanForPackage(ctx); err != nil {
+		return nil, nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
 	}
-	if err := scan.ScanForTypes(false, set); err != nil {
-		return nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
+	if err := scan.ScanForTypes(ctx, false); err != nil {
+		return nil, nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
 	}
-	if err := scan.ScanForSource(set); err != nil {
-		return nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
+	if err := scan.ScanForSource(ctx); err != nil {
+		return nil, nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
 	}
 	p, ok := system.GetPackage(path)
 	if !ok {
-		return nil, kerr.New("IHIYKRRYWL", nil, "package not found")
+		return nil, nil, kerr.New("IHIYKRRYWL", nil, "package not found")
 	}
-	return p.Package, nil
+	return ctx, p.Package, nil
 }
 
-func script(w http.ResponseWriter, req *http.Request, path string, aliases map[string]string, mapper bool, mapping *[]byte) error {
+func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
 
 	// This is the client code for the editor which we will compile to Javascript using GopherJs
 	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the
 	// source file to a temporary location and delete after we have compiled it to Javascript.
-	source, err := generate.Editor(&settings.Settings{Path: path, Aliases: aliases})
+	source, err := generate.Editor(ctx)
 	if err != nil {
 		return kerr.New("UWPDBQXURR", err, "generate.Editor")
 	}
@@ -238,9 +251,9 @@ func script(w http.ResponseWriter, req *http.Request, path string, aliases map[s
 	return nil
 }
 
-func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path string, aliases map[string]string) error {
+func root(ctx context.Context, w http.ResponseWriter, req *http.Request, pkg *system.Package) error {
 
-	sources := system.GetAllSourceInPackage(path)
+	sources := system.GetAllSourceInPackage(app.env.Path)
 
 	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
 		if strings.HasSuffix(req.URL.Path, ".css") {
@@ -260,14 +273,14 @@ func root(w http.ResponseWriter, req *http.Request, pkg *system.Package, path st
 		}
 	}
 
-	b, err := ke.MarshalContext(pkg, path, aliases)
+	b, err := ke.MarshalContext(ctx, pkg)
 	if err != nil {
 		return kerr.New("OUBOTYGPKU", err, "MarshalContext")
 	}
 
 	info := shared.Info{
-		Path:    path,
-		Aliases: aliases,
+		Path:    app.env.Path,
+		Aliases: app.env.Aliases,
 		Data:    data,
 		Types:   types,
 		Package: string(b),

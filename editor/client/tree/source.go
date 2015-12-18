@@ -51,7 +51,7 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 	}
 
 	n := &node.Node{}
-	if err := ke.UnmarshalNode([]byte(gr.Data.Value()), n, s.tree.Path, s.tree.Aliases); err != nil {
+	if err := ke.UnmarshalNode(s.tree.ctx, []byte(gr.Data.Value()), n); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
 
@@ -59,7 +59,7 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 
 	ed := s.Node.Editor()
 
-	if err := ed.Initialize(s, editor.Page, s.tree.Fail, s.tree.Path, s.tree.Aliases); err != nil {
+	if err := ed.Initialize(s.tree.ctx, s, editor.Page, s.tree.Fail); err != nil {
 		return kerr.New("UOPUXTANHO", err, "Initialize")
 	}
 

@@ -43,7 +43,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 				return
 			}
 			b.editor = ed.Editor()
-			if err := b.editor.Initialize(b.self, editor.Page, b.tree.Fail, b.tree.Path, b.tree.Aliases); err != nil {
+			if err := b.editor.Initialize(b.tree.ctx, b.self, editor.Page, b.tree.Fail); err != nil {
 				b.tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
 				return
 			}

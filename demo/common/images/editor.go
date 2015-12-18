@@ -1,6 +1,7 @@
 package images
 
 import (
+	"golang.org/x/net/context"
 	"kego.io/editor"
 	"kego.io/editor/client/mdl"
 )
@@ -25,15 +26,15 @@ func (e *IconEditor) Layout() editor.Layout {
 	return editor.Block
 }
 
-func (e *IconEditor) Initialize(holder editor.BranchInterface, layout editor.Layout, fail chan error, path string, aliases map[string]string) error {
+func (e *IconEditor) Initialize(ctx context.Context, holder editor.BranchInterface, layout editor.Layout, fail chan error) error {
 
-	e.Editor.Initialize(holder, layout, fail, path, aliases)
+	e.Editor.Initialize(ctx, holder, layout, fail)
 
 	e.image = mdl.Image(e.Url.Value())
 	e.AppendChild(e.image)
 
 	e.url = editor.NewStringEditor(e.Node.Map["url"])
-	e.url.Initialize(holder, editor.Block, fail, path, aliases)
+	e.url.Initialize(ctx, holder, editor.Block, fail)
 	e.Editors = append(e.Editors, e.url)
 	e.AppendChild(e.url)
 

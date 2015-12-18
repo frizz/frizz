@@ -5,39 +5,45 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/net/context"
+	"kego.io/context/cmdctx"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/process/scan"
-	"kego.io/process/settings"
 	"kego.io/selectors"
 	"kego.io/system"
 	"kego.io/system/node"
 )
 
-func Validate(set *settings.Settings) error {
+func Validate(ctx context.Context) error {
+
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("SJOFCDFUXT", nil, "No cmd in ctx")
+	}
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return kerr.New("GFBBIERGIY", err, "walker (%s)", filePath)
 		}
-		if err := validateFile(filePath, set); err != nil {
+		if err := validateFile(ctx, filePath); err != nil {
 			return kerr.New("QJGXAUKPTI", err, "validateFile (%s)", filePath)
 		}
 		return nil
 	}
 
-	if set.Recursive {
-		if err := filepath.Walk(set.Dir, walker); err != nil {
+	if cmd.Recursive {
+		if err := filepath.Walk(cmd.Dir, walker); err != nil {
 			return kerr.New("GCKFJQJUXK", err, "filepath.Walk")
 		}
 	} else {
-		files, err := ioutil.ReadDir(set.Dir)
+		files, err := ioutil.ReadDir(cmd.Dir)
 		if err != nil {
 			return kerr.New("RJXRHBYVUW", err, "ioutil.ReadDir")
 		}
 		for _, f := range files {
-			if err := walker(filepath.Join(set.Dir, f.Name()), f, nil); err != nil {
+			if err := walker(filepath.Join(cmd.Dir, f.Name()), f, nil); err != nil {
 				return kerr.New("UJBOWKFUMS", err, "walker")
 			}
 		}
@@ -46,9 +52,9 @@ func Validate(set *settings.Settings) error {
 	return nil
 }
 
-func validateFile(filePath string, set *settings.Settings) error {
+func validateFile(ctx context.Context, filePath string) error {
 
-	bytes, hash, err := scan.OpenFile(filePath, set)
+	bytes, hash, err := scan.OpenFile(ctx, filePath)
 	if err != nil {
 		return kerr.New("XXYPVKLNBQ", err, "openFile")
 	}
@@ -56,15 +62,15 @@ func validateFile(filePath string, set *settings.Settings) error {
 		return nil
 	}
 
-	if err = validateBytes(bytes, hash, set); err != nil {
+	if err = validateBytes(ctx, bytes, hash); err != nil {
 		return kerr.New("GFVGDBDTNQ", err, "validateReader (%s)", filePath)
 	}
 	return nil
 }
 
-func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
+func validateBytes(ctx context.Context, bytes []byte, hash uint64) error {
 	n := &node.Node{}
-	err := ke.UnmarshalNode(bytes, n, set.Path, set.Aliases)
+	err := ke.UnmarshalNode(ctx, bytes, n)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
@@ -73,13 +79,13 @@ func validateBytes(bytes []byte, hash uint64, set *settings.Settings) error {
 		return kerr.New("QIVNOQKCQF", err, "UnmarshalNode")
 	}
 
-	if err := validateNode(n, hash, set.Path, set.Aliases); err != nil {
+	if err := validateNode(ctx, n, hash); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "validateUnknown")
 	}
 	return nil
 }
 
-func validateNode(node *node.Node, hash uint64, path string, aliases map[string]string) error {
+func validateNode(ctx context.Context, node *node.Node, hash uint64) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -104,7 +110,7 @@ func validateNode(node *node.Node, hash uint64, path string, aliases map[string]
 		rules = append(rules, node.Value.(system.ObjectInterface).GetObject().Rules...)
 	}
 
-	return validateObject(node, rules, path, aliases)
+	return validateObject(ctx, node, rules)
 
 }
 
@@ -116,7 +122,7 @@ type ValidationError struct {
 	kerr.Struct
 }
 
-func validateObject(node *node.Node, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInterface) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -124,7 +130,7 @@ func validateObject(node *node.Node, rules []system.RuleInterface, path string, 
 
 	// Validate the actual object
 	if v, ok := node.Value.(system.Validator); ok {
-		ok, message, err := v.Validate(path, aliases)
+		ok, message, err := v.Validate(ctx)
 		if err != nil {
 			return kerr.New("RUGJLUAFAN", err, "v.Validate")
 		}
@@ -136,7 +142,7 @@ func validateObject(node *node.Node, rules []system.RuleInterface, path string, 
 	if node.Rule.Interface != nil {
 		e, ok := node.Rule.Interface.(system.Enforcer)
 		if ok {
-			ok, message, err := e.Enforce(node.Value, path, aliases)
+			ok, message, err := e.Enforce(ctx, node.Value)
 			if err != nil {
 				return kerr.New("EBEMISLGDX", err, "e.Enforce (main)")
 			}
@@ -148,7 +154,7 @@ func validateObject(node *node.Node, rules []system.RuleInterface, path string, 
 
 	if rules != nil && len(rules) > 0 {
 
-		p, err := selectors.CreateParser(node, path, aliases)
+		p, err := selectors.CreateParser(ctx, node)
 		if err != nil {
 			return kerr.New("AIWLGYGGAY", err, "selectors.CreateParser")
 		}
@@ -171,7 +177,7 @@ func validateObject(node *node.Node, rules []system.RuleInterface, path string, 
 				return kerr.New("UKOCCFJWAB", err, "p.GetJsonElements (%s)", selector)
 			}
 			for _, match := range matches {
-				ok, message, err := e.Enforce(match.Value, path, aliases)
+				ok, message, err := e.Enforce(ctx, match.Value)
 				if err != nil {
 					return kerr.New("MGHHDYTXVV", err, "e.Enforce")
 				}
@@ -185,27 +191,27 @@ func validateObject(node *node.Node, rules []system.RuleInterface, path string, 
 	// Validate the children
 	switch node.Type.NativeJsonType() {
 	case json.J_OBJECT:
-		return validateObjectChildren(node, path, aliases)
+		return validateObjectChildren(ctx, node)
 	case json.J_ARRAY:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
 		}
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject().Rules
-		return validateArrayChildren(node, items, rules, path, aliases)
+		return validateArrayChildren(ctx, node, items, rules)
 	case json.J_MAP:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
 		}
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject().Rules
-		return validateMapChildren(node, items, rules, path, aliases)
+		return validateMapChildren(ctx, node, items, rules)
 	}
 
 	return nil
 }
 
-func validateObjectChildren(node *node.Node, path string, aliases map[string]string) error {
+func validateObjectChildren(ctx context.Context, node *node.Node) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -233,14 +239,14 @@ func validateObjectChildren(node *node.Node, path string, aliases map[string]str
 			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject().Rules...)
 		}
 
-		if err := validateObject(child, allRules, path, aliases); err != nil {
+		if err := validateObject(ctx, child, allRules); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "validateObject (%s)", name)
 		}
 	}
 	return nil
 }
 
-func validateArrayChildren(node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
@@ -248,14 +254,14 @@ func validateArrayChildren(node *node.Node, itemsRule *system.RuleWrapper, rules
 	}
 
 	for i, child := range node.Array {
-		if err := validateObject(child, rules, path, aliases); err != nil {
+		if err := validateObject(ctx, child, rules); err != nil {
 			return kerr.New("DKVEPIWTPI", err, "validateObject array index %s", i)
 		}
 	}
 	return nil
 }
 
-func validateMapChildren(node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface, path string, aliases map[string]string) error {
+func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
@@ -263,7 +269,7 @@ func validateMapChildren(node *node.Node, itemsRule *system.RuleWrapper, rules [
 	}
 
 	for n, child := range node.Map {
-		if err := validateObject(child, rules, path, aliases); err != nil {
+		if err := validateObject(ctx, child, rules); err != nil {
 			return kerr.New("YLONAMFUAG", err, "validateObject map key %s", n)
 		}
 	}

@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestUnpackDefaultNativeTypeBool(t *testing.T) {
@@ -30,7 +32,7 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -56,39 +58,39 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 
 	var b *Bool
 
-	err := b.Unpack(json.Pack(nil))
+	err := b.Unpack(envctx.Empty, json.Pack(nil))
 	assert.IsError(t, err, "FXCQGNYKIJ")
 
 	b = NewBool(false)
 
-	err = b.Unpack(json.Pack(true))
+	err = b.Unpack(envctx.Empty, json.Pack(true))
 	assert.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.True(t, b.Value())
 
-	err = b.Unpack(json.Pack(false))
+	err = b.Unpack(envctx.Empty, json.Pack(false))
 	assert.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.False(t, b.Value())
 
-	err = b.Unpack(json.Pack("foo"))
+	err = b.Unpack(envctx.Empty, json.Pack("foo"))
 	assert.IsError(t, err, "GXQGNEPJYS")
 
 }
 func TestBoolMarshalJSON(t *testing.T) {
 
 	var b *Bool
-	ba, err := b.MarshalJSON()
+	ba, err := b.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
 	b = NewBool(false)
-	ba, err = b.MarshalJSON()
+	ba, err = b.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "false", string(ba))
 
 	b = NewBool(true)
-	ba, err = b.MarshalJSON()
+	ba, err = b.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "true", string(ba))
 

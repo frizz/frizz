@@ -4,11 +4,13 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"golang.org/x/net/context"
 	"kego.io/editor/shared/connection/mocks"
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 	"kego.io/system"
 )
 
@@ -18,7 +20,7 @@ func doTest(t *testing.T, f func(*Conn, *mocks.MockReadWriteCloser)) {
 	socket := mocks.NewMockReadWriteCloser(ctl)
 	fail := make(chan error)
 
-	c := New(socket, fail, false, "kego.io/editor/shared/messages", map[string]string{})
+	c := New(tests.PathCtx("kego.io/editor/shared/messages"), socket, fail, false)
 
 	f(c, socket)
 
@@ -84,7 +86,7 @@ func TestRespond(t *testing.T) {
 
 		// The Respond method adds the guid of the request message to the "Request"
 		// field, so we must clone the request and add it.
-		m1, err := clone(m, "kego.io/editor/shared/messages", map[string]string{})
+		m1, err := clone(tests.PathCtx("kego.io/editor/shared/messages"), m)
 		assert.NoError(t, err)
 		m1.(messages.MessageInterface).GetMessage().Request = system.NewString("c")
 		expected, _ := ke.Marshal(m1)
@@ -96,13 +98,13 @@ func TestRespond(t *testing.T) {
 	})
 }
 
-func clone(in system.ObjectInterface, path string, aliases map[string]string) (system.ObjectInterface, error) {
+func clone(ctx context.Context, in system.ObjectInterface) (system.ObjectInterface, error) {
 	b, err := ke.Marshal(in)
 	if err != nil {
 		return nil, kerr.New("WSTYPJHIVG", err, "ke.Marshal")
 	}
 	var i interface{}
-	err = ke.Unmarshal(b, &i, path, aliases)
+	err = ke.Unmarshal(ctx, b, &i)
 	if err != nil {
 		return nil, kerr.New("NGELVDDBRF", err, "ke.Unmarshal")
 	}

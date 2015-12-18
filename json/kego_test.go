@@ -5,20 +5,22 @@ import (
 	"reflect"
 	"testing"
 
+	"golang.org/x/net/context"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
-type unpackerFunc func([]byte, *interface{}, string, map[string]string) error
+type unpackerFunc func(ctx context.Context, data []byte, i *interface{}) error
 
-func unmarshalFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
-	return Unmarshal(data, i, path, aliases)
+func unmarshalFunc(ctx context.Context, data []byte, i *interface{}) error {
+	return Unmarshal(ctx, data, i)
 }
-func unpackFunc(data []byte, i *interface{}, path string, aliases map[string]string) error {
+func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
 	var j interface{}
 	if err := UnmarshalPlain(data, &j); err != nil {
 		return err
 	}
-	return Unpack(Pack(j), i, path, aliases)
+	return Unpack(ctx, Pack(j), i)
 }
 
 func TestDecodeSimple(t *testing.T) {
@@ -41,7 +43,7 @@ func testDecodeSimple(t *testing.T, unpacker unpackerFunc) {
 		defer Unregister("kego.io/json", "foo")
 
 		var i interface{}
-		err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+		err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -99,7 +101,7 @@ func testDecodeDefaults(t *testing.T, unpacker unpackerFunc) {
 		defer Unregister("kego.io/json", "foo")
 
 		var i interface{}
-		err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+		err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -165,7 +167,7 @@ func testDecodeCollections(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "foo")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -211,7 +213,7 @@ func testDecodeEmbed(t *testing.T, unpacker unpackerFunc) {
 		defer Unregister("kego.io/json", "bar")
 
 		var i interface{}
-		err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+		err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -293,7 +295,7 @@ func testDecodeEmbedCollections(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "bar")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -334,7 +336,7 @@ func testDecodeComposition(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "base")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -390,7 +392,7 @@ func testInterface(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "diagram")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -431,7 +433,7 @@ func testNilInterface(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "diagram")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -491,7 +493,7 @@ func testInterfaceCollections(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "diagram")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -553,7 +555,7 @@ func testInterfaceCollectionsComplex(t *testing.T, unpacker unpackerFunc) {
 	defer Unregister("kego.io/json", "diagram")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -596,7 +598,7 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown type kego.io/json:bar")
 	assert.True(t, i.(*Foo).Img == nil)
@@ -608,7 +610,7 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 				"id": "a"
 			}
 		}`
-	err = unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err = unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown package foo")
 
@@ -619,11 +621,11 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 				"id": "a"
 			}
 		}`
-	err = unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err = unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown package a.b/c")
 
-	err = unpacker([]byte(data), &i, "kego.io/json", map[string]string{"a.b/c": "d"})
+	err = unpacker(tests.EnvCtx("kego.io/json", map[string]string{"a.b/c": "d"}), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown type a.b/c:bar")
 }
@@ -667,6 +669,6 @@ func testDummyInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/json", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
 	assert.NoError(t, err)
 }

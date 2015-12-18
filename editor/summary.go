@@ -1,11 +1,13 @@
 package editor
 
-import "kego.io/editor/client/mdl"
+import (
+	"golang.org/x/net/context"
+	"kego.io/editor/client/mdl"
+)
 
 type summary struct {
 	*mdl.TableStruct
-	path    string
-	aliases map[string]string
+	ctx context.Context
 }
 
 type summaryRow struct {

@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 type UnpackA struct {
@@ -17,7 +20,7 @@ type UnpackValue string
 type UnpackArray []string
 type UnpackObject map[string]string
 
-func (u *UnpackValue) Unpack(in Packed) error {
+func (u *UnpackValue) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_STRING {
 		return kerr.New("FUGBYYGFUL", nil, "Should be string")
 	}
@@ -27,7 +30,7 @@ func (u *UnpackValue) Unpack(in Packed) error {
 
 var _ Unpacker = (*UnpackValue)(nil)
 
-func (u *UnpackArray) Unpack(in Packed) error {
+func (u *UnpackArray) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_ARRAY {
 		return kerr.New("MYARYRIJLL", nil, "Should be array")
 	}
@@ -45,7 +48,7 @@ func (u *UnpackArray) Unpack(in Packed) error {
 
 var _ Unpacker = (*UnpackArray)(nil)
 
-func (u *UnpackObject) Unpack(in Packed) error {
+func (u *UnpackObject) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_MAP {
 		return kerr.New("TMXIJXIGQK", nil, "Should be map")
 	}
@@ -88,17 +91,29 @@ type UnpackContextValue string
 type UnpackContextArray []string
 type UnpackContextObject map[string]string
 
-func (u *UnpackContextValue) Unpack(in Packed, path string, aliases map[string]string) error {
+func (u *UnpackContextValue) Unpack(ctx context.Context, in Packed) error {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("DFKIHGSKUL", nil, "No env in ctx")
+	}
+
 	if in.Type() != J_STRING {
 		return kerr.New("CUFSESRMCX", nil, "Should be string")
 	}
-	*u = UnpackContextValue(fmt.Sprint(in.String(), " bar ", path, " ", aliases["d.e/f"]))
+	*u = UnpackContextValue(fmt.Sprint(in.String(), " bar ", env.Path, " ", env.Aliases["d.e/f"]))
 	return nil
 }
 
-var _ ContextUnpacker = (*UnpackContextValue)(nil)
+var _ Unpacker = (*UnpackContextValue)(nil)
 
-func (u *UnpackContextArray) Unpack(in Packed, path string, aliases map[string]string) error {
+func (u *UnpackContextArray) Unpack(ctx context.Context, in Packed) error {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("AOOPQOFNKJ", nil, "No env in ctx")
+	}
+
 	if in.Type() != J_ARRAY {
 		return kerr.New("UXJTIVMLLG", nil, "Should be array")
 	}
@@ -109,14 +124,20 @@ func (u *UnpackContextArray) Unpack(in Packed, path string, aliases map[string]s
 		}
 		out = append(out, child.String())
 	}
-	out = append(out, fmt.Sprint("bar ", path, " ", aliases["d.e/f"]))
+	out = append(out, fmt.Sprint("bar ", env.Path, " ", env.Aliases["d.e/f"]))
 	*u = UnpackContextArray(out)
 	return nil
 }
 
-var _ ContextUnpacker = (*UnpackContextArray)(nil)
+var _ Unpacker = (*UnpackContextArray)(nil)
 
-func (u *UnpackContextObject) Unpack(in Packed, path string, aliases map[string]string) error {
+func (u *UnpackContextObject) Unpack(ctx context.Context, in Packed) error {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("MKJQUDKLFD", nil, "No env in ctx")
+	}
+
 	if in.Type() != J_MAP {
 		return kerr.New("ACCJBEXHYG", nil, "Should be map")
 	}
@@ -127,17 +148,17 @@ func (u *UnpackContextObject) Unpack(in Packed, path string, aliases map[string]
 		}
 		out[name] = child.String()
 	}
-	out["baz"] = fmt.Sprint("qux ", path, " ", aliases["d.e/f"])
+	out["baz"] = fmt.Sprint("qux ", env.Path, " ", env.Aliases["d.e/f"])
 	*u = UnpackContextObject(out)
 	return nil
 }
 
-var _ ContextUnpacker = (*UnpackContextObject)(nil)
+var _ Unpacker = (*UnpackContextObject)(nil)
 
 func TestUnpackContext(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`
 	a := &UnpackContextA{}
-	err := UnmarshalPlainContext([]byte(in), a, "a.b/c", map[string]string{"d.e/f": "g"})
+	err := UnmarshalUntyped(tests.EnvCtx("a.b/c", map[string]string{"d.e/f": "g"}), []byte(in), a)
 	assert.NoError(t, err)
 	assert.NotNil(t, a)
 	assert.Equal(t, "foo bar a.b/c g", string(a.B))

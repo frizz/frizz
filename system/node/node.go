@@ -1,6 +1,7 @@
 package node // import "kego.io/system/node"
 
 import (
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -25,16 +26,16 @@ type Node struct {
 }
 
 // Unpack unpacks a node from an unpackable
-func (n *Node) Unpack(in json.Packed, path string, aliases map[string]string) error {
-	if err := n.extract(nil, "", -1, &system.Reference{}, 0, in, true, nil, path, aliases); err != nil {
+func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
+	if err := n.extract(ctx, nil, "", -1, &system.Reference{}, 0, in, true, nil); err != nil {
 		return kerr.New("FUYLKYTQYD", err, "extract")
 	}
 	return nil
 }
 
-var _ json.ContextUnpacker = (*Node)(nil)
+var _ json.Unpacker = (*Node)(nil)
 
-func (n *Node) InitialiseWithConcreteType(t *system.Type, path string, aliases map[string]string) error {
+func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) error {
 
 	n.Type = t
 	n.Missing = false
@@ -54,16 +55,16 @@ func (n *Node) InitialiseWithConcreteType(t *system.Type, path string, aliases m
 	case "map":
 		n.Map = map[string]*Node{}
 	case "object":
-		if err := n.InitialiseFields(nil, path, aliases); err != nil {
+		if err := n.InitialiseFields(ctx, nil); err != nil {
 			return kerr.New("YIHFDLTIMW", err, "InitialiseFields")
 		}
 	}
 	return nil
 }
 
-func (n *Node) extract(parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper, path string, aliases map[string]string) error {
+func (n *Node) extract(ctx context.Context, parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper) error {
 
-	objectType, err := extractType(in, rule, path, aliases)
+	objectType, err := extractType(ctx, in, rule)
 	if err != nil {
 		return kerr.New("RBDBRRUVMM", err, "extractType")
 	}
@@ -98,7 +99,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 	}
 
 	if rule == nil {
-		if err := json.Unpack(in, &n.Value, path, aliases); err != nil {
+		if err := json.Unpack(ctx, in, &n.Value); err != nil {
 			return kerr.New("CQMWGPLYIJ", err, "Unpack")
 		}
 	} else {
@@ -106,7 +107,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		if err != nil {
 			return kerr.New("DQJDYPIANO", err, "GetReflectType")
 		}
-		if err := json.UnpackFragment(in, &n.Value, t, path, aliases); err != nil {
+		if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
 			return kerr.New("PEVKGFFHLL", err, "UnpackFragment")
 		}
 	}
@@ -156,7 +157,7 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		children := in.Array()
 		for i, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, "", i, &system.Reference{}, len(children), child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(ctx, n, "", i, &system.Reference{}, len(children), child, true, childRule); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -177,20 +178,20 @@ func (n *Node) extract(parent *Node, key string, index int, origin *system.Refer
 		children := in.Map()
 		for name, child := range children {
 			childNode := &Node{}
-			if err := childNode.extract(n, name, -1, &system.Reference{}, 0, child, true, childRule, path, aliases); err != nil {
+			if err := childNode.extract(ctx, n, name, -1, &system.Reference{}, 0, child, true, childRule); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
 		}
 	case "object":
-		if err := n.InitialiseFields(in, path, aliases); err != nil {
+		if err := n.InitialiseFields(ctx, in); err != nil {
 			return kerr.New("XCRYJWKPKP", err, "InitialiseFields")
 		}
 	}
 	return nil
 }
 
-func (n *Node) InitialiseFields(in json.Packed, path string, aliases map[string]string) error {
+func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 	m := map[string]json.Packed{}
 	if in != nil && in.Type() != json.J_NULL {
 		if in.Type() != json.J_MAP {
@@ -212,7 +213,7 @@ func (n *Node) InitialiseFields(in json.Packed, path string, aliases map[string]
 		}
 		child, ok := m[name]
 		childNode := &Node{}
-		if err := childNode.extract(n, name, -1, f.Origin, 0, child, ok, rule, path, aliases); err != nil {
+		if err := childNode.extract(ctx, n, name, -1, f.Origin, 0, child, ok, rule); err != nil {
 			return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 		}
 		n.Map[name] = childNode
@@ -226,7 +227,7 @@ func (n *Node) InitialiseFields(in json.Packed, path string, aliases map[string]
 	return nil
 }
 
-func extractType(in json.Packed, rule *system.RuleWrapper, path string, aliases map[string]string) (*system.Type, error) {
+func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) (*system.Type, error) {
 
 	if rule != nil && rule.Parent.Interface && rule.Struct.Interface {
 		return nil, kerr.New("TDXTPGVFAK", nil, "Can't have interface type and rule at the same time")
@@ -276,7 +277,7 @@ func extractType(in json.Packed, rule *system.RuleWrapper, path string, aliases 
 		return nil, kerr.New("HBJVDKAKBJ", nil, "Input must have type field if rule is nil or an interface type")
 	}
 	var r system.Reference
-	if err := r.Unpack(typeField, path, aliases); err != nil {
+	if err := r.Unpack(ctx, typeField); err != nil {
 		return nil, kerr.New("YXHGIBXCOC", err, "Unpack (type)")
 	}
 	t, ok := r.GetType()

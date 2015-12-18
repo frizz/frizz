@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestUnpackDefaultNativeTypeNumber(t *testing.T) {
@@ -30,7 +32,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -46,81 +48,81 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
 
 func TestNumberRule_Enforce(t *testing.T) {
 	r := NumberRule{Rule: &Rule{Optional: false}, Minimum: NewNumber(1.5)}
-	ok, message, err := r.Enforce(nil, "", map[string]string{})
+	ok, message, err := r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum: value must exist", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(2), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(2))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1.5))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(1), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1))
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum: value 1 must not be less than 1.5", message)
 	assert.False(t, ok)
 
 	r = NumberRule{Rule: &Rule{Optional: false}, Minimum: NewNumber(1.5), ExclusiveMinimum: true}
-	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1.5))
 	assert.NoError(t, err)
 	assert.Equal(t, "Minimum (exclusive): value 1.5 must be greater than 1.5", message)
 	assert.False(t, ok)
 
 	r = NumberRule{Rule: &Rule{Optional: false}, Maximum: NewNumber(1.5)}
-	ok, message, err = r.Enforce(nil, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum: value must exist", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(1), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1.5))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(2), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(2))
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum: value 2 must not be greater than 1.5", message)
 	assert.False(t, ok)
 
 	r = NumberRule{Rule: &Rule{Optional: false}, Maximum: NewNumber(1.5), ExclusiveMaximum: true}
-	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1.5))
 	assert.NoError(t, err)
 	assert.Equal(t, "Maximum (exclusive): value 1.5 must be less than 1.5", message)
 	assert.False(t, ok)
 
 	r = NumberRule{Rule: &Rule{Optional: false}, MultipleOf: NewNumber(1.5)}
-	ok, message, err = r.Enforce(nil, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value must exist", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(0), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(0))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(1.5), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(1.5))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(3), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(3))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewNumber(4), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewNumber(4))
 	assert.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value 4 must be a multiple of 1.5", message)
 	assert.False(t, ok)
@@ -137,17 +139,17 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 
 	var n *Number
 
-	err := n.Unpack(json.Pack(nil))
+	err := n.Unpack(envctx.Empty, json.Pack(nil))
 	assert.IsError(t, err, "WHREWCCODC")
 
 	n = NewNumber(0.0)
 
-	err = n.Unpack(json.Pack(1.2))
+	err = n.Unpack(envctx.Empty, json.Pack(1.2))
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 	assert.Equal(t, 1.2, n.Value())
 
-	err = n.Unpack(json.Pack("foo"))
+	err = n.Unpack(envctx.Empty, json.Pack("foo"))
 	assert.IsError(t, err, "YHXBFTONCW")
 
 }
@@ -156,17 +158,17 @@ func TestNumberMarshalJSON(t *testing.T) {
 
 	var n *Number
 
-	ba, err := n.MarshalJSON()
+	ba, err := n.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
 	n = NewNumber(1.2)
-	ba, err = n.MarshalJSON()
+	ba, err = n.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "1.2", string(ba))
 
 	n = NewNumber(1.0)
-	ba, err = n.MarshalJSON()
+	ba, err = n.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "1", string(ba))
 

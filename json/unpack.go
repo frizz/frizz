@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
+	"golang.org/x/net/context"
 	"kego.io/kerr"
 )
 
@@ -14,14 +15,14 @@ type unpackStruct struct {
 	unknownPackage string // have we encountered an unknown package?
 }
 
-func Unpack(in Packed, out *interface{}, path string, aliases map[string]string) error {
+func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 
 	if in.Type() != J_MAP {
 		return kerr.New("XOOUKLGORQ", nil, "Type %s should be J_MAP", in.Type())
 	}
 
 	us := &unpackStruct{}
-	typ, err := us.getTypeFromField(in, reflect.Value{}, path, aliases)
+	typ, err := us.getTypeFromField(ctx, in, reflect.Value{})
 	if err != nil {
 		return kerr.New("NUHCPRKRXT", err, "getTypeFromField (global)")
 	}
@@ -31,22 +32,22 @@ func Unpack(in Packed, out *interface{}, path string, aliases map[string]string)
 
 	// we don't wrap the error in kerr because in can return special
 	// error types
-	return us.unpackFragment(in, out, typ, path, aliases)
+	return us.unpackFragment(ctx, in, out, typ)
 }
 
-func UnpackFragment(in Packed, out *interface{}, typ reflect.Type, path string, aliases map[string]string) error {
+func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
 
 	us := &unpackStruct{}
 	// we don't wrap the error in kerr because in can return special
 	// error types
-	return us.unpackFragment(in, out, typ, path, aliases)
+	return us.unpackFragment(ctx, in, out, typ)
 }
 
-func (us *unpackStruct) unpackFragment(in Packed, out *interface{}, typ reflect.Type, path string, aliases map[string]string) error {
+func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
 
 	p := getEmptyValue(typ)
 
-	err := us.unpack(in, p, path, aliases)
+	err := us.unpack(ctx, in, p)
 
 	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
 		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
@@ -66,7 +67,7 @@ func (us *unpackStruct) unpackFragment(in Packed, out *interface{}, typ reflect.
 	return nil
 }
 
-func (us *unpackStruct) unpack(in Packed, v reflect.Value, path string, aliases map[string]string) error {
+func (us *unpackStruct) unpack(ctx context.Context, in Packed, v reflect.Value) error {
 
 	if !v.IsValid() {
 		return nil
@@ -79,34 +80,28 @@ func (us *unpackStruct) unpack(in Packed, v reflect.Value, path string, aliases 
 
 	switch typ {
 	case J_MAP:
-		if err := us.unpackObject(in, v, path, aliases); err != nil {
+		if err := us.unpackObject(ctx, in, v); err != nil {
 			return kerr.New("LMLUICBTBA", err, "unpackObject")
 		}
 	case J_ARRAY:
-		if err := us.unpackArray(in, v, path, aliases); err != nil {
+		if err := us.unpackArray(ctx, in, v); err != nil {
 			return kerr.New("ITJMJWULKO", err, "unpackArray")
 		}
 	default:
-		if err := us.unpackLiteral(in, v, path, aliases); err != nil {
+		if err := us.unpackLiteral(ctx, in, v); err != nil {
 			return kerr.New("BSTNWUKLYO", err, "unpackLiteral")
 		}
 	}
 	return nil
 }
 
-func (us *unpackStruct) unpackLiteral(in Packed, v reflect.Value, path string, aliases map[string]string) error {
+func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.Value) error {
 
 	wantptr := in == nil || in.Type() == J_NULL
-	_, _, up, cup, pv := indirect(v, wantptr, false, true)
+	_, _, up, pv := indirect(v, wantptr, false, true)
 	if up != nil {
-		if err := up.Unpack(in); err != nil {
+		if err := up.Unpack(ctx, in); err != nil {
 			return kerr.New("RYSLUEEOAW", err, "Unpack (plain)")
-		}
-		return nil
-	}
-	if cup != nil {
-		if err := cup.Unpack(in, path, aliases); err != nil {
-			return kerr.New("MOKLHNANQB", err, "Unpack (context)")
 		}
 		return nil
 	}
@@ -134,7 +129,7 @@ func (us *unpackStruct) unpackLiteral(in Packed, v reflect.Value, path string, a
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(in.Bool()))
 			} else {
-				if err := setDefaultNativeValueUnpack(v, in, path, aliases); err != nil {
+				if err := setDefaultNativeValueUnpack(ctx, v, in); err != nil {
 					return kerr.New("DLQUIGTSLP", err, "setDefaultNativeValueUnpack (bool)")
 				}
 			}
@@ -159,7 +154,7 @@ func (us *unpackStruct) unpackLiteral(in Packed, v reflect.Value, path string, a
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(in.String()))
 			} else {
-				if err := setDefaultNativeValueUnpack(v, in, path, aliases); err != nil {
+				if err := setDefaultNativeValueUnpack(ctx, v, in); err != nil {
 					return kerr.New("PRTYFVSEFT", err, "setDefaultNativeValueUnpack (string)")
 				}
 			}
@@ -175,7 +170,7 @@ func (us *unpackStruct) unpackLiteral(in Packed, v reflect.Value, path string, a
 			return &UnmarshalTypeError{"number", v.Type()}
 		case reflect.Interface:
 			if v.NumMethod() != 0 {
-				if err := setDefaultNativeValueUnpack(v, in, path, aliases); err != nil {
+				if err := setDefaultNativeValueUnpack(ctx, v, in); err != nil {
 					return kerr.New("FYHICWEELI", err, "setDefaultNativeValueUnpack (number)")
 				}
 				break
@@ -203,13 +198,13 @@ func (us *unpackStruct) unpackLiteral(in Packed, v reflect.Value, path string, a
 	return nil
 }
 
-func setDefaultNativeValueUnpack(v reflect.Value, in Packed, path string, aliases map[string]string) error {
+func setDefaultNativeValueUnpack(ctx context.Context, v reflect.Value, in Packed) error {
 	t, ok := GetTypeByInterface(v.Type())
 	if !ok {
 		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
 	}
 	var i interface{}
-	err := UnpackFragment(in, &i, t, path, aliases)
+	err := UnpackFragment(ctx, in, &i, t)
 	if err != nil {
 		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
 	}
@@ -217,23 +212,17 @@ func setDefaultNativeValueUnpack(v reflect.Value, in Packed, path string, aliase
 	return nil
 }
 
-func (us *unpackStruct) unpackArray(in Packed, v reflect.Value, path string, aliases map[string]string) error {
+func (us *unpackStruct) unpackArray(ctx context.Context, in Packed, v reflect.Value) error {
 
 	if in.Type() != J_ARRAY {
 		return kerr.New("PVJMVPULMY", nil, "Type %s should be J_ARRAY", in.Type())
 	}
 
 	// Check for unpackers.
-	_, _, up, cup, pv := indirect(v, false, false, true)
+	_, _, up, pv := indirect(v, false, false, true)
 	if up != nil {
-		if err := up.Unpack(in); err != nil {
+		if err := up.Unpack(ctx, in); err != nil {
 			return kerr.New("PQRNFAYAYQ", err, "Unpack (plain)")
-		}
-		return nil
-	}
-	if cup != nil {
-		if err := cup.Unpack(in, path, aliases); err != nil {
-			return kerr.New("HPUKPAPBDC", err, "Unpack (context)")
 		}
 		return nil
 	}
@@ -267,7 +256,7 @@ func (us *unpackStruct) unpackArray(in Packed, v reflect.Value, path string, ali
 
 		if i < v.Len() {
 			// Decode into element.
-			if err := us.unpack(in, v.Index(i), path, aliases); err != nil {
+			if err := us.unpack(ctx, in, v.Index(i)); err != nil {
 				return kerr.New("PKGCUIXVWS", err, "unpack")
 			}
 		}
@@ -291,7 +280,7 @@ func (us *unpackStruct) unpackArray(in Packed, v reflect.Value, path string, ali
 	return nil
 }
 
-func (us *unpackStruct) unpackObject(in Packed, v reflect.Value, path string, aliases map[string]string) error {
+func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.Value) error {
 
 	if in.Type() != J_MAP {
 		return kerr.New("PBAXKEKVTA", nil, "Type %s should be J_MAP", in.Type())
@@ -301,14 +290,14 @@ func (us *unpackStruct) unpackObject(in Packed, v reflect.Value, path string, al
 	concreteTypePath := ""
 	concreteTypeName := ""
 
-	_, _, _, _, val := indirect(v, false, false, false)
+	_, _, _, val := indirect(v, false, false, false)
 
 	// If the type we're unmarshaling into is an interface, we should scan for a "type"
 	// attribute and initialise the correct type.
 	switch val.Kind() {
 	case reflect.Interface:
 		// This sets the value of v to the correct type based on the "type" attribute.
-		typ, err := us.getTypeFromField(in, v, path, aliases)
+		typ, err := us.getTypeFromField(ctx, in, v)
 		if err != nil {
 			return kerr.New("BGJEIXFQHL", err, "getTypeFromField (interface) %s", v.String())
 		}
@@ -329,16 +318,10 @@ func (us *unpackStruct) unpackObject(in Packed, v reflect.Value, path string, al
 		}
 	}
 
-	_, _, u, cu, rv := indirect(v, false, false, true)
-	if u != nil {
-		if err := u.Unpack(in); err != nil {
-			return kerr.New("NPDUYUXVVK", err, "Unpack (plain)")
-		}
-		return nil
-	}
-	if cu != nil {
-		if err := cu.Unpack(in, path, aliases); err != nil {
-			return kerr.New("TXWXHXCDWW", err, "Unpack (context)")
+	_, _, up, rv := indirect(v, false, false, true)
+	if up != nil {
+		if err := up.Unpack(ctx, in); err != nil {
+			return kerr.New("NPDUYUXVVK", err, "Unpack")
 		}
 		return nil
 	}
@@ -414,7 +397,7 @@ func (us *unpackStruct) unpackObject(in Packed, v reflect.Value, path string, al
 			}
 		}
 
-		if err := us.unpack(val, subv, path, aliases); err != nil {
+		if err := us.unpack(ctx, val, subv); err != nil {
 			return kerr.New("SIJHJHWXYF", err, "unpack")
 		}
 
@@ -432,7 +415,7 @@ func (us *unpackStruct) unpackObject(in Packed, v reflect.Value, path string, al
 	return nil
 }
 
-func (us *unpackStruct) getTypeFromField(in Packed, iface reflect.Value, path string, aliases map[string]string) (reflect.Type, error) {
+func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface reflect.Value) (reflect.Type, error) {
 
 	if in.Type() != J_MAP {
 		return nil, kerr.New("LCJRIHJXFU", nil, "Type %s should be J_MAP", in.Type())
@@ -446,7 +429,7 @@ func (us *unpackStruct) getTypeFromField(in Packed, iface reflect.Value, path st
 	if t.Type() != J_STRING {
 		return nil, kerr.New("RPBSKPRLJQ", nil, "Type field %s is not string", t.Type())
 	}
-	typePath, typeName, err := GetReferencePartsFromTypeString(t.String(), path, aliases)
+	typePath, typeName, err := GetReferencePartsFromTypeString(ctx, t.String())
 	if err != nil {
 		if unk, ok := err.(UnknownPackageError); ok {
 			// We don't want to throw an error here, because when we're scanning for

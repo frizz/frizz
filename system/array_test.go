@@ -3,44 +3,45 @@ package system
 import (
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
 )
 
 func TestArrayRule_Enforce(t *testing.T) {
 	r := ArrayRule{MaxItems: NewInt(2)}
-	ok, message, err := r.Enforce([]int{1, 2}, "", map[string]string{})
+	ok, message, err := r.Enforce(envctx.Empty, []int{1, 2})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce([]int{1, 2, 3}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2, 3})
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", message)
 	assert.False(t, ok)
 
 	r = ArrayRule{MinItems: NewInt(2)}
-	ok, message, err = r.Enforce([]int{1, 2}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce([]int{1}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, []int{1})
 	assert.NoError(t, err)
 	assert.Equal(t, "MinItems: length 1 should not be less than 2", message)
 	assert.False(t, ok)
 
 	r = ArrayRule{UniqueItems: true}
-	ok, message, err = r.Enforce([]int{1, 2, 3, 4}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2, 3, 4})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce([]int{1, 2, 3, 3}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2, 3, 3})
 	assert.NoError(t, err)
 	assert.Equal(t, "UniqueItems: array contains duplicate item 3", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce([]string{"foo", "bar", "foo"}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, []string{"foo", "bar", "foo"})
 	assert.NoError(t, err)
 	assert.Equal(t, "UniqueItems: array contains duplicate item foo", message)
 	assert.False(t, ok)

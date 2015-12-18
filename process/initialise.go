@@ -8,62 +8,76 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/net/context"
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/kerr"
 	"kego.io/process/scan"
-	"kego.io/process/settings"
 	"kego.io/system"
 )
 
-func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (*settings.Settings, error) {
-	set := settings.New()
-	set.Edit = edit
-	set.Update = update
-	set.Recursive = recursive
-	set.Verbose = verbose
+func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (context.Context, error) {
+
+	c := &cmdctx.Cmd{}
+	e := &envctx.Env{}
+
+	c.Edit = edit
+	c.Update = update
+	c.Recursive = recursive
+	c.Verbose = verbose
 	if path == "" {
 
 		dir, err := os.Getwd()
 		if err != nil {
 			return nil, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
 		}
-		set.Dir = dir
+		c.Dir = dir
 
-		pathFromDir, err := getPackagePath(set.Dir, os.Getenv("GOPATH"))
+		pathFromDir, err := getPackagePath(c.Dir, os.Getenv("GOPATH"))
 		if err != nil {
 			return nil, kerr.New("PSRAWHQCPV", err, "getPackage")
 		}
-		set.Path = pathFromDir
+		e.Path = pathFromDir
 
 	} else {
 
-		set.Path = path
+		e.Path = path
 
-		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", set.Path).CombinedOutput()
+		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", e.Path).CombinedOutput()
 		if err == nil {
-			set.Dir = strings.TrimSpace(string(out))
+			c.Dir = strings.TrimSpace(string(out))
 		} else {
-			dir, err := getPackageDir(set.Path, os.Getenv("GOPATH"))
+			dir, err := getPackageDir(e.Path, os.Getenv("GOPATH"))
 			if err != nil {
-				return nil, kerr.New("GXTUPMHETV", err, "Can't find %s", set.Path)
+				return nil, kerr.New("GXTUPMHETV", err, "Can't find %s", e.Path)
 			}
-			set.Dir = dir
+			c.Dir = dir
 		}
 
 	}
 
-	if err := scan.ScanForPackage(set); err != nil {
+	// ScanForPackage is finding our Aliases, so it's ok to give it an
+	// incomplete env context with just the path
+	dummyCtx := context.Background()
+	dummyCtx = envctx.NewContext(dummyCtx, e)
+	dummyCtx = cmdctx.NewContext(dummyCtx, c)
+	if err := scan.ScanForPackage(dummyCtx); err != nil {
 		return nil, kerr.New("IAAETYCHSW", err, "scan.ScanForPackage")
 	}
-	p, ok := system.GetPackage(set.Path)
+	p, ok := system.GetPackage(e.Path)
 	if !ok {
 		return nil, kerr.New("BHLJNCIWUJ", nil, "Package not found")
 	}
-	set.Aliases = p.Aliases
+	e.Aliases = p.Aliases
 
-	return set, nil
+	ctx := context.Background()
+	ctx = envctx.NewContext(ctx, e)
+	ctx = cmdctx.NewContext(ctx, c)
+
+	return ctx, nil
 }
 
-func InitialiseCommand(update bool, recursive bool, path string) (*settings.Settings, error) {
+func InitialiseCommand(update bool, recursive bool, path string) (context.Context, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
@@ -72,15 +86,15 @@ func InitialiseCommand(update bool, recursive bool, path string) (*settings.Sett
 		flag.Parse()
 	}
 
-	set, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path)
+	ctx, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path)
 	if err != nil {
 		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
-	return set, nil
+	return ctx, nil
 }
 
-func InitialiseAutomatic() (*settings.Settings, error) {
+func InitialiseAutomatic() (context.Context, error) {
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
@@ -93,12 +107,12 @@ func InitialiseAutomatic() (*settings.Settings, error) {
 
 	var firstArg = flag.Arg(0)
 
-	set, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg)
+	ctx, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg)
 	if err != nil {
 		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
 
-	return set, nil
+	return ctx, nil
 
 }
 

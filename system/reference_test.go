@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {
@@ -30,7 +32,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{"c.d/e": "e"})
+	err := unpacker(tests.EnvCtx("kego.io/system", map[string]string{"c.d/e": "e"}), []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -93,15 +95,15 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	}
 
 	r := reset()
-	err := r.Unpack(json.Pack(nil), "", map[string]string{})
+	err := r.Unpack(envctx.Empty, json.Pack(nil))
 	assert.IsError(t, err, "MOQVSKJXRB")
 
 	r = reset()
-	err = r.Unpack(json.Pack("a.b/c:d"), "", map[string]string{})
+	err = r.Unpack(envctx.Empty, json.Pack("a.b/c:d"))
 	assert.EqualError(t, err, "Unknown package a.b/c")
 
 	r = reset()
-	err = r.Unpack(json.Pack("a.b/c:d"), "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack(tests.AllCtx(tests.Ctx{Aliases: map[string]string{"a.b/c": "c"}}), json.Pack("a.b/c:d"))
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -109,7 +111,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(json.Pack("a.b/c:@d"), "", map[string]string{"a.b/c": "c"})
+	err = r.Unpack(tests.AllCtx(tests.Ctx{Aliases: map[string]string{"a.b/c": "c"}}), json.Pack("a.b/c:@d"))
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -117,19 +119,19 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
-	err = r.Unpack(json.Pack("a:b"), "", map[string]string{})
+	err = r.Unpack(envctx.Empty, json.Pack("a:b"))
 	assert.EqualError(t, err, "Unknown package a")
 }
 
 func TestReferenceMarshalJson(t *testing.T) {
 
 	var r *Reference
-	b, err := r.MarshalJSON()
+	b, err := r.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(b))
 
 	r = NewReference("a.b/c", "d")
-	b, err = r.MarshalJSON()
+	b, err = r.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "\"a.b/c:d\"", string(b))
 

@@ -7,6 +7,7 @@ import (
 
 	"kego.io/editor/shared/messages"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestTimeout(t *testing.T) {
@@ -35,7 +36,7 @@ func TestNoTimeout(t *testing.T) {
 
 func testTimeout(t *testing.T) (chan messages.MessageInterface, chan error) {
 	fail := make(chan error)
-	c := New(nil, fail, false, "kego.io/editor/shared/messages", map[string]string{})
+	c := New(tests.PathCtx("kego.io/editor/shared/messages"), nil, fail, false)
 
 	outcome := make(chan error, 1)
 

@@ -2,6 +2,7 @@ package editor // import "kego.io/editor"
 
 import (
 	"github.com/tjgq/broadcast"
+	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 )
 
@@ -25,7 +26,7 @@ type BranchInterface interface {
 
 type EditorInterface interface {
 	dom.Node
-	Initialize(branch BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error
+	Initialize(ctx context.Context, branch BranchInterface, layout Layout, fail chan error) error
 	Show()
 	Hide()
 	Layout() Layout
@@ -41,12 +42,11 @@ type EditorInterface interface {
 type Editor struct {
 	*dom.HTMLDivElement
 	fail    chan error
-	Path    string
-	Aliases map[string]string
 	Editors []EditorInterface
 	layout  Layout
 	branch  BranchInterface
 	changes *broadcast.Broadcaster
+	ctx     context.Context
 }
 
 func (c *Editor) Send(v interface{}) {
@@ -57,7 +57,7 @@ func (c *Editor) Listen() *broadcast.Listener {
 	return c.changes.Listen()
 }
 
-func (c *Editor) Initialize(branch BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
+func (c *Editor) Initialize(ctx context.Context, branch BranchInterface, layout Layout, fail chan error) error {
 
 	c.HTMLDivElement = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	if layout == Page {
@@ -72,8 +72,7 @@ func (c *Editor) Initialize(branch BranchInterface, layout Layout, fail chan err
 
 	branch.ListenForEditorChanges(c.changes.Listen().Ch)
 
-	c.Path = path
-	c.Aliases = aliases
+	c.ctx = ctx
 	c.branch = branch
 	c.layout = layout
 	c.fail = fail

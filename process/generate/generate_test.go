@@ -6,13 +6,13 @@ import (
 	"regexp"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/settings"
+	"kego.io/process/tests"
 	"kego.io/system"
 )
 
 func TestGenerateCommand_errors(t *testing.T) {
 
-	_, err := Structs(&settings.Settings{Path: "a.b/\""})
+	_, err := Structs(tests.PathCtx("a.b/\""))
 	// Quote in the path will generate malformed source
 	assert.HasError(t, err, "CRBYOUOHPG")
 
@@ -25,11 +25,11 @@ func TestGenerateCommand_errors(t *testing.T) {
 	system.Register("b.c/d", "a", ty, 0)
 	defer system.Unregister("b.c/d", "a")
 
-	_, err = Structs(&settings.Settings{Path: "b.c/d"})
+	_, err = Structs(tests.PathCtx("b.c/d"))
 	// Corrupt type ID causes error from source formatter
 	assert.HasError(t, err, "CRBYOUOHPG")
 
-	_, err = Types(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"\"": "\""}})
+	_, err = Types(tests.EnvCtx("b.c/d", map[string]string{"\"": "\""}))
 	// Quote in the alias path will generate malformed source
 	assert.HasError(t, err, "CRBYOUOHPG")
 }
@@ -69,7 +69,7 @@ func TestGenerateSource(t *testing.T) {
 	system.Register("b.c/d", "ai", tyi, 0)
 	defer system.Unregister("b.c/d", "ai")
 
-	source, err := Structs(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
+	source, err := Structs(tests.EnvCtx("b.c/d", map[string]string{"f.g/h": "e"}))
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
@@ -80,15 +80,15 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, string(source), "\ntype A struct {\n\t*system.Object\n}\n")
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"a\", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem(), 0)\n")
 
-	source, err = Structs(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
+	source, err = Structs(tests.EnvCtx("b.c/d", map[string]string{"f.g/h": "e"}))
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"an\", reflect.TypeOf((*An)(nil)), reflect.TypeOf((*AnInterface)(nil)).Elem(), 0)\n")
 
-	source, err = Structs(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
+	source, err = Structs(tests.EnvCtx("b.c/d", map[string]string{"f.g/h": "e"}))
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "json.Register(\"b.c/d\", \"ai\", reflect.TypeOf((*Ai)(nil)).Elem(), nil, 0)\n")
 
-	source, err = Types(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
+	source, err = Types(tests.EnvCtx("b.c/d", map[string]string{"f.g/h": "e"}))
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package types")
 	imp = getImports(t, string(source))
@@ -99,7 +99,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.Contains(t, string(source), "system.Register(\"b.c/d\", \"a\", ptr4, 0x0)")
 
-	source, err = TypesCommand(&settings.Settings{Path: "b.c/d", Aliases: map[string]string{"f.g/h": "e"}})
+	source, err = TypesCommand(tests.EnvCtx("b.c/d", map[string]string{"f.g/h": "e"}))
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package main\n")
 	imp = getImports(t, string(source))
@@ -111,6 +111,6 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "_ \"kego.io/system\"\n")
 	assert.Contains(t, imp, "_ \"kego.io/system/types\"\n")
 	assert.Contains(t, imp, "\"os\"\n")
-	assert.Contains(t, string(source), "process.Generate(process.S_TYPES, set)")
+	assert.Contains(t, string(source), "process.Generate(ctx, process.S_TYPES)")
 
 }

@@ -8,25 +8,27 @@ import (
 	"bytes"
 	"errors"
 	"io"
+
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 )
 
 // A Decoder reads and decodes JSON objects from an input stream.
 type Decoder struct {
-	r       io.Reader
-	buf     []byte
-	d       decodeState
-	scan    scanner
-	err     error
-	path    string
-	aliases map[string]string
+	r    io.Reader
+	buf  []byte
+	d    decodeState
+	scan scanner
+	err  error
+	ctx  context.Context
 }
 
 // NewDecoder returns a new decoder that reads from r.
 //
 // The decoder introduces its own buffering and may
 // read data from r beyond the JSON values requested.
-func NewDecoder(r io.Reader, path string, aliases map[string]string) *Decoder {
-	return &Decoder{r: r, path: path, aliases: aliases}
+func NewDecoder(ctx context.Context, r io.Reader) *Decoder {
+	return &Decoder{r: r, ctx: ctx}
 }
 
 // UseNumber causes the Decoder to unmarshal a number into an interface{} as a
@@ -53,7 +55,7 @@ func (dec *Decoder) Decode(v *interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err := dec.d.unmarshalTyped(v, &ctx{dec.path, dec.aliases})
+	err := dec.d.unmarshalTyped(dec.ctx, v)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -62,7 +64,7 @@ func (dec *Decoder) Decode(v *interface{}) error {
 	return dec.d.getError(err)
 }
 
-func (dec *Decoder) DecodePlain(v interface{}) error {
+func (dec *Decoder) DecodeUntyped(v interface{}) error {
 	if dec.err != nil {
 		return dec.err
 	}
@@ -76,7 +78,7 @@ func (dec *Decoder) DecodePlain(v interface{}) error {
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
 	dec.d.init(dec.buf[0:n])
-	err = dec.d.unmarshal(v, &ctx{dec.path, dec.aliases})
+	err = dec.d.unmarshal(dec.ctx, v)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -173,16 +175,14 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
-func (enc *Encoder) encode(v interface{}, typed bool, context bool, path string, aliases map[string]string) error {
+func (enc *Encoder) encode(ctx context.Context, v interface{}, typed bool) error {
 
 	if enc.err != nil {
 		return enc.err
 	}
 	e := newEncodeState()
 	e.typed = typed
-	e.context = context
-	e.path = path
-	e.aliases = aliases
+	e.ctx = ctx
 	err := e.marshal(v)
 	if err != nil {
 		return err
@@ -210,13 +210,13 @@ func (enc *Encoder) encode(v interface{}, typed bool, context bool, path string,
 // See the documentation for Marshal for details about the
 // conversion of Go values to JSON.
 func (enc *Encoder) Encode(v interface{}) error {
-	return enc.encode(v, true, false, "", map[string]string{})
+	return enc.encode(envctx.Empty, v, true)
 }
 
 // EncodeContext encodes JSON in a more compact form, using
 // aliases for package paths
-func (enc *Encoder) EncodeContext(v interface{}, path string, aliases map[string]string) error {
-	return enc.encode(v, true, true, path, aliases)
+func (enc *Encoder) EncodeContext(ctx context.Context, v interface{}) error {
+	return enc.encode(ctx, v, true)
 }
 
 // Encode writes the JSON encoding of v to the stream,
@@ -225,7 +225,7 @@ func (enc *Encoder) EncodeContext(v interface{}, path string, aliases map[string
 // See the documentation for Marshal for details about the
 // conversion of Go values to JSON.
 func (enc *Encoder) EncodePlain(v interface{}) error {
-	return enc.encode(v, false, false, "", map[string]string{})
+	return enc.encode(envctx.Empty, v, false)
 }
 
 // RawMessage is a raw encoded JSON object.
@@ -234,14 +234,14 @@ func (enc *Encoder) EncodePlain(v interface{}) error {
 type RawMessage []byte
 
 // MarshalJSON returns *m as the JSON encoding of m.
-func (m *RawMessage) MarshalJSON() ([]byte, error) {
+func (m *RawMessage) MarshalJSON(ctx context.Context) ([]byte, error) {
 	return *m, nil
 }
 
 var _ Marshaler = (*RawMessage)(nil)
 
 // UnmarshalJSON sets *m to a copy of data.
-func (m *RawMessage) UnmarshalJSON(data []byte, path string, aliases map[string]string) error {
+func (m *RawMessage) UnmarshalJSON(ctx context.Context, data []byte) error {
 	if m == nil {
 		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
 	}

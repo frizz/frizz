@@ -5,10 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/net/context"
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
 	"kego.io/process/scan"
-	"kego.io/process/settings"
 )
 
 type sourceType string
@@ -31,14 +33,24 @@ const (
 // file == F_EDITOR: generated-editor.go in the "editor" sub-package. This
 // will be compiled to JS when the editor is launched.
 //
-func Generate(file sourceType, set *settings.Settings) error {
+func Generate(ctx context.Context, file sourceType) error {
 
-	if set.Verbose {
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("LQVDAAQKWK", nil, "No cmd in ctx")
+	}
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("IREJTPARUK", nil, "No env in ctx")
+	}
+
+	if cmd.Verbose {
 		fmt.Print("Generating ", file, "... ")
 	}
 
 	if file == S_STRUCTS {
-		hasFiles, err := scan.HasSourceFiles(set)
+		hasFiles, err := scan.HasSourceFiles(ctx)
 		if err != nil {
 			return kerr.New("GXGGDQVHHP", err, "ScanForKegoFiles")
 		}
@@ -56,7 +68,7 @@ func Generate(file sourceType, set *settings.Settings) error {
 
 		// When generating structs or types, we need to scan for types. All other runs will have
 		// them compiled in the types sub-package.
-		if err := scan.ScanForTypes(ignoreUnknownTypes, set); err != nil {
+		if err := scan.ScanForTypes(ctx, ignoreUnknownTypes); err != nil {
 			return kerr.New("XYIUHERDHE", err, "scan.ScanForTypes")
 		}
 	}
@@ -68,13 +80,13 @@ func Generate(file sourceType, set *settings.Settings) error {
 
 	switch file {
 	case S_STRUCTS:
-		outputDir = set.Dir
+		outputDir = cmd.Dir
 		filename = "generated-structs.go"
-		source, err = generate.Structs(set)
+		source, err = generate.Structs(ctx)
 	case S_TYPES:
-		outputDir = filepath.Join(set.Dir, "types")
+		outputDir = filepath.Join(cmd.Dir, "types")
 		filename = "generated-types.go"
-		source, err = generate.Types(set)
+		source, err = generate.Types(ctx)
 	}
 	if err != nil {
 		return kerr.New("XFNESBLBTQ", err, "generate: %s", file)
@@ -82,12 +94,12 @@ func Generate(file sourceType, set *settings.Settings) error {
 
 	// We only backup in the system structs and types files because they are the only
 	// generated files we ever need to roll back
-	backup := set.Path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
+	backup := env.Path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
 
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "save")
 	} else {
-		if set.Verbose {
+		if cmd.Verbose {
 			fmt.Println("OK.")
 		}
 	}

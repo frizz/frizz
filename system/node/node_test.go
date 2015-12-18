@@ -5,6 +5,7 @@ import (
 
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 	_ "kego.io/system"
 	"kego.io/system/node"
 	_ "kego.io/system/types"
@@ -24,6 +25,6 @@ func TestFoo(t *testing.T) {
 		}
 	}`
 	n := &node.Node{}
-	err := json.UnmarshalPlainContext([]byte(s), n, "kego.io/system", map[string]string{})
+	err := json.UnmarshalUntyped(tests.PathCtx("kego.io/system"), []byte(s), n)
 	assert.NoError(t, err)
 }

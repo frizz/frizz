@@ -9,6 +9,7 @@ import (
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 	. "kego.io/selectors"
 	_ "kego.io/selectors/tests"
 	_ "kego.io/selectors/tests/types"
@@ -22,10 +23,10 @@ var values []interface{}
 
 func getTestParser(testDocuments map[string]*node.Node, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
-	return CreateParser(jsonDocument, "kego.io/selectors/tests", map[string]string{})
+	return CreateParser(tests.PathCtx("kego.io/selectors/tests"), jsonDocument)
 }
 
-func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliases map[string]string) {
+func runTestsInDirectory(t *testing.T, baseDirectory string) {
 	var testDocuments = make(map[string]*node.Node)
 	var testSelectors = make(map[string]string)
 	var testOutput = make(map[string][]string)
@@ -44,7 +45,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 				continue
 			}
 			n := &node.Node{}
-			err = ke.UnmarshalNode(json_document, n, "kego.io/selectors/tests", map[string]string{})
+			err = ke.UnmarshalNode(tests.PathCtx("kego.io/selectors/tests"), json_document, n)
 			assert.NoError(t, err, name)
 
 			testDocuments[name[0:len(name)-len(".json")]] = n
@@ -147,7 +148,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 				var matched bool = false
 				for expectedIdx, expectedElement := range expected {
 					// TODO: Should we ignore the error here? I guess so...
-					matched, _ = comparison(actualElement, expectedElement, path, aliases)
+					matched, _ = comparison(actualElement, expectedElement)
 					if matched {
 						expected = append(
 							expected[:expectedIdx],
@@ -177,7 +178,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string, path string, aliase
 	}
 }
 
-func comparison(actual *node.Node, expected interface{}, path string, aliases map[string]string) (bool, error) {
+func comparison(actual *node.Node, expected interface{}) (bool, error) {
 	switch actual.JsonType {
 	case json.J_NULL:
 		// If we're expecting null, return true
@@ -222,7 +223,7 @@ func comparison(actual *node.Node, expected interface{}, path string, aliases ma
 		}
 
 		for i, child := range actual.Array {
-			match, err := comparison(child, expectedArray[i], path, aliases)
+			match, err := comparison(child, expectedArray[i])
 			if err != nil {
 				return false, kerr.New("CTHINNYIRI", err, "comparison (array)")
 			}
@@ -241,7 +242,7 @@ func comparison(actual *node.Node, expected interface{}, path string, aliases ma
 			if !ok {
 				return false, nil
 			}
-			match, err := comparison(child, expectedMap[key], path, aliases)
+			match, err := comparison(child, expectedMap[key])
 			if err != nil {
 				return false, kerr.New("QTVTEIETXV", err, "getNodes (map)")
 			}
@@ -276,7 +277,7 @@ func comparison(actual *node.Node, expected interface{}, path string, aliases ma
 			if !ok {
 				return false, nil
 			}
-			match, err := comparison(child, expectedMap[key], path, aliases)
+			match, err := comparison(child, expectedMap[key])
 			if err != nil {
 				return false, kerr.New("NNCBWVRAJC", err, "comparison (object)")
 			}
@@ -310,25 +311,25 @@ func comparison(actual *node.Node, expected interface{}, path string, aliases ma
 }
 
 func TestLevel1(t *testing.T) {
-	runTestsInDirectory(t, "./tests/level_1/", "kego.io/selectors/tests", map[string]string{})
+	runTestsInDirectory(t, "./tests/level_1/")
 }
 
 func TestLevel2(t *testing.T) {
-	runTestsInDirectory(t, "./tests/level_2/", "kego.io/selectors/tests", map[string]string{})
+	runTestsInDirectory(t, "./tests/level_2/")
 }
 
 func TestLevel3(t *testing.T) {
-	runTestsInDirectory(t, "./tests/level_3/", "kego.io/selectors/tests", map[string]string{})
+	runTestsInDirectory(t, "./tests/level_3/")
 }
 
 func TestKego(t *testing.T) {
-	runTestsInDirectory(t, "./tests/kego/", "kego.io/selectors/tests", map[string]string{})
+	runTestsInDirectory(t, "./tests/kego/")
 }
 
 func TestGallery(t *testing.T) {
-	runTestsInDirectory(t, "./tests/gallery/", "kego.io/selectors/tests", map[string]string{})
+	runTestsInDirectory(t, "./tests/gallery/")
 }
 
 func TestExtra(t *testing.T) {
-	runTestsInDirectory(t, "./tests/extra/", "kego.io/selectors/tests", map[string]string{})
+	runTestsInDirectory(t, "./tests/extra/")
 }

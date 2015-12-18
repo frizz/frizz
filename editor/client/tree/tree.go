@@ -1,6 +1,7 @@
 package tree // import "kego.io/editor/client/tree"
 
 import (
+	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor"
 	"kego.io/editor/shared/connection"
@@ -10,15 +11,14 @@ type Tree struct {
 	Root     *Root
 	Conn     *connection.Conn
 	Fail     chan error
-	Path     string
-	Aliases  map[string]string
 	Selected BranchInterface
 	Editor   editor.EditorInterface
 	Content  *dom.HTMLDivElement
+	ctx      context.Context
 }
 
-func New(content *dom.HTMLDivElement, conn *connection.Conn, fail chan error, path string, aliases map[string]string) *Tree {
-	return &Tree{Content: content, Conn: conn, Fail: fail, Path: path, Aliases: aliases}
+func New(ctx context.Context, content *dom.HTMLDivElement, conn *connection.Conn, fail chan error) *Tree {
+	return &Tree{Content: content, Conn: conn, Fail: fail, ctx: ctx}
 }
 
 func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {

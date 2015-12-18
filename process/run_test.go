@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"kego.io/kerr/assert"
-	"kego.io/process/settings"
 	"kego.io/process/tests"
 )
 
@@ -22,7 +21,7 @@ func TestRun(t *testing.T) {
 		"d.go":   `package d`,
 	})
 
-	err = Run(C_TYPES, &settings.Settings{Dir: dir, Path: path})
+	err = Run(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}), C_TYPES)
 	assert.NoError(t, err)
 
 	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))

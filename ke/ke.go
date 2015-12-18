@@ -4,12 +4,13 @@ import (
 	"io"
 	"os"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system/node"
 )
 
-func Open(filename string, path string, aliases map[string]string) (value interface{}, err error) {
+func Open(ctx context.Context, filename string) (value interface{}, err error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -18,19 +19,19 @@ func Open(filename string, path string, aliases map[string]string) (value interf
 	}
 	defer file.Close()
 
-	err = json.NewDecoder(file, path, aliases).Decode(&value)
+	err = json.NewDecoder(ctx, file).Decode(&value)
 	return
 }
 
-func Unmarshal(data []byte, v *interface{}, path string, aliases map[string]string) error {
-	return json.Unmarshal(data, v, path, aliases)
+func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
+	return json.Unmarshal(ctx, data, v)
 }
-func UnmarshalNode(data []byte, n *node.Node, path string, aliases map[string]string) error {
-	return json.UnmarshalPlainContext(data, n, path, aliases)
+func UnmarshalNode(ctx context.Context, data []byte, n *node.Node) error {
+	return json.UnmarshalUntyped(ctx, data, n)
 }
 
-func NewDecoder(r io.Reader, path string, aliases map[string]string) *json.Decoder {
-	return json.NewDecoder(r, path, aliases)
+func NewDecoder(ctx context.Context, r io.Reader) *json.Decoder {
+	return json.NewDecoder(ctx, r)
 }
 
 func NewEncoder(w io.Writer) *json.Encoder {
@@ -40,6 +41,6 @@ func NewEncoder(w io.Writer) *json.Encoder {
 func Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
-func MarshalContext(v interface{}, path string, aliases map[string]string) ([]byte, error) {
-	return json.MarshalContext(v, path, aliases)
+func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
+	return json.MarshalContext(ctx, v)
 }

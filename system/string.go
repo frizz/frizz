@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strconv"
 
+	"golang.org/x/net/context"
+
 	"kego.io/json"
 	"kego.io/kerr"
 )
@@ -24,7 +26,7 @@ func (s *String) Set(in string) {
 	*s = String(in)
 }
 
-func (r *StringRule) Validate(path string, aliases map[string]string) (ok bool, message string, err error) {
+func (r *StringRule) Validate(ctx context.Context) (ok bool, message string, err error) {
 	if r.MaxLength != nil && r.MinLength != nil {
 		if r.MaxLength.Value() < r.MinLength.Value() {
 			return false, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value(), r.MinLength.Value()), nil
@@ -40,7 +42,7 @@ func (r *StringRule) Validate(path string, aliases map[string]string) (ok bool, 
 
 var _ Validator = (*StringRule)(nil)
 
-func (r *StringRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *StringRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 
 	s, ok := data.(*String)
 	if !ok && data != nil {
@@ -127,7 +129,7 @@ func (r *StringRule) Enforce(data interface{}, path string, aliases map[string]s
 
 var _ Enforcer = (*StringRule)(nil)
 
-func (out *String) Unpack(in json.Packed) error {
+func (out *String) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("PWTAHLCCWR", nil, "Called String.Unpack with nil value")
 	}
@@ -141,7 +143,7 @@ func (out *String) Unpack(in json.Packed) error {
 
 var _ json.Unpacker = (*String)(nil)
 
-func (s *String) MarshalJSON() ([]byte, error) {
+func (s *String) MarshalJSON(ctx context.Context) ([]byte, error) {
 	if s == nil {
 		return []byte("null"), nil
 	}

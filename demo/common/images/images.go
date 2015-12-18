@@ -4,6 +4,8 @@ package images
 import (
 	"fmt"
 
+	"golang.org/x/net/context"
+
 	"strings"
 
 	"kego.io/kerr"
@@ -21,7 +23,7 @@ func (t *Photo) GetUrl() string {
 	return fmt.Sprintf("%s://%s%s", t.Protocol.Value(), t.Server.Value(), t.Path.Value())
 }
 
-func (r *ImageRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *ImageRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 	i, ok := data.(Image)
 	if !ok {
 		return false, "", kerr.New("OSKCXRKIKC", nil, "ImageRule.Enforce", "data %T does not implement Image", data)

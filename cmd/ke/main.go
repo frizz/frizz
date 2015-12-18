@@ -5,18 +5,26 @@ import (
 	"fmt"
 	"os"
 
+	"kego.io/context/cmdctx"
 	"kego.io/process"
 	_ "kego.io/system"
 )
 
 func main() {
-	set, err := process.InitialiseAutomatic()
+	ctx, err := process.InitialiseAutomatic()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if err := process.KeCommand(set); err != nil {
-		if !set.Verbose {
+
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		fmt.Println("No cmd in ctx")
+		os.Exit(1)
+	}
+
+	if err := process.KeCommand(ctx); err != nil {
+		if !cmd.Verbose {
 			// in verbose mode, we have already written the output of the exec'ed ke command,
 			// so we don't need to duplicate the error message.
 			fmt.Println(process.FormatError(err))

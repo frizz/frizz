@@ -6,6 +6,8 @@ import (
 
 	"strconv"
 
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr"
 )
@@ -22,11 +24,17 @@ func (r Reference) Value() string {
 	return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
-func (r Reference) ValueContext(path string, aliases map[string]string) (string, error) {
+func (r Reference) ValueContext(ctx context.Context) (string, error) {
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok || env.Path == "" {
+		return r.Value(), nil
+	}
+
 	if r.Package == "" && r.Name == "" {
 		return "", nil
 	}
-	if r.Package == path {
+	if r.Package == env.Path {
 		return r.Name, nil
 	}
 	if r.Package == "kego.io/json" {
@@ -35,12 +43,10 @@ func (r Reference) ValueContext(path string, aliases map[string]string) (string,
 	if r.Package == "kego.io/system" {
 		return fmt.Sprintf("system:%s", r.Name), nil
 	}
-	if alias, ok := aliases[r.Package]; ok {
+	if alias, ok := env.Aliases[r.Package]; ok {
 		return fmt.Sprintf("%s:%s", alias, r.Name), nil
 	}
 	return "", kerr.New("WGCDQQCFAD", nil, "Package %s not found in aliases", r.Package)
-	// Should we return an error here?
-	//return fmt.Sprintf("%s:%s", r.Package, r.Name)
 }
 
 func NewReference(packagePath string, typeName string) *Reference {
@@ -50,23 +56,23 @@ func NewReference(packagePath string, typeName string) *Reference {
 	return r
 }
 
-func NewReferenceFromString(in string, path string, aliases map[string]string) (*Reference, error) {
+func NewReferenceFromString(ctx context.Context, in string) (*Reference, error) {
 	r := &Reference{}
-	err := r.Unpack(json.Pack(in), path, aliases)
+	err := r.Unpack(ctx, json.Pack(in))
 	if err != nil {
 		return nil, kerr.New("VXRGOQHWNB", err, "Unpack")
 	}
 	return r, nil
 }
 
-func (out *Reference) Unpack(in json.Packed, path string, aliases map[string]string) error {
+func (out *Reference) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("MOQVSKJXRB", nil, "Called Reference.Unpack with nil value")
 	}
 	if in.Type() != json.J_STRING {
 		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into *system.Reference", in.Type())
 	}
-	path, name, err := json.GetReferencePartsFromTypeString(in.String(), path, aliases)
+	path, name, err := json.GetReferencePartsFromTypeString(ctx, in.String())
 	if err != nil {
 		// We need to clear the reference, because when we're scanning for
 		// aliases we need to tolerate unknown import errors here
@@ -84,15 +90,15 @@ func (out *Reference) Unpack(in json.Packed, path string, aliases map[string]str
 	return nil
 }
 
-var _ json.ContextUnpacker = (*Reference)(nil)
+var _ json.Unpacker = (*Reference)(nil)
 
-func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases map[string]string) error {
+func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) error {
 	s, ok := in.(string)
 	if !ok || s == "" {
 		out.Name = ""
 		out.Package = ""
 	} else {
-		path, name, err := json.GetReferencePartsFromTypeString(s, path, aliases)
+		path, name, err := json.GetReferencePartsFromTypeString(ctx, s)
 		if err != nil {
 			// We need to clear the reference, because when we're scanning for
 			// aliases we need to tolerate unknown import errors here
@@ -106,27 +112,18 @@ func (out *Reference) UnmarshalInterface(in interface{}, path string, aliases ma
 	return nil
 }
 
-func (r *Reference) MarshalJSON() ([]byte, error) {
-	if r == nil {
-		return []byte("null"), nil
-	}
-	return []byte(strconv.Quote(r.Value())), nil
-}
-
 var _ json.Marshaler = (*Reference)(nil)
 
-func (r *Reference) MarshalContextJSON(path string, aliases map[string]string) ([]byte, error) {
+func (r *Reference) MarshalJSON(ctx context.Context) ([]byte, error) {
 	if r == nil {
 		return []byte("null"), nil
 	}
-	val, err := r.ValueContext(path, aliases)
+	val, err := r.ValueContext(ctx)
 	if err != nil {
 		return nil, kerr.New("VQCYFSTPQD", err, "ValueContext")
 	}
 	return []byte(strconv.Quote(val)), nil
 }
-
-var _ json.ContextMarshaler = (*Reference)(nil)
 
 func (r Reference) String() string {
 	return r.Value()

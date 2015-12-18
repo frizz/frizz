@@ -6,7 +6,46 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/net/context"
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 )
+
+type Ctx struct {
+	Path      string
+	Aliases   map[string]string
+	Dir       string
+	Edit      bool
+	Update    bool
+	Recursive bool
+	Verbose   bool
+}
+
+func PathCtx(path string) context.Context {
+	return AllCtx(Ctx{Path: path})
+}
+func EnvCtx(path string, aliases map[string]string) context.Context {
+	return AllCtx(Ctx{Path: path, Aliases: aliases})
+}
+func AllCtx(c Ctx) context.Context {
+	if c.Aliases == nil {
+		c.Aliases = map[string]string{}
+	}
+	ctx := context.Background()
+	ctx = envctx.NewContext(ctx, &envctx.Env{
+		Path:    c.Path,
+		Aliases: c.Aliases,
+	})
+	ctx = cmdctx.NewContext(ctx, &cmdctx.Cmd{
+		Dir:       c.Dir,
+		Edit:      c.Edit,
+		Update:    c.Update,
+		Recursive: c.Recursive,
+		Verbose:   c.Verbose,
+	})
+	return ctx
+}
 
 // CreateTemporaryPackage creates a package directory and writes the files provided. We
 // return the package path (e.g. github.com/x/y) and the full dir of the created directory

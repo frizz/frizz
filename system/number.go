@@ -3,6 +3,8 @@ package system
 import (
 	"strconv"
 
+	"golang.org/x/net/context"
+
 	"fmt"
 
 	"math"
@@ -26,7 +28,7 @@ func (n *Number) Set(in float64) {
 	*n = Number(in)
 }
 
-func (r *NumberRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 
 	n, ok := data.(*Number)
 	if !ok && data != nil {
@@ -94,7 +96,7 @@ func (r *NumberRule) Enforce(data interface{}, path string, aliases map[string]s
 
 var _ Enforcer = (*NumberRule)(nil)
 
-func (out *Number) Unpack(in json.Packed) error {
+func (out *Number) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("WHREWCCODC", nil, "Called Number.Unpack with nil value")
 	}
@@ -107,7 +109,7 @@ func (out *Number) Unpack(in json.Packed) error {
 
 var _ json.Unpacker = (*Number)(nil)
 
-func (n *Number) MarshalJSON() ([]byte, error) {
+func (n *Number) MarshalJSON(ctx context.Context) ([]byte, error) {
 	if n == nil {
 		return []byte("null"), nil
 	}

@@ -5,6 +5,7 @@ import (
 
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
 )
@@ -27,7 +28,7 @@ func (t *Type) Implements(i reflect.Type) bool {
 
 // Validator is a type that needs to have it's data validated.
 type Validator interface {
-	Validate(path string, aliases map[string]string) (bool, string, error)
+	Validate(ctx context.Context) (bool, string, error)
 }
 
 type nativeTypeClasses string

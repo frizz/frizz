@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"reflect"
 
+	"golang.org/x/net/context"
+
 	"kego.io/kerr"
 )
 
-func (r *MapRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *MapRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 
 	if r.MaxItems == nil && r.MinItems == nil {
 		// We should return early here in order to prevent needless reflection

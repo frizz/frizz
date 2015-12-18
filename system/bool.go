@@ -1,6 +1,7 @@
 package system
 
 import (
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
 )
@@ -20,7 +21,7 @@ func (b *Bool) Set(in bool) {
 	*b = Bool(in)
 }
 
-func (out *Bool) Unpack(in json.Packed) error {
+func (out *Bool) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("FXCQGNYKIJ", nil, "Called Bool.Unpack with nil value")
 	}
@@ -33,7 +34,7 @@ func (out *Bool) Unpack(in json.Packed) error {
 
 var _ json.Unpacker = (*Bool)(nil)
 
-func (b *Bool) MarshalJSON() ([]byte, error) {
+func (b *Bool) MarshalJSON(ctx context.Context) ([]byte, error) {
 	if b == nil {
 		return []byte("null"), nil
 	}

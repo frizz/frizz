@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestMapMarshal(t *testing.T) {
@@ -32,7 +34,7 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -48,23 +50,23 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 func TestMapRule_Enforce(t *testing.T) {
 
 	r := MapRule{MaxItems: NewInt(2)}
-	ok, message, err := r.Enforce(map[string]int{"foo": 1, "bar": 2}, "", map[string]string{})
+	ok, message, err := r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(map[string]int{"foo": 1, "bar": 2, "baz": 3}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2, "baz": 3})
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", message)
 	assert.False(t, ok)
 
 	r = MapRule{MinItems: NewInt(2)}
-	ok, message, err = r.Enforce(map[string]int{"foo": 1, "bar": 2}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(map[string]int{"foo": 1}, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1})
 	assert.NoError(t, err)
 	assert.Equal(t, "MinItems: length 1 should not be less than 2", message)
 	assert.False(t, ok)

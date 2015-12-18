@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
@@ -31,18 +33,26 @@ func TestInitialise(t *testing.T) {
 	err = os.Chdir(dirA)
 	assert.NoError(t, err)
 
-	set, err := InitialiseAutomatic()
+	ctx, err := InitialiseAutomatic()
 	assert.NoError(t, err)
-	assert.Equal(t, dirA, set.Dir)
-	assert.Equal(t, pathA, set.Path)
+	env, ok := envctx.FromContext(ctx)
+	assert.True(t, ok)
+	cmd, ok := cmdctx.FromContext(ctx)
+	assert.True(t, ok)
+	assert.Equal(t, dirA, cmd.Dir)
+	assert.Equal(t, pathA, env.Path)
 
 	err = os.Chdir("/")
 	assert.NoError(t, err)
 
-	set, err = InitialiseManually(false, false, false, false, pathB)
+	ctx, err = InitialiseManually(false, false, false, false, pathB)
+	env, ok = envctx.FromContext(ctx)
+	assert.True(t, ok)
+	cmd, ok = cmdctx.FromContext(ctx)
+	assert.True(t, ok)
 	assert.NoError(t, err)
-	assert.Equal(t, dirB, set.Dir)
-	assert.Equal(t, pathB, set.Path)
+	assert.Equal(t, dirB, cmd.Dir)
+	assert.Equal(t, pathB, env.Path)
 
 	_, err = InitialiseManually(false, false, false, false, "")
 	assert.IsError(t, err, "PSRAWHQCPV")

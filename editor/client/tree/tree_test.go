@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 
+	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
 )
 
@@ -32,7 +33,7 @@ func (b *Branch) getLevel() int {
 
 func TestTree(t *testing.T) {
 
-	tr := &Tree{Path: "", Aliases: map[string]string{}}
+	tr := &Tree{ctx: envctx.Empty}
 	r := newRoot(tr, nil, nil)
 	tr.Root = r
 
@@ -57,7 +58,7 @@ func TestTree(t *testing.T) {
 }
 
 func TestTree2(t *testing.T) {
-	tr := &Tree{Path: "", Aliases: map[string]string{}}
+	tr := &Tree{ctx: envctx.Empty}
 	r := newRoot(tr, nil, nil)
 	tr.Root = r
 

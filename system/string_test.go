@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
 
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
@@ -30,7 +32,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -66,7 +68,7 @@ func testMarshal(t *testing.T, unpacker unpackerFunc) {
 	defer json.Unregister("kego.io/system", "a")
 
 	var i interface{}
-	err := unpacker([]byte(data), &i, "kego.io/system", map[string]string{})
+	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -126,11 +128,11 @@ func TestMarshal2(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(a, "kego.io/system", map[string]string{})
+	b, err = json.MarshalContext(tests.PathCtx("kego.io/system"), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(a, "d.e/f", map[string]string{})
+	b, err = json.MarshalContext(tests.PathCtx("d.e/f"), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
 
@@ -158,16 +160,16 @@ func TestMarshal3(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(a, "c.d/e", map[string]string{})
+	b, err = json.MarshalContext(tests.PathCtx("c.d/e"), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(a, "f.g/h", map[string]string{})
+	b, err = json.MarshalContext(tests.PathCtx("f.g/h"), a)
 	// The json package doesn't use kerr throughout, so we can't use HasError
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
-	b, err = json.MarshalContext(a, "f.g/h", map[string]string{"c.d/e": "i"})
+	b, err = json.MarshalContext(tests.EnvCtx("f.g/h", map[string]string{"c.d/e": "i"}), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 
@@ -183,17 +185,17 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	var s *String
 
-	err := s.Unpack(json.Pack(nil))
+	err := s.Unpack(envctx.Empty, json.Pack(nil))
 	assert.IsError(t, err, "PWTAHLCCWR")
 
 	s = NewString("")
 
-	err = s.Unpack(json.Pack(`foo "bar"`))
+	err = s.Unpack(envctx.Empty, json.Pack(`foo "bar"`))
 	assert.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
-	err = s.Unpack(json.Pack(1.0))
+	err = s.Unpack(envctx.Empty, json.Pack(1.0))
 	assert.IsError(t, err, "IXASCXOPMG")
 
 }
@@ -202,12 +204,12 @@ func TestStringMarshalJSON(t *testing.T) {
 
 	var s *String
 
-	ba, err := s.MarshalJSON()
+	ba, err := s.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
 	s = NewString(`foo "bar"`)
-	ba, err = s.MarshalJSON()
+	ba, err = s.MarshalJSON(envctx.Empty)
 	assert.NoError(t, err)
 	assert.Equal(t, `"foo \"bar\""`, string(ba))
 
@@ -227,37 +229,37 @@ func TestStringString(t *testing.T) {
 
 func TestStringRule_Validate(t *testing.T) {
 	r := &StringRule{}
-	ok, message, err := r.Validate("", map[string]string{})
+	ok, message, err := r.Validate(envctx.Empty)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
 	r = &StringRule{Pattern: NewString("[")}
-	ok, message, err = r.Validate("", map[string]string{})
+	ok, message, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
 	assert.False(t, ok)
 	assert.Equal(t, "Pattern: regex does not compile: [", message)
 
 	r = &StringRule{MaxLength: NewInt(10)}
-	ok, message, err = r.Validate("", map[string]string{})
+	ok, message, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
 	r = &StringRule{MaxLength: NewInt(10), MinLength: NewInt(5)}
-	ok, message, err = r.Validate("", map[string]string{})
+	ok, message, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
 	r = &StringRule{MaxLength: NewInt(5), MinLength: NewInt(5)}
-	ok, message, err = r.Validate("", map[string]string{})
+	ok, message, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 	assert.Equal(t, "", message)
 
 	r = &StringRule{MaxLength: NewInt(4), MinLength: NewInt(5)}
-	ok, message, err = r.Validate("", map[string]string{})
+	ok, message, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
 	assert.False(t, ok)
 	assert.Equal(t, "MaxLength 4 must not be less than MinLength 5", message)
@@ -265,69 +267,69 @@ func TestStringRule_Validate(t *testing.T) {
 
 func TestStringRule_Enforce(t *testing.T) {
 	r := StringRule{Rule: &Rule{Optional: false}, Equal: NewString("a"), MaxLength: NewInt(1)}
-	ok, message, err := r.Enforce(NewString("a"), "", map[string]string{})
+	ok, message, err := r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(nil, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "Equal: value must exist", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewString("b"), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString("b"))
 	assert.NoError(t, err)
 	assert.Equal(t, "Equal: value must equal 'a'", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce("a", "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, "a")
 	assert.IsError(t, err, "SXFBXGQSEA")
 
 	r = StringRule{Rule: &Rule{Optional: false}, MaxLength: NewInt(1)}
-	ok, message, err = r.Enforce(NewString("ab"), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString("ab"))
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxLength: length must not be greater than 1", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(nil, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxLength: value must exist", message)
 	assert.False(t, ok)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Enum: []string{"a", "b"}}
-	ok, message, err = r.Enforce(nil, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "Enum: value must exist", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewString("a"), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)
 
-	ok, message, err = r.Enforce(NewString("c"), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString("c"))
 	assert.NoError(t, err)
 	assert.Equal(t, "Enum: value must be one of: [a b]", message)
 	assert.False(t, ok)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
-	ok, message, err = r.Enforce(NewString(""), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString(""))
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: regex does not compile: [", message)
 	assert.False(t, ok)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`^foo\d`)}
-	ok, message, err = r.Enforce(nil, "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: value must exist", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewString("a"), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
 	assert.Equal(t, "Pattern: value must match ^foo\\d", message)
 	assert.False(t, ok)
 
-	ok, message, err = r.Enforce(NewString("foo1"), "", map[string]string{})
+	ok, message, err = r.Enforce(envctx.Empty, NewString("foo1"))
 	assert.NoError(t, err)
 	assert.Equal(t, "", message)
 	assert.True(t, ok)

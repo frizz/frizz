@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/system"
@@ -17,12 +18,11 @@ type Parser struct {
 	node      *node.Node
 	flattened []*node.Node
 	root      *node.Node // for when we create a new document without cloning the nodes
-	path      string
-	aliases   map[string]string
+	ctx       context.Context
 }
 
-func CreateParser(node *node.Node, path string, aliases map[string]string) (*Parser, error) {
-	parser := Parser{node: node, root: node, path: path, aliases: aliases}
+func CreateParser(ctx context.Context, node *node.Node) (*Parser, error) {
+	parser := Parser{node: node, root: node, ctx: ctx}
 	parser.flattened = node.Flatten(true)
 
 	//fmt.Println("CreateParser")
@@ -270,7 +270,7 @@ func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error
 
 		tokenString := value.(string)
 		kegoType := tokenString[1 : len(tokenString)-1]
-		r, err := system.NewReferenceFromString(kegoType, p.path, p.aliases)
+		r, err := system.NewReferenceFromString(p.ctx, kegoType)
 		if err != nil {
 			return false, kerr.New("RWDOYBBDVK", err, "NewReferenceFromString")
 		}
@@ -511,7 +511,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 
 		return func(n *node.Node) (bool, error) {
 
-			newParser, err := CreateParser(n, p.path, p.aliases)
+			newParser, err := CreateParser(p.ctx, n)
 			if err != nil {
 				return false, kerr.New("LHELFFCUME", err, "CreateParser")
 			}

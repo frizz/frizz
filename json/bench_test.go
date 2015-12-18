@@ -16,6 +16,8 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"kego.io/context/envctx"
 )
 
 type codeResponse struct {
@@ -111,7 +113,7 @@ func BenchmarkCodeDecoder(b *testing.B) {
 		b.StartTimer()
 	}
 	var buf bytes.Buffer
-	dec := NewDecoder(&buf, "", map[string]string{})
+	dec := NewDecoder(envctx.Empty, &buf)
 	var r codeResponse
 	for i := 0; i < b.N; i++ {
 		buf.Write(codeJSON)
@@ -119,7 +121,7 @@ func BenchmarkCodeDecoder(b *testing.B) {
 		buf.WriteByte('\n')
 		buf.WriteByte('\n')
 		buf.WriteByte('\n')
-		if err := dec.DecodePlain(&r); err != nil {
+		if err := dec.DecodeUntyped(&r); err != nil {
 			b.Fatal("Decode:", err)
 		}
 	}

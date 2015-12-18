@@ -10,9 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/net/context"
+	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
-	"kego.io/process/settings"
 	"kego.io/process/validate"
 )
 
@@ -28,23 +30,33 @@ const (
 // for a command is generated. This command is then compiled and run with
 // "go run", or in the case of the ke command, we "go build" before
 // executing the binary.
-func Run(file commandType, set *settings.Settings) error {
+func Run(ctx context.Context, file commandType) error {
+
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("YMEOUKUGDW", nil, "No cmd in ctx")
+	}
+
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return kerr.New("JBCPVWPYEQ", nil, "No env in ctx")
+	}
 
 	var source []byte
 	var err error
 	switch file {
 	case C_STRUCTS:
-		source, err = generate.StructsCommand(set)
+		source, err = generate.StructsCommand(ctx)
 	case C_TYPES:
-		source, err = generate.TypesCommand(set)
+		source, err = generate.TypesCommand(ctx)
 	case C_KE:
-		source, err = generate.KeCommand(set)
+		source, err = generate.KeCommand(ctx)
 	}
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, "generate command: %s", file)
 	}
 
-	outputDir, err := ioutil.TempDir(set.Dir, "temporary")
+	outputDir, err := ioutil.TempDir(cmd.Dir, "temporary")
 	if err != nil {
 		return kerr.New("HWOPVXYMCT", err, "ioutil.TempDir")
 	}
@@ -52,30 +64,30 @@ func Run(file commandType, set *settings.Settings) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	keCommandPath := filepath.Join(set.Dir, "ke")
+	keCommandPath := filepath.Join(cmd.Dir, "ke")
 
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
 	if file == C_KE {
-		if set.Verbose {
+		if cmd.Verbose {
 			fmt.Print("Building ", file, " command... ")
 		}
 
-		combined, stdout, stderr := logger(set.Verbose)
-		cmd := exec.Command("go", "build", "-o", keCommandPath, outputPath)
-		cmd.Stdout = stdout
-		cmd.Stderr = stderr
+		combined, stdout, stderr := logger(cmd.Verbose)
+		exe := exec.Command("go", "build", "-o", keCommandPath, outputPath)
+		exe.Stdout = stdout
+		exe.Stderr = stderr
 
-		if err := cmd.Run(); err != nil {
+		if err := exe.Run(); err != nil {
 			return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
 		}
-		if set.Verbose {
+		if cmd.Verbose {
 			fmt.Println("OK.")
 		}
 
-		if set.Verbose {
+		if cmd.Verbose {
 			fmt.Print(combined.String())
 		}
 	}
@@ -83,43 +95,43 @@ func Run(file commandType, set *settings.Settings) error {
 	command := ""
 	params := []string{}
 
-	if set.Verbose {
+	if cmd.Verbose {
 		fmt.Println("Running", file, "command...")
 	}
 	if file == C_KE {
 		command = keCommandPath
-		if set.Verbose {
+		if cmd.Verbose {
 			params = append(params, "-v")
 		}
-		if set.Edit {
+		if cmd.Edit {
 			params = append(params, "-e")
 		}
 	} else {
 		command = "go"
 		params = []string{"run", outputPath}
 
-		if set.Update {
+		if cmd.Update {
 			params = append(params, "-u")
 		}
-		if set.Recursive {
+		if cmd.Recursive {
 			params = append(params, "-r")
 		}
-		if set.Verbose {
+		if cmd.Verbose {
 			params = append(params, "-v")
 		}
-		if set.Edit {
+		if cmd.Edit {
 			params = append(params, "-e")
 		}
 
-		params = append(params, set.Path)
+		params = append(params, env.Path)
 	}
 
-	combined, stdout, stderr := logger(set.Verbose)
+	combined, stdout, stderr := logger(cmd.Verbose)
 
-	cmd := exec.Command(command, params...)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-	if err := cmd.Run(); err != nil {
+	exe := exec.Command(command, params...)
+	exe.Stdout = stdout
+	exe.Stderr = stderr
+	if err := exe.Run(); err != nil {
 		if file == C_KE {
 			errorMessage := strings.TrimSpace(combined.String())
 			if strings.HasPrefix(errorMessage, "Error: ") {

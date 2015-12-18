@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/mdl"
 	"kego.io/kerr"
@@ -23,9 +24,9 @@ func (e *ObjectEditor) Layout() Layout {
 	return Page
 }
 
-func (e *ObjectEditor) Initialize(holder BranchInterface, layout Layout, fail chan error, path string, aliases map[string]string) error {
+func (e *ObjectEditor) Initialize(ctx context.Context, holder BranchInterface, layout Layout, fail chan error) error {
 
-	e.Editor.Initialize(holder, layout, fail, path, aliases)
+	e.Editor.Initialize(ctx, holder, layout, fail)
 
 	e.editors = dom.GetWindow().Document().CreateElement("div").(*dom.HTMLDivElement)
 	e.AppendChild(e.editors)
@@ -54,14 +55,14 @@ func (e *ObjectEditor) initializeBlockEditors() {
 
 func (e *ObjectEditor) initializeBlockEditor(ed EditorInterface) {
 	e.Editors = append(e.Editors, ed)
-	ed.Initialize(e.branch, Block, e.fail, e.Path, e.Aliases)
+	ed.Initialize(e.ctx, e.branch, Block, e.fail)
 	e.branch.ListenForEditorChanges(ed.Listen().Ch)
 	e.editors.AppendChild(ed)
 }
 
 func (e *ObjectEditor) initializeTable() error {
 
-	table, err := NewObjectSummary(e.Node, e.Path, e.Aliases)
+	table, err := NewObjectSummary(e.ctx, e.Node)
 	if err != nil {
 		return kerr.New("VYJPBBMEBS", err, "NewObjectSummary")
 	}
@@ -99,7 +100,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 	options := map[string]string{}
 
 	for _, h := range hashedTypes {
-		displayName, err := h.Object.GetObject().Id.ValueContext(e.Path, e.Aliases)
+		displayName, err := h.Object.GetObject().Id.ValueContext(e.ctx)
 		if err != nil {
 			// we shouldn't be able to get here
 			e.fail <- kerr.New("IPLHSXDWQK", err, "ValueContext")
@@ -113,7 +114,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 	go func() {
 		result := <-card.Result
 		if result {
-			r, err := system.NewReferenceFromString(dropdown.Value, e.Path, e.Aliases)
+			r, err := system.NewReferenceFromString(e.ctx, dropdown.Value)
 			if err != nil {
 				e.fail <- kerr.New("KHJGQXORPD", err, "NewReferenceFromString")
 			}
@@ -134,7 +135,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 
 func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Type) {
 
-	if err := node.InitialiseWithConcreteType(t, e.Path, e.Aliases); err != nil {
+	if err := node.InitialiseWithConcreteType(e.ctx, t); err != nil {
 		e.fail <- kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType")
 	}
 
@@ -172,8 +173,8 @@ type objectSummaryRow struct {
 	options *summaryCell
 }
 
-func NewObjectSummary(node *Node, path string, aliases map[string]string) (*objectSummary, error) {
-	s := &objectSummary{summary: &summary{TableStruct: mdl.Table(), path: path, aliases: aliases}}
+func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
+	s := &objectSummary{summary: &summary{TableStruct: mdl.Table(), ctx: ctx}}
 	s.Head("name", "origin", "holds", "value", "options")
 	for _, child := range node.Map {
 		r := s.newRow(child)
@@ -217,13 +218,13 @@ func (r *objectSummaryRow) update() error {
 	}
 	r.name.Text(node.Key)
 
-	origin, err := node.Origin.ValueContext(r.table.path, r.table.aliases)
+	origin, err := node.Origin.ValueContext(r.table.ctx)
 	if err != nil {
 		return kerr.New("ACQLJXWYQX", err, "ValueContext")
 	}
 	r.origin.Text(origin)
 
-	hold, err := node.Rule.HoldsDisplayType(r.table.path, r.table.aliases)
+	hold, err := node.Rule.HoldsDisplayType(r.table.ctx)
 	if err != nil {
 		return kerr.New("OYMARPFDGA", err, "ValueContext")
 	}
@@ -232,7 +233,7 @@ func (r *objectSummaryRow) update() error {
 	if node.Missing || node.Null {
 		r.value.Text("")
 	} else {
-		value, err := node.Type.Id.ValueContext(r.table.path, r.table.aliases)
+		value, err := node.Type.Id.ValueContext(r.table.ctx)
 		if err != nil {
 			return kerr.New("LDAMPELUCM", err, "ValueContext")
 		}

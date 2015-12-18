@@ -4,17 +4,23 @@ import (
 	"fmt"
 	"strconv"
 
+	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/generator"
 	"kego.io/kerr"
 	"kego.io/literal"
-	"kego.io/process/settings"
 	"kego.io/system"
 )
 
-func Types(set *settings.Settings) (source []byte, err error) {
+func Types(ctx context.Context) (source []byte, err error) {
 
-	types := system.GetAllGlobalsInPackage(set.Path, system.NewReference("kego.io/system", "type"))
-	typesPath := fmt.Sprintf("%s/types", set.Path)
+	env, ok := envctx.FromContext(ctx)
+	if !ok {
+		return nil, kerr.New("EAVXHBBQYL", nil, "No env in ctx")
+	}
+
+	types := system.GetAllGlobalsInPackage(env.Path, system.NewReference("kego.io/system", "type"))
+	typesPath := fmt.Sprintf("%s/types", env.Path)
 	g := generator.New(typesPath)
 
 	if len(types) == 0 {
@@ -27,7 +33,7 @@ func Types(set *settings.Settings) (source []byte, err error) {
 	if typesPath != "kego.io/system/types" {
 		g.Imports.Anonymous("kego.io/system/types")
 	}
-	for p, _ := range set.Aliases {
+	for p, _ := range env.Aliases {
 		g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 	}
 	g.Println("func init() {")

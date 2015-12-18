@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"golang.org/x/net/context"
+
 	"math"
 
 	"kego.io/json"
@@ -29,7 +31,7 @@ func (i *Int) Set(in int) {
 	*i = Int(in)
 }
 
-func (r *IntRule) Enforce(data interface{}, path string, aliases map[string]string) (bool, string, error) {
+func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 
 	i, ok := data.(*Int)
 	if !ok && data != nil {
@@ -78,7 +80,7 @@ func (r *IntRule) Enforce(data interface{}, path string, aliases map[string]stri
 
 var _ Enforcer = (*IntRule)(nil)
 
-func (out *Int) Unpack(in json.Packed) error {
+func (out *Int) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("JEJANRWFMH", nil, "Called Int.Unpack with nil value")
 	}
@@ -95,7 +97,7 @@ func (out *Int) Unpack(in json.Packed) error {
 
 var _ json.Unpacker = (*Int)(nil)
 
-func (n *Int) MarshalJSON() ([]byte, error) {
+func (n *Int) MarshalJSON(ctx context.Context) ([]byte, error) {
 	if n == nil {
 		return []byte("null"), nil
 	}

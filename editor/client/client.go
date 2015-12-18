@@ -8,7 +8,9 @@ import (
 	"fmt"
 
 	"github.com/gopherjs/websocket"
+	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
+	"kego.io/context/envctx"
 	"kego.io/editor"
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
@@ -20,11 +22,11 @@ import (
 )
 
 type appData struct {
-	path    string
-	aliases map[string]string
 	fail    chan error
 	conn    *connection.Conn
 	spinner *dom.HTMLDivElement
+	ctx     context.Context
+	env     *envctx.Env
 }
 
 var app appData
@@ -32,7 +34,7 @@ var window dom.Window
 var doc dom.HTMLDocument
 var body *dom.HTMLBodyElement
 
-func Start(path string) error {
+func Start() error {
 
 	window = dom.GetWindow()
 	doc = window.Document().(dom.HTMLDocument)
@@ -44,12 +46,15 @@ func Start(path string) error {
 		return kerr.New("MGLVIQIDDY", err, "getInfo")
 	}
 
-	app.path = path
-	app.aliases = info.Aliases
+	app.env = &envctx.Env{
+		Path:    info.Path,
+		Aliases: info.Aliases,
+	}
+	app.ctx = envctx.NewContext(context.Background(), app.env)
 	app.fail = make(chan error)
 
 	packageNode := &node.Node{}
-	if err := ke.UnmarshalNode([]byte(info.Package), packageNode, app.path, app.aliases); err != nil {
+	if err := ke.UnmarshalNode(app.ctx, []byte(info.Package), packageNode); err != nil {
 		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
 	}
 	editorNode := editor.NewNode(packageNode, nil)
@@ -63,7 +68,7 @@ func Start(path string) error {
 	// socket allows us to specify the message type - binary or string.
 	s := &socket{ws, connection.MESSAGE_TYPE}
 
-	app.conn = connection.New(s, app.fail, false, app.path, app.aliases)
+	app.conn = connection.New(app.ctx, s, app.fail, false)
 	go handle(app.conn.Receive)
 
 	app.spinner = body.GetElementsByClassName("mdl-spinner")[0].(*dom.HTMLDivElement)
@@ -72,7 +77,7 @@ func Start(path string) error {
 	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
 
 	// We create a new root tree element
-	t := tree.New(content, app.conn, app.fail, app.path, app.aliases)
+	t := tree.New(app.ctx, content, app.conn, app.fail)
 	root := tree.NewRoot(t, nav)
 
 	if err := root.AddPackage(editorNode, info.Data, info.Types); err != nil {
