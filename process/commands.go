@@ -96,7 +96,7 @@ func RunAllCommands(ctx context.Context) error {
 	if err := Run(ctx, C_TYPES); err != nil {
 		return err
 	}
-	if err := Run(ctx, C_KE); err != nil {
+	if err := Run(ctx, C_LOCAL_KE); err != nil {
 		return err
 	}
 	return nil

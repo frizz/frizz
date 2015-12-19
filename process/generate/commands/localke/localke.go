@@ -1,4 +1,4 @@
-package kecmd // import "kego.io/process/generate/commands/kecmd"
+package localke // import "kego.io/process/generate/commands/localke"
 import (
 	"fmt"
 	"os"
@@ -9,7 +9,8 @@ import (
 	"kego.io/process"
 )
 
-func Run(recursive bool, path string) {
+// Run executes the local "ke" command that is generated in the data directory.
+func Main(recursive bool, path string) {
 	update := false
 	ctx, err := process.InitialiseCommand(update, recursive, path)
 	if err != nil {

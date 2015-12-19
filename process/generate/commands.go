@@ -19,7 +19,8 @@ func StructsCommand(ctx context.Context) (source []byte, err error) {
 	}
 
 	g := generator.WithName(env.Path, "main")
-	g.Imports.Add("kego.io/process/generate/commands/structscmd")
+	g.Imports.Add("kego.io/process")
+	g.Imports.Add("kego.io/process/generate/commands/structstypes")
 	g.Imports.Anonymous("kego.io/system")
 	if env.Path != "kego.io/system" {
 		g.Imports.Anonymous("kego.io/system/types")
@@ -30,7 +31,7 @@ func StructsCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			structscmd.Run()
+			structstypes.Main(process.S_STRUCTS)
 		}`)
 
 	b, err := g.Build()
@@ -48,7 +49,8 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 	}
 
 	g := generator.WithName(env.Path, "main")
-	g.Imports.Add("kego.io/process/generate/commands/typescmd")
+	g.Imports.Add("kego.io/process")
+	g.Imports.Add("kego.io/process/generate/commands/structstypes")
 	g.Imports.Anonymous("kego.io/system")
 	if env.Path != "kego.io/system" {
 		g.Imports.Anonymous("kego.io/system/types")
@@ -60,7 +62,7 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			typescmd.Run()
+			structstypes.Main(process.S_TYPES)
 		}`)
 
 	b, err := g.Build()
@@ -70,7 +72,7 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 	return b, nil
 }
 
-func KeCommand(ctx context.Context) (source []byte, err error) {
+func LocalKeCommand(ctx context.Context) (source []byte, err error) {
 
 	env, ok := envctx.FromContext(ctx)
 	if !ok {
@@ -83,7 +85,7 @@ func KeCommand(ctx context.Context) (source []byte, err error) {
 	}
 
 	g := generator.WithName(env.Path, "main")
-	g.Imports.Add("kego.io/process/generate/commands/kecmd")
+	g.Imports.Add("kego.io/process/generate/commands/localke")
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous("kego.io/system/types")
 	g.Imports.Anonymous(env.Path)
@@ -94,7 +96,7 @@ func KeCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			kecmd.Run(
+			localke.Main(
 				` + fmt.Sprint(cmd.Recursive) + `,
 				` + strconv.Quote(env.Path) + `)
 		}`)

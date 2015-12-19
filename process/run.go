@@ -21,9 +21,9 @@ import (
 type commandType string
 
 const (
-	C_STRUCTS commandType = "structs"
-	C_TYPES               = "types"
-	C_KE                  = "ke"
+	C_STRUCTS  commandType = "structs"
+	C_TYPES                = "types"
+	C_LOCAL_KE             = "ke"
 )
 
 // This creates a temporary folder in the package, in which the go source
@@ -49,8 +49,8 @@ func Run(ctx context.Context, file commandType) error {
 		source, err = generate.StructsCommand(ctx)
 	case C_TYPES:
 		source, err = generate.TypesCommand(ctx)
-	case C_KE:
-		source, err = generate.KeCommand(ctx)
+	case C_LOCAL_KE:
+		source, err = generate.LocalKeCommand(ctx)
 	}
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, "generate command: %s", file)
@@ -70,7 +70,7 @@ func Run(ctx context.Context, file commandType) error {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
-	if file == C_KE {
+	if file == C_LOCAL_KE {
 		if cmd.Verbose {
 			fmt.Print("Building ", file, " command... ")
 		}
@@ -98,7 +98,7 @@ func Run(ctx context.Context, file commandType) error {
 	if cmd.Verbose {
 		fmt.Println("Running", file, "command...")
 	}
-	if file == C_KE {
+	if file == C_LOCAL_KE {
 		command = keCommandPath
 		if cmd.Verbose {
 			params = append(params, "-v")
@@ -132,7 +132,7 @@ func Run(ctx context.Context, file commandType) error {
 	exe.Stdout = stdout
 	exe.Stderr = stderr
 	if err := exe.Run(); err != nil {
-		if file == C_KE {
+		if file == C_LOCAL_KE {
 			errorMessage := strings.TrimSpace(combined.String())
 			if strings.HasPrefix(errorMessage, "Error: ") {
 				errorMessage = errorMessage[7:]

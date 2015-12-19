@@ -13,10 +13,10 @@ import (
 	"kego.io/process/scan"
 )
 
-type sourceType string
+type SourceType string
 
 const (
-	S_STRUCTS sourceType = "structs"
+	S_STRUCTS SourceType = "structs"
 	S_TYPES              = "types"
 )
 
@@ -33,7 +33,7 @@ const (
 // file == F_EDITOR: generated-editor.go in the "editor" sub-package. This
 // will be compiled to JS when the editor is launched.
 //
-func Generate(ctx context.Context, file sourceType) error {
+func Generate(ctx context.Context, file SourceType) error {
 
 	cmd, ok := cmdctx.FromContext(ctx)
 	if !ok {
