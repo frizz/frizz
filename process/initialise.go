@@ -16,17 +16,96 @@ import (
 	"kego.io/system"
 )
 
-func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string, debug bool) (context.Context, error) {
+type optionsSpec interface {
+	getOptions() FromDefaults
+}
+
+type FromFlags struct {
+	Edit      *bool
+	Update    *bool
+	Recursive *bool
+	Verbose   *bool
+	Path      *string
+	Debug     *bool
+}
+
+type FromDefaults struct {
+	Edit      bool
+	Update    bool
+	Recursive bool
+	Verbose   bool
+	Path      string
+	Debug     bool
+}
+
+func (f FromDefaults) getOptions() FromDefaults {
+	return f
+}
+
+func (f FromFlags) getOptions() FromDefaults {
+
+	var edit, update, recursive, verbose, debug *bool
+	var path *string
+	if f.Edit == nil {
+		edit = flag.Bool("e", false, "Edit: open the editor")
+	} else {
+		edit = f.Edit
+	}
+	if f.Update == nil {
+		update = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
+	} else {
+		update = f.Update
+	}
+	if f.Recursive == nil {
+		recursive = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
+	} else {
+		recursive = f.Recursive
+	}
+	if f.Verbose == nil {
+		verbose = flag.Bool("v", false, "Verbose")
+	} else {
+		verbose = f.Verbose
+	}
+	if f.Debug == nil {
+		debug = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
+	} else {
+		debug = f.Debug
+	}
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	if f.Path == nil {
+		p := flag.Arg(0)
+		path = &p
+	} else {
+		path = f.Path
+	}
+
+	return FromDefaults{
+		Edit:      *edit,
+		Update:    *update,
+		Recursive: *recursive,
+		Verbose:   *verbose,
+		Path:      *path,
+		Debug:     *debug,
+	}
+}
+
+func Initialise(overrides optionsSpec) (context.Context, error) {
+	if overrides == nil {
+		overrides = FromFlags{}
+	}
+	options := overrides.getOptions()
 
 	c := &cmdctx.Cmd{}
 	e := &envctx.Env{}
 
-	c.Edit = edit
-	c.Update = update
-	c.Recursive = recursive
-	c.Verbose = verbose
-	c.Debug = debug
-	if path == "" {
+	c.Edit = options.Edit
+	c.Update = options.Update
+	c.Recursive = options.Recursive
+	c.Verbose = options.Verbose
+	c.Debug = options.Debug
+	if options.Path == "" {
 
 		dir, err := os.Getwd()
 		if err != nil {
@@ -42,7 +121,7 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 
 	} else {
 
-		e.Path = path
+		e.Path = options.Path
 
 		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", e.Path).CombinedOutput()
 		if err == nil {
@@ -76,47 +155,6 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 	ctx = cmdctx.NewContext(ctx, c)
 
 	return ctx, nil
-}
-
-func InitialiseCommand(update bool, recursive bool, path string) (context.Context, error) {
-
-	var editFlag = flag.Bool("e", false, "Edit: open the editor")
-	var verboseFlag = flag.Bool("v", false, "Verbose")
-	var debugFlag = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
-
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
-	ctx, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path, *debugFlag)
-	if err != nil {
-		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
-	}
-
-	return ctx, nil
-}
-
-func InitialiseAutomatic() (context.Context, error) {
-
-	var editFlag = flag.Bool("e", false, "Edit: open the editor")
-	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
-	var recursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
-	var verboseFlag = flag.Bool("v", false, "Verbose")
-	var debugFlag = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
-
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
-	var firstArg = flag.Arg(0)
-
-	ctx, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg, *debugFlag)
-	if err != nil {
-		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
-	}
-
-	return ctx, nil
-
 }
 
 func getPackagePath(dir string, gopathEnv string) (string, error) {

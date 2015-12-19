@@ -12,7 +12,11 @@ import (
 // Run executes the local "ke" command that is generated in the data directory.
 func Main(recursive bool, path string) {
 	update := false
-	ctx, err := process.InitialiseCommand(update, recursive, path)
+	ctx, err := process.Initialise(&process.FromFlags{
+		Update:    &update,
+		Recursive: &recursive,
+		Path:      &path,
+	})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

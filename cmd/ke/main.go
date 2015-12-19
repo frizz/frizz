@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	ctx, err := process.InitialiseAutomatic()
+	ctx, err := process.Initialise(nil)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

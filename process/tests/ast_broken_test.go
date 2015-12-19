@@ -46,8 +46,10 @@ func SkipTestNonDestructiveGeneration(t *testing.T) {
 		}`,
 	})
 
-	verbose := false
-	set, err := process.InitialiseManually(false, false, false, verbose, path, true)
+	//edit bool, update bool, recursive bool, verbose bool, path string, debug bool
+	set, err := process.Initialise(&process.FromDefaults{
+		Path: path,
+	})
 	assert.NoError(t, err)
 
 	s, err := generate.Structs(set)

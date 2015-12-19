@@ -161,7 +161,11 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 }
 
 func initialise(path string, verbose bool, debug bool) (context.Context, *system.Package, error) {
-	ctx, err := process.InitialiseManually(true, false, false, verbose, path, debug)
+	ctx, err := process.Initialise(&process.FromDefaults{
+		Verbose: verbose,
+		Path:    path,
+		Debug:   debug,
+	})
 	if err != nil {
 		return nil, nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}

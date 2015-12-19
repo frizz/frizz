@@ -33,7 +33,7 @@ func TestInitialise(t *testing.T) {
 	err = os.Chdir(dirA)
 	assert.NoError(t, err)
 
-	ctx, err := InitialiseAutomatic()
+	ctx, err := Initialise(nil)
 	assert.NoError(t, err)
 	env, ok := envctx.FromContext(ctx)
 	assert.True(t, ok)
@@ -45,7 +45,9 @@ func TestInitialise(t *testing.T) {
 	err = os.Chdir("/")
 	assert.NoError(t, err)
 
-	ctx, err = InitialiseManually(false, false, false, false, pathB, true)
+	ctx, err = Initialise(&FromDefaults{
+		Path: pathB,
+	})
 	env, ok = envctx.FromContext(ctx)
 	assert.True(t, ok)
 	cmd, ok = cmdctx.FromContext(ctx)
@@ -54,7 +56,9 @@ func TestInitialise(t *testing.T) {
 	assert.Equal(t, dirB, cmd.Dir)
 	assert.Equal(t, pathB, env.Path)
 
-	_, err = InitialiseManually(false, false, false, false, "", true)
+	_, err = Initialise(&FromDefaults{
+		Path: "",
+	})
 	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }

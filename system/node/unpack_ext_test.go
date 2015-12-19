@@ -27,7 +27,9 @@ func TestUnpack(t *testing.T) {
 	testUnpack(t, "kego.io/demo/site")
 }
 func testUnpack(t *testing.T, path string) {
-	ctx, err := process.InitialiseManually(false, false, false, false, path)
+	ctx, err := process.Initialise(&process.FromDefaults{
+		Path: path,
+	})
 	assert.NoError(t, err)
 
 	env, ok := envctx.FromContext(ctx)

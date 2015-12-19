@@ -10,7 +10,7 @@ import (
 // Run executes the structs or types generation process. This binary is temporary and
 // is deleted after it has run.
 func Main(sourceType process.SourceType) {
-	ctx, err := process.InitialiseAutomatic()
+	ctx, err := process.Initialise(nil)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
