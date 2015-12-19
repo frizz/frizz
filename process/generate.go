@@ -109,6 +109,10 @@ func Generate(ctx context.Context, file SourceType) error {
 
 func save(dir string, contents []byte, name string, backup bool) error {
 
+	if len(contents) == 0 {
+		return nil
+	}
+
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err = os.MkdirAll(dir, 0777); err != nil {
 			return kerr.New("BPGOUIYPXO", err, "os.MkdirAll")
@@ -127,10 +131,6 @@ func save(dir string, contents []byte, name string, backup bool) error {
 		}
 	} else {
 		os.Remove(file)
-	}
-
-	if len(contents) == 0 {
-		return nil
 	}
 
 	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
