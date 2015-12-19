@@ -19,20 +19,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println("Received OS interrupt - exiting.")
-		cancel()
-	}()
-
 	cmd, ok := cmdctx.FromContext(ctx)
 	if !ok {
 		fmt.Println("No cmd in ctx")
 		os.Exit(1)
 	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		<-c
+		if cmd.Verbose {
+			fmt.Println("Received OS interrupt - exiting.")
+		}
+		cancel()
+	}()
 
 	if err := process.KeCommand(ctx); err != nil {
 		if !cmd.Verbose {

@@ -116,20 +116,26 @@ func Start(ctx context.Context) error {
 
 	go handle(func() error { return serve() })
 
+	done := app.ctx.Done()
 	for {
-		err, open := <-app.fail
-		if !open {
-			// Channel has been closed, so app should gracefully exit.
-			if cmd.Verbose {
-				fmt.Println("Exiting editor server (finished)... ")
-			}
-		} else {
-			// Error received, so app should display error.
-			//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
-			fmt.Println(err)
-		}
-		if !app.cmd.Debug {
+		select {
+		case <-done:
+			fmt.Println("Exiting editor server (interupted)... ")
 			return nil
+		case err, open := <-app.fail:
+			if !open {
+				// Channel has been closed, so app should gracefully exit.
+				if cmd.Verbose {
+					fmt.Println("Exiting editor server (finished)... ")
+				}
+			} else {
+				// Error received, so app should display error.
+				//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
+				fmt.Println(err)
+			}
+			if !app.cmd.Debug {
+				return nil
+			}
 		}
 	}
 

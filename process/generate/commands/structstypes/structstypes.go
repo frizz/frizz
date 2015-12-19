@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"kego.io/context/cmdctx"
 	"kego.io/process"
 )
 
@@ -18,12 +19,20 @@ func Main(sourceType process.SourceType) {
 		os.Exit(1)
 	}
 
+	cmd, ok := cmdctx.FromContext(ctx)
+	if !ok {
+		fmt.Println("No cmd in ctx")
+		os.Exit(1)
+	}
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	signal.Notify(c, syscall.SIGTERM)
 	go func() {
 		<-c
-		fmt.Println("Received OS interrupt - exiting.")
+		if cmd.Verbose {
+			fmt.Println("Received OS interrupt - exiting.")
+		}
 		cancel()
 	}()
 

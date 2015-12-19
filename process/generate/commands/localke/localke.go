@@ -23,22 +23,25 @@ func Main(recursive bool, path string) {
 		os.Exit(1)
 	}
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println("Received OS interrupt - exiting.")
-		cancel()
-	}()
-
 	cmd, ok := cmdctx.FromContext(ctx)
 	if !ok {
 		fmt.Println("No cmd in ctx")
 		os.Exit(1)
 	}
 
-	if typesChanged, err := process.ValidateCommand(ctx); err != nil {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		<-c
+		if cmd.Verbose {
+			fmt.Println("Received OS interrupt - exiting.")
+		}
+		cancel()
+	}()
+
+	typesChanged, err := process.ValidateCommand(ctx)
+	if err != nil {
 		if !typesChanged || !cmd.Verbose {
 			// when ValidateCommand detects the types have changed, it
 			// spawns a ke command. In verbose mode this will output any
@@ -46,6 +49,11 @@ func Main(recursive bool, path string) {
 			fmt.Println(process.FormatError(err))
 		}
 		os.Exit(1)
+	}
+	// if the types have changed, we have spawned a sub process to rebuild them, and this will have
+	// opened the server etc.
+	if typesChanged {
+		os.Exit(0)
 	}
 	if cmd.Edit {
 		if err = server.Start(ctx); err != nil {
