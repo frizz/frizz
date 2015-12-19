@@ -19,9 +19,7 @@ func StructsCommand(ctx context.Context) (source []byte, err error) {
 	}
 
 	g := generator.WithName(env.Path, "main")
-	g.Imports.Add("os")
-	g.Imports.Add("fmt")
-	g.Imports.Add("kego.io/process")
+	g.Imports.Add("kego.io/process/generate/commands/structscmd")
 	g.Imports.Anonymous("kego.io/system")
 	if env.Path != "kego.io/system" {
 		g.Imports.Anonymous("kego.io/system/types")
@@ -32,15 +30,7 @@ func StructsCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			ctx, err := process.InitialiseAutomatic()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if err := process.Generate(ctx, process.S_STRUCTS); err != nil {
-				fmt.Println(process.FormatError(err))
-				os.Exit(1)
-			}
+			structscmd.Run()
 		}`)
 
 	b, err := g.Build()
@@ -58,9 +48,7 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 	}
 
 	g := generator.WithName(env.Path, "main")
-	g.Imports.Add("os")
-	g.Imports.Add("fmt")
-	g.Imports.Add("kego.io/process")
+	g.Imports.Add("kego.io/process/generate/commands/typescmd")
 	g.Imports.Anonymous("kego.io/system")
 	if env.Path != "kego.io/system" {
 		g.Imports.Anonymous("kego.io/system/types")
@@ -72,15 +60,7 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			ctx, err := process.InitialiseAutomatic()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if err := process.Generate(ctx, process.S_TYPES); err != nil {
-				fmt.Println(process.FormatError(err))
-				os.Exit(1)
-			}
+			typescmd.Run()
 		}`)
 
 	b, err := g.Build()
@@ -103,12 +83,7 @@ func KeCommand(ctx context.Context) (source []byte, err error) {
 	}
 
 	g := generator.WithName(env.Path, "main")
-	g.Imports.Add("os")
-	g.Imports.Add("fmt")
-	g.Imports.Add("kego.io/context/cmdctx")
-	g.Imports.Add("kego.io/context/envctx")
-	g.Imports.Add("kego.io/process")
-	g.Imports.Add("kego.io/editor/server")
+	g.Imports.Add("kego.io/process/generate/commands/kecmd")
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous("kego.io/system/types")
 	g.Imports.Anonymous(env.Path)
@@ -119,41 +94,10 @@ func KeCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			update := false
-			recursive := ` + fmt.Sprint(cmd.Recursive) + `
-			path := ` + strconv.Quote(env.Path) + `
-			ctx, err := process.InitialiseCommand(update, recursive, path)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			env, ok := envctx.FromContext(ctx)
-			if !ok {
-				fmt.Println("No env in ctx")
-				os.Exit(1)
-			}
-			cmd, ok := cmdctx.FromContext(ctx)
-			if !ok {
-				fmt.Println("No cmd in ctx")
-				os.Exit(1)
-			}
-			if typesChanged, err := process.ValidateCommand(ctx); err != nil {
-				if !typesChanged || !cmd.Verbose {
-					// when ValidateCommand detects the types have changed, it
-					// spawns a ke command. In verbose mode this will output any
-					// error so we don't need to print the error
-					fmt.Println(process.FormatError(err))
-				}
-				os.Exit(1)
-			}
-			if cmd.Edit {
-				if err = server.Start(env.Path, cmd.Verbose, false); err != nil {
-					fmt.Println(process.FormatError(err))
-					os.Exit(1)
-				}
-			}
+			kecmd.Run(
+				` + fmt.Sprint(cmd.Recursive) + `,
+				` + strconv.Quote(env.Path) + `)
 		}`)
-
 	b, err := g.Build()
 	if err != nil {
 		return nil, kerr.New("CRBYOUOHPG", err, "Build")

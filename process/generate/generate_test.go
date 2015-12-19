@@ -106,11 +106,9 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, imp, "_ \"b.c/d\"\n")
 	assert.Contains(t, imp, "_ \"f.g/h\"\n")
 	assert.Contains(t, imp, "_ \"f.g/h/types\"\n")
-	assert.Contains(t, imp, "\"fmt\"\n")
-	assert.Contains(t, imp, "\t\"kego.io/process\"\n")
+	assert.Contains(t, imp, "\t\"kego.io/process/generate/commands/typescmd\"\n")
 	assert.Contains(t, imp, "_ \"kego.io/system\"\n")
 	assert.Contains(t, imp, "_ \"kego.io/system/types\"\n")
-	assert.Contains(t, imp, "\"os\"\n")
-	assert.Contains(t, string(source), "process.Generate(ctx, process.S_TYPES)")
+	assert.Contains(t, string(source), "typescmd.Run()")
 
 }
