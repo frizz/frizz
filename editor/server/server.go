@@ -32,7 +32,6 @@ import (
 	"kego.io/editor/shared/connection"
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
-	"kego.io/process"
 	"kego.io/process/generate"
 	"kego.io/process/tests"
 	"kego.io/system"
@@ -48,15 +47,9 @@ type appData struct {
 
 var app appData
 
-func Start(path string, verbose bool, debug bool) error {
-
-	ctx, pkg, err := initialise(path, verbose, debug)
-	if err != nil {
-		return kerr.New("SWSQDFXIEV", err, "initialise")
-	}
+func Start(ctx context.Context) error {
 
 	app.ctx = ctx
-	app.pkg = pkg
 
 	env, ok := envctx.FromContext(ctx)
 	if !ok {
@@ -70,11 +63,17 @@ func Start(path string, verbose bool, debug bool) error {
 	}
 	app.cmd = cmd
 
+	pkg, err := initialise()
+	if err != nil {
+		return kerr.New("SWSQDFXIEV", err, "initialise")
+	}
+	app.pkg = pkg
+
+	app.fail = make(chan error)
+
 	if cmd.Verbose {
 		fmt.Println("Starting editor server... ")
 	}
-
-	app.fail = make(chan error)
 
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
@@ -160,29 +159,21 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 	}
 }
 
-func initialise(path string, verbose bool, debug bool) (context.Context, *system.Package, error) {
-	ctx, err := process.Initialise(&process.FromDefaults{
-		Verbose: verbose,
-		Path:    path,
-		Debug:   debug,
-	})
-	if err != nil {
-		return nil, nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
+func initialise() (*system.Package, error) {
+	if err := scan.ScanForPackage(app.ctx); err != nil {
+		return nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
 	}
-	if err := scan.ScanForPackage(ctx); err != nil {
-		return nil, nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
+	if err := scan.ScanForTypes(app.ctx, false); err != nil {
+		return nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
 	}
-	if err := scan.ScanForTypes(ctx, false); err != nil {
-		return nil, nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
+	if err := scan.ScanForSource(app.ctx); err != nil {
+		return nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
 	}
-	if err := scan.ScanForSource(ctx); err != nil {
-		return nil, nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
-	}
-	p, ok := system.GetPackage(path)
+	p, ok := system.GetPackage(app.env.Path)
 	if !ok {
-		return nil, nil, kerr.New("IHIYKRRYWL", nil, "package not found")
+		return nil, kerr.New("IHIYKRRYWL", nil, "package not found")
 	}
-	return ctx, p.Package, nil
+	return p.Package, nil
 }
 
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
