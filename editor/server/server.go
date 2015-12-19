@@ -221,9 +221,21 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	buf := bytes.NewBuffer(nil)
 	pkg := &build.PackageData{Package: buildPkg.Package}
-	if err := s.BuildPackage(pkg); err != nil {
-		return kerr.New("TXUYQOUNQS", err, "s.BuildPackage")
+
+	c := make(chan error, 1)
+	go func() {
+		c <- s.BuildPackage(pkg)
+	}()
+
+	select {
+	case err := <-c:
+		if err != nil {
+			return kerr.New("TXUYQOUNQS", err, "s.BuildPackage")
+		}
+	case <-ctx.Done():
+		return nil
 	}
+
 	sourceMapFilter := &compiler.SourceMapFilter{Writer: buf}
 	m := &sourcemap.Map{File: "script.js"}
 	sourceMapFilter.MappingCallback = build.NewMappingCallback(m, options.GOROOT, options.GOPATH)
@@ -407,9 +419,7 @@ func serve(ctx context.Context) error {
 			return kerr.New("TUCBTWMRNN", err, "http.Serve")
 		}
 	case <-ctx.Done():
-		if err != nil {
-			return kerr.New("MBAHIOEYFO", ctx.Err(), "ctx.Done")
-		}
+		// continue
 	}
 
 	if app.cmd.Debug {
