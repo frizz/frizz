@@ -50,6 +50,9 @@ var app appData
 
 func Start(ctx context.Context) error {
 
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
+
 	app.ctx = ctx
 
 	app.env = envctx.FromContext(ctx)
@@ -106,7 +109,7 @@ func Start(ctx context.Context) error {
 		}
 	}))
 
-	go handle(func() error { return serve() })
+	go handle(func() error { return serve(ctx) })
 
 	done := app.ctx.Done()
 	for {
@@ -247,6 +250,9 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 func root(ctx context.Context, w http.ResponseWriter, req *http.Request, pkg *system.Package) error {
 
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
+
 	sources := system.GetAllSourceInPackage(app.env.Path)
 
 	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
@@ -360,7 +366,10 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request, pkg *sy
 	return nil
 }
 
-func serve() error {
+func serve(ctx context.Context) error {
+
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
 
 	// Starting with port zero chooses a random open port
 	listner, err := net.Listen("tcp", ":0")
@@ -387,8 +396,20 @@ func serve() error {
 		fmt.Printf("Server now running on %s\n", url)
 	}
 
-	if err := http.Serve(listner, nil); err != nil {
-		return kerr.New("TUCBTWMRNN", err, "http.Serve")
+	c := make(chan error, 1)
+	go func() {
+		c <- http.Serve(listner, nil)
+	}()
+
+	select {
+	case err := <-c:
+		if err != nil {
+			return kerr.New("TUCBTWMRNN", err, "http.Serve")
+		}
+	case <-ctx.Done():
+		if err != nil {
+			return kerr.New("MBAHIOEYFO", ctx.Err(), "ctx.Done")
+		}
 	}
 
 	if app.cmd.Debug {

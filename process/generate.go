@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
 	"kego.io/process/scan"
@@ -34,6 +35,9 @@ const (
 // will be compiled to JS when the editor is launched.
 //
 func Generate(ctx context.Context, file SourceType) error {
+
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
 
 	cmd := cmdctx.FromContext(ctx)
 	env := envctx.FromContext(ctx)

@@ -1,4 +1,5 @@
 package localke // import "kego.io/process/generate/commands/localke"
+
 import (
 	"fmt"
 	"os"
