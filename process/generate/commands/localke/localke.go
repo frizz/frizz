@@ -37,7 +37,7 @@ func Main(recursive bool, path string) {
 		os.Exit(1)
 	}
 	if cmd.Edit {
-		if err = server.Start(env.Path, cmd.Verbose, false); err != nil {
+		if err = server.Start(env.Path, cmd.Verbose, cmd.Debug); err != nil {
 			fmt.Println(process.FormatError(err))
 			os.Exit(1)
 		}

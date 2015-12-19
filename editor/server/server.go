@@ -39,24 +39,22 @@ import (
 )
 
 type appData struct {
-	pkg   *system.Package
-	fail  chan error
-	debug bool // in debug mode we don't exit the server on connection close
-	ctx   context.Context
-	cmd   *cmdctx.Cmd
-	env   *envctx.Env
+	pkg  *system.Package
+	fail chan error
+	ctx  context.Context
+	cmd  *cmdctx.Cmd
+	env  *envctx.Env
 }
 
 var app appData
 
 func Start(path string, verbose bool, debug bool) error {
 
-	ctx, pkg, err := initialise(path, verbose)
+	ctx, pkg, err := initialise(path, verbose, debug)
 	if err != nil {
 		return kerr.New("SWSQDFXIEV", err, "initialise")
 	}
 
-	app.debug = debug
 	app.ctx = ctx
 	app.pkg = pkg
 
@@ -106,7 +104,7 @@ func Start(path string, verbose bool, debug bool) error {
 		} else {
 			ws.PayloadType = 0x1 // string messages
 		}
-		c := connection.New(ctx, ws, app.fail, app.debug)
+		c := connection.New(ctx, ws, app.fail, app.cmd.Debug)
 
 		sourceRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
 		go handle(func() error { return getSource(sourceRequestsChannel, c) })
@@ -131,7 +129,7 @@ func Start(path string, verbose bool, debug bool) error {
 			//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 			fmt.Println(err)
 		}
-		if !app.debug {
+		if !app.cmd.Debug {
 			return nil
 		}
 	}
@@ -162,8 +160,8 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 	}
 }
 
-func initialise(path string, verbose bool) (context.Context, *system.Package, error) {
-	ctx, err := process.InitialiseManually(true, false, false, verbose, path)
+func initialise(path string, verbose bool, debug bool) (context.Context, *system.Package, error) {
+	ctx, err := process.InitialiseManually(true, false, false, verbose, path, debug)
 	if err != nil {
 		return nil, nil, kerr.New("LFRIFXNHUY", err, "process.InitialiseManually")
 	}
@@ -397,7 +395,7 @@ func serve() error {
 		return kerr.New("TUCBTWMRNN", err, "http.Serve")
 	}
 
-	if app.debug {
+	if app.cmd.Debug {
 		return kerr.New("ATUTBOICGJ", nil, "Connection closed")
 	}
 	close(app.fail)

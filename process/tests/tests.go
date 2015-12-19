@@ -20,6 +20,7 @@ type Ctx struct {
 	Update    bool
 	Recursive bool
 	Verbose   bool
+	Debug     bool
 }
 
 func PathCtx(path string) context.Context {

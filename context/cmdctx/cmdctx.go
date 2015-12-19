@@ -9,6 +9,7 @@ type Cmd struct {
 	Update    bool
 	Recursive bool
 	Verbose   bool
+	Debug     bool
 }
 
 // key is an unexported type for keys defined in this package.

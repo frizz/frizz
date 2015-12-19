@@ -45,7 +45,7 @@ func TestInitialise(t *testing.T) {
 	err = os.Chdir("/")
 	assert.NoError(t, err)
 
-	ctx, err = InitialiseManually(false, false, false, false, pathB)
+	ctx, err = InitialiseManually(false, false, false, false, pathB, true)
 	env, ok = envctx.FromContext(ctx)
 	assert.True(t, ok)
 	cmd, ok = cmdctx.FromContext(ctx)
@@ -54,7 +54,7 @@ func TestInitialise(t *testing.T) {
 	assert.Equal(t, dirB, cmd.Dir)
 	assert.Equal(t, pathB, env.Path)
 
-	_, err = InitialiseManually(false, false, false, false, "")
+	_, err = InitialiseManually(false, false, false, false, "", true)
 	assert.IsError(t, err, "PSRAWHQCPV")
 	assert.HasError(t, err, "CXOETFPTGM")
 }

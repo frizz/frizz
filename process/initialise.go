@@ -16,7 +16,7 @@ import (
 	"kego.io/system"
 )
 
-func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string) (context.Context, error) {
+func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, path string, debug bool) (context.Context, error) {
 
 	c := &cmdctx.Cmd{}
 	e := &envctx.Env{}
@@ -25,6 +25,7 @@ func InitialiseManually(edit bool, update bool, recursive bool, verbose bool, pa
 	c.Update = update
 	c.Recursive = recursive
 	c.Verbose = verbose
+	c.Debug = debug
 	if path == "" {
 
 		dir, err := os.Getwd()
@@ -81,12 +82,13 @@ func InitialiseCommand(update bool, recursive bool, path string) (context.Contex
 
 	var editFlag = flag.Bool("e", false, "Edit: open the editor")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
+	var debugFlag = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
 
 	if !flag.Parsed() {
 		flag.Parse()
 	}
 
-	ctx, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path)
+	ctx, err := InitialiseManually(*editFlag, update, recursive, *verboseFlag, path, *debugFlag)
 	if err != nil {
 		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
@@ -100,6 +102,7 @@ func InitialiseAutomatic() (context.Context, error) {
 	var updateFlag = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
 	var recursiveFlag = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
 	var verboseFlag = flag.Bool("v", false, "Verbose")
+	var debugFlag = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
 
 	if !flag.Parsed() {
 		flag.Parse()
@@ -107,7 +110,7 @@ func InitialiseAutomatic() (context.Context, error) {
 
 	var firstArg = flag.Arg(0)
 
-	ctx, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg)
+	ctx, err := InitialiseManually(*editFlag, *updateFlag, *recursiveFlag, *verboseFlag, firstArg, *debugFlag)
 	if err != nil {
 		return nil, kerr.New("UKAMOSMQST", err, "InitialiseManually")
 	}
