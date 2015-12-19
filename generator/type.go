@@ -42,7 +42,7 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 	}
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
-	tag, err := getTag(envctx.Empty, fieldName, field.GetRule().Exclude, inner)
+	tag, err := getTag(envctx.Empty, fieldName, field.GetRule(nil).Exclude, inner)
 	if err != nil {
 		return "", kerr.New("CSJHNCMHRU", err, "getTag")
 	}

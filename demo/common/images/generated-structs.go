@@ -3,6 +3,7 @@ package images
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/demo/common/units"
 	"kego.io/json"
 	"kego.io/system"
@@ -33,10 +34,10 @@ type Icon struct {
 	Url *system.String `json:"url"`
 }
 type IconInterface interface {
-	GetIcon() *Icon
+	GetIcon(ctx context.Context) *Icon
 }
 
-func (o *Icon) GetIcon() *Icon {
+func (o *Icon) GetIcon(ctx context.Context) *Icon {
 	return o
 }
 
@@ -52,10 +53,10 @@ type Photo struct {
 	Size   *units.Rectangle `json:"size"`
 }
 type PhotoInterface interface {
-	GetPhoto() *Photo
+	GetPhoto(ctx context.Context) *Photo
 }
 
-func (o *Photo) GetPhoto() *Photo {
+func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
 func init() {

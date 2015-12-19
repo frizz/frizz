@@ -104,7 +104,7 @@ func validateNode(ctx context.Context, node *node.Node, hash uint64) error {
 
 	// Add the rules from the object, but only if they apply
 	if system.RulesApplyToObjects(node.Value) {
-		rules = append(rules, node.Value.(system.ObjectInterface).GetObject().Rules...)
+		rules = append(rules, node.Value.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
 	return validateObject(ctx, node, rules)
@@ -158,7 +158,7 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 
 		for _, rule := range rules {
 
-			base := rule.GetRule()
+			base := rule.GetRule(nil)
 
 			selector := ":root"
 			if base.Selector != "" {
@@ -194,14 +194,14 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 		if err != nil {
 			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
 		}
-		rules := node.Rule.Interface.(system.ObjectInterface).GetObject().Rules
+		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
 		return validateArrayChildren(ctx, node, items, rules)
 	case json.J_MAP:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
 			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
 		}
-		rules := node.Rule.Interface.(system.ObjectInterface).GetObject().Rules
+		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
 		return validateMapChildren(ctx, node, items, rules)
 	}
 
@@ -216,12 +216,12 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 
 	rules := []system.RuleInterface{}
 	if system.RulesApplyToObjects(node.Value) {
-		rules = node.Value.(system.ObjectInterface).GetObject().Rules
+		rules = node.Value.(system.ObjectInterface).GetObject(nil).Rules
 	}
 
 	for name, field := range node.Type.Fields {
 		child, ok := node.Map[name]
-		if !field.GetRule().Optional && !ok {
+		if !field.GetRule(nil).Optional && !ok {
 			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
 		}
 		ob, ok := field.(system.ObjectInterface)
@@ -229,11 +229,11 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 			return kerr.New("XRTVWVUAMP", nil, "field does not implement system.ObjectInterface")
 		}
 
-		allRules := append(rules, ob.GetObject().Rules...)
+		allRules := append(rules, ob.GetObject(nil).Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(child.Rule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
-			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject().Rules...)
+		if len(child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
+			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 		}
 
 		if err := validateObject(ctx, child, allRules); err != nil {
@@ -246,8 +246,8 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
-		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject().Rules...)
+	if len(itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
+		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
 	for i, child := range node.Array {
@@ -261,8 +261,8 @@ func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *syst
 func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) error {
 
 	// if we have additional rules on the main items rule, we should add them to rules
-	if len(itemsRule.Interface.(system.ObjectInterface).GetObject().Rules) > 0 {
-		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject().Rules...)
+	if len(itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
+		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
 	for n, child := range node.Map {

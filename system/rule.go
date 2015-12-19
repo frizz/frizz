@@ -92,14 +92,14 @@ func WrapRule(r RuleInterface) (*RuleWrapper, error) {
 		return nil, kerr.New("VKFNPJDNVB", nil, "%T does not implement ObjectInterface", r)
 	}
 
-	// ob.GetObject().Type will be a @ rule type, so we change to the type,
+	// ob.GetObject(nil).Type will be a @ rule type, so we change to the type,
 	// which will be the parent
-	t, ok := ob.GetObject().Type.ChangeToType().GetType()
+	t, ok := ob.GetObject(nil).Type.ChangeToType().GetType()
 	if !ok {
-		return nil, kerr.New("KYCTDXKFYR", nil, "GetType: type %v not found", ob.GetObject().Type.ChangeToType().Value())
+		return nil, kerr.New("KYCTDXKFYR", nil, "GetType: type %v not found", ob.GetObject(nil).Type.ChangeToType().Value())
 	}
 
-	return &RuleWrapper{Interface: r, Parent: t, Struct: r.GetRule()}, nil
+	return &RuleWrapper{Interface: r, Parent: t, Struct: r.GetRule(nil)}, nil
 }
 
 // ItemsRule returns Items rule for a collection Rule.

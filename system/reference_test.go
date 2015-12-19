@@ -38,7 +38,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, NewReference("c.d/e", "f"), a.B.GetReference())
+	assert.Equal(t, NewReference("c.d/e", "f"), a.B.GetReference(nil))
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)

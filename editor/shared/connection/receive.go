@@ -41,7 +41,7 @@ func (c *Conn) Receive() error {
 			return kerr.New("FYWKSPGYXY", nil, "Received type %T does not implement messages.MessageInterface", i)
 		}
 
-		requestGuid := m.GetMessage().Request
+		requestGuid := m.GetMessage(nil).Request
 		if requestGuid != nil {
 			reply, ok := c.requests[requestGuid.Value()]
 			if !ok {
@@ -52,7 +52,7 @@ func (c *Conn) Receive() error {
 			continue
 		}
 
-		t := m.(system.ObjectInterface).GetObject().Type
+		t := m.(system.ObjectInterface).GetObject(nil).Type
 		subscriber, ok := c.subs[*t]
 		if !ok {
 			return kerr.New("USAYKUNHSC", nil, "Subscriber not found for %s", t.Value())

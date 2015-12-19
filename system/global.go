@@ -60,7 +60,7 @@ func GetAllGlobalsInPackage(path string, filter *Reference) []Hashed {
 		if ref.Package != path {
 			continue
 		}
-		if filter != nil && *h.Object.GetObject().Type != *filter {
+		if filter != nil && *h.Object.GetObject(nil).Type != *filter {
 			continue
 		}
 		out = append(out, h)
@@ -114,5 +114,5 @@ func (s SortableHashed) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 func (s SortableHashed) Less(i, j int) bool {
-	return s[i].Object.GetObject().Id.Value() < s[j].Object.GetObject().Id.Value()
+	return s[i].Object.GetObject(nil).Id.Value() < s[j].Object.GetObject(nil).Id.Value()
 }

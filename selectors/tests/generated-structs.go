@@ -3,6 +3,7 @@ package tests
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/system"
 )
@@ -136,10 +137,10 @@ type Basic struct {
 	Weight            *system.Number              `json:"weight"`
 }
 type BasicInterface interface {
-	GetBasic() *Basic
+	GetBasic(ctx context.Context) *Basic
 }
 
-func (o *Basic) GetBasic() *Basic {
+func (o *Basic) GetBasic(ctx context.Context) *Basic {
 	return o
 }
 
@@ -150,10 +151,10 @@ type C struct {
 	C map[string]*system.Number `json:"c"`
 }
 type CInterface interface {
-	GetC() *C
+	GetC(ctx context.Context) *C
 }
 
-func (o *C) GetC() *C {
+func (o *C) GetC(ctx context.Context) *C {
 	return o
 }
 
@@ -162,10 +163,10 @@ type Collision struct {
 	Number map[string]*system.String `json:"number"`
 }
 type CollisionInterface interface {
-	GetCollision() *Collision
+	GetCollision(ctx context.Context) *Collision
 }
 
-func (o *Collision) GetCollision() *Collision {
+func (o *Collision) GetCollision(ctx context.Context) *Collision {
 	return o
 }
 
@@ -174,10 +175,10 @@ type Diagram struct {
 	Url *system.String `json:"url"`
 }
 type DiagramInterface interface {
-	GetDiagram() *Diagram
+	GetDiagram(ctx context.Context) *Diagram
 }
 
-func (o *Diagram) GetDiagram() *Diagram {
+func (o *Diagram) GetDiagram(ctx context.Context) *Diagram {
 	return o
 }
 
@@ -192,10 +193,10 @@ type Expr struct {
 	True    *system.Bool   `json:"true"`
 }
 type ExprInterface interface {
-	GetExpr() *Expr
+	GetExpr(ctx context.Context) *Expr
 }
 
-func (o *Expr) GetExpr() *Expr {
+func (o *Expr) GetExpr(ctx context.Context) *Expr {
 	return o
 }
 
@@ -205,10 +206,10 @@ type Gallery struct {
 	Images map[string]Image `json:"images"`
 }
 type GalleryInterface interface {
-	GetGallery() *Gallery
+	GetGallery(ctx context.Context) *Gallery
 }
 
-func (o *Gallery) GetGallery() *Gallery {
+func (o *Gallery) GetGallery(ctx context.Context) *Gallery {
 	return o
 }
 
@@ -221,10 +222,10 @@ type Instance struct {
 	Name         *system.String           `json:"name"`
 }
 type InstanceInterface interface {
-	GetInstance() *Instance
+	GetInstance(ctx context.Context) *Instance
 }
 
-func (o *Instance) GetInstance() *Instance {
+func (o *Instance) GetInstance(ctx context.Context) *Instance {
 	return o
 }
 
@@ -233,10 +234,10 @@ type InstanceItem struct {
 	Name *system.String `json:"name"`
 }
 type InstanceItemInterface interface {
-	GetInstanceItem() *InstanceItem
+	GetInstanceItem(ctx context.Context) *InstanceItem
 }
 
-func (o *InstanceItem) GetInstanceItem() *InstanceItem {
+func (o *InstanceItem) GetInstanceItem(ctx context.Context) *InstanceItem {
 	return o
 }
 
@@ -247,10 +248,10 @@ type Kid struct {
 	Preferred *system.Bool   `json:"preferred"`
 }
 type KidInterface interface {
-	GetKid() *Kid
+	GetKid(ctx context.Context) *Kid
 }
 
-func (o *Kid) GetKid() *Kid {
+func (o *Kid) GetKid(ctx context.Context) *Kid {
 	return o
 }
 
@@ -266,10 +267,10 @@ type Photo struct {
 	Size   *Rectangle     `json:"size"`
 }
 type PhotoInterface interface {
-	GetPhoto() *Photo
+	GetPhoto(ctx context.Context) *Photo
 }
 
-func (o *Photo) GetPhoto() *Photo {
+func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
 
@@ -278,10 +279,10 @@ type Polykids struct {
 	A []*Kid `json:"a"`
 }
 type PolykidsInterface interface {
-	GetPolykids() *Polykids
+	GetPolykids(ctx context.Context) *Polykids
 }
 
-func (o *Polykids) GetPolykids() *Polykids {
+func (o *Polykids) GetPolykids(ctx context.Context) *Polykids {
 	return o
 }
 
@@ -291,10 +292,10 @@ type Rectangle struct {
 	Width  *system.Int `json:"width"`
 }
 type RectangleInterface interface {
-	GetRectangle() *Rectangle
+	GetRectangle(ctx context.Context) *Rectangle
 }
 
-func (o *Rectangle) GetRectangle() *Rectangle {
+func (o *Rectangle) GetRectangle(ctx context.Context) *Rectangle {
 	return o
 }
 
@@ -307,10 +308,10 @@ type Rightscale struct {
 	Name         *system.String           `json:"name"`
 }
 type RightscaleInterface interface {
-	GetRightscale() *Rightscale
+	GetRightscale(ctx context.Context) *Rightscale
 }
 
-func (o *Rightscale) GetRightscale() *Rightscale {
+func (o *Rightscale) GetRightscale(ctx context.Context) *Rightscale {
 	return o
 }
 
@@ -320,10 +321,10 @@ type RightscaleLink struct {
 	Rel  *system.String `json:"rel"`
 }
 type RightscaleLinkInterface interface {
-	GetRightscaleLink() *RightscaleLink
+	GetRightscaleLink(ctx context.Context) *RightscaleLink
 }
 
-func (o *RightscaleLink) GetRightscaleLink() *RightscaleLink {
+func (o *RightscaleLink) GetRightscaleLink(ctx context.Context) *RightscaleLink {
 	return o
 }
 
@@ -332,10 +333,10 @@ type RightscaleList struct {
 	Foo []*Rightscale `json:"foo"`
 }
 type RightscaleListInterface interface {
-	GetRightscaleList() *RightscaleList
+	GetRightscaleList(ctx context.Context) *RightscaleList
 }
 
-func (o *RightscaleList) GetRightscaleList() *RightscaleList {
+func (o *RightscaleList) GetRightscaleList(ctx context.Context) *RightscaleList {
 	return o
 }
 
@@ -348,10 +349,10 @@ type Sibling struct {
 	E map[string]*system.Number `json:"e"`
 }
 type SiblingInterface interface {
-	GetSibling() *Sibling
+	GetSibling(ctx context.Context) *Sibling
 }
 
-func (o *Sibling) GetSibling() *Sibling {
+func (o *Sibling) GetSibling(ctx context.Context) *Sibling {
 	return o
 }
 
@@ -360,10 +361,10 @@ type Simple struct {
 	A *SimpleItem `json:"a"`
 }
 type SimpleInterface interface {
-	GetSimple() *Simple
+	GetSimple(ctx context.Context) *Simple
 }
 
-func (o *Simple) GetSimple() *Simple {
+func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
 
@@ -372,10 +373,10 @@ type SimpleItem struct {
 	B *system.String `json:"b"`
 }
 type SimpleItemInterface interface {
-	GetSimpleItem() *SimpleItem
+	GetSimpleItem(ctx context.Context) *SimpleItem
 }
 
-func (o *SimpleItem) GetSimpleItem() *SimpleItem {
+func (o *SimpleItem) GetSimpleItem(ctx context.Context) *SimpleItem {
 	return o
 }
 
@@ -389,10 +390,10 @@ type Typed struct {
 	Weight          *system.Number            `json:"weight"`
 }
 type TypedInterface interface {
-	GetTyped() *Typed
+	GetTyped(ctx context.Context) *Typed
 }
 
-func (o *Typed) GetTyped() *Typed {
+func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {

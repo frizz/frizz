@@ -23,7 +23,7 @@ func (c *Conn) Request(message messages.MessageInterface) chan messages.MessageI
 }
 func (c *Conn) sendRequestAndReturnResponseChannel(message messages.MessageInterface) chan messages.MessageInterface {
 	responseChannel := make(chan messages.MessageInterface)
-	c.requests[message.GetMessage().Guid.Value()] = responseChannel
+	c.requests[message.GetMessage(nil).Guid.Value()] = responseChannel
 	c.outwg.Add(1)
 	c.out <- message
 	return responseChannel
@@ -31,7 +31,7 @@ func (c *Conn) sendRequestAndReturnResponseChannel(message messages.MessageInter
 
 // Respond sends a message as a reply to a request
 func (c *Conn) Respond(message messages.MessageInterface, requestGuid string) {
-	message.GetMessage().Request = system.NewString(requestGuid)
+	message.GetMessage(nil).Request = system.NewString(requestGuid)
 	c.outwg.Add(1)
 	c.out <- message
 }

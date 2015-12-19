@@ -38,7 +38,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, 1.2, a.B.GetNumber().Value())
+	assert.Equal(t, 1.2, a.B.GetNumber(nil).Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)

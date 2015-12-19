@@ -3,6 +3,7 @@ package words
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/system"
 )
@@ -29,10 +30,10 @@ type Simple struct {
 	String *system.String `json:"string"`
 }
 type SimpleInterface interface {
-	GetSimple() *Simple
+	GetSimple(ctx context.Context) *Simple
 }
 
-func (o *Simple) GetSimple() *Simple {
+func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
 
@@ -45,10 +46,10 @@ type Translation struct {
 	Translations map[string]*system.String `json:"translations"`
 }
 type TranslationInterface interface {
-	GetTranslation() *Translation
+	GetTranslation(ctx context.Context) *Translation
 }
 
-func (o *Translation) GetTranslation() *Translation {
+func (o *Translation) GetTranslation(ctx context.Context) *Translation {
 	return o
 }
 func init() {

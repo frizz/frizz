@@ -3,6 +3,7 @@ package site
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/demo/common/images"
 	"kego.io/demo/common/units"
 	"kego.io/demo/common/words"
@@ -60,10 +61,10 @@ type Gallery1 struct {
 	Title system.StringInterface `json:"title"`
 }
 type Gallery1Interface interface {
-	GetGallery1() *Gallery1
+	GetGallery1(ctx context.Context) *Gallery1
 }
 
-func (o *Gallery1) GetGallery1() *Gallery1 {
+func (o *Gallery1) GetGallery1(ctx context.Context) *Gallery1 {
 	return o
 }
 
@@ -75,10 +76,10 @@ type Gallery1a struct {
 	Title *system.String   `json:"title"`
 }
 type Gallery1aInterface interface {
-	GetGallery1a() *Gallery1a
+	GetGallery1a(ctx context.Context) *Gallery1a
 }
 
-func (o *Gallery1a) GetGallery1a() *Gallery1a {
+func (o *Gallery1a) GetGallery1a(ctx context.Context) *Gallery1a {
 	return o
 }
 
@@ -89,10 +90,10 @@ type Gallery2 struct {
 	Title  *system.String           `json:"title"`
 }
 type Gallery2Interface interface {
-	GetGallery2() *Gallery2
+	GetGallery2(ctx context.Context) *Gallery2
 }
 
-func (o *Gallery2) GetGallery2() *Gallery2 {
+func (o *Gallery2) GetGallery2(ctx context.Context) *Gallery2 {
 	return o
 }
 
@@ -103,10 +104,10 @@ type Gallery2a struct {
 	Title  *system.String           `json:"title"`
 }
 type Gallery2aInterface interface {
-	GetGallery2a() *Gallery2a
+	GetGallery2a(ctx context.Context) *Gallery2a
 }
 
-func (o *Gallery2a) GetGallery2a() *Gallery2a {
+func (o *Gallery2a) GetGallery2a(ctx context.Context) *Gallery2a {
 	return o
 }
 
@@ -117,10 +118,10 @@ type Gallery2b struct {
 	Title  *system.String           `json:"title"`
 }
 type Gallery2bInterface interface {
-	GetGallery2b() *Gallery2b
+	GetGallery2b(ctx context.Context) *Gallery2b
 }
 
-func (o *Gallery2b) GetGallery2b() *Gallery2b {
+func (o *Gallery2b) GetGallery2b(ctx context.Context) *Gallery2b {
 	return o
 }
 
@@ -131,10 +132,10 @@ type Gallery3 struct {
 	Title  words.Localizer         `json:"title"`
 }
 type Gallery3Interface interface {
-	GetGallery3() *Gallery3
+	GetGallery3(ctx context.Context) *Gallery3
 }
 
-func (o *Gallery3) GetGallery3() *Gallery3 {
+func (o *Gallery3) GetGallery3(ctx context.Context) *Gallery3 {
 	return o
 }
 
@@ -145,10 +146,10 @@ type Gallery3a struct {
 	Title  words.Localizer         `json:"title"`
 }
 type Gallery3aInterface interface {
-	GetGallery3a() *Gallery3a
+	GetGallery3a(ctx context.Context) *Gallery3a
 }
 
-func (o *Gallery3a) GetGallery3a() *Gallery3a {
+func (o *Gallery3a) GetGallery3a(ctx context.Context) *Gallery3a {
 	return o
 }
 func init() {

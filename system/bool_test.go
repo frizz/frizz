@@ -38,7 +38,7 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
-	assert.Equal(t, true, a.B.GetBool().Value())
+	assert.Equal(t, true, a.B.GetBool(nil).Value())
 
 	b, err := json.Marshal(a)
 	assert.NoError(t, err)

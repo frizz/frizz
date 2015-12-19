@@ -38,14 +38,14 @@ func Structs(ctx context.Context) (source []byte, err error) {
 		}
 
 		if !typ.Interface && !typ.IsNativeValue() {
-			if err := printStructDefinition(ctx, g, typ, env.Path); err != nil {
+			if err := printStructDefinition(ctx, g, typ); err != nil {
 				return nil, kerr.New("XKRYMXUIJD", err, "printNewStructDefinition")
 			}
 		}
 
 		if !typ.Interface && !isRule {
-			printInterfaceDefinition(g, typ)
-			printInterfaceImplementation(g, typ)
+			printInterfaceDefinition(ctx, g, typ)
+			printInterfaceImplementation(ctx, g, typ)
 		}
 
 	}
@@ -58,45 +58,61 @@ func Structs(ctx context.Context) (source []byte, err error) {
 	return b, nil
 }
 
-func printInterfaceDefinition(g *generator.Generator, typ *system.Type) {
+func printInterfaceDefinition(ctx context.Context, g *generator.Generator, typ *system.Type) {
+	env := envctx.FromContext(ctx)
 	g.Println("type ", system.GoInterfaceName(typ.Id.Name), " interface {")
 	{
-		g.Println("Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name))
+		g.Println("Get",
+			system.GoName(typ.Id.Name),
+			"(ctx ",
+			generator.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
+			") *",
+			system.GoName(typ.Id.Name))
 	}
 	g.Println("}")
 }
 
-func printInterfaceImplementation(g *generator.Generator, typ *system.Type) {
-	g.Println("func (o *", system.GoName(typ.Id.Name), ") Get", system.GoName(typ.Id.Name), "() *", system.GoName(typ.Id.Name), " {")
+func printInterfaceImplementation(ctx context.Context, g *generator.Generator, typ *system.Type) {
+	env := envctx.FromContext(ctx)
+	g.Println("func (o *",
+		system.GoName(typ.Id.Name),
+		") Get",
+		system.GoName(typ.Id.Name),
+		"(ctx ",
+		generator.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
+		") *",
+		system.GoName(typ.Id.Name),
+		" {")
 	{
 		g.Println("return o")
 	}
 	g.Println("}")
 }
 
-func printStructDefinition(ctx context.Context, g *generator.Generator, typ *system.Type, path string) error {
+func printStructDefinition(ctx context.Context, g *generator.Generator, typ *system.Type) error {
+	env := envctx.FromContext(ctx)
 	if typ.Description != "" {
 		g.Println("// ", typ.Description)
 	}
 	g.Println("type ", system.GoName(typ.Id.Name), " struct {")
 	{
 		if !typ.Basic {
-			g.Println("*", generator.Reference("kego.io/system", system.GoName("object"), path, g.Imports.Add))
+			g.Println("*", generator.Reference("kego.io/system", system.GoName("object"), env.Path, g.Imports.Add))
 		}
 
 		embedsSortable := system.SortableReferences(typ.Embed)
 		sort.Sort(embedsSortable)
 		embeds := []*system.Reference(embedsSortable)
 		for _, embed := range embeds {
-			g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), path, g.Imports.Add))
+			g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), env.Path, g.Imports.Add))
 		}
 
 		for _, nf := range typ.SortedFields() {
-			b := nf.Rule.(system.ObjectInterface).GetObject()
+			b := nf.Rule.(system.ObjectInterface).GetObject(nil)
 			if b.Description != "" {
 				g.Println("// ", b.Description)
 			}
-			descriptor, err := generator.Type(ctx, nf.Name, nf.Rule, path, g.Imports.Add)
+			descriptor, err := generator.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add)
 			if err != nil {
 				return kerr.New("GDSKJDEKQD", err, "generator.TypeNew")
 			}

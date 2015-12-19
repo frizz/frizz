@@ -3,6 +3,7 @@ package system
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 )
 
@@ -124,26 +125,26 @@ type TypeRule struct {
 	*Rule
 }
 type BoolInterface interface {
-	GetBool() *Bool
+	GetBool(ctx context.Context) *Bool
 }
 
-func (o *Bool) GetBool() *Bool {
+func (o *Bool) GetBool(ctx context.Context) *Bool {
 	return o
 }
 
 type IntInterface interface {
-	GetInt() *Int
+	GetInt(ctx context.Context) *Int
 }
 
-func (o *Int) GetInt() *Int {
+func (o *Int) GetInt(ctx context.Context) *Int {
 	return o
 }
 
 type NumberInterface interface {
-	GetNumber() *Number
+	GetNumber(ctx context.Context) *Number
 }
 
-func (o *Number) GetNumber() *Number {
+func (o *Number) GetNumber(ctx context.Context) *Number {
 	return o
 }
 
@@ -159,10 +160,10 @@ type Object struct {
 	Type *Reference `json:"type"`
 }
 type ObjectInterface interface {
-	GetObject() *Object
+	GetObject(ctx context.Context) *Object
 }
 
-func (o *Object) GetObject() *Object {
+func (o *Object) GetObject(ctx context.Context) *Object {
 	return o
 }
 
@@ -173,18 +174,18 @@ type Package struct {
 	Aliases map[string]string `json:"aliases"`
 }
 type PackageInterface interface {
-	GetPackage() *Package
+	GetPackage(ctx context.Context) *Package
 }
 
-func (o *Package) GetPackage() *Package {
+func (o *Package) GetPackage(ctx context.Context) *Package {
 	return o
 }
 
 type ReferenceInterface interface {
-	GetReference() *Reference
+	GetReference(ctx context.Context) *Reference
 }
 
-func (o *Reference) GetReference() *Reference {
+func (o *Reference) GetReference(ctx context.Context) *Reference {
 	return o
 }
 
@@ -200,18 +201,18 @@ type Rule struct {
 	Selector string `json:"selector"`
 }
 type RuleInterface interface {
-	GetRule() *Rule
+	GetRule(ctx context.Context) *Rule
 }
 
-func (o *Rule) GetRule() *Rule {
+func (o *Rule) GetRule(ctx context.Context) *Rule {
 	return o
 }
 
 type StringInterface interface {
-	GetString() *String
+	GetString(ctx context.Context) *String
 }
 
-func (o *String) GetString() *String {
+func (o *String) GetString(ctx context.Context) *String {
 	return o
 }
 
@@ -234,10 +235,10 @@ type Type struct {
 	Rule *Type `json:"rule"`
 }
 type TypeInterface interface {
-	GetType() *Type
+	GetType(ctx context.Context) *Type
 }
 
-func (o *Type) GetType() *Type {
+func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {

@@ -3,6 +3,7 @@ package messages
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/system"
 )
@@ -33,10 +34,10 @@ type Message struct {
 	Request *system.String `json:"request"`
 }
 type MessageInterface interface {
-	GetMessage() *Message
+	GetMessage(ctx context.Context) *Message
 }
 
-func (o *Message) GetMessage() *Message {
+func (o *Message) GetMessage(ctx context.Context) *Message {
 	return o
 }
 
@@ -47,10 +48,10 @@ type SourceRequest struct {
 	Name *system.String `json:"name"`
 }
 type SourceRequestInterface interface {
-	GetSourceRequest() *SourceRequest
+	GetSourceRequest(ctx context.Context) *SourceRequest
 }
 
-func (o *SourceRequest) GetSourceRequest() *SourceRequest {
+func (o *SourceRequest) GetSourceRequest(ctx context.Context) *SourceRequest {
 	return o
 }
 
@@ -63,10 +64,10 @@ type SourceResponse struct {
 	Name  *system.String `json:"name"`
 }
 type SourceResponseInterface interface {
-	GetSourceResponse() *SourceResponse
+	GetSourceResponse(ctx context.Context) *SourceResponse
 }
 
-func (o *SourceResponse) GetSourceResponse() *SourceResponse {
+func (o *SourceResponse) GetSourceResponse(ctx context.Context) *SourceResponse {
 	return o
 }
 func init() {

@@ -3,6 +3,7 @@ package units
 import (
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/system"
 )
@@ -18,10 +19,10 @@ type Rectangle struct {
 	Width  *system.Int `json:"width"`
 }
 type RectangleInterface interface {
-	GetRectangle() *Rectangle
+	GetRectangle(ctx context.Context) *Rectangle
 }
 
-func (o *Rectangle) GetRectangle() *Rectangle {
+func (o *Rectangle) GetRectangle(ctx context.Context) *Rectangle {
 	return o
 }
 func init() {

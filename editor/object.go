@@ -100,12 +100,12 @@ func (e *ObjectEditor) AddField(node *Node) {
 	options := map[string]string{}
 
 	for _, h := range hashedTypes {
-		displayName, err := h.Object.GetObject().Id.ValueContext(e.ctx)
+		displayName, err := h.Object.GetObject(nil).Id.ValueContext(e.ctx)
 		if err != nil {
 			// we shouldn't be able to get here
 			e.fail <- kerr.New("IPLHSXDWQK", err, "ValueContext")
 		}
-		options[h.Object.GetObject().Id.String()] = displayName
+		options[h.Object.GetObject(nil).Id.String()] = displayName
 	}
 
 	dropdown := mdl.Select(options)

@@ -72,7 +72,7 @@ func TestRequestResponseChannel(t *testing.T) {
 		// sendRequestAndWaitForResponse is the first part of the Request method,
 		// which sends a request and stores the response channel in the requests
 		// map. We should check the response channel exists in the requests map.
-		r, ok := c.requests[m.GetMessage().Guid.Value()]
+		r, ok := c.requests[m.GetMessage(nil).Guid.Value()]
 		assert.True(t, ok)
 		assert.Equal(t, r, responseChannel)
 
@@ -88,7 +88,7 @@ func TestRespond(t *testing.T) {
 		// field, so we must clone the request and add it.
 		m1, err := clone(tests.PathCtx("kego.io/editor/shared/messages"), m)
 		assert.NoError(t, err)
-		m1.(messages.MessageInterface).GetMessage().Request = system.NewString("c")
+		m1.(messages.MessageInterface).GetMessage(nil).Request = system.NewString("c")
 		expected, _ := ke.Marshal(m1)
 		expected = append(expected, byte('\n'))
 

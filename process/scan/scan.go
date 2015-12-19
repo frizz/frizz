@@ -59,7 +59,7 @@ func ScanForGlobals(ctx context.Context) error {
 		if !ok {
 			return nil
 		}
-		b := o.GetObject()
+		b := o.GetObject(nil)
 		if b.Id == nil {
 			// Anything without an ID is not a global
 			return nil
@@ -90,7 +90,7 @@ func ScanForSource(ctx context.Context) error {
 		if !ok {
 			return nil
 		}
-		b := o.GetObject()
+		b := o.GetObject(nil)
 		if b.Id == nil {
 			// Anything without an ID is not a global
 			return nil
