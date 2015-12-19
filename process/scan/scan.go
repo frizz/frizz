@@ -20,10 +20,7 @@ import (
 
 func ScanForPackage(ctx context.Context) error {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("SMFIIKLXFB", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	found := false
 	var pkg *system.Package
@@ -152,10 +149,7 @@ func ScanForTypes(ctx context.Context, ignoreUnknownTypes bool) error {
 
 func scanPath(ctx context.Context, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error) error {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("OFLQPRNCXX", nil, "No cmd in env")
-	}
+	cmd := cmdctx.FromContext(ctx)
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
@@ -225,10 +219,7 @@ func scanBytes(ctx context.Context, file []byte, hash uint64, ignoreUnknownTypes
 // openFile opens a file, optionally converts from yml to json, and returns a byte slice and a hash of the contents.
 func OpenFile(ctx context.Context, filePath string) ([]byte, uint64, error) {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return nil, 0, kerr.New("LKDJNNGXCW", nil, "No cmd in ctx")
-	}
+	cmd := cmdctx.FromContext(ctx)
 
 	if !strings.HasSuffix(filePath, ".json") && !strings.HasSuffix(filePath, ".yaml") && !strings.HasSuffix(filePath, ".yml") {
 		return nil, 0, nil
@@ -264,10 +255,7 @@ func OpenFile(ctx context.Context, filePath string) ([]byte, uint64, error) {
 // gets the hash of a file, including data about the file path, package path and import aliases
 func GetHash(ctx context.Context, relativeFilePath string, content []byte) (uint64, error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return 0, kerr.New("QKTLWUKJKC", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	holder := struct {
 		File    string

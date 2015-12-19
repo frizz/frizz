@@ -18,10 +18,7 @@ import (
 
 func Validate(ctx context.Context) error {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("SJOFCDFUXT", nil, "No cmd in ctx")
-	}
+	cmd := cmdctx.FromContext(ctx)
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {

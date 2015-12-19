@@ -26,10 +26,7 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 	p := &pkg{Node: node}
 	p.Branch = NewBranch(p, parent)
 
-	env, ok := envctx.FromContext(p.tree.ctx)
-	if !ok {
-		return kerr.New("CROQODEYEL", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(p.tree.ctx)
 
 	p.setLabel(env.Path)
 	parent.Append(p)

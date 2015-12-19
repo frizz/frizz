@@ -35,15 +35,8 @@ const (
 //
 func Generate(ctx context.Context, file SourceType) error {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("LQVDAAQKWK", nil, "No cmd in ctx")
-	}
-
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("IREJTPARUK", nil, "No env in ctx")
-	}
+	cmd := cmdctx.FromContext(ctx)
+	env := envctx.FromContext(ctx)
 
 	if cmd.Verbose {
 		fmt.Print("Generating ", file, "... ")

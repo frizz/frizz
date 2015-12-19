@@ -17,10 +17,7 @@ import (
 
 func Structs(ctx context.Context) (source []byte, err error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return nil, kerr.New("FCLEJBEQWQ", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	types := system.GetAllGlobalsInPackage(env.Path, system.NewReference("kego.io/system", "type"))
 	g := generator.New(env.Path)

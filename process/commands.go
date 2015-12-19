@@ -13,10 +13,7 @@ import (
 
 func ValidateCommand(ctx context.Context) (typesChanged bool, err error) {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return false, kerr.New("MISESATNVN", nil, "No cmd in ctx")
-	}
+	cmd := cmdctx.FromContext(ctx)
 
 	if cmd.Verbose {
 		fmt.Print("Validating... ")
@@ -36,15 +33,8 @@ func ValidateCommand(ctx context.Context) (typesChanged bool, err error) {
 // Ke is the main process fired by the ke command line tool.
 func KeCommand(ctx context.Context) error {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("UXBXCPJLLN", nil, "No cmd in ctx")
-	}
-
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("GUJHVCFFGJ", nil, "No env in ctx")
-	}
+	cmd := cmdctx.FromContext(ctx)
+	env := envctx.FromContext(ctx)
 
 	for p, a := range env.Aliases {
 		if cmd.Verbose {

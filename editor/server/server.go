@@ -27,6 +27,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/wgctx"
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
@@ -51,17 +52,8 @@ func Start(ctx context.Context) error {
 
 	app.ctx = ctx
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("WHUTFJWEWD", nil, "Ne env in ctx")
-	}
-	app.env = env
-
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("JQLQHBRTNJ", nil, "Ne cmd in ctx")
-	}
-	app.cmd = cmd
+	app.env = envctx.FromContext(ctx)
+	app.cmd = cmdctx.FromContext(ctx)
 
 	pkg, err := initialise()
 	if err != nil {
@@ -71,7 +63,7 @@ func Start(ctx context.Context) error {
 
 	app.fail = make(chan error)
 
-	if cmd.Verbose {
+	if app.cmd.Verbose {
 		fmt.Println("Starting editor server... ")
 	}
 
@@ -125,7 +117,7 @@ func Start(ctx context.Context) error {
 		case err, open := <-app.fail:
 			if !open {
 				// Channel has been closed, so app should gracefully exit.
-				if cmd.Verbose {
+				if app.cmd.Verbose {
 					fmt.Println("Exiting editor server (finished)... ")
 				}
 			} else {
@@ -183,6 +175,9 @@ func initialise() (*system.Package, error) {
 }
 
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
+
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
 
 	// This is the client code for the editor which we will compile to Javascript using GopherJs
 	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the

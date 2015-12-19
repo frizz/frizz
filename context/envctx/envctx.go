@@ -26,7 +26,15 @@ func NewContext(ctx context.Context, e *Env) context.Context {
 }
 
 // FromContext returns the User value stored in ctx, if any.
-func FromContext(ctx context.Context) (*Env, bool) {
+func FromContext(ctx context.Context) *Env {
+	e, ok := ctx.Value(envKey).(*Env)
+	if !ok {
+		panic("No env in ctx")
+	}
+	return e
+}
+
+func FromContextOrNil(ctx context.Context) (*Env, bool) {
 	e, ok := ctx.Value(envKey).(*Env)
 	return e, ok
 }

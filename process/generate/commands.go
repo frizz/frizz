@@ -13,10 +13,7 @@ import (
 
 func StructsCommand(ctx context.Context) (source []byte, err error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return nil, kerr.New("NEFDVFABBD", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	g := generator.WithName(env.Path, "main")
 	g.Imports.Add("kego.io/process")
@@ -43,10 +40,7 @@ func StructsCommand(ctx context.Context) (source []byte, err error) {
 
 func TypesCommand(ctx context.Context) (source []byte, err error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return nil, kerr.New("TNXQEXJDVH", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	g := generator.WithName(env.Path, "main")
 	g.Imports.Add("kego.io/process")
@@ -74,15 +68,8 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 
 func LocalKeCommand(ctx context.Context) (source []byte, err error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return nil, kerr.New("BIGGOLIGKS", nil, "No env in ctx")
-	}
-
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return nil, kerr.New("OGLQBVLGSV", nil, "No cmd in ctx")
-	}
+	env := envctx.FromContext(ctx)
+	cmd := cmdctx.FromContext(ctx)
 
 	g := generator.WithName(env.Path, "main")
 	g.Imports.Add("kego.io/process/generate/commands/localke")

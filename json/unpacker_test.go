@@ -93,10 +93,7 @@ type UnpackContextObject map[string]string
 
 func (u *UnpackContextValue) Unpack(ctx context.Context, in Packed) error {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("DFKIHGSKUL", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	if in.Type() != J_STRING {
 		return kerr.New("CUFSESRMCX", nil, "Should be string")
@@ -109,10 +106,7 @@ var _ Unpacker = (*UnpackContextValue)(nil)
 
 func (u *UnpackContextArray) Unpack(ctx context.Context, in Packed) error {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("AOOPQOFNKJ", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	if in.Type() != J_ARRAY {
 		return kerr.New("UXJTIVMLLG", nil, "Should be array")
@@ -133,10 +127,7 @@ var _ Unpacker = (*UnpackContextArray)(nil)
 
 func (u *UnpackContextObject) Unpack(ctx context.Context, in Packed) error {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("MKJQUDKLFD", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	if in.Type() != J_MAP {
 		return kerr.New("ACCJBEXHYG", nil, "Should be map")

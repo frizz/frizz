@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"kego.io/context/cmdctx"
+	"kego.io/context/wgctx"
 	"kego.io/process"
 	_ "kego.io/system"
 )
@@ -19,11 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		fmt.Println("No cmd in ctx")
-		os.Exit(1)
-	}
+	cmd := cmdctx.FromContext(ctx)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -39,7 +36,7 @@ func main() {
 			// so we don't need to duplicate the error message.
 			fmt.Println(process.FormatError(err))
 		}
-		os.Exit(1)
+		wgctx.WaitAndExit(ctx, 1)
 	}
-	os.Exit(0)
+	wgctx.WaitAndExit(ctx, 0)
 }

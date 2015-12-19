@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"kego.io/context/wgctx"
 	"kego.io/process"
 )
 
@@ -28,6 +29,7 @@ func Main(sourceType process.SourceType) {
 
 	if err := process.Generate(ctx, sourceType); err != nil {
 		fmt.Println(process.FormatError(err))
-		os.Exit(1)
+		wgctx.WaitAndExit(ctx, 1)
 	}
+	wgctx.WaitAndExit(ctx, 0)
 }

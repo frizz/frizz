@@ -13,6 +13,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
 	"kego.io/process/validate"
@@ -32,15 +33,11 @@ const (
 // executing the binary.
 func Run(ctx context.Context, file commandType) error {
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("YMEOUKUGDW", nil, "No cmd in ctx")
-	}
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return kerr.New("JBCPVWPYEQ", nil, "No env in ctx")
-	}
+	cmd := cmdctx.FromContext(ctx)
+	env := envctx.FromContext(ctx)
 
 	var source []byte
 	var err error

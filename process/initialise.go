@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process/scan"
 	"kego.io/system"
@@ -98,6 +99,7 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 	options := overrides.getOptions()
 
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx = wgctx.NewContext(ctx)
 
 	c := &cmdctx.Cmd{}
 	e := &envctx.Env{}

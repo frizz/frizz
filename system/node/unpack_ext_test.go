@@ -32,8 +32,7 @@ func testUnpack(t *testing.T, path string) {
 	})
 	assert.NoError(t, err)
 
-	env, ok := envctx.FromContext(ctx)
-	assert.True(t, ok)
+	env := envctx.FromContext(ctx)
 
 	err = scan.ScanForSource(ctx)
 	assert.NoError(t, err)

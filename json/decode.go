@@ -847,10 +847,7 @@ func getEmptyValue(typ reflect.Type) reflect.Value {
 
 func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (path string, name string, err error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return "", "", kerr.New("JOFAFWLYEM", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	if strings.Contains(typeString, "/") {
 		// If the type name contains a slash, I'm assuming it's a fully qualified type name of

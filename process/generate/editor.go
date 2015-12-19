@@ -11,10 +11,7 @@ import (
 
 func Editor(ctx context.Context) (source []byte, err error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return nil, kerr.New("TFXFCYUEWN", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	g := generator.New("main")
 

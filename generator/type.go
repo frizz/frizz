@@ -86,10 +86,7 @@ func getPointer(t *system.Type) string {
 
 func formatTag(ctx context.Context, fieldName string, exclude bool, defaultBytes []byte, r *system.RuleWrapper) (string, error) {
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return "", kerr.New("QAAHJJKCUO", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	kegoTag := ""
 	if defaultBytes != nil && string(defaultBytes) != "null" {

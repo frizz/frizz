@@ -35,10 +35,8 @@ func TestInitialise(t *testing.T) {
 
 	ctx, _, err := Initialise(nil)
 	assert.NoError(t, err)
-	env, ok := envctx.FromContext(ctx)
-	assert.True(t, ok)
-	cmd, ok := cmdctx.FromContext(ctx)
-	assert.True(t, ok)
+	env := envctx.FromContext(ctx)
+	cmd := cmdctx.FromContext(ctx)
 	assert.Equal(t, dirA, cmd.Dir)
 	assert.Equal(t, pathA, env.Path)
 
@@ -48,10 +46,8 @@ func TestInitialise(t *testing.T) {
 	ctx, _, err = Initialise(&FromDefaults{
 		Path: pathB,
 	})
-	env, ok = envctx.FromContext(ctx)
-	assert.True(t, ok)
-	cmd, ok = cmdctx.FromContext(ctx)
-	assert.True(t, ok)
+	env = envctx.FromContext(ctx)
+	cmd = cmdctx.FromContext(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, dirB, cmd.Dir)
 	assert.Equal(t, pathB, env.Path)

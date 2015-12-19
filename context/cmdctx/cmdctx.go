@@ -27,7 +27,10 @@ func NewContext(ctx context.Context, e *Cmd) context.Context {
 }
 
 // FromContext returns the User value stored in ctx, if any.
-func FromContext(ctx context.Context) (*Cmd, bool) {
+func FromContext(ctx context.Context) *Cmd {
 	e, ok := ctx.Value(cmdKey).(*Cmd)
-	return e, ok
+	if !ok {
+		panic("No cmd in ctx")
+	}
+	return e
 }

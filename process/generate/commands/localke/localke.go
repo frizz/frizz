@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"kego.io/context/cmdctx"
+	"kego.io/context/wgctx"
 	"kego.io/editor/server"
 	"kego.io/process"
 )
@@ -23,11 +24,7 @@ func Main(recursive bool, path string) {
 		os.Exit(1)
 	}
 
-	cmd, ok := cmdctx.FromContext(ctx)
-	if !ok {
-		fmt.Println("No cmd in ctx")
-		os.Exit(1)
-	}
+	cmd := cmdctx.FromContext(ctx)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -40,7 +37,7 @@ func Main(recursive bool, path string) {
 	typesChanged, err := process.ValidateCommand(ctx)
 	if err != nil {
 		fmt.Println(process.FormatError(err))
-		os.Exit(1)
+		wgctx.WaitAndExit(ctx, 1)
 	}
 	if typesChanged {
 		if cmd.Verbose {
@@ -52,15 +49,16 @@ func Main(recursive bool, path string) {
 				// so we don't need to duplicate the error message.
 				fmt.Println(process.FormatError(err))
 			}
-			os.Exit(1)
+			wgctx.WaitAndExit(ctx, 1)
 		}
 		// if the types have changed, RunAllCommands will opened the server etc.
-		os.Exit(0)
+		wgctx.WaitAndExit(ctx, 0)
 	}
 	if cmd.Edit {
 		if err = server.Start(ctx); err != nil {
 			fmt.Println(process.FormatError(err))
-			os.Exit(1)
+			wgctx.WaitAndExit(ctx, 1)
 		}
 	}
+	wgctx.WaitAndExit(ctx, 0)
 }

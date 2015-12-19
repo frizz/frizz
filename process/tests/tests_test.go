@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"kego.io/context/envctx"
-	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/tests"
@@ -283,10 +282,7 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		return "", err
 	}
 
-	env, ok := envctx.FromContext(ctx)
-	if !ok {
-		return "", kerr.New("PWXKBCCASN", nil, "No env in ctx")
-	}
+	env := envctx.FromContext(ctx)
 
 	if err := process.KeCommand(ctx); err != nil {
 		return "", err

@@ -26,7 +26,7 @@ func (r Reference) Value() string {
 
 func (r Reference) ValueContext(ctx context.Context) (string, error) {
 
-	env, ok := envctx.FromContext(ctx)
+	env, ok := envctx.FromContextOrNil(ctx)
 	if !ok || env.Path == "" {
 		return r.Value(), nil
 	}
