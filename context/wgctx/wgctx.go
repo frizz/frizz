@@ -2,6 +2,7 @@ package wgctx // import "kego.io/context/wgctx"
 
 import (
 	"os"
+	"time"
 
 	"fmt"
 
@@ -35,8 +36,24 @@ func FromContext(ctx context.Context) *sync.WaitGroup {
 
 func WaitAndExit(ctx context.Context, code int) {
 	wg := FromContext(ctx)
-	fmt.Println("Waiting for long-running processes to finish...")
-	wg.Wait()
-	fmt.Println("Finished long-running processes... Exiting.")
-	os.Exit(code)
+
+	c := make(chan struct{}, 1)
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+	quartersecond := time.After(time.Millisecond * 250)
+	twoseconds := time.After(time.Second * 5)
+	for {
+		select {
+		case <-c:
+			os.Exit(code)
+		case <-quartersecond:
+			fmt.Println("Waiting for long-running processes to finish...")
+		case <-twoseconds:
+			fmt.Println("Timed out waiting for long-running processes to finish... Exiting now.")
+			os.Exit(code)
+		}
+	}
+
 }
