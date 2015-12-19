@@ -382,9 +382,15 @@ func serve() error {
 		return kerr.New("CBLPYVGGUR", nil, "Can't find address (l.Addr() is not *net.TCPAddr)")
 	}
 
+	url := fmt.Sprintf("http://localhost:%d/", address.Port)
+
 	// We open the default browser and navigate to the address we're serving from.
-	if err := browser.OpenURL(fmt.Sprintf("http://localhost:%d/", address.Port)); err != nil {
+	if err := browser.OpenURL(url); err != nil {
 		return kerr.New("AEJLAXGVVA", err, "browser.OpenUrl")
+	}
+
+	if app.cmd.Verbose {
+		fmt.Printf("Server now running on %s\n", url)
 	}
 
 	if err := http.Serve(listner, nil); err != nil {
