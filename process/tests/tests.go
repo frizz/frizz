@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/wgctx"
 )
 
 type Ctx struct {
@@ -34,6 +35,7 @@ func AllCtx(c Ctx) context.Context {
 		c.Aliases = map[string]string{}
 	}
 	ctx := context.Background()
+	ctx = wgctx.NewContext(ctx)
 	ctx = envctx.NewContext(ctx, &envctx.Env{
 		Path:    c.Path,
 		Aliases: c.Aliases,
