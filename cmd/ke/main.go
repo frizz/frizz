@@ -4,6 +4,8 @@ package main // import "kego.io/cmd/ke"
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"kego.io/context/cmdctx"
 	"kego.io/process"
@@ -11,11 +13,20 @@ import (
 )
 
 func main() {
-	ctx, err := process.Initialise(nil)
+	ctx, cancel, err := process.Initialise(nil)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Println("Received OS interrupt - exiting.")
+		cancel()
+	}()
 
 	cmd, ok := cmdctx.FromContext(ctx)
 	if !ok {

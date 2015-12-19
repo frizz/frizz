@@ -32,3 +32,7 @@ func FromContext(ctx context.Context) (*Env, bool) {
 }
 
 var Empty = NewContext(context.Background(), &Env{})
+
+func Dummy(path string, aliases map[string]string) context.Context {
+	return NewContext(context.Background(), &Env{Path: path, Aliases: aliases})
+}

@@ -2,6 +2,8 @@ package localke // import "kego.io/process/generate/commands/localke"
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"kego.io/context/cmdctx"
 	"kego.io/editor/server"
@@ -11,7 +13,7 @@ import (
 // Run executes the local "ke" command that is generated in the data directory.
 func Main(recursive bool, path string) {
 	update := false
-	ctx, err := process.Initialise(&process.FromFlags{
+	ctx, cancel, err := process.Initialise(&process.FromFlags{
 		Update:    &update,
 		Recursive: &recursive,
 		Path:      &path,
@@ -20,11 +22,22 @@ func Main(recursive bool, path string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Println("Received OS interrupt - exiting.")
+		cancel()
+	}()
+
 	cmd, ok := cmdctx.FromContext(ctx)
 	if !ok {
 		fmt.Println("No cmd in ctx")
 		os.Exit(1)
 	}
+
 	if typesChanged, err := process.ValidateCommand(ctx); err != nil {
 		if !typesChanged || !cmd.Verbose {
 			// when ValidateCommand detects the types have changed, it

@@ -83,10 +83,7 @@ func UnmarshalPlain(data []byte, v interface{}) error {
 
 	d.init(data)
 
-	// create a dummy context that contains an empty env
-	ctx := envctx.NewContext(context.Background(), &envctx.Env{"", map[string]string{}})
-
-	return d.unmarshal(ctx, v)
+	return d.unmarshal(envctx.Empty, v)
 }
 func UnmarshalUntyped(ctx context.Context, data []byte, v interface{}) error {
 	// Check for well-formedness.
@@ -1133,10 +1130,7 @@ func initialiseUnmarshaledObject(v reflect.Value, foundFields []field, typed boo
 				if path == "" {
 					path = "kego.io/json"
 				}
-				newCtx := envctx.NewContext(context.Background(), &envctx.Env{
-					Path:    path,
-					Aliases: def.Aliases,
-				})
+				newCtx := envctx.Dummy(path, def.Aliases)
 				var d decodeState
 				err := checkValid(*def.Value, &d.scan)
 				if err != nil {

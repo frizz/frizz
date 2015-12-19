@@ -91,11 +91,13 @@ func (f FromFlags) getOptions() FromDefaults {
 	}
 }
 
-func Initialise(overrides optionsSpec) (context.Context, error) {
+func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, error) {
 	if overrides == nil {
 		overrides = FromFlags{}
 	}
 	options := overrides.getOptions()
+
+	ctx, cancel := context.WithCancel(context.Background())
 
 	c := &cmdctx.Cmd{}
 	e := &envctx.Env{}
@@ -109,13 +111,13 @@ func Initialise(overrides optionsSpec) (context.Context, error) {
 
 		dir, err := os.Getwd()
 		if err != nil {
-			return nil, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
+			return nil, nil, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
 		}
 		c.Dir = dir
 
 		pathFromDir, err := getPackagePath(c.Dir, os.Getenv("GOPATH"))
 		if err != nil {
-			return nil, kerr.New("PSRAWHQCPV", err, "getPackage")
+			return nil, nil, kerr.New("PSRAWHQCPV", err, "getPackage")
 		}
 		e.Path = pathFromDir
 
@@ -129,7 +131,7 @@ func Initialise(overrides optionsSpec) (context.Context, error) {
 		} else {
 			dir, err := getPackageDir(e.Path, os.Getenv("GOPATH"))
 			if err != nil {
-				return nil, kerr.New("GXTUPMHETV", err, "Can't find %s", e.Path)
+				return nil, nil, kerr.New("GXTUPMHETV", err, "Can't find %s", e.Path)
 			}
 			c.Dir = dir
 		}
@@ -138,23 +140,22 @@ func Initialise(overrides optionsSpec) (context.Context, error) {
 
 	// ScanForPackage is finding our Aliases, so it's ok to give it an
 	// incomplete env context with just the path
-	dummyCtx := context.Background()
+	dummyCtx := ctx
 	dummyCtx = envctx.NewContext(dummyCtx, e)
 	dummyCtx = cmdctx.NewContext(dummyCtx, c)
 	if err := scan.ScanForPackage(dummyCtx); err != nil {
-		return nil, kerr.New("IAAETYCHSW", err, "scan.ScanForPackage")
+		return nil, nil, kerr.New("IAAETYCHSW", err, "scan.ScanForPackage")
 	}
 	p, ok := system.GetPackage(e.Path)
 	if !ok {
-		return nil, kerr.New("BHLJNCIWUJ", nil, "Package not found")
+		return nil, nil, kerr.New("BHLJNCIWUJ", nil, "Package not found")
 	}
 	e.Aliases = p.Aliases
 
-	ctx := context.Background()
 	ctx = envctx.NewContext(ctx, e)
 	ctx = cmdctx.NewContext(ctx, c)
 
-	return ctx, nil
+	return ctx, cancel, nil
 }
 
 func getPackagePath(dir string, gopathEnv string) (string, error) {
