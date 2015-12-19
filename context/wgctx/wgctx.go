@@ -42,18 +42,19 @@ func WaitAndExit(ctx context.Context, code int) {
 		defer close(c)
 		wg.Wait()
 	}()
-	quartersecond := time.After(time.Millisecond * 250)
-	twoseconds := time.After(time.Second * 5)
-	for {
-		select {
-		case <-c:
-			os.Exit(code)
-		case <-quartersecond:
-			fmt.Println("Waiting for long-running processes to finish...")
-		case <-twoseconds:
-			fmt.Println("Timed out waiting for long-running processes to finish... Exiting now.")
-			os.Exit(code)
-		}
+
+	go func() {
+		// only show the waiting message after 250ms
+		<-time.After(time.Millisecond * 250)
+		fmt.Println("Waiting for long-running processes to finish...")
+	}()
+
+	select {
+	case <-c:
+		os.Exit(code)
+	case <-time.After(time.Second * 5):
+		fmt.Println("Timed out waiting for long-running processes to finish... Exiting now.")
+		os.Exit(code)
 	}
 
 }
