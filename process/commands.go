@@ -23,12 +23,6 @@ func ValidateCommand(ctx context.Context) (typesChanged bool, err error) {
 	}
 	if err := validate.Validate(ctx); err != nil {
 		if _, ok := kerr.Source(err).(validate.TypesChangedError); ok {
-			if cmd.Verbose {
-				fmt.Println("Types have changed - rebuilding...")
-			}
-			if err := RunAllCommands(ctx); err != nil {
-				return true, err
-			}
 			return true, nil
 		}
 		return false, err

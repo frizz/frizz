@@ -139,10 +139,14 @@ func Run(ctx context.Context, file commandType) error {
 			}
 			return validate.ValidationError{kerr.New("ETWHPXTUVB", nil, errorMessage)}
 		}
-		return kerr.New("UDDSSMQRHA", err, "cmd.Run: %s", combined.String())
+		return CommandError{kerr.New("UDDSSMQRHA", nil, strings.TrimSpace(combined.String()))}
 	}
 
 	return nil
+}
+
+type CommandError struct {
+	kerr.Struct
 }
 
 func logger(verbose bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.Writer) {

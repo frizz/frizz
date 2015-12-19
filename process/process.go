@@ -15,5 +15,8 @@ func FormatError(err error) string {
 	if t, ok := source.(validate.TypesChangedError); ok {
 		return fmt.Sprint("Error: ", t.Description)
 	}
+	if t, ok := err.(CommandError); ok {
+		return t.Description
+	}
 	return err.Error()
 }

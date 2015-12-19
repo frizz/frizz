@@ -34,25 +34,27 @@ func Main(recursive bool, path string) {
 	signal.Notify(c, syscall.SIGTERM)
 	go func() {
 		<-c
-		if cmd.Verbose {
-			fmt.Println("Received OS interrupt - exiting.")
-		}
 		cancel()
 	}()
 
 	typesChanged, err := process.ValidateCommand(ctx)
 	if err != nil {
-		if !typesChanged || !cmd.Verbose {
-			// when ValidateCommand detects the types have changed, it
-			// spawns a ke command. In verbose mode this will output any
-			// error so we don't need to print the error
-			fmt.Println(process.FormatError(err))
-		}
+		fmt.Println(process.FormatError(err))
 		os.Exit(1)
 	}
-	// if the types have changed, we have spawned a sub process to rebuild them, and this will have
-	// opened the server etc.
 	if typesChanged {
+		if cmd.Verbose {
+			fmt.Println("Types have changed - rebuilding...")
+		}
+		if err := process.RunAllCommands(ctx); err != nil {
+			if !cmd.Verbose {
+				// in verbose mode, we have already written the output of the exec'ed ke command,
+				// so we don't need to duplicate the error message.
+				fmt.Println(process.FormatError(err))
+			}
+			os.Exit(1)
+		}
+		// if the types have changed, RunAllCommands will opened the server etc.
 		os.Exit(0)
 	}
 	if cmd.Edit {

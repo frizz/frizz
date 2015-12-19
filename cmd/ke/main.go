@@ -30,9 +30,6 @@ func main() {
 	signal.Notify(c, syscall.SIGTERM)
 	go func() {
 		<-c
-		if cmd.Verbose {
-			fmt.Println("Received OS interrupt - exiting.")
-		}
 		cancel()
 	}()
 
