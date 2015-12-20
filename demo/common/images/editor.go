@@ -33,7 +33,7 @@ func (e *IconEditor) Initialize(ctx context.Context, holder editor.BranchInterfa
 	e.image = mdl.Image(e.Url.Value())
 	e.AppendChild(e.image)
 
-	e.url = editor.NewStringEditor(e.Node.Map["url"])
+	e.url = editor.NewStringEditor(e.Node.Map["url"].(*editor.Node))
 	e.url.Initialize(ctx, holder, editor.Block, fail)
 	e.Editors = append(e.Editors, e.url)
 	e.AppendChild(e.url)

@@ -27,8 +27,8 @@ func nodeIsMemberOfList(needle *node.Node, haystack []*node.Node) bool {
 
 func (p *Parser) appendAncestorsToHaystack(n *node.Node, haystack map[*node.Node]*node.Node) {
 	if !p.isRoot(n) {
-		haystack[n.Parent] = n.Parent
-		p.appendAncestorsToHaystack(n.Parent, haystack)
+		haystack[n.Parent.GetNode()] = n.Parent.GetNode()
+		p.appendAncestorsToHaystack(n.Parent.GetNode(), haystack)
 	}
 }
 
@@ -39,7 +39,7 @@ func (p *Parser) nodeIsChildOfHaystackMember(needle *node.Node, haystack map[*no
 	if p.isRoot(needle) {
 		return false
 	}
-	return p.nodeIsChildOfHaystackMember(needle.Parent, haystack)
+	return p.nodeIsChildOfHaystackMember(needle.Parent.GetNode(), haystack)
 }
 
 func (p *Parser) parents(lhs []*node.Node, rhs []*node.Node) []*node.Node {
@@ -48,7 +48,7 @@ func (p *Parser) parents(lhs []*node.Node, rhs []*node.Node) []*node.Node {
 	lhsHaystack := getHaystackFromNodeList(lhs)
 
 	for _, element := range rhs {
-		if !p.isRoot(element) && nodeIsMemberOfHaystack(element.Parent, lhsHaystack) {
+		if !p.isRoot(element) && nodeIsMemberOfHaystack(element.Parent.GetNode(), lhsHaystack) {
 			results = append(results, element)
 		}
 	}
@@ -80,7 +80,7 @@ func (p *Parser) getSiblings(n *node.Node) int {
 	if p.isRoot(n) {
 		return 0
 	}
-	return len(n.Parent.Array)
+	return len(n.Parent.GetNode().Array)
 }
 
 func (p *Parser) ancestors(lhs []*node.Node, rhs []*node.Node) []*node.Node {
@@ -102,12 +102,12 @@ func (p *Parser) siblings(lhs []*node.Node, rhs []*node.Node) []*node.Node {
 
 	for _, element := range lhs {
 		if !p.isRoot(element) {
-			parents[element.Parent] = element.Parent
+			parents[element.Parent.GetNode()] = element.Parent.GetNode()
 		}
 	}
 
 	for _, element := range rhs {
-		if !p.isRoot(element) && nodeIsMemberOfHaystack(element.Parent, parents) {
+		if !p.isRoot(element) && nodeIsMemberOfHaystack(element.Parent.GetNode(), parents) {
 			results = append(results, element)
 		}
 	}

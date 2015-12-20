@@ -57,19 +57,22 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 	}
 	switch parentNode.Type.Native.Value() {
 	case "array":
-		for i, child := range parentNode.Array {
+		for i, v := range parentNode.Array {
+			child := v.(*editor.Node)
 			if _, err := addEntry("", i, child, parentBranch, parentEditor); err != nil {
 				return kerr.New("IOXSWBQDXH", err, "addEntry (array)")
 			}
 		}
 	case "map":
-		for name, child := range parentNode.Map {
+		for name, v := range parentNode.Map {
+			child := v.(*editor.Node)
 			if _, err := addEntry(name, -1, child, parentBranch, parentEditor); err != nil {
 				return kerr.New("YVTQCADGJF", err, "addEntry (map)")
 			}
 		}
 	case "object":
-		for name, child := range parentNode.Map {
+		for name, v := range parentNode.Map {
+			child := v.(*editor.Node)
 			if child.Missing {
 				continue
 			}

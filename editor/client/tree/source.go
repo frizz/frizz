@@ -5,7 +5,6 @@ import (
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/system/node"
 )
 
 type source struct {
@@ -50,12 +49,10 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", response)
 	}
 
-	n := &node.Node{}
-	if err := ke.UnmarshalNode(s.tree.ctx, []byte(gr.Data.Value()), n); err != nil {
+	s.Node = editor.NewEditorNode()
+	if err := ke.UnmarshalUntyped(s.tree.ctx, []byte(gr.Data.Value()), s.Node); err != nil {
 		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
 	}
-
-	s.Node = editor.NewNode(n, nil)
 
 	ed := s.Node.Editor()
 

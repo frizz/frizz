@@ -525,7 +525,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 			ancestors := make(map[*node.Node]*node.Node, len(rvals))
 			for _, node := range rvals {
 				if !p.isRoot(node) {
-					ancestors[node.Parent] = node.Parent
+					ancestors[node.Parent.GetNode()] = node.Parent.GetNode()
 				}
 			}
 			logger.Print("pclassFuncProduction has ? ", n, " ∈ ", getFormattedNodeMap(ancestors))

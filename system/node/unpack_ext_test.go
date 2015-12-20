@@ -40,8 +40,8 @@ func testUnpack(t *testing.T, path string) {
 	sha := system.GetAllSourceInPackage(env.Path)
 
 	for _, sh := range sha {
-		var n node.Node
-		err := ke.UnmarshalNode(ctx, sh.Source, &n)
+		n := node.NewNode()
+		err := ke.UnmarshalUntyped(ctx, sh.Source, n)
 		assert.NoError(t, err, sh.Id.Name)
 	}
 }
@@ -49,8 +49,8 @@ func testUnpack(t *testing.T, path string) {
 func TestNodeUnpack(t *testing.T) {
 	j := `{"type":"system:package","aliases":{"kego.io/demo/common/images":"images","kego.io/demo/common/units":"units","kego.io/demo/common/words":"words"}}`
 
-	packageNode := &node.Node{}
-	err := ke.UnmarshalNode(tests.PathCtx("kego.io/demo/site"), []byte(j), packageNode)
+	packageNode := node.NewNode()
+	err := ke.UnmarshalUntyped(tests.PathCtx("kego.io/demo/site"), []byte(j), packageNode)
 	assert.NoError(t, err)
 
 }

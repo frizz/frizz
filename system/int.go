@@ -19,7 +19,7 @@ func NewInt(i int) *Int {
 	return &out
 }
 
-func (i *Int) GetString() *String {
+func (i *Int) GetString(ctx context.Context) *String {
 	return NewString(i.String())
 }
 

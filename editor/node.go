@@ -9,30 +9,21 @@ import (
 type Node struct {
 	*node.Node
 	editor  EditorInterface
-	Parent  *Node
-	Array   []*Node
-	Map     map[string]*Node
 	changes *broadcast.Broadcaster
 }
 
-func (n *Node) UpdateFromInnerNode() {
-	n.Array = []*Node{}
-	for _, child := range n.Node.Array {
-		n.Array = append(n.Array, NewNode(child, n))
-	}
-	n.Map = map[string]*Node{}
-	for name, child := range n.Node.Map {
-		n.Map[name] = NewNode(child, n)
-	}
-}
-
-func NewNode(inner *node.Node, parent *Node) *Node {
-	n := &Node{Node: inner}
-	n.Parent = parent
-	n.UpdateFromInnerNode()
+func NewEditorNode() *Node {
+	n := &Node{Node: &node.Node{}}
+	n.Self = n
 	n.changes = broadcast.New(0)
 	return n
 }
+
+func (n *Node) NewChild() node.NodeInterface {
+	return NewEditorNode()
+}
+
+var _ node.NodeInterface = (*Node)(nil)
 
 func (n *Node) Editor() EditorInterface {
 

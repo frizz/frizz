@@ -18,7 +18,6 @@ import (
 	"kego.io/editor/shared/connection"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/system/node"
 )
 
 type appData struct {
@@ -53,11 +52,10 @@ func Start() error {
 	app.ctx = envctx.NewContext(context.Background(), app.env)
 	app.fail = make(chan error)
 
-	packageNode := &node.Node{}
-	if err := ke.UnmarshalNode(app.ctx, []byte(info.Package), packageNode); err != nil {
+	editorNode := editor.NewEditorNode()
+	if err := ke.UnmarshalUntyped(app.ctx, []byte(info.Package), editorNode); err != nil {
 		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
 	}
-	editorNode := editor.NewNode(packageNode, nil)
 
 	// We dial the websocket connection to the server
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))

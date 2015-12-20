@@ -8,7 +8,11 @@ import (
 )
 
 type Node struct {
-	Parent      *Node
+	Self   NodeInterface
+	Parent NodeInterface
+	Array  []NodeInterface
+	Map    map[string]NodeInterface
+
 	Key         string            // in an object or a map, this is the key
 	Index       int               // in an array, this is the index
 	Origin      *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
@@ -18,12 +22,31 @@ type Node struct {
 	Value       interface{} // unmarshalled value
 	Null        bool        // null is true if the json is null or the field is missing
 	Missing     bool        // missing is only true if the field is missing
-	Array       []*Node
-	Map         map[string]*Node
 	Rule        *system.RuleWrapper
 	Type        *system.Type
 	JsonType    json.Type
 }
+
+func NewNode() *Node {
+	n := &Node{}
+	n.Self = n
+	return n
+}
+
+type NodeInterface interface {
+	NewChild() NodeInterface
+	GetNode() *Node
+}
+
+func (n *Node) NewChild() NodeInterface {
+	return NewNode()
+}
+
+func (n *Node) GetNode() *Node {
+	return n
+}
+
+var _ NodeInterface = (*Node)(nil)
 
 // Unpack unpacks a node from an unpackable
 func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
@@ -53,7 +76,7 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 	case "array":
 		// nothing to do here
 	case "map":
-		n.Map = map[string]*Node{}
+		n.Map = map[string]NodeInterface{}
 	case "object":
 		if err := n.InitialiseFields(ctx, nil); err != nil {
 			return kerr.New("YIHFDLTIMW", err, "InitialiseFields")
@@ -62,7 +85,7 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 	return nil
 }
 
-func (n *Node) extract(ctx context.Context, parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper) error {
+func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper) error {
 
 	objectType, err := extractType(ctx, in, rule)
 	if err != nil {
@@ -156,8 +179,8 @@ func (n *Node) extract(ctx context.Context, parent *Node, key string, index int,
 		}
 		children := in.Array()
 		for i, child := range children {
-			childNode := &Node{}
-			if err := childNode.extract(ctx, n, "", i, &system.Reference{}, len(children), child, true, childRule); err != nil {
+			childNode := n.Self.NewChild()
+			if err := childNode.GetNode().extract(ctx, n.Self, "", i, &system.Reference{}, len(children), child, true, childRule); err != nil {
 				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
 			}
 			n.Array = append(n.Array, childNode)
@@ -174,11 +197,11 @@ func (n *Node) extract(ctx context.Context, parent *Node, key string, index int,
 		if err != nil {
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
-		n.Map = map[string]*Node{}
+		n.Map = map[string]NodeInterface{}
 		children := in.Map()
 		for name, child := range children {
-			childNode := &Node{}
-			if err := childNode.extract(ctx, n, name, -1, &system.Reference{}, 0, child, true, childRule); err != nil {
+			childNode := n.Self.NewChild()
+			if err := childNode.GetNode().extract(ctx, n.Self, name, -1, &system.Reference{}, 0, child, true, childRule); err != nil {
 				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
 			}
 			n.Map[name] = childNode
@@ -199,7 +222,7 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 		}
 		m = in.Map()
 	}
-	n.Map = map[string]*Node{}
+	n.Map = map[string]NodeInterface{}
 
 	fields := map[string]*system.Field{}
 	if err := extractFields(fields, n.Type); err != nil {
@@ -212,8 +235,8 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 			return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 		}
 		child, ok := m[name]
-		childNode := &Node{}
-		if err := childNode.extract(ctx, n, name, -1, f.Origin, 0, child, ok, rule); err != nil {
+		childNode := n.Self.NewChild()
+		if err := childNode.GetNode().extract(ctx, n.Self, name, -1, f.Origin, 0, child, ok, rule); err != nil {
 			return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
 		}
 		n.Map[name] = childNode

@@ -66,8 +66,8 @@ func validateFile(ctx context.Context, filePath string) error {
 }
 
 func validateBytes(ctx context.Context, bytes []byte, hash uint64) error {
-	n := &node.Node{}
-	err := ke.UnmarshalNode(ctx, bytes, n)
+	n := node.NewNode()
+	err := ke.UnmarshalUntyped(ctx, bytes, n)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
@@ -174,7 +174,7 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 				return kerr.New("UKOCCFJWAB", err, "p.GetJsonElements (%s)", selector)
 			}
 			for _, match := range matches {
-				ok, message, err := e.Enforce(ctx, match.Value)
+				ok, message, err := e.Enforce(ctx, match.GetNode().Value)
 				if err != nil {
 					return kerr.New("MGHHDYTXVV", err, "e.Enforce")
 				}
@@ -232,11 +232,11 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 		allRules := append(rules, ob.GetObject(nil).Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
-			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
+		if len(child.GetNode().Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
+			allRules = append(allRules, child.GetNode().Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 		}
 
-		if err := validateObject(ctx, child, allRules); err != nil {
+		if err := validateObject(ctx, child.GetNode(), allRules); err != nil {
 			return kerr.New("YJYSAOQWSJ", err, "validateObject (%s)", name)
 		}
 	}
@@ -251,7 +251,7 @@ func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *syst
 	}
 
 	for i, child := range node.Array {
-		if err := validateObject(ctx, child, rules); err != nil {
+		if err := validateObject(ctx, child.GetNode(), rules); err != nil {
 			return kerr.New("DKVEPIWTPI", err, "validateObject array index %s", i)
 		}
 	}
@@ -266,7 +266,7 @@ func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system
 	}
 
 	for n, child := range node.Map {
-		if err := validateObject(ctx, child, rules); err != nil {
+		if err := validateObject(ctx, child.GetNode(), rules); err != nil {
 			return kerr.New("YLONAMFUAG", err, "validateObject map key %s", n)
 		}
 	}

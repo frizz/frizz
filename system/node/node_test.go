@@ -24,7 +24,7 @@ func TestFoo(t *testing.T) {
 			}
 		}
 	}`
-	n := &node.Node{}
+	n := node.NewNode()
 	err := json.UnmarshalUntyped(tests.PathCtx("kego.io/system"), []byte(s), n)
 	assert.NoError(t, err)
 }

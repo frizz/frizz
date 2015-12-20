@@ -44,8 +44,8 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				t.Error("Error encountered while reading ", name, ": ", err)
 				continue
 			}
-			n := &node.Node{}
-			err = ke.UnmarshalNode(tests.PathCtx("kego.io/selectors/tests"), json_document, n)
+			n := node.NewNode()
+			err = ke.UnmarshalUntyped(tests.PathCtx("kego.io/selectors/tests"), json_document, n)
 			assert.NoError(t, err, name)
 
 			testDocuments[name[0:len(name)-len(".json")]] = n
@@ -223,7 +223,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 
 		for i, child := range actual.Array {
-			match, err := comparison(child, expectedArray[i])
+			match, err := comparison(child.GetNode(), expectedArray[i])
 			if err != nil {
 				return false, kerr.New("CTHINNYIRI", err, "comparison (array)")
 			}
@@ -242,7 +242,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			if !ok {
 				return false, nil
 			}
-			match, err := comparison(child, expectedMap[key])
+			match, err := comparison(child.GetNode(), expectedMap[key])
 			if err != nil {
 				return false, kerr.New("QTVTEIETXV", err, "getNodes (map)")
 			}
@@ -277,14 +277,14 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			if !ok {
 				return false, nil
 			}
-			match, err := comparison(child, expectedMap[key])
+			match, err := comparison(child.GetNode(), expectedMap[key])
 			if err != nil {
 				return false, kerr.New("NNCBWVRAJC", err, "comparison (object)")
 			}
 			return match, nil
 		}
 		for key, field := range actual.Map {
-			if field.Missing {
+			if field.GetNode().Missing {
 				continue
 			}
 			matched, err := compareChild(key)

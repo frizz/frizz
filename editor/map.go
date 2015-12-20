@@ -40,7 +40,9 @@ func (e *MapEditor) Initialize(ctx context.Context, holder BranchInterface, layo
 
 	table.Head("name", "holds", "value")
 
-	for name, item := range e.Map {
+	for name, v := range e.Map {
+
+		item := v.(*Node)
 
 		r := table.Row()
 

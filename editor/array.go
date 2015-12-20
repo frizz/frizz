@@ -43,7 +43,9 @@ func (e *ArrayEditor) Initialize(ctx context.Context, holder BranchInterface, la
 
 	table.Head("index", "holds", "value")
 
-	for i, item := range e.Array {
+	for i, v := range e.Array {
+
+		item := v.(*Node)
 
 		r := table.Row()
 

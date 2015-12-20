@@ -29,11 +29,11 @@ func (e *RectangleEditor) Initialize(ctx context.Context, holder editor.BranchIn
 
 	e.Editor.Initialize(ctx, holder, layout, fail)
 
-	e.height = editor.NewNumberEditor(e.Node.Map["height"])
+	e.height = editor.NewNumberEditor(e.Node.Map["height"].(*editor.Node))
 	e.height.Initialize(ctx, holder, editor.Inline, fail)
 	e.height.Style().Set("width", "50%")
 
-	e.width = editor.NewNumberEditor(e.Node.Map["width"])
+	e.width = editor.NewNumberEditor(e.Node.Map["width"].(*editor.Node))
 	e.width.Initialize(ctx, holder, editor.Inline, fail)
 	e.width.Style().Set("width", "50%")
 

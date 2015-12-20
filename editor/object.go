@@ -41,7 +41,8 @@ func (e *ObjectEditor) Initialize(ctx context.Context, holder BranchInterface, l
 }
 
 func (e *ObjectEditor) initializeBlockEditors() {
-	for _, node := range e.Map {
+	for _, v := range e.Map {
+		node := v.(*Node)
 		if node.Missing || node.Null {
 			continue
 		}
@@ -139,8 +140,6 @@ func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Typ
 		e.fail <- kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType")
 	}
 
-	node.UpdateFromInnerNode()
-
 	// Updates the object summary table with the new node info
 	node.changes.Send(node)
 
@@ -176,7 +175,8 @@ type objectSummaryRow struct {
 func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
 	s := &objectSummary{summary: &summary{TableStruct: mdl.Table(), ctx: ctx}}
 	s.Head("name", "origin", "holds", "value", "options")
-	for _, child := range node.Map {
+	for _, v := range node.Map {
+		child := v.(*Node)
 		r := s.newRow(child)
 		if err := r.update(); err != nil {
 			return nil, kerr.New("UNVCXHWGRF", err, "update")
@@ -247,7 +247,7 @@ func (r *objectSummaryRow) update() error {
 	if node.Missing || node.Null {
 		a := mdl.Anchor().Text("add").Click(func(e dom.Event) {
 			e.(*dom.MouseEvent).PreventDefault()
-			node.Parent.editor.(*ObjectEditor).AddField(node)
+			node.Parent.(*Node).editor.(*ObjectEditor).AddField(node)
 		})
 		r.options.AppendChild(a)
 	}

@@ -7,7 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/system/node"
 )
 
 func Open(ctx context.Context, filename string) (value interface{}, err error) {
@@ -26,8 +25,8 @@ func Open(ctx context.Context, filename string) (value interface{}, err error) {
 func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
 	return json.Unmarshal(ctx, data, v)
 }
-func UnmarshalNode(ctx context.Context, data []byte, n *node.Node) error {
-	return json.UnmarshalUntyped(ctx, data, n)
+func UnmarshalUntyped(ctx context.Context, data []byte, i interface{}) error {
+	return json.UnmarshalUntyped(ctx, data, i)
 }
 
 func NewDecoder(ctx context.Context, r io.Reader) *json.Decoder {

@@ -1,6 +1,19 @@
 //go:generate kego -v
 package words
 
+import (
+	"golang.org/x/net/context"
+	"kego.io/system"
+)
+
+func (s *Simple) GetString(ctx context.Context) *system.String {
+	return s.String
+}
+
+func (t *Translation) GetString(ctx context.Context) *system.String {
+	return t.English
+}
+
 type Localizer interface {
 	Localize(fallbacks []string) string
 }
