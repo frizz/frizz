@@ -227,8 +227,6 @@ type Type struct {
 	Fields map[string]RuleInterface `json:"fields"`
 	// Is this type an interface?
 	Interface bool `json:"interface"`
-	// Array of interface types that this type should support
-	Is []*Reference `json:"is"`
 	// This is the native json type that represents this type. If omitted, default is object.
 	Native *String `kego:"{\"default\":{\"value\":\"object\"}}" json:"native"`
 	// Type that defines restriction rules for this type.
@@ -252,7 +250,7 @@ func init() {
 	json.Register("kego.io/system", "@reference", reflect.TypeOf((*ReferenceRule)(nil)), nil, 17067036908016315687)
 	json.Register("kego.io/system", "@rule", reflect.TypeOf((*RuleRule)(nil)), nil, 12761314134647754082)
 	json.Register("kego.io/system", "@string", reflect.TypeOf((*StringRule)(nil)), nil, 12589443105519283292)
-	json.Register("kego.io/system", "@type", reflect.TypeOf((*TypeRule)(nil)), nil, 10828715750116313960)
+	json.Register("kego.io/system", "@type", reflect.TypeOf((*TypeRule)(nil)), nil, 8754098706481789028)
 	json.Register("kego.io/system", "bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem(), 11092538838457238262)
 	json.Register("kego.io/system", "int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem(), 14978258480540711733)
 	json.Register("kego.io/system", "number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem(), 4117207956434057366)
@@ -261,5 +259,5 @@ func init() {
 	json.Register("kego.io/system", "reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem(), 17067036908016315687)
 	json.Register("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem(), 12761314134647754082)
 	json.Register("kego.io/system", "string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem(), 12589443105519283292)
-	json.Register("kego.io/system", "type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem(), 10828715750116313960)
+	json.Register("kego.io/system", "type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem(), 8754098706481789028)
 }

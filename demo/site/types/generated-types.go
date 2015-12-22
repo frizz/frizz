@@ -17,43 +17,43 @@ func init() {
 	ptr2 := &system.Object{Description: "Automatically created basic rule for gallery1", Id: ptr0, Rules: []system.RuleInterface(nil), Type: ptr1}
 	ptr3 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr4 := system.String("object")
-	ptr5 := &system.Type{Object: ptr2, Embed: []*system.Reference{ptr3}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr4, Rule: (*system.Type)(nil)}
+	ptr5 := &system.Type{Object: ptr2, Embed: []*system.Reference{ptr3}, Fields: map[string]system.RuleInterface(nil), Native: &ptr4, Rule: (*system.Type)(nil)}
 	ptr6 := &system.Reference{Package: "kego.io/demo/site", Name: "@gallery1a"}
 	ptr7 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr8 := &system.Object{Description: "Automatically created basic rule for gallery1a", Id: ptr6, Rules: []system.RuleInterface(nil), Type: ptr7}
 	ptr9 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr10 := system.String("object")
-	ptr11 := &system.Type{Object: ptr8, Embed: []*system.Reference{ptr9}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr10, Rule: (*system.Type)(nil)}
+	ptr11 := &system.Type{Object: ptr8, Embed: []*system.Reference{ptr9}, Fields: map[string]system.RuleInterface(nil), Native: &ptr10, Rule: (*system.Type)(nil)}
 	ptr12 := &system.Reference{Package: "kego.io/demo/site", Name: "@gallery2"}
 	ptr13 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr14 := &system.Object{Description: "Automatically created basic rule for gallery2", Id: ptr12, Rules: []system.RuleInterface(nil), Type: ptr13}
 	ptr15 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr16 := system.String("object")
-	ptr17 := &system.Type{Object: ptr14, Embed: []*system.Reference{ptr15}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr16, Rule: (*system.Type)(nil)}
+	ptr17 := &system.Type{Object: ptr14, Embed: []*system.Reference{ptr15}, Fields: map[string]system.RuleInterface(nil), Native: &ptr16, Rule: (*system.Type)(nil)}
 	ptr18 := &system.Reference{Package: "kego.io/demo/site", Name: "@gallery2a"}
 	ptr19 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr20 := &system.Object{Description: "Automatically created basic rule for gallery2a", Id: ptr18, Rules: []system.RuleInterface(nil), Type: ptr19}
 	ptr21 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr22 := system.String("object")
-	ptr23 := &system.Type{Object: ptr20, Embed: []*system.Reference{ptr21}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr22, Rule: (*system.Type)(nil)}
+	ptr23 := &system.Type{Object: ptr20, Embed: []*system.Reference{ptr21}, Fields: map[string]system.RuleInterface(nil), Native: &ptr22, Rule: (*system.Type)(nil)}
 	ptr24 := &system.Reference{Package: "kego.io/demo/site", Name: "@gallery2b"}
 	ptr25 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr26 := &system.Object{Description: "Automatically created basic rule for gallery2b", Id: ptr24, Rules: []system.RuleInterface(nil), Type: ptr25}
 	ptr27 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr28 := system.String("object")
-	ptr29 := &system.Type{Object: ptr26, Embed: []*system.Reference{ptr27}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr28, Rule: (*system.Type)(nil)}
+	ptr29 := &system.Type{Object: ptr26, Embed: []*system.Reference{ptr27}, Fields: map[string]system.RuleInterface(nil), Native: &ptr28, Rule: (*system.Type)(nil)}
 	ptr30 := &system.Reference{Package: "kego.io/demo/site", Name: "@gallery3"}
 	ptr31 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr32 := &system.Object{Description: "Automatically created basic rule for gallery3", Id: ptr30, Rules: []system.RuleInterface(nil), Type: ptr31}
 	ptr33 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr34 := system.String("object")
-	ptr35 := &system.Type{Object: ptr32, Embed: []*system.Reference{ptr33}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr34, Rule: (*system.Type)(nil)}
+	ptr35 := &system.Type{Object: ptr32, Embed: []*system.Reference{ptr33}, Fields: map[string]system.RuleInterface(nil), Native: &ptr34, Rule: (*system.Type)(nil)}
 	ptr36 := &system.Reference{Package: "kego.io/demo/site", Name: "@gallery3a"}
 	ptr37 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr38 := &system.Object{Description: "Automatically created basic rule for gallery3a", Id: ptr36, Rules: []system.RuleInterface(nil), Type: ptr37}
 	ptr39 := &system.Reference{Package: "kego.io/system", Name: "rule"}
 	ptr40 := system.String("object")
-	ptr41 := &system.Type{Object: ptr38, Embed: []*system.Reference{ptr39}, Fields: map[string]system.RuleInterface(nil), Is: []*system.Reference(nil), Native: &ptr40, Rule: (*system.Type)(nil)}
+	ptr41 := &system.Type{Object: ptr38, Embed: []*system.Reference{ptr39}, Fields: map[string]system.RuleInterface(nil), Native: &ptr40, Rule: (*system.Type)(nil)}
 	ptr42 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery1"}
 	ptr43 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr44 := &system.Object{Description: "This represents a gallery - it just has a title", Id: ptr42, Rules: []system.RuleInterface(nil), Type: ptr43}
@@ -70,7 +70,7 @@ func init() {
 	ptr55 := &system.Rule{Interface: true}
 	ptr56 := &system.StringRule{Object: ptr54, Rule: ptr55, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
 	ptr57 := system.String("object")
-	ptr58 := &system.Type{Object: ptr44, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"bar": ptr48, "foo": ptr52, "title": ptr56}, Is: []*system.Reference(nil), Native: &ptr57, Rule: (*system.Type)(nil)}
+	ptr58 := &system.Type{Object: ptr44, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"bar": ptr48, "foo": ptr52, "title": ptr56}, Native: &ptr57, Rule: (*system.Type)(nil)}
 	ptr59 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery1a"}
 	ptr60 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr61 := &system.Object{Description: "This represents a gallery - it has a title and an image", Id: ptr59, Rules: []system.RuleInterface(nil), Type: ptr60}
@@ -88,7 +88,7 @@ func init() {
 	ptr73 := system.Int(20)
 	ptr74 := &system.StringRule{Object: ptr71, Rule: ptr72, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: &ptr73, MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
 	ptr75 := system.String("object")
-	ptr76 := &system.Type{Object: ptr61, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"image": ptr65, "size": ptr69, "title": ptr74}, Is: []*system.Reference(nil), Native: &ptr75, Rule: (*system.Type)(nil)}
+	ptr76 := &system.Type{Object: ptr61, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"image": ptr65, "size": ptr69, "title": ptr74}, Native: &ptr75, Rule: (*system.Type)(nil)}
 	ptr77 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2"}
 	ptr78 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr79 := &system.Object{Description: "This represents a gallery - it has a title and a map of photos", Id: ptr77, Rules: []system.RuleInterface(nil), Type: ptr78}
@@ -105,7 +105,7 @@ func init() {
 	ptr90 := &system.Rule{}
 	ptr91 := &system.StringRule{Object: ptr89, Rule: ptr90, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
 	ptr92 := system.String("object")
-	ptr93 := &system.Type{Object: ptr79, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr87, "title": ptr91}, Is: []*system.Reference(nil), Native: &ptr92, Rule: (*system.Type)(nil)}
+	ptr93 := &system.Type{Object: ptr79, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr87, "title": ptr91}, Native: &ptr92, Rule: (*system.Type)(nil)}
 	ptr94 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2a"}
 	ptr95 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr96 := &system.Object{Description: "This represents a gallery - it has a title and a map of images with a restriction rule", Id: ptr94, Rules: []system.RuleInterface(nil), Type: ptr95}
@@ -127,7 +127,7 @@ func init() {
 	ptr112 := &system.Rule{}
 	ptr113 := &system.StringRule{Object: ptr111, Rule: ptr112, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
 	ptr114 := system.String("object")
-	ptr115 := &system.Type{Object: ptr96, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr109, "title": ptr113}, Is: []*system.Reference(nil), Native: &ptr114, Rule: (*system.Type)(nil)}
+	ptr115 := &system.Type{Object: ptr96, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr109, "title": ptr113}, Native: &ptr114, Rule: (*system.Type)(nil)}
 	ptr116 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery2b"}
 	ptr117 := &system.Reference{Package: "kego.io/system", Name: "@int"}
 	ptr118 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr117}
@@ -149,7 +149,7 @@ func init() {
 	ptr134 := &system.Rule{}
 	ptr135 := &system.StringRule{Object: ptr133, Rule: ptr134, Default: (*system.String)(nil), Enum: []string(nil), Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
 	ptr136 := system.String("object")
-	ptr137 := &system.Type{Object: ptr123, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr131, "title": ptr135}, Is: []*system.Reference(nil), Native: &ptr136, Rule: (*system.Type)(nil)}
+	ptr137 := &system.Type{Object: ptr123, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr131, "title": ptr135}, Native: &ptr136, Rule: (*system.Type)(nil)}
 	ptr138 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery3"}
 	ptr139 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr140 := &system.Object{Description: "This represents a gallery - it has a localizer title and a map of images", Id: ptr138, Rules: []system.RuleInterface(nil), Type: ptr139}
@@ -166,7 +166,7 @@ func init() {
 	ptr151 := &system.Rule{}
 	ptr152 := &words.LocalizerRule{Object: ptr150, Rule: ptr151}
 	ptr153 := system.String("object")
-	ptr154 := &system.Type{Object: ptr140, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr148, "title": ptr152}, Is: []*system.Reference(nil), Native: &ptr153, Rule: (*system.Type)(nil)}
+	ptr154 := &system.Type{Object: ptr140, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr148, "title": ptr152}, Native: &ptr153, Rule: (*system.Type)(nil)}
 	ptr155 := &system.Reference{Package: "kego.io/demo/site", Name: "gallery3a"}
 	ptr156 := &system.Reference{Package: "kego.io/system", Name: "type"}
 	ptr157 := &system.Object{Description: "This represents a gallery - it has a localizer title and a map of images with a custom rule", Id: ptr155, Rules: []system.RuleInterface(nil), Type: ptr156}
@@ -184,7 +184,7 @@ func init() {
 	ptr169 := &system.Rule{}
 	ptr170 := &words.LocalizerRule{Object: ptr168, Rule: ptr169}
 	ptr171 := system.String("object")
-	ptr172 := &system.Type{Object: ptr157, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr166, "title": ptr170}, Is: []*system.Reference(nil), Native: &ptr171, Rule: (*system.Type)(nil)}
+	ptr172 := &system.Type{Object: ptr157, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"images": ptr166, "title": ptr170}, Native: &ptr171, Rule: (*system.Type)(nil)}
 	system.Register("kego.io/demo/site", "@gallery1", ptr5, 0xfb88eab775368c2b)
 	system.Register("kego.io/demo/site", "@gallery1a", ptr11, 0x6466a314b49930a6)
 	system.Register("kego.io/demo/site", "@gallery2", ptr17, 0x1ae7f9edab96cccc)

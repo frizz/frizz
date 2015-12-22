@@ -74,7 +74,6 @@ func init() {
 				Id:   NewReference("kego.io/json", name),
 				Type: tr},
 			Interface: false,
-			Is:        []*Reference(nil),
 			Native:    NewString(name),
 			Fields:    map[string]RuleInterface{},
 			Rule:      makeRule(name)}

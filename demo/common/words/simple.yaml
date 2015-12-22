@@ -1,6 +1,5 @@
 type: system:type
 id: simple
-is: [localizer]
 fields:
   string:
     type: system:@string

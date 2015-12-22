@@ -1,7 +1,6 @@
 {
 	"type": "system:type",
 	"id": "diagram",
-	"is": ["image"],
 	"fields": {
 		"url": {
 			"type": "system:@string"

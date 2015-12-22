@@ -2,7 +2,6 @@
 	"description": "This represents an image, and contains path, server and protocol separately",
 	"type": "system:type",
 	"id": "photo",
-	"is": ["image"],
 	"fields": {
 		"protocol": {
 			"description": "The protocol for the url - e.g. http or https",

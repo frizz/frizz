@@ -11,7 +11,6 @@ import (
 func TestReflectType(t *testing.T) {
 	checkReflectType(t, "kego.io/system", "type", "basic", "bool")
 	checkReflectType(t, "kego.io/system", "type", "embed", "[]*system.Reference")
-	checkReflectType(t, "kego.io/system", "type", "is", "[]*system.Reference")
 	checkReflectType(t, "kego.io/system", "type", "native", "*system.String")
 	checkReflectType(t, "kego.io/system", "type", "interface", "bool")
 	checkReflectType(t, "kego.io/system", "type", "fields", "map[string]system.RuleInterface")

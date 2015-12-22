@@ -60,10 +60,10 @@ func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
 func init() {
-	json.Register("kego.io/demo/common/images", "@icon", reflect.TypeOf((*IconRule)(nil)), nil, 8957718800557693972)
+	json.Register("kego.io/demo/common/images", "@icon", reflect.TypeOf((*IconRule)(nil)), nil, 5516771774714994565)
 	json.Register("kego.io/demo/common/images", "@image", reflect.TypeOf((*ImageRule)(nil)), nil, 946434339636669055)
-	json.Register("kego.io/demo/common/images", "@photo", reflect.TypeOf((*PhotoRule)(nil)), nil, 17489242292114203971)
-	json.Register("kego.io/demo/common/images", "icon", reflect.TypeOf((*Icon)(nil)), reflect.TypeOf((*IconInterface)(nil)).Elem(), 8957718800557693972)
+	json.Register("kego.io/demo/common/images", "@photo", reflect.TypeOf((*PhotoRule)(nil)), nil, 10544893436802925007)
+	json.Register("kego.io/demo/common/images", "icon", reflect.TypeOf((*Icon)(nil)), reflect.TypeOf((*IconInterface)(nil)).Elem(), 5516771774714994565)
 	json.Register("kego.io/demo/common/images", "image", reflect.TypeOf((*Image)(nil)).Elem(), nil, 946434339636669055)
-	json.Register("kego.io/demo/common/images", "photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem(), 17489242292114203971)
+	json.Register("kego.io/demo/common/images", "photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem(), 10544893436802925007)
 }

@@ -1,7 +1,6 @@
 description: This represents a translated string
 type: system:type
 id: translation
-is: [localizer]
 fields:
   english:
     description: The original English string

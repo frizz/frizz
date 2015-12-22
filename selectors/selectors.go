@@ -280,9 +280,14 @@ func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error
 			return true, nil
 		}
 
-		for _, ref := range n.Type.Is {
-			if ref.Value() == r.Value() {
-				return true, nil
+		// If the specified type is an interface, we should check to see if the
+		// node implements the interface.
+		if i, ok := r.GetType(); ok && i.Interface {
+			rt, _, ok := json.GetType(i.Id.Package, i.Id.Name)
+			if ok {
+				if n.Type.Implements(rt) {
+					return true, nil
+				}
 			}
 		}
 

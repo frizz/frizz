@@ -536,7 +536,7 @@ func unmarshalDiagram(t *testing.T, unpacker unpackerFunc) {
 		"rule": {
 			"description": "Restriction rules for diagram",
 			"type": "system:type",
-			"is": ["system:rule"],
+			"embed": ["system:rule"],
 			"fields": {
 				"default": {
 					"description": "Default value",

@@ -60,14 +60,6 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 		"type": "type",
 		"id": "type",
 		"fields": {
-			"is": {
-				"description": "Array of interface types that this type should support",
-				"type": "@array",
-				"items": {
-					"type": "@reference"
-				},
-				"optional": true
-			},
 			"native": {
 				"description": "This is the native json type that represents this type. If omitted, default is object.",
 				"type": "@string",
@@ -98,7 +90,7 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 		"rule": {
 			"description": "Restriction rules for types",
 			"type": "type",
-			"is": ["rule"]
+			"embed": ["rule"]
 		}
 	}`
 
