@@ -17,5 +17,5 @@ import (
 // This starts the local editor server and opens a browser. This
 // simulates the ke command without running it.
 func main() {
-	localke.Main(false, "kego.io/demo/site")
+	localke.Main("kego.io/demo/site")
 }

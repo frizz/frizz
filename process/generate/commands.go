@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/generator"
 	"kego.io/kerr"
@@ -69,7 +68,6 @@ func TypesCommand(ctx context.Context) (source []byte, err error) {
 func LocalKeCommand(ctx context.Context) (source []byte, err error) {
 
 	env := envctx.FromContext(ctx)
-	cmd := cmdctx.FromContext(ctx)
 
 	g := generator.WithName(env.Path, "main")
 	g.Imports.Add("kego.io/process/generate/commands/localke")
@@ -83,9 +81,7 @@ func LocalKeCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			localke.Main(
-				` + fmt.Sprint(cmd.Recursive) + `,
-				` + strconv.Quote(env.Path) + `)
+			localke.Main(` + strconv.Quote(env.Path) + `)
 		}`)
 	b, err := g.Build()
 	if err != nil {

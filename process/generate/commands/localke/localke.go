@@ -13,12 +13,11 @@ import (
 )
 
 // Run executes the local "ke" command that is generated in the data directory.
-func Main(recursive bool, path string) {
+func Main(path string) {
 	update := false
 	ctx, cancel, err := process.Initialise(&process.FromFlags{
-		Update:    &update,
-		Recursive: &recursive,
-		Path:      &path,
+		Update: &update,
+		Path:   &path,
 	})
 	if err != nil {
 		fmt.Println(err)
