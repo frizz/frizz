@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -18,6 +19,7 @@ import (
 
 func Validate(ctx context.Context) error {
 
+	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
@@ -30,7 +32,7 @@ func Validate(ctx context.Context) error {
 		return nil
 	}
 
-	if cmd.Recursive {
+	if env.Recursive {
 		if err := filepath.Walk(cmd.Dir, walker); err != nil {
 			return kerr.New("GCKFJQJUXK", err, "filepath.Walk")
 		}

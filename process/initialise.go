@@ -22,21 +22,19 @@ type optionsSpec interface {
 }
 
 type FromFlags struct {
-	Edit      *bool
-	Update    *bool
-	Recursive *bool
-	Verbose   *bool
-	Path      *string
-	Debug     *bool
+	Edit    *bool
+	Update  *bool
+	Verbose *bool
+	Path    *string
+	Debug   *bool
 }
 
 type FromDefaults struct {
-	Edit      bool
-	Update    bool
-	Recursive bool
-	Verbose   bool
-	Path      string
-	Debug     bool
+	Edit    bool
+	Update  bool
+	Verbose bool
+	Path    string
+	Debug   bool
 }
 
 func (f FromDefaults) getOptions() FromDefaults {
@@ -45,7 +43,7 @@ func (f FromDefaults) getOptions() FromDefaults {
 
 func (f FromFlags) getOptions() FromDefaults {
 
-	var edit, update, recursive, verbose, debug *bool
+	var edit, update, verbose, debug *bool
 	var path *string
 	if f.Edit == nil {
 		edit = flag.Bool("e", false, "Edit: open the editor")
@@ -56,11 +54,6 @@ func (f FromFlags) getOptions() FromDefaults {
 		update = flag.Bool("u", false, "Update: update all import packages e.g. go get -u")
 	} else {
 		update = f.Update
-	}
-	if f.Recursive == nil {
-		recursive = flag.Bool("r", false, "Recursive: scan subdirectories for objects")
-	} else {
-		recursive = f.Recursive
 	}
 	if f.Verbose == nil {
 		verbose = flag.Bool("v", false, "Verbose")
@@ -83,12 +76,11 @@ func (f FromFlags) getOptions() FromDefaults {
 	}
 
 	return FromDefaults{
-		Edit:      *edit,
-		Update:    *update,
-		Recursive: *recursive,
-		Verbose:   *verbose,
-		Path:      *path,
-		Debug:     *debug,
+		Edit:    *edit,
+		Update:  *update,
+		Verbose: *verbose,
+		Path:    *path,
+		Debug:   *debug,
 	}
 }
 
@@ -106,7 +98,6 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 
 	c.Edit = options.Edit
 	c.Update = options.Update
-	c.Recursive = options.Recursive
 	c.Verbose = options.Verbose
 	c.Debug = options.Debug
 	if options.Path == "" {
@@ -153,6 +144,7 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 		return nil, nil, kerr.New("BHLJNCIWUJ", nil, "Package not found")
 	}
 	e.Aliases = p.Aliases
+	e.Recursive = p.Recursive
 
 	ctx = envctx.NewContext(ctx, e)
 	ctx = cmdctx.NewContext(ctx, c)

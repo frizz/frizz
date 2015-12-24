@@ -172,6 +172,8 @@ type Package struct {
 	*Object
 	// Map of import aliases used in this package: key = package path, value = alias.
 	Aliases map[string]string `json:"aliases"`
+	// Should we scan subdirectories for data files?
+	Recursive bool `json:"recursive"`
 }
 type PackageInterface interface {
 	GetPackage(ctx context.Context) *Package
@@ -246,7 +248,7 @@ func init() {
 	json.Register("kego.io/system", "@map", reflect.TypeOf((*MapRule)(nil)), nil, 9348274211988509508)
 	json.Register("kego.io/system", "@number", reflect.TypeOf((*NumberRule)(nil)), nil, 4117207956434057366)
 	json.Register("kego.io/system", "@object", reflect.TypeOf((*ObjectRule)(nil)), nil, 9849996233444553044)
-	json.Register("kego.io/system", "@package", reflect.TypeOf((*PackageRule)(nil)), nil, 5866188538977148683)
+	json.Register("kego.io/system", "@package", reflect.TypeOf((*PackageRule)(nil)), nil, 9661486295712570637)
 	json.Register("kego.io/system", "@reference", reflect.TypeOf((*ReferenceRule)(nil)), nil, 17067036908016315687)
 	json.Register("kego.io/system", "@rule", reflect.TypeOf((*RuleRule)(nil)), nil, 12761314134647754082)
 	json.Register("kego.io/system", "@string", reflect.TypeOf((*StringRule)(nil)), nil, 12589443105519283292)
@@ -255,7 +257,7 @@ func init() {
 	json.Register("kego.io/system", "int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem(), 14978258480540711733)
 	json.Register("kego.io/system", "number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem(), 4117207956434057366)
 	json.Register("kego.io/system", "object", reflect.TypeOf((*Object)(nil)), reflect.TypeOf((*ObjectInterface)(nil)).Elem(), 9849996233444553044)
-	json.Register("kego.io/system", "package", reflect.TypeOf((*Package)(nil)), reflect.TypeOf((*PackageInterface)(nil)).Elem(), 5866188538977148683)
+	json.Register("kego.io/system", "package", reflect.TypeOf((*Package)(nil)), reflect.TypeOf((*PackageInterface)(nil)).Elem(), 9661486295712570637)
 	json.Register("kego.io/system", "reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem(), 17067036908016315687)
 	json.Register("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem(), 12761314134647754082)
 	json.Register("kego.io/system", "string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem(), 12589443105519283292)

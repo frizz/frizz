@@ -4,8 +4,9 @@ import "golang.org/x/net/context"
 
 // Env is the type of value stored in the Contexts.
 type Env struct {
-	Path    string
-	Aliases map[string]string
+	Path      string
+	Aliases   map[string]string
+	Recursive bool
 }
 
 // key is an unexported type for keys defined in this package.

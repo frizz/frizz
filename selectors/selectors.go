@@ -1,4 +1,4 @@
-//go:generate ke -r kego.io/selectors/tests
+//go:generate ke kego.io/selectors/tests
 package selectors // import "kego.io/selectors"
 
 import (

@@ -244,84 +244,88 @@ func init() {
 	ptr236 := &system.Rule{}
 	ptr237 := &system.JsonStringRule{Object: ptr235, Rule: ptr236}
 	ptr238 := &system.MapRule{Object: ptr232, Rule: ptr233, Items: ptr237, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr239 := system.String("object")
-	ptr240 := &system.Type{Object: ptr230, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"aliases": ptr238}, Native: &ptr239, Rule: (*system.Type)(nil)}
-	ptr241 := &system.Reference{Package: "kego.io/system", Name: "reference"}
-	ptr242 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr243 := &system.Object{Description: "This is a reference to another object, of the form: [local id] or [alias]:[id]", Id: ptr241, Rules: []system.RuleInterface(nil), Type: ptr242}
-	ptr244 := system.String("string")
-	ptr245 := &system.Type{Object: ptr243, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Native: &ptr244, Rule: ptr127}
-	ptr246 := &system.Reference{Package: "kego.io/system", Name: "rule"}
-	ptr247 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr248 := &system.Object{Description: "All rules will have this embedded in them.", Id: ptr246, Rules: []system.RuleInterface(nil), Type: ptr247}
-	ptr249 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
-	ptr250 := &system.Object{Description: "Special field that should be excluded when marshaling - e.g. package.global", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr249}
-	ptr251 := &system.Rule{Optional: true}
-	ptr252 := &system.JsonBoolRule{Object: ptr250, Rule: ptr251}
+	ptr239 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
+	ptr240 := &system.Object{Description: "Should we scan subdirectories for data files?", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr239}
+	ptr241 := &system.Rule{Optional: true}
+	ptr242 := &system.JsonBoolRule{Object: ptr240, Rule: ptr241}
+	ptr243 := system.String("object")
+	ptr244 := &system.Type{Object: ptr230, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"aliases": ptr238, "recursive": ptr242}, Native: &ptr243, Rule: (*system.Type)(nil)}
+	ptr245 := &system.Reference{Package: "kego.io/system", Name: "reference"}
+	ptr246 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr247 := &system.Object{Description: "This is a reference to another object, of the form: [local id] or [alias]:[id]", Id: ptr245, Rules: []system.RuleInterface(nil), Type: ptr246}
+	ptr248 := system.String("string")
+	ptr249 := &system.Type{Object: ptr247, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Native: &ptr248, Rule: ptr127}
+	ptr250 := &system.Reference{Package: "kego.io/system", Name: "rule"}
+	ptr251 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr252 := &system.Object{Description: "All rules will have this embedded in them.", Id: ptr250, Rules: []system.RuleInterface(nil), Type: ptr251}
 	ptr253 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
-	ptr254 := &system.Object{Description: "Use the single method getter interface for this type", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr253}
+	ptr254 := &system.Object{Description: "Special field that should be excluded when marshaling - e.g. package.global", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr253}
 	ptr255 := &system.Rule{Optional: true}
 	ptr256 := &system.JsonBoolRule{Object: ptr254, Rule: ptr255}
 	ptr257 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
-	ptr258 := &system.Object{Description: "If this rule is a field, this specifies that the field is optional", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr257}
+	ptr258 := &system.Object{Description: "Use the single method getter interface for this type", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr257}
 	ptr259 := &system.Rule{Optional: true}
 	ptr260 := &system.JsonBoolRule{Object: ptr258, Rule: ptr259}
-	ptr261 := &system.Reference{Package: "kego.io/json", Name: "@string"}
-	ptr262 := &system.Object{Description: "Json selector defining what nodes this rule should be applied to.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr261}
+	ptr261 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
+	ptr262 := &system.Object{Description: "If this rule is a field, this specifies that the field is optional", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr261}
 	ptr263 := &system.Rule{Optional: true}
-	ptr264 := &system.JsonStringRule{Object: ptr262, Rule: ptr263}
-	ptr265 := system.String("object")
-	ptr266 := &system.Type{Object: ptr248, Basic: true, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"exclude": ptr252, "interface": ptr256, "optional": ptr260, "selector": ptr264}, Native: &ptr265, Rule: (*system.Type)(nil)}
-	ptr267 := &system.Reference{Package: "kego.io/system", Name: "string"}
-	ptr268 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr269 := &system.Object{Description: "This is the native json string data type", Id: ptr267, Rules: []system.RuleInterface(nil), Type: ptr268}
-	ptr270 := system.String("string")
-	ptr271 := &system.Type{Object: ptr269, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Native: &ptr270, Rule: ptr171}
+	ptr264 := &system.JsonBoolRule{Object: ptr262, Rule: ptr263}
+	ptr265 := &system.Reference{Package: "kego.io/json", Name: "@string"}
+	ptr266 := &system.Object{Description: "Json selector defining what nodes this rule should be applied to.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr265}
+	ptr267 := &system.Rule{Optional: true}
+	ptr268 := &system.JsonStringRule{Object: ptr266, Rule: ptr267}
+	ptr269 := system.String("object")
+	ptr270 := &system.Type{Object: ptr252, Basic: true, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"exclude": ptr256, "interface": ptr260, "optional": ptr264, "selector": ptr268}, Native: &ptr269, Rule: (*system.Type)(nil)}
+	ptr271 := &system.Reference{Package: "kego.io/system", Name: "string"}
 	ptr272 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr273 := &system.Reference{Package: "kego.io/system", Name: "type"}
-	ptr274 := &system.Object{Description: "This is the most basic type.", Id: ptr272, Rules: []system.RuleInterface(nil), Type: ptr273}
-	ptr275 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
-	ptr276 := &system.Object{Description: "Basic types don't have system:object added by default to the embedded types.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr275}
-	ptr277 := &system.Rule{Optional: true}
-	ptr278 := &system.JsonBoolRule{Object: ptr276, Rule: ptr277}
-	ptr279 := &system.Reference{Package: "kego.io/system", Name: "@array"}
-	ptr280 := &system.Object{Description: "Types which this should embed - system:object is always added unless basic = true.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr279}
+	ptr273 := &system.Object{Description: "This is the native json string data type", Id: ptr271, Rules: []system.RuleInterface(nil), Type: ptr272}
+	ptr274 := system.String("string")
+	ptr275 := &system.Type{Object: ptr273, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface(nil), Native: &ptr274, Rule: ptr171}
+	ptr276 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr277 := &system.Reference{Package: "kego.io/system", Name: "type"}
+	ptr278 := &system.Object{Description: "This is the most basic type.", Id: ptr276, Rules: []system.RuleInterface(nil), Type: ptr277}
+	ptr279 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
+	ptr280 := &system.Object{Description: "Basic types don't have system:object added by default to the embedded types.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr279}
 	ptr281 := &system.Rule{Optional: true}
-	ptr282 := &system.Reference{Package: "kego.io/system", Name: "@reference"}
-	ptr283 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr282}
-	ptr284 := &system.Rule{}
-	ptr285 := &system.ReferenceRule{Object: ptr283, Rule: ptr284, Default: (*system.Reference)(nil)}
-	ptr286 := &system.ArrayRule{Object: ptr280, Rule: ptr281, Items: ptr285, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr287 := &system.Reference{Package: "kego.io/system", Name: "@map"}
-	ptr288 := &system.Object{Description: "Each field is listed with it's type", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr287}
-	ptr289 := &system.Rule{Optional: true}
-	ptr290 := &system.Reference{Package: "kego.io/system", Name: "@rule"}
-	ptr291 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr290}
-	ptr292 := &system.Rule{Interface: true}
-	ptr293 := &system.RuleRule{Object: ptr291, Rule: ptr292}
-	ptr294 := &system.MapRule{Object: ptr288, Rule: ptr289, Items: ptr293, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
-	ptr295 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
-	ptr296 := &system.Object{Description: "Is this type an interface?", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr295}
-	ptr297 := &system.Rule{Optional: true}
-	ptr298 := &system.JsonBoolRule{Object: ptr296, Rule: ptr297}
-	ptr299 := &system.Reference{Package: "kego.io/system", Name: "@string"}
-	ptr300 := &system.Object{Description: "This is the native json type that represents this type. If omitted, default is object.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr299}
+	ptr282 := &system.JsonBoolRule{Object: ptr280, Rule: ptr281}
+	ptr283 := &system.Reference{Package: "kego.io/system", Name: "@array"}
+	ptr284 := &system.Object{Description: "Types which this should embed - system:object is always added unless basic = true.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr283}
+	ptr285 := &system.Rule{Optional: true}
+	ptr286 := &system.Reference{Package: "kego.io/system", Name: "@reference"}
+	ptr287 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr286}
+	ptr288 := &system.Rule{}
+	ptr289 := &system.ReferenceRule{Object: ptr287, Rule: ptr288, Default: (*system.Reference)(nil)}
+	ptr290 := &system.ArrayRule{Object: ptr284, Rule: ptr285, Items: ptr289, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr291 := &system.Reference{Package: "kego.io/system", Name: "@map"}
+	ptr292 := &system.Object{Description: "Each field is listed with it's type", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr291}
+	ptr293 := &system.Rule{Optional: true}
+	ptr294 := &system.Reference{Package: "kego.io/system", Name: "@rule"}
+	ptr295 := &system.Object{Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr294}
+	ptr296 := &system.Rule{Interface: true}
+	ptr297 := &system.RuleRule{Object: ptr295, Rule: ptr296}
+	ptr298 := &system.MapRule{Object: ptr292, Rule: ptr293, Items: ptr297, MaxItems: (*system.Int)(nil), MinItems: (*system.Int)(nil)}
+	ptr299 := &system.Reference{Package: "kego.io/json", Name: "@bool"}
+	ptr300 := &system.Object{Description: "Is this type an interface?", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr299}
 	ptr301 := &system.Rule{Optional: true}
-	ptr302 := system.String("object")
-	ptr303 := &system.StringRule{Object: ptr300, Rule: ptr301, Default: &ptr302, Enum: []string{"string", "number", "bool", "array", "object", "map"}, Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
-	ptr304 := &system.Reference{Package: "kego.io/system", Name: "@type"}
-	ptr305 := &system.Object{Description: "Type that defines restriction rules for this type.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr304}
-	ptr306 := &system.Rule{Optional: true}
-	ptr307 := &system.TypeRule{Object: ptr305, Rule: ptr306}
-	ptr308 := system.String("object")
-	ptr309 := &system.Type{Object: ptr274, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"basic": ptr278, "embed": ptr286, "fields": ptr294, "interface": ptr298, "native": ptr303, "rule": ptr307}, Native: &ptr308, Rule: (*system.Type)(nil)}
+	ptr302 := &system.JsonBoolRule{Object: ptr300, Rule: ptr301}
+	ptr303 := &system.Reference{Package: "kego.io/system", Name: "@string"}
+	ptr304 := &system.Object{Description: "This is the native json type that represents this type. If omitted, default is object.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr303}
+	ptr305 := &system.Rule{Optional: true}
+	ptr306 := system.String("object")
+	ptr307 := &system.StringRule{Object: ptr304, Rule: ptr305, Default: &ptr306, Enum: []string{"string", "number", "bool", "array", "object", "map"}, Equal: (*system.String)(nil), Format: (*system.String)(nil), MaxLength: (*system.Int)(nil), MinLength: (*system.Int)(nil), Pattern: (*system.String)(nil)}
+	ptr308 := &system.Reference{Package: "kego.io/system", Name: "@type"}
+	ptr309 := &system.Object{Description: "Type that defines restriction rules for this type.", Id: (*system.Reference)(nil), Rules: []system.RuleInterface(nil), Type: ptr308}
+	ptr310 := &system.Rule{Optional: true}
+	ptr311 := &system.TypeRule{Object: ptr309, Rule: ptr310}
+	ptr312 := system.String("object")
+	ptr313 := &system.Type{Object: ptr278, Embed: []*system.Reference(nil), Fields: map[string]system.RuleInterface{"basic": ptr282, "embed": ptr290, "fields": ptr298, "interface": ptr302, "native": ptr307, "rule": ptr311}, Native: &ptr312, Rule: (*system.Type)(nil)}
 	system.Register("kego.io/system", "@array", ptr23, 0x6eab209bb7c67261)
 	system.Register("kego.io/system", "@bool", ptr33, 0x99f09d4d8377c2f6)
 	system.Register("kego.io/system", "@int", ptr55, 0xcfdd76bad69c7b35)
 	system.Register("kego.io/system", "@map", ptr75, 0x81bbbdddd4851344)
 	system.Register("kego.io/system", "@number", ptr105, 0x392342d28da9f896)
 	system.Register("kego.io/system", "@object", ptr111, 0x88b237630565f154)
-	system.Register("kego.io/system", "@package", ptr117, 0x5168e36553335f0b)
+	system.Register("kego.io/system", "@package", ptr117, 0x86147e98e2409d0d)
 	system.Register("kego.io/system", "@reference", ptr127, 0xecda4ba48ecb2d27)
 	system.Register("kego.io/system", "@rule", ptr133, 0xb1194b97d6d9cd62)
 	system.Register("kego.io/system", "@string", ptr171, 0xaeb6afcd8077ac5c)
@@ -332,9 +336,9 @@ func init() {
 	system.Register("kego.io/system", "map", ptr197, 0x81bbbdddd4851344)
 	system.Register("kego.io/system", "number", ptr202, 0x392342d28da9f896)
 	system.Register("kego.io/system", "object", ptr227, 0x88b237630565f154)
-	system.Register("kego.io/system", "package", ptr240, 0x5168e36553335f0b)
-	system.Register("kego.io/system", "reference", ptr245, 0xecda4ba48ecb2d27)
-	system.Register("kego.io/system", "rule", ptr266, 0xb1194b97d6d9cd62)
-	system.Register("kego.io/system", "string", ptr271, 0xaeb6afcd8077ac5c)
-	system.Register("kego.io/system", "type", ptr309, 0x797cce64708db864)
+	system.Register("kego.io/system", "package", ptr244, 0x86147e98e2409d0d)
+	system.Register("kego.io/system", "reference", ptr249, 0xecda4ba48ecb2d27)
+	system.Register("kego.io/system", "rule", ptr270, 0xb1194b97d6d9cd62)
+	system.Register("kego.io/system", "string", ptr275, 0xaeb6afcd8077ac5c)
+	system.Register("kego.io/system", "type", ptr313, 0x797cce64708db864)
 }

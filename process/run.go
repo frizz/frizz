@@ -110,9 +110,6 @@ func Run(ctx context.Context, file commandType) error {
 		if cmd.Update {
 			params = append(params, "-u")
 		}
-		if cmd.Recursive {
-			params = append(params, "-r")
-		}
 		if cmd.Verbose {
 			params = append(params, "-v")
 		}

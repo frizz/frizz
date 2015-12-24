@@ -37,15 +37,15 @@ func AllCtx(c Ctx) context.Context {
 	ctx := context.Background()
 	ctx = wgctx.NewContext(ctx)
 	ctx = envctx.NewContext(ctx, &envctx.Env{
-		Path:    c.Path,
-		Aliases: c.Aliases,
+		Path:      c.Path,
+		Aliases:   c.Aliases,
+		Recursive: c.Recursive,
 	})
 	ctx = cmdctx.NewContext(ctx, &cmdctx.Cmd{
-		Dir:       c.Dir,
-		Edit:      c.Edit,
-		Update:    c.Update,
-		Recursive: c.Recursive,
-		Verbose:   c.Verbose,
+		Dir:     c.Dir,
+		Edit:    c.Edit,
+		Update:  c.Update,
+		Verbose: c.Verbose,
 	})
 	return ctx
 }

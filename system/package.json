@@ -10,6 +10,11 @@
 				"type": "json:@string"
 			},
 			"optional": true
+		},
+		"recursive": {
+			"description": "Should we scan subdirectories for data files?",
+			"type": "json:@bool",
+			"optional": true
 		}
 	}
 }

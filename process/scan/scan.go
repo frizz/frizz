@@ -149,6 +149,7 @@ func ScanForTypes(ctx context.Context, ignoreUnknownTypes bool) error {
 
 func scanPath(ctx context.Context, ignoreUnknownTypes bool, ignoreUnknownPackages bool, scan func(ob interface{}, source []byte, hash uint64) error) error {
 
+	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
 
 	walker := func(filePath string, file os.FileInfo, err error) error {
@@ -161,7 +162,7 @@ func scanPath(ctx context.Context, ignoreUnknownTypes bool, ignoreUnknownPackage
 		return nil
 	}
 
-	if cmd.Recursive {
+	if env.Recursive {
 		if err := filepath.Walk(cmd.Dir, walker); err != nil {
 			return kerr.New("XHHQSAVCKK", err, "filepath.Walk (scanning for types)")
 		}
