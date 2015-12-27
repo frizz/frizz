@@ -31,3 +31,4 @@ generated-structs.go.backup
 generated-types.go.backup
 coverage.out
 kego.github.io/
+.localke/
