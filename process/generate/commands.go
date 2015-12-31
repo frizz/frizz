@@ -72,12 +72,9 @@ func LocalKeCommand(ctx context.Context) (source []byte, err error) {
 	g := generator.WithName(env.Path, "main")
 	g.Imports.Add("kego.io/process/generate/commands/localke")
 	g.Imports.Anonymous("kego.io/system")
-	g.Imports.Anonymous("kego.io/system/types")
 	g.Imports.Anonymous(env.Path)
-	g.Imports.Anonymous(fmt.Sprint(env.Path, "/types"))
 	for p, _ := range env.Aliases {
 		g.Imports.Anonymous(p)
-		g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 	}
 	g.Print(`
 		func main() {

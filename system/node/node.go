@@ -3,6 +3,7 @@ package node // import "kego.io/system/node"
 import (
 	"golang.org/x/net/context"
 	"kego.io/json"
+	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/system"
 )
@@ -25,6 +26,15 @@ type Node struct {
 	Rule        *system.RuleWrapper
 	Type        *system.Type
 	JsonType    json.Type
+}
+
+func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
+	n := NewNode()
+	err := ke.UnmarshalUntyped(ctx, data, n)
+	if err != nil {
+		return nil, kerr.New("QDWFKJOJPQ", err, "UnmarshalUntyped")
+	}
+	return n, nil
 }
 
 func NewNode() *Node {
@@ -173,7 +183,7 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 		if !ok {
 			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
 		}
-		childRule, err := system.WrapRule(c.GetItemsRule())
+		childRule, err := system.WrapRule(ctx, c.GetItemsRule())
 		if err != nil {
 			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
 		}
@@ -193,7 +203,7 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 		if !ok {
 			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
 		}
-		childRule, err := system.WrapRule(c.GetItemsRule())
+		childRule, err := system.WrapRule(ctx, c.GetItemsRule())
 		if err != nil {
 			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
 		}
@@ -225,12 +235,12 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 	n.Map = map[string]NodeInterface{}
 
 	fields := map[string]*system.Field{}
-	if err := extractFields(fields, n.Type); err != nil {
+	if err := extractFields(ctx, fields, n.Type); err != nil {
 		return kerr.New("LPWTOSATQE", err, "extractFields (%T)", n)
 	}
 
 	for name, f := range fields {
-		rule, err := system.WrapRule(f.Rule)
+		rule, err := system.WrapRule(ctx, f.Rule)
 		if err != nil {
 			return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
 		}
@@ -303,7 +313,7 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 	if err := r.Unpack(ctx, typeField); err != nil {
 		return nil, kerr.New("YXHGIBXCOC", err, "Unpack (type)")
 	}
-	t, ok := r.GetType()
+	t, ok := r.GetType(ctx)
 	if !ok {
 		return nil, kerr.New("IJFMJJWVCA", nil, "Could not find type %s", r.Value())
 	}
@@ -311,16 +321,11 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 	return t, nil
 }
 
-func extractFields(fields map[string]*system.Field, t *system.Type) error {
-
+func extractFields(ctx context.Context, fields map[string]*system.Field, t *system.Type) error {
 	getType := func(r *system.Reference) (*system.Type, error) {
-		g, ok := system.GetGlobal(r.Package, r.Name)
+		t, ok := system.GetTypeFromCache(ctx, r.Package, r.Name)
 		if !ok {
-			return nil, kerr.New("GJPKXQBKYH", nil, "Can't find global %s", r.Value())
-		}
-		t, ok := g.Object.(*system.Type)
-		if !ok {
-			return nil, kerr.New("BKYQWKFTIA", nil, "Global %T should *Type", g)
+			return nil, kerr.New("VEKXQDJFGD", nil, "Type %s not found in ctx", r.String())
 		}
 		return t, nil
 	}
@@ -330,7 +335,7 @@ func extractFields(fields map[string]*system.Field, t *system.Type) error {
 		if err != nil {
 			return kerr.New("YRFWOTIGFT", err, "getType (system:object)")
 		}
-		if err := extractFields(fields, ob); err != nil {
+		if err := extractFields(ctx, fields, ob); err != nil {
 			return kerr.New("DTQEFALIMM", err, "extractFields (system:object)")
 		}
 	}
@@ -339,7 +344,7 @@ func extractFields(fields map[string]*system.Field, t *system.Type) error {
 		if err != nil {
 			return kerr.New("SLIRILCARQ", err, "getType (embed %s)", embedRef.Value())
 		}
-		if err := extractFields(fields, embed); err != nil {
+		if err := extractFields(ctx, fields, embed); err != nil {
 			return kerr.New("JWAPCVIYBJ", err, "extractFields (embed %s)", embedRef.Value())
 		}
 	}

@@ -20,23 +20,30 @@ type DefaultRule interface {
 	GetDefault() interface{}
 }
 
-type dummyRule struct {
+type DummyRule struct {
 	*Object
 	*Rule
 	Default interface{}
+	Items   RuleInterface
 }
 
-func (d *dummyRule) GetDefault() interface{} {
+func (d *DummyRule) GetDefault() interface{} {
 	return d.Default
 }
 
-var _ DefaultRule = (*dummyRule)(nil)
+func (d *DummyRule) GetItemsRule() RuleInterface {
+	return d.Items
+}
+
+var _ DefaultRule = (*DummyRule)(nil)
+var _ CollectionRule = (*DummyRule)(nil)
 
 func init() {
-	json.RegisterInterface(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&dummyRule{}))
+	json.RegisterInterface(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
 }
 
 type RuleWrapper struct {
+	ctx       context.Context
 	Interface RuleInterface
 	Struct    *Rule
 	Parent    *Type
@@ -45,7 +52,7 @@ type RuleWrapper struct {
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	if r.Struct.Interface {
-		typ, _, ok := json.GetTypeInterface(r.Parent.Id.Package, r.Parent.Id.Name)
+		typ, ok := r.Parent.Id.GetReflectInterface()
 		if !ok {
 			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.Parent.Id.Value())
 		}
@@ -54,7 +61,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	switch r.Parent.Native.Value() {
 	case "object", "number", "bool", "string":
-		typ, _, ok := json.GetType(r.Parent.Id.Package, r.Parent.Id.Name)
+		typ, ok := r.Parent.Id.GetReflectType()
 		if !ok {
 			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.Parent.Id.Value())
 		}
@@ -65,7 +72,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 			return nil, kerr.New("GSYSHQOWNH", nil, "Map types must have rule that implements CollectionRule")
 		}
 		itemsRule := c.GetItemsRule()
-		items, err := WrapRule(itemsRule)
+		items, err := WrapRule(r.ctx, itemsRule)
 		if err != nil {
 			return nil, kerr.New("EDEMPPVUNW", err, "NewRuleHolder")
 		}
@@ -85,7 +92,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 func WrapEmptyRule(t *Type) *RuleWrapper {
 	return &RuleWrapper{Interface: nil, Parent: t}
 }
-func WrapRule(r RuleInterface) (*RuleWrapper, error) {
+func WrapRule(ctx context.Context, r RuleInterface) (*RuleWrapper, error) {
 
 	ob, ok := r.(ObjectInterface)
 	if !ok {
@@ -94,12 +101,12 @@ func WrapRule(r RuleInterface) (*RuleWrapper, error) {
 
 	// ob.GetObject(nil).Type will be a @ rule type, so we change to the type,
 	// which will be the parent
-	t, ok := ob.GetObject(nil).Type.ChangeToType().GetType()
+	t, ok := ob.GetObject(nil).Type.ChangeToType().GetType(ctx)
 	if !ok {
 		return nil, kerr.New("KYCTDXKFYR", nil, "GetType: type %v not found", ob.GetObject(nil).Type.ChangeToType().Value())
 	}
 
-	return &RuleWrapper{Interface: r, Parent: t, Struct: r.GetRule(nil)}, nil
+	return &RuleWrapper{ctx: ctx, Interface: r, Parent: t, Struct: r.GetRule(nil)}, nil
 }
 
 // ItemsRule returns Items rule for a collection Rule.
@@ -115,7 +122,7 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 	if ir == nil {
 		return nil, kerr.New("SUJLYBXPYS", nil, "%s has nil items rule", r.Parent.Id.Value())
 	}
-	w, err := WrapRule(ir)
+	w, err := WrapRule(r.ctx, ir)
 	if err != nil {
 		return nil, kerr.New("SDSMCXSWOF", err, "WrapRule")
 	}

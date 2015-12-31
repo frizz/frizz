@@ -27,6 +27,44 @@ const (
 	C_LOCAL_KE             = "ke"
 )
 
+func RunExistingLocalKeCommand(ctx context.Context) (bool, error) {
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
+
+	cmd := cmdctx.FromContext(ctx)
+
+	keCommandPath := filepath.Join(cmd.Dir, ".localke/localke")
+
+	if _, err := os.Stat(keCommandPath); err != nil {
+		return false, nil
+	}
+
+	params := []string{}
+	if cmd.Verbose {
+		params = append(params, "-v")
+	}
+	if cmd.Edit {
+		params = append(params, "-e")
+	}
+	combined, stdout, stderr := logger(cmd.Verbose)
+
+	exe := exec.Command(keCommandPath, params...)
+	exe.Stdout = stdout
+	exe.Stderr = stderr
+	if err := exe.Run(); err != nil {
+		errorMessage := strings.TrimSpace(combined.String())
+		if errorMessage == "Package not registered" || errorMessage == "Hash changed" {
+			return false, nil
+		}
+		if strings.HasPrefix(errorMessage, "Error: ") {
+			errorMessage = errorMessage[7:]
+		}
+		return true, validate.ValidationError{kerr.New("ETWHPXTUVB", nil, errorMessage)}
+	}
+	return true, nil
+
+}
+
 // This creates a temporary folder in the package, in which the go source
 // for a command is generated. This command is then compiled and run with
 // "go run", or in the case of the ke command, we "go build" before
@@ -61,7 +99,7 @@ func Run(ctx context.Context, file commandType) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	keCommandPath := filepath.Join(cmd.Dir, "ke")
+	keCommandPath := filepath.Join(cmd.Dir, ".localke/localke")
 
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")

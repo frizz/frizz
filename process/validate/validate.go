@@ -11,7 +11,6 @@ import (
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/process/scan"
 	"kego.io/selectors"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -53,17 +52,19 @@ func Validate(ctx context.Context) error {
 
 func validateFile(ctx context.Context, filePath string) error {
 
-	bytes, hash, err := scan.OpenFile(ctx, filePath)
-	if err != nil {
-		return kerr.New("XXYPVKLNBQ", err, "openFile")
-	}
-	if bytes == nil {
-		return nil
-	}
+	/*
+		bytes, hash, err := scan.OpenFile(ctx, filePath)
+		if err != nil {
+			return kerr.New("XXYPVKLNBQ", err, "openFile")
+		}
+		if bytes == nil {
+			return nil
+		}
 
-	if err = validateBytes(ctx, bytes, hash); err != nil {
-		return kerr.New("GFVGDBDTNQ", err, "validateReader (%s)", filePath)
-	}
+		if err = validateBytes(ctx, bytes, hash); err != nil {
+			return kerr.New("GFVGDBDTNQ", err, "validateReader (%s)", filePath)
+		}
+	*/
 	return nil
 }
 
@@ -88,17 +89,6 @@ func validateNode(ctx context.Context, node *node.Node, hash uint64) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
-	}
-
-	if *node.Type.Id == *system.NewReference("kego.io/system", "type") {
-		t := node.Value.(*system.Type)
-		h, ok := system.GetGlobal(t.Id.Package, t.Id.Name)
-		if !ok {
-			return TypesChangedError{kerr.New("XCBNOPEEUY", nil, "New type %s found - run kego again to rebuild", node.Type.Id.Value())}
-		}
-		if hash != h.Hash {
-			return TypesChangedError{kerr.New("KRKBNITUON", nil, "Type %s has changed - run kego again to rebuild", node.Type.Id.Value())}
-		}
 	}
 
 	// Start with the rules from the type

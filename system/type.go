@@ -6,12 +6,59 @@ import (
 	"reflect"
 
 	"golang.org/x/net/context"
+	"kego.io/context/cachectx"
 	"kego.io/json"
 	"kego.io/kerr"
 )
 
+func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
+	cache := cachectx.FromContext(ctx)
+
+	out := []*Type{}
+
+	var reflectType reflect.Type
+	if typ.Interface {
+		// The type provided is an interface type
+		rt, ok := typ.Id.GetReflectType()
+		if !ok {
+			return nil
+		}
+		reflectType = rt
+	} else {
+		// The type provided is not an interface type, so we get it's automatic generated interface
+		rt, ok := typ.Id.GetReflectInterface()
+		if !ok {
+			return nil
+		}
+		reflectType = rt
+	}
+
+	for p := range cache.All() {
+		for i := range p.Types.All() {
+			if i.(*Type).Implements(reflectType) {
+				out = append(out, i.(*Type))
+			}
+		}
+	}
+
+	return out
+}
+
+func GetTypeFromCache(ctx context.Context, path string, name string) (*Type, bool) {
+	cache := cachectx.FromContext(ctx)
+	pcache, ok := cache.Get(path)
+	if !ok {
+		return nil, false
+	}
+	t, ok := pcache.Types.Get(name)
+	if !ok {
+		return nil, false
+	}
+	return t.(*Type), true
+}
+
 func (t *Type) ZeroValue() interface{} {
-	rt, _, ok := json.GetType(t.Id.Package, t.Id.Name)
+	rt, ok := t.Id.GetReflectType()
 	if !ok {
 		return nil
 	}
@@ -19,7 +66,7 @@ func (t *Type) ZeroValue() interface{} {
 }
 
 func (t *Type) Implements(i reflect.Type) bool {
-	ob, _, ok := json.GetType(t.Id.Package, t.Id.Name)
+	ob, ok := t.Id.GetReflectType()
 	if !ok {
 		return false
 	}

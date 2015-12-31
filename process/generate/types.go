@@ -1,17 +1,6 @@
 package generate
 
-import (
-	"fmt"
-	"strconv"
-
-	"golang.org/x/net/context"
-	"kego.io/context/envctx"
-	"kego.io/generator"
-	"kego.io/kerr"
-	"kego.io/literal"
-	"kego.io/system"
-)
-
+/*
 func Types(ctx context.Context) (source []byte, err error) {
 
 	env := envctx.FromContext(ctx)
@@ -64,3 +53,4 @@ func Types(ctx context.Context) (source []byte, err error) {
 	}
 	return b, nil
 }
+*/

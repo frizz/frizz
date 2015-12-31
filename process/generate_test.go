@@ -29,7 +29,7 @@ func TestGenerate(t *testing.T) {
 	err = process.Generate(ctx, process.S_STRUCTS)
 	assert.NoError(t, err)
 
-	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated-structs.go"))
+	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "json.Register")
 
@@ -63,7 +63,7 @@ func TestGenerate_path(t *testing.T) {
 	err = process.Generate(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}), process.S_STRUCTS)
 	assert.NoError(t, err)
 
-	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated-structs.go"))
+	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(genBytes), "package z\n")
 

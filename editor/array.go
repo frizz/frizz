@@ -32,7 +32,7 @@ func (e *ArrayEditor) Initialize(ctx context.Context, holder BranchInterface, la
 
 	table := mdl.Table()
 
-	items, err := system.WrapRule(e.Rule.Interface.(system.CollectionRule).GetItemsRule())
+	items, err := system.WrapRule(ctx, e.Rule.Interface.(system.CollectionRule).GetItemsRule())
 	if err != nil {
 		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
 	}

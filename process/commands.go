@@ -7,11 +7,12 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/editor/server"
 	"kego.io/kerr"
 	"kego.io/process/validate"
 )
 
-func ValidateCommand(ctx context.Context) (typesChanged bool, err error) {
+func ValidateCommand(ctx context.Context) (err error) {
 
 	cmd := cmdctx.FromContext(ctx)
 
@@ -19,19 +20,23 @@ func ValidateCommand(ctx context.Context) (typesChanged bool, err error) {
 		fmt.Print("Validating... ")
 	}
 	if err := validate.Validate(ctx); err != nil {
-		if _, ok := kerr.Source(err).(validate.TypesChangedError); ok {
-			return true, nil
-		}
-		return false, err
+		return err
 	}
 	if cmd.Verbose {
 		fmt.Println("OK.")
 	}
-	return false, nil
+	return nil
 }
 
+type CommandType int
+
+const (
+	Ke CommandType = iota
+	Ked
+)
+
 // Ke is the main process fired by the ke command line tool.
-func KeCommand(ctx context.Context) error {
+func KeCommand(ctx context.Context, typ CommandType) error {
 
 	cmd := cmdctx.FromContext(ctx)
 	env := envctx.FromContext(ctx)
@@ -67,16 +72,27 @@ func KeCommand(ctx context.Context) error {
 		}
 	}
 
-	if err := RunAllCommands(ctx); err != nil {
-		return err
+	switch typ {
+	case Ke:
+		if err := RunAllCommands(ctx); err != nil {
+			return err
+		}
+	case Ked:
+		// Something
+		if err := server.Start(ctx); err != nil {
+			return kerr.New("PEUTNVGTSX", err, "server.Start")
+		}
+	default:
+		panic(kerr.New("NVFYQAMGLW", nil, "Invalid typ"))
 	}
 	return nil
 }
 
 func RunAllCommands(ctx context.Context) error {
-	if err := Run(ctx, C_STRUCTS); err != nil {
-		return err
-	}
+
+	//if err := Run(ctx, C_STRUCTS); err != nil {
+	//	return err
+	//}
 	if err := Run(ctx, C_TYPES); err != nil {
 		return err
 	}

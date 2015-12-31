@@ -1,22 +1,48 @@
-package generate
+package parse
 
-/*
-func Structs(ctx context.Context) (source []byte, err error) {
+import (
+	"fmt"
+	"strconv"
 
-	env := envctx.FromContext(ctx)
+	"sort"
 
-	types := system.GetAllGlobalsInPackage(env.Path, system.NewReference("kego.io/system", "type"))
+	"golang.org/x/net/context"
+	"kego.io/context/cachectx"
+	"kego.io/context/envctx"
+	"kego.io/generator"
+	"kego.io/json"
+	"kego.io/kerr"
+	"kego.io/system"
+)
+
+func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
+
+	cache := cachectx.FromContext(ctx)
+
+	pcache, ok := cache.Get(env.Path)
+	if !ok {
+		return nil, kerr.New("DQVQWTKRSK", nil, "%s not found in ctx", env.Path)
+	}
+	types := pcache.Types
+
 	g := generator.New(env.Path)
 
-	if len(types) == 0 {
+	infoBytes, err := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
+	if err != nil {
+		return nil, kerr.New("HVFWIUVLSM", err, "MarshalPlain")
+	}
+	g.SetPackageComment("info:" + string(infoBytes))
+
+	if types.Len() == 0 {
 		b, err := g.Build()
 		if err != nil {
 			return nil, kerr.New("BBRLIODBKL", err, "Build")
 		}
 		return b, nil
 	}
-	for _, hashed := range types {
-		typ := hashed.Object.(*system.Type)
+	for t := range types.All() {
+		typ := t.(*system.Type)
+
 		isRule := typ.Id.IsRule()
 
 		if typ.IsNativeCollection() {
@@ -24,18 +50,18 @@ func Structs(ctx context.Context) (source []byte, err error) {
 		}
 
 		if !typ.Interface && !typ.IsNativeValue() {
-			if err := printStructDefinition(ctx, g, typ); err != nil {
+			if err := printStructDefinition(ctx, env, g, typ); err != nil {
 				return nil, kerr.New("XKRYMXUIJD", err, "printNewStructDefinition")
 			}
 		}
 
 		if !typ.Interface && !isRule {
-			printInterfaceDefinition(ctx, g, typ)
-			printInterfaceImplementation(ctx, g, typ)
+			printInterfaceDefinition(env, g, typ)
+			printInterfaceImplementation(env, g, typ)
 		}
 
 	}
-	printInitFunction(g, types)
+	printInitFunction(env, g, types)
 
 	b, err := g.Build()
 	if err != nil {
@@ -44,8 +70,7 @@ func Structs(ctx context.Context) (source []byte, err error) {
 	return b, nil
 }
 
-func printInterfaceDefinition(ctx context.Context, g *generator.Generator, typ *system.Type) {
-	env := envctx.FromContext(ctx)
+func printInterfaceDefinition(env *envctx.Env, g *generator.Generator, typ *system.Type) {
 	g.Println("type ", system.GoInterfaceName(typ.Id.Name), " interface {")
 	{
 		g.Println("Get",
@@ -58,8 +83,7 @@ func printInterfaceDefinition(ctx context.Context, g *generator.Generator, typ *
 	g.Println("}")
 }
 
-func printInterfaceImplementation(ctx context.Context, g *generator.Generator, typ *system.Type) {
-	env := envctx.FromContext(ctx)
+func printInterfaceImplementation(env *envctx.Env, g *generator.Generator, typ *system.Type) {
 	g.Println("func (o *",
 		system.GoName(typ.Id.Name),
 		") Get",
@@ -75,8 +99,7 @@ func printInterfaceImplementation(ctx context.Context, g *generator.Generator, t
 	g.Println("}")
 }
 
-func printStructDefinition(ctx context.Context, g *generator.Generator, typ *system.Type) error {
-	env := envctx.FromContext(ctx)
+func printStructDefinition(ctx context.Context, env *envctx.Env, g *generator.Generator, typ *system.Type) error {
 	if typ.Description != "" {
 		g.Println("// ", typ.Description)
 	}
@@ -109,13 +132,25 @@ func printStructDefinition(ctx context.Context, g *generator.Generator, typ *sys
 	return nil
 }
 
-func printInitFunction(g *generator.Generator, types []system.Hashed) {
+func printInitFunction(env *envctx.Env, g *generator.Generator, types *cachectx.TypeCache) {
 	g.Println("func init() {")
 	{
-		for _, hashed := range types {
+		g.PrintFunctionCall(
+			"kego.io/json",
+			"RegisterPackage",
+			strconv.Quote(env.Path),
+			env.Hash,
+		)
+		g.Println("")
 
-			typ := hashed.Object.(*system.Type)
+		for t := range types.All() {
+
+			typ := t.(*system.Type)
 			isRule := typ.Id.IsRule()
+
+			if isRule {
+				continue
+			}
 
 			if typ.IsNativeCollection() {
 				continue
@@ -136,9 +171,15 @@ func printInitFunction(g *generator.Generator, types []system.Hashed) {
 				)
 			}
 
-			typeOf2 := "nil"
-			if !typ.Interface && !isRule {
-				typeOf2 = g.SprintFunctionCall(
+			typeOf2 := g.SprintFunctionCall(
+				"reflect",
+				"TypeOf",
+				fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.ChangeToRule().Name)),
+			)
+
+			typeOf3 := "nil"
+			if !typ.Interface {
+				typeOf3 = g.SprintFunctionCall(
 					"reflect",
 					"TypeOf",
 					fmt.Sprintf("(*%s)(nil)", system.GoInterfaceName(typ.Id.Name)),
@@ -147,15 +188,15 @@ func printInitFunction(g *generator.Generator, types []system.Hashed) {
 
 			g.PrintFunctionCall(
 				"kego.io/json",
-				"Register",
+				"RegisterType",
 				strconv.Quote(typ.Id.Package),
 				strconv.Quote(typ.Id.Name),
 				typeOf1,
 				typeOf2,
-				hashed.Hash,
+				typeOf3,
 			)
 			g.Println("")
 		}
 	}
 	g.Println("}")
-}*/
+}

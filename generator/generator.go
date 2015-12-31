@@ -13,6 +13,7 @@ import (
 type Generator struct {
 	path       string
 	name       string
+	comment    string
 	Imports    Imports
 	statements []string
 	buffer     *bytes.Buffer
@@ -24,6 +25,10 @@ func New(path string) *Generator {
 }
 func WithName(path string, name string) *Generator {
 	return &Generator{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
+}
+
+func (g *Generator) SetPackageComment(comment string) {
+	g.comment = comment
 }
 
 func (g *Generator) Print(args ...interface{}) *Generator {
@@ -53,6 +58,9 @@ func (g *Generator) SprintFunctionCall(path string, name string, args ...interfa
 
 func (g *Generator) Build() ([]byte, error) {
 	b := g.buffer
+	if len(g.comment) > 0 {
+		fmt.Fprintf(b, "// %s\n", g.comment)
+	}
 	fmt.Fprintf(b, "package %s", g.name)
 	if len(g.Imports) > 0 {
 		fmt.Fprintf(b, "\n\n")

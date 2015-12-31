@@ -7,6 +7,7 @@ type Env struct {
 	Path      string
 	Aliases   map[string]string
 	Recursive bool
+	Hash      uint64
 }
 
 // key is an unexported type for keys defined in this package.

@@ -15,7 +15,7 @@ import (
 // [collection prefix][optional pointer][type name]
 func Type(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
 
-	outer, err := system.WrapRule(field)
+	outer, err := system.WrapRule(ctx, field)
 	if err != nil {
 		return "", kerr.New("TFXFBIRXHN", err, "NewRuleHolder")
 	}

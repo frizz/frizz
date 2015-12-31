@@ -89,24 +89,24 @@ func (e *ObjectEditor) AddField(node *Node) {
 	}
 
 	// If the rule is an interface, so we must pop up UX to choose the concrete type.
-	hashedTypes := system.GetAllTypesThatImplementInterface(node.Rule.Parent, node.Rule.Struct.Interface)
+	types := system.GetAllTypesThatImplementInterface(e.ctx, node.Rule.Parent)
 
-	if len(hashedTypes) == 1 {
+	if len(types) == 1 {
 		// if only one type is compatible, don't show the popup, just add it.
-		e.InitialiseChildWithConcreteType(node, hashedTypes[0].Object.(*system.Type))
+		e.InitialiseChildWithConcreteType(node, types[0])
 		return
 	}
 
 	card := mdl.Card("Choose a type", "Add")
 	options := map[string]string{}
 
-	for _, h := range hashedTypes {
-		displayName, err := h.Object.GetObject(nil).Id.ValueContext(e.ctx)
+	for _, t := range types {
+		displayName, err := t.Id.ValueContext(e.ctx)
 		if err != nil {
 			// we shouldn't be able to get here
 			e.fail <- kerr.New("IPLHSXDWQK", err, "ValueContext")
 		}
-		options[h.Object.GetObject(nil).Id.String()] = displayName
+		options[t.Id.String()] = displayName
 	}
 
 	dropdown := mdl.Select(options)
@@ -119,13 +119,9 @@ func (e *ObjectEditor) AddField(node *Node) {
 			if err != nil {
 				e.fail <- kerr.New("KHJGQXORPD", err, "NewReferenceFromString")
 			}
-			h, ok := system.GetGlobal(r.Package, r.Name)
+			t, ok := system.GetTypeFromCache(e.ctx, r.Package, r.Name)
 			if !ok {
-				e.fail <- kerr.New("WEADSXTPYC", nil, "Global %s not found", r.Value())
-			}
-			t, ok := h.Object.(*system.Type)
-			if !ok {
-				e.fail <- kerr.New("FPOYMFLKVE", nil, "Global not a *Type")
+				e.fail <- kerr.New("WEADSXTPYC", nil, "Type %s not found in cache", r.Value())
 			}
 			e.InitialiseChildWithConcreteType(node, t)
 		}

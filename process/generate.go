@@ -1,17 +1,22 @@
 package process
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"strings"
+
 	"golang.org/x/net/context"
+	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
+	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/process/generate"
-	"kego.io/process/scan"
+	"kego.io/parse"
+	"kego.io/process/pkgutils"
 )
 
 type SourceType string
@@ -20,6 +25,72 @@ const (
 	S_STRUCTS SourceType = "structs"
 	S_TYPES              = "types"
 )
+
+func GenerateAll(ctx context.Context, path string) error {
+	cache := cachectx.FromContext(ctx)
+	pcache, ok := cache.Get(path)
+	if !ok {
+		return kerr.New("XMVXECGDOX", nil, "%s not founc in ctx", path)
+	}
+	if path != "kego.io/system" {
+		if err := GenerateAll(ctx, "kego.io/system"); err != nil {
+			return kerr.New("WVXTUBQYVT", err, "GenerateAll (kego.io/system)")
+		}
+	}
+	for aliasPath, _ := range pcache.Environment.Aliases {
+		if err := GenerateAll(ctx, aliasPath); err != nil {
+			return kerr.New("WVXTUBQYVT", err, "GenerateAll (%s)", aliasPath)
+		}
+	}
+
+	dir, err := pkgutils.GetDirFromPackage(path)
+	if err != nil {
+		return kerr.New("HASNHGDWBG", err, "pkgutils.GetDirFromPackage")
+	}
+
+	info, found, err := getInfo(ctx, dir)
+	if err != nil {
+		return kerr.New("SIMBVNBWOV", err, "getInfo")
+	}
+
+	if !found || info.Hash != pcache.Environment.Hash {
+		if err := Generate(ctx, pcache.Environment, dir); err != nil {
+			return kerr.New("TUFKDUPWMD", err, "Generate (%s)", path)
+		}
+	}
+
+	return nil
+
+}
+
+func getInfo(ctx context.Context, dir string) (info *parse.InfoStruct, found bool, err error) {
+	f, err := os.Open(filepath.Join(dir, "generated.go"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, false, nil
+		}
+		return nil, false, kerr.New("TLFTCRNBKK", err, "os.Open")
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	scanner.Scan()
+	if err := scanner.Err(); err != nil {
+		return nil, false, kerr.New("HLDYEAPLEQ", err, "Scan")
+	}
+
+	if !strings.HasPrefix(scanner.Text(), "// info:{") {
+		return nil, false, nil
+	}
+
+	data := []byte(scanner.Text()[8:])
+
+	var i parse.InfoStruct
+	if err := json.UnmarshalPlain(data, &i); err != nil {
+		return nil, false, kerr.New("UJXKJVLXHG", err, "DecodeUntyped")
+	}
+	return &i, true, nil
+}
 
 // Generate generates the source code from templates and writes the files
 // to the correct folders.
@@ -34,64 +105,27 @@ const (
 // file == F_EDITOR: generated-editor.go in the "editor" sub-package. This
 // will be compiled to JS when the editor is launched.
 //
-func Generate(ctx context.Context, file SourceType) error {
+func Generate(ctx context.Context, env *envctx.Env, dir string) error {
 
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
 	cmd := cmdctx.FromContext(ctx)
-	env := envctx.FromContext(ctx)
 
 	if cmd.Verbose {
-		fmt.Print("Generating ", file, "... ")
+		fmt.Printf("Generating types for %s... ", env.Path)
 	}
 
-	if file == S_STRUCTS {
-		hasFiles, err := scan.HasSourceFiles(ctx)
-		if err != nil {
-			return kerr.New("GXGGDQVHHP", err, "ScanForKegoFiles")
-		}
-		if !hasFiles {
-			return kerr.New("YSLREDFDLJ", nil, "No kego files found")
-		}
-	}
-
-	if file == S_STRUCTS || file == S_TYPES {
-
-		// We only tolerate unknown types when we're initially building the
-		// struct files. At all other times, the generated structs should
-		// provide all types.
-		ignoreUnknownTypes := file == S_STRUCTS
-
-		// When generating structs or types, we need to scan for types. All other runs will have
-		// them compiled in the types sub-package.
-		if err := scan.ScanForTypes(ctx, ignoreUnknownTypes); err != nil {
-			return kerr.New("XYIUHERDHE", err, "scan.ScanForTypes")
-		}
-	}
-
-	var outputDir string
-	var filename string
-	var source []byte
-	var err error
-
-	switch file {
-	case S_STRUCTS:
-		outputDir = cmd.Dir
-		filename = "generated-structs.go"
-		source, err = generate.Structs(ctx)
-	case S_TYPES:
-		outputDir = filepath.Join(cmd.Dir, "types")
-		filename = "generated-types.go"
-		source, err = generate.Types(ctx)
-	}
+	outputDir := dir
+	filename := "generated.go"
+	source, err := parse.Structs(ctx, env)
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "generate: %s", file)
+		return kerr.New("XFNESBLBTQ", err, "parse.Structs")
 	}
 
 	// We only backup in the system structs and types files because they are the only
 	// generated files we ever need to roll back
-	backup := env.Path == "kego.io/system" && (file == S_STRUCTS || file == S_TYPES)
+	backup := env.Path == "kego.io/system"
 
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "save")

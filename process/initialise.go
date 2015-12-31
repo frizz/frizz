@@ -2,19 +2,16 @@ package process
 
 import (
 	"flag"
-	"fmt"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"strings"
 
 	"golang.org/x/net/context"
+	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
-	"kego.io/process/scan"
-	"kego.io/system"
+	"kego.io/parse"
+	"kego.io/process/pkgutils"
 )
 
 type optionsSpec interface {
@@ -92,96 +89,46 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = wgctx.NewContext(ctx)
+	ctx = cachectx.NewContext(ctx)
 
-	c := &cmdctx.Cmd{}
-	e := &envctx.Env{}
+	cmd := &cmdctx.Cmd{}
 
-	c.Edit = options.Edit
-	c.Update = options.Update
-	c.Verbose = options.Verbose
-	c.Debug = options.Debug
+	path := ""
+	cmd.Edit = options.Edit
+	cmd.Update = options.Update
+	cmd.Verbose = options.Verbose
+	cmd.Debug = options.Debug
 	if options.Path == "" {
 
 		dir, err := os.Getwd()
 		if err != nil {
 			return nil, nil, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
 		}
-		c.Dir = dir
+		cmd.Dir = dir
 
-		pathFromDir, err := getPackagePath(c.Dir, os.Getenv("GOPATH"))
+		p, err := pkgutils.GetPackageFromDir(cmd.Dir)
 		if err != nil {
-			return nil, nil, kerr.New("PSRAWHQCPV", err, "getPackage")
+			return nil, nil, kerr.New("ADNJKTLAWY", err, "pkgutils.GetPackageFromDir")
 		}
-		e.Path = pathFromDir
+		path = p
 
 	} else {
 
-		e.Path = options.Path
-
-		out, err := exec.Command("go", "list", "-f", "{{.Dir}}", e.Path).CombinedOutput()
-		if err == nil {
-			c.Dir = strings.TrimSpace(string(out))
-		} else {
-			dir, err := getPackageDir(e.Path, os.Getenv("GOPATH"))
-			if err != nil {
-				return nil, nil, kerr.New("GXTUPMHETV", err, "Can't find %s", e.Path)
-			}
-			c.Dir = dir
+		path = options.Path
+		dir, err := pkgutils.GetDirFromPackage(options.Path)
+		if err != nil {
+			return nil, nil, kerr.New("QKPSIYSKUN", err, "pkgutils.GetDirFromPackage")
 		}
-
+		cmd.Dir = dir
 	}
 
-	// ScanForPackage is finding our Aliases, so it's ok to give it an
-	// incomplete env context with just the path
-	dummyCtx := ctx
-	dummyCtx = envctx.NewContext(dummyCtx, e)
-	dummyCtx = cmdctx.NewContext(dummyCtx, c)
-	if err := scan.ScanForPackage(dummyCtx); err != nil {
-		return nil, nil, kerr.New("IAAETYCHSW", err, "scan.ScanForPackage")
+	env, err := parse.Parse(ctx, path, []string{})
+	if err != nil {
+		return nil, nil, kerr.New("EBMBIBIKUF", err, "parse.Parse")
 	}
-	p, ok := system.GetPackage(e.Path)
-	if !ok {
-		return nil, nil, kerr.New("BHLJNCIWUJ", nil, "Package not found")
-	}
-	e.Aliases = p.Aliases
-	e.Recursive = p.Recursive
 
-	ctx = envctx.NewContext(ctx, e)
-	ctx = cmdctx.NewContext(ctx, c)
+	ctx = envctx.NewContext(ctx, env)
+	ctx = cmdctx.NewContext(ctx, cmd)
 
 	return ctx, cancel, nil
-}
-
-func getPackagePath(dir string, gopathEnv string) (string, error) {
-	gopaths := filepath.SplitList(gopathEnv)
-	var savedError error
-	for _, gopath := range gopaths {
-		if strings.HasPrefix(dir, gopath) {
-			gosrc := fmt.Sprintf("%s/src", gopath)
-			relpath, err := filepath.Rel(gosrc, dir)
-			if err != nil {
-				savedError = err
-				continue
-			}
-			if relpath == "" {
-				continue
-			}
-			return relpath, nil
-		}
-	}
-	if savedError != nil {
-		return "", savedError
-	}
-	return "", kerr.New("CXOETFPTGM", nil, "Package not found for %s", dir)
-}
-
-func getPackageDir(path string, gopathEnv string) (string, error) {
-	gopaths := filepath.SplitList(gopathEnv)
-	for _, gopath := range gopaths {
-		dir := filepath.Join(gopath, "src", path)
-		if s, err := os.Stat(dir); err == nil && s.IsDir() {
-			return dir, nil
-		}
-	}
-	return "", kerr.New("SUTCWEVRXS", nil, "%s not found", path)
 }

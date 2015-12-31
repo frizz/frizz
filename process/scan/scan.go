@@ -1,23 +1,6 @@
 package scan // import "kego.io/process/scan"
 
-import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"golang.org/x/net/context"
-
-	"github.com/ghodss/yaml"
-	"github.com/surge/cityhash"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/json"
-	"kego.io/kerr"
-	"kego.io/system"
-)
-
+/*
 func ScanForPackage(ctx context.Context) error {
 
 	env := envctx.FromContext(ctx)
@@ -274,3 +257,4 @@ func GetHash(ctx context.Context, relativeFilePath string, content []byte) (uint
 
 	return hash, nil
 }
+*/

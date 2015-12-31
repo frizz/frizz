@@ -284,7 +284,7 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 
 	env := envctx.FromContext(ctx)
 
-	if err := process.KeCommand(ctx); err != nil {
+	if err := process.KeCommand(ctx, process.Ke); err != nil {
 		return "", err
 	}
 

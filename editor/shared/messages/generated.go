@@ -1,3 +1,4 @@
+// info:{"Path":"kego.io/editor/shared/messages","Hash":7202517475164886450}
 package messages
 
 import (
@@ -7,24 +8,6 @@ import (
 	"kego.io/json"
 	"kego.io/system"
 )
-
-// Automatically created basic rule for message
-type MessageRule struct {
-	*system.Object
-	*system.Rule
-}
-
-// Automatically created basic rule for sourceRequest
-type SourceRequestRule struct {
-	*system.Object
-	*system.Rule
-}
-
-// Automatically created basic rule for sourceResponse
-type SourceResponseRule struct {
-	*system.Object
-	*system.Rule
-}
 
 // This is a base class embedded in each message
 type Message struct {
@@ -41,6 +24,12 @@ func (o *Message) GetMessage(ctx context.Context) *Message {
 	return o
 }
 
+// Automatically created basic rule for message
+type MessageRule struct {
+	*system.Object
+	*system.Rule
+}
+
 // This is sent by the client to request a source file.
 type SourceRequest struct {
 	*system.Object
@@ -53,6 +42,12 @@ type SourceRequestInterface interface {
 
 func (o *SourceRequest) GetSourceRequest(ctx context.Context) *SourceRequest {
 	return o
+}
+
+// Automatically created basic rule for sourceRequest
+type SourceRequestRule struct {
+	*system.Object
+	*system.Rule
 }
 
 // This is returned when the client requests a source.
@@ -70,11 +65,16 @@ type SourceResponseInterface interface {
 func (o *SourceResponse) GetSourceResponse(ctx context.Context) *SourceResponse {
 	return o
 }
+
+// Automatically created basic rule for sourceResponse
+type SourceResponseRule struct {
+	*system.Object
+	*system.Rule
+}
+
 func init() {
-	json.Register("kego.io/editor/shared/messages", "@message", reflect.TypeOf((*MessageRule)(nil)), nil, 4785498943088766147)
-	json.Register("kego.io/editor/shared/messages", "@sourceRequest", reflect.TypeOf((*SourceRequestRule)(nil)), nil, 6522969464666442267)
-	json.Register("kego.io/editor/shared/messages", "@sourceResponse", reflect.TypeOf((*SourceResponseRule)(nil)), nil, 14174040136885668420)
-	json.Register("kego.io/editor/shared/messages", "message", reflect.TypeOf((*Message)(nil)), reflect.TypeOf((*MessageInterface)(nil)).Elem(), 4785498943088766147)
-	json.Register("kego.io/editor/shared/messages", "sourceRequest", reflect.TypeOf((*SourceRequest)(nil)), reflect.TypeOf((*SourceRequestInterface)(nil)).Elem(), 6522969464666442267)
-	json.Register("kego.io/editor/shared/messages", "sourceResponse", reflect.TypeOf((*SourceResponse)(nil)), reflect.TypeOf((*SourceResponseInterface)(nil)).Elem(), 14174040136885668420)
+	json.RegisterPackage("kego.io/editor/shared/messages", 7202517475164886450)
+	json.RegisterType("kego.io/editor/shared/messages", "sourceRequest", reflect.TypeOf((*SourceRequest)(nil)), reflect.TypeOf((*SourceRequestRule)(nil)), reflect.TypeOf((*SourceRequestInterface)(nil)).Elem())
+	json.RegisterType("kego.io/editor/shared/messages", "sourceResponse", reflect.TypeOf((*SourceResponse)(nil)), reflect.TypeOf((*SourceResponseRule)(nil)), reflect.TypeOf((*SourceResponseInterface)(nil)).Elem())
+	json.RegisterType("kego.io/editor/shared/messages", "message", reflect.TypeOf((*Message)(nil)), reflect.TypeOf((*MessageRule)(nil)), reflect.TypeOf((*MessageInterface)(nil)).Elem())
 }

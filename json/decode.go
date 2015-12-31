@@ -641,6 +641,10 @@ func GetInterface(t reflect.Type) (reflect.Type, bool) {
 	return dummy, true
 }
 
+var packages struct {
+	sync.RWMutex
+	m map[string]uint64
+}
 var types struct {
 	sync.RWMutex
 	m map[typeRef]typeDef
@@ -652,17 +656,25 @@ type typeRef struct {
 }
 type typeDef struct {
 	typ   reflect.Type
+	rule  reflect.Type
 	iface reflect.Type
-	hash  uint64
 }
 
-func Register(path string, name string, typ reflect.Type, iface reflect.Type, hash uint64) {
+func RegisterPackage(path string, hash uint64) {
+	packages.Lock()
+	defer packages.Unlock()
+	if packages.m == nil {
+		packages.m = map[string]uint64{}
+	}
+	packages.m[path] = hash
+}
+func RegisterType(path string, name string, typ reflect.Type, rule reflect.Type, iface reflect.Type) {
 	types.Lock()
 	defer types.Unlock()
 	if types.m == nil {
-		types.m = make(map[typeRef]typeDef)
+		types.m = map[typeRef]typeDef{}
 	}
-	types.m[typeRef{path, name}] = typeDef{typ, iface, hash}
+	types.m[typeRef{path, name}] = typeDef{typ, rule, iface}
 }
 func Unregister(path string, name string) {
 	types.Lock()
@@ -672,21 +684,42 @@ func Unregister(path string, name string) {
 	}
 	delete(types.m, typeRef{path, name})
 }
-func GetType(path string, name string) (reflect.Type, uint64, bool) {
+func GetType(path string, name string) (reflect.Type, bool) {
 	types.RLock()
 	defer types.RUnlock()
-	if t, ok := types.m[typeRef{path, name}]; ok {
-		return t.typ, t.hash, true
+
+	rule := false
+	if strings.HasPrefix(name, RULE_PREFIX) {
+		rule = true
+		name = name[1:]
 	}
-	return nil, 0, false
+
+	if t, ok := types.m[typeRef{path, name}]; ok {
+		if rule {
+			return t.rule, true
+		}
+		return t.typ, true
+	}
+	return nil, false
 }
-func GetTypeInterface(path string, name string) (reflect.Type, uint64, bool) {
+func GetTypeInterface(path string, name string) (reflect.Type, bool) {
 	types.RLock()
 	defer types.RUnlock()
-	if t, ok := types.m[typeRef{path, name}]; ok {
-		return t.iface, t.hash, true
+	if strings.HasPrefix(name, RULE_PREFIX) {
+		name = name[1:]
 	}
-	return nil, 0, false
+	if t, ok := types.m[typeRef{path, name}]; ok {
+		return t.iface, true
+	}
+	return nil, false
+}
+func GetPackageHash(path string) (uint64, bool) {
+	packages.RLock()
+	defer packages.RUnlock()
+	if h, ok := packages.m[path]; ok {
+		return h, true
+	}
+	return 0, false
 }
 func GetTypeByReflectType(typ reflect.Type) (path string, name string, found bool) {
 	types.RLock()
@@ -696,6 +729,10 @@ func GetTypeByReflectType(typ reflect.Type) (path string, name string, found boo
 		// as the input, so we compare both
 		if def.typ == typ || (def.typ.Kind() == reflect.Ptr && def.typ.Elem() == typ) {
 			return ref.path, ref.name, true
+		}
+
+		if def.rule != nil && (def.rule == typ || (def.rule.Kind() == reflect.Ptr && def.rule.Elem() == typ)) {
+			return ref.path, RULE_PREFIX + ref.name, true
 		}
 	}
 	return "", "", false
@@ -790,7 +827,7 @@ func (d *decodeState) setType(ctx context.Context, typeName string, v reflect.Va
 	}
 
 	// We should look the type up in the type resolver
-	typ, _, ok := GetType(path, name)
+	typ, ok := GetType(path, name)
 	if !ok && v.Kind() == reflect.Interface {
 		// If we can't find the type in the resolver, and
 		// we're unmarshaling into an interface, then look

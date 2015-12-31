@@ -26,9 +26,9 @@ func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 	if err != nil {
 		return kerr.New("NUHCPRKRXT", err, "getTypeFromField (global)")
 	}
-	if typ == nil {
-		return kerr.New("GREMVFEUMH", nil, "Unknown global type")
-	}
+	//if typ == nil {
+	//return kerr.New("GREMVFEUMH", nil, "Unknown global type %#v", in.Map()["type"])
+	//}
 
 	// we don't wrap the error in kerr because in can return special
 	// error types
@@ -45,7 +45,10 @@ func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflec
 
 func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
 
-	p := getEmptyValue(typ)
+	var p reflect.Value
+	if typ != nil {
+		getEmptyValue(typ)
+	}
 
 	err := us.unpack(ctx, in, p)
 
@@ -439,12 +442,12 @@ func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface r
 			return nil, kerr.New("KXBNXCCRYH", err, "GetReferencePartsFromTypeString")
 		}
 	}
-	return us.getType(typePath, typeName, iface), nil
+	return us.getType(ctx, typePath, typeName, iface), nil
 }
 
-func (us *unpackStruct) getType(typePath string, typeName string, iface reflect.Value) reflect.Type {
+func (us *unpackStruct) getType(ctx context.Context, typePath string, typeName string, iface reflect.Value) reflect.Type {
 
-	typ, _, ok := GetType(typePath, typeName)
+	typ, ok := GetType(typePath, typeName)
 	if !ok && iface.Kind() == reflect.Interface {
 
 		// If we can't find the type in the resolver, and

@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/websocket"
 
 	"kego.io/kerr"
-	"kego.io/process/scan"
 
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"
@@ -161,20 +160,22 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 }
 
 func initialise() (*system.Package, error) {
-	if err := scan.ScanForPackage(app.ctx); err != nil {
-		return nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
-	}
-	if err := scan.ScanForTypes(app.ctx, false); err != nil {
-		return nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
-	}
-	if err := scan.ScanForSource(app.ctx); err != nil {
-		return nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
-	}
-	p, ok := system.GetPackage(app.env.Path)
-	if !ok {
-		return nil, kerr.New("IHIYKRRYWL", nil, "package not found")
-	}
-	return p.Package, nil
+	/*
+		if err := scan.ScanForPackage(app.ctx); err != nil {
+			return nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
+		}
+		if err := scan.ScanForTypes(app.ctx, true); err != nil {
+			return nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
+		}
+		if err := scan.ScanForSource(app.ctx); err != nil {
+			return nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
+		}
+		p, ok := system.GetPackage(app.env.Path)
+		if !ok {
+			return nil, kerr.New("IHIYKRRYWL", nil, "package not found")
+		}
+		return p.Package, nil*/
+	return nil, nil
 }
 
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {

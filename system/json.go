@@ -5,6 +5,9 @@ import (
 
 	"fmt"
 
+	"golang.org/x/net/context"
+	"kego.io/context/cachectx"
+	"kego.io/context/envctx"
 	"kego.io/json"
 )
 
@@ -47,19 +50,24 @@ type JsonBoolInterface interface {
 }
 
 func init() {
-	json.Register("kego.io/json", "number", reflect.TypeOf(float64(1.1)), reflect.TypeOf((*JsonNumberInterface)(nil)).Elem(), 0)
-	json.Register("kego.io/json", "string", reflect.TypeOf(string("")), reflect.TypeOf((*JsonStringInterface)(nil)).Elem(), 0)
-	json.Register("kego.io/json", "bool", reflect.TypeOf(bool(true)), reflect.TypeOf((*JsonBoolInterface)(nil)).Elem(), 0)
-	json.Register("kego.io/json", "@number", reflect.TypeOf(&JsonNumberRule{}), nil, 0)
-	json.Register("kego.io/json", "@string", reflect.TypeOf(&JsonStringRule{}), nil, 0)
-	json.Register("kego.io/json", "@bool", reflect.TypeOf(&JsonBoolRule{}), nil, 0)
+
+	json.RegisterType("kego.io/json", "number", reflect.TypeOf(float64(1.1)), reflect.TypeOf(&JsonNumberRule{}), reflect.TypeOf((*JsonNumberInterface)(nil)).Elem())
+	json.RegisterType("kego.io/json", "string", reflect.TypeOf(string("")), reflect.TypeOf(&JsonStringRule{}), reflect.TypeOf((*JsonStringInterface)(nil)).Elem())
+	json.RegisterType("kego.io/json", "bool", reflect.TypeOf(bool(true)), reflect.TypeOf(&JsonBoolRule{}), reflect.TypeOf((*JsonBoolInterface)(nil)).Elem())
+
+}
+
+func RegisterJsonTypes(ctx context.Context) {
+
+	cache := cachectx.FromContext(ctx)
+	pcache := cache.Set(&envctx.Env{Path: "kego.io/json"})
 
 	tr := NewReference("kego.io/system", "type")
 
 	makeRule := func(name string) *Type {
 		return &Type{
 			Object: &Object{
-				Id:   NewReference("kego.io/json", fmt.Sprint(RULE_PREFIX, name)),
+				Id:   NewReference("kego.io/json", fmt.Sprint(json.RULE_PREFIX, name)),
 				Type: tr},
 			Interface: false,
 			Embed:     []*Reference{NewReference("kego.io/system", "rule")},
@@ -79,11 +87,11 @@ func init() {
 			Rule:      makeRule(name)}
 	}
 
-	Register("kego.io/json", "string", makeType("string"), 0)
-	Register("kego.io/json", "number", makeType("number"), 0)
-	Register("kego.io/json", "bool", makeType("bool"), 0)
-	Register("kego.io/json", "@string", makeRule("string"), 0)
-	Register("kego.io/json", "@number", makeRule("number"), 0)
-	Register("kego.io/json", "@bool", makeRule("bool"), 0)
+	pcache.Types.Set("string", makeType("string"))
+	pcache.Types.Set("number", makeType("number"))
+	pcache.Types.Set("bool", makeType("bool"))
+	pcache.Types.Set("@string", makeRule("string"))
+	pcache.Types.Set("@number", makeRule("number"))
+	pcache.Types.Set("@bool", makeRule("bool"))
 
 }

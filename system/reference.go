@@ -6,6 +6,8 @@ import (
 
 	"strconv"
 
+	"reflect"
+
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
@@ -129,36 +131,42 @@ func (r Reference) String() string {
 	return r.Value()
 }
 
-func (r Reference) GetType() (*Type, bool) {
+func (r Reference) GetType(ctx context.Context) (*Type, bool) {
 	if r.Package == "" || r.Name == "" {
 		return nil, false
 	}
-	if h, ok := GetGlobal(r.Package, r.Name); ok {
-		if t, ok := h.Object.(*Type); ok {
-			return t, true
-		}
+	t, ok := GetTypeFromCache(ctx, r.Package, r.Name)
+	if !ok {
+		return nil, false
 	}
-	return nil, false
+	return t, true
+}
+
+func (r Reference) GetReflectType() (reflect.Type, bool) {
+	return json.GetType(r.Package, r.Name)
+}
+func (r Reference) GetReflectInterface() (reflect.Type, bool) {
+	return json.GetTypeInterface(r.Package, r.Name)
 }
 
 func (r Reference) ChangeToType() Reference {
 	return r.changeTo("")
 }
 func (r Reference) ChangeToRule() Reference {
-	return r.changeTo(RULE_PREFIX)
-}
-func (r Reference) ChangeToInterface() Reference {
-	return r.changeTo(INTERFACE_PREFIX)
+	return r.changeTo(json.RULE_PREFIX)
 }
 func (r Reference) changeTo(prefix string) Reference {
 	if r.Package == "" || r.Name == "" {
 		return Reference{}
 	}
 	n := r.Name
-	if strings.HasPrefix(n, INTERFACE_PREFIX) || strings.HasPrefix(n, RULE_PREFIX) {
+	if r.IsRule() {
 		n = n[1:]
 	}
 	return *NewReference(r.Package, prefix+n)
+}
+func (r Reference) IsRule() bool {
+	return strings.HasPrefix(r.Name, json.RULE_PREFIX)
 }
 
 func (s Reference) NativeString() string {

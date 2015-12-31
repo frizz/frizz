@@ -1,3 +1,4 @@
+// info:{"Path":"kego.io/demo/common/units","Hash":605037691283110535}
 package units
 
 import (
@@ -26,6 +27,6 @@ func (o *Rectangle) GetRectangle(ctx context.Context) *Rectangle {
 	return o
 }
 func init() {
-	json.Register("kego.io/demo/common/units", "@rectangle", reflect.TypeOf((*RectangleRule)(nil)), nil, 16847424425470667022)
-	json.Register("kego.io/demo/common/units", "rectangle", reflect.TypeOf((*Rectangle)(nil)), reflect.TypeOf((*RectangleInterface)(nil)).Elem(), 16847424425470667022)
+	json.RegisterPackage("kego.io/demo/common/units", 605037691283110535)
+	json.RegisterType("kego.io/demo/common/units", "rectangle", reflect.TypeOf((*Rectangle)(nil)), reflect.TypeOf((*RectangleRule)(nil)), reflect.TypeOf((*RectangleInterface)(nil)).Elem())
 }
