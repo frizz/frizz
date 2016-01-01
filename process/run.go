@@ -21,9 +21,6 @@ import (
 const validateCommand = ".localke/validate"
 
 func RunValidateCommand(ctx context.Context) (success bool, err error) {
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
-
 	cmd := cmdctx.FromContext(ctx)
 
 	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
@@ -32,23 +29,30 @@ func RunValidateCommand(ctx context.Context) (success bool, err error) {
 		return false, nil
 	}
 
-	return runValidateCommand(ctx, validateCommandPath)
+	return runValidateCommand(ctx)
 }
 
-func runValidateCommand(ctx context.Context, command string) (success bool, err error) {
+func runValidateCommand(ctx context.Context) (success bool, err error) {
+
+	wgctx.FromContext(ctx).Add(1)
+	defer wgctx.FromContext(ctx).Done()
+
 	cmd := cmdctx.FromContext(ctx)
 
+	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
+
 	if cmd.Log {
-		fmt.Println("Running validate command...")
+		fmt.Print("Running validate command...")
 	}
 
 	params := []string{}
 	if cmd.Log {
-		params = append(params, "-l")
+		// we don't log
+		//params = append(params, "-l")
 	}
 	combined, stdout, stderr := logger(cmd.Log)
 
-	exe := exec.Command(command, params...)
+	exe := exec.Command(validateCommandPath, params...)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
 	if err := exe.Run(); err != nil {
@@ -61,6 +65,9 @@ func runValidateCommand(ctx context.Context, command string) (success bool, err 
 				switch status.ExitStatus() {
 				case 3:
 					// Exit status 3 = hash changed
+					if cmd.Log {
+						fmt.Println(" Command is out of date.")
+					}
 					return false, nil
 				case 4:
 					// Exit status 4 = validation error
@@ -73,6 +80,9 @@ func runValidateCommand(ctx context.Context, command string) (success bool, err 
 			return true, kerr.New("GFTBBSYEXU", err, "Run")
 		}
 	}
+	if cmd.Log {
+		fmt.Println(" OK.")
+	}
 	return true, nil
 }
 
@@ -84,6 +94,8 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	defer wgctx.FromContext(ctx).Done()
 
 	cmd := cmdctx.FromContext(ctx)
+
+	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
 
 	source, err := generate.ValidateCommand(ctx)
 	if err != nil {
@@ -98,8 +110,6 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	keCommandPath := filepath.Join(cmd.Dir, validateCommand)
-
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
@@ -109,7 +119,7 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	}
 
 	combined, stdout, stderr := logger(cmd.Log)
-	exe := exec.Command("go", "build", "-o", keCommandPath, outputPath)
+	exe := exec.Command("go", "build", "-o", validateCommandPath, outputPath)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
 
@@ -124,20 +134,15 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 		fmt.Print(combined.String())
 	}
 
-	success, err := runValidateCommand(ctx, keCommandPath)
+	success, err := runValidateCommand(ctx)
 	if err != nil {
-		// We don't want to wrap the error here.
-		return err
+		return kerr.New("PPBPPXQMWV", err, "runValidateCommand")
 	}
 	if !success {
 		return kerr.New("VGVLPAJAQN", nil, "runLocalCommand returned hash changed after build")
 	}
 
 	return nil
-}
-
-type CommandError struct {
-	kerr.Struct
 }
 
 func logger(log bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.Writer) {

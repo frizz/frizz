@@ -8,7 +8,6 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/cachectx"
-	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
 	"kego.io/json"
@@ -30,7 +29,6 @@ func Main(path string) {
 	}
 
 	env := envctx.FromContext(ctx)
-	cmd := cmdctx.FromContext(ctx)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -45,26 +43,20 @@ func Main(path string) {
 		changes, err = comparePackageHash(ctx, env.Path)
 	}
 	if err != nil {
-		fmt.Println(process.FormatError(err))
+		fmt.Println(err.Error())
 		wgctx.WaitAndExit(ctx, 1) // Exit status 1: generic error
 	}
 	if changes {
 		wgctx.WaitAndExit(ctx, 3) // Exit status 3: hash changed error
 	}
 
-	if cmd.Log {
-		fmt.Print("Validating... ")
-	}
 	if err := validate.Validate(ctx); err != nil {
 		if v, ok := kerr.Source(err).(validate.ValidationError); ok {
 			fmt.Println(v.Description)
 			wgctx.WaitAndExit(ctx, 4) // Exit status 4: validation error
 		}
-		fmt.Println(process.FormatError(err))
+		fmt.Println(err.Error())
 		wgctx.WaitAndExit(ctx, 1) // Exit status 1: generic error
-	}
-	if cmd.Log {
-		fmt.Println("OK.")
 	}
 	wgctx.WaitAndExit(ctx, 0) // Exit status 0: success
 }

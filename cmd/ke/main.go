@@ -11,7 +11,9 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
 	"kego.io/editor/server"
+	"kego.io/kerr"
 	"kego.io/process"
+	"kego.io/process/validate"
 	_ "kego.io/system"
 )
 
@@ -34,7 +36,7 @@ func main() {
 	}()
 
 	if err := process.GenerateAll(ctx, env.Path, map[string]bool{}); err != nil {
-		fmt.Println(process.FormatError(err))
+		fmt.Println(err.Error())
 		wgctx.WaitAndExit(ctx, 1)
 	}
 
@@ -47,7 +49,11 @@ func main() {
 			if !cmd.Log {
 				// in log mode, we have already written the output of the exec'ed ke command,
 				// so we don't need to duplicate the error message.
-				fmt.Println(process.FormatError(err))
+				if v, ok := kerr.Source(err).(validate.ValidationError); ok {
+					fmt.Println(v.Description)
+					wgctx.WaitAndExit(ctx, 4) // Exit code 4: validation error
+				}
+				fmt.Println(err.Error())
 			}
 			wgctx.WaitAndExit(ctx, 1)
 		}
@@ -55,7 +61,7 @@ func main() {
 
 	if cmd.Edit {
 		if err = server.Start(ctx); err != nil {
-			fmt.Println(process.FormatError(err))
+			fmt.Println(err.Error())
 			wgctx.WaitAndExit(ctx, 1)
 		}
 	}

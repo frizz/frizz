@@ -14,6 +14,25 @@ type TypeRule struct {
 	*Rule
 }
 
+// Restriction rules for maps
+type MapRule struct {
+	*Object
+	*Rule
+	// This is a rule object, defining the type and restrictions on the value of the items.
+	Items RuleInterface `json:"items"`
+	// This is the maximum number of items alowed in the array
+	MaxItems *Int `json:"maxItems"`
+	// This is the minimum number of items alowed in the array
+	MinItems *Int `json:"minItems"`
+}
+type NumberInterface interface {
+	GetNumber(ctx context.Context) *Number
+}
+
+func (o *Number) GetNumber(ctx context.Context) *Number {
+	return o
+}
+
 // Restriction rules for numbers
 type NumberRule struct {
 	*Object
@@ -30,6 +49,12 @@ type NumberRule struct {
 	Minimum *Number `json:"minimum"`
 	// This restricts the number to be a multiple of the given number
 	MultipleOf *Number `json:"multipleOf"`
+}
+
+// Automatically created basic rule for rule
+type RuleRule struct {
+	*Object
+	*Rule
 }
 
 // Restriction rules for strings
@@ -50,80 +75,6 @@ type StringRule struct {
 	MinLength *Int `json:"minLength"`
 	// This is a regex to match the value to
 	Pattern *String `json:"pattern"`
-}
-
-// Restriction rules for maps
-type MapRule struct {
-	*Object
-	*Rule
-	// This is a rule object, defining the type and restrictions on the value of the items.
-	Items RuleInterface `json:"items"`
-	// This is the maximum number of items alowed in the array
-	MaxItems *Int `json:"maxItems"`
-	// This is the minimum number of items alowed in the array
-	MinItems *Int `json:"minItems"`
-}
-
-// Automatically created basic rule for package
-type PackageRule struct {
-	*Object
-	*Rule
-}
-
-// Restriction rules for references
-type ReferenceRule struct {
-	*Object
-	*Rule
-	// Default value of this is missing or null
-	Default *Reference `json:"default"`
-}
-
-// Restriction rules for arrays
-type ArrayRule struct {
-	*Object
-	*Rule
-	// This is a rule object, defining the type and restrictions on the value of the items
-	Items RuleInterface `json:"items"`
-	// This is the maximum number of items allowed in the array
-	MaxItems *Int `json:"maxItems"`
-	// This is the minimum number of items allowed in the array
-	MinItems *Int `json:"minItems"`
-	// If this is true, each item must be unique
-	UniqueItems bool `json:"uniqueItems"`
-}
-type BoolInterface interface {
-	GetBool(ctx context.Context) *Bool
-}
-
-func (o *Bool) GetBool(ctx context.Context) *Bool {
-	return o
-}
-
-// Restriction rules for integers
-type IntRule struct {
-	*Object
-	*Rule
-	// Default value if this property is omitted
-	Default *Int `json:"default"`
-	// This provides an upper bound for the restriction
-	Maximum *Int `json:"maximum"`
-	// This provides a lower bound for the restriction
-	Minimum *Int `json:"minimum"`
-	// This restricts the number to be a multiple of the given number
-	MultipleOf *Int `json:"multipleOf"`
-}
-type ReferenceInterface interface {
-	GetReference(ctx context.Context) *Reference
-}
-
-func (o *Reference) GetReference(ctx context.Context) *Reference {
-	return o
-}
-
-// Automatically created basic rule for rule
-type RuleRule struct {
-	*Object
-	*Rule
 }
 
 // This is the most basic type.
@@ -150,35 +101,26 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 
-// Restriction rules for bools
-type BoolRule struct {
+type BoolInterface interface {
+	GetBool(ctx context.Context) *Bool
+}
+
+func (o *Bool) GetBool(ctx context.Context) *Bool {
+	return o
+}
+
+// Restriction rules for integers
+type IntRule struct {
 	*Object
 	*Rule
-	// Default value if this is missing or null
-	Default *Bool `json:"default"`
-}
-type NumberInterface interface {
-	GetNumber(ctx context.Context) *Number
-}
-
-func (o *Number) GetNumber(ctx context.Context) *Number {
-	return o
-}
-
-// Package info - forms the root node of the package
-type Package struct {
-	*Object
-	// Map of import aliases used in this package: key = package path, value = alias.
-	Aliases map[string]string `json:"aliases"`
-	// Should we scan subdirectories for data files?
-	Recursive bool `json:"recursive"`
-}
-type PackageInterface interface {
-	GetPackage(ctx context.Context) *Package
-}
-
-func (o *Package) GetPackage(ctx context.Context) *Package {
-	return o
+	// Default value if this property is omitted
+	Default *Int `json:"default"`
+	// This provides an upper bound for the restriction
+	Maximum *Int `json:"maximum"`
+	// This provides a lower bound for the restriction
+	Minimum *Int `json:"minimum"`
+	// This restricts the number to be a multiple of the given number
+	MultipleOf *Int `json:"multipleOf"`
 }
 
 // All rules will have this embedded in them.
@@ -208,6 +150,19 @@ func (o *String) GetString(ctx context.Context) *String {
 	return o
 }
 
+// Restriction rules for arrays
+type ArrayRule struct {
+	*Object
+	*Rule
+	// This is a rule object, defining the type and restrictions on the value of the items
+	Items RuleInterface `json:"items"`
+	// This is the maximum number of items allowed in the array
+	MaxItems *Int `json:"maxItems"`
+	// This is the minimum number of items allowed in the array
+	MinItems *Int `json:"minItems"`
+	// If this is true, each item must be unique
+	UniqueItems bool `json:"uniqueItems"`
+}
 type IntInterface interface {
 	GetInt(ctx context.Context) *Int
 }
@@ -240,16 +195,61 @@ type ObjectRule struct {
 	*Object
 	*Rule
 }
+type ReferenceInterface interface {
+	GetReference(ctx context.Context) *Reference
+}
+
+func (o *Reference) GetReference(ctx context.Context) *Reference {
+	return o
+}
+
+// Restriction rules for references
+type ReferenceRule struct {
+	*Object
+	*Rule
+	// Default value of this is missing or null
+	Default *Reference `json:"default"`
+}
+
+// Restriction rules for bools
+type BoolRule struct {
+	*Object
+	*Rule
+	// Default value if this is missing or null
+	Default *Bool `json:"default"`
+}
+
+// Package info - forms the root node of the package
+type Package struct {
+	*Object
+	// Map of import aliases used in this package: key = package path, value = alias.
+	Aliases map[string]string `json:"aliases"`
+	// Should we scan subdirectories for data files?
+	Recursive bool `json:"recursive"`
+}
+type PackageInterface interface {
+	GetPackage(ctx context.Context) *Package
+}
+
+func (o *Package) GetPackage(ctx context.Context) *Package {
+	return o
+}
+
+// Automatically created basic rule for package
+type PackageRule struct {
+	*Object
+	*Rule
+}
 
 func init() {
 	json.RegisterPackage("kego.io/system", 17098633876541679768)
-	json.RegisterType("kego.io/system", "type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())
+	json.RegisterType("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
+	json.RegisterType("kego.io/system", "bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	json.RegisterType("kego.io/system", "reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceRule)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem())
 	json.RegisterType("kego.io/system", "string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
 	json.RegisterType("kego.io/system", "int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
 	json.RegisterType("kego.io/system", "object", reflect.TypeOf((*Object)(nil)), reflect.TypeOf((*ObjectRule)(nil)), reflect.TypeOf((*ObjectInterface)(nil)).Elem())
 	json.RegisterType("kego.io/system", "package", reflect.TypeOf((*Package)(nil)), reflect.TypeOf((*PackageRule)(nil)), reflect.TypeOf((*PackageInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
+	json.RegisterType("kego.io/system", "type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
+	json.RegisterType("kego.io/system", "number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())
 }
