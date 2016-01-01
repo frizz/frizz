@@ -21,6 +21,9 @@ func ValidatePackage(ctx context.Context) error {
 	files := scanutils.ScanDirToFiles(ctx, cmd.Dir, env.Recursive)
 	bytes := scanutils.ScanFilesToBytes(ctx, files)
 	for c := range bytes {
+		if c.Err != nil {
+			return kerr.New("IHSVWAUAYW", c.Err, "ScanFilesToBytes")
+		}
 		if err := validateBytes(ctx, c.Bytes); err != nil {
 			return kerr.New("KWLWXKWHLF", err, "validateBytes (%s)", c.File)
 		}

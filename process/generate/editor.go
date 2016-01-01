@@ -7,9 +7,7 @@ import (
 	"kego.io/kerr"
 )
 
-func Editor(ctx context.Context) (source []byte, err error) {
-
-	env := envctx.FromContext(ctx)
+func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	g := generator.New("main")
 

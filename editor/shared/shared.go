@@ -10,5 +10,13 @@ type Info struct {
 	// Array of source names for types
 	Types []string
 	// Package object
-	Package string
+	Package []byte
+	// Flattened list of all imports
+	Imports map[string]*ImportInfo
+}
+
+type ImportInfo struct {
+	Path    string
+	Aliases map[string]string
+	Types   map[string][]byte
 }

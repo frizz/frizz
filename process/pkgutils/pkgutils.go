@@ -32,7 +32,11 @@ func getDirFromEmptyPackage(path string, gopathEnv string) (string, error) {
 			return dir, nil
 		}
 	}
-	return "", kerr.New("SUTCWEVRXS", nil, "%s not found", path)
+	return "", NotFoundError{Struct: kerr.New("SUTCWEVRXS", nil, "%s not found", path)}
+}
+
+type NotFoundError struct {
+	kerr.Struct
 }
 
 func GetPackageFromDir(dir string) (string, error) {

@@ -17,6 +17,16 @@ var packages struct {
 	m map[string]*ExtendedPackage
 }
 
+func EmptyPackage() *Package {
+	return &Package{
+		Object: &Object{
+			Type: NewReference("kego.io/system", "package"),
+		},
+		Aliases:   map[string]string{},
+		Recursive: false,
+	}
+}
+
 func RegisterPackage(path string, p *Package, hash uint64) error {
 	packages.Lock()
 	defer packages.Unlock()

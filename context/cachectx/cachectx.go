@@ -20,9 +20,15 @@ type TypeCache struct {
 	m map[string]interface{}
 }
 
+type TypeSourceCache struct {
+	sync.RWMutex
+	m map[string][]byte
+}
+
 type PackageInfo struct {
 	Environment *envctx.Env
 	Types       *TypeCache
+	TypeSource  *TypeSourceCache
 }
 
 func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
@@ -31,6 +37,7 @@ func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
 	p := &PackageInfo{
 		Environment: env,
 		Types:       &TypeCache{m: map[string]interface{}{}},
+		TypeSource:  &TypeSourceCache{m: map[string][]byte{}},
 	}
 	c.m[env.Path] = p
 	return p
@@ -91,6 +98,50 @@ func (c *TypeCache) All() chan interface{} {
 		sort.Strings(keys)
 		for _, key := range keys {
 			out <- c.m[key]
+		}
+	}()
+
+	return out
+}
+
+func (c *TypeSourceCache) Set(id string, b []byte) {
+	c.Lock()
+	defer c.Unlock()
+	c.m[id] = b
+}
+
+func (c *TypeSourceCache) Get(id string) ([]byte, bool) {
+	c.RLock()
+	defer c.RUnlock()
+	t, ok := c.m[id]
+	return t, ok
+}
+
+func (c *TypeSourceCache) Len() int {
+	c.RLock()
+	defer c.RUnlock()
+	return len(c.m)
+}
+
+type Source struct {
+	Name  string
+	Bytes []byte
+}
+
+func (c *TypeSourceCache) All() chan Source {
+	out := make(chan Source)
+
+	go func() {
+		c.RLock()
+		defer c.RUnlock()
+		defer close(out)
+		keys := []string{}
+		for key, _ := range c.m {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			out <- Source{key, c.m[key]}
 		}
 	}()
 

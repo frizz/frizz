@@ -34,19 +34,19 @@ func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error
 	hash := &PackageHasher{Path: path, Aliases: map[string]string{}, Types: map[string]uint64{}}
 
 	importPackage := func(importPath string, importAlias string) error {
-		//if aliasInfo, found := cache.Get(importPath); !found {
 		if _, found := cache.Get(importPath); !found {
-			//aliasEnv, err := Parse(ctx, importPath, append(queue, path))
 			_, err := Parse(ctx, importPath, append(queue, path))
 			if err != nil {
 				return kerr.New("RIARRSCMVE", err, "Parse (%v)", importPath)
 			}
-			//hash.Aliases[importPath] = AliasInfo{Alias: importAlias, Hash: aliasEnv.Hash}
-		} else {
-			//hash.Aliases[importPath] = AliasInfo{Alias: importAlias, Hash: aliasInfo.Environment.Hash}
 		}
 		hash.Aliases[importPath] = importAlias
 		return nil
+	}
+
+	env, dir, err := ScanForEnv(ctx, path)
+	if err != nil {
+		return nil, kerr.New("GJRHNGGWFD", err, "scanForEnv")
 	}
 
 	// Always scan the system package first if we don't have it already
@@ -56,29 +56,13 @@ func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error
 		}
 	}
 
-	// Scan the local directory for as system:package object
-	dir, err := pkgutils.GetDirFromPackage(path)
-	if err != nil {
-		return nil, kerr.New("LASRFKILIH", err, "pkgutils.GetDirFromPackage")
-	}
-
-	pkg, err := scanForPackage(ctx, path, dir)
-	if err != nil {
-		return nil, kerr.New("DTAEUSHJTQ", err, "scanForPackage")
-	}
-
-	env := &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false}
-	if pkg != nil {
-		for aliasPath, aliasName := range pkg.Aliases {
-			if aliasPath == "kego.io/system" || aliasName == "system" {
-				return nil, kerr.New("EWMLNJDXKC", nil, "Illegal import %s", aliasName)
-			}
-			if err := importPackage(aliasPath, aliasName); err != nil {
-				return nil, kerr.New("NOVMGYKHHI", err, "importPackage")
-			}
+	for aliasPath, aliasName := range env.Aliases {
+		if aliasPath == "kego.io/system" || aliasName == "system" {
+			return nil, kerr.New("EWMLNJDXKC", nil, "Illegal import %s", aliasName)
 		}
-		env.Aliases = pkg.Aliases
-		env.Recursive = pkg.Recursive
+		if err := importPackage(aliasPath, aliasName); err != nil {
+			return nil, kerr.New("NOVMGYKHHI", err, "importPackage")
+		}
 	}
 
 	pcache := cache.Set(env)
@@ -104,6 +88,26 @@ func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error
 	return env, nil
 }
 
+func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, dir string, err error) {
+	// Scan the local directory for as system:package object
+	dir, err = pkgutils.GetDirFromPackage(path)
+	if err != nil {
+		return nil, "", kerr.New("LASRFKILIH", err, "pkgutils.GetDirFromPackage")
+	}
+
+	pkg, err := scanForPackage(ctx, path, dir)
+	if err != nil {
+		return nil, "", kerr.New("DTAEUSHJTQ", err, "scanForPackage")
+	}
+
+	env = &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false}
+	if pkg != nil {
+		env.Aliases = pkg.Aliases
+		env.Recursive = pkg.Recursive
+	}
+	return env, dir, nil
+}
+
 func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env, cache *cachectx.PackageInfo, hash *PackageHasher) error {
 
 	// While we're scanning for types, we should use a custom unpacking env, because the env from
@@ -115,91 +119,67 @@ func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env,
 		if b.Err != nil {
 			return kerr.New("JACKALTIGG", b.Err, "ScanFiles")
 		}
-		var object interface{}
-		err := json.Unmarshal(envctx.NewContext(ctx, env), b.Bytes, &object)
-		if err != nil {
-			switch err.(type) {
-			case json.UnknownPackageError, json.UnknownTypeError:
-				// don't return error
-			default:
-				return kerr.New("NLRRVIDVWM", err, "UnmarshalPlain")
-			}
-		}
-		if t, ok := object.(*system.Type); ok {
-			hash.Types[t.Id.Name] = cityhash.CityHash64(b.Bytes, uint32(len(b.Bytes)))
-			cache.Types.Set(t.Id.Name, t)
-			if t.Rule != nil {
-				id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
-				if t.Rule.Id != nil && *t.Rule.Id != *id {
-					return kerr.New("JKARKEDTIW", nil, "Incorrect id for %v - it should be %v", t.Rule.Id.String(), id.String())
-				}
-				t.Rule.Id = id
-
-				// Check that the rule embeds system:rule
-				found := false
-				for _, em := range t.Rule.Embed {
-					if *em == *system.NewReference("kego.io/system", "rule") {
-						found = true
-					}
-				}
-				if !found {
-					return kerr.New("LMALEMKFDI", nil, "%s does not embed system:rule", id.String())
-				}
-
-				cache.Types.Set(id.Name, t.Rule)
-			} else {
-				// If the rule is missing, automatically create a default.
-				id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
-				rule := &system.Type{
-					Object: &system.Object{
-						Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
-						Type:        system.NewReference("kego.io/system", "type"),
-						Id:          id,
-					},
-					Embed:     []*system.Reference{system.NewReference("kego.io/system", "rule")},
-					Native:    system.NewString("object"),
-					Interface: false,
-				}
-				cache.Types.Set(id.Name, rule)
-			}
+		if err := ProcessTypeSourceBytes(ctx, env, b.Bytes, cache, hash); err != nil {
+			return kerr.New("IVEFDDSKHE", err, "ProcessTypeSourceBytes")
 		}
 	}
 	return nil
 }
 
-/*
-func scanForGlobals(ctx context.Context, path string, dir string, env *envctx.Env, cache *cachectx.PackageInfo) error {
-	files := scanutils.ScanDirToFiles(ctx, dir, env.Recursive)
-	bytes := scanutils.ScanFilesToBytes(ctx, nil, files)
-	for b := range bytes {
-		if b.Err != nil {
-			return kerr.New("XAHQAPYRIO", b.Err, "ScanFiles (%s)", b.File)
+func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, cache *cachectx.PackageInfo, hash *PackageHasher) error {
+	var object interface{}
+	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
+	if err != nil {
+		switch err.(type) {
+		case json.UnknownPackageError, json.UnknownTypeError:
+		// don't return error
+		default:
+			return kerr.New("NLRRVIDVWM", err, "UnmarshalPlain")
 		}
-		n, err := node.Unmarshal(envctx.NewContext(ctx, env), b.Bytes)
-		if err != nil {
-			return kerr.New("YGYMJMLYED", err, "node.Unmarshal (%s)", b.File)
+	}
+	if t, ok := object.(*system.Type); ok {
+		if hash != nil {
+			hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
 		}
-		for _, sub := range n.Flatten(true) {
-			if sub.Type.Native.Value() != "object" {
-				continue
+		cache.Types.Set(t.Id.Name, t)
+		cache.TypeSource.Set(t.Id.Name, bytes)
+		if t.Rule != nil {
+			id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
+			if t.Rule.Id != nil && *t.Rule.Id != *id {
+				return kerr.New("JKARKEDTIW", nil, "Incorrect id for %v - it should be %v", t.Rule.Id.String(), id.String())
 			}
-			idi, ok := sub.Map["id"]
-			if !ok {
-				continue
+			t.Rule.Id = id
+
+			// Check that the rule embeds system:rule
+			found := false
+			for _, em := range t.Rule.Embed {
+				if *em == *system.NewReference("kego.io/system", "rule") {
+					found = true
+				}
 			}
-			id := idi.GetNode()
-			if id.Missing || id.Null {
-				continue
+			if !found {
+				return kerr.New("LMALEMKFDI", nil, "%s does not embed system:rule", id.String())
 			}
-			if *id.Origin != *system.NewReference("kego.io/system", "object") {
-				continue
+
+			cache.Types.Set(id.Name, t.Rule)
+		} else {
+			// If the rule is missing, automatically create a default.
+			id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
+			rule := &system.Type{
+				Object: &system.Object{
+					Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
+					Type:        system.NewReference("kego.io/system", "type"),
+					Id:          id,
+				},
+				Embed:     []*system.Reference{system.NewReference("kego.io/system", "rule")},
+				Native:    system.NewString("object"),
+				Interface: false,
 			}
-			cache.Nodes.Set(id.ValueString, sub)
+			cache.Types.Set(id.Name, rule)
 		}
 	}
 	return nil
 }
-*/
 
 func scanForPackage(ctx context.Context, path string, dir string) (*system.Package, error) {
 	files := scanutils.ScanDirToFiles(ctx, dir, false)

@@ -3,21 +3,23 @@ package client // import "kego.io/editor/client"
 import (
 	"net/url"
 
-	"encoding/json"
-
 	"fmt"
 
 	"github.com/gopherjs/websocket"
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
+	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
 	"kego.io/editor"
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
+	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
+	"kego.io/parse"
+	"kego.io/system"
 )
 
 type appData struct {
@@ -51,6 +53,23 @@ func Start() error {
 	}
 	app.ctx = envctx.NewContext(context.Background(), app.env)
 	app.fail = make(chan error)
+	app.ctx = cachectx.NewContext(app.ctx)
+	cache := cachectx.FromContext(app.ctx)
+
+	system.RegisterJsonTypes(app.ctx)
+
+	for _, info := range info.Imports {
+		env := &envctx.Env{
+			Path:    info.Path,
+			Aliases: info.Aliases,
+		}
+		pcache := cache.Set(env)
+		for _, typeBytes := range info.Types {
+			if err := parse.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
+				return kerr.New("UJLXYWCVUC", err, "parse.ProcessTypeSourceBytes")
+			}
+		}
+	}
 
 	editorNode := editor.NewEditorNode()
 	if err := ke.UnmarshalUntyped(app.ctx, []byte(info.Package), editorNode); err != nil {
@@ -124,7 +143,7 @@ func getInfo(body dom.Element) (info shared.Info, err error) {
 	if err != nil {
 		return shared.Info{}, kerr.New("CENGCYKHHP", err, "url.QueryUnescape (info)")
 	}
-	err = json.Unmarshal([]byte(infoJson), &info)
+	err = json.UnmarshalPlain([]byte(infoJson), &info)
 	if err != nil {
 		return shared.Info{}, kerr.New("AAFXLQRUEW", err, "json.Unmarshal (info)")
 	}

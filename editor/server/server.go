@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/websocket"
 
 	"kego.io/kerr"
+	"kego.io/parse"
 
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/gopherjs/gopherjs/build"
 	"golang.org/x/net/context"
+	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
@@ -33,16 +35,15 @@ import (
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/process/generate"
+	"kego.io/process/pkgutils"
+	"kego.io/process/scanutils"
 	"kego.io/process/tests"
 	"kego.io/system"
 )
 
 type appData struct {
-	pkg  *system.Package
 	fail chan error
 	ctx  context.Context
-	cmd  *cmdctx.Cmd
-	env  *envctx.Env
 }
 
 var app appData
@@ -54,29 +55,16 @@ func Start(ctx context.Context) error {
 
 	app.ctx = ctx
 
-	app.env = envctx.FromContext(ctx)
-	app.cmd = cmdctx.FromContext(ctx)
-
-	pkg, err := initialise()
-	if err != nil {
-		return kerr.New("SWSQDFXIEV", err, "initialise")
-	}
-	app.pkg = pkg
+	cmd := cmdctx.FromContext(ctx)
 
 	app.fail = make(chan error)
 
-	if app.cmd.Log {
+	if cmd.Log {
 		fmt.Println("Starting editor server... ")
 	}
 
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
-	http.HandleFunc("/script.js", func(w http.ResponseWriter, req *http.Request) {
-		if err := script(ctx, w, req, false, &mapping); err != nil {
-			app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
-			return
-		}
-	})
 	// TODO: work out how to use script mapping.
 	//http.HandleFunc("/script.js.map", func(w http.ResponseWriter, req *http.Request) {
 	//	if err := script(w, req, path, aliases, true, &mapping); err != nil {
@@ -85,7 +73,18 @@ func Start(ctx context.Context) error {
 	//	}
 	//})
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if err := root(ctx, w, req, app.pkg); err != nil {
+		if strings.HasSuffix(req.URL.Path, "/favicon.ico") {
+			w.WriteHeader(404)
+			return
+		}
+		if strings.HasSuffix(req.URL.Path, "/script.js") {
+			if err := script(ctx, w, req, false, &mapping); err != nil {
+				app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
+				return
+			}
+			return
+		}
+		if err := root(ctx, w, req); err != nil {
 			app.fail <- kerr.New("QOMJGNOCQF", err, "root")
 			return
 		}
@@ -97,10 +96,10 @@ func Start(ctx context.Context) error {
 		} else {
 			ws.PayloadType = 0x1 // string messages
 		}
-		c := connection.New(ctx, ws, app.fail, app.cmd.Debug)
+		c := connection.New(ctx, ws, app.fail, cmd.Debug)
 
 		sourceRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
-		go handle(func() error { return getSource(sourceRequestsChannel, c) })
+		go handle(func() error { return getSource(ctx, sourceRequestsChannel, c) })
 
 		if err := c.Receive(); err != nil {
 			app.fail <- err
@@ -119,7 +118,7 @@ func Start(ctx context.Context) error {
 		case err, open := <-app.fail:
 			if !open {
 				// Channel has been closed, so app should gracefully exit.
-				if app.cmd.Log {
+				if cmd.Log {
 					fmt.Println("Exiting editor server (finished)... ")
 				}
 			} else {
@@ -127,7 +126,7 @@ func Start(ctx context.Context) error {
 				//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 				fmt.Println(err)
 			}
-			if !app.cmd.Debug {
+			if !cmd.Debug {
 				return nil
 			}
 		}
@@ -142,14 +141,15 @@ func handle(f func() error) {
 	}
 }
 
-func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
+func getSource(ctx context.Context, in chan messages.MessageInterface, conn *connection.Conn) error {
+	env := envctx.FromContext(ctx)
 	for {
 		m := <-in
 		request, ok := m.(*messages.SourceRequest)
 		if !ok {
 			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.sourceRequest", m)
 		}
-		hashed, ok := system.GetSource(*system.NewReference(app.env.Path, request.Name.Value()))
+		hashed, ok := system.GetSource(*system.NewReference(env.Path, request.Name.Value()))
 		data := ""
 		if ok {
 			data = string(hashed.Source)
@@ -159,34 +159,19 @@ func getSource(in chan messages.MessageInterface, conn *connection.Conn) error {
 	}
 }
 
-func initialise() (*system.Package, error) {
-	/*
-		if err := scan.ScanForPackage(app.ctx); err != nil {
-			return nil, kerr.New("ASQLIYWNLN", err, "scan.ScanForPackage")
-		}
-		if err := scan.ScanForTypes(app.ctx, true); err != nil {
-			return nil, kerr.New("BIVHXIAIKJ", err, "scan.ScanForTypes")
-		}
-		if err := scan.ScanForSource(app.ctx); err != nil {
-			return nil, kerr.New("DLUESVWHXO", err, "scan.ScanForSource")
-		}
-		p, ok := system.GetPackage(app.env.Path)
-		if !ok {
-			return nil, kerr.New("IHIYKRRYWL", nil, "package not found")
-		}
-		return p.Package, nil*/
-	return nil, nil
-}
-
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
 
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
+	path := req.URL.Path[1 : len(req.URL.Path)-10]
+
+	env, _, err := parse.ScanForEnv(ctx, path)
+
 	// This is the client code for the editor which we will compile to Javascript using GopherJs
 	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the
 	// source file to a temporary location and delete after we have compiled it to Javascript.
-	source, err := generate.Editor(ctx)
+	source, err := generate.Editor(ctx, env)
 	if err != nil {
 		return kerr.New("UWPDBQXURR", err, "generate.Editor")
 	}
@@ -261,12 +246,12 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	return nil
 }
 
-func root(ctx context.Context, w http.ResponseWriter, req *http.Request, pkg *system.Package) error {
+func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
-	sources := system.GetAllSourceInPackage(app.env.Path)
+	cache := cachectx.FromContext(ctx)
 
 	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
 		if strings.HasSuffix(req.URL.Path, ".css") {
@@ -276,27 +261,107 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request, pkg *sy
 		return nil
 	}
 
-	data := []string{}
-	types := []string{}
-	for _, hashed := range sources {
-		if hashed.Type == *system.NewReference("kego.io/system", "type") {
-			types = append(types, hashed.Id.Name)
-		} else {
-			data = append(data, hashed.Id.Name)
+	path := req.URL.Path[1:]
+	if strings.HasSuffix(path, "/") {
+		path = path[0 : len(path)-1]
+	}
+
+	env, dir, err := parse.ScanForEnv(ctx, path)
+	if err != nil {
+		if _, ok := kerr.Source(err).(pkgutils.NotFoundError); ok {
+			w.WriteHeader(404)
+			return nil
+		}
+		return kerr.New("ALINBMKDRP", err, "scanForEnv")
+	}
+
+	_, ok := cache.Get(path)
+	if !ok {
+		_, err := parse.Parse(ctx, path, []string{})
+		if err != nil {
+			return kerr.New("HIHWJRPUKE", err, "parse.Parse")
 		}
 	}
 
-	b, err := ke.MarshalContext(ctx, pkg)
+	data := []string{}
+	types := []string{}
+	var pkgBytes []byte
+
+	files := scanutils.ScanDirToFiles(ctx, dir, env.Recursive)
+	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	localContext := envctx.NewContext(ctx, env)
+	for c := range bytes {
+		if c.Err != nil {
+			return kerr.New("BFFNCABTJS", c.Err, "ScanFiles")
+		}
+		o := &system.Object{}
+		if err := ke.UnmarshalUntyped(localContext, c.Bytes, o); err != nil {
+			return kerr.New("HCYGNBDFFA", err, "ke.UnmarshalUntyped")
+		}
+		switch *o.Type {
+		case *system.NewReference("kego.io/system", "type"):
+			types = append(types, o.Id.Name)
+		case *system.NewReference("kego.io/system", "package"):
+			pkgBytes = c.Bytes
+		default:
+			data = append(data, o.Id.Name)
+		}
+	}
+
+	if pkgBytes == nil {
+		b, err := ke.MarshalContext(ctx, system.EmptyPackage())
+		if err != nil {
+			return kerr.New("OUBOTYGPKU", err, "MarshalContext")
+		}
+		pkgBytes = b
+	}
+
+	getImport := func(importPath string) (*shared.ImportInfo, error) {
+		importPackageInfo, ok := cache.Get(importPath)
+		if !ok {
+			return nil, kerr.New("VIGKIUPNCF", nil, "%s not found in ctx")
+		}
+		info := &shared.ImportInfo{
+			Path:    importPath,
+			Aliases: importPackageInfo.Environment.Aliases,
+			Types:   map[string][]byte{},
+		}
+		for c := range importPackageInfo.TypeSource.All() {
+			info.Types[c.Name] = c.Bytes
+		}
+		return info, nil
+	}
+
+	systemImport, err := getImport("kego.io/system")
 	if err != nil {
-		return kerr.New("OUBOTYGPKU", err, "MarshalContext")
+		return kerr.New("SAFQNEKXAP", err, "getImport")
+	}
+	imports := map[string]*shared.ImportInfo{"kego.io/system": systemImport}
+	var scan func(map[string]string) error
+	scan = func(aliases map[string]string) error {
+		for p, _ := range aliases {
+			if _, ok := imports[p]; ok {
+				continue
+			}
+			aliasImport, err := getImport(p)
+			if err != nil {
+				return kerr.New("YTHDSRBMBW", err, "getImport")
+			}
+			imports[p] = aliasImport
+		}
+		return nil
+	}
+	if err := scan(env.Aliases); err != nil {
+		return kerr.New("EELKQDCJGN", err, "scan")
 	}
 
 	info := shared.Info{
-		Path:    app.env.Path,
-		Aliases: app.env.Aliases,
+		Path:    env.Path,
+		Aliases: env.Aliases,
 		Data:    data,
 		Types:   types,
-		Package: string(b),
+		Package: pkgBytes,
+		Imports: imports,
 	}
 	marshalled, err := json.Marshal(info)
 	if err != nil {
@@ -384,6 +449,9 @@ func serve(ctx context.Context) error {
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
+	env := envctx.FromContext(ctx)
+	cmd := cmdctx.FromContext(ctx)
+
 	// Starting with port zero chooses a random open port
 	listner, err := net.Listen("tcp", ":0")
 	if err != nil {
@@ -398,14 +466,14 @@ func serve(ctx context.Context) error {
 		return kerr.New("CBLPYVGGUR", nil, "Can't find address (l.Addr() is not *net.TCPAddr)")
 	}
 
-	url := fmt.Sprintf("http://localhost:%d/", address.Port)
+	url := fmt.Sprintf("http://localhost:%d/%s/", address.Port, env.Path)
 
 	// We open the default browser and navigate to the address we're serving from.
 	if err := browser.OpenURL(url); err != nil {
 		return kerr.New("AEJLAXGVVA", err, "browser.OpenUrl")
 	}
 
-	if app.cmd.Log {
+	if cmd.Log {
 		fmt.Printf("Server now running on %s\n", url)
 	}
 
@@ -423,7 +491,7 @@ func serve(ctx context.Context) error {
 		// continue
 	}
 
-	if app.cmd.Debug {
+	if cmd.Debug {
 		return kerr.New("ATUTBOICGJ", nil, "Connection closed")
 	}
 	close(app.fail)
