@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"kego.io/process/validate"
-	_ "kego.io/system/types"
 )
 
 func TestValidate(t *testing.T) {

@@ -11,7 +11,6 @@ import (
 	"kego.io/process/generate"
 	"kego.io/process/tests"
 	_ "kego.io/system"
-	_ "kego.io/system/types"
 )
 
 // TODO: this is WIP - currently stuck getting comments to line up.

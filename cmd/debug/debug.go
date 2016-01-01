@@ -4,8 +4,6 @@ package main
 
 import (
 	"testing"
-
-	_ "kego.io/system/types"
 )
 
 func main() {

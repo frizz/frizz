@@ -10,7 +10,6 @@ import (
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/tests"
-	_ "kego.io/system/types"
 )
 
 func TestGenerate(t *testing.T) {

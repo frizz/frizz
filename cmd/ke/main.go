@@ -36,44 +36,20 @@ func main() {
 		fmt.Println(process.FormatError(err))
 		wgctx.WaitAndExit(ctx, 1)
 	}
-	//if err := process.Generate(ctx, process.S_STRUCTS, cmd.Dir); err != nil {
-	//	fmt.Println(process.FormatError(err))
-	//	wgctx.WaitAndExit(ctx, 1)
-	//}
 
-	success, err := process.RunExistingLocalKeCommand(ctx)
-
-	if success {
-		if err != nil {
-			if !cmd.Verbose {
-				// in verbose mode, we have already written the output of the exec'ed ke command,
-				// so we don't need to duplicate the error message.
-				fmt.Println(process.FormatError(err))
-			}
-			wgctx.WaitAndExit(ctx, 1)
+	success, err := process.RunLocalCommand(ctx)
+	if !success && err == nil {
+		err = process.BuildAndRunLocalCommand(ctx)
+	}
+	if err != nil {
+		if !cmd.Verbose {
+			// in verbose mode, we have already written the output of the exec'ed ke command,
+			// so we don't need to duplicate the error message.
+			fmt.Println(process.FormatError(err))
 		}
-	} else {
-		if err := process.Run(ctx, process.C_LOCAL_KE); err != nil {
-			if !cmd.Verbose {
-				// in verbose mode, we have already written the output of the exec'ed ke command,
-				// so we don't need to duplicate the error message.
-				fmt.Println(process.FormatError(err))
-			}
-			wgctx.WaitAndExit(ctx, 1)
-		}
+		wgctx.WaitAndExit(ctx, 1)
 	}
 
 	wgctx.WaitAndExit(ctx, 0)
 
-	/*
-		if err := process.KeCommand(ctx, process.Ke); err != nil {
-			if !cmd.Verbose {
-				// in verbose mode, we have already written the output of the exec'ed ke command,
-				// so we don't need to duplicate the error message.
-				fmt.Println(process.FormatError(err))
-			}
-			wgctx.WaitAndExit(ctx, 1)
-		}
-		wgctx.WaitAndExit(ctx, 0)
-	*/
 }

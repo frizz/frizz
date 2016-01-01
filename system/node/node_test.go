@@ -8,7 +8,6 @@ import (
 	"kego.io/process/tests"
 	_ "kego.io/system"
 	"kego.io/system/node"
-	_ "kego.io/system/types"
 )
 
 func TestFoo(t *testing.T) {

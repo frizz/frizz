@@ -12,7 +12,6 @@ import (
 	"kego.io/process/tests"
 	. "kego.io/selectors"
 	_ "kego.io/selectors/tests"
-	_ "kego.io/selectors/tests/types"
 	"kego.io/system/node"
 )
 

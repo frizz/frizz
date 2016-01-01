@@ -25,9 +25,6 @@ func include(name string) bool {
 	if strings.HasSuffix(name, "/mocks") {
 		return false
 	}
-	if strings.HasSuffix(name, "/types") {
-		return false
-	}
 	if name == "kego.io/kerr" {
 		return false
 	}

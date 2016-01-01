@@ -5,13 +5,9 @@ import (
 
 	"kego.io/context/envctx"
 	_ "kego.io/demo/common/images"
-	_ "kego.io/demo/common/images/types"
 	_ "kego.io/demo/common/units"
-	_ "kego.io/demo/common/units/types"
 	_ "kego.io/demo/common/words"
-	_ "kego.io/demo/common/words/types"
 	_ "kego.io/demo/site"
-	_ "kego.io/demo/site/types"
 	"kego.io/ke"
 	"kego.io/kerr/assert"
 	"kego.io/process"
@@ -19,7 +15,6 @@ import (
 	"kego.io/process/tests"
 	"kego.io/system"
 	"kego.io/system/node"
-	_ "kego.io/system/types"
 )
 
 func TestUnpack(t *testing.T) {

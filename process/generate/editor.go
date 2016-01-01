@@ -1,8 +1,6 @@
 package generate
 
 import (
-	"fmt"
-
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/generator"
@@ -16,13 +14,10 @@ func Editor(ctx context.Context) (source []byte, err error) {
 	g := generator.New("main")
 
 	g.Imports.Anonymous("kego.io/system")
-	g.Imports.Anonymous("kego.io/system/types")
 	g.Imports.Anonymous("kego.io/system/editors")
 	g.Imports.Anonymous(env.Path)
-	g.Imports.Anonymous(fmt.Sprint(env.Path, "/types"))
 	for p, _ := range env.Aliases {
 		g.Imports.Anonymous(p)
-		g.Imports.Anonymous(fmt.Sprint(p, "/types"))
 	}
 	/*
 		func main() {

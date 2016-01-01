@@ -21,7 +21,7 @@ func TestRun(t *testing.T) {
 		"d.go":   `package d`,
 	})
 
-	err = Run(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}), C_TYPES)
+	err = BuildAndRunLocalCommand(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}), C_TYPES)
 	assert.NoError(t, err)
 
 	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))

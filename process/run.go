@@ -12,33 +12,30 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
 	"kego.io/process/validate"
 )
 
-type commandType string
+const localKePath = ".localke/localke"
 
-const (
-	C_STRUCTS  commandType = "structs"
-	C_TYPES                = "types"
-	C_LOCAL_KE             = "ke"
-)
-
-func RunExistingLocalKeCommand(ctx context.Context) (bool, error) {
+func RunLocalCommand(ctx context.Context) (success bool, err error) {
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
 	cmd := cmdctx.FromContext(ctx)
 
-	keCommandPath := filepath.Join(cmd.Dir, ".localke/localke")
+	keCommandPath := filepath.Join(cmd.Dir, localKePath)
 
 	if _, err := os.Stat(keCommandPath); err != nil {
 		return false, nil
 	}
 
+	return runLocalCommand(cmd, keCommandPath)
+}
+
+func runLocalCommand(cmd *cmdctx.Cmd, command string) (success bool, err error) {
 	params := []string{}
 	if cmd.Verbose {
 		params = append(params, "-v")
@@ -48,7 +45,7 @@ func RunExistingLocalKeCommand(ctx context.Context) (bool, error) {
 	}
 	combined, stdout, stderr := logger(cmd.Verbose)
 
-	exe := exec.Command(keCommandPath, params...)
+	exe := exec.Command(command, params...)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
 	if err := exe.Run(); err != nil {
@@ -59,36 +56,23 @@ func RunExistingLocalKeCommand(ctx context.Context) (bool, error) {
 		if strings.HasPrefix(errorMessage, "Error: ") {
 			errorMessage = errorMessage[7:]
 		}
-		return true, validate.ValidationError{kerr.New("ETWHPXTUVB", nil, errorMessage)}
+		return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, errorMessage)}
 	}
 	return true, nil
-
 }
 
-// This creates a temporary folder in the package, in which the go source
-// for a command is generated. This command is then compiled and run with
-// "go run", or in the case of the ke command, we "go build" before
-// executing the binary.
-func Run(ctx context.Context, file commandType) error {
+// BuildAndRunLocalCommand creates a temporary folder in the package, in which the go source for the
+// local command is generated. This command is then compiled before executing the binary.
+func BuildAndRunLocalCommand(ctx context.Context) error {
 
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
 	cmd := cmdctx.FromContext(ctx)
-	env := envctx.FromContext(ctx)
 
-	var source []byte
-	var err error
-	switch file {
-	case C_STRUCTS:
-		source, err = generate.StructsCommand(ctx)
-	case C_TYPES:
-		source, err = generate.TypesCommand(ctx)
-	case C_LOCAL_KE:
-		source, err = generate.LocalKeCommand(ctx)
-	}
+	source, err := generate.LocalKeCommand(ctx)
 	if err != nil {
-		return kerr.New("SPRFABSRWK", err, "generate command: %s", file)
+		return kerr.New("SPRFABSRWK", err, "generate.LocalKeCommand")
 	}
 
 	outputDir, err := ioutil.TempDir(cmd.Dir, "temporary")
@@ -99,79 +83,43 @@ func Run(ctx context.Context, file commandType) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	keCommandPath := filepath.Join(cmd.Dir, ".localke/localke")
+	keCommandPath := filepath.Join(cmd.Dir, localKePath)
 
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
-	if file == C_LOCAL_KE {
-		if cmd.Verbose {
-			fmt.Print("Building ", file, " command... ")
-		}
-
-		combined, stdout, stderr := logger(cmd.Verbose)
-		exe := exec.Command("go", "build", "-o", keCommandPath, outputPath)
-		exe.Stdout = stdout
-		exe.Stderr = stderr
-
-		if err := exe.Run(); err != nil {
-			return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
-		}
-		if cmd.Verbose {
-			fmt.Println("OK.")
-		}
-
-		if cmd.Verbose {
-			fmt.Print(combined.String())
-		}
-	}
-
-	command := ""
-	params := []string{}
-
 	if cmd.Verbose {
-		fmt.Println("Running", file, "command...")
-	}
-	if file == C_LOCAL_KE {
-		command = keCommandPath
-		if cmd.Verbose {
-			params = append(params, "-v")
-		}
-		if cmd.Edit {
-			params = append(params, "-e")
-		}
-	} else {
-		command = "go"
-		params = []string{"run", outputPath}
-
-		if cmd.Update {
-			params = append(params, "-u")
-		}
-		if cmd.Verbose {
-			params = append(params, "-v")
-		}
-		if cmd.Edit {
-			params = append(params, "-e")
-		}
-
-		params = append(params, env.Path)
+		fmt.Print("Building local command... ")
 	}
 
 	combined, stdout, stderr := logger(cmd.Verbose)
-
-	exe := exec.Command(command, params...)
+	exe := exec.Command("go", "build", "-o", keCommandPath, outputPath)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
+
 	if err := exe.Run(); err != nil {
-		if file == C_LOCAL_KE {
-			errorMessage := strings.TrimSpace(combined.String())
-			if strings.HasPrefix(errorMessage, "Error: ") {
-				errorMessage = errorMessage[7:]
-			}
-			return validate.ValidationError{kerr.New("ETWHPXTUVB", nil, errorMessage)}
-		}
-		return CommandError{kerr.New("UDDSSMQRHA", nil, strings.TrimSpace(combined.String()))}
+		return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
+	}
+	if cmd.Verbose {
+		fmt.Println("OK.")
+	}
+
+	if cmd.Verbose {
+		fmt.Print(combined.String())
+	}
+
+	if cmd.Verbose {
+		fmt.Println("Running local command...")
+	}
+
+	success, err := runLocalCommand(cmd, keCommandPath)
+	if err != nil {
+		// We don't want to wrap the error here.
+		return err
+	}
+	if !success {
+		return kerr.New("VGVLPAJAQN", nil, "runLocalCommand returned hash changed after build")
 	}
 
 	return nil
