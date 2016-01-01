@@ -47,7 +47,7 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 
 	var p reflect.Value
 	if typ != nil {
-		getEmptyValue(typ)
+		p = getEmptyValue(typ)
 	}
 
 	err := us.unpack(ctx, in, p)

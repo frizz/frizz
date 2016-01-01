@@ -37,7 +37,7 @@ func Validate_NeedsTypes(t *testing.T) {
 	system.Register(path, "a", &system.Type{}, hash)
 	defer system.Unregister(path, "a")
 
-	err = Validate(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}))
+	err = ValidatePackage(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}))
 	assert.NoError(t, err)
 
 }
@@ -70,7 +70,7 @@ func TestValidate_error1(t *testing.T) {
 	system.Register(path, "b", &system.Type{}, hash)
 	defer system.Unregister(path, "b")
 
-	err = Validate(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}))
+	err = ValidatePackage(tests.AllCtx(tests.Ctx{Dir: dir, Path: path}))
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "YLONAMFUAG")
 

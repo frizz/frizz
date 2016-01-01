@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"syscall"
 
+	"strings"
+
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/wgctx"
@@ -42,7 +44,7 @@ func runValidateCommand(ctx context.Context) (success bool, err error) {
 	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
 
 	if cmd.Log {
-		fmt.Print("Running validate command...")
+		fmt.Print("Running validate command... ")
 	}
 
 	params := []string{}
@@ -66,12 +68,12 @@ func runValidateCommand(ctx context.Context) (success bool, err error) {
 				case 3:
 					// Exit status 3 = hash changed
 					if cmd.Log {
-						fmt.Println(" Command is out of date.")
+						fmt.Println("Command is out of date.")
 					}
 					return false, nil
 				case 4:
 					// Exit status 4 = validation error
-					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, combined.String())}
+					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, strings.TrimSpace(combined.String()))}
 				default:
 					return true, kerr.New("DTTHRRJSSF", err, "Run")
 				}
@@ -81,7 +83,7 @@ func runValidateCommand(ctx context.Context) (success bool, err error) {
 		}
 	}
 	if cmd.Log {
-		fmt.Println(" OK.")
+		fmt.Println("OK.")
 	}
 	return true, nil
 }

@@ -50,7 +50,7 @@ func Main(path string) {
 		wgctx.WaitAndExit(ctx, 3) // Exit status 3: hash changed error
 	}
 
-	if err := validate.Validate(ctx); err != nil {
+	if err := validate.ValidatePackage(ctx); err != nil {
 		if v, ok := kerr.Source(err).(validate.ValidationError); ok {
 			fmt.Println(v.Description)
 			wgctx.WaitAndExit(ctx, 4) // Exit status 4: validation error

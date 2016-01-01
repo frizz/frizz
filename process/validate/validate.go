@@ -1,89 +1,52 @@
 package validate // import "kego.io/process/validate"
 
 import (
-	"io/ioutil"
-	"os"
-	"path/filepath"
-
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
+	"kego.io/process/scanutils"
 	"kego.io/selectors"
 	"kego.io/system"
 	"kego.io/system/node"
 )
 
-func Validate(ctx context.Context) error {
+func ValidatePackage(ctx context.Context) error {
 
 	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
 
-	walker := func(filePath string, file os.FileInfo, err error) error {
-		if err != nil {
-			return kerr.New("GFBBIERGIY", err, "walker (%s)", filePath)
-		}
-		if err := validateFile(ctx, filePath); err != nil {
-			return kerr.New("QJGXAUKPTI", err, "validateFile (%s)", filePath)
-		}
-		return nil
-	}
-
-	if env.Recursive {
-		if err := filepath.Walk(cmd.Dir, walker); err != nil {
-			return kerr.New("GCKFJQJUXK", err, "filepath.Walk")
-		}
-	} else {
-		files, err := ioutil.ReadDir(cmd.Dir)
-		if err != nil {
-			return kerr.New("RJXRHBYVUW", err, "ioutil.ReadDir")
-		}
-		for _, f := range files {
-			if err := walker(filepath.Join(cmd.Dir, f.Name()), f, nil); err != nil {
-				return kerr.New("UJBOWKFUMS", err, "walker")
-			}
+	files := scanutils.ScanDirToFiles(ctx, cmd.Dir, env.Recursive)
+	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	for c := range bytes {
+		if err := validateBytes(ctx, c.Bytes); err != nil {
+			return kerr.New("KWLWXKWHLF", err, "validateBytes (%s)", c.File)
 		}
 	}
 
 	return nil
 }
 
-func validateFile(ctx context.Context, filePath string) error {
-
-	/*bytes, hash, err := scan.OpenFile(ctx, filePath)
-	if err != nil {
-		return kerr.New("XXYPVKLNBQ", err, "openFile")
-	}
-	if bytes == nil {
-		return nil
-	}
-
-	if err = validateBytes(ctx, bytes, hash); err != nil {
-		return kerr.New("GFVGDBDTNQ", err, "validateReader (%s)", filePath)
-	}*/
-	return nil
-}
-
-func validateBytes(ctx context.Context, bytes []byte, hash uint64) error {
+func validateBytes(ctx context.Context, bytes []byte) error {
 	n := node.NewNode()
 	err := ke.UnmarshalUntyped(ctx, bytes, n)
 	if up, ok := err.(json.UnknownPackageError); ok {
 		return kerr.New("QPOGRNXWMH", err, "unknown package %s", up.UnknownPackage)
 	} else if ut, ok := err.(json.UnknownTypeError); ok {
-		return kerr.New("PJABFRVFLF", nil, "unknown type %s", ut.UnknownType)
+		return kerr.New("PJABFRVFLF", err, "unknown type %s", ut.UnknownType)
 	} else if err != nil {
 		return kerr.New("QIVNOQKCQF", err, "UnmarshalNode")
 	}
 
-	if err := validateNode(ctx, n, hash); err != nil {
+	if err := validateNode(ctx, n); err != nil {
 		return kerr.New("RVKNMWKQHD", err, "validateUnknown")
 	}
 	return nil
 }
 
-func validateNode(ctx context.Context, node *node.Node, hash uint64) error {
+func validateNode(ctx context.Context, node *node.Node) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -99,10 +62,6 @@ func validateNode(ctx context.Context, node *node.Node, hash uint64) error {
 
 	return validateObject(ctx, node, rules)
 
-}
-
-type TypesChangedError struct {
-	kerr.Struct
 }
 
 type ValidationError struct {

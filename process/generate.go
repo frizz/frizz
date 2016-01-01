@@ -32,7 +32,6 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 		return nil
 	}
 
-	cmd := cmdctx.FromContext(ctx)
 	cache := cachectx.FromContext(ctx)
 	pcache, ok := cache.Get(path)
 	if !ok {
@@ -62,10 +61,6 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 	if !found || info.Hash != pcache.Environment.Hash {
 		if err := Generate(ctx, pcache.Environment, dir); err != nil {
 			return kerr.New("TUFKDUPWMD", err, "Generate (%s)", path)
-		}
-	} else {
-		if cmd.Log {
-			fmt.Printf("Generated types for %s up to date.\n", path)
 		}
 	}
 

@@ -198,6 +198,11 @@ func (d *decodeState) unmarshalTyped(ctx context.Context, v *interface{}) (err e
 func (d *decodeState) unmarshalValue(ctx context.Context, rv reflect.Value, typed bool) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
+			//_, pkgError := r.(UnknownPackageError)
+			//_, typError := r.(UnknownTypeError)
+			//if !pkgError && !typError {
+			//	panic(r)
+			//}
 			if _, ok := r.(runtime.Error); ok {
 				panic(r)
 			}
