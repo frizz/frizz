@@ -10,19 +10,6 @@ import (
 	"kego.io/system"
 )
 
-// This is a type of image, which just contains the url of the image
-type Icon struct {
-	*system.Object
-	Url *system.String `json:"url"`
-}
-type IconInterface interface {
-	GetIcon(ctx context.Context) *Icon
-}
-
-func (o *Icon) GetIcon(ctx context.Context) *Icon {
-	return o
-}
-
 // Automatically created basic rule for icon
 type IconRule struct {
 	*system.Object
@@ -34,6 +21,25 @@ type ImageRule struct {
 	*system.Object
 	*system.Rule
 	Secure *system.Bool `json:"secure"`
+}
+
+// Automatically created basic rule for photo
+type PhotoRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// This is a type of image, which just contains the url of the image
+type Icon struct {
+	*system.Object
+	Url *system.String `json:"url"`
+}
+type IconInterface interface {
+	GetIcon(ctx context.Context) *Icon
+}
+
+func (o *Icon) GetIcon(ctx context.Context) *Icon {
+	return o
 }
 
 // This represents an image, and contains path, server and protocol separately
@@ -54,13 +60,6 @@ type PhotoInterface interface {
 func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
-
-// Automatically created basic rule for photo
-type PhotoRule struct {
-	*system.Object
-	*system.Rule
-}
-
 func init() {
 	json.RegisterPackage("kego.io/demo/common/images", 16772887215174173915)
 	json.RegisterType("kego.io/demo/common/images", "icon", reflect.TypeOf((*Icon)(nil)), reflect.TypeOf((*IconRule)(nil)), reflect.TypeOf((*IconInterface)(nil)).Elem())

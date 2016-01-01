@@ -3,6 +3,8 @@ package cachectx // import "kego.io/context/cachectx"
 import (
 	"sync"
 
+	"sort"
+
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 )
@@ -82,8 +84,13 @@ func (c *TypeCache) All() chan interface{} {
 		c.RLock()
 		defer c.RUnlock()
 		defer close(out)
-		for _, v := range c.m {
-			out <- v
+		keys := []string{}
+		for key, _ := range c.m {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			out <- c.m[key]
 		}
 	}()
 

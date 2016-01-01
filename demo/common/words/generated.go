@@ -14,6 +14,18 @@ type LocalizerRule struct {
 	*system.Object
 	*system.Rule
 }
+
+// Automatically created basic rule for simple
+type SimpleRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for translation
+type TranslationRule struct {
+	*system.Object
+	*system.Rule
+}
 type Simple struct {
 	*system.Object
 	String *system.String `json:"string"`
@@ -24,12 +36,6 @@ type SimpleInterface interface {
 
 func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
-}
-
-// Automatically created basic rule for simple
-type SimpleRule struct {
-	*system.Object
-	*system.Rule
 }
 
 // This represents a translated string
@@ -47,13 +53,6 @@ type TranslationInterface interface {
 func (o *Translation) GetTranslation(ctx context.Context) *Translation {
 	return o
 }
-
-// Automatically created basic rule for translation
-type TranslationRule struct {
-	*system.Object
-	*system.Rule
-}
-
 func init() {
 	json.RegisterPackage("kego.io/demo/common/words", 9741212770969155383)
 	json.RegisterType("kego.io/demo/common/words", "localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), reflect.TypeOf((*LocalizerRule)(nil)), nil)

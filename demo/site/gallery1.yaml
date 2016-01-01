@@ -1,4 +1,4 @@
-description: This represents a gallery - it just has a title
+description: This represents a gallery - it just has a title.
 type: system:type
 id: gallery1
 fields:
