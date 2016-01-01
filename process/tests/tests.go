@@ -20,7 +20,7 @@ type Ctx struct {
 	Edit      bool
 	Update    bool
 	Recursive bool
-	Verbose   bool
+	Log       bool
 	Debug     bool
 }
 
@@ -42,10 +42,10 @@ func AllCtx(c Ctx) context.Context {
 		Recursive: c.Recursive,
 	})
 	ctx = cmdctx.NewContext(ctx, &cmdctx.Cmd{
-		Dir:     c.Dir,
-		Edit:    c.Edit,
-		Update:  c.Update,
-		Verbose: c.Verbose,
+		Dir:    c.Dir,
+		Edit:   c.Edit,
+		Update: c.Update,
+		Log:    c.Log,
 	})
 	return ctx
 }

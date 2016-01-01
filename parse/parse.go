@@ -19,6 +19,7 @@ import (
 func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error) {
 
 	cache := cachectx.FromContext(ctx)
+	cmd := cmdctx.FromContext(ctx)
 
 	for _, q := range queue {
 		if q == path {
@@ -82,8 +83,16 @@ func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error
 
 	pcache := cache.Set(env)
 
+	if cmd.Log {
+		fmt.Printf("Parsing %s...", path)
+	}
+
 	if err := scanForTypes(ctx, path, dir, env, pcache, hash); err != nil {
 		return nil, kerr.New("VFUNPHUFHD", err, "scanForTypes")
+	}
+
+	if cmd.Log {
+		fmt.Println(" OK.")
 	}
 
 	h, err := hash.Hash()

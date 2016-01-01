@@ -10,6 +10,7 @@ import (
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
+	"kego.io/editor/server"
 	"kego.io/process"
 	_ "kego.io/system"
 )
@@ -32,22 +33,31 @@ func main() {
 		cancel()
 	}()
 
-	if err := process.GenerateAll(ctx, env.Path); err != nil {
+	if err := process.GenerateAll(ctx, env.Path, map[string]bool{}); err != nil {
 		fmt.Println(process.FormatError(err))
 		wgctx.WaitAndExit(ctx, 1)
 	}
 
-	success, err := process.RunLocalCommand(ctx)
-	if !success && err == nil {
-		err = process.BuildAndRunLocalCommand(ctx)
-	}
-	if err != nil {
-		if !cmd.Verbose {
-			// in verbose mode, we have already written the output of the exec'ed ke command,
-			// so we don't need to duplicate the error message.
-			fmt.Println(process.FormatError(err))
+	if cmd.Validate {
+		success, err := process.RunValidateCommand(ctx)
+		if !success && err == nil {
+			err = process.BuildAndRunLocalCommand(ctx)
 		}
-		wgctx.WaitAndExit(ctx, 1)
+		if err != nil {
+			if !cmd.Log {
+				// in log mode, we have already written the output of the exec'ed ke command,
+				// so we don't need to duplicate the error message.
+				fmt.Println(process.FormatError(err))
+			}
+			wgctx.WaitAndExit(ctx, 1)
+		}
+	}
+
+	if cmd.Edit {
+		if err = server.Start(ctx); err != nil {
+			fmt.Println(process.FormatError(err))
+			wgctx.WaitAndExit(ctx, 1)
+		}
 	}
 
 	wgctx.WaitAndExit(ctx, 0)

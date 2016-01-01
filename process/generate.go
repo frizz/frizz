@@ -26,19 +26,25 @@ const (
 	S_TYPES              = "types"
 )
 
-func GenerateAll(ctx context.Context, path string) error {
+func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
+
+	if _, found := done[path]; found {
+		return nil
+	}
+
+	cmd := cmdctx.FromContext(ctx)
 	cache := cachectx.FromContext(ctx)
 	pcache, ok := cache.Get(path)
 	if !ok {
 		return kerr.New("XMVXECGDOX", nil, "%s not founc in ctx", path)
 	}
 	if path != "kego.io/system" {
-		if err := GenerateAll(ctx, "kego.io/system"); err != nil {
+		if err := GenerateAll(ctx, "kego.io/system", done); err != nil {
 			return kerr.New("WVXTUBQYVT", err, "GenerateAll (kego.io/system)")
 		}
 	}
 	for aliasPath, _ := range pcache.Environment.Aliases {
-		if err := GenerateAll(ctx, aliasPath); err != nil {
+		if err := GenerateAll(ctx, aliasPath, done); err != nil {
 			return kerr.New("WVXTUBQYVT", err, "GenerateAll (%s)", aliasPath)
 		}
 	}
@@ -57,7 +63,13 @@ func GenerateAll(ctx context.Context, path string) error {
 		if err := Generate(ctx, pcache.Environment, dir); err != nil {
 			return kerr.New("TUFKDUPWMD", err, "Generate (%s)", path)
 		}
+	} else {
+		if cmd.Log {
+			fmt.Printf("Generated types for %s up to date.\n", path)
+		}
 	}
+
+	done[path] = true
 
 	return nil
 
@@ -112,7 +124,7 @@ func Generate(ctx context.Context, env *envctx.Env, dir string) error {
 
 	cmd := cmdctx.FromContext(ctx)
 
-	if cmd.Verbose {
+	if cmd.Log {
 		fmt.Printf("Generating types for %s... ", env.Path)
 	}
 
@@ -130,7 +142,7 @@ func Generate(ctx context.Context, env *envctx.Env, dir string) error {
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.New("UONJTTSTWW", err, "save")
 	} else {
-		if cmd.Verbose {
+		if cmd.Log {
 			fmt.Println("OK.")
 		}
 	}

@@ -65,7 +65,7 @@ func Start(ctx context.Context) error {
 
 	app.fail = make(chan error)
 
-	if app.cmd.Verbose {
+	if app.cmd.Log {
 		fmt.Println("Starting editor server... ")
 	}
 
@@ -119,7 +119,7 @@ func Start(ctx context.Context) error {
 		case err, open := <-app.fail:
 			if !open {
 				// Channel has been closed, so app should gracefully exit.
-				if app.cmd.Verbose {
+				if app.cmd.Log {
 					fmt.Println("Exiting editor server (finished)... ")
 				}
 			} else {
@@ -405,7 +405,7 @@ func serve(ctx context.Context) error {
 		return kerr.New("AEJLAXGVVA", err, "browser.OpenUrl")
 	}
 
-	if app.cmd.Verbose {
+	if app.cmd.Log {
 		fmt.Printf("Server now running on %s\n", url)
 	}
 

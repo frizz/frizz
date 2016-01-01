@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
+	"syscall"
 
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
@@ -18,45 +18,60 @@ import (
 	"kego.io/process/validate"
 )
 
-const localKePath = ".localke/localke"
+const validateCommand = ".localke/validate"
 
-func RunLocalCommand(ctx context.Context) (success bool, err error) {
+func RunValidateCommand(ctx context.Context) (success bool, err error) {
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
 	cmd := cmdctx.FromContext(ctx)
 
-	keCommandPath := filepath.Join(cmd.Dir, localKePath)
+	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
 
-	if _, err := os.Stat(keCommandPath); err != nil {
+	if _, err := os.Stat(validateCommandPath); err != nil {
 		return false, nil
 	}
 
-	return runLocalCommand(cmd, keCommandPath)
+	return runValidateCommand(ctx, validateCommandPath)
 }
 
-func runLocalCommand(cmd *cmdctx.Cmd, command string) (success bool, err error) {
+func runValidateCommand(ctx context.Context, command string) (success bool, err error) {
+	cmd := cmdctx.FromContext(ctx)
+
+	if cmd.Log {
+		fmt.Println("Running validate command...")
+	}
+
 	params := []string{}
-	if cmd.Verbose {
-		params = append(params, "-v")
+	if cmd.Log {
+		params = append(params, "-l")
 	}
-	if cmd.Edit {
-		params = append(params, "-e")
-	}
-	combined, stdout, stderr := logger(cmd.Verbose)
+	combined, stdout, stderr := logger(cmd.Log)
 
 	exe := exec.Command(command, params...)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
 	if err := exe.Run(); err != nil {
-		errorMessage := strings.TrimSpace(combined.String())
-		if errorMessage == "Package not registered" || errorMessage == "Hash changed" {
-			return false, nil
+		if exiterr, ok := err.(*exec.ExitError); ok {
+			// The program has exited with an exit code != 0. This works on both Unix and Windows.
+			// Although package syscall is generally platform dependent, WaitStatus is defined for
+			// both Unix and Windows and in both cases has an ExitStatus() method with the same
+			// signature.
+			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+				switch status.ExitStatus() {
+				case 3:
+					// Exit status 3 = hash changed
+					return false, nil
+				case 4:
+					// Exit status 4 = validation error
+					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, combined.String())}
+				default:
+					return true, kerr.New("DTTHRRJSSF", err, "Run")
+				}
+			}
+		} else {
+			return true, kerr.New("GFTBBSYEXU", err, "Run")
 		}
-		if strings.HasPrefix(errorMessage, "Error: ") {
-			errorMessage = errorMessage[7:]
-		}
-		return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, errorMessage)}
 	}
 	return true, nil
 }
@@ -70,9 +85,9 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 
 	cmd := cmdctx.FromContext(ctx)
 
-	source, err := generate.LocalKeCommand(ctx)
+	source, err := generate.ValidateCommand(ctx)
 	if err != nil {
-		return kerr.New("SPRFABSRWK", err, "generate.LocalKeCommand")
+		return kerr.New("SPRFABSRWK", err, "generate.ValidateCommand")
 	}
 
 	outputDir, err := ioutil.TempDir(cmd.Dir, "temporary")
@@ -83,17 +98,17 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
-	keCommandPath := filepath.Join(cmd.Dir, localKePath)
+	keCommandPath := filepath.Join(cmd.Dir, validateCommand)
 
 	if err = save(outputDir, source, outputName, false); err != nil {
 		return kerr.New("FRLCYFOWCJ", err, "save")
 	}
 
-	if cmd.Verbose {
-		fmt.Print("Building local command... ")
+	if cmd.Log {
+		fmt.Print("Building validate command... ")
 	}
 
-	combined, stdout, stderr := logger(cmd.Verbose)
+	combined, stdout, stderr := logger(cmd.Log)
 	exe := exec.Command("go", "build", "-o", keCommandPath, outputPath)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
@@ -101,19 +116,15 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	if err := exe.Run(); err != nil {
 		return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
 	}
-	if cmd.Verbose {
+	if cmd.Log {
 		fmt.Println("OK.")
 	}
 
-	if cmd.Verbose {
+	if cmd.Log {
 		fmt.Print(combined.String())
 	}
 
-	if cmd.Verbose {
-		fmt.Println("Running local command...")
-	}
-
-	success, err := runLocalCommand(cmd, keCommandPath)
+	success, err := runValidateCommand(ctx, keCommandPath)
 	if err != nil {
 		// We don't want to wrap the error here.
 		return err
@@ -129,9 +140,9 @@ type CommandError struct {
 	kerr.Struct
 }
 
-func logger(verbose bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.Writer) {
+func logger(log bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.Writer) {
 	combined = &bytes.Buffer{}
-	if verbose {
+	if log {
 		stderr = MultiWriter(os.Stderr, combined)
 		stdout = MultiWriter(os.Stdout, combined)
 	} else {

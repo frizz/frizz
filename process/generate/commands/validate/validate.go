@@ -1,4 +1,4 @@
-package localke // import "kego.io/process/generate/commands/localke"
+package validate // import "kego.io/process/generate/commands/validate"
 
 import (
 	"fmt"
@@ -11,13 +11,13 @@ import (
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
-	"kego.io/editor/server"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/process"
+	"kego.io/process/validate"
 )
 
-// Main executes the local "ke" command that is generated in the data directory.
+// Main executes the validate command that is generated in the data directory.
 func Main(path string) {
 	update := false
 	ctx, cancel, err := process.Initialise(&process.FromFlags{
@@ -46,41 +46,27 @@ func Main(path string) {
 	}
 	if err != nil {
 		fmt.Println(process.FormatError(err))
-		wgctx.WaitAndExit(ctx, 1)
+		wgctx.WaitAndExit(ctx, 1) // Exit status 1: generic error
 	}
 	if changes {
-		fmt.Println("Hash changed")
-		wgctx.WaitAndExit(ctx, 1)
+		wgctx.WaitAndExit(ctx, 3) // Exit status 3: hash changed error
 	}
 
-	err = process.ValidateCommand(ctx)
-	if err != nil {
-		fmt.Println(process.FormatError(err))
-		wgctx.WaitAndExit(ctx, 1)
+	if cmd.Log {
+		fmt.Print("Validating... ")
 	}
-	/*
-		if typesChanged {
-			if cmd.Verbose {
-				fmt.Println("Types have changed - rebuilding...")
-			}
-			if err := process.RunAllCommands(ctx); err != nil {
-				if !cmd.Verbose {
-					// in verbose mode, we have already written the output of the exec'ed ke command,
-					// so we don't need to duplicate the error message.
-					fmt.Println(process.FormatError(err))
-				}
-				wgctx.WaitAndExit(ctx, 1)
-			}
-			// if the types have changed, RunAllCommands will opened the server etc.
-			wgctx.WaitAndExit(ctx, 0)
-		}*/
-	if cmd.Edit {
-		if err = server.Start(ctx); err != nil {
-			fmt.Println(process.FormatError(err))
-			wgctx.WaitAndExit(ctx, 1)
+	if err := validate.Validate(ctx); err != nil {
+		if v, ok := kerr.Source(err).(validate.ValidationError); ok {
+			fmt.Println(v.Description)
+			wgctx.WaitAndExit(ctx, 4) // Exit status 4: validation error
 		}
+		fmt.Println(process.FormatError(err))
+		wgctx.WaitAndExit(ctx, 1) // Exit status 1: generic error
 	}
-	wgctx.WaitAndExit(ctx, 0)
+	if cmd.Log {
+		fmt.Println("OK.")
+	}
+	wgctx.WaitAndExit(ctx, 0) // Exit status 0: success
 }
 
 func comparePackageHash(ctx context.Context, path string) (changes bool, err error) {

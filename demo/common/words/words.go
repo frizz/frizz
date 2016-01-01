@@ -1,4 +1,4 @@
-//go:generate kego -v
+//go:generate ke
 package words
 
 import (

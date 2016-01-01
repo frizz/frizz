@@ -52,19 +52,17 @@ func Validate(ctx context.Context) error {
 
 func validateFile(ctx context.Context, filePath string) error {
 
-	/*
-		bytes, hash, err := scan.OpenFile(ctx, filePath)
-		if err != nil {
-			return kerr.New("XXYPVKLNBQ", err, "openFile")
-		}
-		if bytes == nil {
-			return nil
-		}
+	/*bytes, hash, err := scan.OpenFile(ctx, filePath)
+	if err != nil {
+		return kerr.New("XXYPVKLNBQ", err, "openFile")
+	}
+	if bytes == nil {
+		return nil
+	}
 
-		if err = validateBytes(ctx, bytes, hash); err != nil {
-			return kerr.New("GFVGDBDTNQ", err, "validateReader (%s)", filePath)
-		}
-	*/
+	if err = validateBytes(ctx, bytes, hash); err != nil {
+		return kerr.New("GFVGDBDTNQ", err, "validateReader (%s)", filePath)
+	}*/
 	return nil
 }
 

@@ -45,7 +45,6 @@ func SkipTestNonDestructiveGeneration(t *testing.T) {
 		}`,
 	})
 
-	//edit bool, update bool, recursive bool, verbose bool, path string, debug bool
 	set, _, err := process.Initialise(&process.FromDefaults{
 		Path: path,
 	})

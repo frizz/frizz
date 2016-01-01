@@ -19,19 +19,21 @@ type optionsSpec interface {
 }
 
 type FromFlags struct {
-	Edit    *bool
-	Update  *bool
-	Verbose *bool
-	Path    *string
-	Debug   *bool
+	Edit     *bool
+	Validate *bool
+	Update   *bool
+	Log      *bool
+	Path     *string
+	Debug    *bool
 }
 
 type FromDefaults struct {
-	Edit    bool
-	Update  bool
-	Verbose bool
-	Path    string
-	Debug   bool
+	Edit     bool
+	Validate bool
+	Update   bool
+	Log      bool
+	Path     string
+	Debug    bool
 }
 
 func (f FromDefaults) getOptions() FromDefaults {
@@ -40,7 +42,7 @@ func (f FromDefaults) getOptions() FromDefaults {
 
 func (f FromFlags) getOptions() FromDefaults {
 
-	var edit, update, verbose, debug *bool
+	var edit, update, log, debug, validate *bool
 	var path *string
 	if f.Edit == nil {
 		edit = flag.Bool("e", false, "Edit: open the editor")
@@ -52,10 +54,15 @@ func (f FromFlags) getOptions() FromDefaults {
 	} else {
 		update = f.Update
 	}
-	if f.Verbose == nil {
-		verbose = flag.Bool("v", false, "Verbose")
+	if f.Log == nil {
+		log = flag.Bool("l", false, "Log")
 	} else {
-		verbose = f.Verbose
+		log = f.Log
+	}
+	if f.Validate == nil {
+		validate = flag.Bool("v", false, "Validate")
+	} else {
+		validate = f.Validate
 	}
 	if f.Debug == nil {
 		debug = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
@@ -73,11 +80,12 @@ func (f FromFlags) getOptions() FromDefaults {
 	}
 
 	return FromDefaults{
-		Edit:    *edit,
-		Update:  *update,
-		Verbose: *verbose,
-		Path:    *path,
-		Debug:   *debug,
+		Edit:     *edit,
+		Update:   *update,
+		Log:      *log,
+		Path:     *path,
+		Debug:    *debug,
+		Validate: *validate,
 	}
 }
 
@@ -95,8 +103,9 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 
 	path := ""
 	cmd.Edit = options.Edit
+	cmd.Validate = options.Validate
 	cmd.Update = options.Update
-	cmd.Verbose = options.Verbose
+	cmd.Log = options.Log
 	cmd.Debug = options.Debug
 	if options.Path == "" {
 
@@ -122,13 +131,14 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 		cmd.Dir = dir
 	}
 
+	ctx = cmdctx.NewContext(ctx, cmd)
+
 	env, err := parse.Parse(ctx, path, []string{})
 	if err != nil {
 		return nil, nil, kerr.New("EBMBIBIKUF", err, "parse.Parse")
 	}
 
 	ctx = envctx.NewContext(ctx, env)
-	ctx = cmdctx.NewContext(ctx, cmd)
 
 	return ctx, cancel, nil
 }

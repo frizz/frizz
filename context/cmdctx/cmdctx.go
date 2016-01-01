@@ -4,11 +4,12 @@ import "golang.org/x/net/context"
 
 // Env is the type of value stored in the Contexts.
 type Cmd struct {
-	Dir     string
-	Edit    bool
-	Update  bool
-	Verbose bool
-	Debug   bool
+	Dir      string
+	Edit     bool
+	Validate bool
+	Update   bool
+	Log      bool
+	Debug    bool
 }
 
 // key is an unexported type for keys defined in this package.
