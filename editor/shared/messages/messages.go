@@ -14,24 +14,27 @@ func NewMessage() *Message {
 	}
 }
 
-func NewSourceResponse(name string, ok bool, data string) *SourceResponse {
-	return &SourceResponse{
+func NewDataResponse(path string, name string, ok bool, data string) *DataResponse {
+	return &DataResponse{
 		Object: &system.Object{
-			Type: system.NewReference("kego.io/editor/shared/messages", "sourceResponse"),
+			Type: system.NewReference("kego.io/editor/shared/messages", "dataResponse"),
 		},
 		Message: NewMessage(),
+		Package: system.NewString(path),
 		Name:    system.NewString(name),
 		Found:   system.NewBool(ok),
 		Data:    system.NewString(data),
 	}
 }
 
-func NewSourceRequest(name string) *SourceRequest {
-	return &SourceRequest{
+func NewDataRequest(path string, name string, file string) *DataRequest {
+	return &DataRequest{
 		Object: &system.Object{
-			Type: system.NewReference("kego.io/editor/shared/messages", "sourceRequest"),
+			Type: system.NewReference("kego.io/editor/shared/messages", "dataRequest"),
 		},
 		Message: NewMessage(),
+		Package: system.NewString(path),
 		Name:    system.NewString(name),
+		File:    system.NewString(file),
 	}
 }

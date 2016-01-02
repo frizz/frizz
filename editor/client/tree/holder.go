@@ -1,6 +1,6 @@
 package tree
 
-// Holders (e.g. 'data' and 'types') hold groups of source nodes
+// Holders (e.g. 'data' and 'types') hold groups of nodes
 type holder struct {
 	*Branch
 

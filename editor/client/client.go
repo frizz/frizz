@@ -71,6 +71,15 @@ func Start() error {
 		}
 	}
 
+	pcache, ok := cache.Get(app.env.Path)
+	if !ok {
+		return kerr.New("SRPHQPBBRX", nil, "%s not found in ctx", app.env.Path)
+	}
+	types := map[string][]byte{}
+	for s := range pcache.TypeSource.All() {
+		types[s.Name] = s.Bytes
+	}
+
 	editorNode := editor.NewEditorNode()
 	if err := ke.UnmarshalUntyped(app.ctx, []byte(info.Package), editorNode); err != nil {
 		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
@@ -97,7 +106,7 @@ func Start() error {
 	t := tree.New(app.ctx, content, app.conn, app.fail)
 	root := tree.NewRoot(t, nav)
 
-	if err := root.AddPackage(editorNode, info.Data, info.Types); err != nil {
+	if err := root.AddPackage(editorNode, info.Data, types); err != nil {
 		return kerr.New("EAIHJLNBFA", err, "AddPackage")
 	}
 

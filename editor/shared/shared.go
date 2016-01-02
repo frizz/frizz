@@ -5,10 +5,8 @@ type Info struct {
 	Path string
 	// Map of path:alias
 	Aliases map[string]string
-	// Array of source names for data
-	Data []string
-	// Array of source names for types
-	Types []string
+	// Map of data names and relative file names
+	Data map[string]string
 	// Package object
 	Package []byte
 	// Flattened list of all imports

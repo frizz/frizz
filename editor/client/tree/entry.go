@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"kego.io/editor"
+	"kego.io/ke"
 	"kego.io/kerr"
 )
 
@@ -18,10 +19,25 @@ type entry struct {
 var _ BranchInterface = (*entry)(nil)
 var _ Editable = (*entry)(nil)
 
+func addEntryFromBytes(tree *Tree, name string, bytes []byte, parentBranch BranchInterface, parentEditor editor.EditorInterface) (*entry, error) {
+
+	n := editor.NewEditorNode()
+	if err := ke.UnmarshalUntyped(tree.ctx, bytes, n); err != nil {
+		return nil, kerr.New("EAMNRBNRCE", err, "UnmarshalUntyped")
+	}
+
+	e, err := addEntry(name, -1, n, parentBranch, parentEditor)
+	if err != nil {
+		return nil, kerr.New("FMIAASWRPY", err, "addEntry")
+	}
+	return e, nil
+
+}
+
 func addEntry(name string, index int, node *editor.Node, parentBranch BranchInterface, parentEditor editor.EditorInterface) (*entry, error) {
 
 	ed := node.Editor()
-	if !parentEditor.AddChildTreeEntry(ed) {
+	if parentEditor != nil && !parentEditor.AddChildTreeEntry(ed) {
 		return nil, nil
 	}
 
@@ -79,6 +95,15 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 			if _, err := addEntry(name, -1, child, parentBranch, parentEditor); err != nil {
 				return kerr.New("SIBWLRIXRG", err, "addEntry (object)")
 			}
+		}
+	}
+	return nil
+}
+
+func (parent *holder) addTypes(types map[string][]byte) error {
+	for name, bytes := range types {
+		if _, err := addEntryFromBytes(parent.tree, name, bytes, parent, parent.editor); err != nil {
+			return kerr.New("CBLBCUUJFH", err, "addEntryFromBytes")
 		}
 	}
 	return nil

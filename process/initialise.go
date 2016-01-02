@@ -133,12 +133,12 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 
 	ctx = cmdctx.NewContext(ctx, cmd)
 
-	env, err := parse.Parse(ctx, path, []string{})
+	pcache, err := parse.Parse(ctx, path, []string{})
 	if err != nil {
 		return nil, nil, kerr.New("EBMBIBIKUF", err, "parse.Parse")
 	}
 
-	ctx = envctx.NewContext(ctx, env)
+	ctx = envctx.NewContext(ctx, pcache.Environment)
 
 	return ctx, cancel, nil
 }

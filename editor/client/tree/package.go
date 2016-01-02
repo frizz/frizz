@@ -19,7 +19,7 @@ type pkg struct {
 var _ BranchInterface = (*pkg)(nil)
 var _ Editable = (*pkg)(nil)
 
-func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesTypes []string) error {
+func (parent *Root) AddPackage(node *editor.Node, data map[string]string, types map[string][]byte) error {
 
 	ed := node.Editor()
 
@@ -41,14 +41,14 @@ func (parent *Root) AddPackage(node *editor.Node, sourcesData []string, sourcesT
 		return kerr.New("RBISWQVLFN", err, "addEntryChildren")
 	}
 
-	data := p.addHolder("data")
-	data.open()
-	p.data = data
-	p.data.addSources(sourcesData)
+	dataHolder := p.addHolder("data")
+	dataHolder.open()
+	p.data = dataHolder
+	p.data.addSources(data)
 
-	types := p.addHolder("types")
-	p.types = types
-	p.types.addSources(sourcesTypes)
+	typesHolder := p.addHolder("types")
+	p.types = typesHolder
+	p.types.addTypes(types)
 
 	p.open()
 

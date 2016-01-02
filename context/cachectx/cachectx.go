@@ -25,10 +25,22 @@ type TypeSourceCache struct {
 	m map[string][]byte
 }
 
+type GlobalCache struct {
+	sync.RWMutex
+	m map[string]GlobalInfo
+}
+
 type PackageInfo struct {
-	Environment *envctx.Env
-	Types       *TypeCache
-	TypeSource  *TypeSourceCache
+	Environment  *envctx.Env
+	PackageBytes []byte
+	Types        *TypeCache
+	TypeSource   *TypeSourceCache
+	Globals      *GlobalCache
+}
+
+type GlobalInfo struct {
+	File string
+	Name string
 }
 
 func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
@@ -38,6 +50,7 @@ func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
 		Environment: env,
 		Types:       &TypeCache{m: map[string]interface{}{}},
 		TypeSource:  &TypeSourceCache{m: map[string][]byte{}},
+		Globals:     &GlobalCache{m: map[string]GlobalInfo{}},
 	}
 	c.m[env.Path] = p
 	return p
@@ -86,6 +99,45 @@ func (c *TypeCache) Len() int {
 
 func (c *TypeCache) All() chan interface{} {
 	out := make(chan interface{})
+
+	go func() {
+		c.RLock()
+		defer c.RUnlock()
+		defer close(out)
+		keys := []string{}
+		for key, _ := range c.m {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			out <- c.m[key]
+		}
+	}()
+
+	return out
+}
+
+func (c *GlobalCache) Set(id string, t GlobalInfo) {
+	c.Lock()
+	defer c.Unlock()
+	c.m[id] = t
+}
+
+func (c *GlobalCache) Get(id string) (GlobalInfo, bool) {
+	c.RLock()
+	defer c.RUnlock()
+	t, ok := c.m[id]
+	return t, ok
+}
+
+func (c *GlobalCache) Len() int {
+	c.RLock()
+	defer c.RUnlock()
+	return len(c.m)
+}
+
+func (c *GlobalCache) All() chan GlobalInfo {
+	out := make(chan GlobalInfo)
 
 	go func() {
 		c.RLock()

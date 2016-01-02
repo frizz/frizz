@@ -1,7 +1,11 @@
 description: This is sent by the client to request a source file.
 type: system:type
-id: sourceRequest
+id: dataRequest
 embed: [message]
 fields:
+  package:
+    type: system:@string
   name:
+    type: system:@string
+  file:
     type: system:@string

@@ -1,8 +1,10 @@
 description: This is returned when the client requests a source.
 type: system:type
-id: sourceResponse
+id: dataResponse
 embed: [message]
 fields:
+  package:
+    type: system:@string
   name:
     type: system:@string
   found:

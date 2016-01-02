@@ -5,18 +5,21 @@ import (
 
 	"github.com/surge/cityhash"
 
+	"path/filepath"
+
 	"golang.org/x/net/context"
 	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/json"
+	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/process/pkgutils"
 	"kego.io/process/scanutils"
 	"kego.io/system"
 )
 
-func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error) {
+func Parse(ctx context.Context, path string, queue []string) (*cachectx.PackageInfo, error) {
 
 	cache := cachectx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
@@ -85,7 +88,7 @@ func Parse(ctx context.Context, path string, queue []string) (*envctx.Env, error
 	}
 	env.Hash = h
 
-	return env, nil
+	return pcache, nil
 }
 
 func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, dir string, err error) {
@@ -115,13 +118,40 @@ func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env,
 
 	files := scanutils.ScanDirToFiles(ctx, dir, env.Recursive)
 	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	localContext := envctx.NewContext(ctx, env)
 	for b := range bytes {
 		if b.Err != nil {
 			return kerr.New("JACKALTIGG", b.Err, "ScanFiles")
 		}
-		if err := ProcessTypeSourceBytes(ctx, env, b.Bytes, cache, hash); err != nil {
-			return kerr.New("IVEFDDSKHE", err, "ProcessTypeSourceBytes")
+
+		o := &system.Object{}
+		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
+			return kerr.New("HCYGNBDFFA", err, "ke.UnmarshalUntyped")
 		}
+		if o.Type == nil {
+			return kerr.New("NUKWIHYFMQ", nil, "%s has no type", b.File)
+		}
+		switch *o.Type {
+		case *system.NewReference("kego.io/system", "type"):
+			if err := ProcessTypeSourceBytes(ctx, env, b.Bytes, cache, hash); err != nil {
+				return kerr.New("IVEFDDSKHE", err, "ProcessTypeSourceBytes")
+			}
+		case *system.NewReference("kego.io/system", "package"):
+			cache.PackageBytes = b.Bytes
+		default:
+			if o.Id == nil {
+				return kerr.New("DLLMKTDYFW", nil, "%s has no id", b.File)
+			}
+			relativeFile, err := filepath.Rel(dir, b.File)
+			if err != nil {
+				return kerr.New("AWYRJSCYQS", err, "filepath.Rel")
+			}
+			cache.Globals.Set(o.Id.Name, cachectx.GlobalInfo{
+				File: relativeFile,
+				Name: o.Id.Name,
+			})
+		}
+
 	}
 	return nil
 }
@@ -132,7 +162,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 	if err != nil {
 		switch err.(type) {
 		case json.UnknownPackageError, json.UnknownTypeError:
-		// don't return error
+			// don't return error
 		default:
 			return kerr.New("NLRRVIDVWM", err, "UnmarshalPlain")
 		}

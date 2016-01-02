@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"kego.io/context/envctx"
 	"kego.io/editor"
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
@@ -13,6 +14,7 @@ type source struct {
 	*editor.Node
 
 	name   string
+	file   string
 	pkg    *pkg
 	holder *holder
 
@@ -23,8 +25,8 @@ var _ BranchInterface = (*source)(nil)
 var _ Editable = (*source)(nil)
 var _ AsyncInterface = (*source)(nil)
 
-func (parent *holder) addSource(name string) *source {
-	s := &source{name: name, holder: parent, pkg: parent.pkg}
+func (parent *holder) addSource(name string, file string) *source {
+	s := &source{name: name, file: file, holder: parent, pkg: parent.pkg}
 	s.Branch = NewBranch(s, parent)
 	s.Async = NewAsync(s)
 	s.setLabel(name)
@@ -32,19 +34,20 @@ func (parent *holder) addSource(name string) *source {
 	return s
 }
 
-func (parent *holder) addSources(sources []string) {
-	for _, name := range sources {
-		parent.addSource(name)
+func (parent *holder) addSources(sources map[string]string) {
+	for name, file := range sources {
+		parent.addSource(name, file)
 	}
 }
 
 func (s *source) ContentRequest() messages.MessageInterface {
-	return messages.NewSourceRequest(s.name)
+	env := envctx.FromContext(s.tree.ctx)
+	return messages.NewDataRequest(env.Path, s.name, s.file)
 }
 
 func (s *source) ProcessResponse(response messages.MessageInterface) error {
 
-	gr, ok := response.(*messages.SourceResponse)
+	gr, ok := response.(*messages.DataResponse)
 	if !ok {
 		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", response)
 	}

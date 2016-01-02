@@ -75,32 +75,6 @@ func ScanFilesToBytes(ctx context.Context, in chan File) chan Content {
 
 	out := make(chan Content)
 
-	process := func(file string) Content {
-
-		isYaml := strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml")
-		isJson := strings.HasSuffix(file, ".json")
-
-		if !isYaml && !isJson {
-			return Content{file, nil, nil}
-		}
-
-		bytes, err := ioutil.ReadFile(file)
-		if err != nil {
-			return Content{file, nil, kerr.New("NMWROTKPLJ", err, "ioutil.ReadFile (%s)", file)}
-		}
-
-		if isYaml {
-			j, err := yaml.YAMLToJSON(bytes)
-			if err != nil {
-				return Content{file, nil, kerr.New("FAFJCYESRH", err, "yaml.YAMLToJSON")}
-			}
-			bytes = j
-		}
-
-		return Content{file, bytes, nil}
-
-	}
-
 	go func() {
 
 		defer close(out)
@@ -115,10 +89,10 @@ func ScanFilesToBytes(ctx context.Context, in chan File) chan Content {
 					out <- Content{"", nil, kerr.New("PQUCOUYLJE", value.Err, "Received error")}
 					return
 				}
-				processed := process(value.File)
+				bytes, err := ProcessFile(value.File)
 				// process returns Bytes == nil for non json files, so we should skip them
-				if processed.Bytes != nil || processed.Err != nil {
-					out <- processed
+				if bytes != nil || err != nil {
+					out <- Content{value.File, bytes, err}
 				}
 			case <-ctx.Done():
 				out <- Content{"", nil, kerr.New("AFBJCTFOKX", ctx.Err(), "Context done")}
@@ -130,6 +104,31 @@ func ScanFilesToBytes(ctx context.Context, in chan File) chan Content {
 
 	return out
 
+}
+
+func ProcessFile(file string) ([]byte, error) {
+
+	isYaml := strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml")
+	isJson := strings.HasSuffix(file, ".json")
+
+	if !isYaml && !isJson {
+		return nil, nil
+	}
+
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, kerr.New("NMWROTKPLJ", err, "ioutil.ReadFile (%s)", file)
+	}
+
+	if isYaml {
+		j, err := yaml.YAMLToJSON(bytes)
+		if err != nil {
+			return nil, kerr.New("FAFJCYESRH", err, "yaml.YAMLToJSON")
+		}
+		bytes = j
+	}
+
+	return bytes, nil
 }
 
 /*

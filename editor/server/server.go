@@ -23,6 +23,8 @@ import (
 
 	"strings"
 
+	"path/filepath"
+
 	"github.com/gopherjs/gopherjs/build"
 	"golang.org/x/net/context"
 	"kego.io/context/cachectx"
@@ -98,8 +100,8 @@ func Start(ctx context.Context) error {
 		}
 		c := connection.New(ctx, ws, app.fail, cmd.Debug)
 
-		sourceRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "sourceRequest"))
-		go handle(func() error { return getSource(ctx, sourceRequestsChannel, c) })
+		dataRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "dataRequest"))
+		go handle(func() error { return getData(ctx, dataRequestsChannel, c) })
 
 		if err := c.Receive(); err != nil {
 			app.fail <- err
@@ -141,21 +143,36 @@ func handle(f func() error) {
 	}
 }
 
-func getSource(ctx context.Context, in chan messages.MessageInterface, conn *connection.Conn) error {
-	env := envctx.FromContext(ctx)
+func getData(ctx context.Context, in chan messages.MessageInterface, conn *connection.Conn) error {
+	//env := envctx.FromContext(ctx)
 	for {
 		m := <-in
-		request, ok := m.(*messages.SourceRequest)
+		request, ok := m.(*messages.DataRequest)
 		if !ok {
-			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.sourceRequest", m)
+			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.DataRequest", m)
 		}
-		hashed, ok := system.GetSource(*system.NewReference(env.Path, request.Name.Value()))
-		data := ""
-		if ok {
-			data = string(hashed.Source)
+
+		env, dir, err := parse.ScanForEnv(ctx, request.Package.Value())
+		if err != nil {
+			return kerr.New("EPCOFHDMBP", err, "parse.ScanForEnv")
 		}
-		response := messages.NewSourceResponse(request.Name.Value(), ok, data)
+
+		file := filepath.Join(dir, request.File.Value())
+
+		bytes, err := scanutils.ProcessFile(file)
+
+		localContext := envctx.NewContext(ctx, env)
+		o := &system.Object{}
+		if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
+			return kerr.New("WHMKLGRVKV", err, "ke.UnmarshalUntyped")
+		}
+		if o.Id.Name != request.Name.Value() {
+			return kerr.New("GDLLEGNJOP", nil, "Id does not match")
+		}
+
+		response := messages.NewDataResponse(request.Package.Value(), request.Name.Value(), true, string(bytes))
 		conn.Respond(response, request.Guid.Value())
+
 	}
 }
 
@@ -266,7 +283,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		path = path[0 : len(path)-1]
 	}
 
-	env, dir, err := parse.ScanForEnv(ctx, path)
+	env, _, err := parse.ScanForEnv(ctx, path)
 	if err != nil {
 		if _, ok := kerr.Source(err).(pkgutils.NotFoundError); ok {
 			w.WriteHeader(404)
@@ -275,39 +292,21 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		return kerr.New("ALINBMKDRP", err, "scanForEnv")
 	}
 
-	_, ok := cache.Get(path)
+	pcache, ok := cache.Get(path)
 	if !ok {
-		_, err := parse.Parse(ctx, path, []string{})
+		var err error
+		pcache, err = parse.Parse(ctx, path, []string{})
 		if err != nil {
 			return kerr.New("HIHWJRPUKE", err, "parse.Parse")
 		}
 	}
 
-	data := []string{}
-	types := []string{}
-	var pkgBytes []byte
-
-	files := scanutils.ScanDirToFiles(ctx, dir, env.Recursive)
-	bytes := scanutils.ScanFilesToBytes(ctx, files)
-	localContext := envctx.NewContext(ctx, env)
-	for c := range bytes {
-		if c.Err != nil {
-			return kerr.New("BFFNCABTJS", c.Err, "ScanFiles")
-		}
-		o := &system.Object{}
-		if err := ke.UnmarshalUntyped(localContext, c.Bytes, o); err != nil {
-			return kerr.New("HCYGNBDFFA", err, "ke.UnmarshalUntyped")
-		}
-		switch *o.Type {
-		case *system.NewReference("kego.io/system", "type"):
-			types = append(types, o.Id.Name)
-		case *system.NewReference("kego.io/system", "package"):
-			pkgBytes = c.Bytes
-		default:
-			data = append(data, o.Id.Name)
-		}
+	data := map[string]string{}
+	for g := range pcache.Globals.All() {
+		data[g.Name] = g.File
 	}
 
+	pkgBytes := pcache.PackageBytes
 	if pkgBytes == nil {
 		b, err := ke.MarshalContext(ctx, system.EmptyPackage())
 		if err != nil {
@@ -337,21 +336,25 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		return kerr.New("SAFQNEKXAP", err, "getImport")
 	}
 	imports := map[string]*shared.ImportInfo{"kego.io/system": systemImport}
-	var scan func(map[string]string) error
-	scan = func(aliases map[string]string) error {
-		for p, _ := range aliases {
-			if _, ok := imports[p]; ok {
-				continue
+	var scan func(string) error
+	scan = func(p string) error {
+		if _, ok := imports[p]; ok {
+			return nil
+		}
+		aliasImport, err := getImport(p)
+		if err != nil {
+			return kerr.New("YTHDSRBMBW", err, "getImport")
+		}
+		imports[p] = aliasImport
+
+		for child, _ := range aliasImport.Aliases {
+			if err := scan(child); err != nil {
+				return kerr.New("NCULMUUUOT", err, "scan")
 			}
-			aliasImport, err := getImport(p)
-			if err != nil {
-				return kerr.New("YTHDSRBMBW", err, "getImport")
-			}
-			imports[p] = aliasImport
 		}
 		return nil
 	}
-	if err := scan(env.Aliases); err != nil {
+	if err := scan(env.Path); err != nil {
 		return kerr.New("EELKQDCJGN", err, "scan")
 	}
 
@@ -359,7 +362,6 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		Path:    env.Path,
 		Aliases: env.Aliases,
 		Data:    data,
-		Types:   types,
 		Package: pkgBytes,
 		Imports: imports,
 	}
