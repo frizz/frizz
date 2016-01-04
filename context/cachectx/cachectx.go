@@ -39,10 +39,15 @@ type PackageInfo struct {
 }
 
 type GlobalInfo struct {
-	File string
 	Name string
+	File string
 }
 
+func (c *PackageCache) Len() int {
+	c.RLock()
+	defer c.RUnlock()
+	return len(c.m)
+}
 func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
 	c.Lock()
 	defer c.Unlock()
@@ -63,18 +68,14 @@ func (c *PackageCache) Get(path string) (*PackageInfo, bool) {
 	return info, ok
 }
 
-func (c *PackageCache) All() chan *PackageInfo {
-	out := make(chan *PackageInfo)
-
-	go func() {
-		c.RLock()
-		defer c.RUnlock()
-		defer close(out)
-		for _, v := range c.m {
-			out <- v
-		}
-	}()
-
+func (c *PackageCache) Keys() []string {
+	out := []string{}
+	c.RLock()
+	defer c.RUnlock()
+	for k, _ := range c.m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
 	return out
 }
 
@@ -97,23 +98,14 @@ func (c *TypeCache) Len() int {
 	return len(c.m)
 }
 
-func (c *TypeCache) All() chan interface{} {
-	out := make(chan interface{})
-
-	go func() {
-		c.RLock()
-		defer c.RUnlock()
-		defer close(out)
-		keys := []string{}
-		for key, _ := range c.m {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
-			out <- c.m[key]
-		}
-	}()
-
+func (c *TypeCache) Keys() []string {
+	out := []string{}
+	c.RLock()
+	defer c.RUnlock()
+	for k, _ := range c.m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
 	return out
 }
 
@@ -136,23 +128,14 @@ func (c *GlobalCache) Len() int {
 	return len(c.m)
 }
 
-func (c *GlobalCache) All() chan GlobalInfo {
-	out := make(chan GlobalInfo)
-
-	go func() {
-		c.RLock()
-		defer c.RUnlock()
-		defer close(out)
-		keys := []string{}
-		for key, _ := range c.m {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
-			out <- c.m[key]
-		}
-	}()
-
+func (c *GlobalCache) Keys() []string {
+	out := []string{}
+	c.RLock()
+	defer c.RUnlock()
+	for k, _ := range c.m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
 	return out
 }
 
@@ -175,28 +158,14 @@ func (c *TypeSourceCache) Len() int {
 	return len(c.m)
 }
 
-type Source struct {
-	Name  string
-	Bytes []byte
-}
-
-func (c *TypeSourceCache) All() chan Source {
-	out := make(chan Source)
-
-	go func() {
-		c.RLock()
-		defer c.RUnlock()
-		defer close(out)
-		keys := []string{}
-		for key, _ := range c.m {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
-			out <- Source{key, c.m[key]}
-		}
-	}()
-
+func (c *TypeSourceCache) Keys() []string {
+	out := []string{}
+	c.RLock()
+	defer c.RUnlock()
+	for k, _ := range c.m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
 	return out
 }
 

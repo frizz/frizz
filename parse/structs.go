@@ -40,7 +40,11 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 		}
 		return b, nil
 	}
-	for t := range types.All() {
+	for _, name := range types.Keys() {
+		t, ok := types.Get(name)
+		if !ok {
+			continue
+		}
 		typ := t.(*system.Type)
 
 		isRule := typ.Id.IsRule()
@@ -143,8 +147,11 @@ func printInitFunction(env *envctx.Env, g *generator.Generator, types *cachectx.
 		)
 		g.Println("")
 
-		for t := range types.All() {
-
+		for _, name := range types.Keys() {
+			t, ok := types.Get(name)
+			if !ok {
+				continue
+			}
 			typ := t.(*system.Type)
 			isRule := typ.Id.IsRule()
 

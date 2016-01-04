@@ -33,10 +33,18 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 		reflectType = rt
 	}
 
-	for p := range cache.All() {
-		for i := range p.Types.All() {
-			if i.(*Type).Implements(reflectType) {
-				out = append(out, i.(*Type))
+	for _, pkgName := range cache.Keys() {
+		pkgInfo, ok := cache.Get(pkgName)
+		if !ok {
+			continue
+		}
+		for _, typName := range pkgInfo.Types.Keys() {
+			typ, ok := pkgInfo.Types.Get(typName)
+			if !ok {
+				continue
+			}
+			if typ.(*Type).Implements(reflectType) {
+				out = append(out, typ.(*Type))
 			}
 		}
 	}

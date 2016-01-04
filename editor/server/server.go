@@ -302,8 +302,10 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	}
 
 	data := map[string]string{}
-	for g := range pcache.Globals.All() {
-		data[g.Name] = g.File
+	for _, name := range pcache.Globals.Keys() {
+		if g, ok := pcache.Globals.Get(name); ok {
+			data[name] = g.File
+		}
 	}
 
 	pkgBytes := pcache.PackageBytes
@@ -325,8 +327,10 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 			Aliases: importPackageInfo.Environment.Aliases,
 			Types:   map[string][]byte{},
 		}
-		for c := range importPackageInfo.TypeSource.All() {
-			info.Types[c.Name] = c.Bytes
+		for _, name := range importPackageInfo.TypeSource.Keys() {
+			if b, ok := importPackageInfo.TypeSource.Get(name); ok {
+				info.Types[name] = b
+			}
 		}
 		return info, nil
 	}

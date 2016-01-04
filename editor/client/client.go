@@ -76,8 +76,10 @@ func Start() error {
 		return kerr.New("SRPHQPBBRX", nil, "%s not found in ctx", app.env.Path)
 	}
 	types := map[string][]byte{}
-	for s := range pcache.TypeSource.All() {
-		types[s.Name] = s.Bytes
+	for _, name := range pcache.TypeSource.Keys() {
+		if b, ok := pcache.TypeSource.Get(name); ok {
+			types[name] = b
+		}
 	}
 
 	editorNode := editor.NewEditorNode()
