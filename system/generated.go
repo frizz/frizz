@@ -1,11 +1,11 @@
-// info:{"Path":"kego.io/system","Hash":17098633876541679768}
+// info:{"Path":"kego.io/system","Hash":2850462475690888824}
 package system
 
 import (
 	"reflect"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
+	"kego.io/context/jsonctx"
 )
 
 // Restriction rules for arrays
@@ -243,14 +243,14 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/system", 17098633876541679768)
-	json.RegisterType("kego.io/system", "bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "object", reflect.TypeOf((*Object)(nil)), reflect.TypeOf((*ObjectRule)(nil)), reflect.TypeOf((*ObjectInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "package", reflect.TypeOf((*Package)(nil)), reflect.TypeOf((*PackageRule)(nil)), reflect.TypeOf((*PackageInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceRule)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/system", 2850462475690888824)
+	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
+	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
+	pkg.InitType("number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())
+	pkg.InitType("object", reflect.TypeOf((*Object)(nil)), reflect.TypeOf((*ObjectRule)(nil)), reflect.TypeOf((*ObjectInterface)(nil)).Elem())
+	pkg.InitType("package", reflect.TypeOf((*Package)(nil)), reflect.TypeOf((*PackageRule)(nil)), reflect.TypeOf((*PackageInterface)(nil)).Elem())
+	pkg.InitType("reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceRule)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem())
+	pkg.InitType("rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
+	pkg.InitType("string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
+	pkg.InitType("type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
 }

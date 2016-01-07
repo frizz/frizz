@@ -1,6 +1,9 @@
 package envctx // import "kego.io/context/envctx"
 
-import "golang.org/x/net/context"
+import (
+	"golang.org/x/net/context"
+	"kego.io/kerr"
+)
 
 // Env is the type of value stored in the Contexts.
 type Env struct {
@@ -31,7 +34,7 @@ func NewContext(ctx context.Context, e *Env) context.Context {
 func FromContext(ctx context.Context) *Env {
 	e, ok := ctx.Value(envKey).(*Env)
 	if !ok {
-		panic("No env in ctx")
+		panic(kerr.New("WYDYAGVLCR", nil, "No env in ctx"))
 	}
 	return e
 }
@@ -43,6 +46,6 @@ func FromContextOrNil(ctx context.Context) (*Env, bool) {
 
 var Empty = NewContext(context.Background(), &Env{})
 
-func Dummy(path string, aliases map[string]string) context.Context {
-	return NewContext(context.Background(), &Env{Path: path, Aliases: aliases})
+func Dummy(ctx context.Context, path string, aliases map[string]string) context.Context {
+	return NewContext(ctx, &Env{Path: path, Aliases: aliases})
 }

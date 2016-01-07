@@ -1,12 +1,12 @@
-// info:{"Path":"kego.io/demo/common/images","Hash":16772887215174173915}
+// info:{"Path":"kego.io/demo/common/images","Hash":6766641546003655630}
 package images
 
 import (
 	"reflect"
 
 	"golang.org/x/net/context"
+	"kego.io/context/jsonctx"
 	"kego.io/demo/common/units"
-	"kego.io/json"
 	"kego.io/system"
 )
 
@@ -61,8 +61,8 @@ func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/demo/common/images", 16772887215174173915)
-	json.RegisterType("kego.io/demo/common/images", "icon", reflect.TypeOf((*Icon)(nil)), reflect.TypeOf((*IconRule)(nil)), reflect.TypeOf((*IconInterface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/common/images", "image", reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf((*ImageRule)(nil)), nil)
-	json.RegisterType("kego.io/demo/common/images", "photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoRule)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/demo/common/images", 6766641546003655630)
+	pkg.InitType("icon", reflect.TypeOf((*Icon)(nil)), reflect.TypeOf((*IconRule)(nil)), reflect.TypeOf((*IconInterface)(nil)).Elem())
+	pkg.InitType("image", reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf((*ImageRule)(nil)), nil)
+	pkg.InitType("photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoRule)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem())
 }

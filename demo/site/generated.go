@@ -1,14 +1,14 @@
-// info:{"Path":"kego.io/demo/site","Hash":10775463831198305239}
+// info:{"Path":"kego.io/demo/site","Hash":14531270950025116789}
 package site
 
 import (
 	"reflect"
 
 	"golang.org/x/net/context"
+	"kego.io/context/jsonctx"
 	"kego.io/demo/common/images"
 	"kego.io/demo/common/units"
 	"kego.io/demo/common/words"
-	"kego.io/json"
 	"kego.io/system"
 )
 
@@ -154,12 +154,12 @@ func (o *Gallery3a) GetGallery3a(ctx context.Context) *Gallery3a {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/demo/site", 10775463831198305239)
-	json.RegisterType("kego.io/demo/site", "gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Rule)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/site", "gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aRule)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/site", "gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Rule)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/site", "gallery2a", reflect.TypeOf((*Gallery2a)(nil)), reflect.TypeOf((*Gallery2aRule)(nil)), reflect.TypeOf((*Gallery2aInterface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/site", "gallery2b", reflect.TypeOf((*Gallery2b)(nil)), reflect.TypeOf((*Gallery2bRule)(nil)), reflect.TypeOf((*Gallery2bInterface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/site", "gallery3", reflect.TypeOf((*Gallery3)(nil)), reflect.TypeOf((*Gallery3Rule)(nil)), reflect.TypeOf((*Gallery3Interface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/site", "gallery3a", reflect.TypeOf((*Gallery3a)(nil)), reflect.TypeOf((*Gallery3aRule)(nil)), reflect.TypeOf((*Gallery3aInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/demo/site", 14531270950025116789)
+	pkg.InitType("gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Rule)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem())
+	pkg.InitType("gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aRule)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem())
+	pkg.InitType("gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Rule)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem())
+	pkg.InitType("gallery2a", reflect.TypeOf((*Gallery2a)(nil)), reflect.TypeOf((*Gallery2aRule)(nil)), reflect.TypeOf((*Gallery2aInterface)(nil)).Elem())
+	pkg.InitType("gallery2b", reflect.TypeOf((*Gallery2b)(nil)), reflect.TypeOf((*Gallery2bRule)(nil)), reflect.TypeOf((*Gallery2bInterface)(nil)).Elem())
+	pkg.InitType("gallery3", reflect.TypeOf((*Gallery3)(nil)), reflect.TypeOf((*Gallery3Rule)(nil)), reflect.TypeOf((*Gallery3Interface)(nil)).Elem())
+	pkg.InitType("gallery3a", reflect.TypeOf((*Gallery3a)(nil)), reflect.TypeOf((*Gallery3aRule)(nil)), reflect.TypeOf((*Gallery3aInterface)(nil)).Elem())
 }

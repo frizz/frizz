@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"golang.org/x/net/context"
+	"kego.io/context/jsonctx"
 	"kego.io/json"
 	"kego.io/kerr"
 )
@@ -42,4 +43,8 @@ func Marshal(v interface{}) ([]byte, error) {
 }
 func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
 	return json.MarshalContext(ctx, v)
+}
+
+func NewContext(ctx context.Context) context.Context {
+	return jsonctx.NewContext(ctx, true)
 }

@@ -1,11 +1,11 @@
-// info:{"Path":"kego.io/selectors/tests","Hash":995749587514777472}
+// info:{"Path":"kego.io/selectors/tests","Hash":7681107784196672914}
 package tests
 
 import (
 	"reflect"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
+	"kego.io/context/jsonctx"
 	"kego.io/system"
 )
 
@@ -398,25 +398,25 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/selectors/tests", 995749587514777472)
-	json.RegisterType("kego.io/selectors/tests", "basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "diagram", reflect.TypeOf((*Diagram)(nil)), reflect.TypeOf((*DiagramRule)(nil)), reflect.TypeOf((*DiagramInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "expr", reflect.TypeOf((*Expr)(nil)), reflect.TypeOf((*ExprRule)(nil)), reflect.TypeOf((*ExprInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "gallery", reflect.TypeOf((*Gallery)(nil)), reflect.TypeOf((*GalleryRule)(nil)), reflect.TypeOf((*GalleryInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "image", reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf((*ImageRule)(nil)), nil)
-	json.RegisterType("kego.io/selectors/tests", "instance", reflect.TypeOf((*Instance)(nil)), reflect.TypeOf((*InstanceRule)(nil)), reflect.TypeOf((*InstanceInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "instanceItem", reflect.TypeOf((*InstanceItem)(nil)), reflect.TypeOf((*InstanceItemRule)(nil)), reflect.TypeOf((*InstanceItemInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "kid", reflect.TypeOf((*Kid)(nil)), reflect.TypeOf((*KidRule)(nil)), reflect.TypeOf((*KidInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoRule)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "polykids", reflect.TypeOf((*Polykids)(nil)), reflect.TypeOf((*PolykidsRule)(nil)), reflect.TypeOf((*PolykidsInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "rectangle", reflect.TypeOf((*Rectangle)(nil)), reflect.TypeOf((*RectangleRule)(nil)), reflect.TypeOf((*RectangleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "rightscale", reflect.TypeOf((*Rightscale)(nil)), reflect.TypeOf((*RightscaleRule)(nil)), reflect.TypeOf((*RightscaleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "rightscaleLink", reflect.TypeOf((*RightscaleLink)(nil)), reflect.TypeOf((*RightscaleLinkRule)(nil)), reflect.TypeOf((*RightscaleLinkInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "rightscaleList", reflect.TypeOf((*RightscaleList)(nil)), reflect.TypeOf((*RightscaleListRule)(nil)), reflect.TypeOf((*RightscaleListInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "sibling", reflect.TypeOf((*Sibling)(nil)), reflect.TypeOf((*SiblingRule)(nil)), reflect.TypeOf((*SiblingInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "simpleItem", reflect.TypeOf((*SimpleItem)(nil)), reflect.TypeOf((*SimpleItemRule)(nil)), reflect.TypeOf((*SimpleItemInterface)(nil)).Elem())
-	json.RegisterType("kego.io/selectors/tests", "typed", reflect.TypeOf((*Typed)(nil)), reflect.TypeOf((*TypedRule)(nil)), reflect.TypeOf((*TypedInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/selectors/tests", 7681107784196672914)
+	pkg.InitType("basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
+	pkg.InitType("c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
+	pkg.InitType("collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())
+	pkg.InitType("diagram", reflect.TypeOf((*Diagram)(nil)), reflect.TypeOf((*DiagramRule)(nil)), reflect.TypeOf((*DiagramInterface)(nil)).Elem())
+	pkg.InitType("expr", reflect.TypeOf((*Expr)(nil)), reflect.TypeOf((*ExprRule)(nil)), reflect.TypeOf((*ExprInterface)(nil)).Elem())
+	pkg.InitType("gallery", reflect.TypeOf((*Gallery)(nil)), reflect.TypeOf((*GalleryRule)(nil)), reflect.TypeOf((*GalleryInterface)(nil)).Elem())
+	pkg.InitType("image", reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf((*ImageRule)(nil)), nil)
+	pkg.InitType("instance", reflect.TypeOf((*Instance)(nil)), reflect.TypeOf((*InstanceRule)(nil)), reflect.TypeOf((*InstanceInterface)(nil)).Elem())
+	pkg.InitType("instanceItem", reflect.TypeOf((*InstanceItem)(nil)), reflect.TypeOf((*InstanceItemRule)(nil)), reflect.TypeOf((*InstanceItemInterface)(nil)).Elem())
+	pkg.InitType("kid", reflect.TypeOf((*Kid)(nil)), reflect.TypeOf((*KidRule)(nil)), reflect.TypeOf((*KidInterface)(nil)).Elem())
+	pkg.InitType("photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoRule)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem())
+	pkg.InitType("polykids", reflect.TypeOf((*Polykids)(nil)), reflect.TypeOf((*PolykidsRule)(nil)), reflect.TypeOf((*PolykidsInterface)(nil)).Elem())
+	pkg.InitType("rectangle", reflect.TypeOf((*Rectangle)(nil)), reflect.TypeOf((*RectangleRule)(nil)), reflect.TypeOf((*RectangleInterface)(nil)).Elem())
+	pkg.InitType("rightscale", reflect.TypeOf((*Rightscale)(nil)), reflect.TypeOf((*RightscaleRule)(nil)), reflect.TypeOf((*RightscaleInterface)(nil)).Elem())
+	pkg.InitType("rightscaleLink", reflect.TypeOf((*RightscaleLink)(nil)), reflect.TypeOf((*RightscaleLinkRule)(nil)), reflect.TypeOf((*RightscaleLinkInterface)(nil)).Elem())
+	pkg.InitType("rightscaleList", reflect.TypeOf((*RightscaleList)(nil)), reflect.TypeOf((*RightscaleListRule)(nil)), reflect.TypeOf((*RightscaleListInterface)(nil)).Elem())
+	pkg.InitType("sibling", reflect.TypeOf((*Sibling)(nil)), reflect.TypeOf((*SiblingRule)(nil)), reflect.TypeOf((*SiblingInterface)(nil)).Elem())
+	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
+	pkg.InitType("simpleItem", reflect.TypeOf((*SimpleItem)(nil)), reflect.TypeOf((*SimpleItemRule)(nil)), reflect.TypeOf((*SimpleItemInterface)(nil)).Elem())
+	pkg.InitType("typed", reflect.TypeOf((*Typed)(nil)), reflect.TypeOf((*TypedRule)(nil)), reflect.TypeOf((*TypedInterface)(nil)).Elem())
 }

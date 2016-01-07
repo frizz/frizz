@@ -8,6 +8,7 @@ import (
 	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/parse"
@@ -96,6 +97,7 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 	options := overrides.getOptions()
 
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx = jsonctx.NewContext(ctx, true)
 	ctx = wgctx.NewContext(ctx)
 	ctx = cachectx.NewContext(ctx)
 

@@ -283,9 +283,9 @@ func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error
 		// If the specified type is an interface, we should check to see if the
 		// node implements the interface.
 		if i, ok := r.GetType(p.ctx); ok && i.Interface {
-			rt, ok := i.Id.GetReflectType()
+			rt, ok := i.Id.GetReflectType(p.ctx)
 			if ok {
-				if n.Type.Implements(rt) {
+				if n.Type.Implements(p.ctx, rt) {
 					return true, nil
 				}
 			}

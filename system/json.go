@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/json"
 )
 
@@ -51,9 +52,10 @@ type JsonBoolInterface interface {
 
 func init() {
 
-	json.RegisterType("kego.io/json", "number", reflect.TypeOf(float64(1.1)), reflect.TypeOf(&JsonNumberRule{}), reflect.TypeOf((*JsonNumberInterface)(nil)).Elem())
-	json.RegisterType("kego.io/json", "string", reflect.TypeOf(string("")), reflect.TypeOf(&JsonStringRule{}), reflect.TypeOf((*JsonStringInterface)(nil)).Elem())
-	json.RegisterType("kego.io/json", "bool", reflect.TypeOf(bool(true)), reflect.TypeOf(&JsonBoolRule{}), reflect.TypeOf((*JsonBoolInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/json", 0)
+	pkg.InitType("number", reflect.TypeOf(float64(1.1)), reflect.TypeOf(&JsonNumberRule{}), reflect.TypeOf((*JsonNumberInterface)(nil)).Elem())
+	pkg.InitType("string", reflect.TypeOf(string("")), reflect.TypeOf(&JsonStringRule{}), reflect.TypeOf((*JsonStringInterface)(nil)).Elem())
+	pkg.InitType("bool", reflect.TypeOf(bool(true)), reflect.TypeOf(&JsonBoolRule{}), reflect.TypeOf((*JsonBoolInterface)(nil)).Elem())
 
 }
 

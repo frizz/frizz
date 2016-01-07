@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
+	"kego.io/kerr"
 )
 
 // Env is the type of value stored in the Contexts.
@@ -59,6 +60,14 @@ func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
 	}
 	c.m[env.Path] = p
 	return p
+}
+
+func (c *PackageCache) GetType(path string, name string) (interface{}, bool) {
+	p, ok := c.Get(path)
+	if !ok {
+		return nil, false
+	}
+	return p.Types.Get(name)
 }
 
 func (c *PackageCache) Get(path string) (*PackageInfo, bool) {
@@ -188,7 +197,7 @@ func NewContext(ctx context.Context) context.Context {
 func FromContext(ctx context.Context) *PackageCache {
 	e, ok := ctx.Value(cacheKey).(*PackageCache)
 	if !ok {
-		panic("No cache in ctx")
+		panic(kerr.New("DGGUPAXMUP", nil, "No cache in ctx"))
 	}
 	return e
 }

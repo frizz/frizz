@@ -139,9 +139,10 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *generator.Ge
 func printInitFunction(env *envctx.Env, g *generator.Generator, types *cachectx.TypeCache) {
 	g.Println("func init() {")
 	{
+		g.Print("pkg := ")
 		g.PrintFunctionCall(
-			"kego.io/json",
-			"RegisterPackage",
+			"kego.io/context/jsonctx",
+			"InitPackage",
 			strconv.Quote(env.Path),
 			env.Hash,
 		)
@@ -193,10 +194,9 @@ func printInitFunction(env *envctx.Env, g *generator.Generator, types *cachectx.
 				) + ".Elem()"
 			}
 
-			g.PrintFunctionCall(
-				"kego.io/json",
-				"RegisterType",
-				strconv.Quote(typ.Id.Package),
+			g.PrintMethodCall(
+				"pkg",
+				"InitType",
 				strconv.Quote(typ.Id.Name),
 				typeOf1,
 				typeOf2,

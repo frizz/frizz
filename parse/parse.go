@@ -219,7 +219,7 @@ func scanForPackage(ctx context.Context, path string, dir string) (*system.Packa
 			return nil, kerr.New("GATNNQKNHY", b.Err, "ScanFiles")
 		}
 		var object interface{}
-		err := json.Unmarshal(envctx.Dummy(path, map[string]string{}), b.Bytes, &object)
+		err := json.Unmarshal(envctx.Dummy(ctx, path, map[string]string{}), b.Bytes, &object)
 		if err != nil {
 			switch err.(type) {
 			case json.UnknownPackageError, json.UnknownTypeError:

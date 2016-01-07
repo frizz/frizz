@@ -10,6 +10,7 @@ type PackageHasher struct {
 	Path    string
 	Aliases map[string]string
 	Types   map[string]uint64
+	Version int
 }
 
 type AliasInfo struct {
@@ -18,6 +19,8 @@ type AliasInfo struct {
 }
 
 func (p *PackageHasher) Hash() (uint64, error) {
+
+	p.Version = 2
 
 	bytes, err := json.MarshalPlain(p)
 	if err != nil {

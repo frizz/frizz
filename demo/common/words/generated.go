@@ -1,11 +1,11 @@
-// info:{"Path":"kego.io/demo/common/words","Hash":9741212770969155383}
+// info:{"Path":"kego.io/demo/common/words","Hash":880320337013518116}
 package words
 
 import (
 	"reflect"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
+	"kego.io/context/jsonctx"
 	"kego.io/system"
 )
 
@@ -54,8 +54,8 @@ func (o *Translation) GetTranslation(ctx context.Context) *Translation {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/demo/common/words", 9741212770969155383)
-	json.RegisterType("kego.io/demo/common/words", "localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), reflect.TypeOf((*LocalizerRule)(nil)), nil)
-	json.RegisterType("kego.io/demo/common/words", "simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/demo/common/words", "translation", reflect.TypeOf((*Translation)(nil)), reflect.TypeOf((*TranslationRule)(nil)), reflect.TypeOf((*TranslationInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/demo/common/words", 880320337013518116)
+	pkg.InitType("localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), reflect.TypeOf((*LocalizerRule)(nil)), nil)
+	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
+	pkg.InitType("translation", reflect.TypeOf((*Translation)(nil)), reflect.TypeOf((*TranslationRule)(nil)), reflect.TypeOf((*TranslationInterface)(nil)).Elem())
 }

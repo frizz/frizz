@@ -1,4 +1,5 @@
 {
+	"id": "instanceData",
 	"type": "instance",
 	"name": "foo",
 	"child": {

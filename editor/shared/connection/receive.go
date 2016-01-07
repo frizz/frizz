@@ -3,6 +3,10 @@ package connection
 import (
 	"io"
 
+	"golang.org/x/net/context"
+
+	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -18,12 +22,15 @@ func (c *Conn) Subscribe(t system.Reference) chan messages.MessageInterface {
 }
 
 func (c *Conn) Receive() error {
+
+	unpackContext := envctx.Dummy(jsonctx.NewContext(context.Background(), false, "kego.io/json", "kego.io/system", "kego.io/editor/shared/messages"), "kego.io/editor/shared/messages", map[string]string{})
+
 	for {
 
 		var i interface{}
 		// Here we unmarshal with the dummy messages.Ctx because this is just a message, not an
 		// object from the local repo.
-		if err := ke.NewDecoder(messages.Ctx, c.socket).Decode(&i); err != nil {
+		if err := ke.NewDecoder(unpackContext, c.socket).Decode(&i); err != nil {
 			if err == io.EOF {
 				// Closing the fail channel exits the app gracefully
 				if c.debug {

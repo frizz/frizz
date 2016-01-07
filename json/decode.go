@@ -17,7 +17,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"unicode"
 	"unicode/utf16"
 	"unicode/utf8"
@@ -25,6 +24,7 @@ import (
 	"golang.org/x/net/context"
 
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/kerr"
 )
 
@@ -81,9 +81,9 @@ func UnmarshalPlain(data []byte, v interface{}) error {
 		return err
 	}
 
-	d.init(data)
+	d.init(nil, data)
 
-	return d.unmarshal(envctx.Empty, v)
+	return d.unmarshal(v)
 }
 func UnmarshalUntyped(ctx context.Context, data []byte, v interface{}) error {
 	// Check for well-formedness.
@@ -95,8 +95,8 @@ func UnmarshalUntyped(ctx context.Context, data []byte, v interface{}) error {
 		return err
 	}
 
-	d.init(data)
-	return d.unmarshal(ctx, v)
+	d.init(ctx, data)
+	return d.unmarshal(v)
 }
 
 type UnknownPackageError struct {
@@ -126,8 +126,8 @@ func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
 		return err
 	}
 
-	d.init(data)
-	err = d.unmarshalTyped(ctx, v)
+	d.init(ctx, data)
+	err = d.unmarshalTyped(v)
 	return d.getError(err)
 }
 
@@ -185,17 +185,17 @@ func (e *InvalidUnmarshalError) Error() string {
 	return "json: Unmarshal(nil " + e.Type.String() + ")"
 }
 
-func (d *decodeState) unmarshal(ctx context.Context, v interface{}) (err error) {
+func (d *decodeState) unmarshal(v interface{}) (err error) {
 	rv := reflect.ValueOf(v)
-	return d.unmarshalValue(ctx, rv, false)
+	return d.unmarshalValue(rv, false)
 }
 
-func (d *decodeState) unmarshalTyped(ctx context.Context, v *interface{}) (err error) {
+func (d *decodeState) unmarshalTyped(v *interface{}) (err error) {
 	rv := reflect.ValueOf(v)
-	return d.unmarshalValue(ctx, rv, true)
+	return d.unmarshalValue(rv, true)
 }
 
-func (d *decodeState) unmarshalValue(ctx context.Context, rv reflect.Value, typed bool) (err error) {
+func (d *decodeState) unmarshalValue(rv reflect.Value, typed bool) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			//_, pkgError := r.(UnknownPackageError)
@@ -226,7 +226,7 @@ func (d *decodeState) unmarshalValue(ctx context.Context, rv reflect.Value, type
 	d.scan.reset()
 	// We decode rv not rv.Elem because the Unmarshaler interface
 	// test must be applied at the top level of the value.
-	d.value(ctx, rv, typed)
+	d.value(rv, typed)
 	return d.savedError
 }
 
@@ -248,6 +248,7 @@ func (n NumberLiteral) Int64() (int64, error) {
 
 // decodeState represents the state while decoding a JSON value.
 type decodeState struct {
+	ctx            context.Context
 	data           []byte
 	off            int // read offset in data
 	scan           scanner
@@ -276,6 +277,7 @@ func (d *decodeState) getError(err error) error {
 // type json key, and restore afterwards.
 func (d *decodeState) backup() decodeState {
 	return decodeState{
+		ctx:            d.ctx,
 		off:            d.off,
 		savedError:     d.savedError,
 		useNumber:      d.useNumber,
@@ -290,6 +292,7 @@ func (d *decodeState) backup() decodeState {
 // we can remember where we were before scanning for
 // the type json key, and restore afterwards.
 func (d *decodeState) restore(from decodeState) {
+	d.ctx = from.ctx
 	d.off = from.off
 	d.savedError = from.savedError
 	d.useNumber = from.useNumber
@@ -304,7 +307,8 @@ func (d *decodeState) restore(from decodeState) {
 // the data slice while the decoder executes.
 var errPhase = errors.New("JSON decoder out of sync - data changing underfoot?")
 
-func (d *decodeState) init(data []byte) *decodeState {
+func (d *decodeState) init(ctx context.Context, data []byte) *decodeState {
+	d.ctx = ctx
 	d.data = data
 	d.off = 0
 	d.savedError = nil
@@ -371,7 +375,7 @@ func (d *decodeState) scanWhile(op int) int {
 
 // value decodes a JSON value from d.data[d.off:] into the value.
 // it updates d.off to point past the decoded value.
-func (d *decodeState) value(ctx context.Context, v reflect.Value, typed bool) {
+func (d *decodeState) value(v reflect.Value, typed bool) {
 	if !v.IsValid() {
 		_, rest, err := nextValue(d.data[d.off:], &d.nextscan)
 		if err != nil {
@@ -407,13 +411,13 @@ func (d *decodeState) value(ctx context.Context, v reflect.Value, typed bool) {
 		d.error(errPhase)
 
 	case scanBeginArray:
-		d.array(ctx, v)
+		d.array(v)
 
 	case scanBeginObject:
-		d.object(ctx, v, typed)
+		d.object(v, typed)
 
 	case scanBeginLiteral:
-		d.literal(ctx, v)
+		d.literal(v)
 	}
 }
 
@@ -423,16 +427,16 @@ type unquotedValue struct{}
 // quoted string literal or literal null into an interface value.
 // If it finds anything other than a quoted string literal or null,
 // valueQuoted returns unquotedValue{}.
-func (d *decodeState) valueQuoted(ctx context.Context) interface{} {
+func (d *decodeState) valueQuoted() interface{} {
 	switch op := d.scanWhile(scanSkipSpace); op {
 	default:
 		d.error(errPhase)
 
 	case scanBeginArray:
-		d.array(ctx, reflect.Value{})
+		d.array(reflect.Value{})
 
 	case scanBeginObject:
-		d.object(ctx, reflect.Value{}, false)
+		d.object(reflect.Value{}, false)
 
 	case scanBeginLiteral:
 		switch v := d.literalInterface().(type) {
@@ -498,12 +502,12 @@ func indirect(v reflect.Value, decodingNull bool, unmarshalers bool, unpackers b
 
 // array consumes an array from d.data[d.off-1:], decoding into the value v.
 // the first byte of the array ('[') has been read already.
-func (d *decodeState) array(ctx context.Context, v reflect.Value) {
+func (d *decodeState) array(v reflect.Value) {
 	// Check for unmarshaler.
 	u, ut, up, pv := indirect(v, false, true, true)
 	if u != nil {
 		d.off--
-		err := u.UnmarshalJSON(ctx, d.next())
+		err := u.UnmarshalJSON(d.ctx, d.next())
 		if err != nil {
 			d.error(err)
 		}
@@ -518,11 +522,11 @@ func (d *decodeState) array(ctx context.Context, v reflect.Value) {
 	if up != nil {
 		d.off--
 		var i interface{}
-		if err := UnmarshalUntyped(ctx, d.next(), &i); err != nil {
+		if err := UnmarshalUntyped(d.ctx, d.next(), &i); err != nil {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(ctx, Pack(i)); err != nil {
+		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -582,10 +586,10 @@ func (d *decodeState) array(ctx context.Context, v reflect.Value) {
 
 		if i < v.Len() {
 			// Decode into element.
-			d.value(ctx, v.Index(i), true)
+			d.value(v.Index(i), true)
 		} else {
 			// Ran out of fixed array: skip.
-			d.value(ctx, reflect.Value{}, false)
+			d.value(reflect.Value{}, false)
 		}
 		i++
 
@@ -615,155 +619,17 @@ func (d *decodeState) array(ctx context.Context, v reflect.Value) {
 	}
 }
 
-var interfaces struct {
-	sync.RWMutex
-	m map[reflect.Type]reflect.Type
-}
-
-func RegisterInterface(t reflect.Type, dummy reflect.Type) {
-	interfaces.Lock()
-	if interfaces.m == nil {
-		interfaces.m = make(map[reflect.Type]reflect.Type)
-	}
-	interfaces.m[t] = dummy
-	interfaces.Unlock()
-}
-func UnregisterInterface(t reflect.Type) {
-	interfaces.Lock()
-	if interfaces.m == nil {
-		return
-	}
-	delete(interfaces.m, t)
-	interfaces.Unlock()
-}
-func GetInterface(t reflect.Type) (reflect.Type, bool) {
-	interfaces.RLock()
-	dummy, ok := interfaces.m[t]
-	interfaces.RUnlock()
-	if !ok {
-		return nil, false
-	}
-	return dummy, true
-}
-
-var packages struct {
-	sync.RWMutex
-	m map[string]uint64
-}
-var types struct {
-	sync.RWMutex
-	m map[typeRef]typeDef
-}
-
-type typeRef struct {
-	path string
-	name string
-}
-type typeDef struct {
-	typ   reflect.Type
-	rule  reflect.Type
-	iface reflect.Type
-}
-
-func RegisterPackage(path string, hash uint64) {
-	packages.Lock()
-	defer packages.Unlock()
-	if packages.m == nil {
-		packages.m = map[string]uint64{}
-	}
-	packages.m[path] = hash
-}
-func RegisterType(path string, name string, typ reflect.Type, rule reflect.Type, iface reflect.Type) {
-	types.Lock()
-	defer types.Unlock()
-	if types.m == nil {
-		types.m = map[typeRef]typeDef{}
-	}
-	types.m[typeRef{path, name}] = typeDef{typ, rule, iface}
-}
-func Unregister(path string, name string) {
-	types.Lock()
-	defer types.Unlock()
-	if types.m == nil {
-		return
-	}
-	delete(types.m, typeRef{path, name})
-}
-func GetType(path string, name string) (reflect.Type, bool) {
-	types.RLock()
-	defer types.RUnlock()
-
-	rule := false
-	if strings.HasPrefix(name, RULE_PREFIX) {
-		rule = true
-		name = name[1:]
-	}
-
-	if t, ok := types.m[typeRef{path, name}]; ok {
-		if rule {
-			return t.rule, true
-		}
-		return t.typ, true
-	}
-	return nil, false
-}
-func GetTypeInterface(path string, name string) (reflect.Type, bool) {
-	types.RLock()
-	defer types.RUnlock()
-	if strings.HasPrefix(name, RULE_PREFIX) {
-		name = name[1:]
-	}
-	if t, ok := types.m[typeRef{path, name}]; ok {
-		return t.iface, true
-	}
-	return nil, false
-}
-func GetPackageHash(path string) (uint64, bool) {
-	packages.RLock()
-	defer packages.RUnlock()
-	if h, ok := packages.m[path]; ok {
-		return h, true
-	}
-	return 0, false
-}
-func GetTypeByReflectType(typ reflect.Type) (path string, name string, found bool) {
-	types.RLock()
-	defer types.RUnlock()
-	for ref, def := range types.m {
-		// def.typ is always a pointer, and we would like to support pointers or naked types
-		// as the input, so we compare both
-		if def.typ == typ || (def.typ.Kind() == reflect.Ptr && def.typ.Elem() == typ) {
-			return ref.path, ref.name, true
-		}
-
-		if def.rule != nil && (def.rule == typ || (def.rule.Kind() == reflect.Ptr && def.rule.Elem() == typ)) {
-			return ref.path, RULE_PREFIX + ref.name, true
-		}
-	}
-	return "", "", false
-}
-func GetTypeByInterface(iface reflect.Type) (typ reflect.Type, found bool) {
-	types.RLock()
-	defer types.RUnlock()
-	for _, def := range types.m {
-		if def.iface == iface {
-			return def.typ, true
-		}
-	}
-	return nil, false
-}
-
 var nullLiteral = []byte("null")
 
-func (d *decodeState) scanForType(ctx context.Context, v reflect.Value) {
-	if typeName := d.scanForAttribute(ctx, "type", v); typeName != "" {
-		d.setType(ctx, typeName, v)
+func (d *decodeState) scanForType(v reflect.Value) {
+	if typeName := d.scanForAttribute("type", v); typeName != "" {
+		d.setType(typeName, v)
 	} else {
 		d.unknownType = "(no type attribute)"
 	}
 }
 
-func (d *decodeState) scanForAttribute(ctx context.Context, attribute string, v reflect.Value) string {
+func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string {
 	// We should scan forwards to find the "type" field, then reset the scanner.
 	stateBackup := d.backup()
 	value := ""
@@ -799,12 +665,12 @@ func (d *decodeState) scanForAttribute(ctx context.Context, attribute string, v 
 			// Read value.
 			var str string
 			strv := reflect.ValueOf(&str).Elem()
-			d.value(ctx, strv, false)
+			d.value(strv, false)
 			value = str
 			break
 		} else {
 			// skip value
-			d.value(ctx, reflect.Value{}, false)
+			d.value(reflect.Value{}, false)
 		}
 
 		// Next token must be , or }.
@@ -822,22 +688,26 @@ func (d *decodeState) scanForAttribute(ctx context.Context, attribute string, v 
 	return value
 }
 
-func (d *decodeState) setType(ctx context.Context, typeName string, v reflect.Value) {
+func (d *decodeState) setType(typeName string, v reflect.Value) {
 
-	path, name, err := GetReferencePartsFromTypeString(ctx, typeName)
+	path, name, err := GetReferencePartsFromTypeString(d.ctx, typeName)
 	if unk, ok := err.(UnknownPackageError); ok {
 		// We don't want to throw an error here, because when we're scanning for
 		// aliases we need to tolerate unknown packages
 		d.unknownPackage = unk.UnknownPackage
 	}
 
+	jcache := jsonctx.FromContext(d.ctx)
+
+	var typ reflect.Type
+
 	// We should look the type up in the type resolver
-	typ, ok := GetType(path, name)
+	typ, ok := jcache.GetType(path, name)
 	if !ok && v.Kind() == reflect.Interface {
 		// If we can't find the type in the resolver, and
 		// we're unmarshaling into an interface, then look
 		// the interface in the dummy interface resolver.
-		typ, _ = GetInterface(v.Type())
+		typ, _ = jcache.Dummies.Get(v.Type())
 	}
 
 	if typ == nil {
@@ -942,7 +812,7 @@ func findKey(m map[string]string, value string) (string, bool) {
 
 // object consumes an object from d.data[d.off-1:], decoding into the value v.
 // the first byte ('{') of the object has been read already.
-func (d *decodeState) object(ctx context.Context, v reflect.Value, typed bool) {
+func (d *decodeState) object(v reflect.Value, typed bool) {
 
 	hasConcreteType := false
 	concreteTypePath := ""
@@ -955,12 +825,12 @@ func (d *decodeState) object(ctx context.Context, v reflect.Value, typed bool) {
 		switch val.Kind() {
 		case reflect.Interface:
 			// If needed, this sets the value of v to the correct type based on the "type" attribute.
-			d.scanForType(ctx, v)
+			d.scanForType(v)
 		case reflect.Struct:
 			// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
 			// attribute, so we should add it back in if it's missing so the system:base object is
 			// correct.
-			path, name, ok := GetTypeByReflectType(val.Type())
+			path, name, ok := jsonctx.FromContext(d.ctx).GetTypeByReflectType(val.Type())
 			if ok {
 				hasConcreteType = true
 				concreteTypePath = path
@@ -972,7 +842,7 @@ func (d *decodeState) object(ctx context.Context, v reflect.Value, typed bool) {
 	u, ut, up, pv := indirect(v, false, true, true)
 	if u != nil {
 		d.off--
-		err := u.UnmarshalJSON(ctx, d.next())
+		err := u.UnmarshalJSON(d.ctx, d.next())
 		if err != nil {
 			d.error(err)
 		}
@@ -987,11 +857,11 @@ func (d *decodeState) object(ctx context.Context, v reflect.Value, typed bool) {
 	if up != nil {
 		d.off--
 		var i interface{}
-		if err := UnmarshalUntyped(ctx, d.next(), &i); err != nil {
+		if err := UnmarshalUntyped(d.ctx, d.next(), &i); err != nil {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(ctx, Pack(i)); err != nil {
+		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -1106,16 +976,16 @@ func (d *decodeState) object(ctx context.Context, v reflect.Value, typed bool) {
 
 		// Read value.
 		if destring {
-			switch qv := d.valueQuoted(ctx).(type) {
+			switch qv := d.valueQuoted().(type) {
 			case nil:
-				d.literalStore(ctx, nullLiteral, subv, false)
+				d.literalStore(nullLiteral, subv, false)
 			case string:
-				d.literalStore(ctx, []byte(qv), subv, true)
+				d.literalStore([]byte(qv), subv, true)
 			default:
 				d.saveError(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal unquoted value into %v", item, v.Type()))
 			}
 		} else {
-			d.value(ctx, subv, typed)
+			d.value(subv, typed)
 		}
 
 		// Write value back to map;
@@ -1134,12 +1004,12 @@ func (d *decodeState) object(ctx context.Context, v reflect.Value, typed bool) {
 			d.error(errPhase)
 		}
 	}
-	if err := initialiseUnmarshaledObject(v, foundFields, typed, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
+	if err := initialiseUnmarshaledObject(d.ctx, v, foundFields, typed, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
 		d.saveError(err)
 	}
 }
 
-func initialiseUnmarshaledObject(v reflect.Value, foundFields []field, typed bool, hasConcreteType bool, concreteTypePath string, concreteTypeName string) error {
+func initialiseUnmarshaledObject(ctx context.Context, v reflect.Value, foundFields []field, typed bool, hasConcreteType bool, concreteTypePath string, concreteTypeName string) error {
 	// When we finish decoding the json for an object, we should loop round the fields
 	// of the struct we're decoding into and assign any default values for missing items.
 	if v.Kind() == reflect.Struct {
@@ -1169,17 +1039,17 @@ func initialiseUnmarshaledObject(v reflect.Value, foundFields []field, typed boo
 				if path == "" {
 					path = "kego.io/json"
 				}
-				newCtx := envctx.Dummy(path, def.Aliases)
+				unpackCtx := envctx.Dummy(ctx, path, def.Aliases)
 				var d decodeState
 				err := checkValid(*def.Value, &d.scan)
 				if err != nil {
 					return kerr.New("XCLKSFIKEE", err, "checkValid (default)")
 				}
-				d.init(*def.Value)
+				d.init(unpackCtx, *def.Value)
 				if def.Type != "" {
-					d.setType(newCtx, def.Type, subv)
+					d.setType(def.Type, subv)
 				}
-				err = d.unmarshalValue(newCtx, subv.Addr(), true)
+				err = d.unmarshalValue(subv.Addr(), true)
 				if err != nil {
 					return kerr.New("PHUDKAKHMN", err, "unmarshalValue (default)")
 				}
@@ -1237,7 +1107,7 @@ func (i InitializableTypeError) Error() string {
 // literal consumes a literal from d.data[d.off-1:], decoding into the value v.
 // The first byte of the literal has been read already
 // (that's how the caller knows it's a literal).
-func (d *decodeState) literal(ctx context.Context, v reflect.Value) {
+func (d *decodeState) literal(v reflect.Value) {
 	// All bytes inside literal return scanContinue op code.
 	start := d.off - 1
 	op := d.scanWhile(scanContinue)
@@ -1246,7 +1116,7 @@ func (d *decodeState) literal(ctx context.Context, v reflect.Value) {
 	d.off--
 	d.scan.undo(op)
 
-	d.literalStore(ctx, d.data[start:d.off], v, false)
+	d.literalStore(d.data[start:d.off], v, false)
 }
 
 // convertNumber converts the number literal s to a float64 or a NumberLiteral
@@ -1269,7 +1139,7 @@ var numberType = reflect.TypeOf(NumberLiteral(""))
 // fromQuoted indicates whether this literal came from unwrapping a
 // string from the ",string" struct tag option. this is used only to
 // produce more helpful error messages.
-func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.Value, fromQuoted bool) {
+func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool) {
 	// Check for unmarshaler.
 	if len(item) == 0 {
 		//Empty string given
@@ -1279,7 +1149,7 @@ func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.V
 	wantptr := item[0] == 'n' // null
 	u, ut, up, pv := indirect(v, wantptr, true, true)
 	if u != nil {
-		err := u.UnmarshalJSON(ctx, item)
+		err := u.UnmarshalJSON(d.ctx, item)
 		if err != nil {
 			d.error(err)
 		}
@@ -1309,11 +1179,11 @@ func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.V
 	}
 	if up != nil {
 		var i interface{}
-		if err := UnmarshalUntyped(ctx, item, &i); err != nil {
+		if err := UnmarshalUntyped(d.ctx, item, &i); err != nil {
 			d.error(err)
 			return
 		}
-		if err := up.Unpack(ctx, Pack(i)); err != nil {
+		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
 			d.error(err)
 			return
 		}
@@ -1344,7 +1214,7 @@ func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.V
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(value))
 			} else {
-				if err := setDefaultNativeValue(ctx, v, item); err != nil {
+				if err := setDefaultNativeValue(d.ctx, v, item); err != nil {
 					d.saveError(kerr.New("WTDRKGKGCC", err, "setDefaultNativeValue (bool)"))
 				}
 			}
@@ -1380,7 +1250,7 @@ func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.V
 			if v.NumMethod() == 0 {
 				v.Set(reflect.ValueOf(string(s)))
 			} else {
-				if err := setDefaultNativeValue(ctx, v, item); err != nil {
+				if err := setDefaultNativeValue(d.ctx, v, item); err != nil {
 					d.saveError(kerr.New("MNUCNWUWVF", err, "setDefaultNativeValue (string)"))
 				}
 			}
@@ -1413,7 +1283,7 @@ func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.V
 				break
 			}
 			if v.NumMethod() != 0 {
-				if err := setDefaultNativeValue(ctx, v, item); err != nil {
+				if err := setDefaultNativeValue(d.ctx, v, item); err != nil {
 					d.saveError(kerr.New("XDFCYMETOK", err, "setDefaultNativeValue (number)"))
 				}
 				break
@@ -1448,7 +1318,7 @@ func (d *decodeState) literalStore(ctx context.Context, item []byte, v reflect.V
 }
 
 func setDefaultNativeValue(ctx context.Context, v reflect.Value, value []byte) error {
-	t, ok := GetTypeByInterface(v.Type())
+	t, ok := jsonctx.FromContext(ctx).GetTypeByInterface(v.Type())
 	if !ok {
 		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
 	}

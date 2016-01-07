@@ -71,9 +71,9 @@ func (b *Branch) setLabel(text string) {
 }
 
 func (b *Branch) AddFieldNode(node *editor.Node) {
-	e, err := addEntry(node.Key, -1, node, b, b.editor)
+	_, err := addEntry(node.Key, -1, node, b, b.editor)
 	if err != nil {
 		b.tree.Fail <- kerr.New("CVUMGYVFEH", err, "addEntry (AddFieldNode)")
 	}
-	e.Branch.Select(false)
+	b.open()
 }

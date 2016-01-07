@@ -6,7 +6,11 @@ import (
 	"reflect"
 	"strconv"
 
+	"fmt"
+
 	"golang.org/x/net/context"
+	"kego.io/context/jsonctx"
+	"kego.io/editor/client/console"
 	"kego.io/kerr"
 )
 
@@ -32,30 +36,45 @@ func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 
 	// we don't wrap the error in kerr because in can return special
 	// error types
-	return us.unpackFragment(ctx, in, out, typ)
+	return us.unpackFragment(ctx, in, out, typ, false)
 }
 
-func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
+func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type, debug bool) error {
 
 	us := &unpackStruct{}
 	// we don't wrap the error in kerr because in can return special
 	// error types
-	return us.unpackFragment(ctx, in, out, typ)
+	return us.unpackFragment(ctx, in, out, typ, debug)
 }
 
-func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
+func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type, debug bool) error {
 
 	var p reflect.Value
 	if typ != nil {
 		p = getEmptyValue(typ)
 	}
 
+	if debug {
+		console.Log("typ.String()", typ.String())
+		console.Log("in.String()", in.String())
+	}
+
+	if debug {
+		console.Log("p", p.Type().String(), p.Interface())
+		console.Log("in", in.Type(), in.String())
+	}
+
 	err := us.unpack(ctx, in, p)
+
+	if debug {
+		console.Log("p", p.Type().String(), p.Interface())
+	}
 
 	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
 		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
 		v := reflect.ValueOf(out)
 		v.Elem().Set(p)
+
 	}
 
 	if us.unknownPackage != "" {
@@ -67,6 +86,11 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 	if err != nil {
 		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
 	}
+
+	if debug {
+		console.Log("unpacked successfully...", fmt.Sprintf("%T %s", out, *out))
+	}
+
 	return nil
 }
 
@@ -202,12 +226,12 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 }
 
 func setDefaultNativeValueUnpack(ctx context.Context, v reflect.Value, in Packed) error {
-	t, ok := GetTypeByInterface(v.Type())
+	t, ok := jsonctx.FromContext(ctx).GetTypeByInterface(v.Type())
 	if !ok {
 		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
 	}
 	var i interface{}
-	err := UnpackFragment(ctx, in, &i, t)
+	err := UnpackFragment(ctx, in, &i, t, false)
 	if err != nil {
 		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
 	}
@@ -313,7 +337,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 		// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
 		// attribute, so we should add it back in if it's missing so the system:base object is
 		// correct.
-		path, name, ok := GetTypeByReflectType(val.Type())
+		path, name, ok := jsonctx.FromContext(ctx).GetTypeByReflectType(val.Type())
 		if ok {
 			hasConcreteType = true
 			concreteTypePath = path
@@ -412,7 +436,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 		}
 	}
 
-	if err := initialiseUnmarshaledObject(v, foundFields, true, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
+	if err := initialiseUnmarshaledObject(ctx, v, foundFields, true, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
 		return kerr.New("XWHQSWVNLF", err, "initialiseUnmarshaledObject")
 	}
 	return nil
@@ -446,14 +470,14 @@ func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface r
 }
 
 func (us *unpackStruct) getType(ctx context.Context, typePath string, typeName string, iface reflect.Value) reflect.Type {
-
-	typ, ok := GetType(typePath, typeName)
+	jcache := jsonctx.FromContext(ctx)
+	typ, ok := jcache.GetType(typePath, typeName)
 	if !ok && iface.Kind() == reflect.Interface {
 
 		// If we can't find the type in the resolver, and
 		// we're unmarshaling into an interface, then look
 		// the interface in the dummy interface resolver.
-		typ, _ = GetInterface(iface.Type())
+		typ, _ = jcache.Dummies.Get(iface.Type())
 	}
 	if typ == nil {
 		us.unknownType = typePath + ":" + typeName

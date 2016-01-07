@@ -1,4 +1,5 @@
 {
+	"id": "galleryData",
 	"type": "gallery",
 	"images": {
 		"foo": {

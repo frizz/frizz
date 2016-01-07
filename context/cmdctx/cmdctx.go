@@ -1,6 +1,9 @@
 package cmdctx // import "kego.io/context/cmdctx"
 
-import "golang.org/x/net/context"
+import (
+	"golang.org/x/net/context"
+	"kego.io/kerr"
+)
 
 // Env is the type of value stored in the Contexts.
 type Cmd struct {
@@ -30,7 +33,7 @@ func NewContext(ctx context.Context, e *Cmd) context.Context {
 func FromContext(ctx context.Context) *Cmd {
 	e, ok := ctx.Value(cmdKey).(*Cmd)
 	if !ok {
-		panic("No cmd in ctx")
+		panic(kerr.New("OQVLBQFQJW", nil, "No cmd in ctx"))
 	}
 	return e
 }

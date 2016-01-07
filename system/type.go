@@ -19,14 +19,14 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 	var reflectType reflect.Type
 	if typ.Interface {
 		// The type provided is an interface type
-		rt, ok := typ.Id.GetReflectType()
+		rt, ok := typ.Id.GetReflectType(ctx)
 		if !ok {
 			return nil
 		}
 		reflectType = rt
 	} else {
 		// The type provided is not an interface type, so we get it's automatic generated interface
-		rt, ok := typ.Id.GetReflectInterface()
+		rt, ok := typ.Id.GetReflectInterface(ctx)
 		if !ok {
 			return nil
 		}
@@ -43,7 +43,7 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 			if !ok {
 				continue
 			}
-			if typ.(*Type).Implements(reflectType) {
+			if typ.(*Type).Implements(ctx, reflectType) {
 				out = append(out, typ.(*Type))
 			}
 		}
@@ -65,16 +65,16 @@ func GetTypeFromCache(ctx context.Context, path string, name string) (*Type, boo
 	return t.(*Type), true
 }
 
-func (t *Type) ZeroValue() interface{} {
-	rt, ok := t.Id.GetReflectType()
+func (t *Type) ZeroValue(ctx context.Context) interface{} {
+	rt, ok := t.Id.GetReflectType(ctx)
 	if !ok {
 		return nil
 	}
 	return reflect.Zero(rt).Interface()
 }
 
-func (t *Type) Implements(i reflect.Type) bool {
-	ob, ok := t.Id.GetReflectType()
+func (t *Type) Implements(ctx context.Context, i reflect.Type) bool {
+	ob, ok := t.Id.GetReflectType(ctx)
 	if !ok {
 		return false
 	}

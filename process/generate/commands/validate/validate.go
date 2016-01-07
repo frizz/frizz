@@ -9,8 +9,8 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/context/wgctx"
-	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/process"
 	"kego.io/process/validate"
@@ -79,11 +79,13 @@ func comparePackageHash(ctx context.Context, path string) (changes bool, err err
 		}
 	}
 
-	h, ok := json.GetPackageHash(path)
+	jcache := jsonctx.FromContext(ctx)
+
+	h, ok := jcache.Packages.Get(path)
 	if !ok {
 		return true, nil
 	}
-	if h != pcache.Environment.Hash {
+	if h.Hash != pcache.Environment.Hash {
 		return true, nil
 	}
 	return false, nil

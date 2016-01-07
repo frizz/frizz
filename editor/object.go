@@ -151,8 +151,6 @@ func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Typ
 		e.initializeBlockEditor(ed)
 	}
 
-	ed.Focus()
-
 }
 
 type objectSummary struct {

@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"golang.org/x/net/context"
+	"kego.io/kerr"
 )
 
 // key is an unexported type for keys defined in this package.
@@ -29,7 +30,7 @@ func NewContext(ctx context.Context) context.Context {
 func FromContext(ctx context.Context) *sync.WaitGroup {
 	wg, ok := ctx.Value(wgKey).(*sync.WaitGroup)
 	if !ok {
-		panic("No wg in ctx")
+		panic(kerr.New("UNYGADKEGY", nil, "No wg in ctx"))
 	}
 	return wg
 }

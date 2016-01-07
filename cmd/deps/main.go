@@ -35,7 +35,7 @@ func include(name string) bool {
 func main() {
 	forward, reverse, errs := importgraphutil.BuildNoTests(&build.Default)
 	if len(errs) > 0 {
-		panic("meh")
+		panic(fmt.Errorf("meh"))
 	}
 
 	forward = filter(forward)

@@ -1,11 +1,11 @@
-// info:{"Path":"kego.io/editor/shared/messages","Hash":9398310788482718939}
+// info:{"Path":"kego.io/editor/shared/messages","Hash":7707322033642203511}
 package messages
 
 import (
 	"reflect"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
+	"kego.io/context/jsonctx"
 	"kego.io/system"
 )
 
@@ -75,8 +75,8 @@ func (o *Message) GetMessage(ctx context.Context) *Message {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/editor/shared/messages", 9398310788482718939)
-	json.RegisterType("kego.io/editor/shared/messages", "dataRequest", reflect.TypeOf((*DataRequest)(nil)), reflect.TypeOf((*DataRequestRule)(nil)), reflect.TypeOf((*DataRequestInterface)(nil)).Elem())
-	json.RegisterType("kego.io/editor/shared/messages", "dataResponse", reflect.TypeOf((*DataResponse)(nil)), reflect.TypeOf((*DataResponseRule)(nil)), reflect.TypeOf((*DataResponseInterface)(nil)).Elem())
-	json.RegisterType("kego.io/editor/shared/messages", "message", reflect.TypeOf((*Message)(nil)), reflect.TypeOf((*MessageRule)(nil)), reflect.TypeOf((*MessageInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/editor/shared/messages", 7707322033642203511)
+	pkg.InitType("dataRequest", reflect.TypeOf((*DataRequest)(nil)), reflect.TypeOf((*DataRequestRule)(nil)), reflect.TypeOf((*DataRequestInterface)(nil)).Elem())
+	pkg.InitType("dataResponse", reflect.TypeOf((*DataResponse)(nil)), reflect.TypeOf((*DataResponseRule)(nil)), reflect.TypeOf((*DataResponseInterface)(nil)).Elem())
+	pkg.InitType("message", reflect.TypeOf((*Message)(nil)), reflect.TypeOf((*MessageRule)(nil)), reflect.TypeOf((*MessageInterface)(nil)).Elem())
 }

@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
+	"kego.io/context/jsonctx"
 	"kego.io/kerr"
 )
 
@@ -39,7 +39,7 @@ var _ DefaultRule = (*DummyRule)(nil)
 var _ CollectionRule = (*DummyRule)(nil)
 
 func init() {
-	json.RegisterInterface(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
+	jsonctx.InitDummy(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
 }
 
 type RuleWrapper struct {
@@ -52,7 +52,7 @@ type RuleWrapper struct {
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	if r.Struct.Interface {
-		typ, ok := r.Parent.Id.GetReflectInterface()
+		typ, ok := r.Parent.Id.GetReflectInterface(r.ctx)
 		if !ok {
 			return nil, kerr.New("QGUVEUTXAN", nil, "Type interface for %s not found", r.Parent.Id.Value())
 		}
@@ -61,7 +61,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	switch r.Parent.Native.Value() {
 	case "object", "number", "bool", "string":
-		typ, ok := r.Parent.Id.GetReflectType()
+		typ, ok := r.Parent.Id.GetReflectType(r.ctx)
 		if !ok {
 			return nil, kerr.New("DLAJJPJDPL", nil, "Type %s not found", r.Parent.Id.Value())
 		}

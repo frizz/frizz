@@ -74,7 +74,7 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 	n.Missing = false
 	n.Null = false
 	n.JsonType = t.NativeJsonType()
-	n.Value = t.ZeroValue()
+	n.Value = t.ZeroValue(ctx)
 
 	switch t.Native.Value() {
 	case "string":
@@ -91,6 +91,52 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 		if err := n.InitialiseFields(ctx, nil); err != nil {
 			return kerr.New("YIHFDLTIMW", err, "InitialiseFields")
 		}
+		if !n.Type.Basic {
+			typeString, err := t.Id.ValueContext(ctx)
+			if err != nil {
+				return kerr.New("MRHEBUUXBB", err, "ValueContext")
+			}
+			typeField, ok := n.Map["type"]
+			if !ok {
+				return kerr.New("DQKGYKFQKJ", nil, "type field not found")
+			}
+			if err := typeField.GetNode().SetValueString(ctx, typeString); err != nil {
+				return kerr.New("CURDKCQLGS", err, "SetValueString")
+			}
+		}
+	}
+	return nil
+}
+
+func (n *Node) SetValueString(ctx context.Context, value string) error {
+	n.Null = false
+	n.Missing = false
+	n.JsonType = json.J_STRING
+	n.ValueString = value
+	if err := n.UpdateValue(ctx, Pack(n)); err != nil {
+		return kerr.New("GAMJNECRUW", err, "UpdateValue")
+	}
+	return nil
+}
+
+func (n *Node) SetValueNumber(ctx context.Context, value float64) error {
+	n.Null = false
+	n.Missing = false
+	n.JsonType = json.J_NUMBER
+	n.ValueNumber = value
+	if err := n.UpdateValue(ctx, Pack(n)); err != nil {
+		return kerr.New("SOJGUGHXSX", err, "UpdateValue")
+	}
+	return nil
+}
+
+func (n *Node) SetValueBool(ctx context.Context, value bool) error {
+	n.Null = false
+	n.Missing = false
+	n.JsonType = json.J_BOOL
+	n.ValueBool = value
+	if err := n.UpdateValue(ctx, Pack(n)); err != nil {
+		return kerr.New("AWRMEACQWR", err, "UpdateValue")
 	}
 	return nil
 }
@@ -131,18 +177,8 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 		return kerr.New("VEPLUIJXSN", nil, "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
-	if rule == nil {
-		if err := json.Unpack(ctx, in, &n.Value); err != nil {
-			return kerr.New("CQMWGPLYIJ", err, "Unpack")
-		}
-	} else {
-		t, err := rule.GetReflectType()
-		if err != nil {
-			return kerr.New("DQJDYPIANO", err, "GetReflectType")
-		}
-		if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
-			return kerr.New("PEVKGFFHLL", err, "UnpackFragment")
-		}
+	if err := n.UpdateValue(ctx, in); err != nil {
+		return kerr.New("RUHTPJFDOG", err, "UpdateValue")
 	}
 
 	if n.Missing {
@@ -220,6 +256,25 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 		if err := n.InitialiseFields(ctx, in); err != nil {
 			return kerr.New("XCRYJWKPKP", err, "InitialiseFields")
 		}
+	}
+	return nil
+}
+
+func (n *Node) UpdateValue(ctx context.Context, in json.Packed) error {
+
+	if n.Rule.Struct == nil {
+		if err := json.Unpack(ctx, in, &n.Value); err != nil {
+			return kerr.New("CQMWGPLYIJ", err, "Unpack")
+		}
+		return nil
+	}
+
+	t, err := n.Rule.GetReflectType()
+	if err != nil {
+		return kerr.New("DQJDYPIANO", err, "GetReflectType")
+	}
+	if err := json.UnpackFragment(ctx, in, &n.Value, t, false); err != nil {
+		return kerr.New("PEVKGFFHLL", err, "UnpackFragment")
 	}
 	return nil
 }

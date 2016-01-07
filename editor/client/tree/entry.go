@@ -68,6 +68,7 @@ func addEntry(name string, index int, node *editor.Node, parentBranch BranchInte
 }
 
 func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, parentEditor editor.EditorInterface) error {
+
 	if parentNode == nil {
 		return nil
 	}

@@ -43,6 +43,18 @@ func (g *Generator) Println(args ...interface{}) *Generator {
 	g.statements = append(g.statements, fmt.Sprint(args...)+"\n")
 	return g
 }
+func (g *Generator) PrintMethodCall(name string, method string, args ...interface{}) *Generator {
+	g.statements = append(g.statements, g.SprintMethodCall(name, method, args...))
+	return g
+}
+func (g *Generator) SprintMethodCall(name string, method string, args ...interface{}) string {
+	funcName := fmt.Sprint(name, ".", method)
+	argsList := []string{}
+	for _, arg := range args {
+		argsList = append(argsList, fmt.Sprint(arg))
+	}
+	return fmt.Sprintf("%s(%s)", funcName, strings.Join(argsList, ", "))
+}
 func (g *Generator) PrintFunctionCall(path string, name string, args ...interface{}) *Generator {
 	g.statements = append(g.statements, g.SprintFunctionCall(path, name, args...))
 	return g

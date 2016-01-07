@@ -10,6 +10,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/json"
 	"kego.io/kerr"
 )
@@ -142,11 +143,17 @@ func (r Reference) GetType(ctx context.Context) (*Type, bool) {
 	return t, true
 }
 
-func (r Reference) GetReflectType() (reflect.Type, bool) {
-	return json.GetType(r.Package, r.Name)
+func (r Reference) GetReflectType(ctx context.Context) (reflect.Type, bool) {
+	if t, ok := jsonctx.FromContext(ctx).GetType(r.Package, r.Name); ok {
+		return t, true
+	}
+	return nil, false
 }
-func (r Reference) GetReflectInterface() (reflect.Type, bool) {
-	return json.GetTypeInterface(r.Package, r.Name)
+func (r Reference) GetReflectInterface(ctx context.Context) (reflect.Type, bool) {
+	if t, ok := jsonctx.FromContext(ctx).GetInterface(r.Package, r.Name); ok {
+		return t, true
+	}
+	return nil, false
 }
 
 func (r Reference) ChangeToType() Reference {

@@ -54,8 +54,8 @@ func (dec *Decoder) Decode(v *interface{}) error {
 	// Don't save err from unmarshal into dec.err:
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
-	dec.d.init(dec.buf[0:n])
-	err := dec.d.unmarshalTyped(dec.ctx, v)
+	dec.d.init(dec.ctx, dec.buf[0:n])
+	err := dec.d.unmarshalTyped(v)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])
@@ -77,8 +77,8 @@ func (dec *Decoder) DecodeUntyped(v interface{}) error {
 	// Don't save err from unmarshal into dec.err:
 	// the connection is still usable since we read a complete JSON
 	// object from it before the error happened.
-	dec.d.init(dec.buf[0:n])
-	err = dec.d.unmarshal(dec.ctx, v)
+	dec.d.init(dec.ctx, dec.buf[0:n])
+	err = dec.d.unmarshal(v)
 
 	// Slide rest of data down.
 	rest := copy(dec.buf, dec.buf[n:])

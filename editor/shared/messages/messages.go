@@ -2,11 +2,8 @@ package messages // import "kego.io/editor/shared/messages"
 
 import (
 	"github.com/twinj/uuid"
-	"kego.io/context/envctx"
 	"kego.io/system"
 )
-
-var Ctx = envctx.Dummy("kego.io/editor/shared/messages", map[string]string{})
 
 func NewMessage() *Message {
 	return &Message{

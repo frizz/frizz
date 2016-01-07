@@ -10,6 +10,7 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/editor"
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
@@ -51,9 +52,11 @@ func Start() error {
 		Path:    info.Path,
 		Aliases: info.Aliases,
 	}
-	app.ctx = envctx.NewContext(context.Background(), app.env)
 	app.fail = make(chan error)
+	app.ctx = envctx.NewContext(context.Background(), app.env)
 	app.ctx = cachectx.NewContext(app.ctx)
+	app.ctx = jsonctx.NewContext(app.ctx, true)
+
 	cache := cachectx.FromContext(app.ctx)
 
 	system.RegisterJsonTypes(app.ctx)

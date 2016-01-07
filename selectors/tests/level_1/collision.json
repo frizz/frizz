@@ -1,4 +1,5 @@
 {
+	"id": "collisionData",
 	"type": "collision",
 	"number": {
 		"string": "some string",

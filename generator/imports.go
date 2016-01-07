@@ -3,6 +3,8 @@ package generator
 import (
 	"fmt"
 	"sort"
+
+	"kego.io/kerr"
 )
 
 type Import struct {
@@ -82,7 +84,7 @@ func (i Imports) alias(preferredAlias string) string {
 		}
 		count++
 		if count > 100 {
-			panic("too many iterations")
+			panic(kerr.New("FOVRTYCGSI", nil, "too many iterations"))
 		}
 	}
 }
