@@ -97,7 +97,7 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 	options := overrides.getOptions()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx = jsonctx.NewContext(ctx, true)
+	ctx = jsonctx.NewContext(ctx)
 	ctx = wgctx.NewContext(ctx)
 	ctx = cachectx.NewContext(ctx)
 

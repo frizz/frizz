@@ -9,7 +9,6 @@ import (
 	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
-	"kego.io/json"
 )
 
 /*
@@ -69,7 +68,7 @@ func RegisterJsonTypes(ctx context.Context) {
 	makeRule := func(name string) *Type {
 		return &Type{
 			Object: &Object{
-				Id:   NewReference("kego.io/json", fmt.Sprint(json.RULE_PREFIX, name)),
+				Id:   NewReference("kego.io/json", fmt.Sprint(jsonctx.RULE_PREFIX, name)),
 				Type: tr},
 			Interface: false,
 			Embed:     []*Reference{NewReference("kego.io/system", "rule")},

@@ -10,6 +10,7 @@ var packages struct {
 	m map[string]*packageInfo
 }
 
+// The types map is never used
 type packageInfo struct {
 	path  string
 	hash  uint64

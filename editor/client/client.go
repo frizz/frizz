@@ -55,7 +55,7 @@ func Start() error {
 	app.fail = make(chan error)
 	app.ctx = envctx.NewContext(context.Background(), app.env)
 	app.ctx = cachectx.NewContext(app.ctx)
-	app.ctx = jsonctx.NewContext(app.ctx, true)
+	app.ctx = jsonctx.NewContext(app.ctx)
 
 	cache := cachectx.FromContext(app.ctx)
 

@@ -44,6 +44,7 @@ func (c *JsonCache) GetType(path string, name string) (reflect.Type, bool) {
 		return t.Type, true
 	}
 }
+
 func (c *JsonCache) GetInterface(path string, name string) (reflect.Type, bool) {
 	if strings.HasPrefix(name, RULE_PREFIX) {
 		name = name[1:]
@@ -61,6 +62,7 @@ func (c *JsonCache) GetInterface(path string, name string) (reflect.Type, bool) 
 
 	return t.Iface, true
 }
+
 func (c *JsonCache) GetTypeByReflectType(typ reflect.Type) (path string, name string, found bool) {
 	for _, p := range c.Packages.Keys() {
 		pk, ok := c.Packages.Get(p)
@@ -82,6 +84,7 @@ func (c *JsonCache) GetTypeByReflectType(typ reflect.Type) (path string, name st
 	}
 	return "", "", false
 }
+
 func (c *JsonCache) GetTypeByInterface(iface reflect.Type) (typ reflect.Type, found bool) {
 	for _, p := range c.Packages.Keys() {
 		pk, ok := c.Packages.Get(p)
@@ -217,13 +220,18 @@ type key int
 // instead of using this key directly.
 var jsonKey key = 0
 
-// NewContext returns a new Context that carries value u.
-func NewContext(ctx context.Context, auto bool, manual ...string) context.Context {
+// NewContext creates a new context, and imports all types.
+func NewContext(ctx context.Context) context.Context {
+	return newContext(ctx, true, true)
+}
 
-	if auto && len(manual) > 0 {
-		panic(kerr.New("CMFIJSMYSB", nil, "if a list of manually imported packages is defined, auto must be false"))
-	}
+// ManualContext creates a new context, but it only imports a specified list of packages. This
+// should only be used in internal tests. For normal usage, use NewContext
+func ManualContext(ctx context.Context, autoDummies bool, manualPackages ...string) context.Context {
+	return newContext(ctx, false, autoDummies, manualPackages...)
+}
 
+func newContext(ctx context.Context, autoPackages bool, autoDummies bool, manualPackages ...string) context.Context {
 	pc := &PackageCache{m: map[string]*PackageInfo{}}
 	packages.Lock()
 	defer packages.Unlock()
@@ -240,14 +248,14 @@ func NewContext(ctx context.Context, auto bool, manual ...string) context.Contex
 		}
 	}
 
-	if auto {
+	if autoPackages {
 		// In automatic mode, we import all packages
 		for path, pkg := range packages.m {
 			do(path, pkg)
 		}
 	} else {
 		// If we specify a manual list of packages to import, we should import them
-		for _, path := range manual {
+		for _, path := range manualPackages {
 			pkg, ok := packages.m[path]
 			if !ok {
 				panic(fmt.Errorf("Package not found %s", path))
@@ -257,7 +265,7 @@ func NewContext(ctx context.Context, auto bool, manual ...string) context.Contex
 	}
 
 	dc := &DummyCache{m: map[reflect.Type]reflect.Type{}}
-	if auto {
+	if autoDummies {
 		for iface, dummy := range dummies.m {
 			dc.Set(iface, dummy)
 		}

@@ -46,5 +46,5 @@ func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
 }
 
 func NewContext(ctx context.Context) context.Context {
-	return jsonctx.NewContext(ctx, true)
+	return jsonctx.NewContext(ctx)
 }

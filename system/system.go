@@ -4,7 +4,7 @@ package system // import "kego.io/system"
 import (
 	"strings"
 
-	"kego.io/json"
+	"kego.io/context/jsonctx"
 )
 
 func GoName(id string) string {
@@ -14,7 +14,7 @@ func GoName(id string) string {
 	}
 
 	switch id[0:1] {
-	case json.RULE_PREFIX:
+	case jsonctx.RULE_PREFIX:
 		return capitalise(id, true) + "Rule"
 	default:
 		return capitalise(id, false)
@@ -28,7 +28,7 @@ func GoInterfaceName(typeOrRuleName string) string {
 	}
 
 	switch typeOrRuleName[0:1] {
-	case json.RULE_PREFIX:
+	case jsonctx.RULE_PREFIX:
 		return capitalise(typeOrRuleName, true) + "Interface"
 	default:
 		return capitalise(typeOrRuleName, false) + "Interface"

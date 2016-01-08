@@ -160,7 +160,7 @@ func (r Reference) ChangeToType() Reference {
 	return r.changeTo("")
 }
 func (r Reference) ChangeToRule() Reference {
-	return r.changeTo(json.RULE_PREFIX)
+	return r.changeTo(jsonctx.RULE_PREFIX)
 }
 func (r Reference) changeTo(prefix string) Reference {
 	if r.Package == "" || r.Name == "" {
@@ -173,7 +173,7 @@ func (r Reference) changeTo(prefix string) Reference {
 	return *NewReference(r.Package, prefix+n)
 }
 func (r Reference) IsRule() bool {
-	return strings.HasPrefix(r.Name, json.RULE_PREFIX)
+	return strings.HasPrefix(r.Name, jsonctx.RULE_PREFIX)
 }
 
 func (s Reference) NativeString() string {
