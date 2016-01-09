@@ -249,8 +249,3 @@ func HasSourceFiles(ctx context.Context) bool {
 	return false
 
 }
-
-type InfoStruct struct {
-	Path string
-	Hash uint64
-}

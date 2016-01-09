@@ -26,13 +26,10 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
 		B ReferenceInterface `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
+	ctx := tests.Context("kego.io/system").Alias("c.d/e", "e").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.EnvCtx("kego.io/system", map[string]string{"c.d/e": "e"}), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -56,10 +53,6 @@ func TestReferenceRuleChangeTo(t *testing.T) {
 	r1 = r.ChangeToType()
 	assert.Equal(t, "a.b/c:d", r1.Value())
 
-	r = NewReference("a.b/c", "$d")
-	r1 = r.ChangeToType()
-	assert.Equal(t, "a.b/c:d", r1.Value())
-
 	r = NewReference("a.b/c", "@d")
 	r1 = r.ChangeToRule()
 	assert.Equal(t, "a.b/c:@d", r1.Value())
@@ -68,21 +61,6 @@ func TestReferenceRuleChangeTo(t *testing.T) {
 	r1 = r.ChangeToRule()
 	assert.Equal(t, "a.b/c:@d", r1.Value())
 
-	r = NewReference("a.b/c", "$d")
-	r1 = r.ChangeToRule()
-	assert.Equal(t, "a.b/c:@d", r1.Value())
-
-	r = NewReference("a.b/c", "@d")
-	r1 = r.ChangeToInterface()
-	assert.Equal(t, "a.b/c:$d", r1.Value())
-
-	r = NewReference("a.b/c", "d")
-	r1 = r.ChangeToInterface()
-	assert.Equal(t, "a.b/c:$d", r1.Value())
-
-	r = NewReference("a.b/c", "$d")
-	r1 = r.ChangeToInterface()
-	assert.Equal(t, "a.b/c:$d", r1.Value())
 }
 
 func TestReferenceUnmarshalJson(t *testing.T) {
@@ -102,8 +80,10 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	err = r.Unpack(envctx.Empty, json.Pack("a.b/c:d"))
 	assert.EqualError(t, err, "Unknown package a.b/c")
 
+	ctx := tests.Context("").Alias("a.b/c", "c").Ctx()
+
 	r = reset()
-	err = r.Unpack(tests.AllCtx(tests.Ctx{Aliases: map[string]string{"a.b/c": "c"}}), json.Pack("a.b/c:d"))
+	err = r.Unpack(ctx, json.Pack("a.b/c:d"))
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -111,7 +91,7 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(tests.AllCtx(tests.Ctx{Aliases: map[string]string{"a.b/c": "c"}}), json.Pack("a.b/c:@d"))
+	err = r.Unpack(ctx, json.Pack("a.b/c:@d"))
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -142,19 +122,19 @@ func TestReferenceGetType(t *testing.T) {
 	ty := &Type{
 		Object: &Object{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
 	}
-	Register("a.b/c", "d", ty, 0)
-	defer Unregister("a.b/c", "d")
+
+	ctx := tests.Context("a.b/c").Ctype("d", ty).Ctx()
 
 	r := NewReference("a.b/c", "d")
-	typ, ok := r.GetType()
+	typ, ok := r.GetType(ctx)
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c:d", typ.Id.Value())
 
 	r = NewReference("a.b/c", "e")
-	_, ok = r.GetType()
+	_, ok = r.GetType(ctx)
 	assert.False(t, ok)
 
 	r = &Reference{}
-	_, ok = r.GetType()
+	_, ok = r.GetType(ctx)
 	assert.False(t, ok)
 }

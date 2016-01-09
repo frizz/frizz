@@ -3,6 +3,7 @@ package node_test
 import (
 	"testing"
 
+	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	_ "kego.io/demo/common/images"
 	_ "kego.io/demo/common/units"
@@ -11,9 +12,7 @@ import (
 	"kego.io/ke"
 	"kego.io/kerr/assert"
 	"kego.io/process"
-	"kego.io/process/scan"
-	"kego.io/process/tests"
-	"kego.io/system"
+	"kego.io/process/scanutils"
 	"kego.io/system/node"
 )
 
@@ -28,24 +27,28 @@ func testUnpack(t *testing.T, path string) {
 	assert.NoError(t, err)
 
 	env := envctx.FromContext(ctx)
+	cmd := cmdctx.FromContext(ctx)
 
-	err = scan.ScanForSource(ctx)
-	assert.NoError(t, err)
-
-	sha := system.GetAllSourceInPackage(env.Path)
-
-	for _, sh := range sha {
+	files := scanutils.ScanDirToFiles(ctx, cmd.Dir, env.Recursive)
+	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	for b := range bytes {
 		n := node.NewNode()
-		err := ke.UnmarshalUntyped(ctx, sh.Source, n)
-		assert.NoError(t, err, sh.Id.Name)
+		err := ke.UnmarshalUntyped(ctx, b.Bytes, n)
+		assert.NoError(t, err, b.File)
 	}
 }
 
 func TestNodeUnpack(t *testing.T) {
+
+	ctx, _, err := process.Initialise(&process.FromDefaults{
+		Path: "kego.io/demo/site",
+	})
+	assert.NoError(t, err)
+
 	j := `{"type":"system:package","aliases":{"kego.io/demo/common/images":"images","kego.io/demo/common/units":"units","kego.io/demo/common/words":"words"}}`
 
 	packageNode := node.NewNode()
-	err := ke.UnmarshalUntyped(tests.PathCtx("kego.io/demo/site"), []byte(j), packageNode)
+	err = ke.UnmarshalUntyped(ctx, []byte(j), packageNode)
 	assert.NoError(t, err)
 
 }

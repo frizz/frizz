@@ -6,13 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/net/context"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/wgctx"
 )
 
+/*
 type Ctx struct {
 	Path      string
 	Aliases   map[string]string
@@ -22,6 +18,9 @@ type Ctx struct {
 	Recursive bool
 	Log       bool
 	Debug     bool
+	Types     []*jsonctx.TypeInfo
+	Dummies   bool
+	Packages  []string
 }
 
 func PathCtx(path string) context.Context {
@@ -29,6 +28,38 @@ func PathCtx(path string) context.Context {
 }
 func EnvCtx(path string, aliases map[string]string) context.Context {
 	return AllCtx(Ctx{Path: path, Aliases: aliases})
+}
+func JsonTypeCtx(path string, name string, typ reflect.Type) context.Context {
+	return JsonTypeAliasesCtx(path, name, typ, map[string]string{})
+}
+func JsonTypeAliasesCtx(path string, name string, typ reflect.Type, aliases map[string]string) context.Context {
+
+	ctx := envctx.NewContext(context.Background(), &envctx.Env{
+		Path:    path,
+		Aliases: aliases,
+	})
+	ctx = jsonctx.ManualContext(ctx, false)
+
+	jcache := jsonctx.FromContext(ctx)
+	p := jcache.Packages.Set(path, 0)
+	p.Types.Set(name, &jsonctx.TypeInfo{Name: name, Type: typ})
+
+	return ctx
+}
+func SystemTypeCtx(path string, name string, typ interface{}) context.Context {
+
+	env := &envctx.Env{
+		Path:    path,
+		Aliases: map[string]string{},
+	}
+	ctx := envctx.NewContext(context.Background(), env)
+	ctx = cachectx.NewContext(ctx)
+
+	cache := cachectx.FromContext(ctx)
+	p := cache.Set(env)
+	p.Types.Set(name, typ)
+
+	return ctx
 }
 func AllCtx(c Ctx) context.Context {
 	if c.Aliases == nil {
@@ -47,8 +78,14 @@ func AllCtx(c Ctx) context.Context {
 		Update: c.Update,
 		Log:    c.Log,
 	})
+	ctx = jsonctx.ManualContext(ctx, c.Dummies, c.Packages...)
+	jcache := jsonctx.FromContext(ctx)
+	p := jcache.Packages.Set(c.Path, 0)
+	for _, t := range c.Types {
+		p.Types.Set(t.Name, t)
+	}
 	return ctx
-}
+}*/
 
 // CreateTemporaryPackage creates a package directory and writes the files provided. We
 // return the package path (e.g. github.com/x/y) and the full dir of the created directory

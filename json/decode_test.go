@@ -528,7 +528,7 @@ func TestUnmarshal(t *testing.T) {
 
 		// v = new(right-type)
 		v := reflect.New(reflect.TypeOf(tt.ptr).Elem())
-		dec := NewDecoder(envctx.Empty, bytes.NewReader(in))
+		dec := NewDecoder(nil, bytes.NewReader(in))
 		if tt.useNumber {
 			dec.UseNumber()
 		}
@@ -1250,10 +1250,10 @@ var decodeTypeErrorTests = []struct {
 func TestUnmarshalTypeError(t *testing.T) {
 	for _, item := range decodeTypeErrorTests {
 		err := UnmarshalPlain([]byte(item.src), item.dest)
+		err = kerr.Source(err)
 		_, isTypeError := err.(*UnmarshalTypeError)
-		_, isKerrError := err.(kerr.Struct)
-		if !isTypeError && !isKerrError {
-			t.Errorf("expected type error or kerr for UnmarshalPlain(%q, type %T): got %T",
+		if !isTypeError {
+			t.Errorf("expected type error for UnmarshalPlain(%q, type %T): got %T",
 				item.src, item.dest, err)
 		}
 	}

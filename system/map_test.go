@@ -28,13 +28,10 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 		B map[string]*String `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
+	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)

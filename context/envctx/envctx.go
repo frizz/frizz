@@ -39,9 +39,12 @@ func FromContext(ctx context.Context) *Env {
 	return e
 }
 
-func FromContextOrNil(ctx context.Context) (*Env, bool) {
+func FromContextOrNil(ctx context.Context) *Env {
 	e, ok := ctx.Value(envKey).(*Env)
-	return e, ok
+	if ok {
+		return e
+	}
+	return nil
 }
 
 var Empty = NewContext(context.Background(), &Env{})

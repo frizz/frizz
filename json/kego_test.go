@@ -37,13 +37,10 @@ func testDecodeSimple(t *testing.T, unpacker unpackerFunc) {
 			Baz bool
 		}
 
-		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-
-		// Clean up for the tests - don't normally need to unregister types
-		defer Unregister("kego.io/json", "foo")
+		ctx := tests.Context("kego.io/json").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 		var i interface{}
-		err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+		err := unpacker(ctx, []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -95,13 +92,10 @@ func testDecodeDefaults(t *testing.T, unpacker unpackerFunc) {
 			Baz bool    `kego:"{\"default\":{\"value\":true}}"`
 		}
 
-		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-
-		// Clean up for the tests - don't normally need to unregister types
-		defer Unregister("kego.io/json", "foo")
+		ctx := tests.Context("kego.io/json").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 		var i interface{}
-		err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+		err := unpacker(ctx, []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -161,13 +155,10 @@ func testDecodeCollections(t *testing.T, unpacker unpackerFunc) {
 		"boolArray": [true, false, true]
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
+	ctx := tests.Context("kego.io/json").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -205,15 +196,12 @@ func testDecodeEmbed(t *testing.T, unpacker unpackerFunc) {
 			Embed Bar
 		}
 
-		Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-		Register("kego.io/json", "bar", reflect.TypeOf(&Bar{}), nil, 0)
-
-		// Clean up for the tests - don't normally need to unregister types
-		defer Unregister("kego.io/json", "foo")
-		defer Unregister("kego.io/json", "bar")
+		ctx := tests.Context("kego.io/json").
+			Jtype("foo", reflect.TypeOf(&Foo{})).
+			Jtype("bar", reflect.TypeOf(&Bar{})).Ctx()
 
 		var i interface{}
-		err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+		err := unpacker(ctx, []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -287,15 +275,12 @@ func testDecodeEmbedCollections(t *testing.T, unpacker unpackerFunc) {
 		]
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "bar", reflect.TypeOf(&Bar{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "bar")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("bar", reflect.TypeOf(&Bar{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -328,15 +313,12 @@ func testDecodeComposition(t *testing.T, unpacker unpackerFunc) {
 		"fooString": "b"
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "base", reflect.TypeOf(&Base{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "base")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("base", reflect.TypeOf(&Base{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -382,17 +364,13 @@ func testInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "photo")
-	defer Unregister("kego.io/json", "diagram")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("photo", reflect.TypeOf(&Photo{})).
+		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -423,17 +401,13 @@ func testNilInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "photo")
-	defer Unregister("kego.io/json", "diagram")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("photo", reflect.TypeOf(&Photo{})).
+		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -483,17 +457,13 @@ func testInterfaceCollections(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "photo")
-	defer Unregister("kego.io/json", "diagram")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("photo", reflect.TypeOf(&Photo{})).
+		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -545,17 +515,13 @@ func testInterfaceCollectionsComplex(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "photo")
-	defer Unregister("kego.io/json", "diagram")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("photo", reflect.TypeOf(&Photo{})).
+		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -581,14 +547,10 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 		Img Image
 	}
 
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "photo")
-	defer Unregister("kego.io/json", "diagram")
+	cb := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("photo", reflect.TypeOf(&Photo{})).
+		Jtype("diagram", reflect.TypeOf(&Diagram{}))
 
 	data := `{
 		"type": "foo",
@@ -598,7 +560,7 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(cb.Ctx(), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown type kego.io/json:bar")
 	assert.True(t, i.(*Foo).Img == nil)
@@ -610,7 +572,7 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 				"id": "a"
 			}
 		}`
-	err = unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err = unpacker(cb.Ctx(), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown package foo")
 
@@ -621,11 +583,11 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 				"id": "a"
 			}
 		}`
-	err = unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err = unpacker(cb.Ctx(), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown package a.b/c")
 
-	err = unpacker(tests.EnvCtx("kego.io/json", map[string]string{"a.b/c": "d"}), []byte(data), &i)
+	err = unpacker(cb.Alias("a.b/c", "d").Ctx(), []byte(data), &i)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "Unknown type a.b/c:bar")
 }
@@ -650,16 +612,12 @@ func testDummyInterface(t *testing.T, unpacker unpackerFunc) {
 		Img Image
 	}
 
-	RegisterInterface(reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf(&dummyImage{}))
-	Register("kego.io/json", "foo", reflect.TypeOf(&Foo{}), nil, 0)
-	Register("kego.io/json", "photo", reflect.TypeOf(&Photo{}), nil, 0)
-	Register("kego.io/json", "diagram", reflect.TypeOf(&Diagram{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer UnregisterInterface(reflect.TypeOf((*Image)(nil)).Elem())
-	defer Unregister("kego.io/json", "foo")
-	defer Unregister("kego.io/json", "photo")
-	defer Unregister("kego.io/json", "diagram")
+	ctx := tests.Context("kego.io/json").
+		Jtype("foo", reflect.TypeOf(&Foo{})).
+		Jtype("photo", reflect.TypeOf(&Photo{})).
+		Jtype("diagram", reflect.TypeOf(&Diagram{})).
+		Dummy(reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf(&dummyImage{})).
+		Ctx()
 
 	data := `{
 		"type": "foo",
@@ -669,6 +627,6 @@ func testDummyInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/json"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 }

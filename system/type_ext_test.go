@@ -6,10 +6,23 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr/assert"
-	"kego.io/process/tests"
+	"kego.io/process"
 	"kego.io/system"
 	"kego.io/system/node"
 )
+
+var systemContext context.Context
+
+func initialise() context.Context {
+	if systemContext == nil {
+		ctx, _, err := process.Initialise(process.FromDefaults{Path: "kego.io/system"})
+		if err != nil {
+			panic(err)
+		}
+		systemContext = ctx
+	}
+	return systemContext
+}
 
 func TestBoolExt(t *testing.T) {
 	testBool(t, unmarshalFunc)
@@ -17,6 +30,8 @@ func TestBoolExt(t *testing.T) {
 	testBool(t, repackFunc)
 }
 func testBool(t *testing.T, unpacker unpackerFunc) {
+
+	ctx := initialise()
 
 	data := `{
 		"description": "This is the native json bool data type",
@@ -38,7 +53,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -48,12 +63,14 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	assert.Equal(t, "bool", f.Native.Value())
 }
 
-func TestType(t *testing.T) {
+func TestTypeExt(t *testing.T) {
 	testType(t, unmarshalFunc)
 	testType(t, unpackFunc)
 	testType(t, repackFunc)
 }
 func testType(t *testing.T, unpacker unpackerFunc) {
+
+	ctx := initialise()
 
 	data := `{
 		"description": "This is the most basic type.",
@@ -95,7 +112,7 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)

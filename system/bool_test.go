@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
@@ -26,13 +25,11 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 		B BoolInterface `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
-
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
+
+	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -46,6 +43,7 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 
 }
 
+/*
 func TestNewBool(t *testing.T) {
 	b := NewBool(true)
 	assert.True(t, b.Value())
@@ -110,3 +108,4 @@ func TestBoolString(t *testing.T) {
 	assert.Equal(t, "true", s)
 
 }
+*/

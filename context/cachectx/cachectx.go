@@ -201,3 +201,11 @@ func FromContext(ctx context.Context) *PackageCache {
 	}
 	return e
 }
+
+func FromContextOrNil(ctx context.Context) *PackageCache {
+	e, ok := ctx.Value(cacheKey).(*PackageCache)
+	if ok {
+		return e
+	}
+	return nil
+}

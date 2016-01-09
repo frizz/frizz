@@ -26,13 +26,10 @@ func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 		B StringInterface `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
+	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -62,13 +59,10 @@ func testMarshal(t *testing.T, unpacker unpackerFunc) {
 		B String `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
+	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(tests.PathCtx("kego.io/system"), []byte(data), &i)
+	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -89,10 +83,7 @@ func TestMarshal1(t *testing.T) {
 		C *String `json:"c"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
+	//ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	a := A{
 		Object: &Object{
@@ -113,10 +104,7 @@ func TestMarshal2(t *testing.T) {
 		B *String `json:"b"`
 	}
 
-	json.Register("kego.io/system", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("kego.io/system", "a")
+	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	a := A{
 		Object: &Object{
@@ -128,11 +116,13 @@ func TestMarshal2(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(tests.PathCtx("kego.io/system"), a)
+	b, err = json.MarshalContext(ctx, a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(tests.PathCtx("d.e/f"), a)
+	ctx1 := tests.Context("d.e/f").JtypePath("kego.io/system", "a", reflect.TypeOf(&A{})).Ctx()
+
+	b, err = json.MarshalContext(ctx1, a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
 
@@ -145,11 +135,6 @@ func TestMarshal3(t *testing.T) {
 		B *String `json:"b"`
 	}
 
-	json.Register("c.d/e", "a", reflect.TypeOf(&A{}), nil, 0)
-
-	// Clean up for the tests - don't normally need to unregister types
-	defer json.Unregister("c.d/e", "a")
-
 	a := A{
 		Object: &Object{
 			Type: NewReference("c.d/e", "a"),
@@ -160,16 +145,16 @@ func TestMarshal3(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(tests.PathCtx("c.d/e"), a)
+	b, err = json.MarshalContext(tests.Context("c.d/e").Jtype("a", reflect.TypeOf(&A{})).Ctx(), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(tests.PathCtx("f.g/h"), a)
+	b, err = json.MarshalContext(tests.Context("f.g/h").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	// The json package doesn't use kerr throughout, so we can't use HasError
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
-	b, err = json.MarshalContext(tests.EnvCtx("f.g/h", map[string]string{"c.d/e": "i"}), a)
+	b, err = json.MarshalContext(tests.Context("f.g/h").Alias("c.d/e", "i").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 

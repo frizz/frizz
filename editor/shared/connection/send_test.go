@@ -20,7 +20,7 @@ func doTest(t *testing.T, f func(*Conn, *mocks.MockReadWriteCloser)) {
 	socket := mocks.NewMockReadWriteCloser(ctl)
 	fail := make(chan error)
 
-	c := New(tests.PathCtx("kego.io/editor/shared/messages"), socket, fail, false)
+	c := New(tests.Context("kego.io/editor/shared/messages").Ctx(), socket, fail, false)
 
 	f(c, socket)
 
@@ -33,7 +33,7 @@ func doTest(t *testing.T, f func(*Conn, *mocks.MockReadWriteCloser)) {
 func TestSend(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewDataRequest("a")
+		m := messages.NewDataRequest("a.b/c", "d", "e")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -47,7 +47,7 @@ func TestSend(t *testing.T) {
 func TestRequest(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewDataRequest("a")
+		m := messages.NewDataRequest("a.b/c", "d", "e")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -61,7 +61,7 @@ func TestRequest(t *testing.T) {
 func TestRequestResponseChannel(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewDataRequest("a")
+		m := messages.NewDataRequest("a.b/c", "d", "e")
 
 		expected, _ := ke.Marshal(m)
 		expected = append(expected, byte('\n'))
@@ -82,11 +82,11 @@ func TestRequestResponseChannel(t *testing.T) {
 func TestRespond(t *testing.T) {
 	doTest(t, func(c *Conn, socket *mocks.MockReadWriteCloser) {
 
-		m := messages.NewDataResponse("a", true, "b")
+		m := messages.NewDataResponse("a.b/c", "d", true, "f")
 
 		// The Respond method adds the guid of the request message to the "Request"
 		// field, so we must clone the request and add it.
-		m1, err := clone(tests.PathCtx("kego.io/editor/shared/messages"), m)
+		m1, err := clone(tests.Context("kego.io/editor/shared/messages").Jauto().Ctx(), m)
 		assert.NoError(t, err)
 		m1.(messages.MessageInterface).GetMessage(nil).Request = system.NewString("c")
 		expected, _ := ke.Marshal(m1)

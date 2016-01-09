@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
@@ -24,27 +23,25 @@ func TestWrapRule(t *testing.T) {
 	ruleType := &Type{
 		Object: &Object{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
-	Register("a.b/c", "a", parentType, 0)
-	Register("a.b/c", "@a", ruleType, 0)
-	defer Unregister("a.b/c", "a")
-	defer Unregister("a.b/c", "@a")
+
+	ctx := tests.Context("a.b/c").Ctype("a", parentType).Ctype("@a", ruleType).Ctx()
 
 	r := &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "@a")},
 	}
-	w, err := WrapRule(r)
+	w, err := WrapRule(ctx, r)
 	assert.NoError(t, err)
 	assert.Equal(t, "a", w.Parent.Id.Name)
 
 	r1 := nonObjectStruct{}
-	w, err = WrapRule(r1)
+	w, err = WrapRule(ctx, r1)
 	// A non Object rule will cause an error
 	assert.IsError(t, err, "VKFNPJDNVB")
 
 	r = &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "unregistered")},
 	}
-	w, err = WrapRule(r)
+	w, err = WrapRule(ctx, r)
 	// An unregistered type will cause WrapRule to return an error
 	assert.IsError(t, err, "KYCTDXKFYR")
 
@@ -61,13 +58,13 @@ func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
 		*Rule
 	}
 
-	json.Register("a.b/c", "@b", reflect.TypeOf(&ruleStruct{}), nil, 0)
-	defer json.Unregister("a.b/c", "@b")
+	ctx := tests.Context("a.b/c").Jtype("@b", reflect.TypeOf(&ruleStruct{})).Ctx()
+
 	j := `{
 		"type": "@b"
 	}`
 	var i interface{}
-	err := unpacker(tests.PathCtx("a.b/c"), []byte(j), &i)
+	err := unpacker(ctx, []byte(j), &i)
 	assert.NoError(t, err)
 	rs, ok := i.(*ruleStruct)
 	assert.True(t, ok)
@@ -92,16 +89,14 @@ func TestRuleWrapperItemsRule(t *testing.T) {
 		Object: &Object{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 		Native: NewString("object"),
 	}
-	json.Register("a.b/c", "a", reflect.TypeOf(&parentStruct{}), nil, 0)
-	json.Register("a.b/c", "@a", reflect.TypeOf(&ruleStruct{}), nil, 0)
-	Register("a.b/c", "a", parentType, 0)
-	Register("a.b/c", "@a", ruleType, 0)
-	defer json.Unregister("a.b/c", "a")
-	defer json.Unregister("a.b/c", "@a")
-	defer Unregister("a.b/c", "a")
-	defer Unregister("a.b/c", "@a")
 
-	w, err := WrapRule(&ruleStruct{
+	ctx := tests.Context("a.b/c").
+		Jtype("a", reflect.TypeOf(&parentStruct{})).
+		Jtype("@a", reflect.TypeOf(&ruleStruct{})).
+		Ctype("a", parentType).
+		Ctype("@a", ruleType).Ctx()
+
+	w, err := WrapRule(ctx, &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "a")},
 		Rule:   &Rule{},
 	})

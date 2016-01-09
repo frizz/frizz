@@ -15,7 +15,7 @@ func TestTimeout(t *testing.T) {
 	input, outcome := testTimeout(t)
 
 	time.Sleep(time.Millisecond * 100)
-	input <- messages.NewDataRequest("a")
+	input <- messages.NewDataRequest("a.b/c", "d", "e")
 
 	err := <-outcome
 	assert.HasError(t, err, "QKTKOKWSDG")
@@ -27,7 +27,7 @@ func TestNoTimeout(t *testing.T) {
 	input, outcome := testTimeout(t)
 
 	time.Sleep(time.Millisecond * 10)
-	input <- messages.NewDataRequest("a")
+	input <- messages.NewDataRequest("a.b/c", "d", "e")
 
 	err := <-outcome
 	assert.NoError(t, err)
@@ -36,7 +36,7 @@ func TestNoTimeout(t *testing.T) {
 
 func testTimeout(t *testing.T) (chan messages.MessageInterface, chan error) {
 	fail := make(chan error)
-	c := New(tests.PathCtx("kego.io/editor/shared/messages"), nil, fail, false)
+	c := New(tests.Context("kego.io/editor/shared/messages").Ctx(), nil, fail, false)
 
 	outcome := make(chan error, 1)
 

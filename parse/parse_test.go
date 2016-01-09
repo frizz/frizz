@@ -1,4 +1,4 @@
-package parse
+package parse_test
 
 import (
 	"os"

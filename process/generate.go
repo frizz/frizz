@@ -15,7 +15,6 @@ import (
 	"kego.io/context/wgctx"
 	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/parse"
 	"kego.io/process/pkgutils"
 )
 
@@ -70,7 +69,7 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 
 }
 
-func getInfo(ctx context.Context, dir string) (info *parse.InfoStruct, found bool, err error) {
+func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err error) {
 	f, err := os.Open(filepath.Join(dir, "generated.go"))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -92,7 +91,7 @@ func getInfo(ctx context.Context, dir string) (info *parse.InfoStruct, found boo
 
 	data := []byte(scanner.Text()[8:])
 
-	var i parse.InfoStruct
+	var i InfoStruct
 	if err := json.UnmarshalPlain(data, &i); err != nil {
 		return nil, false, kerr.New("UJXKJVLXHG", err, "DecodeUntyped")
 	}
@@ -125,7 +124,7 @@ func Generate(ctx context.Context, env *envctx.Env, dir string) error {
 
 	outputDir := dir
 	filename := "generated.go"
-	source, err := parse.Structs(ctx, env)
+	source, err := Structs(ctx, env)
 	if err != nil {
 		return kerr.New("XFNESBLBTQ", err, "parse.Structs")
 	}

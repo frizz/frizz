@@ -37,3 +37,11 @@ func FromContext(ctx context.Context) *Cmd {
 	}
 	return e
 }
+
+func FromContextOrNil(ctx context.Context) *Cmd {
+	e, ok := ctx.Value(cmdKey).(*Cmd)
+	if ok {
+		return e
+	}
+	return nil
+}

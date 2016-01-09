@@ -149,7 +149,7 @@ var _ Unpacker = (*UnpackContextObject)(nil)
 func TestUnpackContext(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`
 	a := &UnpackContextA{}
-	err := UnmarshalUntyped(tests.EnvCtx("a.b/c", map[string]string{"d.e/f": "g"}), []byte(in), a)
+	err := UnmarshalUntyped(tests.Context("a.b/c").Alias("d.e/f", "g").Ctx(), []byte(in), a)
 	assert.NoError(t, err)
 	assert.NotNil(t, a)
 	assert.Equal(t, "foo bar a.b/c g", string(a.B))

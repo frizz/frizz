@@ -74,7 +74,7 @@ func (c *JsonCache) GetTypeByReflectType(typ reflect.Type) (path string, name st
 			if !ok {
 				continue
 			}
-			if def.Type == typ || (def.Type.Kind() == reflect.Ptr && def.Type.Elem() == typ) {
+			if def.Type != nil && (def.Type == typ || (def.Type.Kind() == reflect.Ptr && def.Type.Elem() == typ)) {
 				return p, n, true
 			}
 			if def.Rule != nil && (def.Rule == typ || (def.Rule.Kind() == reflect.Ptr && def.Rule.Elem() == typ)) {
@@ -177,6 +177,9 @@ func (c *TypeCache) Set(id string, t *TypeInfo) {
 func (c *TypeCache) Get(id string) (*TypeInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
+	if strings.HasPrefix(id, RULE_PREFIX) {
+		panic(kerr.New("XULXFINYQJ", nil, "Type name given to TypeCache.Get should not be a rule"))
+	}
 	t, ok := c.m[id]
 	return t, ok
 }
@@ -283,7 +286,15 @@ func newContext(ctx context.Context, autoPackages bool, autoDummies bool, manual
 func FromContext(ctx context.Context) *JsonCache {
 	e, ok := ctx.Value(jsonKey).(*JsonCache)
 	if !ok {
-		panic(kerr.New("XUTUUVDMMX", nil, "No cache in ctx"))
+		panic(kerr.New("XUTUUVDMMX", nil, "No json cache in ctx"))
 	}
 	return e
+}
+
+func FromContextOrNil(ctx context.Context) *JsonCache {
+	e, ok := ctx.Value(jsonKey).(*JsonCache)
+	if ok {
+		return e
+	}
+	return nil
 }

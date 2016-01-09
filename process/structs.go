@@ -1,4 +1,4 @@
-package parse
+package process
 
 import (
 	"fmt"
@@ -206,4 +206,9 @@ func printInitFunction(env *envctx.Env, g *generator.Generator, types *cachectx.
 		}
 	}
 	g.Println("}")
+}
+
+type InfoStruct struct {
+	Path string
+	Hash uint64
 }
