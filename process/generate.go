@@ -98,19 +98,8 @@ func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err
 	return &i, true, nil
 }
 
-// Generate generates the source code from templates and writes the files
-// to the correct folders.
-//
-// file == F_STRUCTS: generated-structs.go in the root of the package.
-//
-// file == F_TYPES: generated-types.go containing advanced type information
-// in the "types" sub package. Note that to generate this file, we need to
-// have the main generated-structs.go compiled in, so we generate a temporary
-// command and run it with "go run".
-//
-// file == F_EDITOR: generated-editor.go in the "editor" sub-package. This
-// will be compiled to JS when the editor is launched.
-//
+// Generate generates the source code for type structs, and writes the generated.go to the
+// filesystem.
 func Generate(ctx context.Context, env *envctx.Env, dir string) error {
 
 	wgctx.FromContext(ctx).Add(1)

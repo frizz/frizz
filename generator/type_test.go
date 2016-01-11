@@ -410,6 +410,8 @@ func TestGoTypeDescriptor(t *testing.T) {
 
 func TypeErrors_NeedsTypes(t *testing.T) {
 
+	cb := tests.Context("kego.io/system").Jauto().Cauto(parse.Parse)
+
 	p := &system.JsonStringRule{
 		Object: &system.Object{
 			Type: system.NewReference("a.b/c", "notFoundType"),
@@ -417,7 +419,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		Rule: &system.Rule{},
 	}
 	i := Imports{}
-	_, err := Type(tests.Context("kego.io/system").Ctx(), "n", p, "kego.io/system", i.Add)
+	_, err := Type(cb.Ctx(), "n", p, "kego.io/system", i.Add)
 	// Item is an unregistered type, so errors at NewRuleHolder
 	assert.IsError(t, err, "TFXFBIRXHN")
 	assert.HasError(t, err, "KYCTDXKFYR")
@@ -428,7 +430,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		},
 		Rule: &system.Rule{},
 	}
-	_, err = Type(tests.Context("kego.io/system").Ctx(), "n", pm, "kego.io/system", i.Add)
+	_, err = Type(cb.Ctx(), "n", pm, "kego.io/system", i.Add)
 	// Collection item @map doesn't have Items field, so errors at ItemsRule
 	assert.IsError(t, err, "SOGEFOPJHB")
 	assert.HasError(t, err, "SUJLYBXPYS")
@@ -440,9 +442,8 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 	}
 	tyr := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "@a")}, Native: system.NewString("object")}
 	ty := &system.Type{Object: &system.Object{Id: system.NewReference("b.c/d", "a")}, Native: system.NewString("object")}
-	ctx := tests.Context("kego.io/system").
-		AllPath("b.c/d", "a", reflect.TypeOf(&a{}), reflect.TypeOf(&aRule{}), ty, tyr).
-		Ctx()
+
+	cb.AllPath("b.c/d", "a", reflect.TypeOf(&a{}), reflect.TypeOf(&aRule{}), ty, tyr)
 
 	pa := &aRule{
 		Object: &system.Object{
@@ -450,7 +451,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 		},
 		Rule: &system.Rule{},
 	}
-	_, err = Type(ctx, "n", pa, "kego.io/system", i.Add)
+	_, err = Type(cb.Ctx(), "n", pa, "kego.io/system", i.Add)
 	// This used to throw an error but since we moved to dynamic imports, it
 	// should not now.
 	assert.NoError(t, err)

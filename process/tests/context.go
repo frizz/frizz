@@ -2,6 +2,7 @@ package tests
 
 import (
 	"reflect"
+	"sync"
 
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
+	"kego.io/context/wgctx"
 	"kego.io/kerr"
 )
 
@@ -20,6 +22,7 @@ type ContextBuilder struct {
 	cache     *cachectx.PackageCache
 	cacheInfo *cachectx.PackageInfo
 	jcache    *jsonctx.JsonCache
+	wg        *sync.WaitGroup
 }
 
 func Context(path string) *ContextBuilder {
@@ -81,6 +84,30 @@ func (c *ContextBuilder) Cmd() *ContextBuilder {
 	c.cmd = cmdctx.FromContext(c.ctx)
 
 	return c
+}
+
+func (c *ContextBuilder) Wg() *ContextBuilder {
+
+	if c.wg != nil {
+		return c
+	}
+
+	c.ctx = wgctx.NewContext(c.ctx)
+	c.wg = wgctx.FromContext(c.ctx)
+
+	return c
+}
+
+func (c *ContextBuilder) Dir(dir string) *ContextBuilder {
+
+	if c.cmd == nil {
+		c.Cmd()
+	}
+
+	c.cmd.Dir = dir
+
+	return c
+
 }
 
 func (c *ContextBuilder) Json() *ContextBuilder {

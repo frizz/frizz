@@ -4,12 +4,15 @@ import (
 	"os"
 	"testing"
 
-	"fmt"
+	"kego.io/parse"
 
 	"golang.org/x/net/context"
 	"kego.io/context/cachectx"
+	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 	"kego.io/kerr/assert"
+	"kego.io/process"
 	"kego.io/process/tests"
 )
 
@@ -56,12 +59,13 @@ func TestParse(t *testing.T) {
 	ctx := context.Background()
 	ctx = envctx.NewContext(ctx, &envctx.Env{Path: path})
 	ctx = cachectx.NewContext(ctx)
-	env, err := Parse(ctx, path, []string{})
+	ctx = cmdctx.NewContext(ctx, &cmdctx.Cmd{})
+	ctx = jsonctx.NewContext(ctx)
+	pi, err := parse.Parse(ctx, path, []string{})
 	assert.NoError(t, err)
 
-	ctx = envctx.NewContext(ctx, env)
+	ctx = envctx.NewContext(ctx, pi.Environment)
 
-	s, err := Structs(ctx)
+	_, err = process.Structs(ctx, pi.Environment)
 	assert.NoError(t, err)
-	fmt.Println(string(s))
 }
