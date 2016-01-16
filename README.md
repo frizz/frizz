@@ -2,10 +2,12 @@ Ke
 ==
 
 	$ go get kego.io/...
-	$ ke -v -e kego.io/demo/site
 
-This will create a local compiled "ke" command, so next time, you just need to run:
+Validate:
 
-	$ cd $GOPATH/src/kego.io/demo/site
-	$ ./ke -v -e 
+	$ ke -l -v kego.io/demo/site
+
+Edit:
+
+	$ ke -l -e kego.io/demo/site
 	
