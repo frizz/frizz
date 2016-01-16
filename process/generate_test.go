@@ -7,8 +7,8 @@ import (
 
 	"path/filepath"
 
-	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
+	"kego.io/parse"
 	"kego.io/process"
 	"kego.io/process/tests"
 )
@@ -24,31 +24,16 @@ func TestGenerate(t *testing.T) {
 		"b.json": `{"type": "c", "id": "b"}`,
 		"d.go":   `package d`,
 	})
+	assert.NoError(t, err)
 
-	cb := tests.Context(path).Dir(dir)
-	env := &envctx.Env{Path: path, Aliases: map[string]string{}}
+	cb := tests.Context(path).Dir(dir).Cmd().Wg().Jsystem().Sauto(parse.Parse)
 
-	err = process.Generate(cb.Ctx(), env, path)
+	err = process.Generate(cb.Ctx(), cb.Env())
 	assert.NoError(t, err)
 
 	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
 	assert.NoError(t, err)
-	assert.Contains(t, string(genBytes), "json.Register")
-
-	// This will error because of unknown types in b.json
-	err = process.Generate(cb.Ctx(), env, path)
-	assert.IsError(t, err, "XYIUHERDHE")
-	assert.HasError(t, err, "FKCPTUWJWW")
-
-	os.Remove(filepath.Join(dir, "b.json"))
-
-	err = process.Generate(cb.Ctx(), env, path)
-	assert.NoError(t, err)
-
-	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
-	assert.NoError(t, err)
-	source := string(bytes)
-	assert.Contains(t, source, "system.Register")
+	assert.Contains(t, string(genBytes), "jsonctx.InitPackage")
 
 }
 
@@ -62,10 +47,9 @@ func TestGenerate_path(t *testing.T) {
 		"a.json": `{"type": "system:type", "id": "a"}`,
 	})
 
-	cb := tests.Context(path).Dir(dir)
-	env := &envctx.Env{Path: path, Aliases: map[string]string{}}
+	cb := tests.Context(path).Dir(dir).Cmd().Wg().Jsystem().Sauto(parse.Parse)
 
-	err = process.Generate(cb.Ctx(), env, path)
+	err = process.Generate(cb.Ctx(), cb.Env())
 	assert.NoError(t, err)
 
 	genBytes, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))

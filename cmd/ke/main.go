@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
@@ -18,7 +19,7 @@ import (
 )
 
 func main() {
-	ctx, cancel, err := process.Initialise(nil)
+	ctx, cancel, err := process.Initialise(context.Background(), nil)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -178,7 +178,7 @@ func (c *TypeCache) Get(id string) (*TypeInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	if strings.HasPrefix(id, RULE_PREFIX) {
-		panic(kerr.New("XULXFINYQJ", nil, "Type name given to TypeCache.Get should not be a rule"))
+		panic(kerr.New("XULXFINYQJ", nil, "Type name given to TypeCache.Get should not be a rule").Error())
 	}
 	t, ok := c.m[id]
 	return t, ok
@@ -223,55 +223,78 @@ type key int
 // instead of using this key directly.
 var jsonKey key = 0
 
-// NewContext creates a new context, and imports all types.
-func NewContext(ctx context.Context) context.Context {
-	return newContext(ctx, true, true)
+// AutoContext creates a new context, and imports all types.
+func AutoContext(ctx context.Context) context.Context {
+	jc := newJsonCache()
+	jc.Dummies.InitAuto()
+	jc.Packages.InitAuto()
+	return context.WithValue(ctx, jsonKey, jc)
 }
 
-// ManualContext creates a new context, but it only imports a specified list of packages. This
-// should only be used in internal tests. For normal usage, use NewContext
-func ManualContext(ctx context.Context, autoDummies bool, manualPackages ...string) context.Context {
-	return newContext(ctx, false, autoDummies, manualPackages...)
+// ManualContext creates a new context. This should only be used in internal tests. For normal
+// usage, use AutoContext
+func ManualContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, jsonKey, newJsonCache())
+}
+
+func newJsonCache() *JsonCache {
+	return &JsonCache{
+		Packages: &PackageCache{m: map[string]*PackageInfo{}},
+		Dummies:  &DummyCache{m: map[reflect.Type]reflect.Type{}},
+	}
+}
+
+func (pc *PackageCache) InitAuto() {
+	// In automatic mode, we import all packages
+	packages.RLock()
+	defer packages.RUnlock()
+	for path, pkg := range packages.m {
+		pc.imp(path, pkg)
+	}
+}
+func (pc *PackageCache) InitManual(packagesToInit ...string) {
+	// If we specify a manual list of packages to import, we should import them
+	packages.RLock()
+	defer packages.RUnlock()
+	for _, path := range packagesToInit {
+		pkg, ok := packages.m[path]
+		if !ok {
+			panic(fmt.Errorf("Package not found %s", path))
+		}
+		pc.imp(path, pkg)
+	}
+}
+func (pc *PackageCache) imp(path string, pkg *packageInfo) {
+	p := pc.Set(path, pkg.hash)
+	for name, typ := range pkg.types {
+		p.Types.Set(name, &TypeInfo{
+			Name:  name,
+			Type:  typ.typ,
+			Rule:  typ.rule,
+			Iface: typ.iface,
+		})
+	}
+}
+
+func (dc *DummyCache) InitAuto() {
+	dummies.RLock()
+	defer dummies.RUnlock()
+	for iface, dummy := range dummies.m {
+		dc.Set(iface, dummy)
+	}
 }
 
 func newContext(ctx context.Context, autoPackages bool, autoDummies bool, manualPackages ...string) context.Context {
 	pc := &PackageCache{m: map[string]*PackageInfo{}}
-	packages.Lock()
-	defer packages.Unlock()
-
-	do := func(path string, pkg *packageInfo) {
-		p := pc.Set(path, pkg.hash)
-		for name, typ := range pkg.types {
-			p.Types.Set(name, &TypeInfo{
-				Name:  name,
-				Type:  typ.typ,
-				Rule:  typ.rule,
-				Iface: typ.iface,
-			})
-		}
-	}
-
 	if autoPackages {
-		// In automatic mode, we import all packages
-		for path, pkg := range packages.m {
-			do(path, pkg)
-		}
+		pc.InitAuto()
 	} else {
-		// If we specify a manual list of packages to import, we should import them
-		for _, path := range manualPackages {
-			pkg, ok := packages.m[path]
-			if !ok {
-				panic(fmt.Errorf("Package not found %s", path))
-			}
-			do(path, pkg)
-		}
+		pc.InitManual(manualPackages...)
 	}
 
 	dc := &DummyCache{m: map[reflect.Type]reflect.Type{}}
 	if autoDummies {
-		for iface, dummy := range dummies.m {
-			dc.Set(iface, dummy)
-		}
+		dc.InitAuto()
 	}
 
 	jc := &JsonCache{
@@ -286,7 +309,7 @@ func newContext(ctx context.Context, autoPackages bool, autoDummies bool, manual
 func FromContext(ctx context.Context) *JsonCache {
 	e, ok := ctx.Value(jsonKey).(*JsonCache)
 	if !ok {
-		panic(kerr.New("XUTUUVDMMX", nil, "No json cache in ctx"))
+		panic(kerr.New("XUTUUVDMMX", nil, "No json cache in ctx").Error())
 	}
 	return e
 }

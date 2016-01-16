@@ -3,6 +3,7 @@ package node_test
 import (
 	"testing"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process"
@@ -12,7 +13,7 @@ import (
 
 func TestFoo(t *testing.T) {
 
-	ctx, _, err := process.Initialise(process.FromDefaults{Path: "kego.io/system"})
+	ctx, _, err := process.Initialise(context.Background(), process.FromDefaults{Path: "kego.io/system"})
 	assert.NoError(t, err)
 
 	s := `{

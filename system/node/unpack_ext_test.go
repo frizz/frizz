@@ -3,7 +3,8 @@ package node_test
 import (
 	"testing"
 
-	"kego.io/context/cmdctx"
+	"golang.org/x/net/context"
+
 	"kego.io/context/envctx"
 	_ "kego.io/demo/common/images"
 	_ "kego.io/demo/common/units"
@@ -21,15 +22,14 @@ func TestUnpack(t *testing.T) {
 	testUnpack(t, "kego.io/demo/site")
 }
 func testUnpack(t *testing.T, path string) {
-	ctx, _, err := process.Initialise(&process.FromDefaults{
+	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
 		Path: path,
 	})
 	assert.NoError(t, err)
 
 	env := envctx.FromContext(ctx)
-	cmd := cmdctx.FromContext(ctx)
 
-	files := scanutils.ScanDirToFiles(ctx, cmd.Dir, env.Recursive)
+	files := scanutils.ScanDirToFiles(ctx, env.Dir, env.Recursive)
 	bytes := scanutils.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		n := node.NewNode()
@@ -40,7 +40,7 @@ func testUnpack(t *testing.T, path string) {
 
 func TestNodeUnpack(t *testing.T) {
 
-	ctx, _, err := process.Initialise(&process.FromDefaults{
+	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
 		Path: "kego.io/demo/site",
 	})
 	assert.NoError(t, err)

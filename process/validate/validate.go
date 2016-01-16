@@ -2,7 +2,6 @@ package validate // import "kego.io/process/validate"
 
 import (
 	"golang.org/x/net/context"
-	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/ke"
@@ -16,9 +15,8 @@ import (
 func ValidatePackage(ctx context.Context) error {
 
 	env := envctx.FromContext(ctx)
-	cmd := cmdctx.FromContext(ctx)
 
-	files := scanutils.ScanDirToFiles(ctx, cmd.Dir, env.Recursive)
+	files := scanutils.ScanDirToFiles(ctx, env.Dir, env.Recursive)
 	bytes := scanutils.ScanFilesToBytes(ctx, files)
 	for c := range bytes {
 		if c.Err != nil {

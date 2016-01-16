@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/sysctx"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -19,9 +19,12 @@ import (
 	"kego.io/system"
 )
 
-func Parse(ctx context.Context, path string, queue []string) (*cachectx.PackageInfo, error) {
+func Parse(ctx context.Context, path string) (*sysctx.PackageInfo, error) {
+	return parse(ctx, path, []string{})
+}
+func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInfo, error) {
 
-	cache := cachectx.FromContext(ctx)
+	scache := sysctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
 
 	for _, q := range queue {
@@ -30,15 +33,15 @@ func Parse(ctx context.Context, path string, queue []string) (*cachectx.PackageI
 		}
 	}
 
-	if _, found := cache.Get("kego.io/json"); !found {
+	if _, found := scache.Get("kego.io/json"); !found {
 		system.RegisterJsonTypes(ctx)
 	}
 
 	hash := &PackageHasher{Path: path, Aliases: map[string]string{}, Types: map[string]uint64{}}
 
 	importPackage := func(importPath string, importAlias string) error {
-		if _, found := cache.Get(importPath); !found {
-			_, err := Parse(ctx, importPath, append(queue, path))
+		if _, found := scache.Get(importPath); !found {
+			_, err := parse(ctx, importPath, append(queue, path))
 			if err != nil {
 				return kerr.New("RIARRSCMVE", err, "Parse (%v)", importPath)
 			}
@@ -47,7 +50,7 @@ func Parse(ctx context.Context, path string, queue []string) (*cachectx.PackageI
 		return nil
 	}
 
-	env, dir, err := ScanForEnv(ctx, path)
+	env, err := ScanForEnv(ctx, path)
 	if err != nil {
 		return nil, kerr.New("GJRHNGGWFD", err, "scanForEnv")
 	}
@@ -68,13 +71,13 @@ func Parse(ctx context.Context, path string, queue []string) (*cachectx.PackageI
 		}
 	}
 
-	pcache := cache.Set(env)
+	pcache := scache.Set(env)
 
 	if cmd.Log {
 		fmt.Printf("Parsing %s...", path)
 	}
 
-	if err := scanForTypes(ctx, path, dir, env, pcache, hash); err != nil {
+	if err := scanForTypes(ctx, env, pcache, hash); err != nil {
 		return nil, kerr.New("VFUNPHUFHD", err, "scanForTypes")
 	}
 
@@ -91,32 +94,37 @@ func Parse(ctx context.Context, path string, queue []string) (*cachectx.PackageI
 	return pcache, nil
 }
 
-func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, dir string, err error) {
+func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {
 	// Scan the local directory for as system:package object
-	dir, err = pkgutils.GetDirFromPackage(path)
+	dir, err := pkgutils.GetDirFromPackage(ctx, path)
 	if err != nil {
-		return nil, "", kerr.New("LASRFKILIH", err, "pkgutils.GetDirFromPackage")
+		return nil, kerr.New("LASRFKILIH", err, "pkgutils.GetDirFromPackage")
 	}
 
 	pkg, err := scanForPackage(ctx, path, dir)
 	if err != nil {
-		return nil, "", kerr.New("DTAEUSHJTQ", err, "scanForPackage")
+		return nil, kerr.New("DTAEUSHJTQ", err, "scanForPackage")
 	}
 
-	env = &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false}
+	env = &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false, Dir: dir}
 	if pkg != nil {
 		env.Aliases = pkg.Aliases
 		env.Recursive = pkg.Recursive
 	}
-	return env, dir, nil
+	return env, nil
 }
 
-func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env, cache *cachectx.PackageInfo, hash *PackageHasher) error {
+type objectStub struct {
+	Id   *system.Reference `json:"id"`
+	Type *system.Reference `json:"type"`
+}
+
+func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.PackageInfo, hash *PackageHasher) error {
 
 	// While we're scanning for types, we should use a custom unpacking env, because the env from
 	// the context is the one of the local package.
 
-	files := scanutils.ScanDirToFiles(ctx, dir, env.Recursive)
+	files := scanutils.ScanDirToFiles(ctx, env.Dir, env.Recursive)
 	bytes := scanutils.ScanFilesToBytes(ctx, files)
 	localContext := envctx.NewContext(ctx, env)
 	for b := range bytes {
@@ -124,7 +132,7 @@ func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env,
 			return kerr.New("JACKALTIGG", b.Err, "ScanFiles")
 		}
 
-		o := &system.Object{}
+		o := &objectStub{}
 		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
 			return kerr.New("HCYGNBDFFA", err, "ke.UnmarshalUntyped")
 		}
@@ -142,11 +150,11 @@ func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env,
 			if o.Id == nil {
 				return kerr.New("DLLMKTDYFW", nil, "%s has no id", b.File)
 			}
-			relativeFile, err := filepath.Rel(dir, b.File)
+			relativeFile, err := filepath.Rel(env.Dir, b.File)
 			if err != nil {
 				return kerr.New("AWYRJSCYQS", err, "filepath.Rel")
 			}
-			cache.Globals.Set(o.Id.Name, cachectx.GlobalInfo{
+			cache.Globals.Set(o.Id.Name, sysctx.GlobalInfo{
 				File: relativeFile,
 				Name: o.Id.Name,
 			})
@@ -156,7 +164,7 @@ func scanForTypes(ctx context.Context, path string, dir string, env *envctx.Env,
 	return nil
 }
 
-func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, cache *cachectx.PackageInfo, hash *PackageHasher) error {
+func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, cache *sysctx.PackageInfo, hash *PackageHasher) error {
 	var object interface{}
 	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
 	if err != nil {
@@ -233,19 +241,4 @@ func scanForPackage(ctx context.Context, path string, dir string) (*system.Packa
 		}
 	}
 	return nil, nil
-}
-
-func HasSourceFiles(ctx context.Context) bool {
-	env := envctx.FromContext(ctx)
-	cmd := cmdctx.FromContext(ctx)
-	files := scanutils.ScanDirToFiles(ctx, cmd.Dir, env.Recursive)
-	bytes := scanutils.ScanFilesToBytes(ctx, files)
-	for b := range bytes {
-		if b.Err != nil {
-			continue
-		}
-		return true
-	}
-	return false
-
 }

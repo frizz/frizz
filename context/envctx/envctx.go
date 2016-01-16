@@ -11,6 +11,7 @@ type Env struct {
 	Aliases   map[string]string
 	Recursive bool
 	Hash      uint64
+	Dir       string
 }
 
 // key is an unexported type for keys defined in this package.
@@ -34,7 +35,7 @@ func NewContext(ctx context.Context, e *Env) context.Context {
 func FromContext(ctx context.Context) *Env {
 	e, ok := ctx.Value(envKey).(*Env)
 	if !ok {
-		panic(kerr.New("WYDYAGVLCR", nil, "No env in ctx"))
+		panic(kerr.New("WYDYAGVLCR", nil, "No env in ctx").Error())
 	}
 	return e
 }

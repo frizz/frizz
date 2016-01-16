@@ -7,9 +7,9 @@ import (
 	"syscall"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
+	"kego.io/context/sysctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process"
@@ -19,7 +19,7 @@ import (
 // Main executes the validate command that is generated in the data directory.
 func Main(path string) {
 	update := false
-	ctx, cancel, err := process.Initialise(&process.FromFlags{
+	ctx, cancel, err := process.Initialise(context.Background(), &process.FromFlags{
 		Update: &update,
 		Path:   &path,
 	})
@@ -63,10 +63,10 @@ func Main(path string) {
 
 func comparePackageHash(ctx context.Context, path string) (changes bool, err error) {
 
-	cache := cachectx.FromContext(ctx)
-	pcache, ok := cache.Get(path)
+	scache := sysctx.FromContext(ctx)
+	pcache, ok := scache.Get(path)
 	if !ok {
-		return false, kerr.New("NHXWLPHCHL", nil, "%s not found in ctx", path)
+		return false, kerr.New("NHXWLPHCHL", nil, "%s not found in sys ctx", path)
 	}
 
 	for aliasPath, _ := range pcache.Environment.Aliases {

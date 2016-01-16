@@ -26,7 +26,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
 		B ReferenceInterface `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Alias("c.d/e", "e").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("kego.io/system").Alias("c.d/e", "e").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := unpacker(ctx, []byte(data), &i)
@@ -123,7 +123,7 @@ func TestReferenceGetType(t *testing.T) {
 		Object: &Object{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
 	}
 
-	ctx := tests.Context("a.b/c").Ctype("d", ty).Ctx()
+	ctx := tests.Context("a.b/c").Stype("d", ty).Ctx()
 
 	r := NewReference("a.b/c", "d")
 	typ, ok := r.GetType(ctx)

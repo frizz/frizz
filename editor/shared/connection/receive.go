@@ -24,7 +24,10 @@ func (c *Conn) Subscribe(t system.Reference) chan messages.MessageInterface {
 func (c *Conn) Receive() error {
 
 	unpackContext := context.Background()
-	unpackContext = jsonctx.ManualContext(unpackContext, true, "kego.io/json", "kego.io/system", "kego.io/editor/shared/messages")
+	unpackContext = jsonctx.ManualContext(unpackContext)
+	jcache := jsonctx.FromContext(unpackContext)
+	jcache.Packages.InitManual("kego.io/json", "kego.io/system", "kego.io/editor/shared/messages")
+	jcache.Dummies.InitAuto()
 	unpackContext = envctx.Dummy(unpackContext, "kego.io/editor/shared/messages", map[string]string{})
 
 	for {

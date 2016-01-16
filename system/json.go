@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
+	"kego.io/context/sysctx"
 )
 
 /*
@@ -60,8 +60,8 @@ func init() {
 
 func RegisterJsonTypes(ctx context.Context) {
 
-	cache := cachectx.FromContext(ctx)
-	pcache := cache.Set(&envctx.Env{Path: "kego.io/json"})
+	scache := sysctx.FromContext(ctx)
+	pcache := scache.Set(&envctx.Env{Path: "kego.io/json"})
 
 	tr := NewReference("kego.io/system", "type")
 

@@ -5,6 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"kego.io/parse"
+
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -20,9 +23,9 @@ import (
 var parser *Parser
 var values []interface{}
 
-func getTestParser(testDocuments map[string]*node.Node, testName string) (*Parser, error) {
+func getTestParser(ctx context.Context, testDocuments map[string]*node.Node, testName string) (*Parser, error) {
 	jsonDocument := testDocuments[testName[0:strings.Index(testName, "_")]]
-	return CreateParser(tests.PathCtx("kego.io/selectors/tests"), jsonDocument)
+	return CreateParser(ctx, jsonDocument)
 }
 
 func runTestsInDirectory(t *testing.T, baseDirectory string) {
@@ -35,6 +38,8 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 		t.Error("Error encountered while loading conformance tests ", err)
 	}
 
+	cb := tests.Context("kego.io/selectors/tests").Jauto().Sauto(parse.Parse)
+
 	for _, fileInfo := range files {
 		name := fileInfo.Name()
 		if strings.HasSuffix(name, ".json") {
@@ -44,7 +49,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				continue
 			}
 			n := node.NewNode()
-			err = ke.UnmarshalUntyped(tests.PathCtx("kego.io/selectors/tests"), json_document, n)
+			err = ke.UnmarshalUntyped(cb.Ctx(), json_document, n)
 			assert.NoError(t, err, name)
 
 			testDocuments[name[0:len(name)-len(".json")]] = n
@@ -98,7 +103,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 		}
 		var passed bool = true
 		//t.Log("Running test ", testName)
-		parser, err := getTestParser(testDocuments, testName)
+		parser, err := getTestParser(cb.Ctx(), testDocuments, testName)
 		if err != nil {
 			t.Error("Test ", testName, "failed: ", err)
 			passed = false

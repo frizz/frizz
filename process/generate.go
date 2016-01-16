@@ -9,13 +9,12 @@ import (
 	"strings"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/sysctx"
 	"kego.io/context/wgctx"
 	"kego.io/json"
 	"kego.io/kerr"
-	"kego.io/process/pkgutils"
 )
 
 type SourceType string
@@ -31,8 +30,8 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 		return nil
 	}
 
-	cache := cachectx.FromContext(ctx)
-	pcache, ok := cache.Get(path)
+	scache := sysctx.FromContext(ctx)
+	pi, ok := scache.Get(path)
 	if !ok {
 		return kerr.New("XMVXECGDOX", nil, "%s not founc in ctx", path)
 	}
@@ -41,24 +40,19 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 			return kerr.New("WVXTUBQYVT", err, "GenerateAll (kego.io/system)")
 		}
 	}
-	for aliasPath, _ := range pcache.Environment.Aliases {
+	for aliasPath, _ := range pi.Environment.Aliases {
 		if err := GenerateAll(ctx, aliasPath, done); err != nil {
 			return kerr.New("WVXTUBQYVT", err, "GenerateAll (%s)", aliasPath)
 		}
 	}
 
-	dir, err := pkgutils.GetDirFromPackage(path)
-	if err != nil {
-		return kerr.New("HASNHGDWBG", err, "pkgutils.GetDirFromPackage")
-	}
-
-	info, found, err := getInfo(ctx, dir)
+	info, found, err := getInfo(ctx, pi.Environment.Dir)
 	if err != nil {
 		return kerr.New("SIMBVNBWOV", err, "getInfo")
 	}
 
-	if !found || info.Hash != pcache.Environment.Hash {
-		if err := Generate(ctx, pcache.Environment, dir); err != nil {
+	if !found || info.Hash != pi.Environment.Hash {
+		if err := Generate(ctx, pi.Environment); err != nil {
 			return kerr.New("TUFKDUPWMD", err, "Generate (%s)", path)
 		}
 	}
@@ -75,7 +69,7 @@ func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err
 		if os.IsNotExist(err) {
 			return nil, false, nil
 		}
-		return nil, false, kerr.New("TLFTCRNBKK", err, "os.Open")
+		return nil, false, kerr.New("TLFTCRNBKK", err, "os.OpenFile")
 	}
 	defer f.Close()
 
@@ -100,7 +94,7 @@ func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err
 
 // Generate generates the source code for type structs, and writes the generated.go to the
 // filesystem.
-func Generate(ctx context.Context, env *envctx.Env, dir string) error {
+func Generate(ctx context.Context, env *envctx.Env) error {
 
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
@@ -111,7 +105,7 @@ func Generate(ctx context.Context, env *envctx.Env, dir string) error {
 		fmt.Printf("Generating types for %s... ", env.Path)
 	}
 
-	outputDir := dir
+	outputDir := env.Dir
 	filename := "generated.go"
 	source, err := Structs(ctx, env)
 	if err != nil {
@@ -141,7 +135,7 @@ func save(dir string, contents []byte, name string, backup bool) error {
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err = os.MkdirAll(dir, 0777); err != nil {
-			return kerr.New("BPGOUIYPXO", err, "os.MkdirAll")
+			return kerr.New("BPGOUIYPXO", err, "vos.MkdirAll")
 		}
 	}
 

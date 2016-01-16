@@ -53,9 +53,9 @@ func SystemTypeCtx(path string, name string, typ interface{}) context.Context {
 		Aliases: map[string]string{},
 	}
 	ctx := envctx.NewContext(context.Background(), env)
-	ctx = cachectx.NewContext(ctx)
+	ctx = sysctx.NewContext(ctx)
 
-	cache := cachectx.FromContext(ctx)
+	cache := sysctx.FromContext(ctx)
 	p := cache.Set(env)
 	p.Types.Set(name, typ)
 

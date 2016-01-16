@@ -12,7 +12,7 @@ func TestObjectGetType(t *testing.T) {
 
 	o := &Object{Type: NewReference("a.b/c", "t")}
 
-	gt, ok := o.Type.GetType(tests.Context("a.b/c").Ctype("t", ty).Ctx())
+	gt, ok := o.Type.GetType(tests.Context("a.b/c").Stype("t", ty).Ctx())
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c:foo", gt.Id.Value())
 

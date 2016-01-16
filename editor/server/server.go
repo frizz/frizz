@@ -27,9 +27,9 @@ import (
 
 	"github.com/gopherjs/gopherjs/build"
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
+	"kego.io/context/sysctx"
 	"kego.io/context/wgctx"
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
@@ -152,12 +152,12 @@ func getData(ctx context.Context, in chan messages.MessageInterface, conn *conne
 			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.DataRequest", m)
 		}
 
-		env, dir, err := parse.ScanForEnv(ctx, request.Package.Value())
+		env, err := parse.ScanForEnv(ctx, request.Package.Value())
 		if err != nil {
 			return kerr.New("EPCOFHDMBP", err, "parse.ScanForEnv")
 		}
 
-		file := filepath.Join(dir, request.File.Value())
+		file := filepath.Join(env.Dir, request.File.Value())
 
 		bytes, err := scanutils.ProcessFile(file)
 
@@ -183,7 +183,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	path := req.URL.Path[1 : len(req.URL.Path)-10]
 
-	env, _, err := parse.ScanForEnv(ctx, path)
+	env, err := parse.ScanForEnv(ctx, path)
 
 	// This is the client code for the editor which we will compile to Javascript using GopherJs
 	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the
@@ -268,7 +268,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
-	cache := cachectx.FromContext(ctx)
+	scache := sysctx.FromContext(ctx)
 
 	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
 		if strings.HasSuffix(req.URL.Path, ".css") {
@@ -283,7 +283,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		path = path[0 : len(path)-1]
 	}
 
-	env, _, err := parse.ScanForEnv(ctx, path)
+	env, err := parse.ScanForEnv(ctx, path)
 	if err != nil {
 		if _, ok := kerr.Source(err).(pkgutils.NotFoundError); ok {
 			w.WriteHeader(404)
@@ -292,10 +292,10 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		return kerr.New("ALINBMKDRP", err, "scanForEnv")
 	}
 
-	pcache, ok := cache.Get(path)
+	pcache, ok := scache.Get(path)
 	if !ok {
 		var err error
-		pcache, err = parse.Parse(ctx, path, []string{})
+		pcache, err = parse.Parse(ctx, path)
 		if err != nil {
 			return kerr.New("HIHWJRPUKE", err, "parse.Parse")
 		}
@@ -318,9 +318,9 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	}
 
 	getImport := func(importPath string) (*shared.ImportInfo, error) {
-		importPackageInfo, ok := cache.Get(importPath)
+		importPackageInfo, ok := scache.Get(importPath)
 		if !ok {
-			return nil, kerr.New("VIGKIUPNCF", nil, "%s not found in ctx")
+			return nil, kerr.New("VIGKIUPNCF", nil, "%s not found in sys ctx")
 		}
 		info := &shared.ImportInfo{
 			Path:    importPath,

@@ -14,6 +14,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
+	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
@@ -23,9 +24,9 @@ import (
 const validateCommand = ".localke/validate"
 
 func RunValidateCommand(ctx context.Context) (success bool, err error) {
-	cmd := cmdctx.FromContext(ctx)
+	env := envctx.FromContext(ctx)
 
-	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
+	validateCommandPath := filepath.Join(env.Dir, validateCommand)
 
 	if _, err := os.Stat(validateCommandPath); err != nil {
 		return false, nil
@@ -39,9 +40,10 @@ func runValidateCommand(ctx context.Context) (success bool, err error) {
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
+	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
 
-	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
+	validateCommandPath := filepath.Join(env.Dir, validateCommand)
 
 	if cmd.Log {
 		fmt.Print("Running validate command... ")
@@ -95,16 +97,17 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	wgctx.FromContext(ctx).Add(1)
 	defer wgctx.FromContext(ctx).Done()
 
+	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
 
-	validateCommandPath := filepath.Join(cmd.Dir, validateCommand)
+	validateCommandPath := filepath.Join(env.Dir, validateCommand)
 
 	source, err := generate.ValidateCommand(ctx)
 	if err != nil {
 		return kerr.New("SPRFABSRWK", err, "generate.ValidateCommand")
 	}
 
-	outputDir, err := ioutil.TempDir(cmd.Dir, "temporary")
+	outputDir, err := ioutil.TempDir(env.Dir, "temporary")
 	if err != nil {
 		return kerr.New("HWOPVXYMCT", err, "ioutil.TempDir")
 	}

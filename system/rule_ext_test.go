@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
+	"kego.io/context/sysctx"
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/system"
 )
 
 func TestReflectType(t *testing.T) {
-	ctx, _, err := process.Initialise(process.FromDefaults{Path: "kego.io/system"})
+	ctx, _, err := process.Initialise(context.Background(), process.FromDefaults{Path: "kego.io/system"})
 	assert.NoError(t, err)
 	checkReflectType(ctx, t, "kego.io/system", "type", "basic", "bool")
 	checkReflectType(ctx, t, "kego.io/system", "type", "embed", "[]*system.Reference")
@@ -22,8 +22,8 @@ func TestReflectType(t *testing.T) {
 }
 
 func checkReflectType(ctx context.Context, t *testing.T, path string, name string, field string, output string) {
-	cache := cachectx.FromContext(ctx)
-	p, ok := cache.Get(path)
+	scache := sysctx.FromContext(ctx)
+	p, ok := scache.Get(path)
 	assert.True(t, ok)
 	typ, ok := p.Types.Get(name)
 	assert.True(t, ok)

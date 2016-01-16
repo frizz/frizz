@@ -84,7 +84,7 @@ func (i Imports) alias(preferredAlias string) string {
 		}
 		count++
 		if count > 100 {
-			panic(kerr.New("FOVRTYCGSI", nil, "too many iterations"))
+			panic(kerr.New("FOVRTYCGSI", nil, "too many iterations").Error())
 		}
 	}
 }

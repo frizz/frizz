@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"testing"
 
+	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
 	"kego.io/process"
@@ -13,10 +14,6 @@ import (
 )
 
 func TestDefaultInterfaceNativeType(t *testing.T) {
-
-	if testing.Short() {
-		t.Skip("Skipping long-running end-to-end tests")
-	}
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -39,10 +36,6 @@ func TestDefaultInterfaceNativeType(t *testing.T) {
 
 }
 func TestNeedsDummyRule(t *testing.T) {
-
-	if testing.Short() {
-		t.Skip("Skipping long-running end-to-end tests")
-	}
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -67,10 +60,6 @@ func TestNeedsDummyRule(t *testing.T) {
 }
 
 func TestInt(t *testing.T) {
-
-	if testing.Short() {
-		t.Skip("Skipping long-running end-to-end tests")
-	}
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -122,10 +111,6 @@ func TestInt(t *testing.T) {
 
 func TestSelector(t *testing.T) {
 
-	if testing.Short() {
-		t.Skip("Skipping long-running end-to-end tests")
-	}
-
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
 	defer os.RemoveAll(namespace)
@@ -166,10 +151,6 @@ func TestSelector(t *testing.T) {
 }
 
 func TestRules(t *testing.T) {
-
-	if testing.Short() {
-		t.Skip("Skipping long-running end-to-end tests")
-	}
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -219,10 +200,6 @@ func TestRules(t *testing.T) {
 //TODO: Fix this test (we removed globals, so we must scan for globals)
 /*
 func TestImport(t *testing.T) {
-
-	if testing.Short() {
-		t.Skip("Skipping long-running end-to-end tests")
-	}
 
 	namespaceDir, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -275,7 +252,7 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 		return "", err
 	}
 
-	ctx, _, err := process.Initialise(&process.FromDefaults{
+	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
 		Path: path,
 	})
 	if err != nil {
@@ -284,7 +261,11 @@ func runKego(namespace string, name string, files map[string]string) (string, er
 
 	env := envctx.FromContext(ctx)
 
-	if err := process.KeCommand(ctx, process.Ke); err != nil {
+	if err := process.Generate(ctx, env); err != nil {
+		return "", err
+	}
+
+	if err := process.BuildAndRunLocalCommand(ctx); err != nil {
 		return "", err
 	}
 

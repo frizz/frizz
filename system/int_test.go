@@ -28,7 +28,7 @@ func testUnpackDefaultNativeTypeInt(t *testing.T, unpacker unpackerFunc) {
 
 	var i interface{}
 
-	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	err := unpacker(ctx, []byte(data), &i)
 	assert.NoError(t, err)

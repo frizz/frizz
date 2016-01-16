@@ -24,7 +24,7 @@ func TestWrapRule(t *testing.T) {
 		Object: &Object{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
 	}
 
-	ctx := tests.Context("a.b/c").Ctype("a", parentType).Ctype("@a", ruleType).Ctx()
+	ctx := tests.Context("a.b/c").Stype("a", parentType).Stype("@a", ruleType).Ctx()
 
 	r := &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "@a")},
@@ -93,8 +93,8 @@ func TestRuleWrapperItemsRule(t *testing.T) {
 	ctx := tests.Context("a.b/c").
 		Jtype("a", reflect.TypeOf(&parentStruct{})).
 		Jtype("@a", reflect.TypeOf(&ruleStruct{})).
-		Ctype("a", parentType).
-		Ctype("@a", ruleType).Ctx()
+		Stype("a", parentType).
+		Stype("@a", ruleType).Ctx()
 
 	w, err := WrapRule(ctx, &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "a")},

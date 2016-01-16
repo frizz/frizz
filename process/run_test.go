@@ -6,6 +6,11 @@ import (
 	"path/filepath"
 	"testing"
 
+	"kego.io/parse"
+
+	"fmt"
+
+	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
@@ -21,13 +26,22 @@ func TestRun(t *testing.T) {
 		"d.go":   `package d`,
 	})
 
-	cb := tests.Context(path).Dir(dir).Wg()
+	cb := tests.Context(path).Dir(dir).Jauto().Wg().Sauto(parse.Parse)
+
+	env := envctx.FromContext(cb.Ctx())
+
+	err = Generate(cb.Ctx(), env)
+	assert.NoError(t, err)
+
+	b, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
+	assert.NoError(t, err)
+	assert.Contains(t, string(b), "pkg.InitType(\"a\", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*ARule)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem())")
+	assert.Contains(t, string(b), fmt.Sprintf("%v", env.Hash))
 
 	err = BuildAndRunLocalCommand(cb.Ctx())
 	assert.NoError(t, err)
 
-	bytes, err := ioutil.ReadFile(filepath.Join(dir, "types", "generated-types.go"))
+	_, err = os.Stat(filepath.Join(dir, ".localke", "validate"))
 	assert.NoError(t, err)
-	source := string(bytes)
-	assert.Contains(t, source, "system.Register")
+
 }

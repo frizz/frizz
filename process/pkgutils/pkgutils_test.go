@@ -11,24 +11,21 @@ import (
 
 func TestGetPackagePath(t *testing.T) {
 
-	gopath := "/Users/dave/go"
+	cb := tests.Context("").OsVar("GOPATH", "/Users/dave/go")
+
 	dir := "/Users/dave/go/src/github.com/foo/bar"
-	pkg, err := getPackageFromDir(dir, gopath)
+	pkg, err := GetPackageFromDir(cb.Ctx(), dir)
 	assert.NoError(t, err)
 	assert.Equal(t, "github.com/foo/bar", pkg)
 
-	gopath = strings.Join([]string{"/Users/another/path", "/Users/dave/go", "/one/more"}, string(os.PathListSeparator))
-	pkg, err = getPackageFromDir(dir, gopath)
+	cb.OsVar("GOPATH", strings.Join([]string{"/Users/another/path", "/Users/dave/go", "/one/more"}, string(os.PathListSeparator)))
+	pkg, err = GetPackageFromDir(cb.Ctx(), dir)
 	assert.NoError(t, err)
 	assert.Equal(t, "github.com/foo/bar", pkg)
 
 }
 
 func TestGetPackageDir(t *testing.T) {
-
-	current, err := os.Getwd()
-	assert.NoError(t, err)
-	defer os.Chdir(current)
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)

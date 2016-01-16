@@ -75,6 +75,7 @@ func New(id string, inner error, descriptionFormat string, descriptionArgs ...in
 func (e Struct) Error() string {
 	if e.Inner == nil {
 		return fmt.Sprintf("\n%s error in %s:%d %s: %s.\n", e.Id, getRelPath(e.File), e.Line, e.Function, e.Description)
+		//return fmt.Sprintf("\n%s error in %s:%d %s: %s.\n", e.Id, e.File, e.Line, e.Function, e.Description)
 	}
 	inner := e.Inner.Error()
 	if strings.HasPrefix(inner, "\n") {
@@ -82,18 +83,21 @@ func (e Struct) Error() string {
 		inner = inner[1:]
 	}
 	return fmt.Sprintf("\n%s error in %s:%d %s: %s returned an error: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, e.Description, inner)
+	//return fmt.Sprintf("\n%s error in %s:%d %s: %s returned an error: \n%v", e.Id, e.File, e.Line, e.Function, e.Description, inner)
 }
 
-func getRelPath(filePath string) string {
+func getRelPath(filePath string) (out string) {
 	wd, err := os.Getwd()
 	if err != nil {
-		return filePath
+		out = filePath
+		return
 	}
-	rp, err := filepath.Rel(wd, filePath)
+	out, err = filepath.Rel(wd, filePath)
 	if err != nil {
-		return filePath
+		out = filePath
+		return
 	}
-	return rp
+	return
 }
 
 // ErrorId returns the unique id of the error

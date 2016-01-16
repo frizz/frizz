@@ -48,8 +48,8 @@ func TestFormatTag(t *testing.T) {
 	}
 	ctx := tests.Context("d.e/f").
 		JtypePathRule("a.b/c", "a", reflect.TypeOf(&parentStruct{}), reflect.TypeOf(&ruleStruct{})).
-		CtypePath("a.b/c", "a", parentType).
-		CtypePath("a.b/c", "@a", ruleType).Ctx()
+		StypePath("a.b/c", "a", parentType).
+		StypePath("a.b/c", "@a", ruleType).Ctx()
 
 	r := &system.RuleWrapper{
 		Interface: &ruleStruct{},
@@ -220,7 +220,7 @@ func TestGetTag(t *testing.T) {
 
 func TestGoTypeDescriptor(t *testing.T) {
 
-	cb := tests.Context("kego.io/system").Jauto().Cauto(parse.Parse)
+	cb := tests.Context("kego.io/system").Jauto().Sauto(parse.Parse)
 
 	p := &system.StringRule{
 		Object: &system.Object{
@@ -410,7 +410,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 
 func TypeErrors_NeedsTypes(t *testing.T) {
 
-	cb := tests.Context("kego.io/system").Jauto().Cauto(parse.Parse)
+	cb := tests.Context("kego.io/system").Jauto().Sauto(parse.Parse)
 
 	p := &system.JsonStringRule{
 		Object: &system.Object{

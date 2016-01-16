@@ -2,13 +2,13 @@ package process
 
 import (
 	"flag"
-	"os"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
+	"kego.io/context/sysctx"
+	"kego.io/context/vosctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/parse"
@@ -90,18 +90,20 @@ func (f FromFlags) getOptions() FromDefaults {
 	}
 }
 
-func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, error) {
+func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, context.CancelFunc, error) {
 	if overrides == nil {
 		overrides = FromFlags{}
 	}
 	options := overrides.getOptions()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	ctx = jsonctx.NewContext(ctx)
+	ctx, cancel := context.WithCancel(ctx)
+	ctx = jsonctx.AutoContext(ctx)
 	ctx = wgctx.NewContext(ctx)
-	ctx = cachectx.NewContext(ctx)
+	ctx = sysctx.NewContext(ctx)
 
 	cmd := &cmdctx.Cmd{}
+
+	vos := vosctx.FromContext(ctx)
 
 	path := ""
 	cmd.Edit = options.Edit
@@ -110,32 +112,22 @@ func Initialise(overrides optionsSpec) (context.Context, context.CancelFunc, err
 	cmd.Log = options.Log
 	cmd.Debug = options.Debug
 	if options.Path == "" {
-
-		dir, err := os.Getwd()
+		dir, err := vos.Getwd()
 		if err != nil {
-			return nil, nil, kerr.New("OKOLXAMBSJ", err, "os.Getwd")
+			return nil, nil, kerr.New("OKOLXAMBSJ", err, "vos.Getwd")
 		}
-		cmd.Dir = dir
-
-		p, err := pkgutils.GetPackageFromDir(cmd.Dir)
+		p, err := pkgutils.GetPackageFromDir(ctx, dir)
 		if err != nil {
 			return nil, nil, kerr.New("ADNJKTLAWY", err, "pkgutils.GetPackageFromDir")
 		}
 		path = p
-
 	} else {
-
 		path = options.Path
-		dir, err := pkgutils.GetDirFromPackage(options.Path)
-		if err != nil {
-			return nil, nil, kerr.New("QKPSIYSKUN", err, "pkgutils.GetDirFromPackage")
-		}
-		cmd.Dir = dir
 	}
 
 	ctx = cmdctx.NewContext(ctx, cmd)
 
-	pcache, err := parse.Parse(ctx, path, []string{})
+	pcache, err := parse.Parse(ctx, path)
 	if err != nil {
 		return nil, nil, kerr.New("EBMBIBIKUF", err, "parse.Parse")
 	}

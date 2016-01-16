@@ -26,7 +26,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, unpacker unpackerFunc) {
 		B NumberInterface `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := unpacker(ctx, []byte(data), &i)

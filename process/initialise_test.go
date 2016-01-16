@@ -4,17 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
 
 func TestInitialise(t *testing.T) {
-
-	current, err := os.Getwd()
-	assert.NoError(t, err)
-	defer os.Chdir(current)
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -29,31 +24,27 @@ func TestInitialise(t *testing.T) {
 		"b.go":   "package b",
 	})
 
-	err = os.Chdir(dirA)
-	assert.NoError(t, err)
+	cb := tests.NewContextBuilder().OsWd(dirA)
 
-	ctx, _, err := Initialise(nil)
+	ctx, _, err := Initialise(cb.Ctx(), nil)
 	assert.NoError(t, err)
 	env := envctx.FromContext(ctx)
-	cmd := cmdctx.FromContext(ctx)
-	assert.Equal(t, dirA, cmd.Dir)
+	assert.Equal(t, dirA, env.Dir)
 	assert.Equal(t, pathA, env.Path)
 
-	err = os.Chdir("/")
-	assert.NoError(t, err)
+	cb.OsWd("/")
 
-	ctx, _, err = Initialise(&FromDefaults{
+	ctx, _, err = Initialise(ctx, &FromDefaults{
 		Path: pathB,
 	})
 	env = envctx.FromContext(ctx)
-	cmd = cmdctx.FromContext(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, dirB, cmd.Dir)
+	assert.Equal(t, dirB, env.Dir)
 	assert.Equal(t, pathB, env.Path)
 
-	_, _, err = Initialise(&FromDefaults{
+	_, _, err = Initialise(ctx, &FromDefaults{
 		Path: "",
 	})
-	assert.IsError(t, err, "PSRAWHQCPV")
+	assert.IsError(t, err, "ADNJKTLAWY")
 	assert.HasError(t, err, "CXOETFPTGM")
 }

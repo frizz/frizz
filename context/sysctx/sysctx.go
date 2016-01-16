@@ -1,4 +1,4 @@
-package cachectx // import "kego.io/context/cachectx"
+package sysctx // import "kego.io/context/sysctx"
 
 import (
 	"sync"
@@ -10,10 +10,17 @@ import (
 	"kego.io/kerr"
 )
 
-// Env is the type of value stored in the Contexts.
-type PackageCache struct {
+type SysCache struct {
 	sync.RWMutex
 	m map[string]*PackageInfo
+}
+
+type PackageInfo struct {
+	Environment  *envctx.Env
+	PackageBytes []byte
+	Types        *TypeCache
+	TypeSource   *TypeSourceCache
+	Globals      *GlobalCache
 }
 
 type TypeCache struct {
@@ -31,25 +38,17 @@ type GlobalCache struct {
 	m map[string]GlobalInfo
 }
 
-type PackageInfo struct {
-	Environment  *envctx.Env
-	PackageBytes []byte
-	Types        *TypeCache
-	TypeSource   *TypeSourceCache
-	Globals      *GlobalCache
-}
-
 type GlobalInfo struct {
 	Name string
 	File string
 }
 
-func (c *PackageCache) Len() int {
+func (c *SysCache) Len() int {
 	c.RLock()
 	defer c.RUnlock()
 	return len(c.m)
 }
-func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
+func (c *SysCache) Set(env *envctx.Env) *PackageInfo {
 	c.Lock()
 	defer c.Unlock()
 	p := &PackageInfo{
@@ -62,7 +61,7 @@ func (c *PackageCache) Set(env *envctx.Env) *PackageInfo {
 	return p
 }
 
-func (c *PackageCache) GetType(path string, name string) (interface{}, bool) {
+func (c *SysCache) GetType(path string, name string) (interface{}, bool) {
 	p, ok := c.Get(path)
 	if !ok {
 		return nil, false
@@ -70,14 +69,14 @@ func (c *PackageCache) GetType(path string, name string) (interface{}, bool) {
 	return p.Types.Get(name)
 }
 
-func (c *PackageCache) Get(path string) (*PackageInfo, bool) {
+func (c *SysCache) Get(path string) (*PackageInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	info, ok := c.m[path]
 	return info, ok
 }
 
-func (c *PackageCache) Keys() []string {
+func (c *SysCache) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
@@ -182,28 +181,28 @@ func (c *TypeSourceCache) Keys() []string {
 // This prevents collisions with keys defined in other packages.
 type key int
 
-// cacheKey is the key for cachectx.Cache values in Contexts.  It is
-// unexported; clients use cachectx.NewContext and cachectx.FromContext
+// cacheKey is the key for sysctx.Cache values in Contexts.  It is
+// unexported; clients use sysctx.NewContext and sysctx.FromContext
 // instead of using this key directly.
 var cacheKey key = 0
 
 // NewContext returns a new Context that carries value u.
 func NewContext(ctx context.Context) context.Context {
-	c := &PackageCache{m: map[string]*PackageInfo{}}
+	c := &SysCache{m: map[string]*PackageInfo{}}
 	return context.WithValue(ctx, cacheKey, c)
 }
 
 // FromContext returns the Cache value stored in ctx, and panics if it's not found.
-func FromContext(ctx context.Context) *PackageCache {
-	e, ok := ctx.Value(cacheKey).(*PackageCache)
+func FromContext(ctx context.Context) *SysCache {
+	e, ok := ctx.Value(cacheKey).(*SysCache)
 	if !ok {
-		panic(kerr.New("DGGUPAXMUP", nil, "No cache in ctx"))
+		panic(kerr.New("DGGUPAXMUP", nil, "No sys cache in ctx").Error())
 	}
 	return e
 }
 
-func FromContextOrNil(ctx context.Context) *PackageCache {
-	e, ok := ctx.Value(cacheKey).(*PackageCache)
+func FromContextOrNil(ctx context.Context) *SysCache {
+	e, ok := ctx.Value(cacheKey).(*SysCache)
 	if ok {
 		return e
 	}

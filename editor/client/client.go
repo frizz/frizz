@@ -8,9 +8,9 @@ import (
 	"github.com/gopherjs/websocket"
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
-	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
+	"kego.io/context/sysctx"
 	"kego.io/editor"
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
@@ -54,10 +54,10 @@ func Start() error {
 	}
 	app.fail = make(chan error)
 	app.ctx = envctx.NewContext(context.Background(), app.env)
-	app.ctx = cachectx.NewContext(app.ctx)
-	app.ctx = jsonctx.NewContext(app.ctx)
+	app.ctx = sysctx.NewContext(app.ctx)
+	app.ctx = jsonctx.AutoContext(app.ctx)
 
-	cache := cachectx.FromContext(app.ctx)
+	scache := sysctx.FromContext(app.ctx)
 
 	system.RegisterJsonTypes(app.ctx)
 
@@ -66,7 +66,7 @@ func Start() error {
 			Path:    info.Path,
 			Aliases: info.Aliases,
 		}
-		pcache := cache.Set(env)
+		pcache := scache.Set(env)
 		for _, typeBytes := range info.Types {
 			if err := parse.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
 				return kerr.New("UJLXYWCVUC", err, "parse.ProcessTypeSourceBytes")
@@ -74,9 +74,9 @@ func Start() error {
 		}
 	}
 
-	pcache, ok := cache.Get(app.env.Path)
+	pcache, ok := scache.Get(app.env.Path)
 	if !ok {
-		return kerr.New("SRPHQPBBRX", nil, "%s not found in ctx", app.env.Path)
+		return kerr.New("SRPHQPBBRX", nil, "%s not found in sys ctx", app.env.Path)
 	}
 	types := map[string][]byte{}
 	for _, name := range pcache.TypeSource.Keys() {

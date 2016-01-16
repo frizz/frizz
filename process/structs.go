@@ -7,8 +7,8 @@ import (
 	"sort"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
 	"kego.io/context/envctx"
+	"kego.io/context/sysctx"
 	"kego.io/generator"
 	"kego.io/json"
 	"kego.io/kerr"
@@ -17,11 +17,11 @@ import (
 
 func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
-	cache := cachectx.FromContext(ctx)
+	scache := sysctx.FromContext(ctx)
 
-	pcache, ok := cache.Get(env.Path)
+	pcache, ok := scache.Get(env.Path)
 	if !ok {
-		return nil, kerr.New("DQVQWTKRSK", nil, "%s not found in ctx", env.Path)
+		return nil, kerr.New("DQVQWTKRSK", nil, "%s not found in sys ctx", env.Path)
 	}
 	types := pcache.Types
 
@@ -136,7 +136,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *generator.Ge
 	return nil
 }
 
-func printInitFunction(env *envctx.Env, g *generator.Generator, types *cachectx.TypeCache) {
+func printInitFunction(env *envctx.Env, g *generator.Generator, types *sysctx.TypeCache) {
 	g.Println("func init() {")
 	{
 		g.Print("pkg := ")

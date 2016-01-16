@@ -380,7 +380,7 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 	getType := func(r *system.Reference) (*system.Type, error) {
 		t, ok := system.GetTypeFromCache(ctx, r.Package, r.Name)
 		if !ok {
-			return nil, kerr.New("VEKXQDJFGD", nil, "Type %s not found in ctx", r.String())
+			return nil, kerr.New("VEKXQDJFGD", nil, "Type %s not found in sys ctx", r.String())
 		}
 		return t, nil
 	}

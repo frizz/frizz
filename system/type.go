@@ -6,13 +6,13 @@ import (
 	"reflect"
 
 	"golang.org/x/net/context"
-	"kego.io/context/cachectx"
+	"kego.io/context/sysctx"
 	"kego.io/json"
 	"kego.io/kerr"
 )
 
 func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
-	cache := cachectx.FromContext(ctx)
+	scache := sysctx.FromContext(ctx)
 
 	out := []*Type{}
 
@@ -33,8 +33,8 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 		reflectType = rt
 	}
 
-	for _, pkgName := range cache.Keys() {
-		pkgInfo, ok := cache.Get(pkgName)
+	for _, pkgName := range scache.Keys() {
+		pkgInfo, ok := scache.Get(pkgName)
 		if !ok {
 			continue
 		}
@@ -53,8 +53,8 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 }
 
 func GetTypeFromCache(ctx context.Context, path string, name string) (*Type, bool) {
-	cache := cachectx.FromContext(ctx)
-	pcache, ok := cache.Get(path)
+	scache := sysctx.FromContext(ctx)
+	pcache, ok := scache.Get(path)
 	if !ok {
 		return nil, false
 	}
