@@ -16,7 +16,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	. "kego.io/literal"
+	. "kego.io/process/generate/literal"
 )
 
 type ScanTest struct {

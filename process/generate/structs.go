@@ -9,9 +9,9 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
-	"kego.io/generator"
 	"kego.io/json"
 	"kego.io/kerr"
+	"kego.io/process/generate/builder"
 	"kego.io/system"
 )
 
@@ -25,7 +25,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	}
 	types := pcache.Types
 
-	g := generator.New(env.Path)
+	g := builder.New(env.Path)
 
 	infoBytes, err := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
 	if err != nil {
@@ -74,26 +74,26 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	return b, nil
 }
 
-func printInterfaceDefinition(env *envctx.Env, g *generator.Generator, typ *system.Type) {
+func printInterfaceDefinition(env *envctx.Env, g *builder.Builder, typ *system.Type) {
 	g.Println("type ", system.GoInterfaceName(typ.Id.Name), " interface {")
 	{
 		g.Println("Get",
 			system.GoName(typ.Id.Name),
 			"(ctx ",
-			generator.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
+			builder.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
 			") *",
 			system.GoName(typ.Id.Name))
 	}
 	g.Println("}")
 }
 
-func printInterfaceImplementation(env *envctx.Env, g *generator.Generator, typ *system.Type) {
+func printInterfaceImplementation(env *envctx.Env, g *builder.Builder, typ *system.Type) {
 	g.Println("func (o *",
 		system.GoName(typ.Id.Name),
 		") Get",
 		system.GoName(typ.Id.Name),
 		"(ctx ",
-		generator.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
+		builder.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
 		") *",
 		system.GoName(typ.Id.Name),
 		" {")
@@ -103,21 +103,21 @@ func printInterfaceImplementation(env *envctx.Env, g *generator.Generator, typ *
 	g.Println("}")
 }
 
-func printStructDefinition(ctx context.Context, env *envctx.Env, g *generator.Generator, typ *system.Type) error {
+func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
 	if typ.Description != "" {
 		g.Println("// ", typ.Description)
 	}
 	g.Println("type ", system.GoName(typ.Id.Name), " struct {")
 	{
 		if !typ.Basic {
-			g.Println("*", generator.Reference("kego.io/system", system.GoName("object"), env.Path, g.Imports.Add))
+			g.Println("*", builder.Reference("kego.io/system", system.GoName("object"), env.Path, g.Imports.Add))
 		}
 
 		embedsSortable := system.SortableReferences(typ.Embed)
 		sort.Sort(embedsSortable)
 		embeds := []*system.Reference(embedsSortable)
 		for _, embed := range embeds {
-			g.Println("*", generator.Reference(embed.Package, system.GoName(embed.Name), env.Path, g.Imports.Add))
+			g.Println("*", builder.Reference(embed.Package, system.GoName(embed.Name), env.Path, g.Imports.Add))
 		}
 
 		for _, nf := range typ.SortedFields() {
@@ -125,7 +125,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *generator.Ge
 			if b.Description != "" {
 				g.Println("// ", b.Description)
 			}
-			descriptor, err := generator.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add)
+			descriptor, err := builder.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add)
 			if err != nil {
 				return kerr.New("GDSKJDEKQD", err, "generator.TypeNew")
 			}
@@ -136,7 +136,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *generator.Ge
 	return nil
 }
 
-func printInitFunction(env *envctx.Env, g *generator.Generator, types *sysctx.TypeCache) {
+func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.TypeCache) {
 	g.Println("func init() {")
 	{
 		g.Print("pkg := ")

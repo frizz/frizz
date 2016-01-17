@@ -5,15 +5,15 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
-	"kego.io/generator"
 	"kego.io/kerr"
+	"kego.io/process/generate/builder"
 )
 
 func ValidateCommand(ctx context.Context) (source []byte, err error) {
 
 	env := envctx.FromContext(ctx)
 
-	g := generator.WithName(env.Path, "main")
+	g := builder.WithName(env.Path, "main")
 	g.Imports.Add("kego.io/process/validate/command")
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous(env.Path)

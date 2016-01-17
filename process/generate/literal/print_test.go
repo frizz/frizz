@@ -4,13 +4,13 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/generator"
 	"kego.io/kerr/assert"
+	"kego.io/process/generate/builder"
 )
 
 func TestGetName(t *testing.T) {
 
-	imp := generator.Imports{"e.f/g": generator.Import{Path: "e.f/g", Name: "g", Alias: "d"}}
+	imp := builder.Imports{"e.f/g": builder.Import{Path: "e.f/g", Name: "g", Alias: "d"}}
 
 	s := ""
 	b := true
@@ -27,21 +27,21 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "*int", GetName(reflect.TypeOf(&i), "a.b/c", imp.Add))
 	assert.Equal(t, "*float64", GetName(reflect.TypeOf(&f), "a.b/c", imp.Add))
 
-	impk := generator.Imports{
-		"e.f/g":           generator.Import{Path: "e.f/g", Name: "g", Alias: "d"},
-		"kego.io/literal": generator.Import{Path: "kego.io/literal", Name: "literal", Alias: "h"}}
+	impk := builder.Imports{
+		"e.f/g": builder.Import{Path: "e.f/g", Name: "g", Alias: "d"},
+		"kego.io/process/generate/literal": builder.Import{Path: "kego.io/process/generate/literal", Name: "literal", Alias: "h"}}
 	type MyType struct{}
 	m := MyType{}
 
-	assert.Equal(t, "MyType", GetName(reflect.TypeOf(m), "kego.io/literal", imp.Add))
+	assert.Equal(t, "MyType", GetName(reflect.TypeOf(m), "kego.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "h.MyType", GetName(reflect.TypeOf(m), "a.b/c", impk.Add))
-	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/literal", imp.Add))
+	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "*h.MyType", GetName(reflect.TypeOf(&m), "a.b/c", impk.Add))
 
 	asp := "kego.io/kerr/assert"
-	impa := generator.Imports{
-		"e.f/g": generator.Import{Path: "e.f/g", Name: "g", Alias: "d"},
-		asp:     generator.Import{Path: asp, Name: "assert", Alias: "as"},
+	impa := builder.Imports{
+		"e.f/g": builder.Import{Path: "e.f/g", Name: "g", Alias: "d"},
+		asp:     builder.Import{Path: asp, Name: "assert", Alias: "as"},
 	}
 	ass := assert.Assertions{} // Just using a random struct from a non system package
 
@@ -83,9 +83,9 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "map[bool]string", GetName(reflect.TypeOf(map[bool]string{}), "a.b/c", imp.Add))
 	assert.Equal(t, "map[*int]string", GetName(reflect.TypeOf(map[*int]string{}), "a.b/c", imp.Add))
 
-	assert.Equal(t, "map[MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "kego.io/literal", imp.Add))
+	assert.Equal(t, "map[MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "kego.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "map[h.MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "a.b/c", impk.Add))
-	assert.Equal(t, "map[*MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "kego.io/literal", imp.Add))
+	assert.Equal(t, "map[*MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "kego.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "map[*h.MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "a.b/c", impk.Add))
 
 	assert.Equal(t, "map[Assertions]string", GetName(reflect.TypeOf(map[assert.Assertions]string{}), asp, imp.Add))

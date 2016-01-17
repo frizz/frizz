@@ -1,4 +1,4 @@
-package generator
+package builder
 
 import (
 	"testing"
@@ -20,7 +20,7 @@ func TestNewWithName(t *testing.T) {
 	assert.Equal(t, "d", g.name)
 }
 
-func TestGenerator(t *testing.T) {
+func TestBuilder(t *testing.T) {
 	g := New("a.b/c")
 	b, err := g.Build()
 	assert.NoError(t, err)

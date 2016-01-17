@@ -7,7 +7,7 @@ package literal_test
 import (
 	"testing"
 
-	. "kego.io/literal"
+	. "kego.io/process/generate/literal"
 )
 
 type TI int

@@ -1,4 +1,4 @@
-package generator // import "kego.io/generator"
+package builder // import "kego.io/process/generate/builder"
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"kego.io/kerr"
 )
 
-type Generator struct {
+type Builder struct {
 	path       string
 	name       string
 	comment    string
@@ -19,35 +19,35 @@ type Generator struct {
 	buffer     *bytes.Buffer
 }
 
-func New(path string) *Generator {
+func New(path string) *Builder {
 	name := getPackageName(path)
-	return &Generator{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
+	return &Builder{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
 }
-func WithName(path string, name string) *Generator {
-	return &Generator{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
+func WithName(path string, name string) *Builder {
+	return &Builder{path: path, name: name, Imports: Imports{}, buffer: bytes.NewBuffer(nil)}
 }
 
-func (g *Generator) SetPackageComment(comment string) {
+func (g *Builder) SetPackageComment(comment string) {
 	g.comment = comment
 }
 
-func (g *Generator) Print(args ...interface{}) *Generator {
+func (g *Builder) Print(args ...interface{}) *Builder {
 	g.statements = append(g.statements, fmt.Sprint(args...))
 	return g
 }
-func (g *Generator) Printf(f string, args ...interface{}) *Generator {
+func (g *Builder) Printf(f string, args ...interface{}) *Builder {
 	g.statements = append(g.statements, fmt.Sprintf(f, args...))
 	return g
 }
-func (g *Generator) Println(args ...interface{}) *Generator {
+func (g *Builder) Println(args ...interface{}) *Builder {
 	g.statements = append(g.statements, fmt.Sprint(args...)+"\n")
 	return g
 }
-func (g *Generator) PrintMethodCall(name string, method string, args ...interface{}) *Generator {
+func (g *Builder) PrintMethodCall(name string, method string, args ...interface{}) *Builder {
 	g.statements = append(g.statements, g.SprintMethodCall(name, method, args...))
 	return g
 }
-func (g *Generator) SprintMethodCall(name string, method string, args ...interface{}) string {
+func (g *Builder) SprintMethodCall(name string, method string, args ...interface{}) string {
 	funcName := fmt.Sprint(name, ".", method)
 	argsList := []string{}
 	for _, arg := range args {
@@ -55,11 +55,11 @@ func (g *Generator) SprintMethodCall(name string, method string, args ...interfa
 	}
 	return fmt.Sprintf("%s(%s)", funcName, strings.Join(argsList, ", "))
 }
-func (g *Generator) PrintFunctionCall(path string, name string, args ...interface{}) *Generator {
+func (g *Builder) PrintFunctionCall(path string, name string, args ...interface{}) *Builder {
 	g.statements = append(g.statements, g.SprintFunctionCall(path, name, args...))
 	return g
 }
-func (g *Generator) SprintFunctionCall(path string, name string, args ...interface{}) string {
+func (g *Builder) SprintFunctionCall(path string, name string, args ...interface{}) string {
 	funcName := Reference(path, name, g.path, g.Imports.Add)
 	argsList := []string{}
 	for _, arg := range args {
@@ -68,7 +68,7 @@ func (g *Generator) SprintFunctionCall(path string, name string, args ...interfa
 	return fmt.Sprintf("%s(%s)", funcName, strings.Join(argsList, ", "))
 }
 
-func (g *Generator) Build() ([]byte, error) {
+func (g *Builder) Build() ([]byte, error) {
 	b := g.buffer
 	if len(g.comment) > 0 {
 		fmt.Fprintf(b, "// %s\n", g.comment)

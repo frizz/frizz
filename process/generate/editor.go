@@ -3,13 +3,13 @@ package generate
 import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
-	"kego.io/generator"
 	"kego.io/kerr"
+	"kego.io/process/generate/builder"
 )
 
 func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
-	g := generator.New("main")
+	g := builder.New("main")
 
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous("kego.io/system/editors")
@@ -26,10 +26,10 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	*/
 	g.Println("func main() {")
 	{
-		clientStart := generator.Reference("kego.io/editor/client", "Start", env.Path, g.Imports.Add)
+		clientStart := builder.Reference("kego.io/editor/client", "Start", env.Path, g.Imports.Add)
 		g.Println("if err := ", clientStart, "(); err != nil {")
 		{
-			consoleError := generator.Reference("kego.io/editor/client/console", "Error", env.Path, g.Imports.Add)
+			consoleError := builder.Reference("kego.io/editor/client/console", "Error", env.Path, g.Imports.Add)
 			g.Println(consoleError, "(err.Error())")
 		}
 		g.Println("}")
