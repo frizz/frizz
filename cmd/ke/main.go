@@ -61,7 +61,7 @@ func main() {
 	}
 
 	if cmd.Edit {
-		if err = server.Start(ctx); err != nil {
+		if err = server.Start(ctx, cancel); err != nil {
 			fmt.Println(err.Error())
 			wgctx.WaitAndExit(ctx, 1)
 		}

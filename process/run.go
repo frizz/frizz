@@ -37,8 +37,8 @@ func RunValidateCommand(ctx context.Context) (success bool, err error) {
 
 func runValidateCommand(ctx context.Context) (success bool, err error) {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "runValidateCommand")
+	defer wgctx.Done(ctx, "runValidateCommand")
 
 	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
@@ -94,8 +94,8 @@ func runValidateCommand(ctx context.Context) (success bool, err error) {
 // local command is generated. This command is then compiled before executing the binary.
 func BuildAndRunLocalCommand(ctx context.Context) error {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "BuildAndRunLocalCommand")
+	defer wgctx.Done(ctx, "BuildAndRunLocalCommand")
 
 	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)

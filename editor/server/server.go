@@ -50,10 +50,10 @@ type appData struct {
 
 var app appData
 
-func Start(ctx context.Context) error {
+func Start(ctx context.Context, cancel context.CancelFunc) error {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "Start")
+	defer wgctx.Done(ctx, "Start")
 
 	app.ctx = ctx
 
@@ -119,6 +119,7 @@ func Start(ctx context.Context) error {
 			return nil
 		case err, open := <-app.fail:
 			if !open {
+				cancel()
 				// Channel has been closed, so app should gracefully exit.
 				if cmd.Log {
 					fmt.Println("Exiting editor server (finished)... ")
@@ -178,8 +179,8 @@ func getData(ctx context.Context, in chan messages.MessageInterface, conn *conne
 
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "script")
+	defer wgctx.Done(ctx, "script")
 
 	path := req.URL.Path[1 : len(req.URL.Path)-10]
 
@@ -265,8 +266,8 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "root")
+	defer wgctx.Done(ctx, "root")
 
 	scache := sysctx.FromContext(ctx)
 
@@ -452,8 +453,8 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 
 func serve(ctx context.Context) error {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "serve")
+	defer wgctx.Done(ctx, "serve")
 
 	env := envctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
@@ -462,7 +463,6 @@ func serve(ctx context.Context) error {
 	listner, err := net.Listen("tcp", ":0")
 	if err != nil {
 		return kerr.New("QGLXHWPWQW", err, "net.Listen")
-
 	}
 	defer listner.Close()
 
@@ -500,7 +500,6 @@ func serve(ctx context.Context) error {
 	if cmd.Debug {
 		return kerr.New("ATUTBOICGJ", nil, "Connection closed")
 	}
-	close(app.fail)
 	return nil
 
 }

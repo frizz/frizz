@@ -96,8 +96,8 @@ func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err
 // filesystem.
 func Generate(ctx context.Context, env *envctx.Env) error {
 
-	wgctx.FromContext(ctx).Add(1)
-	defer wgctx.FromContext(ctx).Done()
+	wgctx.Add(ctx, "Generate")
+	defer wgctx.Done(ctx, "Generate")
 
 	cmd := cmdctx.FromContext(ctx)
 

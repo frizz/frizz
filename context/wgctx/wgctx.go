@@ -67,3 +67,15 @@ func WaitAndExit(ctx context.Context, code int) {
 	}
 
 }
+
+func Add(ctx context.Context, ref string) {
+	wg := FromContext(ctx)
+	wg.Add(1)
+	//fmt.Println("Add:", ref)
+}
+
+func Done(ctx context.Context, ref string) {
+	wg := FromContext(ctx)
+	wg.Done()
+	//fmt.Println("Done:", ref)
+}
