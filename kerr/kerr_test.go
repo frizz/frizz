@@ -10,24 +10,24 @@ import (
 )
 
 func TestErr(t *testing.T) {
-	e := kerr.New("FITIHGYHTR", nil, "b %s", "c")
+	e := kerr.New("FITIHGYHTR", "b %s", "c")
 	assert.Equal(t, "\nFITIHGYHTR error in kerr_test.go:13 TestErr: b c.\n", e.Error())
 
-	e = kerr.New("LBDLIDLDPE", fmt.Errorf("a"), "c %s", "d")
-	assert.Equal(t, "\nLBDLIDLDPE error in kerr_test.go:16 TestErr: c d returned an error: \na", e.Error())
+	e = kerr.Wrap("LBDLIDLDPE", fmt.Errorf("a"))
+	assert.Equal(t, "\nLBDLIDLDPE error in kerr_test.go:16 TestErr: \na", e.Error())
 
 	// Should remove a leading new-line from errors
-	e = kerr.New("OHUKDAEMPT", fmt.Errorf("\na"), "c %s", "d")
-	assert.Equal(t, "\nOHUKDAEMPT error in kerr_test.go:20 TestErr: c d returned an error: \na", e.Error())
+	e = kerr.Wrap("OHUKDAEMPT", fmt.Errorf("\na"))
+	assert.Equal(t, "\nOHUKDAEMPT error in kerr_test.go:20 TestErr: \na", e.Error())
 
-	e = kerr.New("TUPDJYPRNU", nil, "b")
+	e = kerr.New("TUPDJYPRNU", "b")
 	assert.Equal(t, "TUPDJYPRNU", e.ErrorId())
 
 }
 
 func TestSource(t *testing.T) {
 	source := fmt.Errorf("Foo")
-	e := kerr.New("PBNMPOIILQ", source, "b")
+	e := kerr.Wrap("PBNMPOIILQ", source)
 	s := kerr.Source(e)
 	assert.NotNil(t, s)
 	assert.Equal(t, "Foo", s.Error())
@@ -40,8 +40,8 @@ type TestError struct {
 
 func TestCustomError(t *testing.T) {
 
-	inner := TestError{kerr.New("JOUYKMBSBU", nil, "b"), "c"}
-	outer := kerr.New("GJXHQCHGUO", inner, "e")
+	inner := TestError{Struct: kerr.New("JOUYKMBSBU", "b"), Message: "c"}
+	outer := kerr.Wrap("GJXHQCHGUO", inner)
 	source := kerr.Source(outer)
 	_, ok := source.(TestError)
 	assert.True(t, ok)

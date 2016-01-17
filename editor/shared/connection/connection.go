@@ -66,7 +66,7 @@ func (c *Conn) applyTimeout(duration time.Duration, input chan messages.MessageI
 	go func() {
 		select {
 		case <-time.After(duration):
-			c.fail <- kerr.New("QKTKOKWSDG", nil, "Timed out waiting for message")
+			c.fail <- kerr.New("QKTKOKWSDG", "Timed out waiting for message")
 			return
 		case m := <-input:
 			output <- m

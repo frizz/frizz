@@ -31,11 +31,11 @@ func (e *MapEditor) Initialize(ctx context.Context, holder BranchInterface, layo
 
 	items, err := system.WrapRule(ctx, e.Rule.Interface.(system.CollectionRule).GetItemsRule())
 	if err != nil {
-		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
+		return kerr.Wrap("GQROTGVBXS", err)
 	}
 	hold, err := items.HoldsDisplayType(ctx)
 	if err != nil {
-		return kerr.New("XDKOSFJVQV", err, "ValueContext")
+		return kerr.Wrap("XDKOSFJVQV", err)
 	}
 
 	table.Head("name", "holds", "value")
@@ -63,7 +63,7 @@ func (e *MapEditor) Initialize(ctx context.Context, holder BranchInterface, layo
 		} else {
 			val, err := item.Type.Id.ValueContext(ctx)
 			if err != nil {
-				return kerr.New("RWHEKAOPHQ", err, "ValueContext")
+				return kerr.Wrap("RWHEKAOPHQ", err)
 			}
 			r.Cell().Text(val)
 		}

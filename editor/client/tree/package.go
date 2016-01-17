@@ -32,13 +32,13 @@ func (parent *Root) AddPackage(node *editor.Node, data map[string]string, types 
 	parent.Append(p)
 
 	if err := ed.Initialize(p.tree.ctx, p, editor.Page, p.tree.Fail); err != nil {
-		return kerr.New("NMIESKDFVN", err, "Initialize")
+		return kerr.Wrap("NMIESKDFVN", err)
 	}
 
 	p.ListenForEditorChanges(ed.Listen().Ch)
 
 	if err := addEntryChildren(node, p, ed); err != nil {
-		return kerr.New("RBISWQVLFN", err, "addEntryChildren")
+		return kerr.Wrap("RBISWQVLFN", err)
 	}
 
 	dataHolder := p.addHolder("data")

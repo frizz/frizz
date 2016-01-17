@@ -81,13 +81,13 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 		}
 		if strings.HasSuffix(req.URL.Path, "/script.js") {
 			if err := script(ctx, w, req, false, &mapping); err != nil {
-				app.fail <- kerr.New("XPVTVKDWHJ", err, "script (js)")
+				app.fail <- kerr.Wrap("XPVTVKDWHJ", err)
 				return
 			}
 			return
 		}
 		if err := root(ctx, w, req); err != nil {
-			app.fail <- kerr.New("QOMJGNOCQF", err, "root")
+			app.fail <- kerr.Wrap("QOMJGNOCQF", err)
 			return
 		}
 	})
@@ -150,12 +150,12 @@ func getData(ctx context.Context, in chan messages.MessageInterface, conn *conne
 		m := <-in
 		request, ok := m.(*messages.DataRequest)
 		if !ok {
-			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.DataRequest", m)
+			return kerr.New("VOXPGGLWTT", "Message %T is not a *messages.DataRequest", m)
 		}
 
 		env, err := parser.ScanForEnv(ctx, request.Package.Value())
 		if err != nil {
-			return kerr.New("EPCOFHDMBP", err, "parser.ScanForEnv")
+			return kerr.Wrap("EPCOFHDMBP", err)
 		}
 
 		file := filepath.Join(env.Dir, request.File.Value())
@@ -165,10 +165,10 @@ func getData(ctx context.Context, in chan messages.MessageInterface, conn *conne
 		localContext := envctx.NewContext(ctx, env)
 		o := &system.Object{}
 		if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
-			return kerr.New("WHMKLGRVKV", err, "ke.UnmarshalUntyped")
+			return kerr.Wrap("WHMKLGRVKV", err)
 		}
 		if o.Id.Name != request.Name.Value() {
-			return kerr.New("GDLLEGNJOP", nil, "Id does not match")
+			return kerr.New("GDLLEGNJOP", "Id does not match")
 		}
 
 		response := messages.NewDataResponse(request.Package.Value(), request.Name.Value(), true, string(bytes))
@@ -191,18 +191,18 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	// source file to a temporary location and delete after we have compiled it to Javascript.
 	source, err := generate.Editor(ctx, env)
 	if err != nil {
-		return kerr.New("UWPDBQXURR", err, "generate.Editor")
+		return kerr.Wrap("UWPDBQXURR", err)
 	}
 
 	namespace, err := tests.CreateTemporaryNamespace()
 	if err != nil {
-		return kerr.New("AFRRXCMOCM", err, "CreateTemporaryNamespace")
+		return kerr.Wrap("AFRRXCMOCM", err)
 	}
 	defer os.RemoveAll(namespace)
 
 	editorPath, _, _, err := tests.CreateTemporaryPackage(namespace, "a", map[string]string{"a.go": string(source)})
 	if err != nil {
-		return kerr.New("RDRIUFUOFY", err, "CreateTemporaryPackage")
+		return kerr.Wrap("RDRIUFUOFY", err)
 	}
 
 	options := &build.Options{CreateMapFile: true}
@@ -210,15 +210,15 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	buildPkg, err := build.Import(editorPath, 0, s.InstallSuffix(), options.BuildTags)
 	if err != nil {
-		return kerr.New("DNQVYTHSPT", err, "build.Import")
+		return kerr.Wrap("DNQVYTHSPT", err)
 	}
 	if buildPkg.Name != "main" {
-		return kerr.New("ADHPBPSKYV", nil, "Package name %s should be main", buildPkg.Name)
+		return kerr.New("ADHPBPSKYV", "Package name %s should be main", buildPkg.Name)
 	}
 
 	if mapper {
 		if _, err := w.Write(*mapping); err != nil {
-			return kerr.New("WFVDCWDVWL", err, "w.Write (mapping)")
+			return kerr.Wrap("WFVDCWDVWL", err)
 		}
 		return nil
 	}
@@ -234,7 +234,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	select {
 	case err := <-c:
 		if err != nil {
-			return kerr.New("TXUYQOUNQS", err, "s.BuildPackage")
+			return kerr.Wrap("TXUYQOUNQS", err)
 		}
 	case <-ctx.Done():
 		return nil
@@ -246,10 +246,10 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	deps, err := compiler.ImportDependencies(pkg.Archive, s.ImportContext.Import)
 	if err != nil {
-		return kerr.New("OVDUPSTRNR", err, "compiler.ImportDependencies")
+		return kerr.Wrap("OVDUPSTRNR", err)
 	}
 	if err := compiler.WriteProgramCode(deps, sourceMapFilter); err != nil {
-		return kerr.New("YVHQEJXQGP", err, "compiler.WriteProgramCode")
+		return kerr.Wrap("YVHQEJXQGP", err)
 	}
 
 	mapBuf := bytes.NewBuffer(nil)
@@ -259,7 +259,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	buf.WriteString("//# sourceMappingURL=script.js.map\n")
 
 	if _, err := w.Write(buf.Bytes()); err != nil {
-		return kerr.New("SSUPQDWLIV", err, "w.Write (js)")
+		return kerr.Wrap("SSUPQDWLIV", err)
 	}
 	return nil
 }
@@ -290,7 +290,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 			w.WriteHeader(404)
 			return nil
 		}
-		return kerr.New("ALINBMKDRP", err, "scanForEnv")
+		return kerr.Wrap("ALINBMKDRP", err)
 	}
 
 	pcache, ok := scache.Get(path)
@@ -298,7 +298,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		var err error
 		pcache, err = parser.Parse(ctx, path)
 		if err != nil {
-			return kerr.New("HIHWJRPUKE", err, "parser.Parse")
+			return kerr.Wrap("HIHWJRPUKE", err)
 		}
 	}
 
@@ -313,7 +313,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	if pkgBytes == nil {
 		b, err := ke.MarshalContext(ctx, system.EmptyPackage())
 		if err != nil {
-			return kerr.New("OUBOTYGPKU", err, "MarshalContext")
+			return kerr.Wrap("OUBOTYGPKU", err)
 		}
 		pkgBytes = b
 	}
@@ -321,7 +321,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	getImport := func(importPath string) (*shared.ImportInfo, error) {
 		importPackageInfo, ok := scache.Get(importPath)
 		if !ok {
-			return nil, kerr.New("VIGKIUPNCF", nil, "%s not found in sys ctx")
+			return nil, kerr.New("VIGKIUPNCF", "%s not found in sys ctx")
 		}
 		info := &shared.ImportInfo{
 			Path:    importPath,
@@ -338,7 +338,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 
 	systemImport, err := getImport("kego.io/system")
 	if err != nil {
-		return kerr.New("SAFQNEKXAP", err, "getImport")
+		return kerr.Wrap("SAFQNEKXAP", err)
 	}
 	imports := map[string]*shared.ImportInfo{"kego.io/system": systemImport}
 	var scan func(string) error
@@ -348,19 +348,19 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		}
 		aliasImport, err := getImport(p)
 		if err != nil {
-			return kerr.New("YTHDSRBMBW", err, "getImport")
+			return kerr.Wrap("YTHDSRBMBW", err)
 		}
 		imports[p] = aliasImport
 
 		for child, _ := range aliasImport.Aliases {
 			if err := scan(child); err != nil {
-				return kerr.New("NCULMUUUOT", err, "scan")
+				return kerr.Wrap("NCULMUUUOT", err)
 			}
 		}
 		return nil
 	}
 	if err := scan(env.Path); err != nil {
-		return kerr.New("EELKQDCJGN", err, "scan")
+		return kerr.Wrap("EELKQDCJGN", err)
 	}
 
 	info := shared.Info{
@@ -372,7 +372,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	}
 	marshalled, err := json.Marshal(info)
 	if err != nil {
-		return kerr.New("OHBYTULHUQ", err, "json.Marshal (info)")
+		return kerr.Wrap("OHBYTULHUQ", err)
 	}
 	attribute := url.QueryEscape(fmt.Sprintf("%s", marshalled))
 
@@ -445,7 +445,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		</html>`)
 
 	if _, err := w.Write(source); err != nil {
-		return kerr.New("ICJSAIMDRF", err, "w.Write (root)")
+		return kerr.Wrap("ICJSAIMDRF", err)
 	}
 
 	return nil
@@ -462,21 +462,21 @@ func serve(ctx context.Context) error {
 	// Starting with port zero chooses a random open port
 	listner, err := net.Listen("tcp", ":0")
 	if err != nil {
-		return kerr.New("QGLXHWPWQW", err, "net.Listen")
+		return kerr.Wrap("QGLXHWPWQW", err)
 	}
 	defer listner.Close()
 
 	// Here we get the address we're serving on
 	address, ok := listner.Addr().(*net.TCPAddr)
 	if !ok {
-		return kerr.New("CBLPYVGGUR", nil, "Can't find address (l.Addr() is not *net.TCPAddr)")
+		return kerr.New("CBLPYVGGUR", "Can't find address (l.Addr() is not *net.TCPAddr)")
 	}
 
 	url := fmt.Sprintf("http://localhost:%d/%s/", address.Port, env.Path)
 
 	// We open the default browser and navigate to the address we're serving from.
 	if err := browser.OpenURL(url); err != nil {
-		return kerr.New("AEJLAXGVVA", err, "browser.OpenUrl")
+		return kerr.Wrap("AEJLAXGVVA", err)
 	}
 
 	if cmd.Log {
@@ -491,14 +491,14 @@ func serve(ctx context.Context) error {
 	select {
 	case err := <-c:
 		if err != nil {
-			return kerr.New("TUCBTWMRNN", err, "http.Serve")
+			return kerr.Wrap("TUCBTWMRNN", err)
 		}
 	case <-ctx.Done():
 		// continue
 	}
 
 	if cmd.Debug {
-		return kerr.New("ATUTBOICGJ", nil, "Connection closed")
+		return kerr.New("ATUTBOICGJ", "Connection closed")
 	}
 	return nil
 

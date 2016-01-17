@@ -17,7 +17,7 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 
 	outer, err := system.WrapRule(ctx, field)
 	if err != nil {
-		return "", kerr.New("TFXFBIRXHN", err, "NewRuleHolder")
+		return "", kerr.Wrap("TFXFBIRXHN", err)
 	}
 
 	// if the rule is a complex collection, with possibly several maps and arrays, this
@@ -25,7 +25,7 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 	// for an array of maps. It also returns the inner rule.
 	prefix, inner, err := collectionPrefixInnerRule("", outer)
 	if err != nil {
-		return "", kerr.New("SOGEFOPJHB", err, "collectionPrefixInnerRule")
+		return "", kerr.Wrap("SOGEFOPJHB", err)
 	}
 
 	var name, pointer string
@@ -44,7 +44,7 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
 	tag, err := getTag(envctx.Empty, fieldName, field.GetRule(nil).Exclude, inner)
 	if err != nil {
-		return "", kerr.New("CSJHNCMHRU", err, "getTag")
+		return "", kerr.Wrap("CSJHNCMHRU", err)
 	}
 	if tag != "" {
 		tag = " " + tag
@@ -67,7 +67,7 @@ func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPr
 		}
 		items, err := outer.ItemsRule()
 		if err != nil {
-			return "", nil, kerr.New("SUTYJEGBKW", err, "outer.ItemsRule")
+			return "", nil, kerr.Wrap("SUTYJEGBKW", err)
 		}
 		return collectionPrefixInnerRule(prefix, items)
 	} else {
@@ -115,7 +115,7 @@ func formatTag(ctx context.Context, fieldName string, exclude bool, defaultBytes
 
 		jsonBytes, err := json.MarshalPlain(tag)
 		if err != nil {
-			return "", kerr.New("LKBWJTMJCF", err, "json.Marshal(tag)")
+			return "", kerr.Wrap("LKBWJTMJCF", err)
 		}
 		kegoTag = string(jsonBytes)
 	}
@@ -161,14 +161,14 @@ func getTag(ctx context.Context, fieldName string, exclude bool, r *system.RuleW
 	if m, ok := d.(json.Marshaler); ok {
 		defaultBytes, err := m.MarshalJSON(ctx)
 		if err != nil {
-			return "", kerr.New("YIEMHYFVCD", err, "m.MarshalJSON")
+			return "", kerr.Wrap("YIEMHYFVCD", err)
 		}
 		return formatTag(ctx, fieldName, exclude, defaultBytes, r)
 	}
 
 	defaultBytes, err := json.MarshalPlain(d)
 	if err != nil {
-		return "", kerr.New("QQDOLAJKLU", err, "json.Marshal (typed)")
+		return "", kerr.Wrap("QQDOLAJKLU", err)
 	}
 
 	return formatTag(ctx, fieldName, exclude, defaultBytes, r)

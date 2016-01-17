@@ -8,6 +8,6 @@ import (
 
 func foo() {
 	err := fmt.Errorf("foo")
-	_ = kerr.New1("EQBCISEPSL", "A", "B")
+	_ = kerr.New("EQBCISEPSL", "A", "B")
 	_ = kerr.Wrap("XIJAQTCQBQ", err)
 }

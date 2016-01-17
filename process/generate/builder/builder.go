@@ -98,7 +98,7 @@ func (g *Builder) Build() ([]byte, error) {
 
 	source, err := format.Source(b.Bytes())
 	if err != nil {
-		return nil, kerr.New("CRBYOUOHPG", err, "format.Source: %s", b.String())
+		return nil, kerr.Wrap("CRBYOUOHPG", err)
 	}
 	return source, nil
 }

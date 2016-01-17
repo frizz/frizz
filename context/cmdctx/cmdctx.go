@@ -32,7 +32,7 @@ func NewContext(ctx context.Context, e *Cmd) context.Context {
 func FromContext(ctx context.Context) *Cmd {
 	e, ok := ctx.Value(cmdKey).(*Cmd)
 	if !ok {
-		panic(kerr.New("OQVLBQFQJW", nil, "No cmd in ctx").Error())
+		panic(kerr.New("OQVLBQFQJW", "No cmd in ctx").Error())
 	}
 	return e
 }

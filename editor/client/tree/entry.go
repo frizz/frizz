@@ -23,12 +23,12 @@ func addEntryFromBytes(tree *Tree, name string, bytes []byte, parentBranch Branc
 
 	n := editor.NewEditorNode()
 	if err := ke.UnmarshalUntyped(tree.ctx, bytes, n); err != nil {
-		return nil, kerr.New("EAMNRBNRCE", err, "UnmarshalUntyped")
+		return nil, kerr.Wrap("EAMNRBNRCE", err)
 	}
 
 	e, err := addEntry(name, -1, n, parentBranch, parentEditor)
 	if err != nil {
-		return nil, kerr.New("FMIAASWRPY", err, "addEntry")
+		return nil, kerr.Wrap("FMIAASWRPY", err)
 	}
 	return e, nil
 
@@ -53,13 +53,13 @@ func addEntry(name string, index int, node *editor.Node, parentBranch BranchInte
 	parentBranch.Append(e)
 
 	if err := ed.Initialize(e.tree.ctx, e, editor.Page, e.tree.Fail); err != nil {
-		return nil, kerr.New("PMLOGADEVK", err, "Initialize")
+		return nil, kerr.Wrap("PMLOGADEVK", err)
 	}
 
 	e.ListenForEditorChanges(ed.Listen().Ch)
 
 	if err := addEntryChildren(node, e, ed); err != nil {
-		return nil, kerr.New("UPRWSRECVR", err, "addEntryChildren")
+		return nil, kerr.Wrap("UPRWSRECVR", err)
 	}
 
 	e.close()
@@ -77,14 +77,14 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 		for i, v := range parentNode.Array {
 			child := v.(*editor.Node)
 			if _, err := addEntry("", i, child, parentBranch, parentEditor); err != nil {
-				return kerr.New("IOXSWBQDXH", err, "addEntry (array)")
+				return kerr.Wrap("IOXSWBQDXH", err)
 			}
 		}
 	case "map":
 		for name, v := range parentNode.Map {
 			child := v.(*editor.Node)
 			if _, err := addEntry(name, -1, child, parentBranch, parentEditor); err != nil {
-				return kerr.New("YVTQCADGJF", err, "addEntry (map)")
+				return kerr.Wrap("YVTQCADGJF", err)
 			}
 		}
 	case "object":
@@ -94,7 +94,7 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 				continue
 			}
 			if _, err := addEntry(name, -1, child, parentBranch, parentEditor); err != nil {
-				return kerr.New("SIBWLRIXRG", err, "addEntry (object)")
+				return kerr.Wrap("SIBWLRIXRG", err)
 			}
 		}
 	}
@@ -104,7 +104,7 @@ func addEntryChildren(parentNode *editor.Node, parentBranch BranchInterface, par
 func (parent *holder) addTypes(types map[string][]byte) error {
 	for name, bytes := range types {
 		if _, err := addEntryFromBytes(parent.tree, name, bytes, parent, parent.editor); err != nil {
-			return kerr.New("CBLBCUUJFH", err, "addEntryFromBytes")
+			return kerr.Wrap("CBLBCUUJFH", err)
 		}
 	}
 	return nil

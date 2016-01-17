@@ -40,22 +40,24 @@ type Interface interface {
 	ErrorInner() error
 }
 
-func New1(id string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
-	return New(id, nil, descriptionFormat, descriptionArgs...)
-}
-func Wrap(id string, inner error) Struct {
-	return New(id, inner, "")
+// New creates a new kerr.Error
+func New(id string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
+	return newKerr(id, nil, descriptionFormat, descriptionArgs...)
 }
 
-// New creates a new kerr.Error
-func New(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
+// Wrap wraps an error in a kerr
+func Wrap(id string, inner error) Struct {
+	return newKerr(id, inner, "")
+}
+
+func newKerr(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
 	stack := []string{id}
 	if i, ok := inner.(Interface); ok {
 		stack = append(i.ErrorStack(), id)
 	}
 
 	packageName, functionName := "", ""
-	pc, file, line, ok := runtime.Caller(1)
+	pc, file, line, ok := runtime.Caller(2)
 	if ok {
 		f := runtime.FuncForPC(pc)
 		caller := f.Name()
@@ -82,15 +84,13 @@ func New(id string, inner error, descriptionFormat string, descriptionArgs ...in
 func (e Struct) Error() string {
 	if e.Inner == nil {
 		return fmt.Sprintf("\n%s error in %s:%d %s: %s.\n", e.Id, getRelPath(e.File), e.Line, e.Function, e.Description)
-		//return fmt.Sprintf("\n%s error in %s:%d %s: %s.\n", e.Id, e.File, e.Line, e.Function, e.Description)
 	}
 	inner := e.Inner.Error()
 	if strings.HasPrefix(inner, "\n") {
 		// Remove the leading new-line from inner error
 		inner = inner[1:]
 	}
-	return fmt.Sprintf("\n%s error in %s:%d %s: %s returned an error: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, e.Description, inner)
-	//return fmt.Sprintf("\n%s error in %s:%d %s: %s returned an error: \n%v", e.Id, e.File, e.Line, e.Function, e.Description, inner)
+	return fmt.Sprintf("\n%s error in %s:%d %s: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, inner)
 }
 
 func getRelPath(filePath string) (out string) {

@@ -19,7 +19,7 @@ func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (bool, string
 	val := reflect.ValueOf(data)
 
 	if val.Kind() != reflect.Slice {
-		return false, "", kerr.New("NFWPLTOJLP", nil, "val.Kind %s should be slice.", val.Kind())
+		return false, "", kerr.New("NFWPLTOJLP", "val.Kind %s should be slice.", val.Kind())
 	}
 
 	// This is the maximum number of items allowed in the array

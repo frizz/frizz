@@ -22,13 +22,13 @@ type unpackStruct struct {
 func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 
 	if in.Type() != J_MAP {
-		return kerr.New("XOOUKLGORQ", nil, "Type %s should be J_MAP", in.Type())
+		return kerr.New("XOOUKLGORQ", "Type %s should be J_MAP", in.Type())
 	}
 
 	us := &unpackStruct{}
 	typ, err := us.getTypeFromField(ctx, in, reflect.Value{})
 	if err != nil {
-		return kerr.New("NUHCPRKRXT", err, "getTypeFromField (global)")
+		return kerr.Wrap("NUHCPRKRXT", err)
 	}
 	//if typ == nil {
 	//return kerr.New("GREMVFEUMH", nil, "Unknown global type %#v", in.Map()["type"])
@@ -84,7 +84,7 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 		return UnknownTypeError{us.unknownType}
 	}
 	if err != nil {
-		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
+		return kerr.Wrap("BCVBRIKFJX", err)
 	}
 
 	if debug {
@@ -108,15 +108,15 @@ func (us *unpackStruct) unpack(ctx context.Context, in Packed, v reflect.Value) 
 	switch typ {
 	case J_MAP:
 		if err := us.unpackObject(ctx, in, v); err != nil {
-			return kerr.New("LMLUICBTBA", err, "unpackObject")
+			return kerr.Wrap("LMLUICBTBA", err)
 		}
 	case J_ARRAY:
 		if err := us.unpackArray(ctx, in, v); err != nil {
-			return kerr.New("ITJMJWULKO", err, "unpackArray")
+			return kerr.Wrap("ITJMJWULKO", err)
 		}
 	default:
 		if err := us.unpackLiteral(ctx, in, v); err != nil {
-			return kerr.New("BSTNWUKLYO", err, "unpackLiteral")
+			return kerr.Wrap("BSTNWUKLYO", err)
 		}
 	}
 	return nil
@@ -128,7 +128,7 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 	_, _, up, pv := indirect(v, wantptr, false, true)
 	if up != nil {
 		if err := up.Unpack(ctx, in); err != nil {
-			return kerr.New("RYSLUEEOAW", err, "Unpack (plain)")
+			return kerr.Wrap("RYSLUEEOAW", err)
 		}
 		return nil
 	}
@@ -157,7 +157,7 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 				v.Set(reflect.ValueOf(in.Bool()))
 			} else {
 				if err := setDefaultNativeValueUnpack(ctx, v, in); err != nil {
-					return kerr.New("DLQUIGTSLP", err, "setDefaultNativeValueUnpack (bool)")
+					return kerr.Wrap("DLQUIGTSLP", err)
 				}
 			}
 		}
@@ -172,7 +172,7 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 			b := make([]byte, base64.StdEncoding.DecodedLen(len(in.String())))
 			n, err := base64.StdEncoding.Decode(b, []byte(in.String()))
 			if err != nil {
-				return kerr.New("OKMBMDOFNL", err, "base64.StdEncoding.Decode")
+				return kerr.Wrap("OKMBMDOFNL", err)
 			}
 			v.Set(reflect.ValueOf(b[0:n]))
 		case reflect.String:
@@ -182,7 +182,7 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 				v.Set(reflect.ValueOf(in.String()))
 			} else {
 				if err := setDefaultNativeValueUnpack(ctx, v, in); err != nil {
-					return kerr.New("PRTYFVSEFT", err, "setDefaultNativeValueUnpack (string)")
+					return kerr.Wrap("PRTYFVSEFT", err)
 				}
 			}
 		}
@@ -198,7 +198,7 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 		case reflect.Interface:
 			if v.NumMethod() != 0 {
 				if err := setDefaultNativeValueUnpack(ctx, v, in); err != nil {
-					return kerr.New("FYHICWEELI", err, "setDefaultNativeValueUnpack (number)")
+					return kerr.Wrap("FYHICWEELI", err)
 				}
 				break
 			}
@@ -228,12 +228,12 @@ func (us *unpackStruct) unpackLiteral(ctx context.Context, in Packed, v reflect.
 func setDefaultNativeValueUnpack(ctx context.Context, v reflect.Value, in Packed) error {
 	t, ok := jsonctx.FromContext(ctx).GetTypeByInterface(v.Type())
 	if !ok {
-		return kerr.New("YSBBTCVOUU", nil, "No type found for %s", v.Type().Name())
+		return kerr.New("YSBBTCVOUU", "No type found for %s", v.Type().Name())
 	}
 	var i interface{}
 	err := UnpackFragment(ctx, in, &i, t, false)
 	if err != nil {
-		return kerr.New("BCVBRIKFJX", err, "unpack (fragment)")
+		return kerr.Wrap("BCVBRIKFJX", err)
 	}
 	v.Set(reflect.ValueOf(i))
 	return nil
@@ -242,14 +242,14 @@ func setDefaultNativeValueUnpack(ctx context.Context, v reflect.Value, in Packed
 func (us *unpackStruct) unpackArray(ctx context.Context, in Packed, v reflect.Value) error {
 
 	if in.Type() != J_ARRAY {
-		return kerr.New("PVJMVPULMY", nil, "Type %s should be J_ARRAY", in.Type())
+		return kerr.New("PVJMVPULMY", "Type %s should be J_ARRAY", in.Type())
 	}
 
 	// Check for unpackers.
 	_, _, up, pv := indirect(v, false, false, true)
 	if up != nil {
 		if err := up.Unpack(ctx, in); err != nil {
-			return kerr.New("PQRNFAYAYQ", err, "Unpack (plain)")
+			return kerr.Wrap("PQRNFAYAYQ", err)
 		}
 		return nil
 	}
@@ -257,7 +257,7 @@ func (us *unpackStruct) unpackArray(ctx context.Context, in Packed, v reflect.Va
 
 	// Check type of target.
 	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
-		return kerr.New("AODAOUPIED", nil, "Array must be Array or Slice. This is %s", v.Kind())
+		return kerr.New("AODAOUPIED", "Array must be Array or Slice. This is %s", v.Kind())
 	}
 
 	i := 0
@@ -284,7 +284,7 @@ func (us *unpackStruct) unpackArray(ctx context.Context, in Packed, v reflect.Va
 		if i < v.Len() {
 			// Decode into element.
 			if err := us.unpack(ctx, in, v.Index(i)); err != nil {
-				return kerr.New("PKGCUIXVWS", err, "unpack")
+				return kerr.Wrap("PKGCUIXVWS", err)
 			}
 		}
 		i++
@@ -310,7 +310,7 @@ func (us *unpackStruct) unpackArray(ctx context.Context, in Packed, v reflect.Va
 func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.Value) error {
 
 	if in.Type() != J_MAP {
-		return kerr.New("PBAXKEKVTA", nil, "Type %s should be J_MAP", in.Type())
+		return kerr.New("PBAXKEKVTA", "Type %s should be J_MAP", in.Type())
 	}
 
 	hasConcreteType := false
@@ -326,11 +326,11 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 		// This sets the value of v to the correct type based on the "type" attribute.
 		typ, err := us.getTypeFromField(ctx, in, v)
 		if err != nil {
-			return kerr.New("BGJEIXFQHL", err, "getTypeFromField (interface) %s", v.String())
+			return kerr.Wrap("BGJEIXFQHL", err)
 		}
 		if typ != nil {
 			if err := setType(v, typ); err != nil {
-				return kerr.New("KBWJCMHWYF", err, "setType")
+				return kerr.Wrap("KBWJCMHWYF", err)
 			}
 		}
 	case reflect.Struct:
@@ -348,7 +348,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 	_, _, up, rv := indirect(v, false, false, true)
 	if up != nil {
 		if err := up.Unpack(ctx, in); err != nil {
-			return kerr.New("NPDUYUXVVK", err, "Unpack")
+			return kerr.Wrap("NPDUYUXVVK", err)
 		}
 		return nil
 	}
@@ -366,7 +366,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 		// map must have string kind
 		t := v.Type()
 		if t.Key().Kind() != reflect.String {
-			return kerr.New("TXNQGFVHOT", nil, "Map must have string keys. This has %s", t.Key().Kind())
+			return kerr.New("TXNQGFVHOT", "Map must have string keys. This has %s", t.Key().Kind())
 		}
 		if v.IsNil() {
 			v.Set(reflect.MakeMap(t))
@@ -374,7 +374,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 	case reflect.Struct:
 		// This is ok.
 	default:
-		return kerr.New("AMDJPDYCGI", nil, "unpackObject only unpacks maps and structs. This is %s %s", v.Type().Name(), v.Kind())
+		return kerr.New("AMDJPDYCGI", "unpackObject only unpacks maps and structs. This is %s %s", v.Type().Name(), v.Kind())
 	}
 
 	var mapElem reflect.Value
@@ -409,7 +409,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 			if f != nil {
 				subv = v
 				if f.quoted {
-					return kerr.New("SRULCNWOWM", nil, "Quoted json not supported by Unpack")
+					return kerr.New("SRULCNWOWM", "Quoted json not supported by Unpack")
 				}
 				for _, i := range f.index {
 					if subv.Kind() == reflect.Ptr {
@@ -425,7 +425,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 		}
 
 		if err := us.unpack(ctx, val, subv); err != nil {
-			return kerr.New("SIJHJHWXYF", err, "unpack")
+			return kerr.Wrap("SIJHJHWXYF", err)
 		}
 
 		// Write value back to map;
@@ -437,7 +437,7 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 	}
 
 	if err := initialiseUnmarshaledObject(ctx, v, foundFields, true, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
-		return kerr.New("XWHQSWVNLF", err, "initialiseUnmarshaledObject")
+		return kerr.Wrap("XWHQSWVNLF", err)
 	}
 	return nil
 }
@@ -445,16 +445,16 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface reflect.Value) (reflect.Type, error) {
 
 	if in.Type() != J_MAP {
-		return nil, kerr.New("LCJRIHJXFU", nil, "Type %s should be J_MAP", in.Type())
+		return nil, kerr.New("LCJRIHJXFU", "Type %s should be J_MAP", in.Type())
 	}
 
 	m := in.Map()
 	t, ok := m["type"]
 	if !ok {
-		return nil, kerr.New("RMMVQNVHTU", nil, "Input missing type field")
+		return nil, kerr.New("RMMVQNVHTU", "Input missing type field")
 	}
 	if t.Type() != J_STRING {
-		return nil, kerr.New("RPBSKPRLJQ", nil, "Type field %s is not string", t.Type())
+		return nil, kerr.New("RPBSKPRLJQ", "Type field %s is not string", t.Type())
 	}
 	typePath, typeName, err := GetReferencePartsFromTypeString(ctx, t.String())
 	if err != nil {
@@ -463,7 +463,7 @@ func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface r
 			// aliases we need to tolerate unknown packages
 			us.unknownPackage = unk.UnknownPackage
 		} else {
-			return nil, kerr.New("KXBNXCCRYH", err, "GetReferencePartsFromTypeString")
+			return nil, kerr.Wrap("KXBNXCCRYH", err)
 		}
 	}
 	return us.getType(ctx, typePath, typeName, iface), nil

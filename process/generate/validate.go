@@ -26,7 +26,7 @@ func ValidateCommand(ctx context.Context) (source []byte, err error) {
 		}`)
 	b, err := g.Build()
 	if err != nil {
-		return nil, kerr.New("IIIRBBXASR", err, "Build")
+		return nil, kerr.Wrap("IIIRBBXASR", err)
 	}
 	return b, nil
 }

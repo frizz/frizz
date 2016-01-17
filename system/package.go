@@ -8,13 +8,13 @@ import (
 
 type ExtendedPackage struct {
 	*Package
-	Path string
-	Hash uint64
+	Path	string
+	Hash	uint64
 }
 
 var packages struct {
 	sync.RWMutex
-	m map[string]*ExtendedPackage
+	m	map[string]*ExtendedPackage
 }
 
 func EmptyPackage() *Package {
@@ -22,8 +22,8 @@ func EmptyPackage() *Package {
 		Object: &Object{
 			Type: NewReference("kego.io/system", "package"),
 		},
-		Aliases:   map[string]string{},
-		Recursive: false,
+		Aliases:	map[string]string{},
+		Recursive:	false,
 	}
 }
 
@@ -34,7 +34,7 @@ func RegisterPackage(path string, p *Package, hash uint64) error {
 		packages.m = make(map[string]*ExtendedPackage)
 	}
 	if pa, found := packages.m[path]; found && pa.Hash != hash {
-		return kerr.New("RVCNUWAGAQ", nil, "Package %s already exists", pa.Path)
+		return kerr.New("RVCNUWAGAQ", "Package %s already exists", pa.Path)
 	}
 	packages.m[path] = &ExtendedPackage{Package: p, Path: path, Hash: hash}
 	return nil

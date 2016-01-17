@@ -26,7 +26,7 @@ func (t *Photo) GetUrl() string {
 func (r *ImageRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 	i, ok := data.(Image)
 	if !ok {
-		return false, "", kerr.New("OSKCXRKIKC", nil, "ImageRule.Enforce", "data %T does not implement Image", data)
+		return false, "", kerr.New("OSKCXRKIKC", "ImageRule.Enforce", "data %T does not implement Image", data)
 	}
 	if r.Secure != nil {
 		url := i.GetUrl()

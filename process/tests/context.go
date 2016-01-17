@@ -212,7 +212,7 @@ func (c *ContextBuilder) JtypePathRule(path string, name string, typ reflect.Typ
 	isrule := false
 	if strings.HasPrefix(name, jsonctx.RULE_PREFIX) {
 		if rule != nil {
-			panic(kerr.New("UBFYEAGXHJ", nil, "rule specified!").Error())
+			panic(kerr.New("UBFYEAGXHJ", "rule specified!").Error())
 		}
 		isrule = true
 		name = name[1:]

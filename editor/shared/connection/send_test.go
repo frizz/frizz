@@ -101,16 +101,16 @@ func TestRespond(t *testing.T) {
 func clone(ctx context.Context, in system.ObjectInterface) (system.ObjectInterface, error) {
 	b, err := ke.Marshal(in)
 	if err != nil {
-		return nil, kerr.New("WSTYPJHIVG", err, "ke.Marshal")
+		return nil, kerr.Wrap("WSTYPJHIVG", err)
 	}
 	var i interface{}
 	err = ke.Unmarshal(ctx, b, &i)
 	if err != nil {
-		return nil, kerr.New("NGELVDDBRF", err, "ke.Unmarshal")
+		return nil, kerr.Wrap("NGELVDDBRF", err)
 	}
 	o, ok := i.(system.ObjectInterface)
 	if !ok {
-		return nil, kerr.New("HLMRUOUQEM", nil, "Unmarshaled object is not a system.ObjectInterface")
+		return nil, kerr.New("HLMRUOUQEM", "Unmarshaled object is not a system.ObjectInterface")
 	}
 	return o, nil
 }

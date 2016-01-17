@@ -29,7 +29,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 
 	for _, q := range queue {
 		if q == path {
-			return nil, kerr.New("SCSCFJPPHD", nil, "Circular import %v -> %v", queue, path)
+			return nil, kerr.New("SCSCFJPPHD", "Circular import %v -> %v", queue, path)
 		}
 	}
 
@@ -43,7 +43,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 		if _, found := scache.Get(importPath); !found {
 			_, err := parse(ctx, importPath, append(queue, path))
 			if err != nil {
-				return kerr.New("RIARRSCMVE", err, "Parse (%v)", importPath)
+				return kerr.Wrap("RIARRSCMVE", err)
 			}
 		}
 		hash.Aliases[importPath] = importAlias
@@ -52,22 +52,22 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 
 	env, err := ScanForEnv(ctx, path)
 	if err != nil {
-		return nil, kerr.New("GJRHNGGWFD", err, "ScanForEnv")
+		return nil, kerr.Wrap("GJRHNGGWFD", err)
 	}
 
 	// Always scan the system package first if we don't have it already
 	if path != "kego.io/system" {
 		if err := importPackage("kego.io/system", "system"); err != nil {
-			return nil, kerr.New("ORRCDNUPOX", err, "importPackage")
+			return nil, kerr.Wrap("ORRCDNUPOX", err)
 		}
 	}
 
 	for aliasPath, aliasName := range env.Aliases {
 		if aliasPath == "kego.io/system" || aliasName == "system" {
-			return nil, kerr.New("EWMLNJDXKC", nil, "Illegal import %s", aliasName)
+			return nil, kerr.New("EWMLNJDXKC", "Illegal import %s", aliasName)
 		}
 		if err := importPackage(aliasPath, aliasName); err != nil {
-			return nil, kerr.New("NOVMGYKHHI", err, "importPackage")
+			return nil, kerr.Wrap("NOVMGYKHHI", err)
 		}
 	}
 
@@ -78,7 +78,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 	}
 
 	if err := scanForTypes(ctx, env, pcache, hash); err != nil {
-		return nil, kerr.New("VFUNPHUFHD", err, "scanForTypes")
+		return nil, kerr.Wrap("VFUNPHUFHD", err)
 	}
 
 	if cmd.Log {
@@ -87,7 +87,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 
 	h, err := hash.Hash()
 	if err != nil {
-		return nil, kerr.New("MIODRYNEJQ", err, "hash.Hash()")
+		return nil, kerr.Wrap("MIODRYNEJQ", err)
 	}
 	env.Hash = h
 
@@ -98,14 +98,14 @@ func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {
 	// Scan the local directory for as system:package object
 	dir, err := packages.GetDirFromPackage(ctx, path)
 	if err != nil {
-		return nil, kerr.New("LASRFKILIH", err, "packages.GetDirFromPackage")
+		return nil, kerr.Wrap("LASRFKILIH", err)
 	}
 
 	env = &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false, Dir: dir}
 
 	pkg, err := scanForPackage(ctx, env)
 	if err != nil {
-		return nil, kerr.New("DTAEUSHJTQ", err, "scanForPackage")
+		return nil, kerr.Wrap("DTAEUSHJTQ", err)
 	}
 
 	if pkg != nil {
@@ -130,30 +130,30 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.PackageInf
 	localContext := envctx.NewContext(ctx, env)
 	for b := range bytes {
 		if b.Err != nil {
-			return kerr.New("JACKALTIGG", b.Err, "ScanFiles")
+			return kerr.Wrap("JACKALTIGG", b.Err)
 		}
 
 		o := &objectStub{}
 		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
-			return kerr.New("HCYGNBDFFA", err, "ke.UnmarshalUntyped")
+			return kerr.Wrap("HCYGNBDFFA", err)
 		}
 		if o.Type == nil {
-			return kerr.New("NUKWIHYFMQ", nil, "%s has no type", b.File)
+			return kerr.New("NUKWIHYFMQ", "%s has no type", b.File)
 		}
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "type"):
 			if err := ProcessTypeSourceBytes(ctx, env, b.Bytes, cache, hash); err != nil {
-				return kerr.New("IVEFDDSKHE", err, "ProcessTypeSourceBytes")
+				return kerr.Wrap("IVEFDDSKHE", err)
 			}
 		case *system.NewReference("kego.io/system", "package"):
 			cache.PackageBytes = b.Bytes
 		default:
 			if o.Id == nil {
-				return kerr.New("DLLMKTDYFW", nil, "%s has no id", b.File)
+				return kerr.New("DLLMKTDYFW", "%s has no id", b.File)
 			}
 			relativeFile, err := filepath.Rel(env.Dir, b.File)
 			if err != nil {
-				return kerr.New("AWYRJSCYQS", err, "filepath.Rel")
+				return kerr.Wrap("AWYRJSCYQS", err)
 			}
 			cache.Globals.Set(o.Id.Name, sysctx.GlobalInfo{
 				File: relativeFile,
@@ -173,12 +173,12 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 		case json.UnknownPackageError, json.UnknownTypeError:
 			// don't return error
 		default:
-			return kerr.New("NLRRVIDVWM", err, "UnmarshalPlain")
+			return kerr.Wrap("NLRRVIDVWM", err)
 		}
 	}
 	t, ok := object.(*system.Type)
 	if !ok {
-		return kerr.New("IVIFIOFGVK", nil, "Should be *system.Type")
+		return kerr.New("IVIFIOFGVK", "Should be *system.Type")
 	}
 	if hash != nil {
 		hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
@@ -188,7 +188,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 	if t.Rule != nil {
 		id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
 		if t.Rule.Id != nil && *t.Rule.Id != *id {
-			return kerr.New("JKARKEDTIW", nil, "Incorrect id for %v - it should be %v", t.Rule.Id.String(), id.String())
+			return kerr.New("JKARKEDTIW", "Incorrect id for %v - it should be %v", t.Rule.Id.String(), id.String())
 		}
 		t.Rule.Id = id
 
@@ -200,7 +200,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 			}
 		}
 		if !found {
-			return kerr.New("LMALEMKFDI", nil, "%s does not embed system:rule", id.String())
+			return kerr.New("LMALEMKFDI", "%s does not embed system:rule", id.String())
 		}
 
 		cache.Types.Set(id.Name, t.Rule)
@@ -229,14 +229,14 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		if b.Err != nil {
-			return nil, kerr.New("GATNNQKNHY", b.Err, "ScanFiles")
+			return nil, kerr.Wrap("GATNNQKNHY", b.Err)
 		}
 		o := &objectStub{}
 		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
-			return nil, kerr.New("MTDCXBYBEJ", err, "ke.UnmarshalUntyped")
+			return nil, kerr.Wrap("MTDCXBYBEJ", err)
 		}
 		if o.Type == nil {
-			return nil, kerr.New("MSNIGTIDIO", nil, "%s has no type", b.File)
+			return nil, kerr.New("MSNIGTIDIO", "%s has no type", b.File)
 		}
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "package"):
@@ -247,7 +247,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 				case json.UnknownPackageError, json.UnknownTypeError:
 				// don't return error
 				default:
-					return nil, kerr.New("XTEQCAYQJP", err, "UnmarshalPlain")
+					return nil, kerr.Wrap("XTEQCAYQJP", err)
 				}
 			}
 			if pkg, ok := i.(*system.Package); ok {

@@ -11,7 +11,7 @@ import (
 type ObjectEditor struct {
 	*Node
 	*Editor
-	editors *dom.HTMLDivElement
+	editors	*dom.HTMLDivElement
 }
 
 var _ EditorInterface = (*ObjectEditor)(nil)
@@ -34,7 +34,7 @@ func (e *ObjectEditor) Initialize(ctx context.Context, holder BranchInterface, l
 	e.initializeBlockEditors()
 
 	if err := e.initializeTable(); err != nil {
-		return kerr.New("KAVTMDDFYW", err, "initializeTable")
+		return kerr.Wrap("KAVTMDDFYW", err)
 	}
 
 	return nil
@@ -65,7 +65,7 @@ func (e *ObjectEditor) initializeTable() error {
 
 	table, err := NewObjectSummary(e.ctx, e.Node)
 	if err != nil {
-		return kerr.New("VYJPBBMEBS", err, "NewObjectSummary")
+		return kerr.Wrap("VYJPBBMEBS", err)
 	}
 	e.AppendChild(table)
 
@@ -104,7 +104,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 		displayName, err := t.Id.ValueContext(e.ctx)
 		if err != nil {
 			// we shouldn't be able to get here
-			e.fail <- kerr.New("IPLHSXDWQK", err, "ValueContext")
+			e.fail <- kerr.Wrap("IPLHSXDWQK", err)
 		}
 		options[t.Id.String()] = displayName
 	}
@@ -117,11 +117,11 @@ func (e *ObjectEditor) AddField(node *Node) {
 		if result {
 			r, err := system.NewReferenceFromString(e.ctx, dropdown.Value)
 			if err != nil {
-				e.fail <- kerr.New("KHJGQXORPD", err, "NewReferenceFromString")
+				e.fail <- kerr.Wrap("KHJGQXORPD", err)
 			}
 			t, ok := system.GetTypeFromCache(e.ctx, r.Package, r.Name)
 			if !ok {
-				e.fail <- kerr.New("WEADSXTPYC", nil, "Type %s not found in cache", r.Value())
+				e.fail <- kerr.New("WEADSXTPYC", "Type %s not found in cache", r.Value())
 			}
 			e.InitialiseChildWithConcreteType(node, t)
 		}
@@ -133,7 +133,7 @@ func (e *ObjectEditor) AddField(node *Node) {
 func (e *ObjectEditor) InitialiseChildWithConcreteType(node *Node, t *system.Type) {
 
 	if err := node.InitialiseWithConcreteType(e.ctx, t); err != nil {
-		e.fail <- kerr.New("KHDLYHXOWS", err, "InitialiseWithConcreteType")
+		e.fail <- kerr.Wrap("KHDLYHXOWS", err)
 	}
 
 	// Updates the object summary table with the new node info
@@ -159,11 +159,11 @@ type objectSummary struct {
 
 type objectSummaryRow struct {
 	*summaryRow
-	name    *summaryCell
-	origin  *summaryCell
-	holds   *summaryCell
-	value   *summaryCell
-	options *summaryCell
+	name	*summaryCell
+	origin	*summaryCell
+	holds	*summaryCell
+	value	*summaryCell
+	options	*summaryCell
 }
 
 func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
@@ -173,7 +173,7 @@ func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
 		child := v.(*Node)
 		r := s.newRow(child)
 		if err := r.update(); err != nil {
-			return nil, kerr.New("UNVCXHWGRF", err, "update")
+			return nil, kerr.Wrap("UNVCXHWGRF", err)
 		}
 	}
 	s.Upgrade()
@@ -214,13 +214,13 @@ func (r *objectSummaryRow) update() error {
 
 	origin, err := node.Origin.ValueContext(r.table.ctx)
 	if err != nil {
-		return kerr.New("ACQLJXWYQX", err, "ValueContext")
+		return kerr.Wrap("ACQLJXWYQX", err)
 	}
 	r.origin.Text(origin)
 
 	hold, err := node.Rule.HoldsDisplayType(r.table.ctx)
 	if err != nil {
-		return kerr.New("OYMARPFDGA", err, "ValueContext")
+		return kerr.Wrap("OYMARPFDGA", err)
 	}
 	r.holds.Text(hold)
 
@@ -229,7 +229,7 @@ func (r *objectSummaryRow) update() error {
 	} else {
 		value, err := node.Type.Id.ValueContext(r.table.ctx)
 		if err != nil {
-			return kerr.New("LDAMPELUCM", err, "ValueContext")
+			return kerr.Wrap("LDAMPELUCM", err)
 		}
 		r.value.Text(value)
 	}

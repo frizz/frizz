@@ -39,7 +39,7 @@ func (c *Conn) Respond(message messages.MessageInterface, requestGuid string) {
 func (c *Conn) sender() error {
 	for {
 		if err := c.senderInternal(); err != nil {
-			return kerr.New("RCWDBROWAN", err, "senderInternal")
+			return kerr.Wrap("RCWDBROWAN", err)
 		}
 	}
 }
@@ -50,13 +50,13 @@ func (c *Conn) senderInternal() error {
 		if err == io.EOF {
 			// Closing the fail channel exits the app gracefully
 			if c.debug {
-				c.fail <- kerr.New("HHLJYVNLJM", nil, "Connection closed")
+				c.fail <- kerr.New("HHLJYVNLJM", "Connection closed")
 				return nil
 			}
 			close(c.fail)
 			return nil
 		}
-		return kerr.New("WIUXNWRXCQ", err, "Encode")
+		return kerr.Wrap("WIUXNWRXCQ", err)
 	}
 	return nil
 }

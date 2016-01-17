@@ -12,9 +12,9 @@ import (
 )
 
 type UnpackA struct {
-	B UnpackValue
-	C UnpackArray
-	D UnpackObject
+	B	UnpackValue
+	C	UnpackArray
+	D	UnpackObject
 }
 type UnpackValue string
 type UnpackArray []string
@@ -22,7 +22,7 @@ type UnpackObject map[string]string
 
 func (u *UnpackValue) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_STRING {
-		return kerr.New("FUGBYYGFUL", nil, "Should be string")
+		return kerr.New("FUGBYYGFUL", "Should be string")
 	}
 	*u = UnpackValue(fmt.Sprint(in.String(), " bar"))
 	return nil
@@ -32,12 +32,12 @@ var _ Unpacker = (*UnpackValue)(nil)
 
 func (u *UnpackArray) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_ARRAY {
-		return kerr.New("MYARYRIJLL", nil, "Should be array")
+		return kerr.New("MYARYRIJLL", "Should be array")
 	}
 	out := []string{}
 	for _, child := range in.Array() {
 		if child.Type() != J_STRING {
-			return kerr.New("OJPLBQMLLE", nil, "Children should be strings")
+			return kerr.New("OJPLBQMLLE", "Children should be strings")
 		}
 		out = append(out, child.String())
 	}
@@ -50,12 +50,12 @@ var _ Unpacker = (*UnpackArray)(nil)
 
 func (u *UnpackObject) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_MAP {
-		return kerr.New("TMXIJXIGQK", nil, "Should be map")
+		return kerr.New("TMXIJXIGQK", "Should be map")
 	}
 	out := map[string]string{}
 	for name, child := range in.Map() {
 		if child.Type() != J_STRING {
-			return kerr.New("QCEPMOJQCS", nil, "Children should be strings")
+			return kerr.New("QCEPMOJQCS", "Children should be strings")
 		}
 		out[name] = child.String()
 	}
@@ -83,9 +83,9 @@ func TestUnpack(t *testing.T) {
 }
 
 type UnpackContextA struct {
-	B UnpackContextValue
-	C UnpackContextArray
-	D UnpackContextObject
+	B	UnpackContextValue
+	C	UnpackContextArray
+	D	UnpackContextObject
 }
 type UnpackContextValue string
 type UnpackContextArray []string
@@ -96,7 +96,7 @@ func (u *UnpackContextValue) Unpack(ctx context.Context, in Packed) error {
 	env := envctx.FromContext(ctx)
 
 	if in.Type() != J_STRING {
-		return kerr.New("CUFSESRMCX", nil, "Should be string")
+		return kerr.New("CUFSESRMCX", "Should be string")
 	}
 	*u = UnpackContextValue(fmt.Sprint(in.String(), " bar ", env.Path, " ", env.Aliases["d.e/f"]))
 	return nil
@@ -109,12 +109,12 @@ func (u *UnpackContextArray) Unpack(ctx context.Context, in Packed) error {
 	env := envctx.FromContext(ctx)
 
 	if in.Type() != J_ARRAY {
-		return kerr.New("UXJTIVMLLG", nil, "Should be array")
+		return kerr.New("UXJTIVMLLG", "Should be array")
 	}
 	out := []string{}
 	for _, child := range in.Array() {
 		if child.Type() != J_STRING {
-			return kerr.New("WFLWABUHTJ", nil, "Children should be strings")
+			return kerr.New("WFLWABUHTJ", "Children should be strings")
 		}
 		out = append(out, child.String())
 	}
@@ -130,12 +130,12 @@ func (u *UnpackContextObject) Unpack(ctx context.Context, in Packed) error {
 	env := envctx.FromContext(ctx)
 
 	if in.Type() != J_MAP {
-		return kerr.New("ACCJBEXHYG", nil, "Should be map")
+		return kerr.New("ACCJBEXHYG", "Should be map")
 	}
 	out := map[string]string{}
 	for name, child := range in.Map() {
 		if child.Type() != J_STRING {
-			return kerr.New("CCNJNICMAQ", nil, "Children should be strings")
+			return kerr.New("CCNJNICMAQ", "Children should be strings")
 		}
 		out[name] = child.String()
 	}

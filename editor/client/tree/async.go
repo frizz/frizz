@@ -56,7 +56,7 @@ func (a *Async) LoadContent(conn *connection.Conn, fail chan error) (success cha
 		m := <-responseChannel
 
 		if err := a.self.ProcessResponse(m); err != nil {
-			fail <- kerr.New("DLTCGMSREX", err, "ProcessResponse")
+			fail <- kerr.Wrap("DLTCGMSREX", err)
 		}
 
 		a.loaded = true

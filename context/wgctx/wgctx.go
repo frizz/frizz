@@ -30,7 +30,7 @@ func NewContext(ctx context.Context) context.Context {
 func FromContext(ctx context.Context) *sync.WaitGroup {
 	wg, ok := ctx.Value(wgKey).(*sync.WaitGroup)
 	if !ok {
-		panic(kerr.New("UNYGADKEGY", nil, "No wg in ctx").Error())
+		panic(kerr.New("UNYGADKEGY", "No wg in ctx").Error())
 	}
 	return wg
 }

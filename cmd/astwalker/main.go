@@ -19,7 +19,7 @@ import (
 func main() {
 
 	// disabled
-	//return
+	return
 
 	if true {
 		// for testing
@@ -31,6 +31,7 @@ func main() {
 			if strings.HasPrefix(path, ".") || !strings.HasSuffix(path, ".go") {
 				return nil
 			}
+			fmt.Println(path)
 			return walkFile(path)
 		}
 		filepath.Walk("/Users/dave/dev/src/kego.io/", walker)

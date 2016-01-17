@@ -39,25 +39,25 @@ func (c *Conn) Receive() error {
 			if err == io.EOF {
 				// Closing the fail channel exits the app gracefully
 				if c.debug {
-					c.fail <- kerr.New("BFWXLLOSHQ", nil, "Connection closed")
+					c.fail <- kerr.New("BFWXLLOSHQ", "Connection closed")
 					return nil
 				}
 				close(c.fail)
 				return nil
 			}
-			return kerr.New("GJTKHMTWYY", err, "ke.Unmarshal")
+			return kerr.Wrap("GJTKHMTWYY", err)
 		}
 
 		m, ok := i.(messages.MessageInterface)
 		if !ok {
-			return kerr.New("FYWKSPGYXY", nil, "Received type %T does not implement messages.MessageInterface", i)
+			return kerr.New("FYWKSPGYXY", "Received type %T does not implement messages.MessageInterface", i)
 		}
 
 		requestGuid := m.GetMessage(nil).Request
 		if requestGuid != nil {
 			reply, ok := c.requests[requestGuid.Value()]
 			if !ok {
-				return kerr.New("SRXAVLUFGW", nil, "Response received, but request %s not found", requestGuid)
+				return kerr.New("SRXAVLUFGW", "Response received, but request %s not found", requestGuid)
 			}
 			reply <- m
 			delete(c.requests, requestGuid.Value())
@@ -67,7 +67,7 @@ func (c *Conn) Receive() error {
 		t := m.(system.ObjectInterface).GetObject(nil).Type
 		subscriber, ok := c.subs[*t]
 		if !ok {
-			return kerr.New("USAYKUNHSC", nil, "Subscriber not found for %s", t.Value())
+			return kerr.New("USAYKUNHSC", "Subscriber not found for %s", t.Value())
 		}
 		subscriber <- m
 	}

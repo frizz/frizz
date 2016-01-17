@@ -75,22 +75,22 @@ func runValidateCommand(ctx context.Context, repeatOnFail bool) (success bool, e
 					return false, nil
 				case 4:
 					// Exit status 4 = validation error
-					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, strings.TrimSpace(combined.String()))}
+					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", strings.TrimSpace(combined.String()))}
 				default:
 					if repeatOnFail {
 						if cmd.Log {
 							fmt.Println("Validate command returned error, rebuilding...")
 						}
 						if err := BuildAndRunLocalCommand(ctx); err != nil {
-							return true, kerr.New("HOHQEISLMI", err, "BuildAndRunLocalCommand (retry)")
+							return true, kerr.Wrap("HOHQEISLMI", err)
 						}
 						return true, nil
 					}
-					return true, kerr.New("DTTHRRJSSF", err, "Run")
+					return true, kerr.Wrap("DTTHRRJSSF", err)
 				}
 			}
 		} else {
-			return true, kerr.New("GFTBBSYEXU", err, "Run")
+			return true, kerr.Wrap("GFTBBSYEXU", err)
 		}
 	}
 	if cmd.Log {
@@ -113,19 +113,19 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 
 	source, err := generate.ValidateCommand(ctx)
 	if err != nil {
-		return kerr.New("SPRFABSRWK", err, "generate.ValidateCommand")
+		return kerr.Wrap("SPRFABSRWK", err)
 	}
 
 	outputDir, err := ioutil.TempDir(env.Dir, "temporary")
 	if err != nil {
-		return kerr.New("HWOPVXYMCT", err, "ioutil.TempDir")
+		return kerr.Wrap("HWOPVXYMCT", err)
 	}
 	defer os.RemoveAll(outputDir)
 	outputName := "generated_cmd.go"
 	outputPath := filepath.Join(outputDir, outputName)
 
 	if err = save(outputDir, source, outputName, false); err != nil {
-		return kerr.New("FRLCYFOWCJ", err, "save")
+		return kerr.Wrap("FRLCYFOWCJ", err)
 	}
 
 	if cmd.Log {
@@ -138,7 +138,7 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	exe.Stderr = stderr
 
 	if err := exe.Run(); err != nil {
-		return kerr.New("OEPAEEYKIS", err, "go build: %s", combined.String())
+		return kerr.Wrap("OEPAEEYKIS", err)
 	}
 	if cmd.Log {
 		fmt.Println("OK.")
@@ -150,10 +150,10 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 
 	success, err := runValidateCommand(ctx, false)
 	if err != nil {
-		return kerr.New("PPBPPXQMWV", err, "runValidateCommand")
+		return kerr.Wrap("PPBPPXQMWV", err)
 	}
 	if !success {
-		return kerr.New("VGVLPAJAQN", nil, "runLocalCommand returned hash changed after build")
+		return kerr.New("VGVLPAJAQN", "runLocalCommand returned hash changed after build")
 	}
 
 	return nil

@@ -32,7 +32,7 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (bool, strin
 
 	n, ok := data.(*Number)
 	if !ok && data != nil {
-		return false, "", kerr.New("FUGYGJVHYS", nil, "Data %T should be *system.Number", data)
+		return false, "", kerr.New("FUGYGJVHYS", "Data %T should be *system.Number", data)
 	}
 
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
@@ -98,10 +98,10 @@ var _ Enforcer = (*NumberRule)(nil)
 
 func (out *Number) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("WHREWCCODC", nil, "Called Number.Unpack with nil value")
+		return kerr.New("WHREWCCODC", "Called Number.Unpack with nil value")
 	}
 	if in.Type() != json.J_NUMBER {
-		return kerr.New("YHXBFTONCW", nil, "Can't unpack %s into system.Number", in.Type())
+		return kerr.New("YHXBFTONCW", "Can't unpack %s into system.Number", in.Type())
 	}
 	*out = Number(in.Number())
 	return nil

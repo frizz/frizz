@@ -16,8 +16,8 @@ import (
 )
 
 type Reference struct {
-	Package string
-	Name    string
+	Package	string
+	Name	string
 }
 
 func (r Reference) Value() string {
@@ -49,7 +49,7 @@ func (r Reference) ValueContext(ctx context.Context) (string, error) {
 	if alias, ok := env.Aliases[r.Package]; ok {
 		return fmt.Sprintf("%s:%s", alias, r.Name), nil
 	}
-	return "", kerr.New("WGCDQQCFAD", nil, "Package %s not found in aliases", r.Package)
+	return "", kerr.New("WGCDQQCFAD", "Package %s not found in aliases", r.Package)
 }
 
 func NewReference(packagePath string, typeName string) *Reference {
@@ -63,17 +63,17 @@ func NewReferenceFromString(ctx context.Context, in string) (*Reference, error) 
 	r := &Reference{}
 	err := r.Unpack(ctx, json.Pack(in))
 	if err != nil {
-		return nil, kerr.New("VXRGOQHWNB", err, "Unpack")
+		return nil, kerr.Wrap("VXRGOQHWNB", err)
 	}
 	return r, nil
 }
 
 func (out *Reference) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("MOQVSKJXRB", nil, "Called Reference.Unpack with nil value")
+		return kerr.New("MOQVSKJXRB", "Called Reference.Unpack with nil value")
 	}
 	if in.Type() != json.J_STRING {
-		return kerr.New("RFLQSBPMYM", nil, "Can't unpack %s into *system.Reference", in.Type())
+		return kerr.New("RFLQSBPMYM", "Can't unpack %s into *system.Reference", in.Type())
 	}
 	path, name, err := json.GetReferencePartsFromTypeString(ctx, in.String())
 	if err != nil {
@@ -86,7 +86,7 @@ func (out *Reference) Unpack(ctx context.Context, in json.Packed) error {
 			// not wrap it in kerr
 			return p
 		}
-		return kerr.New("MSXBLEIGVJ", err, "json.GetReferencePartsFromTypeString")
+		return kerr.Wrap("MSXBLEIGVJ", err)
 	}
 	out.Package = path
 	out.Name = name
@@ -123,7 +123,7 @@ func (r *Reference) MarshalJSON(ctx context.Context) ([]byte, error) {
 	}
 	val, err := r.ValueContext(ctx)
 	if err != nil {
-		return nil, kerr.New("VQCYFSTPQD", err, "ValueContext")
+		return nil, kerr.Wrap("VQCYFSTPQD", err)
 	}
 	return []byte(strconv.Quote(val)), nil
 }

@@ -1,4 +1,4 @@
-package packages // import "kego.io/process/packages"
+package packages	// import "kego.io/process/packages"
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) 
 
 	dir, err := getDirFromEmptyPackage(packagePath, vos.Getenv("GOPATH"))
 	if err != nil {
-		return "", kerr.New("GXTUPMHETV", err, "Can't find %s", packagePath)
+		return "", kerr.Wrap("GXTUPMHETV", err)
 	}
 	return dir, nil
 
@@ -38,7 +38,7 @@ func getDirFromEmptyPackage(path string, gopathEnv string) (string, error) {
 			return dir, nil
 		}
 	}
-	return "", NotFoundError{Struct: kerr.New("SUTCWEVRXS", nil, "%s not found", path)}
+	return "", NotFoundError{Struct: kerr.New("SUTCWEVRXS", "%s not found", path)}
 }
 
 type NotFoundError struct {
@@ -66,5 +66,5 @@ func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 	if savedError != nil {
 		return "", savedError
 	}
-	return "", kerr.New("CXOETFPTGM", nil, "Package not found for %s", dir)
+	return "", kerr.New("CXOETFPTGM", "Package not found for %s", dir)
 }

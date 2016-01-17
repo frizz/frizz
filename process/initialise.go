@@ -115,11 +115,11 @@ func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, co
 	if options.Path == "" {
 		dir, err := vos.Getwd()
 		if err != nil {
-			return nil, nil, kerr.New("OKOLXAMBSJ", err, "vos.Getwd")
+			return nil, nil, kerr.Wrap("OKOLXAMBSJ", err)
 		}
 		p, err := packages.GetPackageFromDir(ctx, dir)
 		if err != nil {
-			return nil, nil, kerr.New("ADNJKTLAWY", err, "packages.GetPackageFromDir")
+			return nil, nil, kerr.Wrap("ADNJKTLAWY", err)
 		}
 		path = p
 	} else {
@@ -130,7 +130,7 @@ func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, co
 
 	pcache, err := parser.Parse(ctx, path)
 	if err != nil {
-		return nil, nil, kerr.New("EBMBIBIKUF", err, "parser.Parse")
+		return nil, nil, kerr.Wrap("EBMBIBIKUF", err)
 	}
 
 	ctx = envctx.NewContext(ctx, pcache.Environment)

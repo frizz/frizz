@@ -49,24 +49,24 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 
 	gr, ok := response.(*messages.DataResponse)
 	if !ok {
-		return kerr.New("MVPKNNVHOX", nil, "%T is not a *messages.SourceResponse", response)
+		return kerr.New("MVPKNNVHOX", "%T is not a *messages.SourceResponse", response)
 	}
 
 	s.Node = editor.NewEditorNode()
 	if err := ke.UnmarshalUntyped(s.tree.ctx, []byte(gr.Data.Value()), s.Node); err != nil {
-		return kerr.New("ACODETSACJ", err, "UnmarshalNode")
+		return kerr.Wrap("ACODETSACJ", err)
 	}
 
 	ed := s.Node.Editor()
 
 	if err := ed.Initialize(s.tree.ctx, s, editor.Page, s.tree.Fail); err != nil {
-		return kerr.New("UOPUXTANHO", err, "Initialize")
+		return kerr.Wrap("UOPUXTANHO", err)
 	}
 
 	s.ListenForEditorChanges(ed.Listen().Ch)
 
 	if err := addEntryChildren(s.Node, s, ed); err != nil {
-		return kerr.New("MLUGRXOWHC", err, "addEntryChildren")
+		return kerr.Wrap("MLUGRXOWHC", err)
 	}
 
 	return nil

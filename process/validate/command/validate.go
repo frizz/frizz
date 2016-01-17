@@ -66,13 +66,13 @@ func comparePackageHash(ctx context.Context, path string) (changes bool, err err
 	scache := sysctx.FromContext(ctx)
 	pcache, ok := scache.Get(path)
 	if !ok {
-		return false, kerr.New("NHXWLPHCHL", nil, "%s not found in sys ctx", path)
+		return false, kerr.New("NHXWLPHCHL", "%s not found in sys ctx", path)
 	}
 
 	for aliasPath, _ := range pcache.Environment.Aliases {
 		changes, err := comparePackageHash(ctx, aliasPath)
 		if err != nil {
-			return false, kerr.New("DGJTLHQOCQ", err, "comparePackageHash")
+			return false, kerr.Wrap("DGJTLHQOCQ", err)
 		}
 		if changes {
 			return true, nil

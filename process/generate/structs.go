@@ -21,7 +21,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	pcache, ok := scache.Get(env.Path)
 	if !ok {
-		return nil, kerr.New("DQVQWTKRSK", nil, "%s not found in sys ctx", env.Path)
+		return nil, kerr.New("DQVQWTKRSK", "%s not found in sys ctx", env.Path)
 	}
 	types := pcache.Types
 
@@ -29,14 +29,14 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	infoBytes, err := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
 	if err != nil {
-		return nil, kerr.New("HVFWIUVLSM", err, "MarshalPlain")
+		return nil, kerr.Wrap("HVFWIUVLSM", err)
 	}
 	g.SetPackageComment("info:" + string(infoBytes))
 
 	if types.Len() == 0 {
 		b, err := g.Build()
 		if err != nil {
-			return nil, kerr.New("BBRLIODBKL", err, "Build")
+			return nil, kerr.Wrap("BBRLIODBKL", err)
 		}
 		return b, nil
 	}
@@ -55,7 +55,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 		if !typ.Interface && !typ.IsNativeValue() {
 			if err := printStructDefinition(ctx, env, g, typ); err != nil {
-				return nil, kerr.New("XKRYMXUIJD", err, "printNewStructDefinition")
+				return nil, kerr.Wrap("XKRYMXUIJD", err)
 			}
 		}
 
@@ -69,7 +69,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	b, err := g.Build()
 	if err != nil {
-		return nil, kerr.New("XKYHSDKBEP", err, "Build")
+		return nil, kerr.Wrap("XKYHSDKBEP", err)
 	}
 	return b, nil
 }
@@ -127,7 +127,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Buil
 			}
 			descriptor, err := builder.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add)
 			if err != nil {
-				return kerr.New("GDSKJDEKQD", err, "generator.TypeNew")
+				return kerr.Wrap("GDSKJDEKQD", err)
 			}
 			g.Println(system.GoName(nf.Name), " ", descriptor)
 		}
@@ -209,6 +209,6 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.TypeCa
 }
 
 type InfoStruct struct {
-	Path string
-	Hash uint64
+	Path	string
+	Hash	uint64
 }

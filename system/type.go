@@ -133,7 +133,7 @@ func nativeGoType(jsonNativeType string) (string, error) {
 	case "bool":
 		return "bool", nil
 	default:
-		return "", kerr.New("TXQIDRBJRH", nil, "Native type not found: %v", jsonNativeType)
+		return "", kerr.New("TXQIDRBJRH", "Native type not found: %v", jsonNativeType)
 	}
 }
 

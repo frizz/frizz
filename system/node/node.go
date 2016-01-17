@@ -32,7 +32,7 @@ func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
 	n := NewNode()
 	err := ke.UnmarshalUntyped(ctx, data, n)
 	if err != nil {
-		return nil, kerr.New("QDWFKJOJPQ", err, "UnmarshalUntyped")
+		return nil, kerr.Wrap("QDWFKJOJPQ", err)
 	}
 	return n, nil
 }
@@ -61,7 +61,7 @@ var _ NodeInterface = (*Node)(nil)
 // Unpack unpacks a node from an unpackable
 func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
 	if err := n.extract(ctx, nil, "", -1, &system.Reference{}, 0, in, true, nil); err != nil {
-		return kerr.New("FUYLKYTQYD", err, "extract")
+		return kerr.Wrap("FUYLKYTQYD", err)
 	}
 	return nil
 }
@@ -89,19 +89,19 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 		n.Map = map[string]NodeInterface{}
 	case "object":
 		if err := n.InitialiseFields(ctx, nil); err != nil {
-			return kerr.New("YIHFDLTIMW", err, "InitialiseFields")
+			return kerr.Wrap("YIHFDLTIMW", err)
 		}
 		if !n.Type.Basic {
 			typeString, err := t.Id.ValueContext(ctx)
 			if err != nil {
-				return kerr.New("MRHEBUUXBB", err, "ValueContext")
+				return kerr.Wrap("MRHEBUUXBB", err)
 			}
 			typeField, ok := n.Map["type"]
 			if !ok {
-				return kerr.New("DQKGYKFQKJ", nil, "type field not found")
+				return kerr.New("DQKGYKFQKJ", "type field not found")
 			}
 			if err := typeField.GetNode().SetValueString(ctx, typeString); err != nil {
-				return kerr.New("CURDKCQLGS", err, "SetValueString")
+				return kerr.Wrap("CURDKCQLGS", err)
 			}
 		}
 	}
@@ -114,7 +114,7 @@ func (n *Node) SetValueString(ctx context.Context, value string) error {
 	n.JsonType = json.J_STRING
 	n.ValueString = value
 	if err := n.UpdateValue(ctx, Pack(n)); err != nil {
-		return kerr.New("GAMJNECRUW", err, "UpdateValue")
+		return kerr.Wrap("GAMJNECRUW", err)
 	}
 	return nil
 }
@@ -125,7 +125,7 @@ func (n *Node) SetValueNumber(ctx context.Context, value float64) error {
 	n.JsonType = json.J_NUMBER
 	n.ValueNumber = value
 	if err := n.UpdateValue(ctx, Pack(n)); err != nil {
-		return kerr.New("SOJGUGHXSX", err, "UpdateValue")
+		return kerr.Wrap("SOJGUGHXSX", err)
 	}
 	return nil
 }
@@ -136,7 +136,7 @@ func (n *Node) SetValueBool(ctx context.Context, value bool) error {
 	n.JsonType = json.J_BOOL
 	n.ValueBool = value
 	if err := n.UpdateValue(ctx, Pack(n)); err != nil {
-		return kerr.New("AWRMEACQWR", err, "UpdateValue")
+		return kerr.Wrap("AWRMEACQWR", err)
 	}
 	return nil
 }
@@ -145,7 +145,7 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 
 	objectType, err := extractType(ctx, in, rule)
 	if err != nil {
-		return kerr.New("RBDBRRUVMM", err, "extractType")
+		return kerr.Wrap("RBDBRRUVMM", err)
 	}
 
 	n.Parent = parent
@@ -174,11 +174,11 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 
 	// validate json type
 	if n.JsonType != json.J_NULL && n.JsonType != n.Type.NativeJsonType() {
-		return kerr.New("VEPLUIJXSN", nil, "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
+		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
 	if err := n.UpdateValue(ctx, in); err != nil {
-		return kerr.New("RUHTPJFDOG", err, "UpdateValue")
+		return kerr.Wrap("RUHTPJFDOG", err)
 	}
 
 	if n.Missing {
@@ -198,63 +198,63 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 	switch objectType.Native.Value() {
 	case "string":
 		if in.Type() != json.J_STRING {
-			return kerr.New("RKKSUYTCIA", nil, "Type %s should be a string", in.Type())
+			return kerr.New("RKKSUYTCIA", "Type %s should be a string", in.Type())
 		}
 		n.ValueString = in.String()
 	case "number":
 		if in.Type() != json.J_NUMBER {
-			return kerr.New("RNSWFUUTHB", nil, "Type %s should be a float64", in.Type())
+			return kerr.New("RNSWFUUTHB", "Type %s should be a float64", in.Type())
 		}
 		n.ValueNumber = in.Number()
 	case "bool":
 		if in.Type() != json.J_BOOL {
-			return kerr.New("QGKJRAQUQI", nil, "Type %s should be a bool", in.Type())
+			return kerr.New("QGKJRAQUQI", "Type %s should be a bool", in.Type())
 		}
 		n.ValueBool = in.Bool()
 	case "array":
 		if in.Type() != json.J_ARRAY {
-			return kerr.New("CTJQUOKRTK", nil, "Type %s should be a []interface{}", in.Type())
+			return kerr.New("CTJQUOKRTK", "Type %s should be a []interface{}", in.Type())
 		}
 		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
-			return kerr.New("IUTONSPQOL", nil, "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
+			return kerr.New("IUTONSPQOL", "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
 		}
 		childRule, err := system.WrapRule(ctx, c.GetItemsRule())
 		if err != nil {
-			return kerr.New("KPIBIOCTGF", err, "NewRuleHolder (array)")
+			return kerr.Wrap("KPIBIOCTGF", err)
 		}
 		children := in.Array()
 		for i, child := range children {
 			childNode := n.Self.NewChild()
 			if err := childNode.GetNode().extract(ctx, n.Self, "", i, &system.Reference{}, len(children), child, true, childRule); err != nil {
-				return kerr.New("VWWYPDIJKP", err, "get (array #%d)", i)
+				return kerr.Wrap("VWWYPDIJKP", err)
 			}
 			n.Array = append(n.Array, childNode)
 		}
 	case "map":
 		if in.Type() != json.J_MAP {
-			return kerr.New("IPWEPTWVYY", nil, "Type %s should be a map[string]interface{}", in.Type())
+			return kerr.New("IPWEPTWVYY", "Type %s should be a map[string]interface{}", in.Type())
 		}
 		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
-			return kerr.New("RTQUNQEKUY", nil, "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
+			return kerr.New("RTQUNQEKUY", "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
 		}
 		childRule, err := system.WrapRule(ctx, c.GetItemsRule())
 		if err != nil {
-			return kerr.New("SBFTRGJNAO", err, "NewRuleHolder (map)")
+			return kerr.Wrap("SBFTRGJNAO", err)
 		}
 		n.Map = map[string]NodeInterface{}
 		children := in.Map()
 		for name, child := range children {
 			childNode := n.Self.NewChild()
 			if err := childNode.GetNode().extract(ctx, n.Self, name, -1, &system.Reference{}, 0, child, true, childRule); err != nil {
-				return kerr.New("HTOPDOKPRE", err, "get (map '%s')", name)
+				return kerr.Wrap("HTOPDOKPRE", err)
 			}
 			n.Map[name] = childNode
 		}
 	case "object":
 		if err := n.InitialiseFields(ctx, in); err != nil {
-			return kerr.New("XCRYJWKPKP", err, "InitialiseFields")
+			return kerr.Wrap("XCRYJWKPKP", err)
 		}
 	}
 	return nil
@@ -264,17 +264,17 @@ func (n *Node) UpdateValue(ctx context.Context, in json.Packed) error {
 
 	if n.Rule.Struct == nil {
 		if err := json.Unpack(ctx, in, &n.Value); err != nil {
-			return kerr.New("CQMWGPLYIJ", err, "Unpack")
+			return kerr.Wrap("CQMWGPLYIJ", err)
 		}
 		return nil
 	}
 
 	t, err := n.Rule.GetReflectType()
 	if err != nil {
-		return kerr.New("DQJDYPIANO", err, "GetReflectType")
+		return kerr.Wrap("DQJDYPIANO", err)
 	}
 	if err := json.UnpackFragment(ctx, in, &n.Value, t, false); err != nil {
-		return kerr.New("PEVKGFFHLL", err, "UnpackFragment")
+		return kerr.Wrap("PEVKGFFHLL", err)
 	}
 	return nil
 }
@@ -283,7 +283,7 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 	m := map[string]json.Packed{}
 	if in != nil && in.Type() != json.J_NULL {
 		if in.Type() != json.J_MAP {
-			return kerr.New("CVCRNWMDYF", nil, "Type %s should be a map[string]interface{}", in.Type())
+			return kerr.New("CVCRNWMDYF", "Type %s should be a map[string]interface{}", in.Type())
 		}
 		m = in.Map()
 	}
@@ -291,25 +291,25 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 
 	fields := map[string]*system.Field{}
 	if err := extractFields(ctx, fields, n.Type); err != nil {
-		return kerr.New("LPWTOSATQE", err, "extractFields (%T)", n)
+		return kerr.Wrap("LPWTOSATQE", err)
 	}
 
 	for name, f := range fields {
 		rule, err := system.WrapRule(ctx, f.Rule)
 		if err != nil {
-			return kerr.New("YWFSOLOBXH", err, "NewRuleHolder (field '%s')", name)
+			return kerr.Wrap("YWFSOLOBXH", err)
 		}
 		child, ok := m[name]
 		childNode := n.Self.NewChild()
 		if err := childNode.GetNode().extract(ctx, n.Self, name, -1, f.Origin, 0, child, ok, rule); err != nil {
-			return kerr.New("LJUGPMWNPD", err, "get (field '%s')", name)
+			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		n.Map[name] = childNode
 	}
 	for name, _ := range m {
 		_, ok := fields[name]
 		if !ok {
-			return kerr.New("SRANLETJRS", nil, "Extra field %s", name)
+			return kerr.New("SRANLETJRS", "Extra field %s", name)
 		}
 	}
 	return nil
@@ -318,7 +318,7 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) (*system.Type, error) {
 
 	if rule != nil && rule.Parent.Interface && rule.Struct.Interface {
-		return nil, kerr.New("TDXTPGVFAK", nil, "Can't have interface type and rule at the same time")
+		return nil, kerr.New("TDXTPGVFAK", "Can't have interface type and rule at the same time")
 	}
 
 	if rule != nil && !rule.Parent.Interface && !rule.Struct.Interface {
@@ -337,7 +337,7 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 		case json.J_MAP:
 			break
 		default:
-			return nil, kerr.New("DLSQRFLINL", nil, "Input %s should be J_MAP if rule is nil or an interface type", in.Type())
+			return nil, kerr.New("DLSQRFLINL", "Input %s should be J_MAP if rule is nil or an interface type", in.Type())
 		}
 
 	}
@@ -355,22 +355,22 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 			// type of the rule
 			return rule.Parent, nil
 		default:
-			return nil, kerr.New("SNYLGBJYTM", nil, "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.Type())
+			return nil, kerr.New("SNYLGBJYTM", "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.Type())
 		}
 	}
 
 	ob := in.Map()
 	typeField, ok := ob["type"]
 	if !ok {
-		return nil, kerr.New("HBJVDKAKBJ", nil, "Input must have type field if rule is nil or an interface type")
+		return nil, kerr.New("HBJVDKAKBJ", "Input must have type field if rule is nil or an interface type")
 	}
 	var r system.Reference
 	if err := r.Unpack(ctx, typeField); err != nil {
-		return nil, kerr.New("YXHGIBXCOC", err, "Unpack (type)")
+		return nil, kerr.Wrap("YXHGIBXCOC", err)
 	}
 	t, ok := r.GetType(ctx)
 	if !ok {
-		return nil, kerr.New("IJFMJJWVCA", nil, "Could not find type %s", r.Value())
+		return nil, kerr.New("IJFMJJWVCA", "Could not find type %s", r.Value())
 	}
 
 	return t, nil
@@ -380,7 +380,7 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 	getType := func(r *system.Reference) (*system.Type, error) {
 		t, ok := system.GetTypeFromCache(ctx, r.Package, r.Name)
 		if !ok {
-			return nil, kerr.New("VEKXQDJFGD", nil, "Type %s not found in sys ctx", r.String())
+			return nil, kerr.New("VEKXQDJFGD", "Type %s not found in sys ctx", r.String())
 		}
 		return t, nil
 	}
@@ -388,24 +388,24 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 		// All types apart from Basic types embed system:object
 		ob, err := getType(system.NewReference("kego.io/system", "object"))
 		if err != nil {
-			return kerr.New("YRFWOTIGFT", err, "getType (system:object)")
+			return kerr.Wrap("YRFWOTIGFT", err)
 		}
 		if err := extractFields(ctx, fields, ob); err != nil {
-			return kerr.New("DTQEFALIMM", err, "extractFields (system:object)")
+			return kerr.Wrap("DTQEFALIMM", err)
 		}
 	}
 	for _, embedRef := range t.Embed {
 		embed, err := getType(embedRef)
 		if err != nil {
-			return kerr.New("SLIRILCARQ", err, "getType (embed %s)", embedRef.Value())
+			return kerr.Wrap("SLIRILCARQ", err)
 		}
 		if err := extractFields(ctx, fields, embed); err != nil {
-			return kerr.New("JWAPCVIYBJ", err, "extractFields (embed %s)", embedRef.Value())
+			return kerr.Wrap("JWAPCVIYBJ", err)
 		}
 	}
 	for name, rule := range t.Fields {
 		if _, ok := fields[name]; ok {
-			return kerr.New("BARXPFXQNB", nil, "Duplicate field %s", name)
+			return kerr.New("BARXPFXQNB", "Duplicate field %s", name)
 		}
 		fields[name] = &system.Field{Name: name, Rule: rule, Origin: t.Id}
 	}

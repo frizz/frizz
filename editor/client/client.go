@@ -1,4 +1,4 @@
-package client // import "kego.io/editor/client"
+package client	// import "kego.io/editor/client"
 
 import (
 	"net/url"
@@ -24,11 +24,11 @@ import (
 )
 
 type appData struct {
-	fail    chan error
-	conn    *connection.Conn
-	spinner *dom.HTMLDivElement
-	ctx     context.Context
-	env     *envctx.Env
+	fail	chan error
+	conn	*connection.Conn
+	spinner	*dom.HTMLDivElement
+	ctx	context.Context
+	env	*envctx.Env
 }
 
 var app appData
@@ -45,12 +45,12 @@ func Start() error {
 	// We parse the json info attribute from the body tag
 	info, err := getInfo(body)
 	if err != nil {
-		return kerr.New("MGLVIQIDDY", err, "getInfo")
+		return kerr.Wrap("MGLVIQIDDY", err)
 	}
 
 	app.env = &envctx.Env{
-		Path:    info.Path,
-		Aliases: info.Aliases,
+		Path:		info.Path,
+		Aliases:	info.Aliases,
 	}
 	app.fail = make(chan error)
 	app.ctx = envctx.NewContext(context.Background(), app.env)
@@ -63,20 +63,20 @@ func Start() error {
 
 	for _, info := range info.Imports {
 		env := &envctx.Env{
-			Path:    info.Path,
-			Aliases: info.Aliases,
+			Path:		info.Path,
+			Aliases:	info.Aliases,
 		}
 		pcache := scache.Set(env)
 		for _, typeBytes := range info.Types {
 			if err := parser.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
-				return kerr.New("UJLXYWCVUC", err, "parser.ProcessTypeSourceBytes")
+				return kerr.Wrap("UJLXYWCVUC", err)
 			}
 		}
 	}
 
 	pcache, ok := scache.Get(app.env.Path)
 	if !ok {
-		return kerr.New("SRPHQPBBRX", nil, "%s not found in sys ctx", app.env.Path)
+		return kerr.New("SRPHQPBBRX", "%s not found in sys ctx", app.env.Path)
 	}
 	types := map[string][]byte{}
 	for _, name := range pcache.TypeSource.Keys() {
@@ -87,13 +87,13 @@ func Start() error {
 
 	editorNode := editor.NewEditorNode()
 	if err := ke.UnmarshalUntyped(app.ctx, []byte(info.Package), editorNode); err != nil {
-		return kerr.New("KXIKEWOKJI", err, "UnmarshalNode")
+		return kerr.Wrap("KXIKEWOKJI", err)
 	}
 
 	// We dial the websocket connection to the server
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))
 	if err != nil {
-		return kerr.New("XBMAKPJICG", err, "websocket.Dial")
+		return kerr.Wrap("XBMAKPJICG", err)
 	}
 
 	// socket allows us to specify the message type - binary or string.
@@ -112,7 +112,7 @@ func Start() error {
 	root := tree.NewRoot(t, nav)
 
 	if err := root.AddPackage(editorNode, info.Data, types); err != nil {
-		return kerr.New("EAIHJLNBFA", err, "AddPackage")
+		return kerr.Wrap("EAIHJLNBFA", err)
 	}
 
 	window.AddEventListener("keydown", true, func(e dom.Event) {
@@ -155,11 +155,11 @@ func handle(f func() error) {
 func getInfo(body dom.Element) (info shared.Info, err error) {
 	infoJson, err := url.QueryUnescape(body.GetAttribute("info"))
 	if err != nil {
-		return shared.Info{}, kerr.New("CENGCYKHHP", err, "url.QueryUnescape (info)")
+		return shared.Info{}, kerr.Wrap("CENGCYKHHP", err)
 	}
 	err = json.UnmarshalPlain([]byte(infoJson), &info)
 	if err != nil {
-		return shared.Info{}, kerr.New("AAFXLQRUEW", err, "json.Unmarshal (info)")
+		return shared.Info{}, kerr.Wrap("AAFXLQRUEW", err)
 	}
 	return info, nil
 }

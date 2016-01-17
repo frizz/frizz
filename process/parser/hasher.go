@@ -24,7 +24,7 @@ func (p *PackageHasher) Hash() (uint64, error) {
 
 	bytes, err := json.MarshalPlain(p)
 	if err != nil {
-		return 0, kerr.New("TGAEJVECIF", err, "json.Marshal")
+		return 0, kerr.Wrap("TGAEJVECIF", err)
 	}
 
 	return cityhash.CityHash64(bytes, uint32(len(bytes))), nil

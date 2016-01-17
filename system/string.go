@@ -46,7 +46,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (bool, strin
 
 	s, ok := data.(*String)
 	if !ok && data != nil {
-		return false, "", kerr.New("SXFBXGQSEA", nil, "data %T should be *system.String.", data)
+		return false, "", kerr.New("SXFBXGQSEA", "data %T should be *system.String.", data)
 	}
 
 	// TODO: This restricts the value to one of several built-in formats
@@ -131,10 +131,10 @@ var _ Enforcer = (*StringRule)(nil)
 
 func (out *String) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("PWTAHLCCWR", nil, "Called String.Unpack with nil value")
+		return kerr.New("PWTAHLCCWR", "Called String.Unpack with nil value")
 	}
 	if in.Type() != json.J_STRING {
-		return kerr.New("IXASCXOPMG", nil, "Can't unpack %s into *system.String", in.Type())
+		return kerr.New("IXASCXOPMG", "Can't unpack %s into *system.String", in.Type())
 	}
 	s := NewString(in.String())
 	*out = *s

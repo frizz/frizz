@@ -1,4 +1,4 @@
-package sysctx // import "kego.io/context/sysctx"
+package sysctx	// import "kego.io/context/sysctx"
 
 import (
 	"sync"
@@ -12,35 +12,35 @@ import (
 
 type SysCache struct {
 	sync.RWMutex
-	m map[string]*PackageInfo
+	m	map[string]*PackageInfo
 }
 
 type PackageInfo struct {
-	Environment  *envctx.Env
-	PackageBytes []byte
-	Types        *TypeCache
-	TypeSource   *TypeSourceCache
-	Globals      *GlobalCache
+	Environment	*envctx.Env
+	PackageBytes	[]byte
+	Types		*TypeCache
+	TypeSource	*TypeSourceCache
+	Globals		*GlobalCache
 }
 
 type TypeCache struct {
 	sync.RWMutex
-	m map[string]interface{}
+	m	map[string]interface{}
 }
 
 type TypeSourceCache struct {
 	sync.RWMutex
-	m map[string][]byte
+	m	map[string][]byte
 }
 
 type GlobalCache struct {
 	sync.RWMutex
-	m map[string]GlobalInfo
+	m	map[string]GlobalInfo
 }
 
 type GlobalInfo struct {
-	Name string
-	File string
+	Name	string
+	File	string
 }
 
 func (c *SysCache) Len() int {
@@ -52,10 +52,10 @@ func (c *SysCache) Set(env *envctx.Env) *PackageInfo {
 	c.Lock()
 	defer c.Unlock()
 	p := &PackageInfo{
-		Environment: env,
-		Types:       &TypeCache{m: map[string]interface{}{}},
-		TypeSource:  &TypeSourceCache{m: map[string][]byte{}},
-		Globals:     &GlobalCache{m: map[string]GlobalInfo{}},
+		Environment:	env,
+		Types:		&TypeCache{m: map[string]interface{}{}},
+		TypeSource:	&TypeSourceCache{m: map[string][]byte{}},
+		Globals:	&GlobalCache{m: map[string]GlobalInfo{}},
 	}
 	c.m[env.Path] = p
 	return p
@@ -196,7 +196,7 @@ func NewContext(ctx context.Context) context.Context {
 func FromContext(ctx context.Context) *SysCache {
 	e, ok := ctx.Value(cacheKey).(*SysCache)
 	if !ok {
-		panic(kerr.New("DGGUPAXMUP", nil, "No sys cache in ctx").Error())
+		panic(kerr.New("DGGUPAXMUP", "No sys cache in ctx").Error())
 	}
 	return e
 }

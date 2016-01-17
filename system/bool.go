@@ -23,10 +23,10 @@ func (b *Bool) Set(in bool) {
 
 func (out *Bool) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("FXCQGNYKIJ", nil, "Called Bool.Unpack with nil value")
+		return kerr.New("FXCQGNYKIJ", "Called Bool.Unpack with nil value")
 	}
 	if in.Type() != json.J_BOOL {
-		return kerr.New("GXQGNEPJYS", nil, "Can't unpack %s into *system.Bool", in.Type())
+		return kerr.New("GXQGNEPJYS", "Can't unpack %s into *system.Bool", in.Type())
 	}
 	*out = Bool(in.Bool())
 	return nil

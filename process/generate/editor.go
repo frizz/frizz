@@ -38,7 +38,7 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	b, err := g.Build()
 	if err != nil {
-		return nil, kerr.New("CBTOLUQOGL", err, "Build")
+		return nil, kerr.Wrap("CBTOLUQOGL", err)
 	}
 	return b, nil
 }

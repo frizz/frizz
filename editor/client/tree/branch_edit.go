@@ -44,7 +44,7 @@ func (b *Branch) showEditPanel(fromKeyboard bool) {
 			}
 			b.editor = ed.Editor()
 			if err := b.editor.Initialize(b.tree.ctx, b.self, editor.Page, b.tree.Fail); err != nil {
-				b.tree.Fail <- kerr.New("KKOBKWJDBI", err, "Initialize")
+				b.tree.Fail <- kerr.Wrap("KKOBKWJDBI", err)
 				return
 			}
 			b.ListenForEditorChanges(b.editor.Listen().Ch)

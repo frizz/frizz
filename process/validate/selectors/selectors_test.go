@@ -188,12 +188,12 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		if expected == nil {
 			return true, nil
 		}
-		return false, kerr.New("IKMQTDAKSM", nil, "ns.NativeString returned false")
+		return false, kerr.New("IKMQTDAKSM", "ns.NativeString returned false")
 	case json.J_STRING:
 		actualString := actual.ValueString
 		expectedString, ok := expected.(string)
 		if !ok {
-			return false, kerr.New("MPXARMUVPH", nil, "expected %T is not a string", expected)
+			return false, kerr.New("MPXARMUVPH", "expected %T is not a string", expected)
 		}
 		return expectedString == actualString, nil
 		break
@@ -201,7 +201,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		actualNumber := actual.ValueNumber
 		expectedNumber, ok := expected.(float64)
 		if !ok {
-			return false, kerr.New("GPOPXFJQSA", nil, "expected %T is not a float64", expected)
+			return false, kerr.New("GPOPXFJQSA", "expected %T is not a float64", expected)
 		}
 		return expectedNumber == actualNumber, nil
 		break
@@ -209,14 +209,14 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		actualBool := actual.ValueBool
 		expectedBool, ok := expected.(bool)
 		if !ok {
-			return false, kerr.New("YEVEBUIQUH", nil, "expected %T is not a bool", expected)
+			return false, kerr.New("YEVEBUIQUH", "expected %T is not a bool", expected)
 		}
 		return expectedBool == actualBool, nil
 		break
 	case json.J_ARRAY:
 		expectedArray, ok := expected.([]interface{})
 		if !ok {
-			return false, kerr.New("AIHXLBFOQA", nil, "expected %T is not []interface{}", expected)
+			return false, kerr.New("AIHXLBFOQA", "expected %T is not []interface{}", expected)
 		}
 
 		length := len(actual.Array)
@@ -228,7 +228,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		for i, child := range actual.Array {
 			match, err := comparison(child.GetNode(), expectedArray[i])
 			if err != nil {
-				return false, kerr.New("CTHINNYIRI", err, "comparison (array)")
+				return false, kerr.Wrap("CTHINNYIRI", err)
 			}
 			if !match {
 				return false, nil
@@ -238,7 +238,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 	case json.J_MAP:
 		expectedMap, ok := expected.(map[string]interface{})
 		if !ok {
-			return false, kerr.New("CCIRAQFFSR", nil, "expected %T is not map[string]interface{} (map)", expected)
+			return false, kerr.New("CCIRAQFFSR", "expected %T is not map[string]interface{} (map)", expected)
 		}
 		compareChild := func(key string) (bool, error) {
 			child, ok := actual.Map[key]
@@ -247,14 +247,14 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			}
 			match, err := comparison(child.GetNode(), expectedMap[key])
 			if err != nil {
-				return false, kerr.New("QTVTEIETXV", err, "getNodes (map)")
+				return false, kerr.Wrap("QTVTEIETXV", err)
 			}
 			return match, nil
 		}
 		for key, _ := range actual.Map {
 			matched, err := compareChild(key)
 			if err != nil {
-				return false, kerr.New("EAQCUKTFBW", err, "compareChild map (actual)")
+				return false, kerr.Wrap("EAQCUKTFBW", err)
 			}
 			if !matched {
 				return false, nil
@@ -263,7 +263,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		for key, _ := range expectedMap {
 			matched, err := compareChild(key)
 			if err != nil {
-				return false, kerr.New("YGCQDYMOEA", err, "compareChild map (expected)")
+				return false, kerr.Wrap("YGCQDYMOEA", err)
 			}
 			if !matched {
 				return false, nil
@@ -273,7 +273,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 	case "object":
 		expectedMap, ok := expected.(map[string]interface{})
 		if !ok {
-			return false, kerr.New("OJEQQPYXJP", nil, "expected %T is not map[string]interface{} (object)", expected)
+			return false, kerr.New("OJEQQPYXJP", "expected %T is not map[string]interface{} (object)", expected)
 		}
 		compareChild := func(key string) (bool, error) {
 			child, ok := actual.Map[key]
@@ -282,7 +282,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			}
 			match, err := comparison(child.GetNode(), expectedMap[key])
 			if err != nil {
-				return false, kerr.New("NNCBWVRAJC", err, "comparison (object)")
+				return false, kerr.Wrap("NNCBWVRAJC", err)
 			}
 			return match, nil
 		}
@@ -292,7 +292,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			}
 			matched, err := compareChild(key)
 			if err != nil {
-				return false, kerr.New("DIUQUBQAJN", err, "compareChild object (actual)")
+				return false, kerr.Wrap("DIUQUBQAJN", err)
 			}
 			if !matched {
 				return false, nil
@@ -301,7 +301,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		for key, _ := range expectedMap {
 			matched, err := compareChild(key)
 			if err != nil {
-				return false, kerr.New("GXBHGSNDFO", err, "compareChild object (expected)")
+				return false, kerr.Wrap("GXBHGSNDFO", err)
 			}
 			if !matched {
 				return false, nil

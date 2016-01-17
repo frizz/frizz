@@ -23,7 +23,7 @@ func ScanDirToFiles(ctx context.Context, dir string, recursive bool) chan File {
 
 	process := func(file string, info os.FileInfo, err error) error {
 		if err != nil {
-			return kerr.New("XAAMWOOVFJ", err, "walker (%s)", file)
+			return kerr.Wrap("XAAMWOOVFJ", err)
 		}
 		if !info.Mode().IsRegular() {
 			return nil
@@ -42,19 +42,19 @@ func ScanDirToFiles(ctx context.Context, dir string, recursive bool) chan File {
 
 		if recursive {
 			if err := filepath.Walk(dir, process); err != nil {
-				out <- File{"", kerr.New("RNHDOWOSSA", err, "filepath.Walk")}
+				out <- File{"", kerr.Wrap("RNHDOWOSSA", err)}
 			}
 			return
 		}
 
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
-			out <- File{"", kerr.New("UFYVXCPCTI", err, "ioutil.ReadDir")}
+			out <- File{"", kerr.Wrap("UFYVXCPCTI", err)}
 			return
 		}
 		for _, f := range files {
 			if err := process(filepath.Join(dir, f.Name()), f, nil); err != nil {
-				out <- File{"", kerr.New("AWXBSBBVWN", err, "walker")}
+				out <- File{"", kerr.Wrap("AWXBSBBVWN", err)}
 				return
 			}
 		}
@@ -86,7 +86,7 @@ func ScanFilesToBytes(ctx context.Context, in chan File) chan Content {
 					return
 				}
 				if value.Err != nil {
-					out <- Content{"", nil, kerr.New("PQUCOUYLJE", value.Err, "Received error")}
+					out <- Content{"", nil, kerr.Wrap("PQUCOUYLJE", value.Err)}
 					return
 				}
 				bytes, err := ProcessFile(value.File)
@@ -95,7 +95,7 @@ func ScanFilesToBytes(ctx context.Context, in chan File) chan Content {
 					out <- Content{value.File, bytes, err}
 				}
 			case <-ctx.Done():
-				out <- Content{"", nil, kerr.New("AFBJCTFOKX", ctx.Err(), "Context done")}
+				out <- Content{"", nil, kerr.Wrap("AFBJCTFOKX", ctx.Err())}
 				return
 			}
 		}
@@ -117,13 +117,13 @@ func ProcessFile(file string) ([]byte, error) {
 
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, kerr.New("NMWROTKPLJ", err, "ioutil.ReadFile (%s)", file)
+		return nil, kerr.Wrap("NMWROTKPLJ", err)
 	}
 
 	if isYaml {
 		j, err := yaml.YAMLToJSON(bytes)
 		if err != nil {
-			return nil, kerr.New("FAFJCYESRH", err, "yaml.YAMLToJSON")
+			return nil, kerr.Wrap("FAFJCYESRH", err)
 		}
 		bytes = j
 	}

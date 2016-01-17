@@ -34,11 +34,11 @@ func (e *ArrayEditor) Initialize(ctx context.Context, holder BranchInterface, la
 
 	items, err := system.WrapRule(ctx, e.Rule.Interface.(system.CollectionRule).GetItemsRule())
 	if err != nil {
-		return kerr.New("GQROTGVBXS", err, "NewRuleHolder")
+		return kerr.Wrap("GQROTGVBXS", err)
 	}
 	hold, err := items.HoldsDisplayType(ctx)
 	if err != nil {
-		return kerr.New("XDKOSFJVQV", err, "ValueContext")
+		return kerr.Wrap("XDKOSFJVQV", err)
 	}
 
 	table.Head("index", "holds", "value")
@@ -66,7 +66,7 @@ func (e *ArrayEditor) Initialize(ctx context.Context, holder BranchInterface, la
 		} else {
 			val, err := item.Type.Id.ValueContext(ctx)
 			if err != nil {
-				return kerr.New("PYNPNMICPQ", err, "ValueContext")
+				return kerr.Wrap("PYNPNMICPQ", err)
 			}
 			r.Cell().Text(val)
 		}

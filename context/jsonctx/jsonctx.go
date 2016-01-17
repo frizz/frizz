@@ -178,7 +178,7 @@ func (c *TypeCache) Get(id string) (*TypeInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	if strings.HasPrefix(id, RULE_PREFIX) {
-		panic(kerr.New("XULXFINYQJ", nil, "Type name given to TypeCache.Get should not be a rule").Error())
+		panic(kerr.New("XULXFINYQJ", "Type name given to TypeCache.Get should not be a rule").Error())
 	}
 	t, ok := c.m[id]
 	return t, ok
@@ -309,7 +309,7 @@ func newContext(ctx context.Context, autoPackages bool, autoDummies bool, manual
 func FromContext(ctx context.Context) *JsonCache {
 	e, ok := ctx.Value(jsonKey).(*JsonCache)
 	if !ok {
-		panic(kerr.New("XUTUUVDMMX", nil, "No json cache in ctx").Error())
+		panic(kerr.New("XUTUUVDMMX", "No json cache in ctx").Error())
 	}
 	return e
 }

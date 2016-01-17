@@ -20,10 +20,10 @@ func ValidatePackage(ctx context.Context) error {
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for c := range bytes {
 		if c.Err != nil {
-			return kerr.New("IHSVWAUAYW", c.Err, "ScanFilesToBytes")
+			return kerr.Wrap("IHSVWAUAYW", c.Err)
 		}
 		if err := validateBytes(ctx, c.Bytes); err != nil {
-			return kerr.New("KWLWXKWHLF", err, "validateBytes (%s)", c.File)
+			return kerr.Wrap("KWLWXKWHLF", err)
 		}
 	}
 
@@ -33,16 +33,16 @@ func ValidatePackage(ctx context.Context) error {
 func validateBytes(ctx context.Context, bytes []byte) error {
 	n := node.NewNode()
 	err := ke.UnmarshalUntyped(ctx, bytes, n)
-	if up, ok := err.(json.UnknownPackageError); ok {
-		return kerr.New("QPOGRNXWMH", err, "unknown package %s", up.UnknownPackage)
-	} else if ut, ok := err.(json.UnknownTypeError); ok {
-		return kerr.New("PJABFRVFLF", err, "unknown type %s", ut.UnknownType)
+	if _, ok := err.(json.UnknownPackageError); ok {
+		return kerr.Wrap("QPOGRNXWMH", err)
+	} else if _, ok := err.(json.UnknownTypeError); ok {
+		return kerr.Wrap("PJABFRVFLF", err)
 	} else if err != nil {
-		return kerr.New("QIVNOQKCQF", err, "UnmarshalNode")
+		return kerr.Wrap("QIVNOQKCQF", err)
 	}
 
 	if err := validateNode(ctx, n); err != nil {
-		return kerr.New("RVKNMWKQHD", err, "validateUnknown")
+		return kerr.Wrap("RVKNMWKQHD", err)
 	}
 	return nil
 }
@@ -79,10 +79,10 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 	if v, ok := node.Value.(system.Validator); ok {
 		ok, message, err := v.Validate(ctx)
 		if err != nil {
-			return kerr.New("RUGJLUAFAN", err, "v.Validate")
+			return kerr.Wrap("RUGJLUAFAN", err)
 		}
 		if !ok {
-			return ValidationError{kerr.New("KULDIJUYFB", nil, message)}
+			return ValidationError{kerr.New("KULDIJUYFB", message)}
 		}
 	}
 
@@ -91,10 +91,10 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 		if ok {
 			ok, message, err := e.Enforce(ctx, node.Value)
 			if err != nil {
-				return kerr.New("EBEMISLGDX", err, "e.Enforce (main)")
+				return kerr.Wrap("EBEMISLGDX", err)
 			}
 			if !ok {
-				return ValidationError{kerr.New("HLKQWDCMRN", nil, message)}
+				return ValidationError{kerr.New("HLKQWDCMRN", message)}
 			}
 		}
 	}
@@ -103,7 +103,7 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 
 		p, err := selectors.CreateParser(ctx, node)
 		if err != nil {
-			return kerr.New("AIWLGYGGAY", err, "selectors.CreateParser")
+			return kerr.Wrap("AIWLGYGGAY", err)
 		}
 
 		for _, rule := range rules {
@@ -117,19 +117,19 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 
 			e, ok := rule.(system.Enforcer)
 			if !ok {
-				return kerr.New("ABVWHMMXGG", nil, "rule %T does not implement system.Enforcer", rule)
+				return kerr.New("ABVWHMMXGG", "rule %T does not implement system.Enforcer", rule)
 			}
 			matches, err := p.GetNodes(selector)
 			if err != nil {
-				return kerr.New("UKOCCFJWAB", err, "p.GetJsonElements (%s)", selector)
+				return kerr.Wrap("UKOCCFJWAB", err)
 			}
 			for _, match := range matches {
 				ok, message, err := e.Enforce(ctx, match.GetNode().Value)
 				if err != nil {
-					return kerr.New("MGHHDYTXVV", err, "e.Enforce")
+					return kerr.Wrap("MGHHDYTXVV", err)
 				}
 				if !ok {
-					return ValidationError{kerr.New("HAOXUVTFEX", nil, message)}
+					return ValidationError{kerr.New("HAOXUVTFEX", message)}
 				}
 			}
 		}
@@ -142,14 +142,14 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 	case json.J_ARRAY:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
-			return kerr.New("YFNERJIKWF", err, "rule.ItemsRule (array)")
+			return kerr.Wrap("YFNERJIKWF", err)
 		}
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
 		return validateArrayChildren(ctx, node, items, rules)
 	case json.J_MAP:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
-			return kerr.New("PRPQQJKIKF", err, "rule.ItemsRule (map)")
+			return kerr.Wrap("PRPQQJKIKF", err)
 		}
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
 		return validateMapChildren(ctx, node, items, rules)
@@ -172,11 +172,11 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 	for name, field := range node.Type.Fields {
 		child, ok := node.Map[name]
 		if !field.GetRule(nil).Optional && !ok {
-			return kerr.New("ETODESNSET", nil, "Field %s is missing and not optional", name)
+			return kerr.New("ETODESNSET", "Field %s is missing and not optional", name)
 		}
 		ob, ok := field.(system.ObjectInterface)
 		if !ok {
-			return kerr.New("XRTVWVUAMP", nil, "field does not implement system.ObjectInterface")
+			return kerr.New("XRTVWVUAMP", "field does not implement system.ObjectInterface")
 		}
 
 		allRules := append(rules, ob.GetObject(nil).Rules...)
@@ -187,7 +187,7 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 		}
 
 		if err := validateObject(ctx, child.GetNode(), allRules); err != nil {
-			return kerr.New("YJYSAOQWSJ", err, "validateObject (%s)", name)
+			return kerr.Wrap("YJYSAOQWSJ", err)
 		}
 	}
 	return nil
@@ -200,9 +200,9 @@ func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *syst
 		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
-	for i, child := range node.Array {
+	for _, child := range node.Array {
 		if err := validateObject(ctx, child.GetNode(), rules); err != nil {
-			return kerr.New("DKVEPIWTPI", err, "validateObject array index %s", i)
+			return kerr.Wrap("DKVEPIWTPI", err)
 		}
 	}
 	return nil
@@ -215,9 +215,9 @@ func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system
 		rules = append(rules, itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
-	for n, child := range node.Map {
+	for _, child := range node.Map {
 		if err := validateObject(ctx, child.GetNode(), rules); err != nil {
-			return kerr.New("YLONAMFUAG", err, "validateObject map key %s", n)
+			return kerr.Wrap("YLONAMFUAG", err)
 		}
 	}
 	return nil

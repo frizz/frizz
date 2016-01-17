@@ -34,27 +34,27 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 	scache := sysctx.FromContext(ctx)
 	pi, ok := scache.Get(path)
 	if !ok {
-		return kerr.New("XMVXECGDOX", nil, "%s not founc in ctx", path)
+		return kerr.New("XMVXECGDOX", "%s not founc in ctx", path)
 	}
 	if path != "kego.io/system" {
 		if err := GenerateAll(ctx, "kego.io/system", done); err != nil {
-			return kerr.New("WVXTUBQYVT", err, "GenerateAll (kego.io/system)")
+			return kerr.Wrap("WVXTUBQYVT", err)
 		}
 	}
 	for aliasPath, _ := range pi.Environment.Aliases {
 		if err := GenerateAll(ctx, aliasPath, done); err != nil {
-			return kerr.New("WVXTUBQYVT", err, "GenerateAll (%s)", aliasPath)
+			return kerr.Wrap("WVXTUBQYVT", err)
 		}
 	}
 
 	info, found, err := getInfo(ctx, pi.Environment.Dir)
 	if err != nil {
-		return kerr.New("SIMBVNBWOV", err, "getInfo")
+		return kerr.Wrap("SIMBVNBWOV", err)
 	}
 
 	if !found || info.Hash != pi.Environment.Hash {
 		if err := Generate(ctx, pi.Environment); err != nil {
-			return kerr.New("TUFKDUPWMD", err, "Generate (%s)", path)
+			return kerr.Wrap("TUFKDUPWMD", err)
 		}
 	}
 
@@ -70,14 +70,14 @@ func getInfo(ctx context.Context, dir string) (info *generate.InfoStruct, found 
 		if os.IsNotExist(err) {
 			return nil, false, nil
 		}
-		return nil, false, kerr.New("TLFTCRNBKK", err, "os.OpenFile")
+		return nil, false, kerr.Wrap("TLFTCRNBKK", err)
 	}
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
 	scanner.Scan()
 	if err := scanner.Err(); err != nil {
-		return nil, false, kerr.New("HLDYEAPLEQ", err, "Scan")
+		return nil, false, kerr.Wrap("HLDYEAPLEQ", err)
 	}
 
 	if !strings.HasPrefix(scanner.Text(), "// info:{") {
@@ -88,7 +88,7 @@ func getInfo(ctx context.Context, dir string) (info *generate.InfoStruct, found 
 
 	var i generate.InfoStruct
 	if err := json.UnmarshalPlain(data, &i); err != nil {
-		return nil, false, kerr.New("UJXKJVLXHG", err, "DecodeUntyped")
+		return nil, false, kerr.Wrap("UJXKJVLXHG", err)
 	}
 	return &i, true, nil
 }
@@ -110,7 +110,7 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 	filename := "generated.go"
 	source, err := generate.Structs(ctx, env)
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "generate.Structs")
+		return kerr.Wrap("XFNESBLBTQ", err)
 	}
 
 	// We only backup in the system structs and types files because they are the only
@@ -118,7 +118,7 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 	backup := env.Path == "kego.io/system"
 
 	if err = save(outputDir, source, filename, backup); err != nil {
-		return kerr.New("UONJTTSTWW", err, "save")
+		return kerr.Wrap("UONJTTSTWW", err)
 	} else {
 		if cmd.Log {
 			fmt.Println("OK.")
@@ -136,7 +136,7 @@ func save(dir string, contents []byte, name string, backup bool) error {
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err = os.MkdirAll(dir, 0777); err != nil {
-			return kerr.New("BPGOUIYPXO", err, "vos.MkdirAll")
+			return kerr.Wrap("BPGOUIYPXO", err)
 		}
 	}
 
@@ -156,16 +156,16 @@ func save(dir string, contents []byte, name string, backup bool) error {
 
 	output, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return kerr.New("NWLWHSGJWP", err, "os.OpenFile (could not open output file)")
+		return kerr.Wrap("NWLWHSGJWP", err)
 	}
 	defer output.Close()
 
 	if _, err := output.Write(contents); err != nil {
-		return kerr.New("FBMGPRWQBL", err, "output.Write")
+		return kerr.Wrap("FBMGPRWQBL", err)
 	}
 
 	if err := output.Sync(); err != nil {
-		return kerr.New("EGFNTMNKFX", err, "output.Sync")
+		return kerr.Wrap("EGFNTMNKFX", err)
 	}
 
 	return nil

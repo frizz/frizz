@@ -35,7 +35,7 @@ func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, 
 
 	i, ok := data.(*Int)
 	if !ok && data != nil {
-		return false, "", kerr.New("AISBHNCJXJ", nil, "Data %T should be *system.Int", data)
+		return false, "", kerr.New("AISBHNCJXJ", "Data %T should be *system.Int", data)
 	}
 
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
@@ -82,14 +82,14 @@ var _ Enforcer = (*IntRule)(nil)
 
 func (out *Int) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("JEJANRWFMH", nil, "Called Int.Unpack with nil value")
+		return kerr.New("JEJANRWFMH", "Called Int.Unpack with nil value")
 	}
 	if in.Type() != json.J_NUMBER {
-		return kerr.New("UJUBDGVYGF", nil, "Can't unpack %s into *system.Int", in.Type())
+		return kerr.New("UJUBDGVYGF", "Can't unpack %s into *system.Int", in.Type())
 	}
 	i := math.Floor(in.Number())
 	if i != in.Number() {
-		return kerr.New("KVEOETSIJY", nil, "%v is not an integer", in.Number())
+		return kerr.New("KVEOETSIJY", "%v is not an integer", in.Number())
 	}
 	*out = Int(int(i))
 	return nil

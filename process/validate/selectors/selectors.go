@@ -237,7 +237,7 @@ func (p *Parser) matchNodes(validators []func(*node.Node) (bool, error), documen
 		for _, validator := range validators {
 			result, err := validator(node)
 			if err != nil {
-				return nil, kerr.New("GUOFXMISKX", err, "validator")
+				return nil, kerr.Wrap("GUOFXMISKX", err)
 			}
 			if !result {
 				passed = false
@@ -272,7 +272,7 @@ func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error
 		kegoType := tokenString[1 : len(tokenString)-1]
 		r, err := system.NewReferenceFromString(p.ctx, kegoType)
 		if err != nil {
-			return false, kerr.New("RWDOYBBDVK", err, "NewReferenceFromString")
+			return false, kerr.Wrap("RWDOYBBDVK", err)
 		}
 		logger.Print("kegoProduction ? ", n.Type.Id.Value(), " == ", r.Value())
 
@@ -518,7 +518,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 
 			newParser, err := CreateParser(p.ctx, n)
 			if err != nil {
-				return false, kerr.New("LHELFFCUME", err, "CreateParser")
+				return false, kerr.Wrap("LHELFFCUME", err)
 			}
 			if len(args) > 0 {
 				logger.Print("pclassFuncProduction recursing into selectorProduction(-100) starting with ", args[0], "; ", len(args), " tokens remaining.")
