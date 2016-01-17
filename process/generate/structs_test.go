@@ -1,4 +1,4 @@
-package process
+package generate
 
 import (
 	"regexp"

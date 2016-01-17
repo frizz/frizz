@@ -8,7 +8,7 @@ import (
 
 	"kego.io/context/sysctx"
 	"kego.io/kerr/assert"
-	"kego.io/process"
+	"kego.io/process/generate"
 	"kego.io/process/tests"
 	"kego.io/system"
 )
@@ -177,6 +177,6 @@ func TestParse(t *testing.T) {
 	pi, err := parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
-	_, err = process.Structs(cb.Ctx(), pi.Environment)
+	_, err = generate.Structs(cb.Ctx(), pi.Environment)
 	assert.NoError(t, err)
 }

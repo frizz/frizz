@@ -15,6 +15,7 @@ import (
 	"kego.io/context/wgctx"
 	"kego.io/json"
 	"kego.io/kerr"
+	"kego.io/process/generate"
 )
 
 type SourceType string
@@ -63,7 +64,7 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 
 }
 
-func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err error) {
+func getInfo(ctx context.Context, dir string) (info *generate.InfoStruct, found bool, err error) {
 	f, err := os.Open(filepath.Join(dir, "generated.go"))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -85,7 +86,7 @@ func getInfo(ctx context.Context, dir string) (info *InfoStruct, found bool, err
 
 	data := []byte(scanner.Text()[8:])
 
-	var i InfoStruct
+	var i generate.InfoStruct
 	if err := json.UnmarshalPlain(data, &i); err != nil {
 		return nil, false, kerr.New("UJXKJVLXHG", err, "DecodeUntyped")
 	}
@@ -107,9 +108,9 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 
 	outputDir := env.Dir
 	filename := "generated.go"
-	source, err := Structs(ctx, env)
+	source, err := generate.Structs(ctx, env)
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "parser.Structs")
+		return kerr.New("XFNESBLBTQ", err, "generate.Structs")
 	}
 
 	// We only backup in the system structs and types files because they are the only

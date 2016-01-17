@@ -1,4 +1,4 @@
-package validate // import "kego.io/process/generate/commands/validate"
+package command // import "kego.io/process/validate/command"
 
 import (
 	"fmt"
