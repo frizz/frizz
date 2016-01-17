@@ -47,14 +47,14 @@ func processFile(filename string) error {
 
 	var res []byte
 
-	res, err = imports.Process(filename, src, options)
-	if err != nil {
-		return kerr.Wrap("XFILQRWHSI", err)
-	}
-
 	res, err = kerrsource.Process(filename, res)
 	if err != nil {
 		return kerr.Wrap("UFVVOEXSYE", err)
+	}
+
+	res, err = imports.Process(filename, src, options)
+	if err != nil {
+		return kerr.Wrap("XFILQRWHSI", err)
 	}
 
 	if !bytes.Equal(src, res) {
