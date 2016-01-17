@@ -27,10 +27,8 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	g := builder.New(env.Path)
 
-	infoBytes, err := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
-	if err != nil {
-		return nil, kerr.Wrap("HVFWIUVLSM", err)
-	}
+	infoBytes, _ := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
+
 	g.SetPackageComment("info:" + string(infoBytes))
 
 	if types.Len() == 0 {
@@ -209,6 +207,6 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.TypeCa
 }
 
 type InfoStruct struct {
-	Path	string
-	Hash	uint64
+	Path string
+	Hash uint64
 }

@@ -9,6 +9,11 @@ import (
 	"kego.io/system"
 )
 
+func TestGenerateSourceErr1(t *testing.T) {
+	cb := tests.Context("a.b/c").Sempty()
+	_, err := Structs(cb.Ctx(), cb.Env())
+	assert.IsError(t, err, "DQVQWTKRSK")
+}
 func TestGenerateSource(t *testing.T) {
 
 	cb := tests.Context("b.c/d")
