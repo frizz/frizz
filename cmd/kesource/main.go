@@ -27,13 +27,6 @@ func processFile(filename string) error {
 		return kerr.New("CKBKFTNVXI", "File not found")
 	}
 
-	options := &imports.Options{
-		TabWidth:  4,
-		TabIndent: true,
-		Comments:  true,
-		Fragment:  true,
-	}
-
 	f, err := os.Open(filename)
 	if err != nil {
 		return kerr.Wrap("WCQEVUWMAI", err)
@@ -52,7 +45,7 @@ func processFile(filename string) error {
 		return kerr.Wrap("UFVVOEXSYE", err)
 	}
 
-	res, err = imports.Process(filename, src, options)
+	res, err = imports.Process(filename, src, nil)
 	if err != nil {
 		return kerr.Wrap("XFILQRWHSI", err)
 	}
