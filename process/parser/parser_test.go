@@ -18,8 +18,8 @@ func TestScan_errors(t *testing.T) {
 	cb := tests.Context("").Cmd().Sempty().Jsystem()
 
 	_, err := parser.Parse(cb.Ctx(), "does-not-exist")
-	assert.IsError(t, err, "GJRHNGGWFD")
-	assert.HasError(t, err, "SUTCWEVRXS")
+	assert.IsError(t, err, "GJRHNGGWFD")  // Error from parser.ScanForEnv
+	assert.HasError(t, err, "SUTCWEVRXS") // Dir not found from packages.getDirFromEmptyPackage
 
 	n, err := tests.CreateTemporaryNamespace()
 	assert.NoError(t, err)
@@ -37,8 +37,8 @@ func TestScan_errors(t *testing.T) {
 	cb.Path(path)
 
 	_, err = parser.Parse(cb.Ctx(), path)
-	assert.IsError(t, err, "VFUNPHUFHD")
-	assert.HasError(t, err, "HCYGNBDFFA")
+	assert.IsError(t, err, "VFUNPHUFHD")  // Error from parser.scanForTypes
+	assert.HasError(t, err, "HCYGNBDFFA") // Error trying to unmarshal a type
 
 	path, _, _, err = tests.CreateTemporaryPackage(n, "a", map[string]string{
 		"a.json": "foo",
@@ -48,8 +48,8 @@ func TestScan_errors(t *testing.T) {
 	cb.Path(path)
 
 	_, err = parser.Parse(cb.Ctx(), path)
-	assert.IsError(t, err, "GJRHNGGWFD")
-	assert.HasError(t, err, "XTEQCAYQJP")
+	assert.IsError(t, err, "GJRHNGGWFD")  // Error from parser.ScanForEnv
+	assert.HasError(t, err, "MTDCXBYBEJ") // Error trying to scan for packages
 
 }
 

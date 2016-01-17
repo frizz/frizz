@@ -40,6 +40,13 @@ type Interface interface {
 	ErrorInner() error
 }
 
+func New1(id string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
+	return New(id, nil, descriptionFormat, descriptionArgs...)
+}
+func Wrap(id string, inner error) Struct {
+	return New(id, inner, "")
+}
+
 // New creates a new kerr.Error
 func New(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
 	stack := []string{id}

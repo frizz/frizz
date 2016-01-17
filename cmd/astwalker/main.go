@@ -19,13 +19,13 @@ import (
 func main() {
 
 	// disabled
-	return
+	//return
 
-	if false {
+	if true {
 		// for testing
-		walkFile("/Users/dave/dev/proj/go/src/kego.io/process/edit.go")
+		walkFile("/Users/dave/dev/src/kego.io/cmd/astwalker/test.go")
 	} else {
-		// walk eaach file in the working directory
+		// walk each file in the working directory
 		walker := func(path string, file os.FileInfo, err error) error {
 			// skip anything starting with a period, or not ending in .go.
 			if strings.HasPrefix(path, ".") || !strings.HasSuffix(path, ".go") {
@@ -33,7 +33,7 @@ func main() {
 			}
 			return walkFile(path)
 		}
-		filepath.Walk(".", walker)
+		filepath.Walk("/Users/dave/dev/src/kego.io/", walker)
 	}
 }
 
@@ -90,12 +90,25 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 			if i, ok := f.X.(*ast.Ident); ok {
 				pkg = i.Name
 			}
+
+			if pkg == "kerr" && name == "New" {
+				// for call expressions kerr.New, remove the third parameter
+				//t.Args = append(t.Args[0:2], t.Args[3:]...)
+
+				if i, ok := t.Args[1].(*ast.Ident); ok && i.Name == "nil" && i.Obj == nil {
+					// If the 2nd parameter is nil, rename to New1 and remove the 2nd parameter.
+					f.Sel.Name = "New1"
+					t.Args = append(t.Args[0:1], t.Args[2:]...)
+				} else {
+					// If not, rename to Wrap and only use the first 2 parameters
+					f.Sel.Name = "Wrap"
+					t.Args = t.Args[0:2]
+				}
+
+				v.Found = true
+			}
 		}
-		if pkg == "kerr" && name == "New" {
-			// for call expressions kerr.New, remove the third parameter
-			t.Args = append(t.Args[0:2], t.Args[3:]...)
-			v.Found = true
-		}
+
 	}
 
 	return v

@@ -52,7 +52,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 
 	env, err := ScanForEnv(ctx, path)
 	if err != nil {
-		return nil, kerr.New("GJRHNGGWFD", err, "scanForEnv")
+		return nil, kerr.New("GJRHNGGWFD", err, "ScanForEnv")
 	}
 
 	// Always scan the system package first if we don't have it already
@@ -101,12 +101,13 @@ func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {
 		return nil, kerr.New("LASRFKILIH", err, "packages.GetDirFromPackage")
 	}
 
-	pkg, err := scanForPackage(ctx, path, dir)
+	env = &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false, Dir: dir}
+
+	pkg, err := scanForPackage(ctx, env)
 	if err != nil {
 		return nil, kerr.New("DTAEUSHJTQ", err, "scanForPackage")
 	}
 
-	env = &envctx.Env{Path: path, Aliases: map[string]string{}, Recursive: false, Dir: dir}
 	if pkg != nil {
 		env.Aliases = pkg.Aliases
 		env.Recursive = pkg.Recursive
@@ -175,69 +176,83 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 			return kerr.New("NLRRVIDVWM", err, "UnmarshalPlain")
 		}
 	}
-	if t, ok := object.(*system.Type); ok {
-		if hash != nil {
-			hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
-		}
-		cache.Types.Set(t.Id.Name, t)
-		cache.TypeSource.Set(t.Id.Name, bytes)
-		if t.Rule != nil {
-			id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
-			if t.Rule.Id != nil && *t.Rule.Id != *id {
-				return kerr.New("JKARKEDTIW", nil, "Incorrect id for %v - it should be %v", t.Rule.Id.String(), id.String())
-			}
-			t.Rule.Id = id
-
-			// Check that the rule embeds system:rule
-			found := false
-			for _, em := range t.Rule.Embed {
-				if *em == *system.NewReference("kego.io/system", "rule") {
-					found = true
-				}
-			}
-			if !found {
-				return kerr.New("LMALEMKFDI", nil, "%s does not embed system:rule", id.String())
-			}
-
-			cache.Types.Set(id.Name, t.Rule)
-		} else {
-			// If the rule is missing, automatically create a default.
-			id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
-			rule := &system.Type{
-				Object: &system.Object{
-					Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
-					Type:        system.NewReference("kego.io/system", "type"),
-					Id:          id,
-				},
-				Embed:     []*system.Reference{system.NewReference("kego.io/system", "rule")},
-				Native:    system.NewString("object"),
-				Interface: false,
-			}
-			cache.Types.Set(id.Name, rule)
-		}
+	t, ok := object.(*system.Type)
+	if !ok {
+		return kerr.New("IVIFIOFGVK", nil, "Should be *system.Type")
 	}
+	if hash != nil {
+		hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
+	}
+	cache.Types.Set(t.Id.Name, t)
+	cache.TypeSource.Set(t.Id.Name, bytes)
+	if t.Rule != nil {
+		id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
+		if t.Rule.Id != nil && *t.Rule.Id != *id {
+			return kerr.New("JKARKEDTIW", nil, "Incorrect id for %v - it should be %v", t.Rule.Id.String(), id.String())
+		}
+		t.Rule.Id = id
+
+		// Check that the rule embeds system:rule
+		found := false
+		for _, em := range t.Rule.Embed {
+			if *em == *system.NewReference("kego.io/system", "rule") {
+				found = true
+			}
+		}
+		if !found {
+			return kerr.New("LMALEMKFDI", nil, "%s does not embed system:rule", id.String())
+		}
+
+		cache.Types.Set(id.Name, t.Rule)
+	} else {
+		// If the rule is missing, automatically create a default.
+		id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
+		rule := &system.Type{
+			Object: &system.Object{
+				Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
+				Type:        system.NewReference("kego.io/system", "type"),
+				Id:          id,
+			},
+			Embed:     []*system.Reference{system.NewReference("kego.io/system", "rule")},
+			Native:    system.NewString("object"),
+			Interface: false,
+		}
+		cache.Types.Set(id.Name, rule)
+	}
+
 	return nil
 }
 
-func scanForPackage(ctx context.Context, path string, dir string) (*system.Package, error) {
-	files := scanner.ScanDirToFiles(ctx, dir, false)
+func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, error) {
+	localContext := envctx.NewContext(ctx, env)
+	files := scanner.ScanDirToFiles(ctx, env.Dir, false)
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		if b.Err != nil {
 			return nil, kerr.New("GATNNQKNHY", b.Err, "ScanFiles")
 		}
-		var object interface{}
-		err := json.Unmarshal(envctx.Dummy(ctx, path, map[string]string{}), b.Bytes, &object)
-		if err != nil {
-			switch err.(type) {
-			case json.UnknownPackageError, json.UnknownTypeError:
-				// don't return error
-			default:
-				return nil, kerr.New("XTEQCAYQJP", err, "UnmarshalPlain")
-			}
+		o := &objectStub{}
+		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
+			return nil, kerr.New("MTDCXBYBEJ", err, "ke.UnmarshalUntyped")
 		}
-		if pkg, ok := object.(*system.Package); ok {
-			return pkg, nil
+		if o.Type == nil {
+			return nil, kerr.New("MSNIGTIDIO", nil, "%s has no type", b.File)
+		}
+		switch *o.Type {
+		case *system.NewReference("kego.io/system", "package"):
+			var i interface{}
+			err := json.Unmarshal(localContext, b.Bytes, &i)
+			if err != nil {
+				switch err.(type) {
+				case json.UnknownPackageError, json.UnknownTypeError:
+				// don't return error
+				default:
+					return nil, kerr.New("XTEQCAYQJP", err, "UnmarshalPlain")
+				}
+			}
+			if pkg, ok := i.(*system.Package); ok {
+				return pkg, nil
+			}
 		}
 	}
 	return nil, nil
