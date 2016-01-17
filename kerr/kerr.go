@@ -1,6 +1,4 @@
-/*
-kerr is an error with a unique ID
-*/
+// Package kerr is an error with a unique ID
 package kerr // import "kego.io/kerr"
 
 import (
@@ -12,7 +10,7 @@ import (
 	"strings"
 )
 
-// Error is an error with a unique Id.
+// Struct is an error with a unique Id.
 type Struct struct {
 	// Unique ID for this error - used to identify this error in tests
 	Id string
@@ -33,24 +31,23 @@ type Struct struct {
 	Stack []string
 }
 
-// Unique things have a globally unique string
 type Interface interface {
 	ErrorId() string
 	ErrorStack() []string
 	ErrorInner() error
 }
 
-// New creates a new kerr.Error
+// New creates a new kerr.Struct
 func New(id string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
-	return newKerr(id, nil, descriptionFormat, descriptionArgs...)
+	return get(id, nil, descriptionFormat, descriptionArgs...)
 }
 
-// Wrap wraps an error in a kerr
+// Wrap wraps an error in a kerr.Struct
 func Wrap(id string, inner error) Struct {
-	return newKerr(id, inner, "")
+	return get(id, inner, "")
 }
 
-func newKerr(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
+func get(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
 	stack := []string{id}
 	if i, ok := inner.(Interface); ok {
 		stack = append(i.ErrorStack(), id)

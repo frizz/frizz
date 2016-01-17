@@ -67,10 +67,7 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 			if argsLen == 0 {
 				addId = true
 			} else if b, ok := t.Args[0].(*ast.BasicLit); ok && b.Kind == token.STRING {
-				firstArg, err := strconv.Unquote(b.Value)
-				if err != nil {
-					return v
-				}
+				firstArg, _ := strconv.Unquote(b.Value)
 				if !IsId(firstArg) {
 					addId = true
 				}

@@ -28,7 +28,7 @@ import (
 	"kego.io/kerr"
 )
 
-// Unmarshal parses the JSON-encoded data and stores the result
+// UnmarshalPlain parses the JSON-encoded data and stores the result
 // in the value pointed to by v.
 //
 // Unmarshal uses the inverse of the encodings that
