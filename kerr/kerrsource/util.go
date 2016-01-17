@@ -1,4 +1,4 @@
-package util // import "kego.io/kerr/util"
+package kerrsource
 
 import (
 	"bytes"
@@ -20,4 +20,16 @@ func GetRandomId() string {
 
 func randInt(min int, max int) int {
 	return min + rand.Intn(max-min)
+}
+
+func IsId(s string) bool {
+	if len(s) != 10 {
+		return false
+	}
+	for _, r := range s {
+		if int(r) > 90 || int(r) < 65 {
+			return false
+		}
+	}
+	return true
 }

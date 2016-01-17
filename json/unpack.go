@@ -84,7 +84,7 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 		return UnknownTypeError{us.unknownType}
 	}
 	if err != nil {
-		return kerr.Wrap("BCVBRIKFJX", err)
+		return kerr.Wrap("FPPKQJMBNA", err)
 	}
 
 	if debug {

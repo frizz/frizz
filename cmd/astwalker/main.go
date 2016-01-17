@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"kego.io/kerr"
+
 	"fmt"
 	"io/ioutil"
 )
@@ -42,13 +44,13 @@ func walkFile(path string) error {
 
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
-		return err
+		return kerr.Wrap("FGAHVRNUPV", err)
 	}
 
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
-		return err
+		return kerr.Wrap("ALRIEYJBJE", err)
 	}
 
 	// visitor implements ast.Visitor
@@ -60,11 +62,11 @@ func walkFile(path string) error {
 		fmt.Println(path)
 		f, err := os.Create(path)
 		if err != nil {
-			return err
+			return kerr.Wrap("QFPDQRTIRS", err)
 		}
 		defer f.Close()
 		if err := printer.Fprint(f, fset, file); err != nil {
-			return err
+			return kerr.Wrap("VEPVDWFWEF", err)
 		}
 	}
 

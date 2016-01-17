@@ -16,8 +16,8 @@ import (
 )
 
 type Reference struct {
-	Package	string
-	Name	string
+	Package string
+	Name    string
 }
 
 func (r Reference) Value() string {
@@ -107,7 +107,7 @@ func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) er
 			// aliases we need to tolerate unknown import errors here
 			out.Name = ""
 			out.Package = ""
-			return err
+			return kerr.Wrap("ETLPLMMWCC", err)
 		}
 		out.Package = path
 		out.Name = name

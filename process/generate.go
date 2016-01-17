@@ -38,7 +38,7 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 	}
 	if path != "kego.io/system" {
 		if err := GenerateAll(ctx, "kego.io/system", done); err != nil {
-			return kerr.Wrap("WVXTUBQYVT", err)
+			return kerr.Wrap("HBKXDVYWUP", err)
 		}
 	}
 	for aliasPath, _ := range pi.Environment.Aliases {

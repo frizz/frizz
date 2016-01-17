@@ -34,11 +34,11 @@ func (e *ArrayEditor) Initialize(ctx context.Context, holder BranchInterface, la
 
 	items, err := system.WrapRule(ctx, e.Rule.Interface.(system.CollectionRule).GetItemsRule())
 	if err != nil {
-		return kerr.Wrap("GQROTGVBXS", err)
+		return kerr.Wrap("XWBYPQLDLN", err)
 	}
 	hold, err := items.HoldsDisplayType(ctx)
 	if err != nil {
-		return kerr.Wrap("XDKOSFJVQV", err)
+		return kerr.Wrap("XQYKFPITDQ", err)
 	}
 
 	table.Head("index", "holds", "value")

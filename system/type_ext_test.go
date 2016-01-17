@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/json"
+	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/system"
@@ -137,7 +138,7 @@ func unmarshalFunc(ctx context.Context, data []byte, i *interface{}) error {
 func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
 	var j interface{}
 	if err := json.UnmarshalPlain(data, &j); err != nil {
-		return err
+		return kerr.Wrap("PJJYUVNXED", err)
 	}
 	return json.Unpack(ctx, json.Pack(j), i)
 }
@@ -145,7 +146,7 @@ func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
 func repackFunc(ctx context.Context, data []byte, i *interface{}) error {
 	n := node.NewNode()
 	if err := json.UnmarshalUntyped(ctx, data, n); err != nil {
-		return err
+		return kerr.Wrap("RXAARYNHLP", err)
 	}
 	return json.Unpack(ctx, node.Pack(n), i)
 }
