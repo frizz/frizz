@@ -6,7 +6,7 @@ import (
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/process/scanutils"
+	"kego.io/process/scanner"
 	"kego.io/selectors"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -16,8 +16,8 @@ func ValidatePackage(ctx context.Context) error {
 
 	env := envctx.FromContext(ctx)
 
-	files := scanutils.ScanDirToFiles(ctx, env.Dir, env.Recursive)
-	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	files := scanner.ScanDirToFiles(ctx, env.Dir, env.Recursive)
+	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for c := range bytes {
 		if c.Err != nil {
 			return kerr.New("IHSVWAUAYW", c.Err, "ScanFilesToBytes")

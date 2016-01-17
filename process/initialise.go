@@ -3,6 +3,8 @@ package process
 import (
 	"flag"
 
+	"kego.io/process/parser"
+
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
@@ -11,8 +13,7 @@ import (
 	"kego.io/context/vosctx"
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
-	"kego.io/parse"
-	"kego.io/process/pkgutils"
+	"kego.io/process/packages"
 )
 
 type optionsSpec interface {
@@ -116,9 +117,9 @@ func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, co
 		if err != nil {
 			return nil, nil, kerr.New("OKOLXAMBSJ", err, "vos.Getwd")
 		}
-		p, err := pkgutils.GetPackageFromDir(ctx, dir)
+		p, err := packages.GetPackageFromDir(ctx, dir)
 		if err != nil {
-			return nil, nil, kerr.New("ADNJKTLAWY", err, "pkgutils.GetPackageFromDir")
+			return nil, nil, kerr.New("ADNJKTLAWY", err, "packages.GetPackageFromDir")
 		}
 		path = p
 	} else {
@@ -127,9 +128,9 @@ func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, co
 
 	ctx = cmdctx.NewContext(ctx, cmd)
 
-	pcache, err := parse.Parse(ctx, path)
+	pcache, err := parser.Parse(ctx, path)
 	if err != nil {
-		return nil, nil, kerr.New("EBMBIBIKUF", err, "parse.Parse")
+		return nil, nil, kerr.New("EBMBIBIKUF", err, "parser.Parse")
 	}
 
 	ctx = envctx.NewContext(ctx, pcache.Environment)

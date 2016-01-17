@@ -1,4 +1,4 @@
-package scanutils
+package scanner
 
 import "testing"
 

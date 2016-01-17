@@ -109,7 +109,7 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 	filename := "generated.go"
 	source, err := Structs(ctx, env)
 	if err != nil {
-		return kerr.New("XFNESBLBTQ", err, "parse.Structs")
+		return kerr.New("XFNESBLBTQ", err, "parser.Structs")
 	}
 
 	// We only backup in the system structs and types files because they are the only

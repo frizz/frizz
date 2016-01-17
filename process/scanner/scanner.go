@@ -1,4 +1,4 @@
-package scanutils // import "kego.io/process/scanutils"
+package scanner // import "kego.io/process/scanner"
 
 import (
 	"io/ioutil"

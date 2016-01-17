@@ -1,4 +1,4 @@
-package pkgutils // import "kego.io/process/pkgutils"
+package packages // import "kego.io/process/packages"
 
 import (
 	"fmt"

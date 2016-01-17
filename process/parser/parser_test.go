@@ -1,10 +1,10 @@
-package parse_test
+package parser_test
 
 import (
 	"os"
 	"testing"
 
-	"kego.io/parse"
+	"kego.io/process/parser"
 
 	"kego.io/context/sysctx"
 	"kego.io/kerr/assert"
@@ -17,7 +17,7 @@ func TestScan_errors(t *testing.T) {
 
 	cb := tests.Context("").Cmd().Sempty().Jsystem()
 
-	_, err := parse.Parse(cb.Ctx(), "does-not-exist")
+	_, err := parser.Parse(cb.Ctx(), "does-not-exist")
 	assert.IsError(t, err, "GJRHNGGWFD")
 	assert.HasError(t, err, "SUTCWEVRXS")
 
@@ -36,7 +36,7 @@ func TestScan_errors(t *testing.T) {
 
 	cb.Path(path)
 
-	_, err = parse.Parse(cb.Ctx(), path)
+	_, err = parser.Parse(cb.Ctx(), path)
 	assert.IsError(t, err, "VFUNPHUFHD")
 	assert.HasError(t, err, "HCYGNBDFFA")
 
@@ -47,7 +47,7 @@ func TestScan_errors(t *testing.T) {
 
 	cb.Path(path)
 
-	_, err = parse.Parse(cb.Ctx(), path)
+	_, err = parser.Parse(cb.Ctx(), path)
 	assert.IsError(t, err, "GJRHNGGWFD")
 	assert.HasError(t, err, "XTEQCAYQJP")
 
@@ -86,7 +86,7 @@ func TestParseRule(t *testing.T) {
 
 	cb := tests.Context(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	_, err = parse.Parse(cb.Ctx(), path)
+	_, err = parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -120,7 +120,7 @@ func TestParse1(t *testing.T) {
 
 	cb := tests.Context(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	_, err = parse.Parse(cb.Ctx(), path)
+	_, err = parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -174,7 +174,7 @@ func TestParse(t *testing.T) {
 
 	cb := tests.Context(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	pi, err := parse.Parse(cb.Ctx(), path)
+	pi, err := parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	_, err = process.Structs(cb.Ctx(), pi.Environment)

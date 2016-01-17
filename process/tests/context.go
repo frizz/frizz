@@ -247,7 +247,7 @@ func (c *ContextBuilder) Spkg(path string) *ContextBuilder {
 	return c
 }
 
-// Cauto runs parse.Parse, but to stop an import cycle we pass the parse.Parse function in as a
+// Cauto runs parser.Parse, but to stop an import cycle we pass the parser.Parse function in as a
 // parameter
 func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx.PackageInfo, error)) *ContextBuilder {
 	env := c.initEnv()

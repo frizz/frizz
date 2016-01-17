@@ -5,10 +5,11 @@ import (
 	"os"
 	"testing"
 
+	"kego.io/process/parser"
+
 	"path/filepath"
 
 	"kego.io/kerr/assert"
-	"kego.io/parse"
 	"kego.io/process"
 	"kego.io/process/tests"
 )
@@ -26,7 +27,7 @@ func TestGenerate(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	cb := tests.Context(path).Dir(dir).Cmd().Wg().Jsystem().Sauto(parse.Parse)
+	cb := tests.Context(path).Dir(dir).Cmd().Wg().Jsystem().Sauto(parser.Parse)
 
 	err = process.Generate(cb.Ctx(), cb.Env())
 	assert.NoError(t, err)
@@ -47,7 +48,7 @@ func TestGenerate_path(t *testing.T) {
 		"a.json": `{"type": "system:type", "id": "a"}`,
 	})
 
-	cb := tests.Context(path).Dir(dir).Cmd().Wg().Jsystem().Sauto(parse.Parse)
+	cb := tests.Context(path).Dir(dir).Cmd().Wg().Jsystem().Sauto(parser.Parse)
 
 	err = process.Generate(cb.Ctx(), cb.Env())
 	assert.NoError(t, err)

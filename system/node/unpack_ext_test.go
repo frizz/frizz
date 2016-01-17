@@ -13,7 +13,7 @@ import (
 	"kego.io/ke"
 	"kego.io/kerr/assert"
 	"kego.io/process"
-	"kego.io/process/scanutils"
+	"kego.io/process/scanner"
 	"kego.io/system/node"
 )
 
@@ -29,8 +29,8 @@ func testUnpack(t *testing.T, path string) {
 
 	env := envctx.FromContext(ctx)
 
-	files := scanutils.ScanDirToFiles(ctx, env.Dir, env.Recursive)
-	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	files := scanner.ScanDirToFiles(ctx, env.Dir, env.Recursive)
+	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		n := node.NewNode()
 		err := ke.UnmarshalUntyped(ctx, b.Bytes, n)

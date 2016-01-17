@@ -28,6 +28,9 @@ func include(name string) bool {
 	if name == "kego.io/kerr" {
 		return false
 	}
+	if name == "kego.io/editor/client/console" {
+		return false
+	}
 
 	return true
 }
@@ -86,17 +89,20 @@ func main() {
 			}
 			//fmt.Print(" [", len(reverse[p.name]), "]")
 
-			if len(reverse[p.name]) > 0 {
-				fmt.Print(" [")
-				first := true
-				for n, _ := range reverse[p.name] {
-					if !first {
-						fmt.Print(", ")
+			printReverseLinks := false
+			if printReverseLinks {
+				if len(reverse[p.name]) > 0 {
+					fmt.Print(" [")
+					first := true
+					for n, _ := range reverse[p.name] {
+						if !first {
+							fmt.Print(", ")
+						}
+						fmt.Print(n[8:])
+						first = false
 					}
-					fmt.Print(n[8:])
-					first = false
+					fmt.Print("]")
 				}
-				fmt.Print("]")
 			}
 			fmt.Println("")
 		}

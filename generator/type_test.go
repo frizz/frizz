@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/parse"
+	"kego.io/process/parser"
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
@@ -220,7 +220,7 @@ func TestGetTag(t *testing.T) {
 
 func TestGoTypeDescriptor(t *testing.T) {
 
-	cb := tests.Context("kego.io/system").Jauto().Sauto(parse.Parse)
+	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
 
 	p := &system.StringRule{
 		Object: &system.Object{
@@ -410,7 +410,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 
 func TypeErrors_NeedsTypes(t *testing.T) {
 
-	cb := tests.Context("kego.io/system").Jauto().Sauto(parse.Parse)
+	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
 
 	p := &system.JsonStringRule{
 		Object: &system.Object{

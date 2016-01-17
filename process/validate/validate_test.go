@@ -4,8 +4,9 @@ import (
 	"os"
 	"testing"
 
+	"kego.io/process/parser"
+
 	"kego.io/kerr/assert"
-	"kego.io/parse"
 	"kego.io/process/tests"
 )
 
@@ -30,7 +31,7 @@ func TestValidate_NeedsTypes(t *testing.T) {
 	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", files)
 	assert.NoError(t, err)
 
-	cb := tests.Context(path).Dir(dir).Jsystem().Sauto(parse.Parse)
+	cb := tests.Context(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
 	err = ValidatePackage(cb.Ctx())
 	assert.NoError(t, err)
@@ -60,7 +61,7 @@ func TestValidate_error1(t *testing.T) {
 	path, dir, _, err := tests.CreateTemporaryPackage(n, "b", files)
 	assert.NoError(t, err)
 
-	cb := tests.Context(path).Dir(dir).Jsystem().Sauto(parse.Parse)
+	cb := tests.Context(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
 	err = ValidatePackage(cb.Ctx())
 	// @string is invalid because minLength > maxLength

@@ -1,4 +1,4 @@
-package parse // import "kego.io/parse"
+package parser // import "kego.io/process/parser"
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ import (
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/process/pkgutils"
-	"kego.io/process/scanutils"
+	"kego.io/process/packages"
+	"kego.io/process/scanner"
 	"kego.io/system"
 )
 
@@ -96,9 +96,9 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 
 func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {
 	// Scan the local directory for as system:package object
-	dir, err := pkgutils.GetDirFromPackage(ctx, path)
+	dir, err := packages.GetDirFromPackage(ctx, path)
 	if err != nil {
-		return nil, kerr.New("LASRFKILIH", err, "pkgutils.GetDirFromPackage")
+		return nil, kerr.New("LASRFKILIH", err, "packages.GetDirFromPackage")
 	}
 
 	pkg, err := scanForPackage(ctx, path, dir)
@@ -124,8 +124,8 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.PackageInf
 	// While we're scanning for types, we should use a custom unpacking env, because the env from
 	// the context is the one of the local package.
 
-	files := scanutils.ScanDirToFiles(ctx, env.Dir, env.Recursive)
-	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	files := scanner.ScanDirToFiles(ctx, env.Dir, env.Recursive)
+	bytes := scanner.ScanFilesToBytes(ctx, files)
 	localContext := envctx.NewContext(ctx, env)
 	for b := range bytes {
 		if b.Err != nil {
@@ -220,8 +220,8 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 }
 
 func scanForPackage(ctx context.Context, path string, dir string) (*system.Package, error) {
-	files := scanutils.ScanDirToFiles(ctx, dir, false)
-	bytes := scanutils.ScanFilesToBytes(ctx, files)
+	files := scanner.ScanDirToFiles(ctx, dir, false)
+	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		if b.Err != nil {
 			return nil, kerr.New("GATNNQKNHY", b.Err, "ScanFiles")

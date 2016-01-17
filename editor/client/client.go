@@ -19,7 +19,7 @@ import (
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
-	"kego.io/parse"
+	"kego.io/process/parser"
 	"kego.io/system"
 )
 
@@ -68,8 +68,8 @@ func Start() error {
 		}
 		pcache := scache.Set(env)
 		for _, typeBytes := range info.Types {
-			if err := parse.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
-				return kerr.New("UJLXYWCVUC", err, "parse.ProcessTypeSourceBytes")
+			if err := parser.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
+				return kerr.New("UJLXYWCVUC", err, "parser.ProcessTypeSourceBytes")
 			}
 		}
 	}

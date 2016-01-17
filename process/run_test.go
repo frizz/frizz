@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"kego.io/parse"
+	"kego.io/process/parser"
 
 	"fmt"
 
@@ -26,7 +26,7 @@ func TestRun(t *testing.T) {
 		"d.go":   `package d`,
 	})
 
-	cb := tests.Context(path).Dir(dir).Jauto().Wg().Sauto(parse.Parse)
+	cb := tests.Context(path).Dir(dir).Jauto().Wg().Sauto(parser.Parse)
 
 	env := envctx.FromContext(cb.Ctx())
 

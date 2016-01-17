@@ -5,13 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"kego.io/parse"
-
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
+	"kego.io/process/parser"
 	"kego.io/process/tests"
 	. "kego.io/selectors"
 	_ "kego.io/selectors/tests"
@@ -20,7 +19,7 @@ import (
 
 // Used for storing the results of the benchmarking tests below
 // to avoid compiler optimizations.
-var parser *Parser
+var selectorParser *Parser
 var values []interface{}
 
 func getTestParser(ctx context.Context, testDocuments map[string]*node.Node, testName string) (*Parser, error) {
@@ -38,7 +37,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 		t.Error("Error encountered while loading conformance tests ", err)
 	}
 
-	cb := tests.Context("kego.io/selectors/tests").Jauto().Sauto(parse.Parse)
+	cb := tests.Context("kego.io/selectors/tests").Jauto().Sauto(parser.Parse)
 
 	for _, fileInfo := range files {
 		name := fileInfo.Name()

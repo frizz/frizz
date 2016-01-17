@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/websocket"
 
 	"kego.io/kerr"
-	"kego.io/parse"
 
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"
@@ -37,8 +36,9 @@ import (
 	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/process/generate"
-	"kego.io/process/pkgutils"
-	"kego.io/process/scanutils"
+	"kego.io/process/packages"
+	"kego.io/process/parser"
+	"kego.io/process/scanner"
 	"kego.io/process/tests"
 	"kego.io/system"
 )
@@ -153,14 +153,14 @@ func getData(ctx context.Context, in chan messages.MessageInterface, conn *conne
 			return kerr.New("VOXPGGLWTT", nil, "Message %T is not a *messages.DataRequest", m)
 		}
 
-		env, err := parse.ScanForEnv(ctx, request.Package.Value())
+		env, err := parser.ScanForEnv(ctx, request.Package.Value())
 		if err != nil {
-			return kerr.New("EPCOFHDMBP", err, "parse.ScanForEnv")
+			return kerr.New("EPCOFHDMBP", err, "parser.ScanForEnv")
 		}
 
 		file := filepath.Join(env.Dir, request.File.Value())
 
-		bytes, err := scanutils.ProcessFile(file)
+		bytes, err := scanner.ProcessFile(file)
 
 		localContext := envctx.NewContext(ctx, env)
 		o := &system.Object{}
@@ -184,7 +184,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	path := req.URL.Path[1 : len(req.URL.Path)-10]
 
-	env, err := parse.ScanForEnv(ctx, path)
+	env, err := parser.ScanForEnv(ctx, path)
 
 	// This is the client code for the editor which we will compile to Javascript using GopherJs
 	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the
@@ -284,9 +284,9 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		path = path[0 : len(path)-1]
 	}
 
-	env, err := parse.ScanForEnv(ctx, path)
+	env, err := parser.ScanForEnv(ctx, path)
 	if err != nil {
-		if _, ok := kerr.Source(err).(pkgutils.NotFoundError); ok {
+		if _, ok := kerr.Source(err).(packages.NotFoundError); ok {
 			w.WriteHeader(404)
 			return nil
 		}
@@ -296,9 +296,9 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	pcache, ok := scache.Get(path)
 	if !ok {
 		var err error
-		pcache, err = parse.Parse(ctx, path)
+		pcache, err = parser.Parse(ctx, path)
 		if err != nil {
-			return kerr.New("HIHWJRPUKE", err, "parse.Parse")
+			return kerr.New("HIHWJRPUKE", err, "parser.Parse")
 		}
 	}
 
