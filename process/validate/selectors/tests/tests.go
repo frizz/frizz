@@ -1,4 +1,4 @@
-package tests // import "kego.io/selectors/tests"
+package tests // import "kego.io/process/validate/selectors/tests"
 
 // for tests
 type Image interface {

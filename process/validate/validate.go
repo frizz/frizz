@@ -7,7 +7,7 @@ import (
 	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/process/scanner"
-	"kego.io/selectors"
+	"kego.io/process/validate/selectors"
 	"kego.io/system"
 	"kego.io/system/node"
 )

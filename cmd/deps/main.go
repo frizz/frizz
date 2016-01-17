@@ -19,7 +19,7 @@ func include(name string) bool {
 	if strings.HasPrefix(name, "kego.io/demo/") {
 		return false
 	}
-	if strings.HasPrefix(name, "kego.io/selectors/tests") {
+	if strings.HasPrefix(name, "kego.io/process/validate/selectors/tests") {
 		return false
 	}
 	if strings.HasSuffix(name, "/mocks") {

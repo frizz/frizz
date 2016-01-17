@@ -1,5 +1,5 @@
-//go:generate ke kego.io/selectors/tests
-package selectors // import "kego.io/selectors"
+//go:generate ke kego.io/process/validate/selectors/tests
+package selectors // import "kego.io/process/validate/selectors"
 
 import (
 	"errors"

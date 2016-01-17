@@ -32,10 +32,10 @@ func RunValidateCommand(ctx context.Context) (success bool, err error) {
 		return false, nil
 	}
 
-	return runValidateCommand(ctx)
+	return runValidateCommand(ctx, true)
 }
 
-func runValidateCommand(ctx context.Context) (success bool, err error) {
+func runValidateCommand(ctx context.Context, repeatOnFail bool) (success bool, err error) {
 
 	wgctx.Add(ctx, "runValidateCommand")
 	defer wgctx.Done(ctx, "runValidateCommand")
@@ -77,6 +77,15 @@ func runValidateCommand(ctx context.Context) (success bool, err error) {
 					// Exit status 4 = validation error
 					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", nil, strings.TrimSpace(combined.String()))}
 				default:
+					if repeatOnFail {
+						if cmd.Log {
+							fmt.Println("Validate command returned error, rebuilding...")
+						}
+						if err := BuildAndRunLocalCommand(ctx); err != nil {
+							return true, kerr.New("HOHQEISLMI", err, "BuildAndRunLocalCommand (retry)")
+						}
+						return true, nil
+					}
 					return true, kerr.New("DTTHRRJSSF", err, "Run")
 				}
 			}
@@ -139,7 +148,7 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 		fmt.Print(combined.String())
 	}
 
-	success, err := runValidateCommand(ctx)
+	success, err := runValidateCommand(ctx, false)
 	if err != nil {
 		return kerr.New("PPBPPXQMWV", err, "runValidateCommand")
 	}

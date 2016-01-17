@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/selectors/tests","Hash":7681107784196672914}
+// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":3149022371138425231}
 package tests
 
 import (
@@ -398,7 +398,7 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/selectors/tests", 7681107784196672914)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 3149022371138425231)
 	pkg.InitType("basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
 	pkg.InitType("collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())

@@ -12,8 +12,8 @@ import (
 	"kego.io/kerr/assert"
 	"kego.io/process/parser"
 	"kego.io/process/tests"
-	. "kego.io/selectors"
-	_ "kego.io/selectors/tests"
+	. "kego.io/process/validate/selectors"
+	_ "kego.io/process/validate/selectors/tests"
 	"kego.io/system/node"
 )
 
@@ -37,7 +37,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 		t.Error("Error encountered while loading conformance tests ", err)
 	}
 
-	cb := tests.Context("kego.io/selectors/tests").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("kego.io/process/validate/selectors/tests").Jauto().Sauto(parser.Parse)
 
 	for _, fileInfo := range files {
 		name := fileInfo.Name()
