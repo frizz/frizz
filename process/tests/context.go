@@ -247,7 +247,7 @@ func (c *ContextBuilder) Spkg(path string) *ContextBuilder {
 	return c
 }
 
-// Cauto runs parser.Parse, but to stop an import cycle we pass the parser.Parse function in as a
+// Sauto runs parser.Parse, but to stop an import cycle we pass the parser.Parse function in as a
 // parameter
 func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx.PackageInfo, error)) *ContextBuilder {
 	env := c.initEnv()
@@ -258,6 +258,20 @@ func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx
 		panic(err)
 	}
 	env.Hash = pi.Environment.Hash
+	return c
+}
+
+// Ssystem runs parser.Parse on the system package, but to stop an import cycle we pass the
+// parser.Parse function in as a parameter
+func (c *ContextBuilder) Ssystem(parseParse func(context.Context, string) (*sysctx.PackageInfo, error)) *ContextBuilder {
+	c.initEnv()
+	c.initSys()
+	c.initCmd()
+	c.Jsystem() // need json types for system in order to parse
+	_, err := parseParse(c.ctx, "kego.io/system")
+	if err != nil {
+		panic(err)
+	}
 	return c
 }
 

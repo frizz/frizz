@@ -41,10 +41,39 @@ func TestBuilder(t *testing.T) {
 	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n\t\"h.i/j\"\n)\n", string(b))
 	g.buffer.Reset()
 
+	g.SetPackageComment("comment")
 	g.Print("var ")
 	g.Println("foo string")
 	g.Printf("var bar int\n%s", "var baz bool")
+	g.Println("")
+	g.Println("func foo() {")
+	g.PrintFunctionCall("k.l/m", "n", "o", "p")
+	g.Println("")
+	g.PrintMethodCall("a", "b", "c", "d")
+	g.Println("}")
 	b, err = g.Build()
 	assert.NoError(t, err)
-	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n\t\"h.i/j\"\n)\n\nvar foo string\nvar bar int\nvar baz bool\n", string(b))
+	assert.Contains(t, string(b), `// comment
+package c
+
+import (
+	_ "e.f/g"
+	"h.i/j"
+	"k.l/m"
+)
+
+var foo string
+var bar int
+var baz bool
+
+func foo() {
+	m.n(o, p)
+	a.b(c, d)
+}
+`)
+
+	g.Print("dfskjsdf")
+	_, err = g.Build()
+	assert.IsError(t, err, "CRBYOUOHPG") // Error formatting source
+
 }
