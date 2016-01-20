@@ -113,6 +113,9 @@ func TestIntRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MultipleOf: value 4 must be a multiple of 3", message)
 	assert.False(t, ok)
 
+	ok, message, err = r.Enforce(envctx.Empty, "foo")
+	assert.IsError(t, err, "AISBHNCJXJ")
+
 }
 
 func TestNewInt(t *testing.T) {
@@ -171,14 +174,26 @@ func TestIntString(t *testing.T) {
 
 	var i *Int
 	s := i.String()
+	s1 := i.GetString(nil)
 	assert.Equal(t, "", s)
+	assert.Equal(t, "", s1.String())
 
 	i = NewInt(12)
 	s = i.String()
+	s1 = i.GetString(nil)
 	assert.Equal(t, "12", s)
+	assert.Equal(t, "12", s1.String())
 
 	i = NewInt(-101)
 	s = i.String()
+	s1 = i.GetString(nil)
 	assert.Equal(t, "-101", s)
+	assert.Equal(t, "-101", s1.String())
+
+	var n NativeNumber = NewInt(99)
+	assert.Equal(t, 99.0, n.NativeNumber())
+
+	var dr DefaultRule = &IntRule{Default: NewInt(22)}
+	assert.Equal(t, 22, dr.GetDefault().(*Int).Value())
 
 }

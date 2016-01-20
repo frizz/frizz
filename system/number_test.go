@@ -124,6 +124,9 @@ func TestNumberRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MultipleOf: value 4 must be a multiple of 1.5", message)
 	assert.False(t, ok)
 
+	ok, message, err = r.Enforce(envctx.Empty, "foo")
+	assert.IsError(t, err, "FUGYGJVHYS")
+
 }
 
 func TestNewNumber(t *testing.T) {
@@ -185,4 +188,16 @@ func TestNumberString(t *testing.T) {
 	s = n.String()
 	assert.Equal(t, "1", s)
 
+	n = nil
+	s = n.String()
+	assert.Equal(t, "", s)
+
+}
+
+func TestNumberInterfaces(t *testing.T) {
+	var nn NativeNumber = NewNumber(99.9)
+	assert.Equal(t, 99.9, nn.NativeNumber())
+
+	var dr DefaultRule = &NumberRule{Default: NewNumber(22.2)}
+	assert.Equal(t, 22.2, dr.GetDefault().(*Number).Value())
 }

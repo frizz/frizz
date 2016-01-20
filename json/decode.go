@@ -1074,9 +1074,9 @@ func initialiseUnmarshaledObject(ctx context.Context, v reflect.Value, foundFiel
 		}
 	}
 
-	// If we are unpacking this object into a concrete type defined
-	// by the schema, we should set the type with the TypeSettable
-	// interface. This is implemented by system:base.
+	// If we are unpacking this object into a concrete type defined by the schema, we should set
+	// the type with the InitializableType interface. This is implemented by system:object. This
+	// enables us to allow the type to be omitted from the json.
 	if typed && hasConcreteType && v.Kind() == reflect.Struct {
 		if it, ok := v.Interface().(InitializableType); ok {
 			if err := it.InitializeType(concreteTypePath, concreteTypeName); err != nil {

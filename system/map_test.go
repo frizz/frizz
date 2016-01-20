@@ -68,4 +68,16 @@ func TestMapRule_Enforce(t *testing.T) {
 	assert.Equal(t, "MinItems: length 1 should not be less than 2", message)
 	assert.False(t, ok)
 
+	_, _, err = r.Enforce(envctx.Empty, "a")
+	assert.IsError(t, err, "NFWPLTOJLP")
+
+	r = MapRule{}
+	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1})
+	assert.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, "", message)
+
+	var cr CollectionRule = &MapRule{Items: &StringRule{Equal: NewString("a")}}
+	assert.Equal(t, "a", cr.GetItemsRule().(*StringRule).Equal.Value())
+
 }

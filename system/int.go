@@ -27,10 +27,6 @@ func (i *Int) Value() int {
 	return int(*i)
 }
 
-func (i *Int) Set(in int) {
-	*i = Int(in)
-}
-
 func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 
 	i, ok := data.(*Int)
@@ -38,10 +34,7 @@ func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, 
 		return false, "", kerr.New("AISBHNCJXJ", "Data %T should be *system.Int", data)
 	}
 
-	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
-	// ExclusiveMaximum bool
 	// This provides an upper bound for the restriction
-	// Maximum Number
 	if r.Maximum != nil {
 		if i == nil && !r.Optional {
 			return false, "Maximum: value must exist", nil
@@ -51,10 +44,7 @@ func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, 
 		}
 	}
 
-	// If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.
-	// ExclusiveMinimum bool
 	// This provides a lower bound for the restriction
-	// Minimum Number
 	if r.Minimum != nil {
 		if i == nil && !r.Optional {
 			return false, "Minimum: value must exist", nil
@@ -65,7 +55,6 @@ func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, 
 	}
 
 	// This restricts the number to be a multiple of the given number
-	// MultipleOf Number
 	if r.MultipleOf != nil {
 		if i == nil && !r.Optional {
 			return false, "MultipleOf: value must exist", nil

@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
@@ -43,7 +44,6 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 
 }
 
-/*
 func TestNewBool(t *testing.T) {
 	b := NewBool(true)
 	assert.True(t, b.Value())
@@ -108,4 +108,12 @@ func TestBoolString(t *testing.T) {
 	assert.Equal(t, "true", s)
 
 }
-*/
+
+func TestBoolInterfaces(t *testing.T) {
+	var nb NativeBool = NewBool(true)
+	assert.True(t, nb.NativeBool())
+
+	d := NewBool(true)
+	var dr DefaultRule = &BoolRule{Default: d}
+	assert.Equal(t, d, dr.GetDefault())
+}

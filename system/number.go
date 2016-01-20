@@ -24,10 +24,6 @@ func (n *Number) Value() float64 {
 	return float64(*n)
 }
 
-func (n *Number) Set(in float64) {
-	*n = Number(in)
-}
-
 func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
 
 	n, ok := data.(*Number)
@@ -35,10 +31,9 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (bool, strin
 		return false, "", kerr.New("FUGYGJVHYS", "Data %T should be *system.Number", data)
 	}
 
-	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
-	// ExclusiveMaximum bool
-	// This provides an upper bound for the restriction
-	// Maximum Number
+	// Maximum provides an upper bound for the restriction If ExclusiveMaximum is true, the value
+	// must be less than maximum. If false or not provided, the value must be less than or equal
+	// to the maximum.
 	if r.Maximum != nil {
 		if n == nil && !r.Optional {
 			return false, "Maximum: value must exist", nil
@@ -56,10 +51,9 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (bool, strin
 		}
 	}
 
-	// If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.
-	// ExclusiveMinimum bool
-	// This provides a lower bound for the restriction
-	// Minimum Number
+	// Minimum provides a lower bound for the restriction. If ExclusiveMinimum is true, the value
+	// must be greater than minimum. If false or not provided, the value must be greater than or
+	// equal to the minimum.
 	if r.Minimum != nil {
 		if n == nil && !r.Optional {
 			return false, "Minimum: value must exist", nil

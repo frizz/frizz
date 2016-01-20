@@ -45,4 +45,18 @@ func TestArrayRule_Enforce(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "UniqueItems: array contains duplicate item foo", message)
 	assert.False(t, ok)
+
+	r = ArrayRule{}
+	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2})
+	assert.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, "", message)
+
+	r = ArrayRule{MaxItems: NewInt(2)}
+	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
+	assert.IsError(t, err, "OWTAUVVFBL")
+
+	s := &StringRule{}
+	var cr CollectionRule = &ArrayRule{Items: s}
+	assert.Equal(t, s, cr.GetItemsRule())
 }

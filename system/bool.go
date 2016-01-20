@@ -17,10 +17,6 @@ func (b *Bool) Value() bool {
 	return bool(*b)
 }
 
-func (b *Bool) Set(in bool) {
-	*b = Bool(in)
-}
-
 func (out *Bool) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("FXCQGNYKIJ", "Called Bool.Unpack with nil value")
