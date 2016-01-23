@@ -78,10 +78,16 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 	}
 
 	if us.unknownPackage != "" {
-		return UnknownPackageError{us.unknownPackage}
+		return UnknownPackageError{
+			Struct:         kerr.New("WLKNMHPWJN", "Unknown package %s", us.unknownPackage),
+			UnknownPackage: us.unknownPackage,
+		}
 	}
 	if us.unknownType != "" {
-		return UnknownTypeError{us.unknownType}
+		return UnknownTypeError{
+			Struct:      kerr.New("VUEFNKSTLG", "Unknown type %s", us.unknownType),
+			UnknownType: us.unknownType,
+		}
 	}
 	if err != nil {
 		return kerr.Wrap("FPPKQJMBNA", err)
@@ -458,7 +464,7 @@ func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface r
 	}
 	typePath, typeName, err := GetReferencePartsFromTypeString(ctx, t.String())
 	if err != nil {
-		if unk, ok := err.(UnknownPackageError); ok {
+		if unk, ok := kerr.Source(err).(UnknownPackageError); ok {
 			// We don't want to throw an error here, because when we're scanning for
 			// aliases we need to tolerate unknown packages
 			us.unknownPackage = unk.UnknownPackage

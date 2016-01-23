@@ -119,9 +119,8 @@ func (e Struct) ErrorInner() error {
 	return e.Inner
 }
 
-// ErrorSource gets the error at the bottom of the error stack. This
-// can't be a method on kerr.Struct because it needs to return the
-// whole error when called on an error that embeds kerr.Struct
+// Source gets the error at the bottom of the error stack. This can't be a method on kerr.Struct
+// because it needs to return the whole error when called on an error that embeds kerr.Struct
 func Source(e error) error {
 	if i, ok := e.(Interface); ok && i.ErrorInner() != nil {
 		return Source(i.ErrorInner())

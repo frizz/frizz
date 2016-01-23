@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"golang.org/x/net/context"
+	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
@@ -561,35 +562,44 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 	}`
 	var i interface{}
 	err := unpacker(cb.Ctx(), []byte(data), &i)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "Unknown type kego.io/json:bar")
+	assert.IsErrorMulti(t, err, "YEOQSWVFVH", "VUEFNKSTLG")
+	ut, ok := kerr.Source(err).(UnknownTypeError)
+	assert.True(t, ok)
+	assert.Equal(t, "kego.io/json:bar", ut.UnknownType)
 	assert.True(t, i.(*Foo).Img == nil)
 
 	data = `{
-			"type": "foo",
-			"img": {
-				"type": "foo:bar",
-				"id": "a"
-			}
-		}`
+		"type": "foo",
+		"img": {
+			"type": "foo:bar",
+			"id": "a"
+		}
+	}`
 	err = unpacker(cb.Ctx(), []byte(data), &i)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "Unknown package foo")
+	assert.IsErrorMulti(t, err, "WLKNMHPWJN", "TBNIEVUCPL")
+	up, ok := kerr.Source(err).(UnknownPackageError)
+	assert.True(t, ok)
+	assert.Equal(t, "foo", up.UnknownPackage)
 
 	data = `{
-			"type": "foo",
-			"img": {
-				"type": "a.b/c:bar",
-				"id": "a"
-			}
-		}`
+		"type": "foo",
+		"img": {
+			"type": "a.b/c:bar",
+			"id": "a"
+		}
+	}`
 	err = unpacker(cb.Ctx(), []byte(data), &i)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "Unknown package a.b/c")
+	assert.IsErrorMulti(t, err, "TBNIEVUCPL", "WLKNMHPWJN")
+	up, ok = kerr.Source(err).(UnknownPackageError)
+	assert.True(t, ok)
+	assert.Equal(t, "a.b/c", up.UnknownPackage)
 
 	err = unpacker(cb.Alias("a.b/c", "d").Ctx(), []byte(data), &i)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "Unknown type a.b/c:bar")
+	assert.IsErrorMulti(t, err, "YEOQSWVFVH", "VUEFNKSTLG")
+	ut, ok = kerr.Source(err).(UnknownTypeError)
+	assert.True(t, ok)
+	assert.Equal(t, "a.b/c:bar", ut.UnknownType)
+
 }
 
 type dummyImage struct{}

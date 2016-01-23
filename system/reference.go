@@ -81,11 +81,6 @@ func (out *Reference) Unpack(ctx context.Context, in json.Packed) error {
 		// aliases we need to tolerate unknown import errors here
 		out.Name = ""
 		out.Package = ""
-		if p, ok := err.(json.UnknownPackageError); ok {
-			// if GetReferencePartsFromTypeString returns an UnknownPackageError we should
-			// not wrap it in kerr
-			return p
-		}
 		return kerr.Wrap("MSXBLEIGVJ", err)
 	}
 	out.Package = path

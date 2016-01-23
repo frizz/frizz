@@ -169,7 +169,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 	var object interface{}
 	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
 	if err != nil {
-		switch err.(type) {
+		switch kerr.Source(err).(type) {
 		case json.UnknownPackageError, json.UnknownTypeError:
 			// don't return error
 		default:
@@ -243,7 +243,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 			var i interface{}
 			err := json.Unmarshal(localContext, b.Bytes, &i)
 			if err != nil {
-				switch err.(type) {
+				switch kerr.Source(err).(type) {
 				case json.UnknownPackageError, json.UnknownTypeError:
 				// don't return error
 				default:

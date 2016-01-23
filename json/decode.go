@@ -94,25 +94,18 @@ func UnmarshalUntyped(ctx context.Context, data []byte, v interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	d.init(ctx, data, false)
 	return d.unmarshal(v)
 }
 
 type UnknownPackageError struct {
+	kerr.Struct
 	UnknownPackage string
 }
 
-func (u UnknownPackageError) Error() string {
-	return fmt.Sprint("Unknown package ", u.UnknownPackage)
-}
-
 type UnknownTypeError struct {
+	kerr.Struct
 	UnknownType string
-}
-
-func (u UnknownTypeError) Error() string {
-	return fmt.Sprint("Unknown type ", u.UnknownType)
 }
 
 func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
@@ -198,11 +191,6 @@ func (d *decodeState) unmarshalTyped(v *interface{}) (err error) {
 func (d *decodeState) unmarshalValue(rv reflect.Value) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			//_, pkgError := r.(UnknownPackageError)
-			//_, typError := r.(UnknownTypeError)
-			//if !pkgError && !typError {
-			//	panic(r)
-			//}
 			if _, ok := r.(runtime.Error); ok {
 				panic(r)
 			}
@@ -265,10 +253,16 @@ func (d *decodeState) getError(err error) error {
 		return err
 	}
 	if d.unknownPackage != "" {
-		return UnknownPackageError{d.unknownPackage}
+		return UnknownPackageError{
+			Struct:         kerr.New("TBNIEVUCPL", "Unknown package %s", d.unknownPackage),
+			UnknownPackage: d.unknownPackage,
+		}
 	}
 	if d.unknownType != "" {
-		return UnknownTypeError{d.unknownType}
+		return UnknownTypeError{
+			Struct:      kerr.New("YEOQSWVFVH", "Unknown type %s", d.unknownType),
+			UnknownType: d.unknownType,
+		}
 	}
 	return nil
 }
@@ -695,7 +689,7 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 func (d *decodeState) setType(typeName string, v reflect.Value) {
 
 	path, name, err := GetReferencePartsFromTypeString(d.ctx, typeName)
-	if unk, ok := err.(UnknownPackageError); ok {
+	if unk, ok := kerr.Source(err).(UnknownPackageError); ok {
 		// We don't want to throw an error here, because when we're scanning for
 		// aliases we need to tolerate unknown packages
 		d.unknownPackage = unk.UnknownPackage
@@ -780,7 +774,10 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 
 		_, ok := env.Aliases[parts[0]]
 		if !ok && parts[0] != env.Path {
-			return "", "", UnknownPackageError{parts[0]}
+			return "", "", UnknownPackageError{
+				Struct:         kerr.New("KJSOXDESFD", "Unknown package %s", parts[0]),
+				UnknownPackage: parts[0],
+			}
 		}
 		return parts[0], parts[1], nil
 	} else if strings.Contains(typeString, ":") {
@@ -798,7 +795,10 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 
 		packagePath, ok := findKey(env.Aliases, parts[0])
 		if !ok {
-			return "", "", UnknownPackageError{parts[0]}
+			return "", "", UnknownPackageError{
+				Struct:         kerr.New("DKKFLKDKYI", "Unknown package %s", parts[0]),
+				UnknownPackage: parts[0],
+			}
 		}
 		return packagePath, parts[1], nil
 	} else {

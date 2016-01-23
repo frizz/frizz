@@ -10,54 +10,54 @@ import (
 
 func TestIsError(t *testing.T) {
 
-	assert := New(new(testing.T))
+	a := New(new(testing.T))
 
 	var e = error(nil)
 
-	if assert.IsError(e, "foo", "bar") {
-		t.Error("assert.IsError should return false")
+	if a.IsError(e, "foo", "bar") {
+		t.Error("a.IsError should return false")
 	}
 
-	if assert.HasError(e, "foo", "bar") {
-		t.Error("assert.HasError should return false")
+	if a.HasError(e, "foo", "bar") {
+		t.Error("a.HasError should return false")
 	}
 
 	e = kerr.New("HKROXGJXIV", "")
 
-	if assert.IsError(e, "foo", "bar") {
-		t.Error("assert.IsError should return false")
+	if a.IsError(e, "foo", "bar") {
+		t.Error("a.IsError should return false")
 	}
 
-	if !assert.IsError(e, "HKROXGJXIV", "bar") {
-		t.Error("assert.IsError should return true")
+	if !a.IsError(e, "HKROXGJXIV", "bar") {
+		t.Error("a.IsError should return true")
 	}
 
 	e1 := kerr.Wrap("JGAOOWPMNE", e)
 
-	if assert.IsError(e1, "HKROXGJXIV", "bar") {
-		t.Error("assert.IsError should return false")
+	if a.IsError(e1, "HKROXGJXIV", "bar") {
+		t.Error("a.IsError should return false")
 	}
 
-	if !assert.IsError(e1, "JGAOOWPMNE", "bar") {
-		t.Error("assert.IsError should return true")
+	if !a.IsError(e1, "JGAOOWPMNE", "bar") {
+		t.Error("a.IsError should return true")
 	}
 
-	if !assert.HasError(e1, "HKROXGJXIV", "bar") {
-		t.Error("assert.HasError should return true")
+	if !a.HasError(e1, "HKROXGJXIV", "bar") {
+		t.Error("a.HasError should return true")
 	}
 
-	if assert.HasError(e1, "foo", "bar") {
-		t.Error("assert.HasError should return false")
+	if a.HasError(e1, "foo", "bar") {
+		t.Error("a.HasError should return false")
 	}
 
 	e = errors.New("foo")
 
-	if assert.IsError(e, "foo", "bar") {
-		t.Error("assert.IsError should return false")
+	if a.IsError(e, "foo", "bar") {
+		t.Error("a.IsError should return false")
 	}
 
-	if assert.HasError(e, "foo", "bar") {
-		t.Error("assert.HasError should return false")
+	if a.HasError(e, "foo", "bar") {
+		t.Error("a.HasError should return false")
 	}
 
 }

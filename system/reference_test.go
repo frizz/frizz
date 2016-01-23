@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
+	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
@@ -77,8 +79,16 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.IsError(t, err, "MOQVSKJXRB")
 
 	r = reset()
+	err = r.Unpack(envctx.Empty, json.Pack(1.0))
+	assert.IsError(t, err, "RFLQSBPMYM")
+
+	r = reset()
 	err = r.Unpack(envctx.Empty, json.Pack("a.b/c:d"))
-	assert.EqualError(t, err, "Unknown package a.b/c")
+	assert.IsError(t, err, "MSXBLEIGVJ")
+	assert.HasError(t, err, "KJSOXDESFD")
+	p, ok := kerr.Source(err).(json.UnknownPackageError)
+	assert.True(t, ok)
+	assert.Equal(t, "a.b/c", p.UnknownPackage)
 
 	ctx := tests.Context("").Alias("a.b/c", "c").Ctx()
 
@@ -100,7 +110,12 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 
 	r = reset()
 	err = r.Unpack(envctx.Empty, json.Pack("a:b"))
-	assert.EqualError(t, err, "Unknown package a")
+	assert.IsError(t, err, "MSXBLEIGVJ")
+	assert.HasError(t, err, "DKKFLKDKYI")
+	p, ok = kerr.Source(err).(json.UnknownPackageError)
+	assert.True(t, ok)
+	assert.Equal(t, "a", p.UnknownPackage)
+
 }
 
 func TestReferenceMarshalJson(t *testing.T) {
@@ -137,4 +152,55 @@ func TestReferenceGetType(t *testing.T) {
 	r = &Reference{}
 	_, ok = r.GetType(ctx)
 	assert.False(t, ok)
+}
+
+func TestReferenceValue(t *testing.T) {
+	r := NewReference("", "")
+	assert.Equal(t, "", r.Value())
+
+	v, err := r.ValueContext(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, "", v)
+
+	cb := tests.Context("a.b/c")
+	v, err = r.ValueContext(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "", v)
+
+	r = NewReference("a.b/c", "d")
+	v, err = r.ValueContext(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "d", v)
+
+	r = NewReference("kego.io/json", "a")
+	v, err = r.ValueContext(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "json:a", v)
+
+	r = NewReference("kego.io/system", "a")
+	v, err = r.ValueContext(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "system:a", v)
+
+	cb.Alias("d.e/f", "g")
+	r = NewReference("d.e/f", "h")
+	v, err = r.ValueContext(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "g:h", v)
+
+	r = NewReference("i.j/k", "l")
+	v, err = r.ValueContext(cb.Ctx())
+	assert.IsError(t, err, "WGCDQQCFAD")
+
+}
+
+func TestNewReferenceFromString(t *testing.T) {
+	cb := tests.Context("a.b/c")
+	r, err := NewReferenceFromString(cb.Ctx(), "d")
+	assert.NoError(t, err)
+	assert.Equal(t, NewReference("a.b/c", "d"), r)
+
+	r, err = NewReferenceFromString(cb.Ctx(), "e:f")
+	assert.IsError(t, err, "VXRGOQHWNB")
+
 }

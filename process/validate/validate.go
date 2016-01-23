@@ -32,15 +32,9 @@ func ValidatePackage(ctx context.Context) error {
 
 func validateBytes(ctx context.Context, bytes []byte) error {
 	n := node.NewNode()
-	err := ke.UnmarshalUntyped(ctx, bytes, n)
-	if _, ok := err.(json.UnknownPackageError); ok {
-		return kerr.Wrap("QPOGRNXWMH", err)
-	} else if _, ok := err.(json.UnknownTypeError); ok {
-		return kerr.Wrap("PJABFRVFLF", err)
-	} else if err != nil {
+	if err := ke.UnmarshalUntyped(ctx, bytes, n); err != nil {
 		return kerr.Wrap("QIVNOQKCQF", err)
 	}
-
 	if err := validateNode(ctx, n); err != nil {
 		return kerr.Wrap("RVKNMWKQHD", err)
 	}
