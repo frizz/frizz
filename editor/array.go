@@ -36,7 +36,7 @@ func (e *ArrayEditor) Initialize(ctx context.Context, holder BranchInterface, la
 	if err != nil {
 		return kerr.Wrap("XWBYPQLDLN", err)
 	}
-	hold, err := items.HoldsDisplayType(ctx)
+	hold, err := items.HoldsDisplayType()
 	if err != nil {
 		return kerr.Wrap("XQYKFPITDQ", err)
 	}

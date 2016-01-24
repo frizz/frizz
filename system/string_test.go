@@ -10,6 +10,20 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestStringGetDefault(t *testing.T) {
+	r := StringRule{Default: NewString("a")}
+	i := r.GetDefault()
+	s, ok := i.(*String)
+	assert.True(t, ok)
+	assert.Equal(t, "a", s.Value())
+}
+
+func TestStringSet(t *testing.T) {
+	a := NewString("a")
+	a.Set("b")
+	assert.Equal(t, "b", a.Value())
+}
+
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
 	testUnpackDefaultNativeTypeString(t, unmarshalFunc)
 	testUnpackDefaultNativeTypeString(t, unpackFunc)
@@ -164,6 +178,7 @@ func TestNewString(t *testing.T) {
 	s := NewString("a")
 	assert.NotNil(t, s)
 	assert.Equal(t, "a", s.Value())
+	assert.Equal(t, "a", s.NativeString())
 }
 
 func TestStringUnmarshalJSON(t *testing.T) {
@@ -279,6 +294,21 @@ func TestStringRule_Enforce(t *testing.T) {
 	ok, message, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "MaxLength: value must exist", message)
+	assert.False(t, ok)
+
+	r = StringRule{Rule: &Rule{Optional: false}, MinLength: NewInt(5)}
+	ok, message, err = r.Enforce(envctx.Empty, NewString("abcde"))
+	assert.NoError(t, err)
+	assert.True(t, ok)
+
+	ok, message, err = r.Enforce(envctx.Empty, NewString("abcd"))
+	assert.NoError(t, err)
+	assert.Equal(t, "MinLength: length must not be less than 5", message)
+	assert.False(t, ok)
+
+	ok, message, err = r.Enforce(envctx.Empty, nil)
+	assert.NoError(t, err)
+	assert.Equal(t, "MinLength: value must exist", message)
 	assert.False(t, ok)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Enum: []string{"a", "b"}}

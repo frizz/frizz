@@ -8,6 +8,17 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestGoName(t *testing.T) {
+	assert.Equal(t, "", GoName(""))
+	assert.Equal(t, "Abc", GoName("abc"))
+	assert.Equal(t, "AbcRule", GoName("@abc"))
+
+	assert.Equal(t, "", GoInterfaceName(""))
+	assert.Equal(t, "AbcInterface", GoInterfaceName("abc"))
+	assert.Equal(t, "AbcInterface", GoInterfaceName("@abc"))
+
+}
+
 func TestNoType(t *testing.T) {
 	testNoType(t, unmarshalFunc)
 	testNoType(t, unpackFunc)

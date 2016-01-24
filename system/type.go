@@ -43,6 +43,9 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 			if !ok {
 				continue
 			}
+			if typ.(*Type).Interface {
+				continue
+			}
 			if typ.(*Type).Implements(ctx, reflectType) {
 				out = append(out, typ.(*Type))
 			}
@@ -161,10 +164,6 @@ func (t *Type) NativeValueGolangType() (string, error) {
 
 func (t *Type) GoName() string {
 	return GoName(t.Id.Name)
-}
-
-func (t *Type) FullName() string {
-	return t.Id.Value()
 }
 
 func (t *Type) SortedFields() []Field {

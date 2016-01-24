@@ -190,6 +190,14 @@ func (c *ContextBuilder) Jtype(name string, typ reflect.Type) *ContextBuilder {
 	env := c.initEnv()
 	return c.JtypePathRule(env.Path, name, typ, nil)
 }
+func (c *ContextBuilder) JtypeIface(name string, typ reflect.Type, iface reflect.Type) *ContextBuilder {
+	env := c.initEnv()
+	return c.JtypePathRuleIface(env.Path, name, typ, nil, iface)
+}
+func (c *ContextBuilder) Jiface(name string, iface reflect.Type) *ContextBuilder {
+	env := c.initEnv()
+	return c.JtypePathRuleIface(env.Path, name, nil, nil, iface)
+}
 func (c *ContextBuilder) JtypeRule(name string, typ reflect.Type, rule reflect.Type) *ContextBuilder {
 	env := c.initEnv()
 	return c.JtypePathRule(env.Path, name, typ, rule)
@@ -199,6 +207,10 @@ func (c *ContextBuilder) JtypePath(path string, name string, typ reflect.Type) *
 }
 
 func (c *ContextBuilder) JtypePathRule(path string, name string, typ reflect.Type, rule reflect.Type) *ContextBuilder {
+	return c.JtypePathRuleIface(path, name, typ, rule, nil)
+}
+
+func (c *ContextBuilder) JtypePathRuleIface(path string, name string, typ reflect.Type, rule reflect.Type, iface reflect.Type) *ContextBuilder {
 	if path == "" {
 		panic("must specify path")
 	}
@@ -219,14 +231,16 @@ func (c *ContextBuilder) JtypePathRule(path string, name string, typ reflect.Typ
 	}
 	if isrule {
 		p.Types.Set(name, &jsonctx.TypeInfo{
-			Name: name,
-			Rule: typ,
+			Name:  name,
+			Rule:  typ,
+			Iface: iface,
 		})
 	} else {
 		p.Types.Set(name, &jsonctx.TypeInfo{
-			Name: name,
-			Type: typ,
-			Rule: rule,
+			Name:  name,
+			Type:  typ,
+			Rule:  rule,
+			Iface: iface,
 		})
 	}
 

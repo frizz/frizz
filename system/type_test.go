@@ -3,8 +3,257 @@ package system
 import (
 	"testing"
 
+	"reflect"
+
+	"kego.io/json"
 	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
+
+func TestTypeSortedFields(t *testing.T) {
+	ty := &Type{
+		Object: &Object{Id: NewReference("a.b/c", "d")},
+		Fields: map[string]RuleInterface{
+			"c": &StringRule{},
+			"b": &StringRule{},
+			"a": &StringRule{},
+		},
+	}
+	f := ty.SortedFields()
+	assert.Equal(t, "a", f[0].Name)
+	assert.Equal(t, "b", f[1].Name)
+	assert.Equal(t, "c", f[2].Name)
+}
+
+func TestNativeValueGolangType(t *testing.T) {
+	test := func(expected string, in string) {
+		ty := &Type{Native: NewString(in)}
+		v, err := ty.NativeValueGolangType()
+		assert.NoError(t, err)
+		assert.Equal(t, expected, v)
+	}
+	test("float64", "number")
+	test("string", "string")
+	test("bool", "bool")
+	testErr := func(in string) {
+		ty := &Type{Native: NewString(in)}
+		_, err := ty.NativeValueGolangType()
+		assert.IsError(t, err, "TXQIDRBJRH")
+	}
+	testErr("map")
+	testErr("object")
+	testErr("array")
+	testErr("null")
+	testErr("")
+	testErr("foo")
+}
+
+func TestIsNativeObject(t *testing.T) {
+	test := func(expected bool, in string) {
+		ty := &Type{Native: NewString(in)}
+		assert.Equal(t, expected, ty.IsNativeObject(), in)
+	}
+	test(false, "number")
+	test(false, "string")
+	test(false, "bool")
+	test(false, "map")
+	test(true, "object")
+	test(false, "array")
+	test(true, "null")
+	test(true, "")
+	test(true, "foo")
+}
+
+func TestIsNativeArray(t *testing.T) {
+	test := func(expected bool, in string) {
+		ty := &Type{Native: NewString(in)}
+		assert.Equal(t, expected, ty.IsNativeArray(), in)
+	}
+	test(false, "number")
+	test(false, "string")
+	test(false, "bool")
+	test(false, "map")
+	test(false, "object")
+	test(true, "array")
+	test(false, "null")
+	test(false, "")
+	test(false, "foo")
+}
+
+func TestIsNativeMap(t *testing.T) {
+	test := func(expected bool, in string) {
+		ty := &Type{Native: NewString(in)}
+		assert.Equal(t, expected, ty.IsNativeMap(), in)
+	}
+	test(false, "number")
+	test(false, "string")
+	test(false, "bool")
+	test(true, "map")
+	test(false, "object")
+	test(false, "array")
+	test(false, "null")
+	test(false, "")
+	test(false, "foo")
+}
+
+func TestIsNativeCollection(t *testing.T) {
+	test := func(expected bool, in string) {
+		ty := &Type{Native: NewString(in)}
+		assert.Equal(t, expected, ty.IsNativeCollection(), in)
+	}
+	test(false, "number")
+	test(false, "string")
+	test(false, "bool")
+	test(true, "map")
+	test(false, "object")
+	test(true, "array")
+	test(false, "null")
+	test(false, "")
+	test(false, "foo")
+}
+
+func TestIsNativeValue(t *testing.T) {
+	test := func(expected bool, in string) {
+		ty := &Type{Native: NewString(in)}
+		assert.Equal(t, expected, ty.IsNativeValue(), in)
+	}
+	test(true, "number")
+	test(true, "string")
+	test(true, "bool")
+	test(false, "map")
+	test(false, "object")
+	test(false, "array")
+	test(false, "null")
+	test(false, "")
+	test(false, "foo")
+}
+
+func TestIsJsonValue(t *testing.T) {
+	test := func(expected bool, in *Reference) {
+		ty := &Type{Object: &Object{Id: in}}
+		assert.Equal(t, expected, ty.IsJsonValue(), in)
+	}
+	test(false, NewReference("a.b/c", "d"))
+	test(true, NewReference("kego.io/json", "a"))
+}
+
+func TestNativeJsonType(t *testing.T) {
+	test := func(expected json.Type, in string) {
+		ty := &Type{Native: NewString(in)}
+		assert.Equal(t, expected, ty.NativeJsonType(), in)
+	}
+	test(json.J_NUMBER, "number")
+	test(json.J_STRING, "string")
+	test(json.J_BOOL, "bool")
+	test(json.J_MAP, "map")
+	test(json.J_OBJECT, "object")
+	test(json.J_ARRAY, "array")
+	test(json.J_NULL, "null")
+	test(json.J_NULL, "")
+	test(json.J_NULL, "foo")
+}
+
+func TestGetTypeFromCache(t *testing.T) {
+	d := &Type{Object: &Object{Id: NewReference("a.b/c", "d")}}
+	cb := tests.Context("a.b/c").Stype("d", d)
+	ty, ok := GetTypeFromCache(cb.Ctx(), "a.b/c", "d")
+	assert.True(t, ok)
+	assert.Equal(t, d, ty)
+
+	ty, ok = GetTypeFromCache(cb.Ctx(), "a.b/c", "e")
+	assert.False(t, ok)
+
+	ty, ok = GetTypeFromCache(cb.Ctx(), "f", "g")
+	assert.False(t, ok)
+}
+
+type iFoo interface {
+	foo()
+}
+type iBar interface {
+	bar()
+}
+type tFoo struct{}
+
+func (*tFoo) foo() {
+
+}
+
+type tFooBar struct{}
+
+func (*tFooBar) foo() {
+
+}
+func (*tFooBar) bar() {
+
+}
+
+func TestGetAllTypesThatImplementInterface(t *testing.T) {
+
+	ibar := &Type{Object: &Object{Id: NewReference("a.b/c", "ibar")}, Interface: true}
+	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}}
+	tfoobar := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoobar")}}
+
+	cb := tests.
+		Context("a.b/c").
+		Jtype("ibar", reflect.TypeOf((*iBar)(nil)).Elem()).Stype("ibar", ibar).
+		JtypeIface("tfoo", reflect.TypeOf(&tFoo{}), reflect.TypeOf((*iFoo)(nil)).Elem()).Stype("tfoo", tfoo).
+		Jtype("tfoobar", reflect.TypeOf(&tFooBar{})).Stype("tfoobar", tfoobar)
+
+	types := GetAllTypesThatImplementInterface(cb.Ctx(), ibar)
+	assert.Equal(t, 1, len(types))
+	assert.Equal(t, "tfoobar", types[0].Id.Name)
+
+	types = GetAllTypesThatImplementInterface(cb.Ctx(), tfoo)
+	assert.Equal(t, 2, len(types))
+	assert.Equal(t, "tfoo", types[0].Id.Name)
+	assert.Equal(t, "tfoobar", types[1].Id.Name)
+
+	types = GetAllTypesThatImplementInterface(cb.Ctx(), &Type{Object: &Object{Id: NewReference("a.b/c", "d")}})
+	assert.Nil(t, types)
+
+	types = GetAllTypesThatImplementInterface(cb.Ctx(), &Type{Object: &Object{Id: NewReference("a.b/c", "d")}, Interface: true})
+	assert.Nil(t, types)
+
+}
+
+type tInt int
+
+func TestZeroValue(t *testing.T) {
+	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}}
+	cb := tests.
+		Context("a.b/c").
+		Jtype("tfoo", reflect.TypeOf(&tFoo{})).Stype("tfoo", tfoo)
+
+	i := tfoo.ZeroValue(cb.Ctx())
+	tf, ok := i.(*tFoo)
+	assert.True(t, ok)
+	assert.Nil(t, tf)
+
+	tint := &Type{Object: &Object{Id: NewReference("a.b/c", "tint")}, Native: NewString("int")}
+	cb.Jtype("tint", reflect.TypeOf(tInt(0))).Stype("tint", tint)
+
+	i = tint.ZeroValue(cb.Ctx())
+	ti, ok := i.(tInt)
+	assert.True(t, ok)
+	assert.Equal(t, ti, tInt(0))
+
+	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "d")}}
+	i = tnil.ZeroValue(cb.Ctx())
+	assert.Nil(t, i)
+}
+
+func TestTypeImplements(t *testing.T) {
+	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}}
+	cb := tests.
+		Context("a.b/c").
+		Jtype("tfoo", reflect.TypeOf(&tFoo{})).Stype("tfoo", tfoo)
+
+	assert.False(t, tfoo.Implements(cb.Ctx(), reflect.TypeOf((*iBar)(nil)).Elem()))
+	assert.True(t, tfoo.Implements(cb.Ctx(), reflect.TypeOf((*iFoo)(nil)).Elem()))
+	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "tnil")}}
+	assert.False(t, tnil.Implements(cb.Ctx(), reflect.TypeOf((*iFoo)(nil)).Elem()))
+}
 
 func TestNativeGoType(t *testing.T) {
 	n, err := nativeGoType("string")

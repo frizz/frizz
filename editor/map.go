@@ -33,7 +33,7 @@ func (e *MapEditor) Initialize(ctx context.Context, holder BranchInterface, layo
 	if err != nil {
 		return kerr.Wrap("GQROTGVBXS", err)
 	}
-	hold, err := items.HoldsDisplayType(ctx)
+	hold, err := items.HoldsDisplayType()
 	if err != nil {
 		return kerr.Wrap("XDKOSFJVQV", err)
 	}

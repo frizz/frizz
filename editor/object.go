@@ -11,7 +11,7 @@ import (
 type ObjectEditor struct {
 	*Node
 	*Editor
-	editors	*dom.HTMLDivElement
+	editors *dom.HTMLDivElement
 }
 
 var _ EditorInterface = (*ObjectEditor)(nil)
@@ -159,11 +159,11 @@ type objectSummary struct {
 
 type objectSummaryRow struct {
 	*summaryRow
-	name	*summaryCell
-	origin	*summaryCell
-	holds	*summaryCell
-	value	*summaryCell
-	options	*summaryCell
+	name    *summaryCell
+	origin  *summaryCell
+	holds   *summaryCell
+	value   *summaryCell
+	options *summaryCell
 }
 
 func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
@@ -218,7 +218,7 @@ func (r *objectSummaryRow) update() error {
 	}
 	r.origin.Text(origin)
 
-	hold, err := node.Rule.HoldsDisplayType(r.table.ctx)
+	hold, err := node.Rule.HoldsDisplayType()
 	if err != nil {
 		return kerr.Wrap("OYMARPFDGA", err)
 	}

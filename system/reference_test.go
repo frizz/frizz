@@ -2,6 +2,7 @@ package system
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 
 	"golang.org/x/net/context"
@@ -63,9 +64,17 @@ func TestReferenceRuleChangeTo(t *testing.T) {
 	r1 = r.ChangeToRule()
 	assert.Equal(t, "a.b/c:@d", r1.Value())
 
+	r = NewReference("", "d")
+	r1 = r.ChangeToRule()
+	assert.Equal(t, *NewReference("", ""), r1)
+
+	r = NewReference("a.b/c", "")
+	r1 = r.ChangeToRule()
+	assert.Equal(t, *NewReference("", ""), r1)
+
 }
 
-func TestReferenceUnmarshalJson(t *testing.T) {
+func TestReferenceUnmarshal(t *testing.T) {
 
 	reset := func() *Reference {
 		// Let's pre-load with some values so we check that when we
@@ -116,6 +125,24 @@ func TestReferenceUnmarshalJson(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "a", p.UnknownPackage)
 
+	r = reset()
+	err = r.UnmarshalInterface(envctx.Empty, 1)
+	assert.NoError(t, err)
+	assert.Equal(t, *NewReference("", ""), *r)
+
+	r = reset()
+	err = r.UnmarshalInterface(envctx.Empty, "")
+	assert.NoError(t, err)
+	assert.Equal(t, *NewReference("", ""), *r)
+
+	r = reset()
+	err = r.UnmarshalInterface(envctx.Empty, "a.b/c:d")
+	assert.IsError(t, err, "ETLPLMMWCC")
+
+	r = reset()
+	err = r.UnmarshalInterface(tests.Context("a.b/c").Ctx(), "a.b/c:d")
+	assert.NoError(t, err)
+	assert.Equal(t, *NewReference("a.b/c", "d"), *r)
 }
 
 func TestReferenceMarshalJson(t *testing.T) {
@@ -155,8 +182,16 @@ func TestReferenceGetType(t *testing.T) {
 }
 
 func TestReferenceValue(t *testing.T) {
-	r := NewReference("", "")
+
+	r := NewReference("a.b/c", "d")
+	assert.Equal(t, "a.b/c:d", r.Value())
+	assert.Equal(t, "a.b/c:d", r.String())
+	assert.Equal(t, "a.b/c:d", r.NativeString())
+
+	r = NewReference("", "")
 	assert.Equal(t, "", r.Value())
+	assert.Equal(t, "", r.String())
+	assert.Equal(t, "", r.NativeString())
 
 	v, err := r.ValueContext(context.Background())
 	assert.NoError(t, err)
@@ -203,4 +238,50 @@ func TestNewReferenceFromString(t *testing.T) {
 	r, err = NewReferenceFromString(cb.Ctx(), "e:f")
 	assert.IsError(t, err, "VXRGOQHWNB")
 
+}
+
+func TestGetReflectType(t *testing.T) {
+	a := ""
+	r := reflect.TypeOf(a)
+	cb := tests.Context("a.b/c").Jtype("d", r)
+	ref := NewReference("a.b/c", "d")
+	rt, ok := ref.GetReflectType(cb.Ctx())
+	assert.True(t, ok)
+	assert.Equal(t, r, rt)
+
+	ref = NewReference("a.b/c", "e")
+	rt, ok = ref.GetReflectType(cb.Ctx())
+	assert.False(t, ok)
+}
+
+func TestGetReflectInterface(t *testing.T) {
+	a := ""
+	r := reflect.TypeOf(a)
+	cb := tests.Context("a.b/c").Jiface("d", r)
+	ref := NewReference("a.b/c", "d")
+	rt, ok := ref.GetReflectInterface(cb.Ctx())
+	assert.True(t, ok)
+	assert.Equal(t, r, rt)
+
+	ref = NewReference("a.b/c", "e")
+	rt, ok = ref.GetReflectInterface(cb.Ctx())
+	assert.False(t, ok)
+}
+
+func TestGetDefault(t *testing.T) {
+	rr := &ReferenceRule{Default: NewReference("a.b/c", "d")}
+	d := rr.GetDefault()
+	dr, ok := d.(*Reference)
+	assert.True(t, ok)
+	assert.Equal(t, *NewReference("a.b/c", "d"), *dr)
+}
+
+func TestSortableReferences(t *testing.T) {
+	ra := []*Reference{NewReference("e.f/g", "h"), NewReference("a.b/c", "d")}
+	sr := SortableReferences(ra)
+	sort.Sort(sr)
+	ra = []*Reference(sr)
+	assert.Equal(t, 2, len(ra))
+	assert.Equal(t, *NewReference("a.b/c", "d"), *ra[0])
+	assert.Equal(t, *NewReference("e.f/g", "h"), *ra[1])
 }

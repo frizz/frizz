@@ -23,8 +23,8 @@ type DefaultRule interface {
 type DummyRule struct {
 	*Object
 	*Rule
-	Default	interface{}
-	Items	RuleInterface
+	Default interface{}
+	Items   RuleInterface
 }
 
 func (d *DummyRule) GetDefault() interface{} {
@@ -43,10 +43,10 @@ func init() {
 }
 
 type RuleWrapper struct {
-	ctx		context.Context
-	Interface	RuleInterface
-	Struct		*Rule
-	Parent		*Type
+	ctx       context.Context
+	Interface RuleInterface
+	Struct    *Rule
+	Parent    *Type
 }
 
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
@@ -131,8 +131,8 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 
 // HoldsDisplayType returns the string to display when communicating to
 // the end user what type this rule holds.
-func (r *RuleWrapper) HoldsDisplayType(ctx context.Context) (string, error) {
-	str, err := r.Parent.Id.ValueContext(ctx)
+func (r *RuleWrapper) HoldsDisplayType() (string, error) {
+	str, err := r.Parent.Id.ValueContext(r.ctx)
 	if err != nil {
 		return "", kerr.Wrap("OPIFCOHGWI", err)
 	}

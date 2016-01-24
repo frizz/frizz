@@ -91,7 +91,7 @@ func formatTag(ctx context.Context, fieldName string, exclude bool, defaultBytes
 	kegoTag := ""
 	if defaultBytes != nil && string(defaultBytes) != "null" {
 		defaultRaw := json.RawMessage(defaultBytes)
-		t := r.Parent.FullName()
+		t := r.Parent.Id.Value()
 		var tag json.KegoTag
 		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
 			// If our default is one of the basic system native types, we know we can unmarshal it
