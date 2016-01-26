@@ -1,0 +1,6 @@
+language: go
+notificaitons:
+  email:
+    recipients: dave@brophy.uk
+    on_success: change
+    on_failure: always
