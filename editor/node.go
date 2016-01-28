@@ -2,7 +2,10 @@ package editor
 
 import (
 	"github.com/tjgq/broadcast"
+	"golang.org/x/net/context"
 	"kego.io/json"
+	"kego.io/ke"
+	"kego.io/kerr"
 	"kego.io/system/node"
 )
 
@@ -17,6 +20,14 @@ func NewEditorNode() *Node {
 	n.Self = n
 	n.changes = broadcast.New(0)
 	return n
+}
+
+func UnmarshalNode(ctx context.Context, data []byte) (*Node, error) {
+	n := NewEditorNode()
+	if err := ke.UnmarshalUntyped(ctx, data, n); err != nil {
+		return nil, kerr.Wrap("SIWBWHJDJD", err)
+	}
+	return n, nil
 }
 
 func (n *Node) NewChild() node.NodeInterface {

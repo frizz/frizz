@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"kego.io/editor"
-	"kego.io/ke"
 	"kego.io/kerr"
 )
 
@@ -21,8 +20,8 @@ var _ Editable = (*entry)(nil)
 
 func addEntryFromBytes(tree *Tree, name string, bytes []byte, parentBranch BranchInterface, parentEditor editor.EditorInterface) (*entry, error) {
 
-	n := editor.NewEditorNode()
-	if err := ke.UnmarshalUntyped(tree.ctx, bytes, n); err != nil {
+	n, err := editor.UnmarshalNode(tree.ctx, bytes)
+	if err != nil {
 		return nil, kerr.Wrap("EAMNRBNRCE", err)
 	}
 

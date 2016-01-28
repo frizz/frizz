@@ -10,7 +10,6 @@ import (
 	_ "kego.io/demo/common/units"
 	_ "kego.io/demo/common/words"
 	_ "kego.io/demo/site"
-	"kego.io/ke"
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/scanner"
@@ -32,8 +31,7 @@ func testUnpack(t *testing.T, path string) {
 	files := scanner.ScanDirToFiles(ctx, env.Dir, env.Recursive)
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
-		n := node.NewNode()
-		err := ke.UnmarshalUntyped(ctx, b.Bytes, n)
+		_, err := node.Unmarshal(ctx, b.Bytes)
 		assert.NoError(t, err, b.File)
 	}
 }
@@ -47,8 +45,7 @@ func TestNodeUnpack(t *testing.T) {
 
 	j := `{"type":"system:package","aliases":{"kego.io/demo/common/images":"images","kego.io/demo/common/units":"units","kego.io/demo/common/words":"words"}}`
 
-	packageNode := node.NewNode()
-	err = ke.UnmarshalUntyped(ctx, []byte(j), packageNode)
+	_, err = node.Unmarshal(ctx, []byte(j))
 	assert.NoError(t, err)
 
 }

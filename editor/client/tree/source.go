@@ -4,7 +4,6 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/editor"
 	"kego.io/editor/shared/messages"
-	"kego.io/ke"
 	"kego.io/kerr"
 )
 
@@ -52,10 +51,11 @@ func (s *source) ProcessResponse(response messages.MessageInterface) error {
 		return kerr.New("MVPKNNVHOX", "%T is not a *messages.SourceResponse", response)
 	}
 
-	s.Node = editor.NewEditorNode()
-	if err := ke.UnmarshalUntyped(s.tree.ctx, []byte(gr.Data.Value()), s.Node); err != nil {
+	n, err := editor.UnmarshalNode(s.tree.ctx, []byte(gr.Data.Value()))
+	if err != nil {
 		return kerr.Wrap("ACODETSACJ", err)
 	}
+	s.Node = n
 
 	ed := s.Node.Editor()
 

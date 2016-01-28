@@ -144,8 +144,8 @@ func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
 }
 
 func repackFunc(ctx context.Context, data []byte, i *interface{}) error {
-	n := node.NewNode()
-	if err := json.UnmarshalUntyped(ctx, data, n); err != nil {
+	n, err := node.Unmarshal(ctx, data)
+	if err != nil {
 		return kerr.Wrap("RXAARYNHLP", err)
 	}
 	return json.Unpack(ctx, node.Pack(n), i)

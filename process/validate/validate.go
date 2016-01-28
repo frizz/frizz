@@ -4,7 +4,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
-	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/process/scanner"
 	"kego.io/process/validate/selectors"
@@ -31,8 +30,8 @@ func ValidatePackage(ctx context.Context) error {
 }
 
 func validateBytes(ctx context.Context, bytes []byte) error {
-	n := node.NewNode()
-	if err := ke.UnmarshalUntyped(ctx, bytes, n); err != nil {
+	n, err := node.Unmarshal(ctx, bytes)
+	if err != nil {
 		return kerr.Wrap("QIVNOQKCQF", err)
 	}
 	if err := validateNode(ctx, n); err != nil {

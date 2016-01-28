@@ -7,7 +7,6 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/json"
-	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/parser"
@@ -47,8 +46,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				t.Error("Error encountered while reading ", name, ": ", err)
 				continue
 			}
-			n := node.NewNode()
-			err = ke.UnmarshalUntyped(cb.Ctx(), json_document, n)
+			n, err := node.Unmarshal(cb.Ctx(), json_document)
 			assert.NoError(t, err, name)
 
 			testDocuments[name[0:len(name)-len(".json")]] = n

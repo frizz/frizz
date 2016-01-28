@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process"
 	_ "kego.io/system"
@@ -28,7 +27,6 @@ func TestFoo(t *testing.T) {
 			}
 		}
 	}`
-	n := node.NewNode()
-	err = json.UnmarshalUntyped(ctx, []byte(s), n)
+	_, err = node.Unmarshal(ctx, []byte(s))
 	assert.NoError(t, err)
 }

@@ -30,8 +30,7 @@ type Node struct {
 
 func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
 	n := NewNode()
-	err := ke.UnmarshalUntyped(ctx, data, n)
-	if err != nil {
+	if err := ke.UnmarshalUntyped(ctx, data, n); err != nil {
 		return nil, kerr.Wrap("QDWFKJOJPQ", err)
 	}
 	return n, nil

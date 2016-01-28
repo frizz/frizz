@@ -1,4 +1,4 @@
-package client	// import "kego.io/editor/client"
+package client // import "kego.io/editor/client"
 
 import (
 	"net/url"
@@ -17,18 +17,17 @@ import (
 	"kego.io/editor/shared"
 	"kego.io/editor/shared/connection"
 	"kego.io/json"
-	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/process/parser"
 	"kego.io/system"
 )
 
 type appData struct {
-	fail	chan error
-	conn	*connection.Conn
-	spinner	*dom.HTMLDivElement
-	ctx	context.Context
-	env	*envctx.Env
+	fail    chan error
+	conn    *connection.Conn
+	spinner *dom.HTMLDivElement
+	ctx     context.Context
+	env     *envctx.Env
 }
 
 var app appData
@@ -49,8 +48,8 @@ func Start() error {
 	}
 
 	app.env = &envctx.Env{
-		Path:		info.Path,
-		Aliases:	info.Aliases,
+		Path:    info.Path,
+		Aliases: info.Aliases,
 	}
 	app.fail = make(chan error)
 	app.ctx = envctx.NewContext(context.Background(), app.env)
@@ -63,8 +62,8 @@ func Start() error {
 
 	for _, info := range info.Imports {
 		env := &envctx.Env{
-			Path:		info.Path,
-			Aliases:	info.Aliases,
+			Path:    info.Path,
+			Aliases: info.Aliases,
 		}
 		pcache := scache.Set(env)
 		for _, typeBytes := range info.Types {
@@ -85,8 +84,8 @@ func Start() error {
 		}
 	}
 
-	editorNode := editor.NewEditorNode()
-	if err := ke.UnmarshalUntyped(app.ctx, []byte(info.Package), editorNode); err != nil {
+	editorNode, err := editor.UnmarshalNode(app.ctx, []byte(info.Package))
+	if err != nil {
 		return kerr.Wrap("KXIKEWOKJI", err)
 	}
 
