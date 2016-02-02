@@ -12,7 +12,6 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	g := builder.New("main")
 
 	g.Imports.Anonymous("kego.io/system")
-	g.Imports.Anonymous("kego.io/system/editors")
 	g.Imports.Anonymous(env.Path)
 	for p, _ := range env.Aliases {
 		g.Imports.Anonymous(p)

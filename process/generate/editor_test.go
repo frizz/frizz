@@ -19,7 +19,6 @@ import (
 	"kego.io/editor/client"
 	"kego.io/editor/client/console"
 	_ "kego.io/system"
-	_ "kego.io/system/editors"
 )
 
 func main() {

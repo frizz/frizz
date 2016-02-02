@@ -220,12 +220,13 @@ func TestGetAllTypesThatImplementInterface(t *testing.T) {
 type tInt int
 
 func TestZeroValue(t *testing.T) {
-	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}}
+	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}, Native: NewString("object")}
 	cb := tests.
 		Context("a.b/c").
 		Jtype("tfoo", reflect.TypeOf(&tFoo{})).Stype("tfoo", tfoo)
 
-	i := tfoo.ZeroValue(cb.Ctx())
+	i, err := tfoo.ZeroValue(cb.Ctx())
+	assert.NoError(t, err)
 	tf, ok := i.(*tFoo)
 	assert.True(t, ok)
 	assert.Nil(t, tf)
@@ -233,14 +234,15 @@ func TestZeroValue(t *testing.T) {
 	tint := &Type{Object: &Object{Id: NewReference("a.b/c", "tint")}, Native: NewString("int")}
 	cb.Jtype("tint", reflect.TypeOf(tInt(0))).Stype("tint", tint)
 
-	i = tint.ZeroValue(cb.Ctx())
+	i, err = tint.ZeroValue(cb.Ctx())
+	assert.NoError(t, err)
 	ti, ok := i.(tInt)
 	assert.True(t, ok)
 	assert.Equal(t, ti, tInt(0))
 
-	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "d")}}
-	i = tnil.ZeroValue(cb.Ctx())
-	assert.Nil(t, i)
+	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "d")}, Native: NewString("object")}
+	i, err = tnil.ZeroValue(cb.Ctx())
+	assert.IsError(t, err, "RSWTEOTNBD")
 }
 
 func TestTypeImplements(t *testing.T) {

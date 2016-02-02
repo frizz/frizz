@@ -37,11 +37,11 @@ func TestAll(t *testing.T) {
 	filepath.Walk(dir, walker)
 
 	for id, def := range all {
-		if !def.thrown && def.tested {
+		if !def.thrown && (def.tested || def.skipped) {
 			// Well, if the test isn't thrown the test should fail. Let's test for it here anyway.
 			assert.Fail(t, "Error tested but not thrown", id)
 		}
-		if def.thrown && !def.tested {
+		if def.thrown && !def.tested && !def.skipped {
 			// Holy grail - test that all errors are tested. Is this even possible?
 			// assert.Fail(t, "Error thrown but not tested", id)
 		}
@@ -107,9 +107,10 @@ type visitor struct {
 }
 
 type errDef struct {
-	id     string
-	thrown bool
-	tested bool
+	id      string
+	thrown  bool
+	tested  bool
+	skipped bool
 }
 
 func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
@@ -139,6 +140,9 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 			} else if pkg == v.assertName && (name == "IsError" || name == "HasError") {
 				def := getErrData(v.t, ty.Args, 2, v.file)
 				def.tested = true
+			} else if pkg == v.assertName && (name == "SkipError") {
+				def := getErrData(v.t, ty.Args, 0, v.file)
+				def.skipped = true
 			} else if pkg == v.assertName && (name == "IsErrorMulti" || name == "HasErrorMulti") {
 				assert.True(v.t, len(ty.Args) > 2, "Not enough args (%s)", v.file)
 				for arg := 2; arg < len(ty.Args); arg++ {

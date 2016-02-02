@@ -73,7 +73,11 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 	n.Missing = false
 	n.Null = false
 	n.JsonType = t.NativeJsonType()
-	n.Value = t.ZeroValue(ctx)
+	v, err := t.ZeroValue(ctx)
+	if err != nil {
+		return kerr.Wrap("RPUWJDKXSP", err)
+	}
+	n.Value = v
 
 	switch t.Native.Value() {
 	case "string":
@@ -82,10 +86,11 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 		n.ValueNumber = 0.0
 	case "bool":
 		n.ValueBool = false
-	case "array":
-		// nothing to do here
-	case "map":
-		n.Map = map[string]NodeInterface{}
+	// TODO: Should be enable collection types here?
+	//case "array":
+	// nothing to do here
+	//case "map":
+	//	n.Map = map[string]NodeInterface{}
 	case "object":
 		if err := n.InitialiseFields(ctx, nil); err != nil {
 			return kerr.Wrap("YIHFDLTIMW", err)

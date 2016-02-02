@@ -26,6 +26,10 @@ func IsErrorMulti(t TestingT, theError error, expectedIds ...string) bool {
 	return Fail(t, fmt.Sprintf("Expected %v but got %s:\n%s", expectedIds, i.ErrorId(), theError))
 }
 
+// SkipError is a noop marker that we're aware of an error that is impossible to reach. It's used in
+// the scan test
+func SkipError(errorId string) {}
+
 // IsError works with the kerr package to test for a specific error
 func IsError(t TestingT, theError error, expectedId string, msgAndArgs ...interface{}) bool {
 

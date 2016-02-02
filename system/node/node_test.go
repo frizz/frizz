@@ -1,19 +1,225 @@
-package node_test
+package node
 
 import (
 	"testing"
 
+	"reflect"
+
 	"golang.org/x/net/context"
+	"kego.io/json"
 	"kego.io/kerr/assert"
-	"kego.io/process"
-	_ "kego.io/system"
-	"kego.io/system/node"
+	"kego.io/process/parser"
+	"kego.io/process/tests"
+	"kego.io/system"
 )
 
-func TestFoo(t *testing.T) {
+func TestSetValueBool(t *testing.T) {
+	cb := tests.Context("a.b/c")
 
-	ctx, _, err := process.Initialise(context.Background(), process.FromDefaults{Path: "kego.io/system"})
+	n := NewNode()
+	n.Rule = &system.RuleWrapper{}
+	err := n.SetValueBool(cb.Ctx(), true)
+	assert.IsError(t, err, "AWRMEACQWR")
+	assert.HasError(t, err, "XOOUKLGORQ")
+
+	n.Null = true
+	n.Missing = true
+	n.JsonType = json.J_NULL
+
+	cb.Ssystem(parser.Parse)
+	n.Rule, _ = system.WrapRule(cb.Ctx(), &system.BoolRule{Object: &system.Object{Type: system.NewReference("kego.io/system", "@bool")}, Rule: &system.Rule{}})
+	err = n.SetValueBool(cb.Ctx(), true)
 	assert.NoError(t, err)
+
+	assert.False(t, n.Null)
+	assert.False(t, n.Missing)
+	assert.Equal(t, json.J_BOOL, n.JsonType)
+	assert.True(t, n.ValueBool)
+	v, ok := n.Value.(*system.Bool)
+	assert.True(t, ok)
+	assert.True(t, v.Value())
+
+}
+
+func TestSetValueNumber(t *testing.T) {
+	cb := tests.Context("a.b/c")
+
+	n := NewNode()
+	n.Rule = &system.RuleWrapper{}
+	err := n.SetValueNumber(cb.Ctx(), 2)
+	assert.IsError(t, err, "SOJGUGHXSX")
+	assert.HasError(t, err, "XOOUKLGORQ")
+
+	n.Null = true
+	n.Missing = true
+	n.JsonType = json.J_NULL
+
+	cb.Ssystem(parser.Parse)
+	n.Rule, _ = system.WrapRule(cb.Ctx(), &system.NumberRule{Object: &system.Object{Type: system.NewReference("kego.io/system", "@number")}, Rule: &system.Rule{}})
+	err = n.SetValueNumber(cb.Ctx(), 2)
+	assert.NoError(t, err)
+
+	assert.False(t, n.Null)
+	assert.False(t, n.Missing)
+	assert.Equal(t, json.J_NUMBER, n.JsonType)
+	assert.Equal(t, 2.0, n.ValueNumber)
+	v, ok := n.Value.(*system.Number)
+	assert.True(t, ok)
+	assert.Equal(t, 2.0, v.Value())
+}
+
+func TestSetValueString(t *testing.T) {
+	cb := tests.Context("a.b/c")
+
+	n := NewNode()
+	n.Rule = &system.RuleWrapper{}
+	err := n.SetValueString(cb.Ctx(), "foo")
+	assert.IsError(t, err, "GAMJNECRUW")
+	assert.HasError(t, err, "XOOUKLGORQ")
+
+	n.Null = true
+	n.Missing = true
+	n.JsonType = json.J_NULL
+
+	cb.Ssystem(parser.Parse)
+	n.Rule, _ = system.WrapRule(cb.Ctx(), &system.StringRule{Object: &system.Object{Type: system.NewReference("kego.io/system", "@string")}, Rule: &system.Rule{}})
+	err = n.SetValueString(cb.Ctx(), "foo")
+	assert.NoError(t, err)
+
+	assert.False(t, n.Null)
+	assert.False(t, n.Missing)
+	assert.Equal(t, json.J_STRING, n.JsonType)
+	assert.Equal(t, "foo", n.ValueString)
+	v, ok := n.Value.(*system.String)
+	assert.True(t, ok)
+	assert.Equal(t, "foo", v.Value())
+}
+
+func TestInitialiseWithConcreteType(t *testing.T) {
+	type num float64
+	type str string
+	type bol bool
+	cb := tests.Context("a.b/c").Jempty()
+	ty := &system.Type{
+		Object: &system.Object{Id: system.NewReference("a.b/c", "d")},
+	}
+	n := NewNode()
+	n.Missing = true
+	n.Null = true
+	n.JsonType = json.J_NULL
+	n.ValueNumber = 1
+
+	ty.Native = system.NewString("number")
+	err := n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.IsError(t, err, "RPUWJDKXSP")
+	assert.HasError(t, err, "RSWTEOTNBD")
+
+	cb.Jtype("d", reflect.TypeOf(num(0)))
+
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.NoError(t, err)
+	assert.Equal(t, n.Type, ty)
+	assert.False(t, n.Missing)
+	assert.False(t, n.Null)
+	assert.Equal(t, 0.0, n.ValueNumber)
+	assert.Equal(t, n.JsonType, json.J_NUMBER)
+	f, ok := n.Value.(num)
+	assert.True(t, ok)
+	assert.Equal(t, num(0.0), f)
+
+	ty.Native = system.NewString("string")
+	cb.Jtype("d", reflect.TypeOf(str("")))
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.NoError(t, err)
+	assert.Equal(t, "", n.ValueString)
+	assert.Equal(t, n.JsonType, json.J_STRING)
+	s, ok := n.Value.(str)
+	assert.True(t, ok)
+	assert.Equal(t, str(""), s)
+
+	ty.Native = system.NewString("bool")
+	cb.Jtype("d", reflect.TypeOf(bol(false)))
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.NoError(t, err)
+	assert.Equal(t, false, n.ValueBool)
+	assert.Equal(t, n.JsonType, json.J_BOOL)
+	b, ok := n.Value.(bol)
+	assert.True(t, ok)
+	assert.Equal(t, bol(false), b)
+
+	ty.Native = system.NewString("array")
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.IsError(t, err, "RPUWJDKXSP")
+	assert.HasError(t, err, "PGUHCGBJWE")
+
+	ty.Native = system.NewString("map")
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.IsError(t, err, "RPUWJDKXSP")
+	assert.HasError(t, err, "PGUHCGBJWE")
+
+	cb.Sempty()
+	ty.Native = system.NewString("object")
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.IsError(t, err, "YIHFDLTIMW")
+	assert.HasError(t, err, "VEKXQDJFGD")
+
+	// Unknown package would cause ZeroValue to error before ValueContext is called.
+	assert.SkipError("MRHEBUUXBB")
+
+	// InitialiseFields will always create type
+	assert.SkipError("DQKGYKFQKJ")
+
+	// This is assigning the value of the type field, which I don't think we can break
+	assert.SkipError("CURDKCQLGS")
+
+	cb.Ssystem(parser.Parse)
+	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	assert.NoError(t, err)
+
+}
+
+func TestUnpackError(t *testing.T) {
+	n := NewNode()
+	err := n.Unpack(context.Background(), json.Pack("a"))
+	assert.IsError(t, err, "FUYLKYTQYD")
+}
+
+func TestUnpack(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
+
+	s := map[string]interface{}{
+		"description": "Restriction rules for bools",
+		"type":        "type",
+		"embed":       []interface{}{"rule"},
+		"fields": map[string]interface{}{
+			"default": map[string]interface{}{
+				"description": "Default value if this is missing or null",
+				"type":        "@bool",
+				"optional":    true,
+			},
+		},
+	}
+	n := NewNode()
+	err := n.Unpack(cb.Ctx(), json.Pack(s))
+	assert.NoError(t, err)
+	f, ok := n.Map["fields"].(*Node)
+	assert.True(t, ok)
+	d, ok := f.Map["default"].(*Node)
+	assert.True(t, ok)
+	o, ok := d.Map["optional"].(*Node)
+	assert.True(t, ok)
+	assert.True(t, o.ValueBool)
+}
+
+func TestUnmarshalError(t *testing.T) {
+	_, err := Unmarshal(context.Background(), []byte("a"))
+	assert.IsError(t, err, "QDWFKJOJPQ")
+}
+
+func TestUnmarshal(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
 
 	s := `{
 		"description": "Restriction rules for bools",
@@ -27,6 +233,13 @@ func TestFoo(t *testing.T) {
 			}
 		}
 	}`
-	_, err = node.Unmarshal(ctx, []byte(s))
+	n, err := Unmarshal(cb.Ctx(), []byte(s))
 	assert.NoError(t, err)
+	f, ok := n.Map["fields"].(*Node)
+	assert.True(t, ok)
+	d, ok := f.Map["default"].(*Node)
+	assert.True(t, ok)
+	o, ok := d.Map["optional"].(*Node)
+	assert.True(t, ok)
+	assert.True(t, o.ValueBool)
 }
