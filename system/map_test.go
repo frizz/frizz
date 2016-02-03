@@ -8,13 +8,14 @@ import (
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestMapMarshal(t *testing.T) {
-	testMapMarshal(t, unmarshalFunc)
-	testMapMarshal(t, unpackFunc)
+	testMapMarshal(t, unpacker.Unmarshal)
+	testMapMarshal(t, unpacker.Unpack)
 }
-func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
+func testMapMarshal(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -31,7 +32,7 @@ func testMapMarshal(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)

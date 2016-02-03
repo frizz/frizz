@@ -11,13 +11,14 @@ import (
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {
-	testUnpackDefaultNativeTypeReference(t, unmarshalFunc)
-	testUnpackDefaultNativeTypeReference(t, unpackFunc)
+	testUnpackDefaultNativeTypeReference(t, unpacker.Unmarshal)
+	testUnpackDefaultNativeTypeReference(t, unpacker.Unpack)
 }
-func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
+func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -32,7 +33,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Alias("c.d/e", "e").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)

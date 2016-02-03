@@ -178,13 +178,18 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 
 }
 
-func TestUnpackError(t *testing.T) {
+func TestNodeUnpack(t *testing.T) {
 	n := NewNode()
 	err := n.Unpack(context.Background(), json.Pack("a"))
 	assert.IsError(t, err, "FUYLKYTQYD")
+
+	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
+	s := map[string]interface{}{"type": "type"}
+	err = n.Unpack(cb.Ctx(), json.Pack(s))
+	assert.NoError(t, err)
 }
 
-func TestUnpack(t *testing.T) {
+func TestNodeExtract(t *testing.T) {
 
 	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
 
@@ -201,7 +206,7 @@ func TestUnpack(t *testing.T) {
 		},
 	}
 	n := NewNode()
-	err := n.Unpack(cb.Ctx(), json.Pack(s))
+	err := n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(s), true, nil)
 	assert.NoError(t, err)
 	f, ok := n.Map["fields"].(*Node)
 	assert.True(t, ok)
@@ -210,6 +215,39 @@ func TestUnpack(t *testing.T) {
 	o, ok := d.Map["optional"].(*Node)
 	assert.True(t, ok)
 	assert.True(t, o.ValueBool)
+
+	// Can't extract the object type from the rule (can't have interface rule and parent)
+	r := &system.RuleWrapper{
+		Interface: &system.StringRule{},
+		Struct:    &system.Rule{Interface: true},
+		Parent:    &system.Type{Interface: true},
+	}
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(s), true, r)
+	assert.IsError(t, err, "RBDBRRUVMM")
+	assert.HasError(t, err, "TDXTPGVFAK")
+
+	// Rule specifies a string type, but we're unpacking a number
+	r = &system.RuleWrapper{
+		Interface: &system.StringRule{},
+		Struct:    &system.Rule{},
+		Parent:    &system.Type{Native: system.NewString("string")},
+	}
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(1.0), true, r)
+	assert.IsError(t, err, "VEPLUIJXSN")
+
+	// Id is the wrong type
+	s = map[string]interface{}{"type": "package", "id": 1.0}
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(s), true, nil)
+	assert.IsError(t, err, "RUHTPJFDOG")
+
+	s = map[string]interface{}{"type": "package"}
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(s), true, nil)
+	assert.NoError(t, err)
+
+	//r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "string")}, Native: system.NewString("string")}
+	//err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, nil, false, r)
+	//assert.NoError(t, err)
+
 }
 
 func TestUnmarshalError(t *testing.T) {

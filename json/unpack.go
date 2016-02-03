@@ -21,8 +21,12 @@ type unpackStruct struct {
 
 func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 
+	if in == nil {
+		return kerr.New("QAINAWPLSU", "Can't unpack nil")
+	}
+
 	if in.Type() != J_MAP {
-		return kerr.New("XOOUKLGORQ", "Type %s should be J_MAP", in.Type())
+		return kerr.New("XOOUKLGORQ", "Type %s should be nil, J_MAP or J_NULL", in.Type())
 	}
 
 	us := &unpackStruct{}
@@ -30,21 +34,20 @@ func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 	if err != nil {
 		return kerr.Wrap("NUHCPRKRXT", err)
 	}
-	//if typ == nil {
-	//return kerr.New("GREMVFEUMH", nil, "Unknown global type %#v", in.Map()["type"])
-	//}
 
-	// we don't wrap the error in kerr because in can return special
-	// error types
-	return us.unpackFragment(ctx, in, out, typ, false)
+	if err := us.unpackFragment(ctx, in, out, typ, false); err != nil {
+		return kerr.Wrap("LJBTNGPVSY", err)
+	}
+	return nil
 }
 
 func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type, debug bool) error {
 
 	us := &unpackStruct{}
-	// we don't wrap the error in kerr because in can return special
-	// error types
-	return us.unpackFragment(ctx, in, out, typ, debug)
+	if err := us.unpackFragment(ctx, in, out, typ, debug); err != nil {
+		return kerr.Wrap("KXHDXGWTUU", err)
+	}
+	return nil
 }
 
 func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type, debug bool) error {

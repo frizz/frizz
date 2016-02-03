@@ -1,34 +1,22 @@
-package json
+package json_test
 
 import (
 	"fmt"
 	"reflect"
 	"testing"
 
-	"golang.org/x/net/context"
+	. "kego.io/json"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
-type unpackerFunc func(ctx context.Context, data []byte, i *interface{}) error
-
-func unmarshalFunc(ctx context.Context, data []byte, i *interface{}) error {
-	return Unmarshal(ctx, data, i)
-}
-func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
-	var j interface{}
-	if err := UnmarshalPlain(data, &j); err != nil {
-		return err
-	}
-	return Unpack(ctx, Pack(j), i)
-}
-
 func TestDecodeSimple(t *testing.T) {
-	testDecodeSimple(t, unmarshalFunc)
-	testDecodeSimple(t, unpackFunc)
+	testDecodeSimple(t, unpacker.Unmarshal)
+	testDecodeSimple(t, unpacker.Unpack)
 }
-func testDecodeSimple(t *testing.T, unpacker unpackerFunc) {
+func testDecodeSimple(t *testing.T, up unpacker.Interface) {
 
 	test := func(data string) {
 
@@ -41,7 +29,7 @@ func testDecodeSimple(t *testing.T, unpacker unpackerFunc) {
 		ctx := tests.Context("kego.io/json").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 		var i interface{}
-		err := unpacker(ctx, []byte(data), &i)
+		err := up.Process(ctx, []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -80,10 +68,10 @@ func testDecodeSimple(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDecodeDefaults(t *testing.T) {
-	testDecodeDefaults(t, unmarshalFunc)
-	testDecodeDefaults(t, unpackFunc)
+	testDecodeDefaults(t, unpacker.Unmarshal)
+	testDecodeDefaults(t, unpacker.Unpack)
 }
-func testDecodeDefaults(t *testing.T, unpacker unpackerFunc) {
+func testDecodeDefaults(t *testing.T, up unpacker.Interface) {
 
 	test := func(data string, strExpected string, numExpected float64, boolExpected bool) {
 
@@ -96,7 +84,7 @@ func testDecodeDefaults(t *testing.T, unpacker unpackerFunc) {
 		ctx := tests.Context("kego.io/json").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 		var i interface{}
-		err := unpacker(ctx, []byte(data), &i)
+		err := up.Process(ctx, []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -132,10 +120,10 @@ func testDecodeDefaults(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDecodeCollections(t *testing.T) {
-	testDecodeCollections(t, unmarshalFunc)
-	testDecodeCollections(t, unpackFunc)
+	testDecodeCollections(t, unpacker.Unmarshal)
+	testDecodeCollections(t, unpacker.Unpack)
 }
-func testDecodeCollections(t *testing.T, unpacker unpackerFunc) {
+func testDecodeCollections(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		StringMap   map[string]string
@@ -159,7 +147,7 @@ func testDecodeCollections(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/json").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -180,10 +168,10 @@ func testDecodeCollections(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDecodeEmbed(t *testing.T) {
-	testDecodeEmbed(t, unmarshalFunc)
-	testDecodeEmbed(t, unpackFunc)
+	testDecodeEmbed(t, unpacker.Unmarshal)
+	testDecodeEmbed(t, unpacker.Unpack)
 }
-func testDecodeEmbed(t *testing.T, unpacker unpackerFunc) {
+func testDecodeEmbed(t *testing.T, up unpacker.Interface) {
 
 	test := func(data string) {
 
@@ -202,7 +190,7 @@ func testDecodeEmbed(t *testing.T, unpacker unpackerFunc) {
 			Jtype("bar", reflect.TypeOf(&Bar{})).Ctx()
 
 		var i interface{}
-		err := unpacker(ctx, []byte(data), &i)
+		err := up.Process(ctx, []byte(data), &i)
 		assert.NoError(t, err)
 		f, ok := i.(*Foo)
 		assert.True(t, ok, "Type %T not correct", i)
@@ -238,10 +226,10 @@ func testDecodeEmbed(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDecodeEmbedCollections(t *testing.T) {
-	testDecodeEmbedCollections(t, unmarshalFunc)
-	testDecodeEmbedCollections(t, unpackFunc)
+	testDecodeEmbedCollections(t, unpacker.Unmarshal)
+	testDecodeEmbedCollections(t, unpacker.Unpack)
 }
-func testDecodeEmbedCollections(t *testing.T, unpacker unpackerFunc) {
+func testDecodeEmbedCollections(t *testing.T, up unpacker.Interface) {
 
 	type Bar struct {
 		String string
@@ -281,7 +269,7 @@ func testDecodeEmbedCollections(t *testing.T, unpacker unpackerFunc) {
 		Jtype("bar", reflect.TypeOf(&Bar{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -294,10 +282,10 @@ func testDecodeEmbedCollections(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDecodeComposition(t *testing.T) {
-	testDecodeComposition(t, unmarshalFunc)
-	testDecodeComposition(t, unpackFunc)
+	testDecodeComposition(t, unpacker.Unmarshal)
+	testDecodeComposition(t, unpacker.Unpack)
 }
-func testDecodeComposition(t *testing.T, unpacker unpackerFunc) {
+func testDecodeComposition(t *testing.T, up unpacker.Interface) {
 
 	type Base struct {
 		BaseString string
@@ -319,7 +307,7 @@ func testDecodeComposition(t *testing.T, unpacker unpackerFunc) {
 		Jtype("base", reflect.TypeOf(&Base{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -344,10 +332,10 @@ func (d *Diagram) Url() string {
 }
 
 func TestInterface(t *testing.T) {
-	testInterface(t, unmarshalFunc)
-	testInterface(t, unpackFunc)
+	testInterface(t, unpacker.Unmarshal)
+	testInterface(t, unpacker.Unpack)
 }
-func testInterface(t *testing.T, unpacker unpackerFunc) {
+func testInterface(t *testing.T, up unpacker.Interface) {
 
 	type Image interface {
 		Url() string
@@ -371,7 +359,7 @@ func testInterface(t *testing.T, unpacker unpackerFunc) {
 		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -381,10 +369,10 @@ func testInterface(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestNilInterface(t *testing.T) {
-	testNilInterface(t, unmarshalFunc)
-	testNilInterface(t, unpackFunc)
+	testNilInterface(t, unpacker.Unmarshal)
+	testNilInterface(t, unpacker.Unpack)
 }
-func testNilInterface(t *testing.T, unpacker unpackerFunc) {
+func testNilInterface(t *testing.T, up unpacker.Interface) {
 
 	type Image interface {
 		Url() string
@@ -408,7 +396,7 @@ func testNilInterface(t *testing.T, unpacker unpackerFunc) {
 		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -420,10 +408,10 @@ func testNilInterface(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestInterfaceCollections(t *testing.T) {
-	testInterfaceCollections(t, unmarshalFunc)
-	testInterfaceCollections(t, unpackFunc)
+	testInterfaceCollections(t, unpacker.Unmarshal)
+	testInterfaceCollections(t, unpacker.Unpack)
 }
-func testInterfaceCollections(t *testing.T, unpacker unpackerFunc) {
+func testInterfaceCollections(t *testing.T, up unpacker.Interface) {
 
 	type Image interface {
 		Url() string
@@ -464,7 +452,7 @@ func testInterfaceCollections(t *testing.T, unpacker unpackerFunc) {
 		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -477,10 +465,10 @@ func testInterfaceCollections(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestInterfaceCollectionsComplex(t *testing.T) {
-	testInterfaceCollectionsComplex(t, unmarshalFunc)
-	testInterfaceCollectionsComplex(t, unpackFunc)
+	testInterfaceCollectionsComplex(t, unpacker.Unmarshal)
+	testInterfaceCollectionsComplex(t, unpacker.Unpack)
 }
-func testInterfaceCollectionsComplex(t *testing.T, unpacker unpackerFunc) {
+func testInterfaceCollectionsComplex(t *testing.T, up unpacker.Interface) {
 
 	type Image interface {
 		Url() string
@@ -522,7 +510,7 @@ func testInterfaceCollectionsComplex(t *testing.T, unpacker unpackerFunc) {
 		Jtype("diagram", reflect.TypeOf(&Diagram{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -535,10 +523,10 @@ func testInterfaceCollectionsComplex(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDummyInterfaceNotFound(t *testing.T) {
-	testDummyInterfaceNotFound(t, unmarshalFunc)
-	testDummyInterfaceNotFound(t, unpackFunc)
+	testDummyInterfaceNotFound(t, unpacker.Unmarshal)
+	testDummyInterfaceNotFound(t, unpacker.Unpack)
 }
-func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
+func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 
 	type Image interface {
 		Url() string
@@ -561,8 +549,13 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 	var i interface{}
-	err := unpacker(cb.Ctx(), []byte(data), &i)
-	assert.IsErrorMulti(t, err, "YEOQSWVFVH", "VUEFNKSTLG")
+	err := up.Process(cb.Ctx(), []byte(data), &i)
+	if up == unpacker.Unpack {
+		assert.IsError(t, err, "LJBTNGPVSY")
+		assert.HasError(t, err, "VUEFNKSTLG")
+	} else {
+		assert.IsError(t, err, "YEOQSWVFVH")
+	}
 	ut, ok := kerr.Source(err).(UnknownTypeError)
 	assert.True(t, ok)
 	assert.Equal(t, "kego.io/json:bar", ut.UnknownType)
@@ -575,11 +568,16 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 			"id": "a"
 		}
 	}`
-	err = unpacker(cb.Ctx(), []byte(data), &i)
-	assert.IsErrorMulti(t, err, "WLKNMHPWJN", "TBNIEVUCPL")
-	up, ok := kerr.Source(err).(UnknownPackageError)
+	err = up.Process(cb.Ctx(), []byte(data), &i)
+	if up == unpacker.Unpack {
+		assert.IsError(t, err, "LJBTNGPVSY")
+		assert.HasError(t, err, "WLKNMHPWJN")
+	} else {
+		assert.IsError(t, err, "TBNIEVUCPL")
+	}
+	upe, ok := kerr.Source(err).(UnknownPackageError)
 	assert.True(t, ok)
-	assert.Equal(t, "foo", up.UnknownPackage)
+	assert.Equal(t, "foo", upe.UnknownPackage)
 
 	data = `{
 		"type": "foo",
@@ -588,14 +586,24 @@ func testDummyInterfaceNotFound(t *testing.T, unpacker unpackerFunc) {
 			"id": "a"
 		}
 	}`
-	err = unpacker(cb.Ctx(), []byte(data), &i)
-	assert.IsErrorMulti(t, err, "TBNIEVUCPL", "WLKNMHPWJN")
-	up, ok = kerr.Source(err).(UnknownPackageError)
+	err = up.Process(cb.Ctx(), []byte(data), &i)
+	if up == unpacker.Unpack {
+		assert.IsError(t, err, "LJBTNGPVSY")
+		assert.HasError(t, err, "WLKNMHPWJN")
+	} else {
+		assert.IsError(t, err, "TBNIEVUCPL")
+	}
+	upe, ok = kerr.Source(err).(UnknownPackageError)
 	assert.True(t, ok)
-	assert.Equal(t, "a.b/c", up.UnknownPackage)
+	assert.Equal(t, "a.b/c", upe.UnknownPackage)
 
-	err = unpacker(cb.Alias("a.b/c", "d").Ctx(), []byte(data), &i)
-	assert.IsErrorMulti(t, err, "YEOQSWVFVH", "VUEFNKSTLG")
+	err = up.Process(cb.Alias("a.b/c", "d").Ctx(), []byte(data), &i)
+	if up == unpacker.Unpack {
+		assert.IsError(t, err, "LJBTNGPVSY")
+		assert.HasError(t, err, "VUEFNKSTLG")
+	} else {
+		assert.IsError(t, err, "YEOQSWVFVH")
+	}
 	ut, ok = kerr.Source(err).(UnknownTypeError)
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c:bar", ut.UnknownType)
@@ -609,10 +617,10 @@ func (d *dummyImage) Url() string {
 }
 
 func TestDummyInterface(t *testing.T) {
-	testDummyInterface(t, unmarshalFunc)
-	testDummyInterface(t, unpackFunc)
+	testDummyInterface(t, unpacker.Unmarshal)
+	testDummyInterface(t, unpacker.Unpack)
 }
-func testDummyInterface(t *testing.T, unpacker unpackerFunc) {
+func testDummyInterface(t *testing.T, up unpacker.Interface) {
 
 	type Image interface {
 		Url() string
@@ -637,6 +645,6 @@ func testDummyInterface(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 }

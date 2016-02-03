@@ -4,12 +4,11 @@ import (
 	"testing"
 
 	"golang.org/x/net/context"
-	"kego.io/json"
-	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process"
+	"kego.io/process/tests/repacker"
+	"kego.io/process/tests/unpacker"
 	"kego.io/system"
-	"kego.io/system/node"
 )
 
 var systemContext context.Context
@@ -26,11 +25,11 @@ func initialise() context.Context {
 }
 
 func TestBoolExt(t *testing.T) {
-	testBool(t, unmarshalFunc)
-	testBool(t, unpackFunc)
-	testBool(t, repackFunc)
+	testBool(t, unpacker.Unmarshal)
+	testBool(t, unpacker.Unpack)
+	testBool(t, repacker.Repack)
 }
-func testBool(t *testing.T, unpacker unpackerFunc) {
+func testBool(t *testing.T, up unpacker.Interface) {
 
 	ctx := initialise()
 
@@ -54,7 +53,7 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -65,11 +64,11 @@ func testBool(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestTypeExt(t *testing.T) {
-	testType(t, unmarshalFunc)
-	testType(t, unpackFunc)
-	testType(t, repackFunc)
+	testType(t, unpacker.Unmarshal)
+	testType(t, unpacker.Unpack)
+	testType(t, repacker.Repack)
 }
-func testType(t *testing.T, unpacker unpackerFunc) {
+func testType(t *testing.T, up unpacker.Interface) {
 
 	ctx := initialise()
 
@@ -113,7 +112,7 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -128,25 +127,4 @@ func testType(t *testing.T, unpacker unpackerFunc) {
 	assert.NotNil(t, r.Default)
 	assert.Equal(t, false, r.Default.Value())
 
-}
-
-type unpackerFunc func(ctx context.Context, data []byte, i *interface{}) error
-
-func unmarshalFunc(ctx context.Context, data []byte, i *interface{}) error {
-	return json.Unmarshal(ctx, data, i)
-}
-func unpackFunc(ctx context.Context, data []byte, i *interface{}) error {
-	var j interface{}
-	if err := json.UnmarshalPlain(data, &j); err != nil {
-		return kerr.Wrap("PJJYUVNXED", err)
-	}
-	return json.Unpack(ctx, json.Pack(j), i)
-}
-
-func repackFunc(ctx context.Context, data []byte, i *interface{}) error {
-	n, err := node.Unmarshal(ctx, data)
-	if err != nil {
-		return kerr.Wrap("RXAARYNHLP", err)
-	}
-	return json.Unpack(ctx, node.Pack(n), i)
 }

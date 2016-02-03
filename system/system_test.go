@@ -6,6 +6,7 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestGoName(t *testing.T) {
@@ -20,10 +21,10 @@ func TestGoName(t *testing.T) {
 }
 
 func TestNoType(t *testing.T) {
-	testNoType(t, unmarshalFunc)
-	testNoType(t, unpackFunc)
+	testNoType(t, unpacker.Unmarshal)
+	testNoType(t, unpacker.Unpack)
 }
-func testNoType(t *testing.T, unpacker unpackerFunc) {
+func testNoType(t *testing.T, up unpacker.Interface) {
 	type C struct {
 		*Object
 		D string
@@ -45,7 +46,7 @@ func testNoType(t *testing.T, unpacker unpackerFunc) {
 	}`
 
 	var i interface{}
-	err := unpacker(ctx, []byte(j), &i)
+	err := up.Process(ctx, []byte(j), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok)
@@ -60,17 +61,17 @@ func testNoType(t *testing.T, unpacker unpackerFunc) {
 		}
 	}`
 
-	err = unpacker(ctx, []byte(j), &i)
+	err = up.Process(ctx, []byte(j), &i)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "json: cannot unmarshal kego.io/system:f into Go value of type system.C")
 
 }
 
 func TestNative(t *testing.T) {
-	testNative(t, unmarshalFunc)
-	testNative(t, unpackFunc)
+	testNative(t, unpacker.Unmarshal)
+	testNative(t, unpacker.Unpack)
 }
-func testNative(t *testing.T, unpacker unpackerFunc) {
+func testNative(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		StrHere  *String
@@ -97,7 +98,7 @@ func testNative(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -118,10 +119,10 @@ func testNative(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestNativeDefaults(t *testing.T) {
-	testNativeDefaults(t, unmarshalFunc)
-	testNativeDefaults(t, unpackFunc)
+	testNativeDefaults(t, unpacker.Unmarshal)
+	testNativeDefaults(t, unpacker.Unpack)
 }
-func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
+func testNativeDefaults(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		StrHere    *String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\"}}"`
@@ -142,7 +143,7 @@ func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -163,10 +164,10 @@ func testNativeDefaults(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestNativeDefaultsShort(t *testing.T) {
-	testNativeDefaultsShort(t, unmarshalFunc)
-	testNativeDefaultsShort(t, unpackFunc)
+	testNativeDefaultsShort(t, unpacker.Unmarshal)
+	testNativeDefaultsShort(t, unpacker.Unpack)
 }
-func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
+func testNativeDefaultsShort(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		StrHere    *String `kego:"{\"default\":{\"value\":\"a\"}}"`
@@ -187,7 +188,7 @@ func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -208,10 +209,10 @@ func testNativeDefaultsShort(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestDefaultCustomUnmarshal(t *testing.T) {
-	testDefaultCustomUnmarshal(t, unmarshalFunc)
-	testDefaultCustomUnmarshal(t, unpackFunc)
+	testDefaultCustomUnmarshal(t, unpacker.Unmarshal)
+	testDefaultCustomUnmarshal(t, unpacker.Unpack)
 }
-func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
+func testDefaultCustomUnmarshal(t *testing.T, up unpacker.Interface) {
 
 	// If we're generating the type structs, we probably don't have the
 	// custom marshal function, so we add the type and context data in
@@ -240,7 +241,7 @@ func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Alias("a.b/c", "c").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -255,10 +256,10 @@ func testDefaultCustomUnmarshal(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestReferenceType(t *testing.T) {
-	testReferenceType(t, unmarshalFunc)
-	testReferenceType(t, unpackFunc)
+	testReferenceType(t, unpacker.Unmarshal)
+	testReferenceType(t, unpacker.Unpack)
 }
-func testReferenceType(t *testing.T, unpacker unpackerFunc) {
+func testReferenceType(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		Ref *Reference
@@ -272,7 +273,7 @@ func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -285,10 +286,10 @@ func testReferenceType(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestReferenceEmpty(t *testing.T) {
-	testReferenceEmpty(t, unmarshalFunc)
-	testReferenceEmpty(t, unpackFunc)
+	testReferenceEmpty(t, unpacker.Unmarshal)
+	testReferenceEmpty(t, unpacker.Unpack)
 }
-func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
+func testReferenceEmpty(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		Ref *Reference
@@ -301,7 +302,7 @@ func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -311,10 +312,10 @@ func testReferenceEmpty(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestReferencePath(t *testing.T) {
-	testReferencePath(t, unmarshalFunc)
-	testReferencePath(t, unpackFunc)
+	testReferencePath(t, unpacker.Unmarshal)
+	testReferencePath(t, unpacker.Unpack)
 }
-func testReferencePath(t *testing.T, unpacker unpackerFunc) {
+func testReferencePath(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		Ref *Reference
@@ -328,7 +329,7 @@ func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Alias("kego.io/pkg", "pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -341,10 +342,10 @@ func testReferencePath(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestReferenceImport(t *testing.T) {
-	testReferenceImport(t, unmarshalFunc)
-	testReferenceImport(t, unpackFunc)
+	testReferenceImport(t, unpacker.Unmarshal)
+	testReferenceImport(t, unpacker.Unpack)
 }
-func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
+func testReferenceImport(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		Ref *Reference
@@ -358,7 +359,7 @@ func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Alias("kego.io/pkg", "pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -371,10 +372,10 @@ func testReferenceImport(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestReferenceDefault(t *testing.T) {
-	testReferenceDefault(t, unmarshalFunc)
-	testReferenceDefault(t, unpackFunc)
+	testReferenceDefault(t, unpacker.Unmarshal)
+	testReferenceDefault(t, unpacker.Unpack)
 }
-func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
+func testReferenceDefault(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
 		RefHere    *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkga\":\"pkga\"}}}"`
@@ -389,7 +390,7 @@ func testReferenceDefault(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	f, ok := i.(*Foo)
 	assert.True(t, ok, "Type %T not correct", i)

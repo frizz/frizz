@@ -8,13 +8,14 @@ import (
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestUnpackDefaultNativeTypeBool(t *testing.T) {
-	testUnpackDefaultNativeTypeBool(t, unmarshalFunc)
-	testUnpackDefaultNativeTypeBool(t, unpackFunc)
+	testUnpackDefaultNativeTypeBool(t, unpacker.Unmarshal)
+	testUnpackDefaultNativeTypeBool(t, unpacker.Unpack)
 }
-func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
+func testUnpackDefaultNativeTypeBool(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -30,7 +31,7 @@ func testUnpackDefaultNativeTypeBool(t *testing.T, unpacker unpackerFunc) {
 
 	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)

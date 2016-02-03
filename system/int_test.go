@@ -8,6 +8,7 @@ import (
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestIntSet(t *testing.T) {
@@ -17,10 +18,10 @@ func TestIntSet(t *testing.T) {
 }
 
 func TestUnpackDefaultNativeTypeInt(t *testing.T) {
-	testUnpackDefaultNativeTypeInt(t, unmarshalFunc)
-	testUnpackDefaultNativeTypeInt(t, unpackFunc)
+	testUnpackDefaultNativeTypeInt(t, unpacker.Unmarshal)
+	testUnpackDefaultNativeTypeInt(t, unpacker.Unpack)
 }
-func testUnpackDefaultNativeTypeInt(t *testing.T, unpacker unpackerFunc) {
+func testUnpackDefaultNativeTypeInt(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -36,7 +37,7 @@ func testUnpackDefaultNativeTypeInt(t *testing.T, unpacker unpackerFunc) {
 
 	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)

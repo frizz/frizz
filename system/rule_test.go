@@ -6,6 +6,7 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestRuleWrapperHoldsDisplayType(t *testing.T) {
@@ -249,10 +250,10 @@ func TestWrapRule(t *testing.T) {
 }
 
 func TestInitialiseAnonymousFields(t *testing.T) {
-	testInitialiseAnonymousFields(t, unmarshalFunc)
-	testInitialiseAnonymousFields(t, unpackFunc)
+	testInitialiseAnonymousFields(t, unpacker.Unmarshal)
+	testInitialiseAnonymousFields(t, unpacker.Unpack)
 }
-func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
+func testInitialiseAnonymousFields(t *testing.T, up unpacker.Interface) {
 
 	type ruleStruct struct {
 		*Object
@@ -265,7 +266,7 @@ func testInitialiseAnonymousFields(t *testing.T, unpacker unpackerFunc) {
 		"type": "@b"
 	}`
 	var i interface{}
-	err := unpacker(ctx, []byte(j), &i)
+	err := up.Process(ctx, []byte(j), &i)
 	assert.NoError(t, err)
 	rs, ok := i.(*ruleStruct)
 	assert.True(t, ok)

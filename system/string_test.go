@@ -8,6 +8,7 @@ import (
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
+	"kego.io/process/tests/unpacker"
 )
 
 func TestStringGetDefault(t *testing.T) {
@@ -25,10 +26,10 @@ func TestStringSet(t *testing.T) {
 }
 
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
-	testUnpackDefaultNativeTypeString(t, unmarshalFunc)
-	testUnpackDefaultNativeTypeString(t, unpackFunc)
+	testUnpackDefaultNativeTypeString(t, unpacker.Unmarshal)
+	testUnpackDefaultNativeTypeString(t, unpacker.Unpack)
 }
-func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
+func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -43,7 +44,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -58,10 +59,10 @@ func testUnpackDefaultNativeTypeString(t *testing.T, unpacker unpackerFunc) {
 }
 
 func TestMarshal(t *testing.T) {
-	testMarshal(t, unmarshalFunc)
-	testMarshal(t, unpackFunc)
+	testMarshal(t, unpacker.Unmarshal)
+	testMarshal(t, unpacker.Unpack)
 }
-func testMarshal(t *testing.T, unpacker unpackerFunc) {
+func testMarshal(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -76,7 +77,7 @@ func testMarshal(t *testing.T, unpacker unpackerFunc) {
 	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := unpacker(ctx, []byte(data), &i)
+	err := up.Process(ctx, []byte(data), &i)
 	assert.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)

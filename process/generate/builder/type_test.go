@@ -460,10 +460,10 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 
 /*
 func TestUnknownRule(t *testing.T) {
-	testUnknownRule(t, unmarshalFunc)
-	testUnknownRule(t, unpackFunc)
+	testUnknownRule(t, unpacker.Unmarshal)
+	testUnknownRule(t, unpacker.Unpack)
 }
-func testUnknownRule(t *testing.T, unpacker unpackerFunc) {
+func testUnknownRule(t *testing.T, unpacker unpacker.Interface) {
 
 	diagram := `{
 		"description": "This is a type of image, which just contains the url of the image",
