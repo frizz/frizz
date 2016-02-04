@@ -13,6 +13,99 @@ import (
 	"kego.io/system"
 )
 
+func TestExtractType(t *testing.T) {
+	//extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) (*system.Type, error)
+
+	cb := tests.Context("a.b/c")
+	r := &system.RuleWrapper{
+		Interface: &system.StringRule{},
+		Struct:    &system.Rule{Interface: true},
+		Parent:    &system.Type{Interface: true},
+	}
+	_, err := extractType(cb.Ctx(), json.Pack(true), r)
+	assert.IsError(t, err, "TDXTPGVFAK")
+
+	typ := &system.Type{}
+	r = &system.RuleWrapper{
+		Interface: &system.StringRule{},
+		Struct:    &system.Rule{},
+		Parent:    typ,
+	}
+	ty, err := extractType(cb.Ctx(), json.Pack(true), r)
+	assert.NoError(t, err)
+	assert.Equal(t, typ, ty)
+
+	ty, err = extractType(cb.Ctx(), nil, nil)
+	assert.NoError(t, err)
+	assert.Nil(t, ty)
+
+	ty, err = extractType(cb.Ctx(), json.Pack(1.0), nil)
+	assert.IsError(t, err, "DLSQRFLINL")
+
+	r = &system.RuleWrapper{
+		Struct: &system.Rule{Interface: true},
+		Parent: typ,
+	}
+	ty, err = extractType(cb.Ctx(), nil, r)
+	assert.NoError(t, err)
+	assert.Nil(t, ty)
+
+	ty, err = extractType(cb.Ctx(), json.Pack("a"), r)
+	assert.NoError(t, err)
+	assert.Equal(t, typ, ty)
+
+	ty, err = extractType(cb.Ctx(), json.Pack(1.0), r)
+	assert.NoError(t, err)
+	assert.Equal(t, typ, ty)
+
+	ty, err = extractType(cb.Ctx(), json.Pack(true), r)
+	assert.NoError(t, err)
+	assert.Equal(t, typ, ty)
+
+	ty, err = extractType(cb.Ctx(), json.Pack([]interface{}{""}), r)
+	assert.IsError(t, err, "SNYLGBJYTM")
+
+	ty, err = extractType(cb.Ctx(), json.Pack(map[string]interface{}{}), nil)
+	assert.IsError(t, err, "HBJVDKAKBJ")
+
+	ty, err = extractType(cb.Ctx(), json.Pack(map[string]interface{}{"a": "b"}), r)
+	assert.IsError(t, err, "HBJVDKAKBJ")
+
+	cb.Sempty()
+
+	ty, err = extractType(cb.Ctx(), json.Pack(map[string]interface{}{"type": "a"}), r)
+	assert.IsError(t, err, "IJFMJJWVCA")
+
+	typa := &system.Type{}
+	cb.Stype("a", typa)
+	ty, err = extractType(cb.Ctx(), json.Pack(map[string]interface{}{"type": "a"}), r)
+	assert.NoError(t, err)
+	assert.Equal(t, typa, ty)
+
+}
+
+func TestExtractFields(t *testing.T) {
+	cb := tests.Context("a.b/c").Ssystem(parser.Parse)
+	f := map[string]*system.Field{"a": nil}
+	ty := &system.Type{Fields: map[string]system.RuleInterface{"a": nil}}
+	err := extractFields(cb.Ctx(), f, ty)
+	assert.IsError(t, err, "BARXPFXQNB")
+}
+
+func TestInitialiseFields(t *testing.T) {
+	cb := tests.Context("a.b/c")
+	n := NewNode()
+	err := n.InitialiseFields(cb.Ctx(), json.Pack(true))
+	// Should be J_MAP
+	assert.IsError(t, err, "CVCRNWMDYF")
+
+	cb.Ssystem(parser.Parse)
+	n.Type = &system.Type{}
+	err = n.InitialiseFields(cb.Ctx(), json.Pack(map[string]interface{}{"foo": "bar"}))
+	assert.IsError(t, err, "SRANLETJRS")
+
+}
+
 func TestSetValueBool(t *testing.T) {
 	cb := tests.Context("a.b/c")
 
@@ -244,9 +337,36 @@ func TestNodeExtract(t *testing.T) {
 	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(s), true, nil)
 	assert.NoError(t, err)
 
-	//r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "string")}, Native: system.NewString("string")}
-	//err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, nil, false, r)
-	//assert.NoError(t, err)
+	r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "string")}, Native: system.NewString("string")}
+	r.Ctx = cb.Ctx()
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, nil, true, r)
+	assert.NoError(t, err)
+
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack("a"), true, r)
+	assert.NoError(t, err)
+	assert.Equal(t, "a", n.ValueString)
+
+	r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "number")}, Native: system.NewString("number")}
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(2.0), true, r)
+	assert.NoError(t, err)
+	assert.Equal(t, 2.0, n.ValueNumber)
+
+	r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "bool")}, Native: system.NewString("bool")}
+	err = n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(true), true, r)
+	assert.NoError(t, err)
+	assert.Equal(t, true, n.ValueBool)
+
+	// This is checked in Node.UpdateValue -> Rule.GetReflectType
+	assert.SkipError("IUTONSPQOL")
+	assert.SkipError("RTQUNQEKUY")
+
+	// We wrap the items rule in Node.UpdateValue -> Rule.GetReflectType
+	assert.SkipError("KPIBIOCTGF")
+	assert.SkipError("SBFTRGJNAO")
+
+	// We already process and extract the array children in Node.UpdateValue -> Node.UnpackFragment
+	assert.SkipError("VWWYPDIJKP")
+	assert.SkipError("HTOPDOKPRE")
 
 }
 

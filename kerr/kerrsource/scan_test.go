@@ -36,17 +36,29 @@ func TestAll(t *testing.T) {
 	}
 	filepath.Walk(dir, walker)
 
+	untested := map[string][]string{}
 	for id, def := range all {
 		if !def.thrown && (def.tested || def.skipped) {
 			// Well, if the test isn't thrown the test should fail. Let's test for it here anyway.
 			assert.Fail(t, "Error tested but not thrown", id)
 		}
-		if def.thrown && !def.tested && !def.skipped {
-			// Holy grail - test that all errors are tested. Is this even possible?
-			// assert.Fail(t, "Error thrown but not tested", id)
+		if def.thrown && def.new && !def.tested && !def.skipped {
+			arr, ok := untested[def.pkg]
+			if !ok {
+				arr = []string{}
+			}
+			untested[def.pkg] = append(arr, id)
 		}
 	}
 
+	//disabled
+	return
+
+	if len(untested) > 0 {
+		for pkg, tests := range untested {
+			assert.Fail(t, fmt.Sprintf("Errors thrown in %s but not tested: %v", pkg, tests))
+		}
+	}
 }
 
 func walkFile(path string, t *testing.T) error {
@@ -60,6 +72,11 @@ func walkFile(path string, t *testing.T) error {
 	file, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		return kerr.Wrap("HMRIYHYYYH", err)
+	}
+
+	pkg, err := packages.GetPackageFromDir(context.Background(), filepath.Dir(path))
+	if err != nil {
+		return kerr.Wrap("FIPPWAKAGK", err)
 	}
 
 	kerrName := ""
@@ -92,6 +109,7 @@ func walkFile(path string, t *testing.T) error {
 		kerrName:   kerrName,
 		assertName: assertName,
 		file:       path,
+		pkg:        pkg,
 	}
 	ast.Walk(v, file)
 
@@ -104,13 +122,16 @@ type visitor struct {
 	kerrName   string
 	assertName string
 	file       string
+	pkg        string
 }
 
 type errDef struct {
 	id      string
+	new     bool
 	thrown  bool
 	tested  bool
 	skipped bool
+	pkg     string
 }
 
 func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
@@ -136,6 +157,8 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				if def.thrown {
 					assert.Fail(v.t, fmt.Sprint("Duplicate kerr id: ", def.id))
 				}
+				def.pkg = v.pkg
+				def.new = name == "New"
 				def.thrown = true
 			} else if pkg == v.assertName && (name == "IsError" || name == "HasError") {
 				def := getErrData(v.t, ty.Args, 2, v.file)

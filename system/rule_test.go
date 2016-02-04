@@ -14,7 +14,7 @@ func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 	fooType := &Type{Object: &Object{Id: NewReference("a.b/c", "foo")}}
 	fooRule := &fooRuleStruct{Rule: &Rule{}}
 	foo := RuleWrapper{
-		ctx:       cb.Ctx(),
+		Ctx:       cb.Ctx(),
 		Interface: fooRule,
 		Struct:    fooRule.Rule,
 		Parent:    fooType,
@@ -47,7 +47,7 @@ func TestRuleWrapperItemsRule1(t *testing.T) {
 	fooType := &Type{Object: &Object{Id: NewReference("a.b/c", "foo")}}
 	fooRule := &fooRuleStruct{Rule: &Rule{}}
 	foo := RuleWrapper{
-		ctx:       cb.Ctx(),
+		Ctx:       cb.Ctx(),
 		Interface: fooRule,
 		Struct:    fooRule.Rule,
 		Parent:    fooType,
@@ -69,7 +69,7 @@ func TestRuleWrapperItemsRule1(t *testing.T) {
 		Rule:   &Rule{},
 	}
 	bar := RuleWrapper{
-		ctx:       cb.Ctx(),
+		Ctx:       cb.Ctx(),
 		Interface: barRule,
 		Struct:    barRule.Rule,
 		Parent:    barType,
@@ -81,12 +81,12 @@ func TestRuleWrapperItemsRule1(t *testing.T) {
 	itemsRule := &fooRuleStruct{Rule: &Rule{}, Object: &Object{Type: NewReference("a.b/c", "@foo")}}
 
 	// Foo system type is not registered, so WrapRule will fail
-	bar.ctx = cb.Sempty().Ctx()
+	bar.Ctx = cb.Sempty().Ctx()
 	barRule.Items = itemsRule
 	_, err = bar.ItemsRule()
 	assert.IsError(t, err, "SDSMCXSWOF")
 
-	bar.ctx = cb.Stype("foo", fooType).Ctx()
+	bar.Ctx = cb.Stype("foo", fooType).Ctx()
 	rw, err := bar.ItemsRule()
 	assert.NoError(t, err)
 	assert.Equal(t, rw.Interface, itemsRule)
@@ -121,7 +121,7 @@ func TestRuleGetReflectType(t *testing.T) {
 	fooRule := &fooRuleStruct{Rule: &Rule{}}
 
 	foo := RuleWrapper{
-		ctx:       cb.Ctx(),
+		Ctx:       cb.Ctx(),
 		Interface: fooRule,
 		Struct:    fooRule.Rule,
 		Parent:    fooType,
@@ -177,7 +177,7 @@ func TestRuleGetReflectType(t *testing.T) {
 	cb.Sempty()
 
 	bar := RuleWrapper{
-		ctx:       cb.Ctx(),
+		Ctx:       cb.Ctx(),
 		Interface: barRule,
 		Struct:    barRule.Rule,
 		Parent:    barType,
@@ -189,12 +189,12 @@ func TestRuleGetReflectType(t *testing.T) {
 
 	// To get WrapRule to work, but GetReflectType to fail, we create a new contect without the foo
 	// reflect types
-	bar.ctx = tests.Context("a.b/c").Jempty().Stype("foo", fooType).Ctx()
+	bar.Ctx = tests.Context("a.b/c").Jempty().Stype("foo", fooType).Ctx()
 	rt, err = bar.GetReflectType()
 	assert.IsError(t, err, "LMKEHHWHKL")
 
 	// Finally we get this to work.
-	bar.ctx = cb.Stype("foo", fooType).Ctx()
+	bar.Ctx = cb.Stype("foo", fooType).Ctx()
 	rt, err = bar.GetReflectType()
 	assert.NoError(t, err)
 	assert.Equal(t, reflect.TypeOf(map[string]fooStruct{}), rt)

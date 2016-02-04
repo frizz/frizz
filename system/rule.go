@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
+	"kego.io/json"
 	"kego.io/kerr"
 )
 
@@ -43,7 +44,7 @@ func init() {
 }
 
 type RuleWrapper struct {
-	ctx       context.Context
+	Ctx       context.Context
 	Interface RuleInterface
 	Struct    *Rule
 	Parent    *Type
@@ -52,7 +53,7 @@ type RuleWrapper struct {
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	if r.Struct.Interface {
-		typ, ok := r.Parent.Id.GetReflectInterface(r.ctx)
+		typ, ok := r.Parent.Id.GetReflectInterface(r.Ctx)
 		if !ok {
 			return nil, kerr.New("QGUVEUTXAN", "Type interface for %s not found", r.Parent.Id.Value())
 		}
@@ -61,7 +62,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	switch r.Parent.Native.Value() {
 	case "object", "number", "bool", "string":
-		typ, ok := r.Parent.Id.GetReflectType(r.ctx)
+		typ, ok := r.Parent.Id.GetReflectType(r.Ctx)
 		if !ok {
 			return nil, kerr.New("DLAJJPJDPL", "Type %s not found", r.Parent.Id.Value())
 		}
@@ -69,10 +70,10 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 	case "array", "map":
 		c, ok := r.Interface.(CollectionRule)
 		if !ok {
-			return nil, kerr.New("GSYSHQOWNH", "Map types must have rule that implements CollectionRule")
+			return nil, kerr.New("GSYSHQOWNH", "Collection types must have rule that implements CollectionRule")
 		}
 		itemsRule := c.GetItemsRule()
-		items, err := WrapRule(r.ctx, itemsRule)
+		items, err := WrapRule(r.Ctx, itemsRule)
 		if err != nil {
 			return nil, kerr.Wrap("EDEMPPVUNW", err)
 		}
@@ -80,7 +81,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		if err != nil {
 			return nil, kerr.Wrap("LMKEHHWHKL", err)
 		}
-		if r.Parent.Native.Value() == "map" {
+		if r.Parent.NativeJsonType() == json.J_MAP {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil
@@ -89,8 +90,8 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 	}
 }
 
-func WrapEmptyRule(t *Type) *RuleWrapper {
-	return &RuleWrapper{Interface: nil, Parent: t}
+func WrapEmptyRule(ctx context.Context, t *Type) *RuleWrapper {
+	return &RuleWrapper{Ctx: ctx, Interface: nil, Parent: t}
 }
 func WrapRule(ctx context.Context, r RuleInterface) (*RuleWrapper, error) {
 
@@ -106,7 +107,7 @@ func WrapRule(ctx context.Context, r RuleInterface) (*RuleWrapper, error) {
 		return nil, kerr.New("KYCTDXKFYR", "GetType: type %v not found", ob.GetObject(nil).Type.ChangeToType().Value())
 	}
 
-	return &RuleWrapper{ctx: ctx, Interface: r, Parent: t, Struct: r.GetRule(nil)}, nil
+	return &RuleWrapper{Ctx: ctx, Interface: r, Parent: t, Struct: r.GetRule(nil)}, nil
 }
 
 // ItemsRule returns Items rule for a collection Rule.
@@ -122,7 +123,7 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 	if ir == nil {
 		return nil, kerr.New("SUJLYBXPYS", "%s has nil items rule", r.Parent.Id.Value())
 	}
-	w, err := WrapRule(r.ctx, ir)
+	w, err := WrapRule(r.Ctx, ir)
 	if err != nil {
 		return nil, kerr.Wrap("SDSMCXSWOF", err)
 	}
@@ -132,7 +133,7 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 // HoldsDisplayType returns the string to display when communicating to
 // the end user what type this rule holds.
 func (r *RuleWrapper) HoldsDisplayType() (string, error) {
-	str, err := r.Parent.Id.ValueContext(r.ctx)
+	str, err := r.Parent.Id.ValueContext(r.Ctx)
 	if err != nil {
 		return "", kerr.Wrap("OPIFCOHGWI", err)
 	}

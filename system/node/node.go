@@ -155,29 +155,28 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 	n.Parent = parent
 	n.Key = key
 	n.Index = index
+	n.Type = objectType
 	n.Rule = rule
 	if n.Rule == nil {
-		n.Rule = system.WrapEmptyRule(objectType)
+		n.Rule = system.WrapEmptyRule(ctx, n.Type)
 	}
-	n.Type = objectType
 	n.Missing = !exists
 	n.Origin = origin
 	if in == nil {
 		n.JsonType = json.J_NULL
-		n.Null = true
 	} else {
 		n.JsonType = in.Type()
-		n.Null = n.JsonType == json.J_NULL
 	}
+	n.Null = n.JsonType == json.J_NULL
 
-	// for objects and maps, UpType() from the unpackable is always J_MAP,
-	// so we correct it for object types here.
+	// for objects and maps, Type() from the json.Packed is always J_MAP, so we correct it for
+	// object types here.
 	if n.JsonType == json.J_MAP && n.Type.NativeJsonType() == json.J_OBJECT {
 		n.JsonType = json.J_OBJECT
 	}
 
 	// validate json type
-	if n.JsonType != json.J_NULL && n.JsonType != n.Type.NativeJsonType() {
+	if !n.Null && n.Type.NativeJsonType() != n.JsonType {
 		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
@@ -186,39 +185,27 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 	}
 
 	if n.Missing {
-		// If the field doesn't exist in the input json, we should add the field info, but
-		// we shouldn't try to add info for children. This would result in infinite recursion
-		// where one of the fields is the same type as the parent - e.g. Type.Rule.
+		// If the field doesn't exist in the input json, we should add the field info, but we
+		// shouldn't try to add info for children. This would result in infinite recursion where
+		// one of the fields is the same type as the parent - e.g. Type.Rule.
 		return nil
 	}
 
-	if n.Null && objectType.Native.Value() != "object" {
-		// For null input, we should skip processing the value or children, unless
-		// the native type is object. For object types we should still process the
-		// child fields because information from the parent type is added.
+	if n.Null && n.Type.NativeJsonType() != json.J_OBJECT {
+		// For null input, we should skip processing the value or children, unless the native type
+		// is object. For object types we should still process the child fields because information
+		// from the parent type is added.
 		return nil
 	}
 
-	switch objectType.Native.Value() {
-	case "string":
-		if in.Type() != json.J_STRING {
-			return kerr.New("RKKSUYTCIA", "Type %s should be a string", in.Type())
-		}
+	switch n.Type.NativeJsonType() {
+	case json.J_STRING:
 		n.ValueString = in.String()
-	case "number":
-		if in.Type() != json.J_NUMBER {
-			return kerr.New("RNSWFUUTHB", "Type %s should be a float64", in.Type())
-		}
+	case json.J_NUMBER:
 		n.ValueNumber = in.Number()
-	case "bool":
-		if in.Type() != json.J_BOOL {
-			return kerr.New("QGKJRAQUQI", "Type %s should be a bool", in.Type())
-		}
+	case json.J_BOOL:
 		n.ValueBool = in.Bool()
-	case "array":
-		if in.Type() != json.J_ARRAY {
-			return kerr.New("CTJQUOKRTK", "Type %s should be a []interface{}", in.Type())
-		}
+	case json.J_ARRAY:
 		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
 			return kerr.New("IUTONSPQOL", "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
@@ -235,10 +222,7 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 			}
 			n.Array = append(n.Array, childNode)
 		}
-	case "map":
-		if in.Type() != json.J_MAP {
-			return kerr.New("IPWEPTWVYY", "Type %s should be a map[string]interface{}", in.Type())
-		}
+	case json.J_MAP:
 		c, ok := n.Rule.Interface.(system.CollectionRule)
 		if !ok {
 			return kerr.New("RTQUNQEKUY", "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
@@ -256,7 +240,7 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 			}
 			n.Map[name] = childNode
 		}
-	case "object":
+	case json.J_OBJECT:
 		if err := n.InitialiseFields(ctx, in); err != nil {
 			return kerr.Wrap("XCRYJWKPKP", err)
 		}
@@ -322,7 +306,7 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) (*system.Type, error) {
 
 	if rule != nil && rule.Parent.Interface && rule.Struct.Interface {
-		return nil, kerr.New("TDXTPGVFAK", "Can't have interface type and rule at the same time")
+		return nil, kerr.New("TDXTPGVFAK", "Can't have interface type and interface rule at the same time")
 	}
 
 	if rule != nil && !rule.Parent.Interface && !rule.Struct.Interface {
@@ -343,7 +327,6 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 		default:
 			return nil, kerr.New("DLSQRFLINL", "Input %s should be J_MAP if rule is nil or an interface type", in.Type())
 		}
-
 	}
 
 	// if the rule is an interface rule, we ensure the input is a map or a native value
