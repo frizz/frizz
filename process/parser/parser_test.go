@@ -1,7 +1,6 @@
 package parser_test
 
 import (
-	"os"
 	"testing"
 
 	"kego.io/process/parser"
@@ -15,24 +14,20 @@ import (
 
 func TestScan_errors(t *testing.T) {
 
-	cb := tests.Context("").Cmd().Sempty().Jsystem()
+	cb := tests.Context("").Cmd().Sempty().Jsystem().TempGopath(false)
+	defer cb.Cleanup()
 
 	_, err := parser.Parse(cb.Ctx(), "does-not-exist")
 	assert.IsError(t, err, "GJRHNGGWFD")  // Error from parser.ScanForEnv
 	assert.HasError(t, err, "SUTCWEVRXS") // Dir not found from packages.getDirFromEmptyPackage
 
-	n, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(n)
-
-	path, _, _, err := tests.CreateTemporaryPackage(n, "a", map[string]string{
+	path, _, _ := cb.TempPackage("a", map[string]string{
 		"a.json": `{
 			"type": "system:package",
 			"recursive": false
 		}`,
 		"b.json": "foo",
 	})
-	assert.NoError(t, err)
 
 	cb.Path(path)
 
@@ -40,10 +35,9 @@ func TestScan_errors(t *testing.T) {
 	assert.IsError(t, err, "VFUNPHUFHD")  // Error from parser.scanForTypes
 	assert.HasError(t, err, "HCYGNBDFFA") // Error trying to unmarshal a type
 
-	path, _, _, err = tests.CreateTemporaryPackage(n, "a", map[string]string{
+	path, _, _ = cb.TempPackage("a", map[string]string{
 		"a.json": "foo",
 	})
-	assert.NoError(t, err)
 
 	cb.Path(path)
 
@@ -55,11 +49,10 @@ func TestScan_errors(t *testing.T) {
 
 func TestParseRule(t *testing.T) {
 
-	n, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(n)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
-	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _ := cb.TempPackage("a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -82,11 +75,10 @@ func TestParseRule(t *testing.T) {
 			}
 		}`,
 	})
-	assert.NoError(t, err)
 
-	cb := tests.Context(path).Dir(dir).Cmd().Sempty().Jsystem()
+	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	_, err = parser.Parse(cb.Ctx(), path)
+	_, err := parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -100,11 +92,10 @@ func TestParseRule(t *testing.T) {
 
 func TestParse1(t *testing.T) {
 
-	n, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(n)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
-	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", map[string]string{
+	path, dir, _ := cb.TempPackage("a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -116,11 +107,10 @@ func TestParse1(t *testing.T) {
 			}
 		}`,
 	})
-	assert.NoError(t, err)
 
-	cb := tests.Context(path).Dir(dir).Cmd().Sempty().Jsystem()
+	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	_, err = parser.Parse(cb.Ctx(), path)
+	_, err := parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -134,9 +124,8 @@ func TestParse1(t *testing.T) {
 
 func TestParse(t *testing.T) {
 
-	n, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(n)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
 	files := map[string]string{
 		"a.json": `{
@@ -167,16 +156,16 @@ func TestParse(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", files)
-	assert.NoError(t, err)
+	path, dir, _ := cb.TempPackage("a", files)
 
 	path = "kego.io/system"
 
-	cb := tests.Context(path).Dir(dir).Cmd().Sempty().Jsystem()
+	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
 	pi, err := parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	_, err = generate.Structs(cb.Ctx(), pi.Environment)
 	assert.NoError(t, err)
+
 }

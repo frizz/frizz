@@ -1,7 +1,6 @@
 package builder
 
 import (
-	"os"
 	"testing"
 
 	"kego.io/kerr/assert"
@@ -29,19 +28,16 @@ func TestGuessPackageName(t *testing.T) {
 
 func TestGetPackageName(t *testing.T) {
 
-	dir, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(dir)
+	cb := tests.NewContextBuilder().RealGopath()
+	defer cb.Cleanup()
 
-	path, _, _, err := tests.CreateTemporaryPackage(dir, "a", map[string]string{})
-	assert.NoError(t, err)
+	path, _, _ := cb.TempPackage("a", map[string]string{})
 	name := getPackageName(path)
 	assert.Equal(t, "a", name)
 
-	path, _, _, err = tests.CreateTemporaryPackage(dir, "b", map[string]string{
+	path, _, _ = cb.TempPackage("b", map[string]string{
 		"foo.go": "package c",
 	})
-	assert.NoError(t, err)
 	name = getPackageName(path)
 	assert.Equal(t, "c", name)
 

@@ -22,7 +22,7 @@ type SourceType string
 
 const (
 	S_STRUCTS SourceType = "structs"
-	S_TYPES              = "types"
+	S_TYPES   SourceType = "types"
 )
 
 func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
@@ -34,7 +34,7 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 	scache := sysctx.FromContext(ctx)
 	pi, ok := scache.Get(path)
 	if !ok {
-		return kerr.New("XMVXECGDOX", "%s not founc in ctx", path)
+		return kerr.New("XMVXECGDOX", "%s not found in ctx", path)
 	}
 	if path != "kego.io/system" {
 		if err := GenerateAll(ctx, "kego.io/system", done); err != nil {

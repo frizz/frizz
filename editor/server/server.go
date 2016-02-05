@@ -39,7 +39,6 @@ import (
 	"kego.io/process/packages"
 	"kego.io/process/parser"
 	"kego.io/process/scanner"
-	"kego.io/process/tests"
 	"kego.io/system"
 )
 
@@ -194,16 +193,11 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 		return kerr.Wrap("UWPDBQXURR", err)
 	}
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	if err != nil {
-		return kerr.Wrap("AFRRXCMOCM", err)
-	}
-	defer os.RemoveAll(namespace)
-
-	editorPath, _, _, err := tests.CreateTemporaryPackage(namespace, "a", map[string]string{"a.go": string(source)})
+	editorPath, _, namespaceDir, err := CreateTemporaryPackage(ctx, "a", map[string]string{"a.go": string(source)})
 	if err != nil {
 		return kerr.Wrap("RDRIUFUOFY", err)
 	}
+	defer os.RemoveAll(namespaceDir)
 
 	options := &build.Options{CreateMapFile: true}
 	s := build.NewSession(options)

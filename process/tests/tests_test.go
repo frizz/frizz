@@ -2,7 +2,6 @@ package tests_test
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"testing"
 
@@ -15,11 +14,10 @@ import (
 
 func TestDefaultInterfaceNativeType(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder()
+	defer cb.Cleanup()
 
-	_, err = runKego(namespace, "a", map[string]string{
+	_, err := runKe(cb, "a", map[string]string{
 		"foo.yaml": `
 			type: system:type
 			id: foo
@@ -37,11 +35,10 @@ func TestDefaultInterfaceNativeType(t *testing.T) {
 }
 func TestNeedsDummyRule(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder()
+	defer cb.Cleanup()
 
-	_, err = runKego(namespace, "a", map[string]string{
+	_, err := runKe(cb, "a", map[string]string{
 		"foo.yaml": `
 			type: system:type
 			id: foo
@@ -61,11 +58,10 @@ func TestNeedsDummyRule(t *testing.T) {
 
 func TestInt(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder()
+	defer cb.Cleanup()
 
-	_, err = runKego(namespace, "a", map[string]string{
+	_, err := runKe(cb, "a", map[string]string{
 		"gallery.yaml": `
 			type: system:type
 			id: gallery
@@ -111,11 +107,10 @@ func TestInt(t *testing.T) {
 
 func TestSelector(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder()
+	defer cb.Cleanup()
 
-	_, err = runKego(namespace, "a", map[string]string{
+	_, err := runKe(cb, "a", map[string]string{
 		"gallery.yaml": `
 			type: system:type
 			id: gallery
@@ -152,11 +147,10 @@ func TestSelector(t *testing.T) {
 
 func TestRules(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder()
+	defer cb.Cleanup()
 
-	_, err = runKego(namespace, "a", map[string]string{
+	_, err := runKe(cb, "a", map[string]string{
 		"gallery.yaml": `
 			type: system:type
 			id: gallery
@@ -175,7 +169,7 @@ func TestRules(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	_, err = runKego(namespace, "b", map[string]string{
+	_, err = runKe(cb, "b", map[string]string{
 		"gallery.yaml": `
 			type: system:type
 			id: gallery
@@ -245,12 +239,9 @@ func TestImport(t *testing.T) {
 	assert.NoError(t, err)
 }*/
 
-func runKego(namespace string, name string, files map[string]string) (string, error) {
+func runKe(cb *tests.ContextBuilder, name string, files map[string]string) (string, error) {
 
-	path, _, tests, err := tests.CreateTemporaryPackage(namespace, name, files)
-	if err != nil {
-		return "", err
-	}
+	path, _, tests := cb.RealGopath().TempPackage(name, files)
 
 	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
 		Path: path,

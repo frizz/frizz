@@ -17,20 +17,19 @@ import (
 
 func TestRun(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder().RealGopath()
+	defer cb.Cleanup()
 
-	path, dir, _, err := tests.CreateTemporaryPackage(namespace, "d", map[string]string{
+	path, dir, _ := cb.TempPackage("d", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"d.go":   `package d`,
 	})
 
-	cb := tests.Context(path).Dir(dir).Jauto().Wg().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Jauto().Wg().Sauto(parser.Parse)
 
 	env := envctx.FromContext(cb.Ctx())
 
-	err = Generate(cb.Ctx(), env)
+	err := Generate(cb.Ctx(), env)
 	assert.NoError(t, err)
 
 	b, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))

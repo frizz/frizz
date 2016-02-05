@@ -1,11 +1,13 @@
-package packages
+package packages_test
 
 import (
 	"os"
 	"strings"
 	"testing"
 
+	"kego.io/context/vosctx"
 	"kego.io/kerr/assert"
+	. "kego.io/process/packages"
 	"kego.io/process/tests"
 )
 
@@ -27,17 +29,18 @@ func TestGetPackagePath(t *testing.T) {
 
 func TestGetPackageDir(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
-	pathA, dirA, _, err := tests.CreateTemporaryPackage(namespace, "a", nil)
+	pathA, dirA, _ := cb.TempPackage("a", nil)
 
-	dir, err := getDirFromEmptyPackage(pathA, os.Getenv("GOPATH"))
+	vos := vosctx.FromContext(cb.Ctx())
+
+	dir, err := GetDirFromEmptyPackage(pathA, vos.Getenv("GOPATH"))
 	assert.NoError(t, err)
 	assert.Equal(t, dirA, dir)
 
-	dir, err = getDirFromEmptyPackage("a.b/c", os.Getenv("GOPATH"))
+	dir, err = GetDirFromEmptyPackage("a.b/c", vos.Getenv("GOPATH"))
 	assert.IsError(t, err, "SUTCWEVRXS")
 
 }

@@ -1,4 +1,4 @@
-package packages	// import "kego.io/process/packages"
+package packages // import "kego.io/process/packages"
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) 
 		return strings.TrimSpace(string(out)), nil
 	}
 
-	dir, err := getDirFromEmptyPackage(packagePath, vos.Getenv("GOPATH"))
+	dir, err := GetDirFromEmptyPackage(packagePath, vos.Getenv("GOPATH"))
 	if err != nil {
 		return "", kerr.Wrap("GXTUPMHETV", err)
 	}
@@ -30,7 +30,7 @@ func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) 
 
 }
 
-func getDirFromEmptyPackage(path string, gopathEnv string) (string, error) {
+func GetDirFromEmptyPackage(path string, gopathEnv string) (string, error) {
 	gopaths := filepath.SplitList(gopathEnv)
 	for _, gopath := range gopaths {
 		dir := filepath.Join(gopath, "src", path)
@@ -67,4 +67,20 @@ func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 		return "", savedError
 	}
 	return "", kerr.New("CXOETFPTGM", "Package not found for %s", dir)
+}
+
+func GetCurrentGopath(ctx context.Context) string {
+	vos := vosctx.FromContext(ctx)
+	currentDir, _ := vos.Getwd()
+	return getCurrentGopath(currentDir, vos.Getenv("GOPATH"))
+}
+
+func getCurrentGopath(currentDir string, gopathEnv string) string {
+	gopaths := filepath.SplitList(gopathEnv)
+	for _, gopath := range gopaths {
+		if strings.HasPrefix(currentDir, gopath) {
+			return gopath
+		}
+	}
+	return gopaths[0]
 }

@@ -1,7 +1,6 @@
 package process
 
 import (
-	"os"
 	"testing"
 
 	"kego.io/context/envctx"
@@ -11,20 +10,19 @@ import (
 
 func TestInitialise(t *testing.T) {
 
-	namespace, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(namespace)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
-	pathA, dirA, _, err := tests.CreateTemporaryPackage(namespace, "a", map[string]string{
+	pathA, dirA, _ := cb.TempPackage("a", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"a.go":   "package a",
 	})
-	pathB, dirB, _, err := tests.CreateTemporaryPackage(namespace, "b", map[string]string{
+	pathB, dirB, _ := cb.TempPackage("b", map[string]string{
 		"b.json": `{"type": "system:type", "id": "b"}`,
 		"b.go":   "package b",
 	})
 
-	cb := tests.NewContextBuilder().OsWd(dirA)
+	cb.OsWd(dirA)
 
 	ctx, _, err := Initialise(cb.Ctx(), nil)
 	assert.NoError(t, err)

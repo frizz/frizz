@@ -1,7 +1,6 @@
 package validate
 
 import (
-	"os"
 	"testing"
 
 	"kego.io/process/parser"
@@ -12,9 +11,8 @@ import (
 
 func TestValidate_NeedsTypes(t *testing.T) {
 
-	n, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(n)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
 	files := map[string]string{
 		"a.json": `{
@@ -28,21 +26,19 @@ func TestValidate_NeedsTypes(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, _, err := tests.CreateTemporaryPackage(n, "a", files)
-	assert.NoError(t, err)
+	path, dir, _ := cb.TempPackage("a", files)
 
-	cb := tests.Context(path).Dir(dir).Jsystem().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
-	err = ValidatePackage(cb.Ctx())
+	err := ValidatePackage(cb.Ctx())
 	assert.NoError(t, err)
 
 }
 
 func TestValidate_error1(t *testing.T) {
 
-	n, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
-	defer os.RemoveAll(n)
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
 
 	files := map[string]string{
 		"b.json": `{
@@ -58,12 +54,11 @@ func TestValidate_error1(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, _, err := tests.CreateTemporaryPackage(n, "b", files)
-	assert.NoError(t, err)
+	path, dir, _ := cb.TempPackage("b", files)
 
-	cb := tests.Context(path).Dir(dir).Jsystem().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
-	err = ValidatePackage(cb.Ctx())
+	err := ValidatePackage(cb.Ctx())
 	// @string is invalid because minLength > maxLength
 	assert.HasError(t, err, "YLONAMFUAG")
 
