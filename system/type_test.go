@@ -5,6 +5,7 @@ import (
 
 	"reflect"
 
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
@@ -220,6 +221,11 @@ func TestGetAllTypesThatImplementInterface(t *testing.T) {
 type tInt int
 
 func TestZeroValue(t *testing.T) {
+
+	ty := &Type{Native: NewString("map")}
+	_, err := ty.ZeroValue(context.Background())
+	assert.IsError(t, err, "PGUHCGBJWE")
+
 	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}, Native: NewString("object")}
 	cb := tests.
 		Context("a.b/c").
