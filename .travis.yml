@@ -10,6 +10,8 @@ addons:
   apt:
     packages:
       - nodejs
+before_install:
+  - pip install --user codecov
 install:
   - go get -u github.com/gopherjs/gopherjs
   - go get -t -v ./...
