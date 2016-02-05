@@ -32,7 +32,7 @@ func TestGetPackageDir(t *testing.T) {
 	cb := tests.NewContextBuilder().TempGopath(false)
 	defer cb.Cleanup()
 
-	pathA, dirA, _ := cb.TempPackage("a", nil)
+	pathA, dirA := cb.TempPackage("a", nil)
 
 	vos := vosctx.FromContext(cb.Ctx())
 

@@ -21,7 +21,7 @@ func TestScan_errors(t *testing.T) {
 	assert.IsError(t, err, "GJRHNGGWFD")  // Error from parser.ScanForEnv
 	assert.HasError(t, err, "SUTCWEVRXS") // Dir not found from packages.getDirFromEmptyPackage
 
-	path, _, _ := cb.TempPackage("a", map[string]string{
+	path, _ := cb.TempPackage("a", map[string]string{
 		"a.json": `{
 			"type": "system:package",
 			"recursive": false
@@ -35,7 +35,7 @@ func TestScan_errors(t *testing.T) {
 	assert.IsError(t, err, "VFUNPHUFHD")  // Error from parser.scanForTypes
 	assert.HasError(t, err, "HCYGNBDFFA") // Error trying to unmarshal a type
 
-	path, _, _ = cb.TempPackage("a", map[string]string{
+	path, _ = cb.TempPackage("a", map[string]string{
 		"a.json": "foo",
 	})
 
@@ -52,7 +52,7 @@ func TestParseRule(t *testing.T) {
 	cb := tests.NewContextBuilder().TempGopath(false)
 	defer cb.Cleanup()
 
-	path, dir, _ := cb.TempPackage("a", map[string]string{
+	path, dir := cb.TempPackage("a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -95,7 +95,7 @@ func TestParse1(t *testing.T) {
 	cb := tests.NewContextBuilder().TempGopath(false)
 	defer cb.Cleanup()
 
-	path, dir, _ := cb.TempPackage("a", map[string]string{
+	path, dir := cb.TempPackage("a", map[string]string{
 		"a.json": `{
 			"description": "a",
 			"type": "system:type",
@@ -156,7 +156,7 @@ func TestParse(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, _ := cb.TempPackage("a", files)
+	path, dir := cb.TempPackage("a", files)
 
 	path = "kego.io/system"
 

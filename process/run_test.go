@@ -20,7 +20,7 @@ func TestRun(t *testing.T) {
 	cb := tests.NewContextBuilder().RealGopath()
 	defer cb.Cleanup()
 
-	path, dir, _ := cb.TempPackage("d", map[string]string{
+	path, dir := cb.TempPackage("d", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"d.go":   `package d`,
 	})

@@ -13,11 +13,11 @@ func TestInitialise(t *testing.T) {
 	cb := tests.NewContextBuilder().TempGopath(false)
 	defer cb.Cleanup()
 
-	pathA, dirA, _ := cb.TempPackage("a", map[string]string{
+	pathA, dirA := cb.TempPackage("a", map[string]string{
 		"a.json": `{"type": "system:type", "id": "a"}`,
 		"a.go":   "package a",
 	})
-	pathB, dirB, _ := cb.TempPackage("b", map[string]string{
+	pathB, dirB := cb.TempPackage("b", map[string]string{
 		"b.json": `{"type": "system:type", "id": "b"}`,
 		"b.go":   "package b",
 	})

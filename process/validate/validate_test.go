@@ -26,7 +26,7 @@ func TestValidate_NeedsTypes(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, _ := cb.TempPackage("a", files)
+	path, dir := cb.TempPackage("a", files)
 
 	cb.Path(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
@@ -54,7 +54,7 @@ func TestValidate_error1(t *testing.T) {
 			}
 		}`,
 	}
-	path, dir, _ := cb.TempPackage("b", files)
+	path, dir := cb.TempPackage("b", files)
 
 	cb.Path(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 

@@ -31,11 +31,11 @@ func TestGetPackageName(t *testing.T) {
 	cb := tests.NewContextBuilder().RealGopath()
 	defer cb.Cleanup()
 
-	path, _, _ := cb.TempPackage("a", map[string]string{})
+	path, _ := cb.TempPackage("a", map[string]string{})
 	name := getPackageName(path)
 	assert.Equal(t, "a", name)
 
-	path, _, _ = cb.TempPackage("b", map[string]string{
+	path, _ = cb.TempPackage("b", map[string]string{
 		"foo.go": "package c",
 	})
 	name = getPackageName(path)

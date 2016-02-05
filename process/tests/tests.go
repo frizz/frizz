@@ -273,7 +273,7 @@ func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx
 	c.initCmd()
 	pi, err := parseParse(c.ctx, env.Path)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 	env.Hash = pi.Environment.Hash
 	return c
@@ -288,7 +288,7 @@ func (c *ContextBuilder) Ssystem(parseParse func(context.Context, string) (*sysc
 	c.Jsystem() // need json types for system in order to parse
 	_, err := parseParse(c.ctx, "kego.io/system")
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 	return c
 }

@@ -55,7 +55,7 @@ func (c *ContextBuilder) TempNamespace() *ContextBuilder {
 	return c
 }
 
-func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path string, dir string, tests bool) {
+func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path string, dir string) {
 
 	if c.tempNamespace == "" {
 		c.TempNamespace()
@@ -65,10 +65,6 @@ func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path
 		if strings.HasSuffix(name, ".yaml") {
 			// our Go files are tab indented, but yaml files don't like tabs.
 			files[name] = strings.Replace(contents, "\t", "    ", -1)
-		}
-		if strings.HasSuffix(name, "_test.go") {
-			// if we add a xxx_test.go file we should also run "go test"
-			tests = true
 		}
 	}
 

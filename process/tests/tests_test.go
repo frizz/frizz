@@ -3,6 +3,7 @@ package tests_test
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 	"testing"
 
 	"golang.org/x/net/context"
@@ -241,7 +242,15 @@ func TestImport(t *testing.T) {
 
 func runKe(cb *tests.ContextBuilder, name string, files map[string]string) (string, error) {
 
-	path, _, tests := cb.RealGopath().TempPackage(name, files)
+	tests := false
+	for name, _ := range files {
+		if strings.HasSuffix(name, "_test.go") {
+			// if we add a xxx_test.go file we should also run "go test"
+			tests = true
+		}
+	}
+
+	path, _ := cb.RealGopath().TempPackage(name, files)
 
 	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
 		Path: path,
