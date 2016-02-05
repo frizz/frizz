@@ -16,7 +16,7 @@ install:
   - go get -u github.com/gopherjs/gopherjs
   - go get -t -v ./...
 script:
-  - go test -v ./...
+  - ./gotests.sh
   - ./jstests.sh
 after_success:
   - codecov
