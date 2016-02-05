@@ -3,7 +3,7 @@ package json
 import "fmt"
 
 type Packed interface {
-	Type() Type // Unpackable will never be J_OBJECT, only J_MAP
+	Type() Type // json.packed will never be J_OBJECT, only J_MAP
 	Number() float64
 	String() string
 	Bool() bool

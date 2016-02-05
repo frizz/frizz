@@ -17,8 +17,8 @@ func (p *packed) Type() json.Type {
 		return json.J_NULL
 	}
 	if p.n.GetNode().JsonType == json.J_OBJECT {
-		// unpackables are just a dumb collection of json values with no type
-		// information, so maps and objects are the same, so we only use J_MAP
+		// json.Packed is just a dumb collection of json values with no type information, so maps
+		// and objects are the same, so we only use J_MAP
 		return json.J_MAP
 	}
 	return p.n.GetNode().JsonType
@@ -43,7 +43,7 @@ func (p *packed) Map() map[string]json.Packed {
 	out := map[string]json.Packed{}
 	for n, v := range p.n.GetNode().Map {
 		// v.Missing will only be true for object fields, not map items, so we don't need to
-		// make a special cae here
+		// make a special case here
 		if !v.GetNode().Missing {
 			out[n] = Pack(v)
 		}
