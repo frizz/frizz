@@ -40,7 +40,7 @@ func processFile(filename string) error {
 
 	var res []byte
 
-	res, err = kerrsource.Process(filename, res)
+	res, err = kerrsource.Process(filename, src)
 	if err != nil {
 		return kerr.Wrap("UFVVOEXSYE", err)
 	}
