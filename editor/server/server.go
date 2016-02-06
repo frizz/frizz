@@ -238,7 +238,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	m := &sourcemap.Map{File: "script.js"}
 	sourceMapFilter.MappingCallback = build.NewMappingCallback(m, options.GOROOT, options.GOPATH)
 
-	deps, err := compiler.ImportDependencies(pkg.Archive, s.ImportContext.Import)
+	deps, err := compiler.ImportDependencies(pkg.Archive, s.BuildImportPath)
 	if err != nil {
 		return kerr.Wrap("OVDUPSTRNR", err)
 	}
