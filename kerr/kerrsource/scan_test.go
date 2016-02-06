@@ -20,6 +20,7 @@ import (
 	"kego.io/process/packages"
 )
 
+var pkgs = map[string]*pkgDef{}
 var all = map[string]*errDef{}
 
 func TestAll(t *testing.T) {
@@ -54,6 +55,12 @@ func TestAll(t *testing.T) {
 	//disabled
 	return
 
+	for pkg, def := range pkgs {
+		if !def.tested {
+			assert.Fail(t, fmt.Sprintf("%s has no tests.", pkg))
+		}
+	}
+
 	if len(untested) > 0 {
 		for pkg, tests := range untested {
 			assert.Fail(t, fmt.Sprintf("Errors thrown in %s but not tested: %v", pkg, tests))
@@ -77,6 +84,11 @@ func walkFile(path string, t *testing.T) error {
 	pkg, err := packages.GetPackageFromDir(context.Background(), filepath.Dir(path))
 	if err != nil {
 		return kerr.Wrap("FIPPWAKAGK", err)
+	}
+
+	def := getPkgDef(pkg)
+	if strings.HasSuffix(path, "_test.go") {
+		def.tested = true
 	}
 
 	kerrName := ""
@@ -125,6 +137,9 @@ type visitor struct {
 	pkg        string
 }
 
+type pkgDef struct {
+	tested bool
+}
 type errDef struct {
 	id      string
 	new     bool
@@ -194,5 +209,15 @@ func getErrData(t *testing.T, args []ast.Expr, arg int, file string) *errDef {
 	def = &errDef{}
 	def.id = id
 	all[id] = def
+	return def
+}
+
+func getPkgDef(path string) *pkgDef {
+	def, ok := pkgs[path]
+	if ok {
+		return def
+	}
+	def = &pkgDef{}
+	pkgs[path] = def
 	return def
 }
