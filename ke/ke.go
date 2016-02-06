@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 	"kego.io/json"
 	"kego.io/kerr"
@@ -45,6 +46,8 @@ func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
 	return json.MarshalContext(ctx, v)
 }
 
-func NewContext(ctx context.Context) context.Context {
-	return jsonctx.AutoContext(ctx)
+func NewContext(ctx context.Context, path string, aliases map[string]string) context.Context {
+	ctx = envctx.NewContext(ctx, &envctx.Env{Path: path, Aliases: aliases})
+	ctx = jsonctx.AutoContext(ctx)
+	return ctx
 }
