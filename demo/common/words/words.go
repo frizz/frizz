@@ -1,6 +1,8 @@
 //go:generate ke
 package words
 
+// ke: {"notest":true}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/system"

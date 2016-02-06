@@ -2,6 +2,8 @@
 // function allows irrelevant packages to be excluded.
 package main
 
+// ke: {"notest":true}
+
 import (
 	"go/build"
 

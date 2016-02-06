@@ -5,6 +5,8 @@ import (
 	"kego.io/system"
 )
 
+// ke: {"notest":true}
+
 func NewMessage() *Message {
 	return &Message{
 		Guid: system.NewString(uuid.NewV4().String()),

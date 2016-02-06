@@ -1,4 +1,6 @@
-package envctx	// import "kego.io/context/envctx"
+package envctx // import "kego.io/context/envctx"
+
+// ke: {"notest":true}
 
 import (
 	"golang.org/x/net/context"
@@ -7,11 +9,11 @@ import (
 
 // Env is the type of value stored in the Contexts.
 type Env struct {
-	Path		string
-	Aliases		map[string]string
-	Recursive	bool
-	Hash		uint64
-	Dir		string
+	Path      string
+	Aliases   map[string]string
+	Recursive bool
+	Hash      uint64
+	Dir       string
 }
 
 // key is an unexported type for keys defined in this package.

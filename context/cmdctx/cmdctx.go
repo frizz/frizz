@@ -1,5 +1,7 @@
 package cmdctx // import "kego.io/context/cmdctx"
 
+// ke: {"notest":true}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/kerr"

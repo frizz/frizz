@@ -1,6 +1,8 @@
 //go:generate ke
 package images
 
+// ke: {"notest":true}
+
 import (
 	"fmt"
 

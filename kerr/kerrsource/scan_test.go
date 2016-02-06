@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"golang.org/x/net/context"
+	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/kerr/kerrsource"
@@ -52,14 +53,14 @@ func TestAll(t *testing.T) {
 		}
 	}
 
-	//disabled
-	return
-
 	for pkg, def := range pkgs {
-		if !def.tested {
+		if !def.tested && !def.notest {
 			assert.Fail(t, fmt.Sprintf("%s has no tests.", pkg))
 		}
 	}
+
+	//disabled
+	return
 
 	if len(untested) > 0 {
 		for pkg, tests := range untested {
@@ -110,9 +111,6 @@ func walkFile(path string, t *testing.T) error {
 			}
 		}
 	}
-	if kerrName == "" && assertName == "" {
-		return nil
-	}
 
 	// visitor implements ast.Visitor
 	v := &visitor{
@@ -139,6 +137,7 @@ type visitor struct {
 
 type pkgDef struct {
 	tested bool
+	notest bool
 }
 type errDef struct {
 	id      string
@@ -156,6 +155,20 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 	}
 
 	switch ty := node.(type) {
+	case *ast.File:
+		for _, cg := range ty.Comments {
+			for _, c := range cg.List {
+				if strings.HasPrefix(c.Text, "// ke: ") {
+					val := struct{ Notest bool }{}
+					err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
+					assert.NoError(v.t, err)
+					if val.Notest {
+						def := getPkgDef(v.pkg)
+						def.notest = true
+					}
+				}
+			}
+		}
 	case *ast.CallExpr:
 		name := ""
 		pkg := ""

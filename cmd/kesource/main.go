@@ -1,5 +1,7 @@
 package main
 
+// ke: {"notest":true}
+
 import (
 	"bytes"
 	"flag"

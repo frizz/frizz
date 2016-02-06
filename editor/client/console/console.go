@@ -24,6 +24,8 @@
 // in the Creative Commons 3.0 Attribution License.
 package console // import "kego.io/editor/client/console"
 
+// ke: {"notest":true}
+
 import (
 	"bytes"
 

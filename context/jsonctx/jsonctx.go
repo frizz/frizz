@@ -1,5 +1,7 @@
 package jsonctx // import "kego.io/context/jsonctx"
 
+// ke: {"notest":true}
+
 import (
 	"reflect"
 	"sync"

@@ -1,5 +1,7 @@
 package vosctx // import "kego.io/context/vosctx"
 
+// ke: {"notest":true}
+
 import (
 	"os"
 
