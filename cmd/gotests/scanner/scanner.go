@@ -23,22 +23,22 @@ import (
 var baseDir string
 
 type Source struct {
-	Wraps   []PosDef
+	Wraps   []ErrDef
 	Notests []PosDef
 	Skipped map[string]bool
-	All     map[string]NewDef
+	All     map[string]ErrDef
+}
+type ErrDef struct {
+	Id   string
+	File string
+	Line int
 }
 type PosDef struct {
 	File string
 	Line int
 }
-type NewDef struct {
-	Id   string
-	File string
-	Line int
-}
 
-var source = &Source{Skipped: map[string]bool{}, All: map[string]NewDef{}}
+var source = &Source{Skipped: map[string]bool{}, All: map[string]ErrDef{}}
 
 func Get(dir string) (*Source, error) {
 	baseDir = dir
@@ -194,7 +194,13 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				return v
 			}
 			if pkg == v.kerrName && name == "Wrap" {
-				source.Wraps = append(source.Wraps, PosDef{
+				id, err := getErrorId(v.t, ty.Args, 0, v.file)
+				if err != nil {
+					v.err = err
+					return nil
+				}
+				source.Wraps = append(source.Wraps, ErrDef{
+					Id:   id,
 					File: v.file,
 					Line: v.fset.Position(ty.Pos()).Line,
 				})
@@ -204,7 +210,7 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 					v.err = err
 					return nil
 				}
-				source.All[id] = NewDef{
+				source.All[id] = ErrDef{
 					Id:   id,
 					File: v.file,
 					Line: v.fset.Position(ty.Pos()).Line,

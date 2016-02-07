@@ -29,30 +29,30 @@ func excludeWrap(profiles []*cover.Profile) error {
 		m[p.FileName] = p
 	}
 
-	for _, w := range source.Wraps {
-		p, ok := m[w.File]
+	for _, def := range source.Wraps {
+		p, ok := m[def.File]
 		if !ok {
 			continue
 		}
 		for i, b := range p.Blocks {
-			if b.StartLine <= w.Line && b.EndLine >= w.Line && b.Count != 1 {
+			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
 				b.Count = 1
 				p.Blocks[i] = b
-				fmt.Printf("Excluding kerr.Wrap from %s:%d\n", w.File, w.Line)
+				fmt.Printf("Excluding Wrap %s from %s:%d\n", def.Id, def.File, def.Line)
 			}
 		}
 	}
 
-	for _, w := range source.Notests {
-		p, ok := m[w.File]
+	for _, pos := range source.Notests {
+		p, ok := m[pos.File]
 		if !ok {
 			continue
 		}
 		for i, b := range p.Blocks {
-			if b.StartLine <= w.Line && b.EndLine >= w.Line && b.Count != 1 {
+			if b.StartLine <= pos.Line && b.EndLine >= pos.Line && b.Count != 1 {
 				b.Count = 1
 				p.Blocks[i] = b
-				fmt.Printf("Excluding block from %s:%d\n", w.File, w.Line)
+				fmt.Printf("Excluding block from %s:%d\n", pos.File, pos.Line)
 			}
 		}
 	}
