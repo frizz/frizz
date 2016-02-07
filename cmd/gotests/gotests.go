@@ -34,9 +34,10 @@ func excludeWrap(profiles []*cover.Profile) error {
 		if !ok {
 			continue
 		}
-		for _, b := range p.Blocks {
+		for i, b := range p.Blocks {
 			if b.StartLine <= w.Line && b.EndLine >= w.Line && b.Count != 1 {
 				b.Count = 1
+				p.Blocks[i] = b
 				fmt.Printf("Excluding kerr.Wrap from %s:%d\n", w.File, w.Line)
 			}
 		}
