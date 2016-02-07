@@ -8,6 +8,31 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestGetOptions(t *testing.T) {
+
+	getTrue := func() *bool {
+		val := true
+		return &val
+	}
+	a := "a"
+	f := FromFlags{
+		Edit:     getTrue(),
+		Update:   getTrue(),
+		Log:      getTrue(),
+		Validate: getTrue(),
+		Debug:    getTrue(),
+		Path:     &a,
+	}
+	d := f.getOptions()
+	assert.True(t, d.Edit)
+	assert.True(t, d.Update)
+	assert.True(t, d.Log)
+	assert.True(t, d.Validate)
+	assert.True(t, d.Debug)
+	assert.Equal(t, "a", d.Path)
+
+}
+
 func TestInitialise(t *testing.T) {
 
 	cb := tests.NewContextBuilder().TempGopath(false)
