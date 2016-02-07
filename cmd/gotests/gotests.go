@@ -56,6 +56,24 @@ func excludeWrap(profiles []*cover.Profile) error {
 			}
 		}
 	}
+
+	for id, _ := range source.Skipped {
+		def, ok := source.All[id]
+		if ok {
+			p, ok := m[def.File]
+			if !ok {
+				continue
+			}
+			for i, b := range p.Blocks {
+				if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
+					b.Count = 1
+					p.Blocks[i] = b
+					fmt.Printf("Excluding skipped error %s from %s:%d\n", id, def.File, def.Line)
+				}
+			}
+		}
+	}
+
 	return err
 }
 func excludeGenerated(profiles []*cover.Profile) error {

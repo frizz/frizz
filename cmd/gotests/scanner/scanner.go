@@ -13,6 +13,8 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/json"
+	"kego.io/kerr"
+	"kego.io/kerr/kerrsource"
 	"kego.io/process/packages"
 )
 
@@ -23,13 +25,20 @@ var baseDir string
 type Source struct {
 	Wraps   []PosDef
 	Notests []PosDef
+	Skipped map[string]bool
+	All     map[string]NewDef
 }
 type PosDef struct {
 	File string
 	Line int
 }
+type NewDef struct {
+	Id   string
+	File string
+	Line int
+}
 
-var source = &Source{}
+var source = &Source{Skipped: map[string]bool{}, All: map[string]NewDef{}}
 
 func Get(dir string) (*Source, error) {
 	baseDir = dir
@@ -135,7 +144,7 @@ func scanFile(filename string) error {
 	}
 	ast.Walk(v, file)
 
-	return nil
+	return v.err
 }
 
 type visitor struct {
@@ -146,6 +155,7 @@ type visitor struct {
 	file       string
 	pkg        string
 	fset       *token.FileSet
+	err        error
 }
 
 func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
@@ -183,11 +193,29 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 			if pkg == "" {
 				return v
 			}
-			if pkg == v.kerrName && (name == "New" || name == "Wrap") {
+			if pkg == v.kerrName && name == "Wrap" {
 				source.Wraps = append(source.Wraps, PosDef{
 					File: v.file,
 					Line: v.fset.Position(ty.Pos()).Line,
 				})
+			} else if pkg == v.kerrName && name == "New" {
+				id, err := getErrorId(v.t, ty.Args, 0, v.file)
+				if err != nil {
+					v.err = err
+					return nil
+				}
+				source.All[id] = NewDef{
+					Id:   id,
+					File: v.file,
+					Line: v.fset.Position(ty.Pos()).Line,
+				}
+			} else if pkg == v.assertName && (name == "SkipError") {
+				id, err := getErrorId(v.t, ty.Args, 0, v.file)
+				if err != nil {
+					v.err = err
+					return nil
+				}
+				source.Skipped[id] = true
 			} /*else if pkg == v.assertName && (name == "IsError" || name == "HasError") {
 				def := getErrData(v.t, ty.Args, 2, v.file)
 				def.tested = true
@@ -207,8 +235,28 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 	return v
 }
 
-/*
+func getErrorId(t *testing.T, args []ast.Expr, arg int, file string) (string, error) {
+	if len(args) <= arg {
+		return "", kerr.New("FLKWAYFFYL", "Not enough args (%s)", file)
+	}
+	b, ok := args[arg].(*ast.BasicLit)
+	if !ok {
+		return "", kerr.New("YFKEYRIUWJ", "Arg should be *ast.BasicLit (%s)", file)
+	}
+	if b.Kind != token.STRING {
+		return "", kerr.New("YWPXGGRLEL", "kind should be token.STRING (%s)", file)
+	}
+	id, err := strconv.Unquote(b.Value)
+	if err != nil {
+		return "", kerr.Wrap("NTUDBTYOQY", err)
+	}
+	if !kerrsource.IsId(id) {
+		return "", kerr.New("YLTSLGODKR", "Invalid kerr ID %s (%s)", id, file)
+	}
+	return id, nil
+}
 
+/*
 func getErrData(t *testing.T, args []ast.Expr, arg int, file string) *errDef {
 	assert.True(t, len(args) > arg, "Not enough args (%s)", file)
 	b, ok := args[arg].(*ast.BasicLit)
