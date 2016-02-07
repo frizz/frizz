@@ -8,9 +8,61 @@ import (
 
 	"path/filepath"
 
+	"os"
+
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
+
+func TestSave(t *testing.T) {
+	d, err := ioutil.TempDir("", "")
+	assert.NoError(t, err)
+	defer os.RemoveAll(d)
+	err = save(d, []byte{}, "b", false)
+	assert.NoError(t, err)
+	if _, err := os.Stat(filepath.Join(d, "b")); err == nil {
+		assert.Fail(t, "File should not exist")
+	}
+
+	// backup is on, but the file doesn't exist, so nothing to backup
+	err = save(d, []byte("a"), "c", true)
+	assert.NoError(t, err)
+	c, err := ioutil.ReadFile(filepath.Join(d, "c"))
+	assert.NoError(t, err)
+	assert.Equal(t, "a", string(c))
+	if _, err := os.Stat(filepath.Join(d, "c.backup")); err == nil {
+		assert.Fail(t, "Backup file should not exist")
+	}
+
+	// backup is off, so the file is overwritten
+	err = save(d, []byte("b"), "c", false)
+	assert.NoError(t, err)
+	c, err = ioutil.ReadFile(filepath.Join(d, "c"))
+	assert.NoError(t, err)
+	assert.Equal(t, "b", string(c))
+	_, err = os.Stat(filepath.Join(d, "c.backup"))
+	assert.Error(t, err)
+
+	// backup is on and the file exists, so we should backup
+	err = save(d, []byte("c"), "c", true)
+	assert.NoError(t, err)
+	c, err = ioutil.ReadFile(filepath.Join(d, "c"))
+	assert.NoError(t, err)
+	assert.Equal(t, "c", string(c))
+	back, err := ioutil.ReadFile(filepath.Join(d, "c.backup"))
+	assert.NoError(t, err)
+	assert.Equal(t, "b", string(back))
+
+	// backup is on and the file exists, so we should backup and update the backup
+	err = save(d, []byte("d"), "c", true)
+	assert.NoError(t, err)
+	c, err = ioutil.ReadFile(filepath.Join(d, "c"))
+	assert.NoError(t, err)
+	assert.Equal(t, "d", string(c))
+	back, err = ioutil.ReadFile(filepath.Join(d, "c.backup"))
+	assert.NoError(t, err)
+	assert.Equal(t, "c", string(back))
+}
 
 func TestGetInfo(t *testing.T) {
 	cb := tests.Context("a.b/c").Wg().Sempty().Jsystem().TempGopath(false)
