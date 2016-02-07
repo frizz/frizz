@@ -12,8 +12,8 @@ import (
 
 	"golang.org/x/net/context"
 	"golang.org/x/tools/cover"
-	"kego.io/cmd/gotests/coverage"
 	"kego.io/cmd/gotests/scanner"
+	"kego.io/cmd/gotests/tester"
 	"kego.io/process/packages"
 )
 
@@ -37,6 +37,7 @@ func excludeWrap(profiles []*cover.Profile) error {
 		for _, b := range p.Blocks {
 			if b.StartLine <= w.Line && b.EndLine >= w.Line && b.Count != 1 {
 				b.Count = 1
+				fmt.Printf("Excluding kerr.Wrap from %s:%d\n", w.File, w.Line)
 			}
 		}
 	}
@@ -82,7 +83,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	profiles, err := coverage.Get(baseDir)
+	profiles, err := tester.Get(baseDir)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -94,7 +95,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = coverage.Save(profiles, filepath.Join(baseDir, "coverage.out"))
+	err = tester.Save(profiles, filepath.Join(baseDir, "coverage.out"))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package coverage
+package tester
 
 // ke: {"notest":true}
 
