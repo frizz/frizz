@@ -108,8 +108,10 @@ func processDir(dir string) error {
 	if strings.Contains(string(b), "no buildable Go source files in") {
 		return nil
 	}
-	fmt.Println(string(b))
-	return err
+	if err != nil {
+		return err
+	}
+	return processCoverageFile(coverageFilePath)
 }
 
 func main() {
