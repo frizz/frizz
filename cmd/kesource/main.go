@@ -1,6 +1,6 @@
 package main
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"bytes"

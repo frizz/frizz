@@ -12,17 +12,19 @@ import (
 	"testing"
 
 	"golang.org/x/net/context"
+	"kego.io/json"
 	"kego.io/process/packages"
 )
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 var baseDir string
 
 type Source struct {
-	Wraps []WrapDef
+	Wraps   []PosDef
+	Notests []PosDef
 }
-type WrapDef struct {
+type PosDef struct {
 	File string
 	Line int
 }
@@ -104,6 +106,24 @@ func scanFile(filename string) error {
 		return err
 	}
 
+	for _, cg := range file.Comments {
+		for _, c := range cg.List {
+			if strings.HasPrefix(c.Text, "// ke: ") {
+				val := struct{ Block struct{ Notest bool } }{}
+				err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
+				if err != nil {
+					return err
+				}
+				if val.Block.Notest {
+					source.Notests = append(source.Notests, PosDef{
+						File: relfilename,
+						Line: fset.Position(c.Pos()).Line,
+					})
+				}
+			}
+		}
+	}
+
 	// visitor implements ast.Visitor
 	v := &visitor{
 		Bytes:      b,
@@ -164,7 +184,7 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				return v
 			}
 			if pkg == v.kerrName && (name == "New" || name == "Wrap") {
-				source.Wraps = append(source.Wraps, WrapDef{
+				source.Wraps = append(source.Wraps, PosDef{
 					File: v.file,
 					Line: v.fset.Position(ty.Pos()).Line,
 				})

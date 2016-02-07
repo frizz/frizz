@@ -1,6 +1,6 @@
 package envctx // import "kego.io/context/envctx"
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"golang.org/x/net/context"

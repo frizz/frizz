@@ -1,6 +1,6 @@
 package wgctx // import "kego.io/context/wgctx"
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"os"

@@ -1,6 +1,6 @@
 package tester
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"fmt"

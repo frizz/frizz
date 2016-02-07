@@ -1,6 +1,6 @@
 package root
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"fmt"

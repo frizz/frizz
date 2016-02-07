@@ -1,7 +1,7 @@
 // ke is the main cli tool that is used to start the ke processor / editor.
 package main // import "kego.io/cmd/ke"
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"fmt"

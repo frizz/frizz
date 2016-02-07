@@ -1,4 +1,4 @@
 //go:generate ke
 package units
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}

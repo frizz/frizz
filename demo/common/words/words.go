@@ -1,7 +1,7 @@
 //go:generate ke
 package words
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"golang.org/x/net/context"

@@ -1,6 +1,6 @@
 package main
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 import (
 	"log"
@@ -39,6 +39,20 @@ func excludeWrap(profiles []*cover.Profile) error {
 				b.Count = 1
 				p.Blocks[i] = b
 				fmt.Printf("Excluding kerr.Wrap from %s:%d\n", w.File, w.Line)
+			}
+		}
+	}
+
+	for _, w := range source.Notests {
+		p, ok := m[w.File]
+		if !ok {
+			continue
+		}
+		for i, b := range p.Blocks {
+			if b.StartLine <= w.Line && b.EndLine >= w.Line && b.Count != 1 {
+				b.Count = 1
+				p.Blocks[i] = b
+				fmt.Printf("Excluding block from %s:%d\n", w.File, w.Line)
 			}
 		}
 	}

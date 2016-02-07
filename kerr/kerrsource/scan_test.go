@@ -159,10 +159,10 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 		for _, cg := range ty.Comments {
 			for _, c := range cg.List {
 				if strings.HasPrefix(c.Text, "// ke: ") {
-					val := struct{ Notest bool }{}
+					val := struct{ Package struct{ Notest bool } }{}
 					err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
 					assert.NoError(v.t, err)
-					if val.Notest {
+					if val.Package.Notest {
 						def := getPkgDef(v.pkg)
 						def.notest = true
 					}

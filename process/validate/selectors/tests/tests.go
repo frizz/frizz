@@ -1,6 +1,6 @@
 package tests // import "kego.io/process/validate/selectors/tests"
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 // for tests
 type Image interface {

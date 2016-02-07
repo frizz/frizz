@@ -18,7 +18,7 @@ import (
 	"io/ioutil"
 )
 
-// ke: {"notest":true}
+// ke: {"package": {"notest":true}}
 
 func main() {
 
