@@ -73,17 +73,13 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 
 	pcache := scache.Set(env)
 
-	if cmd.Log {
-		fmt.Printf("Parsing %s...", path)
-	}
+	cmd.Printf("Parsing %s...", path)
 
 	if err := scanForTypes(ctx, env, pcache, hash); err != nil {
 		return nil, kerr.Wrap("VFUNPHUFHD", err)
 	}
 
-	if cmd.Log {
-		fmt.Println(" OK.")
-	}
+	cmd.Println(" OK.")
 
 	h, err := hash.Hash()
 	if err != nil {

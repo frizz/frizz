@@ -102,9 +102,7 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 
 	cmd := cmdctx.FromContext(ctx)
 
-	if cmd.Log {
-		fmt.Printf("Generating types for %s... ", env.Path)
-	}
+	cmd.Printf("Generating types for %s... ", env.Path)
 
 	outputDir := env.Dir
 	filename := "generated.go"
@@ -120,9 +118,7 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.Wrap("UONJTTSTWW", err)
 	} else {
-		if cmd.Log {
-			fmt.Println("OK.")
-		}
+		cmd.Println("OK.")
 	}
 
 	return nil

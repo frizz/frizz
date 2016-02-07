@@ -15,8 +15,7 @@ func Open(ctx context.Context, filename string) (value interface{}, err error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		err = kerr.Wrap("NDJKHCDCIW", err)
-		return
+		return nil, kerr.Wrap("NDJKHCDCIW", err)
 	}
 	defer file.Close()
 

@@ -60,9 +60,7 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 
 	app.fail = make(chan error)
 
-	if cmd.Log {
-		fmt.Println("Starting editor server... ")
-	}
+	cmd.Println("Starting editor server... ")
 
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
@@ -120,9 +118,7 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 			if !open {
 				cancel()
 				// Channel has been closed, so app should gracefully exit.
-				if cmd.Log {
-					fmt.Println("Exiting editor server (finished)... ")
-				}
+				cmd.Println("Exiting editor server (finished)... ")
 			} else {
 				// Error received, so app should display error.
 				//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
@@ -280,11 +276,11 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 
 	env, err := parser.ScanForEnv(ctx, path)
 	if err != nil {
-		if _, ok := kerr.Source(err).(packages.NotFoundError); ok {
-			w.WriteHeader(404)
-			return nil
+		if _, ok := kerr.Source(err).(packages.NotFoundError); !ok {
+			return kerr.Wrap("ALINBMKDRP", err)
 		}
-		return kerr.Wrap("ALINBMKDRP", err)
+		w.WriteHeader(404)
+		return nil
 	}
 
 	pcache, ok := scache.Get(path)
@@ -473,9 +469,7 @@ func serve(ctx context.Context) error {
 		return kerr.Wrap("AEJLAXGVVA", err)
 	}
 
-	if cmd.Log {
-		fmt.Printf("Server now running on %s\n", url)
-	}
+	cmd.Printf("Server now running on %s\n", url)
 
 	c := make(chan error, 1)
 	go func() {

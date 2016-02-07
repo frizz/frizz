@@ -47,16 +47,16 @@ func (c *Conn) senderInternal() error {
 	m := <-c.out
 	defer c.outwg.Done()
 	if err := ke.NewEncoder(c.socket).Encode(m); err != nil {
-		if err == io.EOF {
-			// Closing the fail channel exits the app gracefully
-			if c.debug {
-				c.fail <- kerr.New("HHLJYVNLJM", "Connection closed")
-				return nil
-			}
-			close(c.fail)
+		if err != io.EOF {
+			return kerr.Wrap("WIUXNWRXCQ", err)
+		}
+		// Closing the fail channel exits the app gracefully
+		if c.debug {
+			c.fail <- kerr.New("HHLJYVNLJM", "Connection closed")
 			return nil
 		}
-		return kerr.Wrap("WIUXNWRXCQ", err)
+		close(c.fail)
+		return nil
 	}
 	return nil
 }

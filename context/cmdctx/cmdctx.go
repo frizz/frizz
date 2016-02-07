@@ -3,6 +3,8 @@ package cmdctx // import "kego.io/context/cmdctx"
 // ke: {"package": {"notest":true}}
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 	"kego.io/kerr"
 )
@@ -45,4 +47,25 @@ func FromContextOrNil(ctx context.Context) *Cmd {
 		return e
 	}
 	return nil
+}
+
+func (c *Cmd) Printf(format string, a ...interface{}) (n int, err error) {
+	if c.Log {
+		return fmt.Printf(format, a...)
+	}
+	return 0, nil
+}
+
+func (c *Cmd) Println(a ...interface{}) (n int, err error) {
+	if c.Log {
+		return fmt.Println(a...)
+	}
+	return 0, nil
+}
+
+func (c *Cmd) Print(a ...interface{}) (n int, err error) {
+	if c.Log {
+		return fmt.Print(a...)
+	}
+	return 0, nil
 }

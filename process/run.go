@@ -2,7 +2,6 @@ package process
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -45,18 +44,11 @@ func runValidateCommand(ctx context.Context, repeatOnFail bool) (success bool, e
 
 	validateCommandPath := filepath.Join(env.Dir, validateCommand)
 
-	if cmd.Log {
-		fmt.Print("Running validate command... ")
-	}
+	cmd.Print("Running validate command... ")
 
-	params := []string{}
-	if cmd.Log {
-		// we don't log
-		//params = append(params, "-l")
-	}
 	combined, stdout, stderr := logger(cmd.Log)
 
-	exe := exec.Command(validateCommandPath, params...)
+	exe := exec.Command(validateCommandPath)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
 	if err := exe.Run(); err != nil {
@@ -69,18 +61,14 @@ func runValidateCommand(ctx context.Context, repeatOnFail bool) (success bool, e
 				switch status.ExitStatus() {
 				case 3:
 					// Exit status 3 = hash changed
-					if cmd.Log {
-						fmt.Println("Command is out of date.")
-					}
+					cmd.Println("Command is out of date.")
 					return false, nil
 				case 4:
 					// Exit status 4 = validation error
 					return true, validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", strings.TrimSpace(combined.String()))}
 				default:
 					if repeatOnFail {
-						if cmd.Log {
-							fmt.Println("Validate command returned error, rebuilding...")
-						}
+						cmd.Println("Validate command returned error, rebuilding...")
 						if err := BuildAndRunLocalCommand(ctx); err != nil {
 							return true, kerr.Wrap("HOHQEISLMI", err)
 						}
@@ -93,9 +81,7 @@ func runValidateCommand(ctx context.Context, repeatOnFail bool) (success bool, e
 			return true, kerr.Wrap("GFTBBSYEXU", err)
 		}
 	}
-	if cmd.Log {
-		fmt.Println("OK.")
-	}
+	cmd.Println("OK.")
 	return true, nil
 }
 
@@ -128,9 +114,7 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 		return kerr.Wrap("FRLCYFOWCJ", err)
 	}
 
-	if cmd.Log {
-		fmt.Print("Building validate command... ")
-	}
+	cmd.Print("Building validate command... ")
 
 	combined, stdout, stderr := logger(cmd.Log)
 	exe := exec.Command("go", "build", "-o", validateCommandPath, outputPath)
@@ -140,13 +124,9 @@ func BuildAndRunLocalCommand(ctx context.Context) error {
 	if err := exe.Run(); err != nil {
 		return kerr.Wrap("OEPAEEYKIS", err)
 	}
-	if cmd.Log {
-		fmt.Println("OK.")
-	}
+	cmd.Println("OK.")
 
-	if cmd.Log {
-		fmt.Print(combined.String())
-	}
+	cmd.Print(combined.String())
 
 	success, err := runValidateCommand(ctx, false)
 	if err != nil {

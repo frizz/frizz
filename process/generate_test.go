@@ -12,6 +12,19 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestGetInfo(t *testing.T) {
+	cb := tests.Context("a.b/c").Wg().Sempty().Jsystem().TempGopath(false)
+	defer cb.Cleanup()
+	_, dirA := cb.TempPackage("a", map[string]string{
+		"generated.go": "",
+	})
+	info, found, err := getInfo(cb.Ctx(), dirA)
+	assert.NoError(t, err)
+	assert.Nil(t, info)
+	assert.False(t, found)
+
+}
+
 func TestGenerateAll(t *testing.T) {
 
 	cb := tests.Context("a.b/c").Wg().Sempty().Jsystem().TempGopath(false)
