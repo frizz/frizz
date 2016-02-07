@@ -47,7 +47,7 @@ func processFile(filename string) error {
 		return kerr.Wrap("UFVVOEXSYE", err)
 	}
 
-	res, err = imports.Process(filename, src, nil)
+	res, err = imports.Process(filename, res, nil)
 	if err != nil {
 		return kerr.Wrap("XFILQRWHSI", err)
 	}
