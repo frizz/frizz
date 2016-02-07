@@ -32,3 +32,4 @@ generated-types.go.backup
 coverage.out
 kego.github.io/
 .localke/
+.coverage/
