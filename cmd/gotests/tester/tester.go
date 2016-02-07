@@ -34,7 +34,11 @@ func Get(dir string) ([]*cover.Profile, error) {
 	baseDir = dir
 	coverDir = filepath.Join(baseDir, ".coverage")
 
-	//os.RemoveAll(coverDir)
+	testing := false
+	if !testing {
+		os.RemoveAll(coverDir)
+		defer os.RemoveAll(coverDir)
+	}
 	if _, err := os.Stat(coverDir); os.IsNotExist(err) {
 		os.Mkdir(coverDir, 0777)
 	}
