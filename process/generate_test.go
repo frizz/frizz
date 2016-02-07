@@ -27,9 +27,9 @@ func TestSave(t *testing.T) {
 	// backup is on, but the file doesn't exist, so nothing to backup
 	err = save(d, []byte("a"), "c", true)
 	assert.NoError(t, err)
-	c, err := ioutil.ReadFile(filepath.Join(d, "c"))
+	val, err := ioutil.ReadFile(filepath.Join(d, "c"))
 	assert.NoError(t, err)
-	assert.Equal(t, "a", string(c))
+	assert.Equal(t, "a", string(val))
 	if _, err := os.Stat(filepath.Join(d, "c.backup")); err == nil {
 		assert.Fail(t, "Backup file should not exist")
 	}
@@ -37,18 +37,18 @@ func TestSave(t *testing.T) {
 	// backup is off, so the file is overwritten
 	err = save(d, []byte("b"), "c", false)
 	assert.NoError(t, err)
-	c, err = ioutil.ReadFile(filepath.Join(d, "c"))
+	val, err = ioutil.ReadFile(filepath.Join(d, "c"))
 	assert.NoError(t, err)
-	assert.Equal(t, "b", string(c))
+	assert.Equal(t, "b", string(val))
 	_, err = os.Stat(filepath.Join(d, "c.backup"))
 	assert.Error(t, err)
 
 	// backup is on and the file exists, so we should backup
 	err = save(d, []byte("c"), "c", true)
 	assert.NoError(t, err)
-	c, err = ioutil.ReadFile(filepath.Join(d, "c"))
+	val, err = ioutil.ReadFile(filepath.Join(d, "c"))
 	assert.NoError(t, err)
-	assert.Equal(t, "c", string(c))
+	assert.Equal(t, "c", string(val))
 	back, err := ioutil.ReadFile(filepath.Join(d, "c.backup"))
 	assert.NoError(t, err)
 	assert.Equal(t, "b", string(back))
@@ -56,12 +56,19 @@ func TestSave(t *testing.T) {
 	// backup is on and the file exists, so we should backup and update the backup
 	err = save(d, []byte("d"), "c", true)
 	assert.NoError(t, err)
-	c, err = ioutil.ReadFile(filepath.Join(d, "c"))
+	val, err = ioutil.ReadFile(filepath.Join(d, "c"))
 	assert.NoError(t, err)
-	assert.Equal(t, "d", string(c))
+	assert.Equal(t, "d", string(val))
 	back, err = ioutil.ReadFile(filepath.Join(d, "c.backup"))
 	assert.NoError(t, err)
 	assert.Equal(t, "c", string(back))
+
+	// dir doesn't exist
+	err = save(filepath.Join(d, "e"), []byte("f"), "g", true)
+	assert.NoError(t, err)
+	val, err = ioutil.ReadFile(filepath.Join(d, "e", "g"))
+	assert.NoError(t, err)
+	assert.Equal(t, "f", string(val))
 }
 
 func TestGetInfo(t *testing.T) {
