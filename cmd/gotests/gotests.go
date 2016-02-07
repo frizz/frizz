@@ -19,64 +19,50 @@ import (
 
 var baseDir string
 
-func excludeWrap(profiles []*cover.Profile) error {
+func main() {
+	var err error
+	baseDir, err = packages.GetDirFromPackage(context.Background(), "kego.io")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	profiles, err := tester.Get(baseDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	profilesMap := map[string]*cover.Profile{}
+	for _, p := range profiles {
+		profilesMap[p.FileName] = p
+	}
+
 	source, err := scanner.Get(baseDir)
 	if err != nil {
-		return err
-	}
-	m := map[string]*cover.Profile{}
-	for _, p := range profiles {
-		m[p.FileName] = p
+		log.Fatal(err)
 	}
 
-	for _, def := range source.Wraps {
-		p, ok := m[def.File]
-		if !ok {
-			continue
-		}
-		for i, b := range p.Blocks {
-			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
-				b.Count = 1
-				p.Blocks[i] = b
-				fmt.Printf("Excluding Wrap %s from %s:%d\n", def.Id, def.File, def.Line)
-			}
-		}
+	if err := excludeGenerated(profilesMap); err != nil {
+		log.Fatal(err)
 	}
 
-	for _, pos := range source.Notests {
-		p, ok := m[pos.File]
-		if !ok {
-			continue
-		}
-		for i, b := range p.Blocks {
-			if b.StartLine <= pos.Line && b.EndLine >= pos.Line && b.Count != 1 {
-				b.Count = 1
-				p.Blocks[i] = b
-				fmt.Printf("Excluding block from %s:%d\n", pos.File, pos.Line)
-			}
-		}
+	if err := excludeWraps(profilesMap, source); err != nil {
+		log.Fatal(err)
 	}
 
-	for id, _ := range source.Skipped {
-		def, ok := source.All[id]
-		if ok {
-			p, ok := m[def.File]
-			if !ok {
-				continue
-			}
-			for i, b := range p.Blocks {
-				if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
-					b.Count = 1
-					p.Blocks[i] = b
-					fmt.Printf("Excluding skipped error %s from %s:%d\n", id, def.File, def.Line)
-				}
-			}
-		}
+	if err := excludeNotests(profilesMap, source); err != nil {
+		log.Fatal(err)
 	}
 
-	return err
+	if err := excludeSkips(profilesMap, source); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := tester.Save(profiles, filepath.Join(baseDir, "coverage.out")); err != nil {
+		log.Fatal(err)
+	}
 }
-func excludeGenerated(profiles []*cover.Profile) error {
+
+func excludeGenerated(profiles map[string]*cover.Profile) error {
 	for _, p := range profiles {
 		if strings.HasSuffix(p.FileName, "/generated.go") {
 			fmt.Println("Excluding", p.FileName)
@@ -110,26 +96,57 @@ func excludeGenerated(profiles []*cover.Profile) error {
 	return nil
 }
 
-func main() {
-	var err error
-	baseDir, err = packages.GetDirFromPackage(context.Background(), "kego.io")
-	if err != nil {
-		log.Fatal(err)
+func excludeWraps(profiles map[string]*cover.Profile, source *scanner.Source) error {
+	for _, def := range source.Wraps {
+		p, ok := profiles[def.File]
+		if !ok {
+			continue
+		}
+		for i, b := range p.Blocks {
+			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
+				b.Count = 1
+				p.Blocks[i] = b
+				fmt.Printf("Excluding Wrap %s from %s:%d\n", def.Id, def.File, def.Line)
+			}
+		}
 	}
-	profiles, err := tester.Get(baseDir)
-	if err != nil {
-		log.Fatal(err)
+	return nil
+}
+
+func excludeNotests(profiles map[string]*cover.Profile, source *scanner.Source) error {
+	for _, pos := range source.Notests {
+		p, ok := profiles[pos.File]
+		if !ok {
+			continue
+		}
+		for i, b := range p.Blocks {
+			if b.StartLine <= pos.Line && b.EndLine >= pos.Line && b.Count != 1 {
+				b.Count = 1
+				p.Blocks[i] = b
+				fmt.Printf("Excluding block from %s:%d\n", pos.File, pos.Line)
+			}
+		}
 	}
-	err = excludeGenerated(profiles)
-	if err != nil {
-		log.Fatal(err)
+	return nil
+}
+
+func excludeSkips(profiles map[string]*cover.Profile, source *scanner.Source) error {
+
+	for id, _ := range source.Skipped {
+		def, ok := source.All[id]
+		if ok {
+			p, ok := profiles[def.File]
+			if !ok {
+				continue
+			}
+			for i, b := range p.Blocks {
+				if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
+					b.Count = 1
+					p.Blocks[i] = b
+					fmt.Printf("Excluding skipped error %s from %s:%d\n", id, def.File, def.Line)
+				}
+			}
+		}
 	}
-	err = excludeWrap(profiles)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = tester.Save(profiles, filepath.Join(baseDir, "coverage.out"))
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }
