@@ -256,14 +256,8 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	assert.IsError(t, err, "YIHFDLTIMW")
 	assert.HasError(t, err, "VEKXQDJFGD")
 
-	// Unknown package would cause ZeroValue to error before ValueContext is called.
-	assert.SkipError("MRHEBUUXBB")
-
 	// InitialiseFields will always create type
 	assert.SkipError("DQKGYKFQKJ")
-
-	// This is assigning the value of the type field, which I don't think we can break
-	assert.SkipError("CURDKCQLGS")
 
 	cb.Ssystem(parser.Parse)
 	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
@@ -359,14 +353,6 @@ func TestNodeExtract(t *testing.T) {
 	// This is checked in Node.UpdateValue -> Rule.GetReflectType
 	assert.SkipError("IUTONSPQOL")
 	assert.SkipError("RTQUNQEKUY")
-
-	// We wrap the items rule in Node.UpdateValue -> Rule.GetReflectType
-	assert.SkipError("KPIBIOCTGF")
-	assert.SkipError("SBFTRGJNAO")
-
-	// We already process and extract the array children in Node.UpdateValue -> Node.UnpackFragment
-	assert.SkipError("VWWYPDIJKP")
-	assert.SkipError("HTOPDOKPRE")
 
 }
 
