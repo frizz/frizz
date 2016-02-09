@@ -44,10 +44,7 @@ func main() {
 	}
 
 	if cmd.Validate {
-		success, err := process.RunValidateCommand(ctx)
-		if !success && err == nil {
-			err = process.BuildAndRunLocalCommand(ctx)
-		}
+		err := process.RunValidateCommand(ctx)
 		if err != nil {
 			if !cmd.Log {
 				// in log mode, we have already written the output of the exec'ed ke command,

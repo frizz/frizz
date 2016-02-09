@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"kego.io/context/envctx"
+	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
@@ -21,8 +22,14 @@ func TestRun(t *testing.T) {
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("d", map[string]string{
-		"a.json": `{"type": "system:type", "id": "a"}`,
-		"d.go":   `package d`,
+		"a.yaml": `
+			type: system:type
+			id: a
+			fields:
+				b:
+					type: system:@string
+					maxLength: 5`,
+		"d.go": `package d`,
 	})
 
 	cb.Path(path).Dir(dir).Jauto().Wg().Sauto(parser.Parse)
@@ -37,10 +44,93 @@ func TestRun(t *testing.T) {
 	assert.Contains(t, string(b), "pkg.InitType(\"a\", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*ARule)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem())")
 	assert.Contains(t, string(b), fmt.Sprintf("%v", env.Hash))
 
-	err = BuildAndRunLocalCommand(cb.Ctx())
+	err = RunValidateCommand(cb.Ctx())
+	assert.NoError(t, err)
+
+	file1, err := os.Stat(filepath.Join(dir, ".localke", "validate"))
+	assert.NoError(t, err)
+	time1 := file1.ModTime()
+
+	err = RunValidateCommand(cb.Ctx())
+	assert.NoError(t, err)
+
+	cb.TempFile("c.yaml", `
+		type: a
+		id: c
+		b: foo`)
+
+	err = RunValidateCommand(cb.Ctx())
+	assert.NoError(t, err)
+
+	// should not rebuild validate command
+	file2, err := os.Stat(filepath.Join(dir, ".localke", "validate"))
+	assert.NoError(t, err)
+	time2 := file2.ModTime()
+	assert.Equal(t, time1, time2)
+
+	cb.TempFile("e.yaml", `
+		type: a
+		id: e
+		b: tooolong`)
+
+	err = RunValidateCommand(cb.Ctx())
+	assert.IsError(t, err, "KFNIOHWCBT")
+	assert.HasError(t, err, "ETWHPXTUVB")
+
+	cb.TempFile("f.yaml", `
+		type: system:type
+		id: f`)
+
+	// This loads the new system.Type into the system cache
+	cb.Sauto(parser.Parse)
+	// This generates a new generated.go
+	err = Generate(cb.Ctx(), env)
+	assert.NoError(t, err)
+
+	// This will re-run the build, but still return the validation error
+	err = RunValidateCommand(cb.Ctx())
+	assert.IsError(t, err, "KFNIOHWCBT")
+	assert.HasError(t, err, "ETWHPXTUVB")
+
+	cb.RemoveTempFile("e.yaml")
+
+	cb.TempFile("h.yaml", `
+		type: system:type
+		id: h`)
+
+	// This loads the new system.Type into the system cache
+	cb.Sauto(parser.Parse)
+	// This generates a new generated.go
+	err = Generate(cb.Ctx(), env)
+	assert.NoError(t, err)
+
+	// This will re-run the build, but not return the validation error
+	err = RunValidateCommand(cb.Ctx())
+	assert.NoError(t, err)
+
+	// should rebuild validate command
+	file3, err := os.Stat(filepath.Join(dir, ".localke", "validate"))
+	assert.NoError(t, err)
+	time3 := file3.ModTime()
+	assert.NotEqual(t, time1, time3)
+
+	cb.TempFile("g.yaml", `
+		type: system:type
+		id: g`)
+
+	// We add a new type, but we haven't generated the struct, so it will fail with hash changed
+	err = runValidateCommand(cb.Ctx(), false, false)
+	assert.IsError(t, err, "DTTHRRJSSF")
+
+	err = os.Remove(filepath.Join(dir, ".localke", "validate"))
 	assert.NoError(t, err)
 
 	_, err = os.Stat(filepath.Join(dir, ".localke", "validate"))
-	assert.NoError(t, err)
+	assert.True(t, os.IsNotExist(err))
+
+	err = runValidateCommand(cb.Ctx(), false, false)
+	assert.IsError(t, err, "DTTHRRJSSF")
+	_, ok := kerr.Source(err).(*os.PathError)
+	assert.True(t, ok)
 
 }

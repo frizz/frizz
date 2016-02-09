@@ -265,7 +265,7 @@ func runKe(cb *tests.ContextBuilder, name string, files map[string]string) (stri
 		return "", err
 	}
 
-	if err := process.BuildAndRunLocalCommand(ctx); err != nil {
+	if err := process.RunValidateCommand(ctx); err != nil {
 		return "", err
 	}
 

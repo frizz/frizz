@@ -20,7 +20,7 @@ type ContextBuilder struct {
 	ctx               context.Context
 	gopathInitialized bool
 	tempNamespace     string
-	tempPackage       string
+	tempPackageDir    string
 	tempDirs          []string
 }
 

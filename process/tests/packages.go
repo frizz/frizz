@@ -73,6 +73,7 @@ func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path
 		panic(kerr.Wrap("KJJMYPCMAL", err).Error())
 	}
 
+	c.tempPackageDir = dir
 	c.tempDirs = append(c.tempDirs, dir)
 
 	for name, contents := range files {
@@ -88,10 +89,39 @@ func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path
 	return
 }
 
+func (c *ContextBuilder) RemoveTempFile(name string) *ContextBuilder {
+	if c.tempPackageDir == "" {
+		panic("Need to call tempPackage first.")
+	}
+	filename := filepath.Join(c.tempPackageDir, name)
+	if _, err := os.Stat(filename); err != nil {
+		panic(err.Error())
+	}
+	if err := os.Remove(filename); err != nil {
+		panic(err.Error())
+	}
+	return c
+}
+
+func (c *ContextBuilder) TempFile(name string, contents string) *ContextBuilder {
+	if c.tempPackageDir == "" {
+		panic("Need to call tempPackage first.")
+	}
+	if strings.HasSuffix(name, ".yaml") {
+		// our Go files are tab indented, but yaml files don't like tabs.
+		contents = strings.Replace(contents, "\t", "    ", -1)
+	}
+	if err := ioutil.WriteFile(filepath.Join(c.tempPackageDir, name), []byte(contents), 0777); err != nil {
+		panic(kerr.Wrap("UYQNYOCWMP", err).Error())
+	}
+	return c
+}
+
 func (c *ContextBuilder) Cleanup() {
 	for _, dir := range c.tempDirs {
 		os.RemoveAll(dir)
 	}
+
 }
 
 /*
