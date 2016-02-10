@@ -54,7 +54,7 @@ func TestTree(t *testing.T) {
 
 	// close root should have no effect
 	tr.Root.close()
-	test(t, "1a2c1b2d", tr)
+	test(t, "1a2c1b2d**", tr)
 }
 
 func TestTree2(t *testing.T) {
