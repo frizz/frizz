@@ -11,6 +11,7 @@ import (
 type Vos interface {
 	Getenv(key string) string
 	Getwd() (string, error)
+	Environ() []string
 }
 
 type key int
@@ -47,4 +48,9 @@ func (*realOs) Getenv(key string) string {
 
 func (*realOs) Getwd() (string, error) {
 	return os.Getwd()
+}
+
+// Environ returns a copy of strings representing the environment, in the form "key=value".
+func (*realOs) Environ() []string {
+	return os.Environ()
 }

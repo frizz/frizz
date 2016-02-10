@@ -1,9 +1,9 @@
 package packages_test
 
 import (
-	"os"
-	"strings"
 	"testing"
+
+	"path/filepath"
 
 	"kego.io/context/vosctx"
 	"kego.io/kerr/assert"
@@ -11,36 +11,72 @@ import (
 	"kego.io/process/tests"
 )
 
-func TestGetPackagePath(t *testing.T) {
-
-	cb := tests.Context("").OsVar("GOPATH", "/Users/dave/go")
-
-	dir := "/Users/dave/go/src/github.com/foo/bar"
-	pkg, err := GetPackageFromDir(cb.Ctx(), dir)
-	assert.NoError(t, err)
-	assert.Equal(t, "github.com/foo/bar", pkg)
-
-	cb.OsVar("GOPATH", strings.Join([]string{"/Users/another/path", "/Users/dave/go", "/one/more"}, string(os.PathListSeparator)))
-	pkg, err = GetPackageFromDir(cb.Ctx(), dir)
-	assert.NoError(t, err)
-	assert.Equal(t, "github.com/foo/bar", pkg)
-
+func TestGetCurrentGopath(t *testing.T) {
+	cb := tests.NewContextBuilder()
+	abc := filepath.Join("a", "b", "c")
+	def := filepath.Join("d", "e", "f")
+	cb.OsVar("GOPATH", abc+string(filepath.ListSeparator)+def)
+	gop := GetCurrentGopath(cb.Ctx())
+	assert.Equal(t, abc, gop)
+	cb.OsWd(filepath.Join("d", "e", "f", "g", "h"))
+	gop = GetCurrentGopath(cb.Ctx())
+	assert.Equal(t, def, gop)
 }
 
-func TestGetPackageDir(t *testing.T) {
-
+func TestGetPackageFromDir(t *testing.T) {
 	cb := tests.NewContextBuilder().TempGopath(false)
 	defer cb.Cleanup()
+	packagePath, packageDir := cb.TempPackage("a", map[string]string{})
 
-	pathA, dirA := cb.TempPackage("a", nil)
+	calculatedPath, err := GetPackageFromDir(cb.Ctx(), packageDir)
+	assert.NoError(t, err)
+	assert.Equal(t, packagePath, calculatedPath)
 
 	vos := vosctx.FromContext(cb.Ctx())
+	cb.OsVar("GOPATH", "/fdskljsfdash/"+string(filepath.ListSeparator)+vos.Getenv("GOPATH"))
 
-	dir, err := GetDirFromEmptyPackage(pathA, vos.Getenv("GOPATH"))
+	calculatedPath, err = GetPackageFromDir(cb.Ctx(), packageDir)
 	assert.NoError(t, err)
-	assert.Equal(t, dirA, dir)
+	assert.Equal(t, packagePath, calculatedPath)
 
-	dir, err = GetDirFromEmptyPackage("a.b/c", vos.Getenv("GOPATH"))
+	cb.OsVar("GOPATH", "/fdskljsfdash/")
+	_, err = GetPackageFromDir(cb.Ctx(), packageDir)
+	assert.IsError(t, err, "CXOETFPTGM")
+}
+
+func TestGetDirFromEmptyPackage(t *testing.T) {
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
+	packagePath, packageDir := cb.TempPackage("a", map[string]string{})
+
+	_, err := GetDirFromEmptyPackage(cb.Ctx(), "a.b/c")
 	assert.IsError(t, err, "SUTCWEVRXS")
+
+	calculatedDir, err := GetDirFromEmptyPackage(cb.Ctx(), packagePath)
+	assert.NoError(t, err)
+	assert.Equal(t, packageDir, calculatedDir)
+
+	vos := vosctx.FromContext(cb.Ctx())
+	cb.OsVar("GOPATH", "/fdskljsfdash/"+string(filepath.ListSeparator)+vos.Getenv("GOPATH"))
+
+	// This will now need two loops around to get the package
+	calculatedDir, err = GetDirFromEmptyPackage(cb.Ctx(), packagePath)
+	assert.NoError(t, err)
+	assert.Equal(t, packageDir, calculatedDir)
+
+}
+func TestGetDirFromPackage(t *testing.T) {
+	cb := tests.NewContextBuilder().TempGopath(false)
+	defer cb.Cleanup()
+	packagePath, packageDir := cb.TempPackage("a", map[string]string{})
+	calculatedDir, err := GetDirFromPackage(cb.Ctx(), packagePath)
+	assert.NoError(t, err)
+	assert.Equal(t, packageDir, calculatedDir)
+
+	cb.TempFile("a.go", "package a")
+
+	calculatedDir, err = GetDirFromPackage(cb.Ctx(), packagePath)
+	assert.NoError(t, err)
+	assert.Equal(t, packageDir, calculatedDir)
 
 }

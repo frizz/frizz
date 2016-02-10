@@ -2,6 +2,7 @@ package tests
 
 import (
 	"os"
+	"strings"
 
 	"kego.io/context/vosctx"
 )
@@ -25,4 +26,23 @@ func (o *MockOs) Getwd() (string, error) {
 		return os.Getwd()
 	}
 	return o.WorkingDirectory, nil
+}
+
+// Environ returns a copy of strings representing the environment, in the form "key=value".
+func (o *MockOs) Environ() []string {
+	if o.EnvironmentVariables == nil || len(o.EnvironmentVariables) == 0 {
+		return os.Environ()
+	}
+	out := []string{}
+Outer:
+	for _, real := range os.Environ() {
+		for mockName, mockValue := range o.EnvironmentVariables {
+			if strings.HasPrefix(real, mockName+"=") {
+				out = append(out, mockName+"="+mockValue)
+				continue Outer
+			}
+		}
+		out = append(out, real)
+	}
+	return out
 }

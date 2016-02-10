@@ -17,12 +17,14 @@ func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) 
 
 	vos := vosctx.FromContext(ctx)
 
-	out, err := exec.Command("go", "list", "-f", "{{.Dir}}", packagePath).CombinedOutput()
+	exe := exec.Command("go", "list", "-f", "{{.Dir}}", packagePath)
+	exe.Env = vos.Environ()
+	out, err := exe.CombinedOutput()
 	if err == nil {
 		return strings.TrimSpace(string(out)), nil
 	}
 
-	dir, err := GetDirFromEmptyPackage(packagePath, vos.Getenv("GOPATH"))
+	dir, err := GetDirFromEmptyPackage(ctx, packagePath)
 	if err != nil {
 		return "", kerr.Wrap("GXTUPMHETV", err)
 	}
@@ -30,8 +32,9 @@ func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) 
 
 }
 
-func GetDirFromEmptyPackage(path string, gopathEnv string) (string, error) {
-	gopaths := filepath.SplitList(gopathEnv)
+func GetDirFromEmptyPackage(ctx context.Context, path string) (string, error) {
+	vos := vosctx.FromContext(ctx)
+	gopaths := filepath.SplitList(vos.Getenv("GOPATH"))
 	for _, gopath := range gopaths {
 		dir := filepath.Join(gopath, "src", path)
 		if s, err := os.Stat(dir); err == nil && s.IsDir() {
@@ -54,16 +57,22 @@ func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 			gosrc := fmt.Sprintf("%s/src", gopath)
 			relpath, err := filepath.Rel(gosrc, dir)
 			if err != nil {
+				// ke: {"block":{"notest":true}}
+				// I don't *think* we can trigger this error if dir starts with gopath
 				savedError = err
 				continue
 			}
 			if relpath == "" {
+				// ke: {"block":{"notest":true}}
+				// I don't *think* we can trigger this either
 				continue
 			}
-			return relpath, nil
+			// Remember we're returning a package path which uses forward slashes even on windows
+			return filepath.ToSlash(relpath), nil
 		}
 	}
 	if savedError != nil {
+		// ke: {"block":{"notest":true}}
 		return "", savedError
 	}
 	return "", kerr.New("CXOETFPTGM", "Package not found for %s", dir)
@@ -72,11 +81,7 @@ func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 func GetCurrentGopath(ctx context.Context) string {
 	vos := vosctx.FromContext(ctx)
 	currentDir, _ := vos.Getwd()
-	return getCurrentGopath(currentDir, vos.Getenv("GOPATH"))
-}
-
-func getCurrentGopath(currentDir string, gopathEnv string) string {
-	gopaths := filepath.SplitList(gopathEnv)
+	gopaths := filepath.SplitList(vos.Getenv("GOPATH"))
 	for _, gopath := range gopaths {
 		if strings.HasPrefix(currentDir, gopath) {
 			return gopath
