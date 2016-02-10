@@ -1,5 +1,7 @@
 package client // import "kego.io/editor/client"
 
+// ke: {"package": {"jstest": true}}
+
 import (
 	"net/url"
 

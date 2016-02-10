@@ -1,7 +1,7 @@
 //go:generate ke
 package images
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"fmt"

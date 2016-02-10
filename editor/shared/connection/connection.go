@@ -2,6 +2,8 @@
 //go:generate mockgen -destination mocks/messages.go -package mocks kego.io/editor/shared/messages Message
 package connection // import "kego.io/editor/shared/connection"
 
+// ke: {"package": {"jstest": true}}
+
 import (
 	"io"
 	"time"

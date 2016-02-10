@@ -2,7 +2,7 @@
 // commands (not tests) can be debugged
 package main
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"testing"

@@ -1,6 +1,6 @@
 package sysctx // import "kego.io/context/sysctx"
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"sync"

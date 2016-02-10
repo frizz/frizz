@@ -1,6 +1,6 @@
 package main
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"log"
@@ -26,6 +26,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	source, err := scanner.Get(baseDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := tester.Js(source.JsTestPackages); err != nil {
+		log.Fatal(err)
+	}
+
 	profiles, err := tester.Get(baseDir)
 	if err != nil {
 		log.Fatal(err)
@@ -34,11 +43,6 @@ func main() {
 	profilesMap := map[string]*cover.Profile{}
 	for _, p := range profiles {
 		profilesMap[p.FileName] = p
-	}
-
-	source, err := scanner.Get(baseDir)
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	if err := excludeGenerated(profilesMap); err != nil {

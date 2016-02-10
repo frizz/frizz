@@ -18,15 +18,16 @@ import (
 	"kego.io/process/packages"
 )
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 var baseDir string
 
 type Source struct {
-	Wraps   []ErrDef
-	Notests []PosDef
-	Skipped map[string]bool
-	All     map[string]ErrDef
+	Wraps          []ErrDef
+	Notests        []PosDef
+	Skipped        map[string]bool
+	All            map[string]ErrDef
+	JsTestPackages map[string]bool
 }
 type ErrDef struct {
 	Id   string
@@ -38,7 +39,11 @@ type PosDef struct {
 	Line int
 }
 
-var source = &Source{Skipped: map[string]bool{}, All: map[string]ErrDef{}}
+var source = &Source{
+	Skipped:        map[string]bool{},
+	All:            map[string]ErrDef{},
+	JsTestPackages: map[string]bool{},
+}
 
 func Get(dir string) (*Source, error) {
 	baseDir = dir
@@ -118,7 +123,10 @@ func scanFile(filename string) error {
 	for _, cg := range file.Comments {
 		for _, c := range cg.List {
 			if strings.HasPrefix(c.Text, "// ke: ") {
-				val := struct{ Block struct{ Notest bool } }{}
+				val := struct {
+					Block   struct{ Notest bool }
+					Package struct{ Jstest bool }
+				}{}
 				err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
 				if err != nil {
 					return err
@@ -128,6 +136,9 @@ func scanFile(filename string) error {
 						File: relfilename,
 						Line: fset.Position(c.Pos()).Line,
 					})
+				}
+				if val.Package.Jstest {
+					source.JsTestPackages[pkg] = true
 				}
 			}
 		}

@@ -15,6 +15,5 @@ install:
   - go get -t -v ./...
 script:
   - go run cmd/gotests/gotests.go
-  - ./jstests.sh
 after_success:
   - bash <(curl -s https://codecov.io/bash)

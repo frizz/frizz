@@ -1,6 +1,6 @@
 package tester
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"fmt"
@@ -27,6 +27,19 @@ func Save(profiles []*cover.Profile, filename string) error {
 	}
 	defer f.Close()
 	dumpProfiles(merged, f)
+	return nil
+}
+
+func Js(packages map[string]bool) error {
+	for pkg, _ := range packages {
+		fmt.Println("gopherjs test -v", pkg)
+		exe := exec.Command("gopherjs", "test", "-v", pkg)
+		exe.Stderr = os.Stderr
+		exe.Stdout = os.Stdout
+		if err := exe.Run(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

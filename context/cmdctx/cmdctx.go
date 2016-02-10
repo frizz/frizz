@@ -1,6 +1,6 @@
 package cmdctx // import "kego.io/context/cmdctx"
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"fmt"

@@ -1,6 +1,6 @@
 package vosctx // import "kego.io/context/vosctx"
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 import (
 	"os"

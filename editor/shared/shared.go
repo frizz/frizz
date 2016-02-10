@@ -1,5 +1,7 @@
 package shared // import "kego.io/editor/shared"
 
+// ke: {"package": {"jstest": true}}
+
 type Info struct {
 	// Package path
 	Path string

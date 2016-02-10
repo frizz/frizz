@@ -1,5 +1,7 @@
 package tree // import "kego.io/editor/client/tree"
 
+// ke: {"package": {"jstest": true}}
+
 import (
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"

@@ -36,13 +36,13 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 	for _, pkgName := range scache.Keys() {
 		pkgInfo, ok := scache.Get(pkgName)
 		if !ok {
-			// ke: {"block": {"notest":true}}
+			// ke: {"block": {"notest": true}}
 			continue
 		}
 		for _, typName := range pkgInfo.Types.Keys() {
 			typ, ok := pkgInfo.Types.Get(typName)
 			if !ok {
-				// ke: {"block": {"notest":true}}
+				// ke: {"block": {"notest": true}}
 				continue
 			}
 			if typ.(*Type).Interface {

@@ -5,7 +5,7 @@ import (
 	"kego.io/system"
 )
 
-// ke: {"package": {"notest":true}}
+// ke: {"package": {"notest": true}}
 
 func NewMessage() *Message {
 	return &Message{

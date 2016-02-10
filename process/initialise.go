@@ -72,7 +72,7 @@ func (f FromFlags) getOptions() FromDefaults {
 		debug = f.Debug
 	}
 	if !flag.Parsed() {
-		// ke: {"block":{"notest":true}}
+		// ke: {"block": {"notest": true}}
 		flag.Parse()
 	}
 	if f.Path == nil {

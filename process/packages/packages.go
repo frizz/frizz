@@ -57,13 +57,13 @@ func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 			gosrc := fmt.Sprintf("%s/src", gopath)
 			relpath, err := filepath.Rel(gosrc, dir)
 			if err != nil {
-				// ke: {"block":{"notest":true}}
+				// ke: {"block": {"notest": true}}
 				// I don't *think* we can trigger this error if dir starts with gopath
 				savedError = err
 				continue
 			}
 			if relpath == "" {
-				// ke: {"block":{"notest":true}}
+				// ke: {"block": {"notest": true}}
 				// I don't *think* we can trigger this either
 				continue
 			}
@@ -72,7 +72,7 @@ func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 		}
 	}
 	if savedError != nil {
-		// ke: {"block":{"notest":true}}
+		// ke: {"block": {"notest": true}}
 		return "", savedError
 	}
 	return "", kerr.New("CXOETFPTGM", "Package not found for %s", dir)

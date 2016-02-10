@@ -52,7 +52,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (bool, strin
 	// TODO: This restricts the value to one of several built-in formats
 	// TODO: Format String
 	if r.Format != nil {
-		// ke: {"block": {"notest":true}}
+		// ke: {"block": {"notest": true}}
 		panic("TODO: Format rule implementation")
 	}
 

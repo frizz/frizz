@@ -82,7 +82,7 @@ func runValidateCommand(ctx context.Context, build bool, repeat bool) (err error
 		// signature.
 		status, ok := exiterr.Sys().(syscall.WaitStatus)
 		if !ok {
-			// ke: {"block":{"notest":true}}
+			// ke: {"block": {"notest": true}}
 			goto Repeat
 		}
 
@@ -95,7 +95,7 @@ func runValidateCommand(ctx context.Context, build bool, repeat bool) (err error
 			// Exit status 4 = validation error
 			return validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", strings.TrimSpace(combined.String()))}
 		default:
-			// ke: {"block":{"notest":true}}
+			// ke: {"block": {"notest": true}}
 			goto Repeat
 		}
 	}
@@ -107,7 +107,7 @@ Repeat:
 		if hashChanged {
 			cmd.Println("Types have changed since last run. Rebuilding...")
 		} else {
-			// ke: {"block":{"notest":true}}
+			// ke: {"block": {"notest": true}}
 			cmd.Println("Command returned an error. Rebuilding...")
 		}
 		if err := runValidateCommand(ctx, true, false); err != nil {
