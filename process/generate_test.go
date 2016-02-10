@@ -86,7 +86,7 @@ func TestGetInfo(t *testing.T) {
 
 func TestGenerateAll(t *testing.T) {
 
-	cb := tests.Context("a.b/c").Wg().Sempty().Jsystem().TempGopath(false)
+	cb := tests.Context("a.b/c").Wg().Sempty().Jsystem().TempGopath(true)
 	defer cb.Cleanup()
 
 	pathA, dirA := cb.TempPackage("a", map[string]string{
@@ -129,7 +129,7 @@ type: system:type`,
 
 func TestGenerate(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.NewContextBuilder().TempGopath(true)
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("d", map[string]string{
@@ -151,7 +151,7 @@ func TestGenerate(t *testing.T) {
 
 func TestGenerate_path(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.NewContextBuilder().TempGopath(true)
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("z", map[string]string{

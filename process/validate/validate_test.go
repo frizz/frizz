@@ -11,7 +11,7 @@ import (
 
 func TestValidate_NeedsTypes(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.NewContextBuilder().TempGopath(true)
 	defer cb.Cleanup()
 
 	files := map[string]string{
@@ -37,7 +37,7 @@ func TestValidate_NeedsTypes(t *testing.T) {
 
 func TestValidate_error1(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.NewContextBuilder().TempGopath(true)
 	defer cb.Cleanup()
 
 	files := map[string]string{
