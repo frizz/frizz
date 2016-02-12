@@ -13,7 +13,9 @@ import (
 	"sort"
 	"strings"
 
+	"golang.org/x/net/context"
 	"golang.org/x/tools/cover"
+	"kego.io/process/packages"
 )
 
 var baseDir string
@@ -43,8 +45,14 @@ func Js(packages map[string]bool) error {
 	return nil
 }
 
-func Get(dir string) ([]*cover.Profile, error) {
-	baseDir = dir
+func GetSingle(base string, singlePackage string) ([]*cover.Profile, error) {
+	return get(base, singlePackage)
+}
+func Get(base string) ([]*cover.Profile, error) {
+	return get(base, "")
+}
+func get(base string, singlePackage string) ([]*cover.Profile, error) {
+	baseDir = base
 	coverDir = filepath.Join(baseDir, ".coverage")
 
 	testing := false
@@ -54,6 +62,14 @@ func Get(dir string) ([]*cover.Profile, error) {
 	}
 	if _, err := os.Stat(coverDir); os.IsNotExist(err) {
 		os.Mkdir(coverDir, 0777)
+	}
+	singlePackageDir := ""
+	if singlePackage != "" {
+		var err error
+		singlePackageDir, err = packages.GetDirFromPackage(context.Background(), singlePackage)
+		if err != nil {
+			return nil, err
+		}
 	}
 	//os.Mkdir(coverDir, 0777)
 	//defer os.RemoveAll(coverDir)
@@ -66,7 +82,7 @@ func Get(dir string) ([]*cover.Profile, error) {
 		if strings.HasPrefix(file.Name(), ".") {
 			return nil
 		}
-		if file.IsDir() {
+		if file.IsDir() && (singlePackageDir == "" || singlePackageDir == filename) {
 			return processDir(filename)
 		}
 		return nil

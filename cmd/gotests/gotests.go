@@ -31,10 +31,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := tester.Js(source.JsTestPackages); err != nil {
-		log.Fatal(err)
-	}
+	//if err := tester.Js(source.JsTestPackages); err != nil {
+	//	log.Fatal(err)
+	//}
 
+	//profiles, err := tester.GetSingle(baseDir, "kego.io/system")
 	profiles, err := tester.Get(baseDir)
 	if err != nil {
 		log.Fatal(err)
