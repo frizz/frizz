@@ -1,6 +1,8 @@
 //go:generate ke kego.io/process/validate/tests
 package tests // import "kego.io/process/validate/tests"
 
+// ke: {"package": {"notest": true}}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/system"
