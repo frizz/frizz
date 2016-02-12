@@ -1,0 +1,12 @@
+description: E is a type containing an array of strings, and a map of strings
+type: system:type
+id: e
+fields:
+    a:
+        type: system:@array
+        items:
+            type: system:@string
+    b:
+        type: system:@map
+        items:
+            type: system:@string

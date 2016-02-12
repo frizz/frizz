@@ -42,11 +42,17 @@ func (r *StringRule) Validate(ctx context.Context) (ok bool, message string, err
 
 var _ Validator = (*StringRule)(nil)
 
-func (r *StringRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
+func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+
+	// TODO: do this to all enforcers
+	//i, ok := data.(StringInterface)
+	//if ok {
+	//	data = i.GetString(ctx)
+	//}
 
 	s, ok := data.(*String)
 	if !ok && data != nil {
-		return false, "", kerr.New("SXFBXGQSEA", "data %T should be *system.String.", data)
+		return false, "", kerr.New("SXFBXGQSEA", "String rule: value %T should be *system.String", data)
 	}
 
 	// TODO: This restricts the value to one of several built-in formats

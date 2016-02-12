@@ -15,6 +15,7 @@ import (
 
 func TestScanFilesToBytes(t *testing.T) {
 	cb := tests.New().TempGopath(false)
+	defer cb.Cleanup()
 	_, dir := cb.TempPackage("a", map[string]string{
 		"a.json": "a",
 		"b.json": "b",
@@ -81,6 +82,7 @@ func TestScanFilesToBytes(t *testing.T) {
 
 func TestScanDirToFiles(t *testing.T) {
 	cb := tests.New().TempGopath(false)
+	defer cb.Cleanup()
 	_, dir := cb.TempPackage("a", map[string]string{
 		"b.json": "c",
 	})

@@ -1,0 +1,12 @@
+description: C is an interface with a rule.
+id: c
+type: system:type
+interface: true
+rule:
+    type: system:type
+    embed:
+        - system:rule
+    fields:
+        fail:
+            type: system:@bool
+

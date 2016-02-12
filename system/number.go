@@ -24,7 +24,7 @@ func (n *Number) Value() float64 {
 	return float64(*n)
 }
 
-func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
+func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
 
 	n, ok := data.(*Number)
 	if !ok && data != nil {

@@ -27,17 +27,36 @@ func (c *ContextBuilder) TempGopath(sys bool) *ContextBuilder {
 	}
 	c.tempDirs = append(c.tempDirs, gopath)
 	os.Mkdir(filepath.Join(gopath, "src"), os.FileMode(0777))
-	if sys {
-		realSystemDir, err := packages.GetDirFromPackage(context.Background(), "kego.io/system")
-		if err != nil {
-			c.Cleanup()
-			panic(kerr.Wrap("STHSVMNWLR", err).Error())
-		}
-		os.MkdirAll(filepath.Join(gopath, "src", "kego.io", "system"), os.FileMode(0777))
-		copyDirJson(realSystemDir, filepath.Join(gopath, "src", "kego.io", "system"))
-	}
-	c.OsVar("GOPATH", gopath)
 	c.gopathInitialized = true
+	c.OsVar("GOPATH", gopath)
+	if sys {
+		c.CopyToTemp("kego.io/system")
+	}
+	return c
+}
+
+func (c *ContextBuilder) CopyToTemp(path string) *ContextBuilder {
+	if !c.gopathInitialized {
+		c.Cleanup()
+		panic(kerr.New("FCUPXYWDKW", "Gopath must be initialized with TempGopath or RealGopath").Error())
+	}
+
+	gopath := packages.GetCurrentGopath(c.Ctx())
+
+	realDir, err := packages.GetDirFromPackage(context.Background(), path)
+	if err != nil {
+		c.Cleanup()
+		panic(kerr.Wrap("XNLAQAHXKC", err).Error())
+	}
+
+	// path is a Go path, so we separate with /
+	parts := append([]string{gopath, "src"}, strings.Split(path, "/")...)
+	newDir := filepath.Join(parts...)
+
+	os.MkdirAll(newDir, os.FileMode(0777))
+	if err := copyDataFiles(realDir, newDir); err != nil {
+		panic(kerr.Wrap("MEIKIUHPWN", err).Error())
+	}
 	return c
 }
 
@@ -62,7 +81,7 @@ func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path
 	}
 
 	for name, contents := range files {
-		if strings.HasSuffix(name, ".yaml") {
+		if strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml") {
 			// our Go files are tab indented, but yaml files don't like tabs.
 			files[name] = strings.Replace(contents, "\t", "    ", -1)
 		}
@@ -107,7 +126,7 @@ func (c *ContextBuilder) TempFile(name string, contents string) *ContextBuilder 
 	if c.tempPackageDir == "" {
 		panic("Need to call tempPackage first.")
 	}
-	if strings.HasSuffix(name, ".yaml") {
+	if strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml") {
 		// our Go files are tab indented, but yaml files don't like tabs.
 		contents = strings.Replace(contents, "\t", "    ", -1)
 	}
@@ -123,26 +142,6 @@ func (c *ContextBuilder) Cleanup() {
 	}
 
 }
-
-/*
-func (c *ContextBuilder) TempNamespace() *ContextBuilder {
-	c.TempNamespaceNamed("")
-	return c
-}
-
-func (c *ContextBuilder) TempNamespaceNamed(name string) *ContextBuilder {
-	gopath := GetCurrentGopath(ctx)
-
-	srcDir := filepath.Join(gopath, "src")
-	namespaceDir, err := ioutil.TempDir(srcDir, "tmp")
-	if err != nil {
-		return "", err
-	}
-
-	return namespaceDir, nil
-	return c
-}
-*/
 
 func copyFile(source string, dest string) (err error) {
 
@@ -171,7 +170,7 @@ func copyFile(source string, dest string) (err error) {
 	return
 }
 
-func copyDirJson(source string, dest string) (err error) {
+func copyDataFiles(source string, dest string) (err error) {
 
 	// get properties of source dir
 	sourceinfo, err := os.Stat(source)
@@ -195,7 +194,7 @@ func copyDirJson(source string, dest string) (err error) {
 
 		destinationfilepointer := dest + "/" + obj.Name()
 
-		if !obj.IsDir() && strings.HasSuffix(obj.Name(), ".json") {
+		if !obj.IsDir() && hasCorrectExtension(obj.Name()) {
 			// perform copy
 			err = copyFile(sourcefilepointer, destinationfilepointer)
 			if err != nil {
@@ -205,4 +204,10 @@ func copyDirJson(source string, dest string) (err error) {
 
 	}
 	return nil
+}
+
+func hasCorrectExtension(name string) bool {
+	return strings.HasSuffix(name, ".json") ||
+		strings.HasSuffix(name, ".yml") ||
+		strings.HasSuffix(name, ".yaml")
 }

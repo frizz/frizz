@@ -9,7 +9,7 @@ import (
 	"kego.io/kerr"
 )
 
-func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
+func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
 
 	if r.MaxItems == nil && r.MinItems == nil && !r.UniqueItems {
 		// We should return early here in order to prevent needless reflection

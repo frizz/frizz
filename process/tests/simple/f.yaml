@@ -1,0 +1,29 @@
+description: F is a type with an extra rule attached to the field
+type: system:type
+id: f
+fields:
+    a:
+        type: "@a"
+        rules:
+            -
+                selector: ".b"
+                type: system:@string
+                minLength: 5
+    b:
+        type: system:@array
+        items:
+            type: "@a"
+            rules:
+                -
+                    selector: ".b"
+                    type: system:@string
+                    minLength: 5
+    c:
+        type: system:@map
+        items:
+            type: "@a"
+            rules:
+                -
+                    selector: ".b"
+                    type: system:@string
+                    minLength: 5

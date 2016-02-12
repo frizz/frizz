@@ -9,7 +9,7 @@ import (
 	"kego.io/kerr"
 )
 
-func (r *MapRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
+func (r *MapRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
 
 	if r.MaxItems == nil && r.MinItems == nil {
 		// We should return early here in order to prevent needless reflection

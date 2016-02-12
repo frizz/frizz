@@ -32,7 +32,7 @@ func (i *Int) Value() int {
 	return int(*i)
 }
 
-func (r *IntRule) Enforce(ctx context.Context, data interface{}) (bool, string, error) {
+func (r *IntRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
 
 	i, ok := data.(*Int)
 	if !ok && data != nil {
