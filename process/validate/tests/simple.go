@@ -1,5 +1,5 @@
-//go:generate ke kego.io/process/tests/simple
-package simple // import "kego.io/process/tests/simple"
+//go:generate ke kego.io/process/validate/tests
+package tests // import "kego.io/process/validate/tests"
 
 import (
 	"golang.org/x/net/context"

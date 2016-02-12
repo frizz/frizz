@@ -9,11 +9,11 @@ import (
 
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
-	_ "kego.io/process/tests/simple"
+	_ "kego.io/process/validate/tests"
 )
 
 func TestFieldExtraMap(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -21,19 +21,19 @@ func TestFieldExtraMap(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:f
+			type: tests:f
 			id: b
 			c:
 				a:
-					type: simple:a
+					type: tests:a
 					b: foo
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -41,7 +41,7 @@ func TestFieldExtraMap(t *testing.T) {
 }
 
 func TestFieldExtraArray(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -49,19 +49,19 @@ func TestFieldExtraArray(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:f
+			type: tests:f
 			id: b
 			b:
 				-
-					type: simple:a
+					type: tests:a
 					b: foo
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -69,7 +69,7 @@ func TestFieldExtraArray(t *testing.T) {
 }
 
 func TestFieldExtraRulesObject(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -77,18 +77,18 @@ func TestFieldExtraRulesObject(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:f
+			type: tests:f
 			id: b
 			a:
-				type: simple:a
+				type: tests:a
 				b: foo
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -125,7 +125,7 @@ func TestValidateObjectChildren(t *testing.T) {
 }
 
 func TestValidateCollection(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -133,10 +133,10 @@ func TestValidateCollection(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:e
+			type: tests:e
 			id: b
 			rules:
 				-
@@ -149,13 +149,13 @@ func TestValidateCollection(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.NoError(t, err)
 
 	cb.TempFile("c.yaml", `
-			type: simple:e
+			type: tests:e
 			id: c
 			rules:
 				-
@@ -174,7 +174,7 @@ func TestValidateCollection(t *testing.T) {
 	cb.RemoveTempFile("c.yaml")
 
 	cb.TempFile("d.yaml", `
-			type: simple:e
+			type: tests:e
 			id: d
 			rules:
 				-
@@ -190,7 +190,7 @@ func TestValidateCollection(t *testing.T) {
 	assert.NoError(t, err)
 
 	cb.TempFile("e.yaml", `
-			type: simple:e
+			type: tests:e
 			id: e
 			rules:
 				-
@@ -208,7 +208,7 @@ func TestValidateCollection(t *testing.T) {
 }
 
 func TestRulesEnforcer(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -216,19 +216,19 @@ func TestRulesEnforcer(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:a
+			type: tests:a
 			id: b
 			b: foo
 			rules:
 				-
-					type: simple:@a
+					type: tests:@a
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -236,7 +236,7 @@ func TestRulesEnforcer(t *testing.T) {
 }
 
 func TestInterface(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -244,59 +244,26 @@ func TestInterface(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:d
+			type: tests:d
 			id: b
 			a:
-				type: simple:a
+				type: tests:a
 				b: foo
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
 	assert.HasError(t, err, "HLKQWDCMRN")
 }
 
-/*
-func TestTestRulesApplyToInterface(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
-	defer cb.Cleanup()
-
-	path, dir := cb.TempPackage("a", map[string]string{
-		"a.yml": `
-			type: system:package
-			id: a
-			aliases:
-				"kego.io/process/tests/simple": simple
-		`,
-		"b.yml": `
-			type: simple:b
-			id: b
-			c:
-				type: simple:a
-				b: abcabc
-			rules:
-				-   selector: ".c"
-					type: "system:@string"
-					maxLength: 5
-		`,
-	})
-
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
-
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
-}
-*/
-
 func TestTestRulesApplyToObjects(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/tests/simple")
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -304,10 +271,10 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/tests/simple": simple
+				"kego.io/process/validate/tests": tests
 		`,
 		"b.yml": `
-			type: simple:a
+			type: tests:a
 			id: b
 			b: foobar
 			rules:
@@ -317,7 +284,7 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/tests/simple", "simple").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
