@@ -15,7 +15,7 @@ import (
 
 func TestDefaultInterfaceNativeType(t *testing.T) {
 
-	cb := tests.NewContextBuilder()
+	cb := tests.New()
 	defer cb.Cleanup()
 
 	_, err := runKe(cb, "a", map[string]string{
@@ -36,7 +36,7 @@ func TestDefaultInterfaceNativeType(t *testing.T) {
 }
 func TestNeedsDummyRule(t *testing.T) {
 
-	cb := tests.NewContextBuilder()
+	cb := tests.New()
 	defer cb.Cleanup()
 
 	_, err := runKe(cb, "a", map[string]string{
@@ -59,7 +59,7 @@ func TestNeedsDummyRule(t *testing.T) {
 
 func TestInt(t *testing.T) {
 
-	cb := tests.NewContextBuilder()
+	cb := tests.New()
 	defer cb.Cleanup()
 
 	_, err := runKe(cb, "a", map[string]string{
@@ -108,7 +108,7 @@ func TestInt(t *testing.T) {
 
 func TestSelector(t *testing.T) {
 
-	cb := tests.NewContextBuilder()
+	cb := tests.New()
 	defer cb.Cleanup()
 
 	_, err := runKe(cb, "a", map[string]string{
@@ -148,7 +148,7 @@ func TestSelector(t *testing.T) {
 
 func TestRules(t *testing.T) {
 
-	cb := tests.NewContextBuilder()
+	cb := tests.New()
 	defer cb.Cleanup()
 
 	_, err := runKe(cb, "a", map[string]string{

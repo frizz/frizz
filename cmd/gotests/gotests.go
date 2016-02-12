@@ -35,7 +35,7 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	//profiles, err := tester.GetSingle(baseDir, "kego.io/system")
+	//profiles, err := tester.GetSingle(baseDir, "kego.io/process/scanner")
 	profiles, err := tester.Get(baseDir)
 	if err != nil {
 		log.Fatal(err)

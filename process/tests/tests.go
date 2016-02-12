@@ -22,10 +22,17 @@ type ContextBuilder struct {
 	tempNamespace     string
 	tempPackageDir    string
 	tempDirs          []string
+	cancel            context.CancelFunc
 }
 
-func NewContextBuilder() *ContextBuilder {
-	return &ContextBuilder{ctx: context.Background()}
+func New() *ContextBuilder {
+	return From(context.Background())
+}
+
+func From(ctx context.Context) *ContextBuilder {
+	ctx, cancel := context.WithCancel(ctx)
+	cb := &ContextBuilder{ctx: ctx, cancel: cancel}
+	return cb
 }
 
 func Context(path string) *ContextBuilder {
@@ -38,11 +45,12 @@ func Context(path string) *ContextBuilder {
 	ctx := context.Background()
 	ctx = envctx.NewContext(ctx, env)
 
-	return &ContextBuilder{ctx: ctx}
+	return From(ctx)
 }
 
-func ContextFrom(ctx context.Context) *ContextBuilder {
-	return &ContextBuilder{ctx: ctx}
+func (c *ContextBuilder) Cancel() *ContextBuilder {
+	c.cancel()
+	return c
 }
 
 func (c *ContextBuilder) Ctx() context.Context {

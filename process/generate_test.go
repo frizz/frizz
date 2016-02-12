@@ -129,7 +129,7 @@ type: system:type`,
 
 func TestGenerate(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(true)
+	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("d", map[string]string{
@@ -151,7 +151,7 @@ func TestGenerate(t *testing.T) {
 
 func TestGenerate_path(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(true)
+	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("z", map[string]string{

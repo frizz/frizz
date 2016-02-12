@@ -35,7 +35,7 @@ func TestGetOptions(t *testing.T) {
 
 func TestInitialise(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(true)
+	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
 	pathA, dirA := cb.TempPackage("a", map[string]string{

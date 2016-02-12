@@ -28,7 +28,7 @@ func TestGuessPackageName(t *testing.T) {
 
 func TestGetPackageName(t *testing.T) {
 
-	cb := tests.NewContextBuilder().RealGopath()
+	cb := tests.New().RealGopath()
 	defer cb.Cleanup()
 
 	path, _ := cb.TempPackage("a", map[string]string{})

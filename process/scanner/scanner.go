@@ -31,7 +31,7 @@ func ScanDirToFiles(ctx context.Context, dir string, recursive bool) chan File {
 		select {
 		case out <- File{file, nil}:
 		case <-ctx.Done():
-			return ctx.Err()
+			return kerr.Wrap("IGULDFRIFY", ctx.Err())
 		}
 		return nil
 	}
@@ -130,45 +130,3 @@ func ProcessFile(file string) ([]byte, error) {
 
 	return bytes, nil
 }
-
-/*
-type NodeError struct {
-	Node *node.Node
-	Err  error
-}
-
-func ScanBytesToNodes(ctx context.Context, in chan ContentError) chan NodeError {
-
-	out := make(chan NodeError)
-
-	process := func(bytes []byte) NodeError {
-
-	}
-
-	go func() {
-
-		defer close(out)
-
-		for {
-			select {
-			case value, open := <-in:
-				if !open {
-					return
-				}
-				if value.Err != nil {
-					out <- NodeError{nil, kerr.New("OHEUBTKFQU", value.Err, "Received error")}
-					return
-				}
-				out <- process(value.Bytes)
-			case <-ctx.Done():
-				out <- ContentError{nil, kerr.New("CEEPFUFHLA", ctx.Err(), "Context done")}
-				return
-			}
-		}
-
-	}()
-
-	return out
-
-}
-*/

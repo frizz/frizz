@@ -49,7 +49,7 @@ func TestScan_errors(t *testing.T) {
 
 func TestParseRule(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(true)
+	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -92,7 +92,7 @@ func TestParseRule(t *testing.T) {
 
 func TestParse1(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(true)
+	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -124,7 +124,7 @@ func TestParse1(t *testing.T) {
 
 func TestParse(t *testing.T) {
 
-	cb := tests.NewContextBuilder().TempGopath(true)
+	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
 	files := map[string]string{

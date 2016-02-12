@@ -47,7 +47,7 @@ func TestLogger(t *testing.T) {
 
 func TestRun(t *testing.T) {
 
-	cb := tests.NewContextBuilder().RealGopath()
+	cb := tests.New().RealGopath()
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("d", map[string]string{

@@ -12,7 +12,7 @@ import (
 )
 
 func TestGetCurrentGopath(t *testing.T) {
-	cb := tests.NewContextBuilder()
+	cb := tests.New()
 	abc := filepath.Join("a", "b", "c")
 	def := filepath.Join("d", "e", "f")
 	cb.OsVar("GOPATH", abc+string(filepath.ListSeparator)+def)
@@ -24,7 +24,7 @@ func TestGetCurrentGopath(t *testing.T) {
 }
 
 func TestGetPackageFromDir(t *testing.T) {
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.New().TempGopath(false)
 	defer cb.Cleanup()
 	packagePath, packageDir := cb.TempPackage("a", map[string]string{})
 
@@ -45,7 +45,7 @@ func TestGetPackageFromDir(t *testing.T) {
 }
 
 func TestGetDirFromEmptyPackage(t *testing.T) {
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.New().TempGopath(false)
 	defer cb.Cleanup()
 	packagePath, packageDir := cb.TempPackage("a", map[string]string{})
 
@@ -66,7 +66,7 @@ func TestGetDirFromEmptyPackage(t *testing.T) {
 
 }
 func TestGetDirFromPackage(t *testing.T) {
-	cb := tests.NewContextBuilder().TempGopath(false)
+	cb := tests.New().TempGopath(false)
 	defer cb.Cleanup()
 	packagePath, packageDir := cb.TempPackage("a", map[string]string{})
 	calculatedDir, err := GetDirFromPackage(cb.Ctx(), packagePath)
