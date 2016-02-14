@@ -1,5 +1,7 @@
 package ke // import "kego.io/ke"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"io"
 	"os"

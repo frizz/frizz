@@ -16,6 +16,7 @@ import (
 	"golang.org/x/tools/cover"
 	"kego.io/cmd/gotests/scanner"
 	"kego.io/cmd/gotests/tester"
+	"kego.io/kerr"
 	"kego.io/process/packages"
 )
 
@@ -45,7 +46,8 @@ func main() {
 	if all != nil && *all {
 		profiles, err = tester.Get(baseDir)
 	} else {
-		profiles, err = tester.GetSingle(baseDir, "kego.io/system")
+		profiles, err = tester.Get(baseDir)
+		//profiles, err = tester.GetSingle(baseDir, "kego.io/system")
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -80,9 +82,28 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := checkComplete(profiles, source); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := tester.Save(profiles, filepath.Join(baseDir, "coverage.out")); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func checkComplete(profiles []*cover.Profile, source *scanner.Source) error {
+	for _, profile := range profiles {
+		pkg := getPackage(profile)
+		_, ok := source.CompletePackages[pkg]
+		if ok {
+			for _, block := range profile.Blocks {
+				if block.Count == 0 {
+					return kerr.New("GNLYPXHTNF", "Untested code in %s:%d-%d", profile.FileName, block.StartLine, block.EndLine)
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func excludeGenerated(profiles *[]*cover.Profile) error {
@@ -153,13 +174,8 @@ func excludeFuncs(profiles map[string]*cover.Profile, source *scanner.Source) er
 func excludePackages(profiles *[]*cover.Profile, source *scanner.Source) error {
 	out := []*cover.Profile{}
 	for _, profile := range *profiles {
-		dir, _ := filepath.Split(profile.FileName)
-		if strings.HasSuffix(dir, "/") {
-			dir = dir[:len(dir)-1]
-		}
-		// dir is relative to the gopath/src, so we can just convert to slashes to get the package
-		// path.
-		pkg := filepath.ToSlash(dir)
+
+		pkg := getPackage(profile)
 
 		_, ok := source.ExcludedPackages[pkg]
 
@@ -192,4 +208,13 @@ func excludeSkips(profiles map[string]*cover.Profile, source *scanner.Source) er
 		}
 	}
 	return nil
+}
+
+func getPackage(profile *cover.Profile) string {
+	dir, _ := filepath.Split(profile.FileName)
+	if strings.HasSuffix(dir, "/") {
+		dir = dir[:len(dir)-1]
+	}
+	// dir is relative to the gopath/src, so we can just convert to slashes to get the package path.
+	return filepath.ToSlash(dir)
 }

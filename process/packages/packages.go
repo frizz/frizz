@@ -1,5 +1,7 @@
 package packages // import "kego.io/process/packages"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"fmt"
 	"os/exec"

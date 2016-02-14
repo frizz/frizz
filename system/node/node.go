@@ -1,5 +1,7 @@
 package node // import "kego.io/system/node"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/json"

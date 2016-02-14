@@ -1,5 +1,7 @@
 package scanner // import "kego.io/process/scanner"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"io/ioutil"
 	"os"

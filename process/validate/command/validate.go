@@ -1,5 +1,7 @@
 package command // import "kego.io/process/validate/command"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"fmt"
 	"os"

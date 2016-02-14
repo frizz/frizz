@@ -1,6 +1,8 @@
 //go:generate ke kego.io/system
 package system // import "kego.io/system"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"strings"
 

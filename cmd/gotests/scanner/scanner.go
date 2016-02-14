@@ -27,6 +27,7 @@ type Source struct {
 	ExcludedBlocks   []PosDef
 	ExcludedPackages map[string]bool
 	ExcludedFuncs    []FuncDef
+	CompletePackages map[string]bool
 	Skipped          map[string]bool
 	All              map[string]ErrDef
 	JsTestPackages   map[string]bool
@@ -49,6 +50,7 @@ type FuncDef struct {
 var source = &Source{
 	Skipped:          map[string]bool{},
 	ExcludedPackages: map[string]bool{},
+	CompletePackages: map[string]bool{},
 	All:              map[string]ErrDef{},
 	JsTestPackages:   map[string]bool{},
 }
@@ -136,8 +138,9 @@ func scanFile(filename string) error {
 						Notest bool
 					}
 					Package struct {
-						Jstest bool
-						Notest bool
+						Jstest   bool
+						Notest   bool
+						Complete bool
 					}
 				}{}
 				err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
@@ -149,6 +152,9 @@ func scanFile(filename string) error {
 						File: relfilename,
 						Line: fset.Position(c.Pos()).Line,
 					})
+				}
+				if val.Package.Complete {
+					source.CompletePackages[pkg] = true
 				}
 				if val.Package.Notest {
 					source.ExcludedPackages[pkg] = true

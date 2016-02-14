@@ -1,5 +1,7 @@
 package validate // import "kego.io/process/validate"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
