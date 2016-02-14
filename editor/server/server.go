@@ -308,46 +308,39 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		pkgBytes = b
 	}
 
-	getImport := func(importPath string) (*shared.ImportInfo, error) {
-		importPackageInfo, ok := scache.Get(importPath)
+	imports := map[string]*shared.ImportInfo{}
+
+	var scan func(string) error
+	scan = func(path string) error {
+		if _, ok := imports[path]; ok {
+			return nil
+		}
+		syspi, ok := scache.Get(path)
 		if !ok {
-			return nil, kerr.New("VIGKIUPNCF", "%s not found in sys ctx")
+			return kerr.New("VIGKIUPNCF", "%s not found in sys ctx")
 		}
 		info := &shared.ImportInfo{
-			Path:    importPath,
-			Aliases: importPackageInfo.Aliases,
+			Path:    path,
+			Aliases: syspi.Aliases,
 			Types:   map[string][]byte{},
 		}
-		for _, name := range importPackageInfo.Files.Keys() {
-			if b, ok := importPackageInfo.Files.Get(name); ok {
+		for _, name := range syspi.Files.Keys() {
+			if b, ok := syspi.Files.Get(name); ok {
 				info.Types[name] = b
 			}
 		}
-		return info, nil
-	}
+		imports[path] = info
 
-	systemImport, err := getImport("kego.io/system")
-	if err != nil {
-		return kerr.Wrap("SAFQNEKXAP", err)
-	}
-	imports := map[string]*shared.ImportInfo{"kego.io/system": systemImport}
-	var scan func(string) error
-	scan = func(p string) error {
-		if _, ok := imports[p]; ok {
-			return nil
-		}
-		aliasImport, err := getImport(p)
-		if err != nil {
-			return kerr.Wrap("YTHDSRBMBW", err)
-		}
-		imports[p] = aliasImport
-
-		for child, _ := range aliasImport.Aliases {
+		for child, _ := range syspi.Aliases {
 			if err := scan(child); err != nil {
 				return kerr.Wrap("NCULMUUUOT", err)
 			}
 		}
 		return nil
+	}
+	// First we always import system
+	if err := scan("kego.io/system"); err != nil {
+		return kerr.Wrap("KRXSLOJKWV", err)
 	}
 	if err := scan(env.Path); err != nil {
 		return kerr.Wrap("EELKQDCJGN", err)
