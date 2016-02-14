@@ -28,7 +28,7 @@ func Save(profiles []*cover.Profile, filename string) error {
 		return err
 	}
 	defer f.Close()
-	dumpProfiles(merged, f)
+	dumpProfiles(profiles, f)
 	return nil
 }
 

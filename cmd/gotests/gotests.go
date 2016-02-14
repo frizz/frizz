@@ -45,7 +45,7 @@ func main() {
 	if all != nil && *all {
 		profiles, err = tester.Get(baseDir)
 	} else {
-		profiles, err = tester.GetSingle(baseDir, "kego.io/process/validate/command")
+		profiles, err = tester.GetSingle(baseDir, "kego.io/system")
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -56,7 +56,11 @@ func main() {
 		profilesMap[p.FileName] = p
 	}
 
-	if err := excludeGenerated(profilesMap); err != nil {
+	if err := excludeGenerated(&profiles); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := excludePackages(&profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
@@ -72,10 +76,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := excludePackages(profilesMap, source); err != nil {
-		log.Fatal(err)
-	}
-
 	if err := excludeSkips(profilesMap, source); err != nil {
 		log.Fatal(err)
 	}
@@ -85,39 +85,16 @@ func main() {
 	}
 }
 
-func excludeGenerated(profiles map[string]*cover.Profile) error {
-	for filename, _ := range profiles {
-		if strings.HasSuffix(filename, "/generated.go") {
-			fmt.Println("Excluding", filename)
-			delete(profiles, filename)
-			/*
-				// summarize the original Profile
-				statements := 0
-				lastLine := 0
-				lastCol := 0
-				for _, pb := range p.Blocks {
-					statements += pb.NumStmt
-					if pb.EndLine >= lastLine {
-						lastLine = pb.EndLine
-						if pb.EndCol >= lastCol {
-							lastCol = pb.EndCol
-						}
-					}
-				}
-				// overwrite with a single block
-				p.Blocks = []cover.ProfileBlock{
-					cover.ProfileBlock{
-						StartLine: 0,
-						StartCol:  0,
-						EndLine:   lastLine,
-						EndCol:    lastCol,
-						NumStmt:   statements,
-						Count:     1,
-					},
-				}
-			*/
+func excludeGenerated(profiles *[]*cover.Profile) error {
+	out := []*cover.Profile{}
+	for _, profile := range *profiles {
+		if strings.HasSuffix(profile.FileName, "/generated.go") {
+			fmt.Println("Excluding", profile.FileName)
+		} else {
+			out = append(out, profile)
 		}
 	}
+	*profiles = out
 
 	return nil
 }
@@ -173,22 +150,26 @@ func excludeFuncs(profiles map[string]*cover.Profile, source *scanner.Source) er
 	return nil
 }
 
-func excludePackages(profiles map[string]*cover.Profile, source *scanner.Source) error {
-	for path, _ := range source.ExcludedPackages {
-		for filename, _ := range profiles {
-			dir, _ := filepath.Split(filename)
-			if strings.HasSuffix(dir, "/") {
-				dir = dir[:len(dir)-1]
-			}
-			// dir is relative to the gopath/src, so we can just convert to slashes to get the
-			// package path.
-			pkg := filepath.ToSlash(dir)
+func excludePackages(profiles *[]*cover.Profile, source *scanner.Source) error {
+	out := []*cover.Profile{}
+	for _, profile := range *profiles {
+		dir, _ := filepath.Split(profile.FileName)
+		if strings.HasSuffix(dir, "/") {
+			dir = dir[:len(dir)-1]
+		}
+		// dir is relative to the gopath/src, so we can just convert to slashes to get the package
+		// path.
+		pkg := filepath.ToSlash(dir)
 
-			if path == pkg {
-				delete(profiles, filename)
-			}
+		_, ok := source.ExcludedPackages[pkg]
+
+		if ok {
+			fmt.Printf("Excluding package %s - %s\n", pkg, profile.FileName)
+		} else {
+			out = append(out, profile)
 		}
 	}
+	*profiles = out
 	return nil
 }
 
