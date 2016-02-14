@@ -23,7 +23,7 @@ var baseDir string
 
 func main() {
 
-	all := flag.Bool("all", "false", "If -all is spefified, gotests will always run all the tests")
+	all := flag.Bool("all", false, "If -all is spefified, gotests will always run all the tests")
 
 	var err error
 	baseDir, err = packages.GetDirFromPackage(context.Background(), "kego.io")
