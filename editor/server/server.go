@@ -318,8 +318,8 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 			Aliases: importPackageInfo.Aliases,
 			Types:   map[string][]byte{},
 		}
-		for _, name := range importPackageInfo.TypeSource.Keys() {
-			if b, ok := importPackageInfo.TypeSource.Get(name); ok {
+		for _, name := range importPackageInfo.Files.Keys() {
+			if b, ok := importPackageInfo.Files.Get(name); ok {
 				info.Types[name] = b
 			}
 		}

@@ -77,8 +77,8 @@ func Start() error {
 		return kerr.New("SRPHQPBBRX", "%s not found in sys ctx", app.env.Path)
 	}
 	types := map[string][]byte{}
-	for _, name := range pcache.TypeSource.Keys() {
-		if b, ok := pcache.TypeSource.Get(name); ok {
+	for _, name := range pcache.Files.Keys() {
+		if b, ok := pcache.Files.Get(name); ok {
 			types[name] = b
 		}
 	}

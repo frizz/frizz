@@ -104,7 +104,7 @@ func (c *ContextBuilder) initSys() *sysctx.SysCache {
 	}
 	return scache
 }
-func (c *ContextBuilder) initSysPkg(path string) *sysctx.PackageInfo {
+func (c *ContextBuilder) initSysPkg(path string) *sysctx.SysPackageInfo {
 	scache := c.initSys()
 	pi, ok := scache.Get(path)
 	if !ok {
@@ -256,13 +256,13 @@ func (c *ContextBuilder) JtypePathRuleIface(path string, name string, typ reflec
 		name = name[1:]
 	}
 	if isrule {
-		p.Types.Set(name, &jsonctx.TypeInfo{
+		p.Types.Set(name, &jsonctx.JsonTypeInfo{
 			Name:  name,
 			Rule:  typ,
 			Iface: iface,
 		})
 	} else {
-		p.Types.Set(name, &jsonctx.TypeInfo{
+		p.Types.Set(name, &jsonctx.JsonTypeInfo{
 			Name:  name,
 			Type:  typ,
 			Rule:  rule,
@@ -289,7 +289,7 @@ func (c *ContextBuilder) Spkg(path string) *ContextBuilder {
 
 // Sauto runs parser.Parse, but to stop an import cycle we pass the parser.Parse function in as a
 // parameter
-func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx.PackageInfo, error)) *ContextBuilder {
+func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx.SysPackageInfo, error)) *ContextBuilder {
 	env := c.initEnv()
 	c.initSys()
 	c.initCmd()
@@ -303,7 +303,7 @@ func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx
 
 // Ssystem runs parser.Parse on the system package, but to stop an import cycle we pass the
 // parser.Parse function in as a parameter
-func (c *ContextBuilder) Ssystem(parseParse func(context.Context, string) (*sysctx.PackageInfo, error)) *ContextBuilder {
+func (c *ContextBuilder) Ssystem(parseParse func(context.Context, string) (*sysctx.SysPackageInfo, error)) *ContextBuilder {
 	c.initEnv()
 	c.initSys()
 	c.initCmd()

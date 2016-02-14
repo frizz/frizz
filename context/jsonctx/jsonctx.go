@@ -17,8 +17,8 @@ import (
 )
 
 type JsonCache struct {
-	Packages *PackageCache
-	Dummies  *DummyCache
+	Packages *JsonPackages
+	Dummies  *JsonDummies
 }
 
 const RULE_PREFIX = "@"
@@ -106,60 +106,60 @@ func (c *JsonCache) GetTypeByInterface(iface reflect.Type) (typ reflect.Type, fo
 	return nil, false
 }
 
-type PackageCache struct {
+type JsonPackages struct {
 	sync.RWMutex
-	m map[string]*PackageInfo
+	m map[string]*JsonPackageInfo
 }
 
-type PackageInfo struct {
+type JsonPackageInfo struct {
 	Path  string
 	Hash  uint64
-	Types *TypeCache
+	Types *JsonTypes
 }
 
-type TypeCache struct {
+type JsonTypes struct {
 	sync.RWMutex
-	m map[string]*TypeInfo
+	m map[string]*JsonTypeInfo
 }
 
-type DummyCache struct {
+type JsonDummies struct {
 	sync.RWMutex
 	m map[reflect.Type]reflect.Type
 }
 
-type TypeInfo struct {
+type JsonTypeInfo struct {
 	Name  string
 	Type  reflect.Type
 	Rule  reflect.Type
 	Iface reflect.Type
 }
 
-func (c *PackageCache) Len() int {
+func (c *JsonPackages) Len() int {
 	c.RLock()
 	defer c.RUnlock()
 	return len(c.m)
 }
 
-func (c *PackageCache) Set(path string, hash uint64) *PackageInfo {
+func (c *JsonPackages) Set(path string, hash uint64) *JsonPackageInfo {
 	c.Lock()
 	defer c.Unlock()
-	p := &PackageInfo{
+	p := &JsonPackageInfo{
 		Path:  path,
 		Hash:  hash,
-		Types: &TypeCache{m: map[string]*TypeInfo{}},
+		Types: &JsonTypes{m: map[string]*JsonTypeInfo{}},
 	}
 	c.m[path] = p
 	return p
 }
 
-func (c *PackageCache) Get(path string) (*PackageInfo, bool) {
+func (c *JsonPackages) Get(path string) (*JsonPackageInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	info, ok := c.m[path]
 	return info, ok
 }
 
-func (c *PackageCache) Keys() []string {
+func (c *JsonPackages) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
@@ -170,13 +170,13 @@ func (c *PackageCache) Keys() []string {
 	return out
 }
 
-func (c *TypeCache) Set(id string, t *TypeInfo) {
+func (c *JsonTypes) Set(id string, t *JsonTypeInfo) {
 	c.Lock()
 	defer c.Unlock()
 	c.m[id] = t
 }
 
-func (c *TypeCache) Get(id string) (*TypeInfo, bool) {
+func (c *JsonTypes) Get(id string) (*JsonTypeInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	if strings.HasPrefix(id, RULE_PREFIX) {
@@ -186,13 +186,13 @@ func (c *TypeCache) Get(id string) (*TypeInfo, bool) {
 	return t, ok
 }
 
-func (c *TypeCache) Len() int {
+func (c *JsonTypes) Len() int {
 	c.RLock()
 	defer c.RUnlock()
 	return len(c.m)
 }
 
-func (c *TypeCache) Keys() []string {
+func (c *JsonTypes) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
@@ -203,13 +203,13 @@ func (c *TypeCache) Keys() []string {
 	return out
 }
 
-func (c *DummyCache) Set(iface reflect.Type, dummy reflect.Type) {
+func (c *JsonDummies) Set(iface reflect.Type, dummy reflect.Type) {
 	c.Lock()
 	defer c.Unlock()
 	c.m[iface] = dummy
 }
 
-func (c *DummyCache) Get(iface reflect.Type) (reflect.Type, bool) {
+func (c *JsonDummies) Get(iface reflect.Type) (reflect.Type, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	d, ok := c.m[iface]
@@ -241,12 +241,12 @@ func ManualContext(ctx context.Context) context.Context {
 
 func newJsonCache() *JsonCache {
 	return &JsonCache{
-		Packages: &PackageCache{m: map[string]*PackageInfo{}},
-		Dummies:  &DummyCache{m: map[reflect.Type]reflect.Type{}},
+		Packages: &JsonPackages{m: map[string]*JsonPackageInfo{}},
+		Dummies:  &JsonDummies{m: map[reflect.Type]reflect.Type{}},
 	}
 }
 
-func (pc *PackageCache) InitAuto() {
+func (pc *JsonPackages) InitAuto() {
 	// In automatic mode, we import all packages
 	packages.RLock()
 	defer packages.RUnlock()
@@ -254,7 +254,7 @@ func (pc *PackageCache) InitAuto() {
 		pc.imp(path, pkg)
 	}
 }
-func (pc *PackageCache) InitManual(packagesToInit ...string) {
+func (pc *JsonPackages) InitManual(packagesToInit ...string) {
 	// If we specify a manual list of packages to import, we should import them
 	packages.RLock()
 	defer packages.RUnlock()
@@ -266,10 +266,10 @@ func (pc *PackageCache) InitManual(packagesToInit ...string) {
 		pc.imp(path, pkg)
 	}
 }
-func (pc *PackageCache) imp(path string, pkg *packageInfo) {
+func (pc *JsonPackages) imp(path string, pkg *packageInfo) {
 	p := pc.Set(path, pkg.hash)
 	for name, typ := range pkg.types {
-		p.Types.Set(name, &TypeInfo{
+		p.Types.Set(name, &JsonTypeInfo{
 			Name:  name,
 			Type:  typ.typ,
 			Rule:  typ.rule,
@@ -278,7 +278,7 @@ func (pc *PackageCache) imp(path string, pkg *packageInfo) {
 	}
 }
 
-func (dc *DummyCache) InitAuto() {
+func (dc *JsonDummies) InitAuto() {
 	dummies.RLock()
 	defer dummies.RUnlock()
 	for iface, dummy := range dummies.m {
@@ -287,14 +287,14 @@ func (dc *DummyCache) InitAuto() {
 }
 
 func newContext(ctx context.Context, autoPackages bool, autoDummies bool, manualPackages ...string) context.Context {
-	pc := &PackageCache{m: map[string]*PackageInfo{}}
+	pc := &JsonPackages{m: map[string]*JsonPackageInfo{}}
 	if autoPackages {
 		pc.InitAuto()
 	} else {
 		pc.InitManual(manualPackages...)
 	}
 
-	dc := &DummyCache{m: map[reflect.Type]reflect.Type{}}
+	dc := &JsonDummies{m: map[reflect.Type]reflect.Type{}}
 	if autoDummies {
 		dc.InitAuto()
 	}

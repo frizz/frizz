@@ -19,10 +19,10 @@ import (
 	"kego.io/system"
 )
 
-func Parse(ctx context.Context, path string) (*sysctx.PackageInfo, error) {
+func Parse(ctx context.Context, path string) (*sysctx.SysPackageInfo, error) {
 	return parse(ctx, path, []string{})
 }
-func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInfo, error) {
+func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackageInfo, error) {
 
 	scache := sysctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
@@ -116,7 +116,7 @@ type objectStub struct {
 	Type *system.Reference `json:"type"`
 }
 
-func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.PackageInfo, hash *PackageHasher) error {
+func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 
 	// While we're scanning for types, we should use a custom unpacking env, because the env from
 	// the context is the one of the local package.
@@ -151,7 +151,7 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.PackageInf
 			if err != nil {
 				return kerr.Wrap("AWYRJSCYQS", err)
 			}
-			cache.Globals.Set(o.Id.Name, sysctx.GlobalInfo{
+			cache.Globals.Set(o.Id.Name, sysctx.SysGlobalInfo{
 				File: relativeFile,
 				Name: o.Id.Name,
 			})
@@ -161,7 +161,7 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.PackageInf
 	return nil
 }
 
-func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, cache *sysctx.PackageInfo, hash *PackageHasher) error {
+func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 	var object interface{}
 	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
 	if err != nil {
@@ -180,7 +180,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 		hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
 	}
 	cache.Types.Set(t.Id.Name, t)
-	cache.TypeSource.Set(t.Id.Name, bytes)
+	cache.Files.Set(t.Id.Name, bytes)
 	if t.Rule != nil {
 		id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
 		if t.Rule.Id != nil && *t.Rule.Id != *id {

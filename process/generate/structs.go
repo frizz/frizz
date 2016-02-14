@@ -134,7 +134,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Buil
 	return nil
 }
 
-func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.TypeCache) {
+func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTypes) {
 	g.Println("func init() {")
 	{
 		g.Print("pkg := ")

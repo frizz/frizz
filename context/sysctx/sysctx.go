@@ -14,34 +14,33 @@ import (
 
 type SysCache struct {
 	sync.RWMutex
-	m map[string]*PackageInfo
+	m map[string]*SysPackageInfo
 }
 
-type PackageInfo struct {
+type SysPackageInfo struct {
 	*envctx.Env
-	Environment  string
 	PackageBytes []byte
-	Types        *TypeCache
-	TypeSource   *TypeSourceCache
-	Globals      *GlobalCache
+	Types        *SysTypes
+	Files        *SysFiles
+	Globals      *SysGlobals
 }
 
-type TypeCache struct {
+type SysTypes struct {
 	sync.RWMutex
 	m map[string]interface{}
 }
 
-type TypeSourceCache struct {
+type SysFiles struct {
 	sync.RWMutex
 	m map[string][]byte
 }
 
-type GlobalCache struct {
+type SysGlobals struct {
 	sync.RWMutex
-	m map[string]GlobalInfo
+	m map[string]SysGlobalInfo
 }
 
-type GlobalInfo struct {
+type SysGlobalInfo struct {
 	Name string
 	File string
 }
@@ -51,17 +50,17 @@ func (c *SysCache) Len() int {
 	defer c.RUnlock()
 	return len(c.m)
 }
-func (c *SysCache) Set(path string) *PackageInfo {
+func (c *SysCache) Set(path string) *SysPackageInfo {
 	return c.SetEnv(&envctx.Env{Path: path, Aliases: map[string]string{}})
 }
-func (c *SysCache) SetEnv(env *envctx.Env) *PackageInfo {
+func (c *SysCache) SetEnv(env *envctx.Env) *SysPackageInfo {
 	c.Lock()
 	defer c.Unlock()
-	p := &PackageInfo{
-		Env:        env,
-		Types:      &TypeCache{m: map[string]interface{}{}},
-		TypeSource: &TypeSourceCache{m: map[string][]byte{}},
-		Globals:    &GlobalCache{m: map[string]GlobalInfo{}},
+	p := &SysPackageInfo{
+		Env:     env,
+		Types:   &SysTypes{m: map[string]interface{}{}},
+		Files:   &SysFiles{m: map[string][]byte{}},
+		Globals: &SysGlobals{m: map[string]SysGlobalInfo{}},
 	}
 	c.m[env.Path] = p
 	return p
@@ -75,7 +74,7 @@ func (c *SysCache) GetType(path string, name string) (interface{}, bool) {
 	return p.Types.Get(name)
 }
 
-func (c *SysCache) Get(path string) (*PackageInfo, bool) {
+func (c *SysCache) Get(path string) (*SysPackageInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	info, ok := c.m[path]
@@ -93,26 +92,26 @@ func (c *SysCache) Keys() []string {
 	return out
 }
 
-func (c *TypeCache) Set(id string, t interface{}) {
+func (c *SysTypes) Set(id string, t interface{}) {
 	c.Lock()
 	defer c.Unlock()
 	c.m[id] = t
 }
 
-func (c *TypeCache) Get(id string) (interface{}, bool) {
+func (c *SysTypes) Get(id string) (interface{}, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	t, ok := c.m[id]
 	return t, ok
 }
 
-func (c *TypeCache) Len() int {
+func (c *SysTypes) Len() int {
 	c.RLock()
 	defer c.RUnlock()
 	return len(c.m)
 }
 
-func (c *TypeCache) Keys() []string {
+func (c *SysTypes) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
@@ -123,26 +122,26 @@ func (c *TypeCache) Keys() []string {
 	return out
 }
 
-func (c *GlobalCache) Set(id string, t GlobalInfo) {
+func (c *SysGlobals) Set(id string, t SysGlobalInfo) {
 	c.Lock()
 	defer c.Unlock()
 	c.m[id] = t
 }
 
-func (c *GlobalCache) Get(id string) (GlobalInfo, bool) {
+func (c *SysGlobals) Get(id string) (SysGlobalInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	t, ok := c.m[id]
 	return t, ok
 }
 
-func (c *GlobalCache) Len() int {
+func (c *SysGlobals) Len() int {
 	c.RLock()
 	defer c.RUnlock()
 	return len(c.m)
 }
 
-func (c *GlobalCache) Keys() []string {
+func (c *SysGlobals) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
@@ -153,26 +152,26 @@ func (c *GlobalCache) Keys() []string {
 	return out
 }
 
-func (c *TypeSourceCache) Set(id string, b []byte) {
+func (c *SysFiles) Set(id string, b []byte) {
 	c.Lock()
 	defer c.Unlock()
 	c.m[id] = b
 }
 
-func (c *TypeSourceCache) Get(id string) ([]byte, bool) {
+func (c *SysFiles) Get(id string) ([]byte, bool) {
 	c.RLock()
 	defer c.RUnlock()
 	t, ok := c.m[id]
 	return t, ok
 }
 
-func (c *TypeSourceCache) Len() int {
+func (c *SysFiles) Len() int {
 	c.RLock()
 	defer c.RUnlock()
 	return len(c.m)
 }
 
-func (c *TypeSourceCache) Keys() []string {
+func (c *SysFiles) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
@@ -194,7 +193,7 @@ var cacheKey key = 0
 
 // NewContext returns a new Context that carries value u.
 func NewContext(ctx context.Context) context.Context {
-	c := &SysCache{m: map[string]*PackageInfo{}}
+	c := &SysCache{m: map[string]*SysPackageInfo{}}
 	return context.WithValue(ctx, cacheKey, c)
 }
 
