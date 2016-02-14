@@ -222,6 +222,20 @@ func (c *ContextBuilder) JtypePathRule(path string, name string, typ reflect.Typ
 	return c.JtypePathRuleIface(path, name, typ, rule, nil)
 }
 
+func (c *ContextBuilder) Jpkg(path string, hash uint64) *ContextBuilder {
+	if path == "" {
+		panic("must specify path")
+	}
+	jcache := c.initJson()
+	p, ok := jcache.Packages.Get(path)
+	if ok {
+		p.Hash = hash
+		return c
+	}
+	jcache.Packages.Set(path, hash)
+	return c
+}
+
 func (c *ContextBuilder) JtypePathRuleIface(path string, name string, typ reflect.Type, rule reflect.Type, iface reflect.Type) *ContextBuilder {
 	if path == "" {
 		panic("must specify path")

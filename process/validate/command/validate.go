@@ -64,12 +64,12 @@ func Main(path string) {
 func comparePackageHash(ctx context.Context, path string) (changes bool, err error) {
 
 	scache := sysctx.FromContext(ctx)
-	pcache, ok := scache.Get(path)
+	spi, ok := scache.Get(path)
 	if !ok {
 		return false, kerr.New("NHXWLPHCHL", "%s not found in sys ctx", path)
 	}
 
-	for aliasPath, _ := range pcache.Environment.Aliases {
+	for aliasPath, _ := range spi.Environment.Aliases {
 		changes, err := comparePackageHash(ctx, aliasPath)
 		if err != nil {
 			return false, kerr.Wrap("DGJTLHQOCQ", err)
@@ -80,12 +80,14 @@ func comparePackageHash(ctx context.Context, path string) (changes bool, err err
 	}
 
 	jcache := jsonctx.FromContext(ctx)
-
-	h, ok := jcache.Packages.Get(path)
+	jpi, ok := jcache.Packages.Get(path)
 	if !ok {
 		return true, nil
 	}
-	if h.Hash != pcache.Environment.Hash {
+
+	// pcache.Environment.Hash is computed after parsing all the data files.
+	// h.Hash is in generated.go (jsonctx.InitPackage), and correct when the types were generated.
+	if jpi.Hash != spi.Environment.Hash {
 		return true, nil
 	}
 	return false, nil
