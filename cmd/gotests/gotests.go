@@ -10,6 +10,8 @@ import (
 
 	"fmt"
 
+	"flag"
+
 	"golang.org/x/net/context"
 	"golang.org/x/tools/cover"
 	"kego.io/cmd/gotests/scanner"
@@ -20,6 +22,9 @@ import (
 var baseDir string
 
 func main() {
+
+	all := flag.Bool("all", "false", "If -all is spefified, gotests will always run all the tests")
+
 	var err error
 	baseDir, err = packages.GetDirFromPackage(context.Background(), "kego.io")
 	if err != nil {
@@ -35,8 +40,12 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	//profiles, err := tester.GetSingle(baseDir, "kego.io/process/validate/command")
-	profiles, err := tester.Get(baseDir)
+	var profiles []*cover.Profile
+	if all != nil && *all {
+		profiles, err = tester.Get(baseDir)
+	} else {
+		profiles, err = tester.GetSingle(baseDir, "kego.io/process/validate/command")
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
