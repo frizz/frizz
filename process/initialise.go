@@ -16,11 +16,11 @@ import (
 	"kego.io/process/packages"
 )
 
-type optionsSpec interface {
-	getOptions() FromDefaults
+type OptionsInterface interface {
+	getOptions() Options
 }
 
-type FromFlags struct {
+type Flags struct {
 	Edit     *bool
 	Validate *bool
 	Update   *bool
@@ -29,7 +29,7 @@ type FromFlags struct {
 	Debug    *bool
 }
 
-type FromDefaults struct {
+type Options struct {
 	Edit     bool
 	Validate bool
 	Update   bool
@@ -38,11 +38,11 @@ type FromDefaults struct {
 	Debug    bool
 }
 
-func (f FromDefaults) getOptions() FromDefaults {
+func (f Options) getOptions() Options {
 	return f
 }
 
-func (f FromFlags) getOptions() FromDefaults {
+func (f Flags) getOptions() Options {
 
 	var edit, update, log, debug, validate *bool
 	var path *string
@@ -82,7 +82,7 @@ func (f FromFlags) getOptions() FromDefaults {
 		path = f.Path
 	}
 
-	return FromDefaults{
+	return Options{
 		Edit:     *edit,
 		Update:   *update,
 		Log:      *log,
@@ -92,9 +92,9 @@ func (f FromFlags) getOptions() FromDefaults {
 	}
 }
 
-func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, context.CancelFunc, error) {
+func Initialise(ctx context.Context, overrides OptionsInterface) (context.Context, context.CancelFunc, error) {
 	if overrides == nil {
-		overrides = FromFlags{}
+		overrides = Flags{}
 	}
 	options := overrides.getOptions()
 

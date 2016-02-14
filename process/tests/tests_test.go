@@ -252,7 +252,7 @@ func runKe(cb *tests.ContextBuilder, name string, files map[string]string) (stri
 
 	path, _ := cb.RealGopath().TempPackage(name, files)
 
-	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
+	ctx, _, err := process.Initialise(context.Background(), &process.Options{
 		Path: path,
 	})
 	if err != nil {

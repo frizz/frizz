@@ -16,49 +16,69 @@ import (
 	"kego.io/process/validate"
 )
 
-// Main executes the validate command that is generated in the data directory.
-func Main(path string) {
+// ValidateMain is called by the generated validate command.
+// ke: {"func": {"notest": true}}
+func ValidateMain(path string) {
+
+	// Using process.Flags as the options means that the non-specified options are read from the
+	// command flags.
 	update := false
-	ctx, cancel, err := process.Initialise(context.Background(), &process.FromFlags{
+	options := &process.Flags{
 		Update: &update,
 		Path:   &path,
-	})
+	}
+
+	ctx, cancel, err := process.Initialise(context.Background(), options)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	env := envctx.FromContext(ctx)
+	// The log function outputs errors and messages to the console. We pass it in to permit testing.
+	log := func(message string) {
+		fmt.Println(message)
+	}
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
+	// The interrupt chanel signals that Ctrl+C or other OS interrupts have happened.
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	signal.Notify(interrupt, syscall.SIGTERM)
+
+	exitStatus := validateMain(ctx, cancel, log, interrupt)
+
+	wgctx.WaitAndExit(ctx, exitStatus)
+
+}
+func validateMain(ctx context.Context, cancel context.CancelFunc, log func(string), interrupt chan os.Signal) int {
+
 	go func() {
-		<-c
+		<-interrupt
 		cancel()
 	}()
+
+	env := envctx.FromContext(ctx)
 
 	changes, err := comparePackageHash(ctx, "kego.io/system")
 	if !changes && err == nil {
 		changes, err = comparePackageHash(ctx, env.Path)
 	}
 	if err != nil {
-		fmt.Println(err.Error())
-		wgctx.WaitAndExit(ctx, 1) // Exit status 1: generic error
+		log(err.Error())
+		return 1 // Exit status 1: generic error
 	}
 	if changes {
-		wgctx.WaitAndExit(ctx, 3) // Exit status 3: hash changed error
+		return 3 // Exit status 3: hash changed error
 	}
 
 	if err := validate.ValidatePackage(ctx); err != nil {
 		if v, ok := kerr.Source(err).(validate.ValidationError); ok {
-			fmt.Println(v.Description)
-			wgctx.WaitAndExit(ctx, 4) // Exit status 4: validation error
+			log(v.Description)
+			return 4 // Exit status 4: validation error
 		}
-		fmt.Println(err.Error())
-		wgctx.WaitAndExit(ctx, 1) // Exit status 1: generic error
+		log(err.Error())
+		return 1 // Exit status 1: generic error
 	}
-	wgctx.WaitAndExit(ctx, 0) // Exit status 0: success
+	return 0 // Exit status 0: success
 }
 
 func comparePackageHash(ctx context.Context, path string) (changes bool, err error) {

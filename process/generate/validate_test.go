@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	command.Main("a.b/c")
+	command.ValidateMain("a.b/c")
 }
 `, string(b))
 

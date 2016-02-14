@@ -142,18 +142,18 @@ func (c *ContextBuilder) Log() *ContextBuilder {
 func (c *ContextBuilder) Path(path string) *ContextBuilder {
 	env := c.initEnv()
 	env.Path = path
-	pi := c.initSysPkg(path)
-	copyEnv(env, pi.Env)
+	//pi := c.initSysPkg(path)
+	//copyEnv(env, pi.Env)
 	return c
 }
 
 func (c *ContextBuilder) Alias(aliasPath string, aliasName string) *ContextBuilder {
 	env := c.initEnv()
 	env.Aliases[aliasPath] = aliasName
-	if env.Path != "" {
-		pi := c.initSysPkg(env.Path)
-		copyEnv(env, pi.Env)
-	}
+	//if env.Path != "" {
+	//	pi := c.initSysPkg(env.Path)
+	//	copyEnv(env, pi.Env)
+	//}
 	return c
 }
 

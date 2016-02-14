@@ -21,7 +21,7 @@ func TestUnpack(t *testing.T) {
 	testUnpack(t, "kego.io/demo/site")
 }
 func testUnpack(t *testing.T, path string) {
-	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
+	ctx, _, err := process.Initialise(context.Background(), &process.Options{
 		Path: path,
 	})
 	assert.NoError(t, err)
@@ -38,7 +38,7 @@ func testUnpack(t *testing.T, path string) {
 
 func TestNodeUnpack(t *testing.T) {
 
-	ctx, _, err := process.Initialise(context.Background(), &process.FromDefaults{
+	ctx, _, err := process.Initialise(context.Background(), &process.Options{
 		Path: "kego.io/demo/site",
 	})
 	assert.NoError(t, err)

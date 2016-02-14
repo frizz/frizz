@@ -15,7 +15,7 @@ var systemContext context.Context
 
 func initialise() context.Context {
 	if systemContext == nil {
-		ctx, _, err := process.Initialise(context.Background(), process.FromDefaults{Path: "kego.io/system"})
+		ctx, _, err := process.Initialise(context.Background(), process.Options{Path: "kego.io/system"})
 		if err != nil {
 			panic(err)
 		}

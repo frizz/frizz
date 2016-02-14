@@ -46,6 +46,7 @@ func FromContextOrNil(ctx context.Context) *sync.WaitGroup {
 }
 
 func WaitAndExit(ctx context.Context, code int) {
+
 	wg := FromContext(ctx)
 
 	c := make(chan struct{}, 1)

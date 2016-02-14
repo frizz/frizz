@@ -108,6 +108,30 @@ func (c *ContextBuilder) TempPackage(name string, files map[string]string) (path
 	return
 }
 
+func (c *ContextBuilder) SetTemp(path string) (dir string) {
+	if !c.gopathInitialized {
+		panic("Gopath must be initialized with TempGopath or RealGopath")
+	}
+	if c.tempPackageDir != "" {
+		panic("tempPackage must be empty.")
+	}
+	if c.tempNamespace != "" {
+		panic("tempNamespace must be empty.")
+	}
+
+	slash := strings.LastIndex(c.tempNamespace, string(os.PathSeparator))
+	namespace := c.tempNamespace[slash+1:]
+
+	gopath := packages.GetCurrentGopath(c.Ctx())
+	dir = filepath.Join(gopath, "src", path)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		panic(fmt.Sprintf("Dir %s does not exist", dir))
+	}
+	c.tempNamespace = namespace
+	c.tempPackageDir = dir
+	return dir
+}
+
 func (c *ContextBuilder) RemoveTempFile(name string) *ContextBuilder {
 	if c.tempPackageDir == "" {
 		panic("Need to call tempPackage first.")

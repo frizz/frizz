@@ -15,6 +15,6 @@ install:
   #- go get -u github.com/gopherjs/gopherjs
   - go get -t -v ./...
 script:
-  - go run cmd/gotests/gotests.go -all
+  - "go run cmd/gotests/gotests.go -all"
 after_success:
   - bash <(curl -s https://codecov.io/bash)

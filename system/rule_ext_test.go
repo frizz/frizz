@@ -11,7 +11,7 @@ import (
 )
 
 func TestReflectType(t *testing.T) {
-	ctx, _, err := process.Initialise(context.Background(), process.FromDefaults{Path: "kego.io/system"})
+	ctx, _, err := process.Initialise(context.Background(), process.Options{Path: "kego.io/system"})
 	assert.NoError(t, err)
 	checkReflectType(ctx, t, "kego.io/system", "type", "basic", "bool")
 	checkReflectType(ctx, t, "kego.io/system", "type", "embed", "[]*system.Reference")

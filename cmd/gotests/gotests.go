@@ -63,7 +63,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := excludeNotests(profilesMap, source); err != nil {
+	if err := excludeBlocks(profilesMap, source); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := excludeFuncs(profilesMap, source); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := excludePackages(profilesMap, source); err != nil {
 		log.Fatal(err)
 	}
 
@@ -77,33 +85,36 @@ func main() {
 }
 
 func excludeGenerated(profiles map[string]*cover.Profile) error {
-	for _, p := range profiles {
-		if strings.HasSuffix(p.FileName, "/generated.go") {
-			fmt.Println("Excluding", p.FileName)
-			// summarize the original Profile
-			statements := 0
-			lastLine := 0
-			lastCol := 0
-			for _, pb := range p.Blocks {
-				statements += pb.NumStmt
-				if pb.EndLine >= lastLine {
-					lastLine = pb.EndLine
-					if pb.EndCol >= lastCol {
-						lastCol = pb.EndCol
+	for filename, _ := range profiles {
+		if strings.HasSuffix(filename, "/generated.go") {
+			fmt.Println("Excluding", filename)
+			delete(profiles, filename)
+			/*
+				// summarize the original Profile
+				statements := 0
+				lastLine := 0
+				lastCol := 0
+				for _, pb := range p.Blocks {
+					statements += pb.NumStmt
+					if pb.EndLine >= lastLine {
+						lastLine = pb.EndLine
+						if pb.EndCol >= lastCol {
+							lastCol = pb.EndCol
+						}
 					}
 				}
-			}
-			// overwrite with a single block
-			p.Blocks = []cover.ProfileBlock{
-				cover.ProfileBlock{
-					StartLine: 0,
-					StartCol:  0,
-					EndLine:   lastLine,
-					EndCol:    lastCol,
-					NumStmt:   statements,
-					Count:     1,
-				},
-			}
+				// overwrite with a single block
+				p.Blocks = []cover.ProfileBlock{
+					cover.ProfileBlock{
+						StartLine: 0,
+						StartCol:  0,
+						EndLine:   lastLine,
+						EndCol:    lastCol,
+						NumStmt:   statements,
+						Count:     1,
+					},
+				}
+			*/
 		}
 	}
 
@@ -127,17 +138,53 @@ func excludeWraps(profiles map[string]*cover.Profile, source *scanner.Source) er
 	return nil
 }
 
-func excludeNotests(profiles map[string]*cover.Profile, source *scanner.Source) error {
-	for _, pos := range source.Notests {
-		p, ok := profiles[pos.File]
+func excludeBlocks(profiles map[string]*cover.Profile, source *scanner.Source) error {
+	for _, eb := range source.ExcludedBlocks {
+		p, ok := profiles[eb.File]
 		if !ok {
 			continue
 		}
 		for i, b := range p.Blocks {
-			if b.StartLine <= pos.Line && b.EndLine >= pos.Line && b.Count != 1 {
+			if b.StartLine <= eb.Line && b.EndLine >= eb.Line && b.Count != 1 {
 				b.Count = 1
 				p.Blocks[i] = b
-				fmt.Printf("Excluding block from %s:%d\n", pos.File, pos.Line)
+				fmt.Printf("Excluding block from %s:%d\n", eb.File, eb.Line)
+			}
+		}
+	}
+	return nil
+}
+
+func excludeFuncs(profiles map[string]*cover.Profile, source *scanner.Source) error {
+	for _, ef := range source.ExcludedFuncs {
+		p, ok := profiles[ef.File]
+		if !ok {
+			continue
+		}
+		for i, b := range p.Blocks {
+			if b.StartLine <= ef.LineEnd && b.EndLine >= ef.LineStart && b.Count != 1 {
+				b.Count = 1
+				p.Blocks[i] = b
+				fmt.Printf("Excluding func from %s:%d-%d\n", ef.File, ef.LineStart, ef.LineEnd)
+			}
+		}
+	}
+	return nil
+}
+
+func excludePackages(profiles map[string]*cover.Profile, source *scanner.Source) error {
+	for path, _ := range source.ExcludedPackages {
+		for filename, _ := range profiles {
+			dir, _ := filepath.Split(filename)
+			if strings.HasSuffix(dir, "/") {
+				dir = dir[:len(dir)-1]
+			}
+			// dir is relative to the gopath/src, so we can just convert to slashes to get the
+			// package path.
+			pkg := filepath.ToSlash(dir)
+
+			if path == pkg {
+				delete(profiles, filename)
 			}
 		}
 	}

@@ -23,11 +23,13 @@ import (
 var baseDir string
 
 type Source struct {
-	Wraps          []ErrDef
-	Notests        []PosDef
-	Skipped        map[string]bool
-	All            map[string]ErrDef
-	JsTestPackages map[string]bool
+	Wraps            []ErrDef
+	ExcludedBlocks   []PosDef
+	ExcludedPackages map[string]bool
+	ExcludedFuncs    []FuncDef
+	Skipped          map[string]bool
+	All              map[string]ErrDef
+	JsTestPackages   map[string]bool
 }
 type ErrDef struct {
 	Id   string
@@ -38,11 +40,17 @@ type PosDef struct {
 	File string
 	Line int
 }
+type FuncDef struct {
+	File      string
+	LineStart int
+	LineEnd   int
+}
 
 var source = &Source{
-	Skipped:        map[string]bool{},
-	All:            map[string]ErrDef{},
-	JsTestPackages: map[string]bool{},
+	Skipped:          map[string]bool{},
+	ExcludedPackages: map[string]bool{},
+	All:              map[string]ErrDef{},
+	JsTestPackages:   map[string]bool{},
 }
 
 func Get(dir string) (*Source, error) {
@@ -124,18 +132,26 @@ func scanFile(filename string) error {
 		for _, c := range cg.List {
 			if strings.HasPrefix(c.Text, "// ke: ") {
 				val := struct {
-					Block   struct{ Notest bool }
-					Package struct{ Jstest bool }
+					Block struct {
+						Notest bool
+					}
+					Package struct {
+						Jstest bool
+						Notest bool
+					}
 				}{}
 				err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
 				if err != nil {
 					return err
 				}
 				if val.Block.Notest {
-					source.Notests = append(source.Notests, PosDef{
+					source.ExcludedBlocks = append(source.ExcludedBlocks, PosDef{
 						File: relfilename,
 						Line: fset.Position(c.Pos()).Line,
 					})
+				}
+				if val.Package.Notest {
+					source.ExcludedPackages[pkg] = true
 				}
 				if val.Package.Jstest {
 					source.JsTestPackages[pkg] = true
@@ -175,7 +191,7 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 		return v
 	}
 
-	switch ty := node.(type) {
+	switch ob := node.(type) {
 	/*
 		case *ast.File:
 
@@ -193,10 +209,35 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				}
 			}
 	*/
+	case *ast.FuncDecl:
+		if ob.Doc == nil {
+			return v
+		}
+		for _, c := range ob.Doc.List {
+			if strings.HasPrefix(c.Text, "// ke: ") {
+				val := struct {
+					Func struct {
+						Notest bool
+					}
+				}{}
+				err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
+				if err != nil {
+					v.err = err
+					return nil
+				}
+				if val.Func.Notest {
+					source.ExcludedFuncs = append(source.ExcludedFuncs, FuncDef{
+						File:      v.file,
+						LineStart: v.fset.Position(ob.Pos()).Line,
+						LineEnd:   v.fset.Position(ob.End()).Line,
+					})
+				}
+			}
+		}
 	case *ast.CallExpr:
 		name := ""
 		pkg := ""
-		if f, ok := ty.Fun.(*ast.SelectorExpr); ok {
+		if f, ok := ob.Fun.(*ast.SelectorExpr); ok {
 			name = f.Sel.Name
 			if i, ok := f.X.(*ast.Ident); ok {
 				pkg = i.Name
@@ -205,7 +246,7 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				return v
 			}
 			if pkg == v.kerrName && name == "Wrap" {
-				id, err := getErrorId(v.t, ty.Args, 0, v.file)
+				id, err := getErrorId(v.t, ob.Args, 0, v.file)
 				if err != nil {
 					v.err = err
 					return nil
@@ -213,10 +254,10 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				source.Wraps = append(source.Wraps, ErrDef{
 					Id:   id,
 					File: v.file,
-					Line: v.fset.Position(ty.Pos()).Line,
+					Line: v.fset.Position(ob.Pos()).Line,
 				})
 			} else if pkg == v.kerrName && name == "New" {
-				id, err := getErrorId(v.t, ty.Args, 0, v.file)
+				id, err := getErrorId(v.t, ob.Args, 0, v.file)
 				if err != nil {
 					v.err = err
 					return nil
@@ -224,10 +265,10 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				source.All[id] = ErrDef{
 					Id:   id,
 					File: v.file,
-					Line: v.fset.Position(ty.Pos()).Line,
+					Line: v.fset.Position(ob.Pos()).Line,
 				}
 			} else if pkg == v.assertName && (name == "SkipError") {
-				id, err := getErrorId(v.t, ty.Args, 0, v.file)
+				id, err := getErrorId(v.t, ob.Args, 0, v.file)
 				if err != nil {
 					v.err = err
 					return nil

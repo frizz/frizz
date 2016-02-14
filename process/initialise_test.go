@@ -15,7 +15,7 @@ func TestGetOptions(t *testing.T) {
 		return &val
 	}
 	a := "a"
-	f := FromFlags{
+	f := Flags{
 		Edit:     getTrue(),
 		Update:   getTrue(),
 		Log:      getTrue(),
@@ -57,7 +57,7 @@ func TestInitialise(t *testing.T) {
 
 	cb.OsWd("/")
 
-	ctx, _, err = Initialise(ctx, &FromDefaults{
+	ctx, _, err = Initialise(ctx, &Options{
 		Path: pathB,
 	})
 	env = envctx.FromContext(ctx)
@@ -65,7 +65,7 @@ func TestInitialise(t *testing.T) {
 	assert.Equal(t, dirB, env.Dir)
 	assert.Equal(t, pathB, env.Path)
 
-	_, _, err = Initialise(ctx, &FromDefaults{
+	_, _, err = Initialise(ctx, &Options{
 		Path: "",
 	})
 	assert.IsError(t, err, "ADNJKTLAWY")

@@ -22,7 +22,7 @@ func ValidateCommand(ctx context.Context) (source []byte, err error) {
 	}
 	g.Print(`
 		func main() {
-			command.Main(` + strconv.Quote(env.Path) + `)
+			command.ValidateMain(` + strconv.Quote(env.Path) + `)
 		}`)
 	b, err := g.Build()
 	if err != nil {
