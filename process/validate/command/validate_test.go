@@ -36,7 +36,7 @@ func TestComparePackageHash(t *testing.T) {
 
 	scache := sysctx.FromContext(cb.Ctx())
 	pi, _ := scache.Get(path)
-	cb.Jpkg(path, pi.Environment.Hash)
+	cb.Jpkg(path, pi.Hash)
 
 	// hash correct
 	changes, err = comparePackageHash(cb.Ctx(), path)

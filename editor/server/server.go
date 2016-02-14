@@ -315,7 +315,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		}
 		info := &shared.ImportInfo{
 			Path:    importPath,
-			Aliases: importPackageInfo.Environment.Aliases,
+			Aliases: importPackageInfo.Aliases,
 			Types:   map[string][]byte{},
 		}
 		for _, name := range importPackageInfo.TypeSource.Keys() {

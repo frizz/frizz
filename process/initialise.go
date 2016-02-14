@@ -134,7 +134,7 @@ func Initialise(ctx context.Context, overrides optionsSpec) (context.Context, co
 		return nil, nil, kerr.Wrap("EBMBIBIKUF", err)
 	}
 
-	ctx = envctx.NewContext(ctx, pcache.Environment)
+	ctx = envctx.NewContext(ctx, pcache.Env)
 
 	return ctx, cancel, nil
 }

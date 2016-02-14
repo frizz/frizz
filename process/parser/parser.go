@@ -71,7 +71,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.PackageInf
 		}
 	}
 
-	pcache := scache.Set(env)
+	pcache := scache.SetEnv(env)
 
 	cmd.Printf("Parsing %s...", path)
 

@@ -165,7 +165,7 @@ func TestParse(t *testing.T) {
 	pi, err := parser.Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
-	_, err = generate.Structs(cb.Ctx(), pi.Environment)
+	_, err = generate.Structs(cb.Ctx(), pi.Env)
 	assert.NoError(t, err)
 
 }

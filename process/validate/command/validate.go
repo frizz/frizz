@@ -69,7 +69,7 @@ func comparePackageHash(ctx context.Context, path string) (changes bool, err err
 		return false, kerr.New("NHXWLPHCHL", "%s not found in sys ctx", path)
 	}
 
-	for aliasPath, _ := range spi.Environment.Aliases {
+	for aliasPath, _ := range spi.Aliases {
 		changes, err := comparePackageHash(ctx, aliasPath)
 		if err != nil {
 			return false, kerr.Wrap("DGJTLHQOCQ", err)
@@ -87,7 +87,7 @@ func comparePackageHash(ctx context.Context, path string) (changes bool, err err
 
 	// pcache.Environment.Hash is computed after parsing all the data files.
 	// h.Hash is in generated.go (jsonctx.InitPackage), and correct when the types were generated.
-	if jpi.Hash != spi.Environment.Hash {
+	if jpi.Hash != spi.Hash {
 		return true, nil
 	}
 	return false, nil

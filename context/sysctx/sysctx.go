@@ -18,7 +18,8 @@ type SysCache struct {
 }
 
 type PackageInfo struct {
-	Environment  *envctx.Env
+	*envctx.Env
+	Environment  string
 	PackageBytes []byte
 	Types        *TypeCache
 	TypeSource   *TypeSourceCache
@@ -50,14 +51,17 @@ func (c *SysCache) Len() int {
 	defer c.RUnlock()
 	return len(c.m)
 }
-func (c *SysCache) Set(env *envctx.Env) *PackageInfo {
+func (c *SysCache) Set(path string) *PackageInfo {
+	return c.SetEnv(&envctx.Env{Path: path, Aliases: map[string]string{}})
+}
+func (c *SysCache) SetEnv(env *envctx.Env) *PackageInfo {
 	c.Lock()
 	defer c.Unlock()
 	p := &PackageInfo{
-		Environment: env,
-		Types:       &TypeCache{m: map[string]interface{}{}},
-		TypeSource:  &TypeSourceCache{m: map[string][]byte{}},
-		Globals:     &GlobalCache{m: map[string]GlobalInfo{}},
+		Env:        env,
+		Types:      &TypeCache{m: map[string]interface{}{}},
+		TypeSource: &TypeSourceCache{m: map[string][]byte{}},
+		Globals:    &GlobalCache{m: map[string]GlobalInfo{}},
 	}
 	c.m[env.Path] = p
 	return p

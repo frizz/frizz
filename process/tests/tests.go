@@ -108,7 +108,7 @@ func (c *ContextBuilder) initSysPkg(path string) *sysctx.PackageInfo {
 	scache := c.initSys()
 	pi, ok := scache.Get(path)
 	if !ok {
-		pi = scache.Set(&envctx.Env{Path: path, Aliases: map[string]string{}})
+		pi = scache.Set(path)
 	}
 	return pi
 }
@@ -143,7 +143,7 @@ func (c *ContextBuilder) Path(path string) *ContextBuilder {
 	env := c.initEnv()
 	env.Path = path
 	pi := c.initSysPkg(path)
-	copyEnv(env, pi.Environment)
+	copyEnv(env, pi.Env)
 	return c
 }
 
@@ -152,7 +152,7 @@ func (c *ContextBuilder) Alias(aliasPath string, aliasName string) *ContextBuild
 	env.Aliases[aliasPath] = aliasName
 	if env.Path != "" {
 		pi := c.initSysPkg(env.Path)
-		copyEnv(env, pi.Environment)
+		copyEnv(env, pi.Env)
 	}
 	return c
 }
@@ -282,7 +282,7 @@ func (c *ContextBuilder) Sempty() *ContextBuilder {
 func (c *ContextBuilder) Spkg(path string) *ContextBuilder {
 	scache := c.initSys()
 	if _, ok := scache.Get(path); !ok {
-		scache.Set(&envctx.Env{Path: path})
+		scache.Set(path)
 	}
 	return c
 }
@@ -297,7 +297,7 @@ func (c *ContextBuilder) Sauto(parseParse func(context.Context, string) (*sysctx
 	if err != nil {
 		panic(err.Error())
 	}
-	env.Hash = pi.Environment.Hash
+	env.Hash = pi.Hash
 	return c
 }
 
@@ -330,7 +330,7 @@ func (c *ContextBuilder) StypePath(path string, name string, typ interface{}) *C
 
 	p, ok := scache.Get(path)
 	if !ok {
-		p = scache.Set(&envctx.Env{Path: path})
+		p = scache.Set(path)
 	}
 
 	p.Types.Set(name, typ)

@@ -63,11 +63,8 @@ func Start() error {
 	system.RegisterJsonTypes(app.ctx)
 
 	for _, info := range info.Imports {
-		env := &envctx.Env{
-			Path:    info.Path,
-			Aliases: info.Aliases,
-		}
-		pcache := scache.Set(env)
+		env := &envctx.Env{Path: info.Path, Aliases: info.Aliases}
+		pcache := scache.SetEnv(env)
 		for _, typeBytes := range info.Types {
 			if err := parser.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
 				return kerr.Wrap("UJLXYWCVUC", err)
