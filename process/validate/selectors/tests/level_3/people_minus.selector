@@ -1,0 +1,1 @@
+{person}:has(.age:expr((x - 3) > 32)).name

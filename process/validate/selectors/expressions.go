@@ -19,6 +19,7 @@ var precedenceMap = map[string]int{
 	"+":  2,
 	"-":  2,
 	"<=": 3,
+	">=": 3,
 	"<":  3,
 	">":  3,
 	"$=": 3,
@@ -64,7 +65,7 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 		return exprElement{false, json.J_BOOL}
 	},
 	">=": func(lhs exprElement, rhs exprElement) exprElement {
-		if getFloat64(lhs.value) > getFloat64(rhs.value) {
+		if getFloat64(lhs.value) >= getFloat64(rhs.value) {
 			return exprElement{true, json.J_BOOL}
 		}
 		return exprElement{false, json.J_BOOL}
@@ -113,6 +114,7 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 	},
 	"!=": func(lhs exprElement, rhs exprElement) exprElement {
 		if isNull(lhs) || isNull(rhs) {
+			// ke: {"block": {"notest": true}}
 			result := !isNull(lhs) || !isNull(rhs)
 			return exprElement{result, json.J_BOOL}
 		}
@@ -151,8 +153,13 @@ func (p *Parser) evaluateExpressionWithPrecedence(elements []*exprElement, prece
 				result := comparatorMap[element.value.(string)](*lhs, *rhs)
 				newExpression = append(newExpression, &result)
 			} else {
+				// Should we match type1 != type2?
+				//if element.value.(string) == "!=" {
+				//	newExpression = append(newExpression, &exprElement{true, json.J_BOOL})
+				//} else {
 				logger.Print("Cannot compare ", lhs.value, " and ", rhs.value, "; types differ: ", rhs.typ, " != ", lhs.typ)
 				newExpression = append(newExpression, &exprElement{false, json.J_BOOL})
+				//}
 			}
 			// Skip ahead an additional step more than normal
 			// since we just pulled off one more element than normal.
@@ -165,10 +172,11 @@ func (p *Parser) evaluateExpressionWithPrecedence(elements []*exprElement, prece
 }
 
 func (p *Parser) evaluateExpression(elements []*exprElement) exprElement {
-	for i := 1; i < 5; i++ {
+	for i := 1; i <= 5; i++ {
 		elements = p.evaluateExpressionWithPrecedence(elements, i)
 	}
 	if len(elements) > 1 {
+		// ke: {"block": {"notest": true}}
 		panic("More than one expression result")
 	}
 	return *elements[0]

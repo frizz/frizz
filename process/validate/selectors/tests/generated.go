@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":3149022371138425231}
+// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":1864218845917892397}
 package tests
 
 import (
@@ -65,6 +65,18 @@ type InstanceItemRule struct {
 
 // Automatically created basic rule for kid
 type KidRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for people
+type PeopleRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for person
+type PersonRule struct {
 	*system.Object
 	*system.Rule
 }
@@ -256,6 +268,31 @@ func (o *Kid) GetKid(ctx context.Context) *Kid {
 	return o
 }
 
+type People struct {
+	*system.Object
+	People []*Person `json:"people"`
+}
+type PeopleInterface interface {
+	GetPeople(ctx context.Context) *People
+}
+
+func (o *People) GetPeople(ctx context.Context) *People {
+	return o
+}
+
+type Person struct {
+	*system.Object
+	Age  *system.Int    `json:"age"`
+	Name *system.String `json:"name"`
+}
+type PersonInterface interface {
+	GetPerson(ctx context.Context) *Person
+}
+
+func (o *Person) GetPerson(ctx context.Context) *Person {
+	return o
+}
+
 // This represents an image, and contains path, server and protocol separately
 type Photo struct {
 	*system.Object
@@ -398,7 +435,7 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 3149022371138425231)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 1864218845917892397)
 	pkg.InitType("basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
 	pkg.InitType("collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())
@@ -409,6 +446,8 @@ func init() {
 	pkg.InitType("instance", reflect.TypeOf((*Instance)(nil)), reflect.TypeOf((*InstanceRule)(nil)), reflect.TypeOf((*InstanceInterface)(nil)).Elem())
 	pkg.InitType("instanceItem", reflect.TypeOf((*InstanceItem)(nil)), reflect.TypeOf((*InstanceItemRule)(nil)), reflect.TypeOf((*InstanceItemInterface)(nil)).Elem())
 	pkg.InitType("kid", reflect.TypeOf((*Kid)(nil)), reflect.TypeOf((*KidRule)(nil)), reflect.TypeOf((*KidInterface)(nil)).Elem())
+	pkg.InitType("people", reflect.TypeOf((*People)(nil)), reflect.TypeOf((*PeopleRule)(nil)), reflect.TypeOf((*PeopleInterface)(nil)).Elem())
+	pkg.InitType("person", reflect.TypeOf((*Person)(nil)), reflect.TypeOf((*PersonRule)(nil)), reflect.TypeOf((*PersonInterface)(nil)).Elem())
 	pkg.InitType("photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoRule)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem())
 	pkg.InitType("polykids", reflect.TypeOf((*Polykids)(nil)), reflect.TypeOf((*PolykidsRule)(nil)), reflect.TypeOf((*PolykidsInterface)(nil)).Elem())
 	pkg.InitType("rectangle", reflect.TypeOf((*Rectangle)(nil)), reflect.TypeOf((*RectangleRule)(nil)), reflect.TypeOf((*RectangleInterface)(nil)).Elem())

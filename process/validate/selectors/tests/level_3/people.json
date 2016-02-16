@@ -1,0 +1,41 @@
+{
+	"id": "peopleData",
+	"type": "people",
+	"people": [
+		{
+			"type": "person",
+			"name": "dave",
+			"age": 38,
+			"colour": "purple",
+			"hat": true
+		},
+		{
+			"type": "person",
+			"name": "john",
+			"age": 35,
+			"colour": "green",
+			"hat": true
+		},
+		{
+			"type": "person",
+			"name": "pete",
+			"age": 33,
+			"colour": "red",
+			"hat": false
+		},
+		{
+			"type": "person",
+			"name": "roy",
+			"age": 70,
+			"colour": "orange",
+			"hat": false
+		},
+		{
+			"type": "person",
+			"name": "gill",
+			"age": 64,
+			"colour": "red",
+			"hat": true
+		}
+	]
+}

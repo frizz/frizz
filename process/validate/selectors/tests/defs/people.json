@@ -1,0 +1,12 @@
+{
+	"type": "system:type",
+	"id": "people",
+	"fields": {
+		"people": {
+			"type": "system:@array",
+			"items": {
+				"type": "@person"
+			}
+		}
+	}
+}

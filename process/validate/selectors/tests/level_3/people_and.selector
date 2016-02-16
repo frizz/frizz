@@ -1,0 +1,1 @@
+{person}:has(.hat:expr(x && true)).name
