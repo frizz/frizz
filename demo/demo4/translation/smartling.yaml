@@ -1,0 +1,10 @@
+type: system:type
+id: smartling
+fields:
+    english:
+        type: system:@string
+    translations:
+        type: system:@map
+        items:
+            type: system:@string
+

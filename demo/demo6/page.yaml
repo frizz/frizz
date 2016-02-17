@@ -1,0 +1,10 @@
+type: system:type
+id: page
+fields:
+    hero:
+        type: images:@photo
+        rules:
+            -
+                type: system:@int
+                selector: ".width"
+                minimum: 1200

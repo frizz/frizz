@@ -1,0 +1,3 @@
+type: system:package
+aliases:
+    "kego.io/demo/demo4/translation": trans

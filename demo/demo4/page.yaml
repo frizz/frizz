@@ -1,0 +1,7 @@
+type: system:type
+id: page
+fields:
+    title:
+        type: trans:@localized
+    body:
+        type: trans:@localized

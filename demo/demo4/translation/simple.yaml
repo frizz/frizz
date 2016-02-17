@@ -1,0 +1,5 @@
+type: system:type
+id: simple
+fields:
+    text:
+        type: system:@string

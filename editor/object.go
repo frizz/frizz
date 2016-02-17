@@ -170,6 +170,9 @@ func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
 	s := &objectSummary{summary: &summary{TableStruct: mdl.Table(), ctx: ctx}}
 	s.Head("name", "origin", "holds", "value", "options")
 	for _, v := range node.Map {
+		if *v.GetNode().Origin != *node.Type.Id {
+			continue
+		}
 		child := v.(*Node)
 		r := s.newRow(child)
 		if err := r.update(); err != nil {
