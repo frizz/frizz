@@ -2,6 +2,8 @@ package parser // import "kego.io/process/parser"
 
 import (
 	"fmt"
+	"os/exec"
+	"strings"
 
 	"github.com/surge/cityhash"
 
@@ -50,6 +52,21 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 		return nil
 	}
 
+	packageDirectoryExists := true
+	_, err := packages.GetDirFromPackage(ctx, path)
+	if err != nil {
+		_, ok := kerr.Source(err).(packages.NotFoundError)
+		if ok {
+			packageDirectoryExists = false
+		}
+	}
+
+	if !packageDirectoryExists || cmd.Update {
+		if err := GoGet(ctx, path); err != nil {
+			return nil, kerr.Wrap("SBALWXUPKN", err)
+		}
+	}
+
 	env, err := ScanForEnv(ctx, path)
 	if err != nil {
 		return nil, kerr.Wrap("GJRHNGGWFD", err)
@@ -88,6 +105,35 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 	env.Hash = h
 
 	return pcache, nil
+}
+
+func GoGet(ctx context.Context, path string) error {
+	cmd := cmdctx.FromContext(ctx)
+	if cmd.Log {
+		minusUString := ""
+		if cmd.Update {
+			minusUString = "-u "
+		}
+		fmt.Printf("Running go get -d %s%s...", minusUString, path)
+	}
+	args := []string{"get", "-d"}
+	if cmd.Update {
+		args = append(args, "-u")
+	}
+	args = append(args, path)
+	exe := exec.Command("go", args...)
+	if combined, err := exe.CombinedOutput(); err != nil {
+		if !strings.Contains(string(combined), "no buildable Go source files") {
+			if cmd.Log {
+				fmt.Println(string(combined))
+			}
+			return kerr.Wrap("NIKCKQAKUI", err)
+		}
+	}
+	if cmd.Log {
+		fmt.Println(" OK.")
+	}
+	return nil
 }
 
 func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {

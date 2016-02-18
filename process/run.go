@@ -1,8 +1,6 @@
 package process
 
 import (
-	"bytes"
-	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -17,6 +15,7 @@ import (
 	"kego.io/context/wgctx"
 	"kego.io/kerr"
 	"kego.io/process/generate"
+	"kego.io/process/logger"
 	"kego.io/process/validate"
 )
 
@@ -62,7 +61,7 @@ func runValidateCommand(ctx context.Context, build bool, repeat bool) (err error
 
 	cmd.Print("Running validate command... ")
 
-	combined, stdout, stderr := logger(cmd.Log)
+	combined, stdout, stderr := logger.Logger(cmd.Log)
 
 	hashChanged := false
 
@@ -149,7 +148,7 @@ func buildValidateCommand(ctx context.Context) error {
 
 	cmd.Print("Building validate command... ")
 
-	combined, stdout, stderr := logger(cmd.Log)
+	combined, stdout, stderr := logger.Logger(cmd.Log)
 	exe := exec.Command("go", "build", "-o", validateCommandPath, outputPath)
 	exe.Stdout = stdout
 	exe.Stderr = stderr
@@ -161,36 +160,4 @@ func buildValidateCommand(ctx context.Context) error {
 	cmd.Print(combined.String())
 
 	return nil
-}
-
-func logger(log bool) (combined *bytes.Buffer, stdout io.Writer, stderr io.Writer) {
-	combined = &bytes.Buffer{}
-	if log {
-		stderr = MultiWriter(os.Stderr, combined)
-		stdout = MultiWriter(os.Stdout, combined)
-	} else {
-		stderr = combined
-		stdout = combined
-	}
-	return
-}
-
-// MultiWriter creates a writer that duplicates its writes to all the
-// provided writers, similar to the Unix tee(1) command.
-func MultiWriter(primary io.Writer, writers ...io.Writer) io.Writer {
-	w := make([]io.Writer, len(writers))
-	copy(w, writers)
-	return &multiWriter{primary: primary, writers: w}
-}
-
-type multiWriter struct {
-	primary io.Writer
-	writers []io.Writer
-}
-
-func (t *multiWriter) Write(p []byte) (n int, err error) {
-	for _, w := range t.writers {
-		w.Write(p)
-	}
-	return t.primary.Write(p)
 }
