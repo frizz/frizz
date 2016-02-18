@@ -167,6 +167,15 @@ func (t *Type) NativeValueGolangType() (string, error) {
 	return nativeGoType(t.Native.Value())
 }
 
+func (t *Type) FieldOrigins() []*Reference {
+	out := []*Reference{t.Id}
+	out = append(out, t.Embed...)
+	if !t.Basic {
+		out = append(out, NewReference("kego.io/system", "object"))
+	}
+	return out
+}
+
 func (t *Type) GoName() string {
 	return GoName(t.Id.Name)
 }

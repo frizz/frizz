@@ -63,11 +63,22 @@ func (e *ObjectEditor) initializeBlockEditor(ed EditorInterface) {
 
 func (e *ObjectEditor) initializeTable() error {
 
-	table, err := NewObjectSummary(e.ctx, e.Node)
-	if err != nil {
-		return kerr.Wrap("VYJPBBMEBS", err)
+	tabs := mdl.NewTabs()
+
+	for _, origin := range e.Node.Type.FieldOrigins() {
+		table, err := NewObjectSummary(e.ctx, e.Node, origin)
+		if err != nil {
+			return kerr.Wrap("VYJPBBMEBS", err)
+		}
+		name, err := origin.ValueContext(e.ctx)
+		if err != nil {
+			return kerr.Wrap("CCGYFHXLYS", err)
+		}
+		tabs.AddTab(name, table)
 	}
-	e.AppendChild(table)
+	tabs.Upgrade()
+
+	e.AppendChild(tabs)
 
 	return nil
 }
@@ -166,11 +177,11 @@ type objectSummaryRow struct {
 	options *summaryCell
 }
 
-func NewObjectSummary(ctx context.Context, node *Node) (*objectSummary, error) {
+func NewObjectSummary(ctx context.Context, node *Node, origin *system.Reference) (*objectSummary, error) {
 	s := &objectSummary{summary: &summary{TableStruct: mdl.Table(), ctx: ctx}}
 	s.Head("name", "origin", "holds", "value", "options")
 	for _, v := range node.Map {
-		if *v.GetNode().Origin != *node.Type.Id {
+		if *v.GetNode().Origin != *origin {
 			continue
 		}
 		child := v.(*Node)

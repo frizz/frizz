@@ -14,6 +14,7 @@ type TableStruct struct {
 func Table() *TableStruct {
 	t := get("table").(*dom.HTMLTableElement)
 	t.Class().SetString("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
+	t.Style().Set("width", "100%")
 
 	thead := get("thead").(*dom.HTMLTableSectionElement)
 	t.AppendChild(thead)
