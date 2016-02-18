@@ -1,5 +1,7 @@
 package translation
 
+// ke: {"package": {"notest": true}}
+
 type Localized interface {
 	Localize(country string) string
 }

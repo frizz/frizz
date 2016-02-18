@@ -1,5 +1,7 @@
 package images
 
+// ke: {"package": {"notest": true}}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/editor"
