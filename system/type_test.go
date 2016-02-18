@@ -11,6 +11,30 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestFieldOrigins(t *testing.T) {
+
+	ty := &Type{
+		Object: &Object{Id: NewReference("a.b/c", "d")},
+		Embed: []*Reference{
+			NewReference("e.f/g", "h"),
+			NewReference("i.j/k", "l"),
+		}}
+	o := ty.FieldOrigins()
+	assert.Equal(t, 4, len(o))
+	assert.Equal(t, *NewReference("a.b/c", "d"), *o[0])
+	assert.Equal(t, *NewReference("e.f/g", "h"), *o[1])
+	assert.Equal(t, *NewReference("i.j/k", "l"), *o[2])
+	assert.Equal(t, *NewReference("kego.io/system", "object"), *o[3])
+
+	ty.Basic = true
+	o = ty.FieldOrigins()
+	assert.Equal(t, 3, len(o))
+	assert.Equal(t, *NewReference("a.b/c", "d"), *o[0])
+	assert.Equal(t, *NewReference("e.f/g", "h"), *o[1])
+	assert.Equal(t, *NewReference("i.j/k", "l"), *o[2])
+
+}
+
 func TestTypeSortedFields(t *testing.T) {
 	ty := &Type{
 		Object: &Object{Id: NewReference("a.b/c", "d")},
