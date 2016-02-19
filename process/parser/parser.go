@@ -124,10 +124,7 @@ func GoGet(ctx context.Context, path string) error {
 	exe := exec.Command("go", args...)
 	if combined, err := exe.CombinedOutput(); err != nil {
 		if !strings.Contains(string(combined), "no buildable Go source files") {
-			if cmd.Log {
-				fmt.Println(string(combined))
-			}
-			return kerr.Wrap("NIKCKQAKUI", err)
+			return kerr.New("NIKCKQAKUI", fmt.Sprintf("%s: %s", err.Error(), combined))
 		}
 	}
 	if cmd.Log {

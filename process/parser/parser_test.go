@@ -18,8 +18,8 @@ func TestScan_errors(t *testing.T) {
 	defer cb.Cleanup()
 
 	_, err := parser.Parse(cb.Ctx(), "does-not-exist")
-	assert.IsError(t, err, "GJRHNGGWFD")  // Error from parser.ScanForEnv
-	assert.HasError(t, err, "SUTCWEVRXS") // Dir not found from packages.getDirFromEmptyPackage
+	assert.IsError(t, err, "SBALWXUPKN")  // Error from parser.ScanForEnv
+	assert.HasError(t, err, "NIKCKQAKUI") // GoGet: exit status 1: package does-not-exist
 
 	path, _ := cb.TempPackage("a", map[string]string{
 		"a.json": `{

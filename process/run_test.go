@@ -10,26 +10,11 @@ import (
 
 	"fmt"
 
-	"bytes"
-
 	"kego.io/context/envctx"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
-
-func TestMultiWriter(t *testing.T) {
-	var p, w1, w2 []byte
-	pb := bytes.NewBuffer(p)
-	w1b := bytes.NewBuffer(w1)
-	w2b := bytes.NewBuffer(w2)
-	mw := MultiWriter(pb, w1b, w2b)
-	mw.Write([]byte("a"))
-	mw.Write([]byte("b"))
-	assert.Equal(t, "ab", pb.String())
-	assert.Equal(t, "ab", w1b.String())
-	assert.Equal(t, "ab", w2b.String())
-}
 
 func TestRun(t *testing.T) {
 
