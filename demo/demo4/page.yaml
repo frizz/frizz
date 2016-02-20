@@ -2,6 +2,6 @@ type: system:type
 id: page
 fields:
     title:
-        type: trans:@localized
-    body:
-        type: trans:@localized
+        type: system:@string
+    hero:
+        type: images:@photo

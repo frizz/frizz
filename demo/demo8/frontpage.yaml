@@ -1,0 +1,7 @@
+type: page
+id: frontpage
+hero:
+    type: images:photo
+    url: foo.jpg
+    width: 1000
+    height: 400

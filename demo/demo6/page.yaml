@@ -1,10 +1,6 @@
 type: system:type
 id: page
 fields:
-    hero:
-        type: images:@photo
-        rules:
-            -
-                type: system:@int
-                selector: ".width"
-                minimum: 1200
+    title:
+        type: system:@string
+        maxLength: 1

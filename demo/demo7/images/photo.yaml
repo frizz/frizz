@@ -7,10 +7,3 @@ fields:
         type: system:@int
     height:
         type: system:@int
-rule:
-    type: system:type
-    embed:
-        - system:rule
-    fields:
-        big:
-            type: system:@bool

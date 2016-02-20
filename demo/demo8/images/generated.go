@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/demo7/images","Hash":12815993352109631826}
+// info:{"Path":"kego.io/demo/demo8/images","Hash":7389634583292915010}
 package images
 
 import (
@@ -28,6 +28,6 @@ func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo7/images", 12815993352109631826)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo8/images", 7389634583292915010)
 	pkg.InitType("photo", reflect.TypeOf((*Photo)(nil)), reflect.TypeOf((*PhotoRule)(nil)), reflect.TypeOf((*PhotoInterface)(nil)).Elem())
 }

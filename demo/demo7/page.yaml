@@ -3,4 +3,8 @@ id: page
 fields:
     hero:
         type: images:@photo
-        big: true
+        rules:
+            -
+                type: system:@int
+                selector: ".width"
+                minimum: 1200
