@@ -62,8 +62,8 @@ func main() {
 	if all != nil && *all {
 		coverProfiles, err = tester.Get(baseDir)
 	} else {
-		coverProfiles, err = tester.Get(baseDir)
-		//profiles, err = tester.GetSingle(baseDir, "kego.io/system")
+		//coverProfiles, err = tester.Get(baseDir)
+		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/process/validate/selectors")
 	}
 	if err != nil {
 		log.Fatal(err)

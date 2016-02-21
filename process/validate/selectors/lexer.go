@@ -215,7 +215,9 @@ func lex(input string, scanners []scannerItem) ([]*token, error) {
 	}
 	logger.Print("Tokenization results: ", input)
 	if logger.Enabled {
+		// ke: {"block": {"notest": true}}
 		for i, token := range tokens {
+			// ke: {"block": {"notest": true}}
 			logger.Print("[", i, "] ", token)
 		}
 	}
@@ -249,7 +251,7 @@ func getToken(typ tokenType, val string) token {
 	case S_WORD:
 		return token{typ, val[1 : len(val)-1]}
 	case S_STRING:
-		return token{S_STRING, val[1 : len(val)-1]}
+		return token{typ, val[1 : len(val)-1]}
 	case S_OPER:
 		// If the operator is padded with whitespace, we match the whole string so we must
 		// trim leading and trailing whitespace.
