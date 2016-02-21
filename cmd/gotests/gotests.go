@@ -196,7 +196,7 @@ func excludeWraps(profiles map[string]*Profile, source *scanner.Source) error {
 			continue
 		}
 		for _, b := range p.Blocks {
-			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
+			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count == 0 {
 				b.Exclude = true
 				fmt.Printf("Excluding Wrap %s from %s:%d\n", def.Id, def.File, def.Line)
 			}
@@ -212,7 +212,7 @@ func excludeBlocks(profiles map[string]*Profile, source *scanner.Source) error {
 			continue
 		}
 		for _, b := range p.Blocks {
-			if b.StartLine <= eb.Line && b.EndLine >= eb.Line && b.Count != 1 {
+			if b.StartLine <= eb.Line && b.EndLine >= eb.Line && b.Count == 0 {
 				b.Exclude = true
 				fmt.Printf("Excluding block from %s:%d\n", eb.File, eb.Line)
 			}
@@ -228,7 +228,7 @@ func excludeFuncs(profiles map[string]*Profile, source *scanner.Source) error {
 			continue
 		}
 		for _, b := range p.Blocks {
-			if b.StartLine <= ef.LineEnd && b.EndLine >= ef.LineStart && b.Count != 1 {
+			if b.StartLine <= ef.LineEnd && b.EndLine >= ef.LineStart && b.Count == 0 {
 				b.Exclude = true
 				fmt.Printf("Excluding func from %s:%d-%d\n", ef.File, ef.LineStart, ef.LineEnd)
 			}
@@ -257,7 +257,7 @@ func excludeSkips(profiles map[string]*Profile, source *scanner.Source) error {
 				continue
 			}
 			for _, b := range p.Blocks {
-				if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
+				if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count == 0 {
 					b.Exclude = true
 					fmt.Printf("Excluding skipped error %s from %s:%d\n", id, def.File, def.Line)
 				}
