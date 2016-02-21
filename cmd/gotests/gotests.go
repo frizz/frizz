@@ -79,6 +79,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := excludeFiles(profiles, source); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := excludeWraps(profiles, source); err != nil {
 		log.Fatal(err)
 	}
@@ -243,6 +247,16 @@ func excludePackages(profiles map[string]*Profile, source *scanner.Source) error
 		if _, ok := source.ExcludedPackages[pkg]; ok {
 			profile.Exclude = true
 			fmt.Printf("Excluding package %s - %s\n", pkg, profile.FileName)
+		}
+	}
+	return nil
+}
+
+func excludeFiles(profiles map[string]*Profile, source *scanner.Source) error {
+	for _, profile := range profiles {
+		if _, ok := source.ExcludedFiles[profile.FileName]; ok {
+			profile.Exclude = true
+			fmt.Printf("Excluding file %s\n", profile.FileName)
 		}
 	}
 	return nil

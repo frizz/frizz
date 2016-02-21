@@ -1,5 +1,7 @@
 package selectors
 
+// ke: {"file": {"notest": true}}
+
 import (
 	"fmt"
 	"log"
