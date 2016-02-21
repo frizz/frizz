@@ -233,6 +233,7 @@ func (p *Parser) parseExpression(tokens []*token, current *node.Node) exprElemen
 		} else if thisToken.typ == S_BINOP {
 			finalTokens = append(finalTokens, &exprElement{thisToken.val, json.J_OPERATOR})
 		} else {
+			// ke: {"block": {"notest": true}}
 			logger.Print("Unexpected token ", thisToken, " ignored.")
 		}
 	}

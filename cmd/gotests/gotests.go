@@ -22,6 +22,22 @@ import (
 
 var baseDir string
 
+// Profile represents the profiling data for a specific file.
+type Profile struct {
+	FileName string
+	Mode     string
+	Blocks   []*ProfileBlock
+	Exclude  bool
+}
+
+// ProfileBlock represents a single block of profiling data.
+type ProfileBlock struct {
+	StartLine, StartCol int
+	EndLine, EndCol     int
+	NumStmt, Count      int
+	Exclude             bool
+}
+
 func main() {
 
 	all := flag.Bool("all", false, "If -all is spefified, gotests will always run all the tests")
@@ -42,43 +58,40 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	var profiles []*cover.Profile
+	var coverProfiles []*cover.Profile
 	if all != nil && *all {
-		profiles, err = tester.Get(baseDir)
+		coverProfiles, err = tester.Get(baseDir)
 	} else {
-		profiles, err = tester.Get(baseDir)
+		coverProfiles, err = tester.Get(baseDir)
 		//profiles, err = tester.GetSingle(baseDir, "kego.io/system")
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	profilesMap := map[string]*cover.Profile{}
-	for _, p := range profiles {
-		profilesMap[p.FileName] = p
-	}
+	profiles := importProfiles(coverProfiles)
 
-	if err := excludeGenerated(&profiles); err != nil {
+	if err := excludeGenerated(profiles); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := excludePackages(&profiles, source); err != nil {
+	if err := excludePackages(profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := excludeWraps(profilesMap, source); err != nil {
+	if err := excludeWraps(profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := excludeBlocks(profilesMap, source); err != nil {
+	if err := excludeBlocks(profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := excludeFuncs(profilesMap, source); err != nil {
+	if err := excludeFuncs(profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := excludeSkips(profilesMap, source); err != nil {
+	if err := excludeSkips(profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
@@ -86,17 +99,77 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := tester.Save(profiles, filepath.Join(baseDir, "coverage.out")); err != nil {
+	out := exportProfiles(profiles)
+
+	if err := tester.Save(out, filepath.Join(baseDir, "coverage.out")); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func checkComplete(profiles []*cover.Profile, source *scanner.Source) error {
+func importProfiles(coverProfiles []*cover.Profile) map[string]*Profile {
+	profiles := map[string]*Profile{}
+	for _, p := range coverProfiles {
+		profile := &Profile{
+			FileName: p.FileName,
+			Mode:     p.Mode,
+		}
+		for _, b := range p.Blocks {
+			block := &ProfileBlock{
+				StartLine: b.StartLine,
+				EndLine:   b.EndLine,
+				StartCol:  b.EndCol,
+				EndCol:    b.EndCol,
+				NumStmt:   b.NumStmt,
+				Count:     b.Count,
+			}
+			profile.Blocks = append(profile.Blocks, block)
+		}
+		profiles[p.FileName] = profile
+	}
+	return profiles
+}
+
+func exportProfiles(profiles map[string]*Profile) []*cover.Profile {
+	var coverProfiles []*cover.Profile
+	for _, p := range profiles {
+		if p.Exclude {
+			continue
+		}
+		profile := &cover.Profile{
+			FileName: p.FileName,
+			Mode:     p.Mode,
+		}
+		for _, b := range p.Blocks {
+			if b.Exclude {
+				continue
+			}
+			block := cover.ProfileBlock{
+				StartLine: b.StartLine,
+				EndLine:   b.EndLine,
+				StartCol:  b.EndCol,
+				EndCol:    b.EndCol,
+				NumStmt:   b.NumStmt,
+				Count:     b.Count,
+			}
+			profile.Blocks = append(profile.Blocks, block)
+		}
+		coverProfiles = append(coverProfiles, profile)
+	}
+	return coverProfiles
+}
+
+func checkComplete(profiles map[string]*Profile, source *scanner.Source) error {
 	for _, profile := range profiles {
+		if profile.Exclude {
+			continue
+		}
 		pkg := getPackage(profile)
 		_, ok := source.CompletePackages[pkg]
 		if ok {
 			for _, block := range profile.Blocks {
+				if block.Exclude {
+					continue
+				}
 				if block.Count == 0 {
 					return kerr.New("GNLYPXHTNF", "Untested code in %s:%d-%d", profile.FileName, block.StartLine, block.EndLine)
 				}
@@ -106,30 +179,25 @@ func checkComplete(profiles []*cover.Profile, source *scanner.Source) error {
 	return nil
 }
 
-func excludeGenerated(profiles *[]*cover.Profile) error {
-	out := []*cover.Profile{}
-	for _, profile := range *profiles {
+func excludeGenerated(profiles map[string]*Profile) error {
+	for _, profile := range profiles {
 		if strings.HasSuffix(profile.FileName, "/generated.go") {
 			fmt.Println("Excluding", profile.FileName)
-		} else {
-			out = append(out, profile)
+			profile.Exclude = true
 		}
 	}
-	*profiles = out
-
 	return nil
 }
 
-func excludeWraps(profiles map[string]*cover.Profile, source *scanner.Source) error {
+func excludeWraps(profiles map[string]*Profile, source *scanner.Source) error {
 	for _, def := range source.Wraps {
 		p, ok := profiles[def.File]
 		if !ok {
 			continue
 		}
-		for i, b := range p.Blocks {
+		for _, b := range p.Blocks {
 			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
-				b.Count = 1
-				p.Blocks[i] = b
+				b.Exclude = true
 				fmt.Printf("Excluding Wrap %s from %s:%d\n", def.Id, def.File, def.Line)
 			}
 		}
@@ -137,16 +205,15 @@ func excludeWraps(profiles map[string]*cover.Profile, source *scanner.Source) er
 	return nil
 }
 
-func excludeBlocks(profiles map[string]*cover.Profile, source *scanner.Source) error {
+func excludeBlocks(profiles map[string]*Profile, source *scanner.Source) error {
 	for _, eb := range source.ExcludedBlocks {
 		p, ok := profiles[eb.File]
 		if !ok {
 			continue
 		}
-		for i, b := range p.Blocks {
+		for _, b := range p.Blocks {
 			if b.StartLine <= eb.Line && b.EndLine >= eb.Line && b.Count != 1 {
-				b.Count = 1
-				p.Blocks[i] = b
+				b.Exclude = true
 				fmt.Printf("Excluding block from %s:%d\n", eb.File, eb.Line)
 			}
 		}
@@ -154,16 +221,15 @@ func excludeBlocks(profiles map[string]*cover.Profile, source *scanner.Source) e
 	return nil
 }
 
-func excludeFuncs(profiles map[string]*cover.Profile, source *scanner.Source) error {
+func excludeFuncs(profiles map[string]*Profile, source *scanner.Source) error {
 	for _, ef := range source.ExcludedFuncs {
 		p, ok := profiles[ef.File]
 		if !ok {
 			continue
 		}
-		for i, b := range p.Blocks {
+		for _, b := range p.Blocks {
 			if b.StartLine <= ef.LineEnd && b.EndLine >= ef.LineStart && b.Count != 1 {
-				b.Count = 1
-				p.Blocks[i] = b
+				b.Exclude = true
 				fmt.Printf("Excluding func from %s:%d-%d\n", ef.File, ef.LineStart, ef.LineEnd)
 			}
 		}
@@ -171,26 +237,18 @@ func excludeFuncs(profiles map[string]*cover.Profile, source *scanner.Source) er
 	return nil
 }
 
-func excludePackages(profiles *[]*cover.Profile, source *scanner.Source) error {
-	out := []*cover.Profile{}
-	for _, profile := range *profiles {
-
+func excludePackages(profiles map[string]*Profile, source *scanner.Source) error {
+	for _, profile := range profiles {
 		pkg := getPackage(profile)
-
-		_, ok := source.ExcludedPackages[pkg]
-
-		if ok {
+		if _, ok := source.ExcludedPackages[pkg]; ok {
+			profile.Exclude = true
 			fmt.Printf("Excluding package %s - %s\n", pkg, profile.FileName)
-		} else {
-			out = append(out, profile)
 		}
 	}
-	*profiles = out
 	return nil
 }
 
-func excludeSkips(profiles map[string]*cover.Profile, source *scanner.Source) error {
-
+func excludeSkips(profiles map[string]*Profile, source *scanner.Source) error {
 	for id, _ := range source.Skipped {
 		def, ok := source.All[id]
 		if ok {
@@ -198,10 +256,9 @@ func excludeSkips(profiles map[string]*cover.Profile, source *scanner.Source) er
 			if !ok {
 				continue
 			}
-			for i, b := range p.Blocks {
+			for _, b := range p.Blocks {
 				if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count != 1 {
-					b.Count = 1
-					p.Blocks[i] = b
+					b.Exclude = true
 					fmt.Printf("Excluding skipped error %s from %s:%d\n", id, def.File, def.Line)
 				}
 			}
@@ -210,7 +267,7 @@ func excludeSkips(profiles map[string]*cover.Profile, source *scanner.Source) er
 	return nil
 }
 
-func getPackage(profile *cover.Profile) string {
+func getPackage(profile *Profile) string {
 	dir, _ := filepath.Split(profile.FileName)
 	if strings.HasSuffix(dir, "/") {
 		dir = dir[:len(dir)-1]
