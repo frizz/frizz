@@ -117,7 +117,7 @@ func importProfiles(coverProfiles []*cover.Profile) map[string]*Profile {
 			block := &ProfileBlock{
 				StartLine: b.StartLine,
 				EndLine:   b.EndLine,
-				StartCol:  b.EndCol,
+				StartCol:  b.StartCol,
 				EndCol:    b.EndCol,
 				NumStmt:   b.NumStmt,
 				Count:     b.Count,
@@ -146,7 +146,7 @@ func exportProfiles(profiles map[string]*Profile) []*cover.Profile {
 			block := cover.ProfileBlock{
 				StartLine: b.StartLine,
 				EndLine:   b.EndLine,
-				StartCol:  b.EndCol,
+				StartCol:  b.StartCol,
 				EndCol:    b.EndCol,
 				NumStmt:   b.NumStmt,
 				Count:     b.Count,
