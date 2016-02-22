@@ -2,7 +2,6 @@
 package selectors // import "kego.io/process/validate/selectors"
 
 import (
-	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -36,7 +35,7 @@ func CreateParser(ctx context.Context, node *node.Node) (*Parser, error) {
 func (p *Parser) evaluateSelector(selector string) ([]*node.Node, error) {
 	tokens, err := lex(selector, selectorScanner)
 	if err != nil {
-		return nil, err
+		return nil, kerr.Wrap("EYLKBHXDIO", err)
 	}
 
 	//for _, t := range tokens {
@@ -49,7 +48,7 @@ func (p *Parser) evaluateSelector(selector string) ([]*node.Node, error) {
 
 	nodes, err := p.selectorProduction(tokens, p.flattened, 1)
 	if err != nil {
-		return nil, err
+		return nil, kerr.Wrap("QCNXTFQDDS", err)
 	}
 
 	logger.Print(len(nodes), " matches found")
@@ -60,7 +59,7 @@ func (p *Parser) evaluateSelector(selector string) ([]*node.Node, error) {
 func (p *Parser) GetNodes(selector string) ([]*node.Node, error) {
 	nodes, err := p.evaluateSelector(selector)
 	if err != nil {
-		return nil, err
+		return nil, kerr.Wrap("QFXXVGGHSS", err)
 	}
 	return nodes, nil
 }
@@ -68,7 +67,7 @@ func (p *Parser) GetNodes(selector string) ([]*node.Node, error) {
 func (p *Parser) GetValues(selector string) ([]interface{}, error) {
 	nodes, err := p.evaluateSelector(selector)
 	if err != nil {
-		return nil, err
+		return nil, kerr.Wrap("CUYVJCJBTY", err)
 	}
 
 	var results = make([]interface{}, 0, len(nodes))
@@ -144,12 +143,12 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, r
 	}
 
 	if len(validators) < 1 {
-		return nil, errors.New("No selector recognized")
+		return nil, kerr.New("REPJTLCAMQ", "No selector recognized")
 	}
 
 	results, err := p.matchNodes(validators, documentMap)
 	if err != nil {
-		return nil, err
+		return nil, kerr.Wrap("UWDQXLKRTF", err)
 	}
 	logger.Print("Applying ", len(validators), " validators to document resulted in ", len(results), " matches")
 
@@ -162,7 +161,7 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, r
 		logger.DecreaseDepth()
 		logger.Print("Recursion completed; returned control to selectorProduction(", recursionDepth, ") via operator ", value, " with ", len(rvals), " matches.")
 		if err != nil {
-			return nil, err
+			return nil, kerr.Wrap("LFFTGCMQES", err)
 		}
 		switch value {
 		case ",":
@@ -186,7 +185,7 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, r
 			results = p.ancestors(results, rvals)
 			logger.Print("(", recursionDepth, ") Operator ' ': ", originalLength, " => ", len(results))
 		default:
-			return nil, errors.New("Unrecognized operator")
+			return nil, kerr.New("KLEORWJHSP", "Unrecognized operator")
 		}
 	} else if len(tokens) > 0 {
 		logger.Print("Recursing selectorProduction(", recursionDepth, ") for excess tokens starting with ", tokens[0], " ;", len(tokens), " tokens remaining")
@@ -195,7 +194,7 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, r
 		logger.DecreaseDepth()
 		logger.Print("Recursion completed; returned control to selectorProduction(", recursionDepth, ") for excess tokens with ", len(rvals), " matches.")
 		if err != nil {
-			return nil, err
+			return nil, kerr.Wrap("UUCSREMXUO", err)
 		}
 		results = p.ancestors(results, rvals)
 	}
@@ -206,7 +205,7 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, r
 
 func (p *Parser) peek(tokens []*token, typ tokenType) (interface{}, bool, error) {
 	if len(tokens) < 1 {
-		return nil, false, errors.New("No more tokens")
+		return nil, false, kerr.New("MMUTNKBVPD", "No more tokens")
 	}
 	if tokens[0].typ == typ {
 		return tokens[0].val, true, nil
@@ -217,7 +216,7 @@ func (p *Parser) peek(tokens []*token, typ tokenType) (interface{}, bool, error)
 func (p *Parser) match(tokens []*token, typ tokenType) (interface{}, []*token, error) {
 	value, matched, _ := p.peek(tokens, typ)
 	if !matched {
-		return nil, tokens, errors.New("Match not successful")
+		return nil, tokens, kerr.New("EGHVMCOKCS", "Match not successful")
 	}
 	_, tokens = tokens[0], tokens[1:]
 	return value, tokens, nil
@@ -318,26 +317,6 @@ func nodeExists(n *node.Node) bool {
 		return false
 	}
 	return n.Value != nil
-	/*
-		switch node.json.Rule.ParentType.Native.Value {
-		case "string":
-			if _, exists := node.json.Data.(system.NativeString).NativeString(); !exists {
-				return false
-			}
-		case "number":
-			if _, exists := node.json.Data.(system.NativeNumber).NativeNumber(); !exists {
-				return false
-			}
-		case "bool":
-			if _, exists := node.json.Data.(system.NativeBool).NativeBool(); !exists {
-				return false
-			}
-		case "map", "array", "object":
-			if node.json.Data == nil {
-				return false
-			}
-		}
-		return true*/
 }
 
 func (p *Parser) universalProduction(value interface{}) func(*node.Node) (bool, error) {

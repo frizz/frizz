@@ -1,11 +1,11 @@
 package selectors
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"kego.io/kerr"
 )
 
 type tokenType string
@@ -177,7 +177,7 @@ func lexNextToken(input string, scanners []scannerItem) (*token, int, error) {
 						}
 					}
 					if terminated == false {
-						return nil, len(input), errors.New(fmt.Sprintf("Unterminated expression: %s", input[idx[0]:curr-1]))
+						return nil, len(input), kerr.New("MMTRYGGLNE", "Unterminated expression: %s", input[idx[0]:curr-1])
 					} else {
 						idx[1] = curr
 					}
@@ -190,7 +190,7 @@ func lexNextToken(input string, scanners []scannerItem) (*token, int, error) {
 			}
 		}
 	}
-	return nil, len(input), errors.New(fmt.Sprintf("Selector parsing error at %s", input))
+	return nil, len(input), kerr.New("DPJDASCGQX", "Selector parsing error at %s", input)
 }
 
 func lex(input string, scanners []scannerItem) ([]*token, error) {
