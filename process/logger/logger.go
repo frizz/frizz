@@ -1,5 +1,7 @@
 package logger // import "kego.io/process/logger"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"bytes"
 	"io"

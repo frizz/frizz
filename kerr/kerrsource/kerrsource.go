@@ -1,5 +1,7 @@
 package kerrsource // import "kego.io/kerr/kerrsource"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"go/ast"
 	"go/parser"
