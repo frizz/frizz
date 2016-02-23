@@ -9,6 +9,20 @@ import (
 	"kego.io/system/node"
 )
 
+func TestUniversalProduction(t *testing.T) {
+	p := getParser(t)
+
+	f := p.universalProduction("a")
+	out, err := f(&node.Node{})
+	assert.NoError(t, err)
+	assert.False(t, out)
+
+	f = p.universalProduction("*")
+	out, err = f(&node.Node{})
+	assert.NoError(t, err)
+	assert.True(t, out)
+}
+
 func TestKegoProduction(t *testing.T) {
 	p := getParser(t)
 	f := p.kegoProduction(nil)

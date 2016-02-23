@@ -226,11 +226,13 @@ func (p *Parser) matchNodes(validators []func(*node.Node) (bool, error), documen
 	var matches []*node.Node
 	nodeCount := 0
 	if logger.Enabled {
+		// ke: {"block": {"notest": true}}
 		nodeCount = len(documentMap)
 	}
 	for idx, node := range documentMap {
 		var passed = true
 		if logger.Enabled {
+			// ke: {"block": {"notest": true}}
 			logger.SetPrefix("[Node ", idx, "/", nodeCount, "] ")
 		}
 		for _, validator := range validators {
@@ -360,8 +362,8 @@ func (p *Parser) pclassProduction(value interface{}) func(*node.Node) (bool, err
 		}
 	} else if pclass == "empty" {
 		return func(n *node.Node) (bool, error) {
-			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", json.J_ARRAY, " AND ", len(n.Value.(string)), " < 1")
-			return n.JsonType == json.J_ARRAY && len(n.Value.(string)) < 1, nil
+			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", json.J_ARRAY, " AND ", len(n.Array), " < 1")
+			return n.JsonType == json.J_ARRAY && len(n.Array) < 1, nil
 		}
 	}
 	logger.Print("Error: Unknown pclass: ", pclass)

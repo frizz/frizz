@@ -7,6 +7,12 @@
 			"items": {
 				"type": "@person"
 			}
+		},
+		"others": {
+			"type": "system:@array",
+			"items": {
+				"type": "@person"
+			}
 		}
 	}
 }

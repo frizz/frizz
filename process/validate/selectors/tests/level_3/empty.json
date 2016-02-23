@@ -1,0 +1,10 @@
+{
+	"id": "emptyData",
+	"type": "empty",
+	"items": [
+		{"name": "a", "arr": []},
+		{"name": "b", "arr": ["x"]},
+		{"name": "c", "arr": []},
+		{"name": "d", "arr": ["y", "z"]}
+	]
+}

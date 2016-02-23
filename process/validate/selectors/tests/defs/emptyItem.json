@@ -1,0 +1,15 @@
+{
+	"type": "system:type",
+	"id": "emptyItem",
+	"fields": {
+		"name": {
+			"type": "system:@string"
+		},
+		"arr": {
+			"type": "system:@array",
+			"items": {
+				"type": "system:@string"
+			}
+		}
+	}
+}

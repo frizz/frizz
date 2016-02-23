@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":1864218845917892397}
+// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":12689150386317702967}
 package tests
 
 import (
@@ -29,6 +29,18 @@ type CollisionRule struct {
 
 // Automatically created basic rule for diagram
 type DiagramRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for empty
+type EmptyRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for emptyItem
+type EmptyItemRule struct {
 	*system.Object
 	*system.Rule
 }
@@ -195,6 +207,31 @@ func (o *Diagram) GetDiagram(ctx context.Context) *Diagram {
 	return o
 }
 
+type Empty struct {
+	*system.Object
+	Items []*EmptyItem `json:"items"`
+}
+type EmptyInterface interface {
+	GetEmpty(ctx context.Context) *Empty
+}
+
+func (o *Empty) GetEmpty(ctx context.Context) *Empty {
+	return o
+}
+
+type EmptyItem struct {
+	*system.Object
+	Arr  []*system.String `json:"arr"`
+	Name *system.String   `json:"name"`
+}
+type EmptyItemInterface interface {
+	GetEmptyItem(ctx context.Context) *EmptyItem
+}
+
+func (o *EmptyItem) GetEmptyItem(ctx context.Context) *EmptyItem {
+	return o
+}
+
 type Expr struct {
 	*system.Object
 	False   *system.Bool   `json:"false"`
@@ -270,6 +307,7 @@ func (o *Kid) GetKid(ctx context.Context) *Kid {
 
 type People struct {
 	*system.Object
+	Others []*Person `json:"others"`
 	People []*Person `json:"people"`
 }
 type PeopleInterface interface {
@@ -282,8 +320,10 @@ func (o *People) GetPeople(ctx context.Context) *People {
 
 type Person struct {
 	*system.Object
-	Age  *system.Int    `json:"age"`
-	Name *system.String `json:"name"`
+	Age    *system.Int    `json:"age"`
+	Colour *system.String `json:"colour"`
+	Hat    *system.Bool   `json:"hat"`
+	Name   *system.String `json:"name"`
 }
 type PersonInterface interface {
 	GetPerson(ctx context.Context) *Person
@@ -435,11 +475,13 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 1864218845917892397)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 12689150386317702967)
 	pkg.InitType("basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
 	pkg.InitType("collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())
 	pkg.InitType("diagram", reflect.TypeOf((*Diagram)(nil)), reflect.TypeOf((*DiagramRule)(nil)), reflect.TypeOf((*DiagramInterface)(nil)).Elem())
+	pkg.InitType("empty", reflect.TypeOf((*Empty)(nil)), reflect.TypeOf((*EmptyRule)(nil)), reflect.TypeOf((*EmptyInterface)(nil)).Elem())
+	pkg.InitType("emptyItem", reflect.TypeOf((*EmptyItem)(nil)), reflect.TypeOf((*EmptyItemRule)(nil)), reflect.TypeOf((*EmptyItemInterface)(nil)).Elem())
 	pkg.InitType("expr", reflect.TypeOf((*Expr)(nil)), reflect.TypeOf((*ExprRule)(nil)), reflect.TypeOf((*ExprInterface)(nil)).Elem())
 	pkg.InitType("gallery", reflect.TypeOf((*Gallery)(nil)), reflect.TypeOf((*GalleryRule)(nil)), reflect.TypeOf((*GalleryInterface)(nil)).Elem())
 	pkg.InitType("image", reflect.TypeOf((*Image)(nil)).Elem(), reflect.TypeOf((*ImageRule)(nil)), nil)
