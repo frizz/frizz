@@ -1,6 +1,8 @@
 //go:generate ke kego.io/process/validate/selectors/tests
 package selectors // import "kego.io/process/validate/selectors"
 
+// ke: {"package": "complete": true}}
+
 import (
 	"regexp"
 	"strconv"
@@ -494,7 +496,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		return func(node *node.Node) (bool, error) {
 			result := p.parseExpression(tokens, node)
 			logger.Print("pclassFuncProduction expr ? ", result)
-			return exprElementIsTruthy(result)
+			return exprElementIsTruthy(result), nil
 		}, tokens_to_return
 
 	case "has":

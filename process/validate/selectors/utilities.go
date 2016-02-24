@@ -1,10 +1,7 @@
 package selectors
 
 import (
-	"log"
 	"strconv"
-
-	"fmt"
 
 	"kego.io/json"
 	"kego.io/system"
@@ -14,22 +11,6 @@ import (
 func nodeIsMemberOfHaystack(needle *node.Node, haystack map[*node.Node]*node.Node) bool {
 	_, ok := haystack[needle]
 	return ok
-}
-
-func nodeIsMemberOfList(needle *node.Node, haystack []*node.Node) bool {
-	for _, element := range haystack {
-		if element == needle {
-			return true
-		}
-	}
-	return false
-}
-
-func (p *Parser) appendAncestorsToHaystack(n *node.Node, haystack map[*node.Node]*node.Node) {
-	if !p.isRoot(n) {
-		haystack[n.Parent.GetNode()] = n.Parent.GetNode()
-		p.appendAncestorsToHaystack(n.Parent.GetNode(), haystack)
-	}
 }
 
 func (p *Parser) nodeIsChildOfHaystackMember(needle *node.Node, haystack map[*node.Node]*node.Node) bool {
@@ -132,6 +113,10 @@ func getFloat64(in interface{}) float64 {
 		value := float64(as_int)
 		return value
 	}
+	if as_int, ok := in.(int); ok {
+		value := float64(as_int)
+		return value
+	}
 	if as_string, ok := in.(string); ok {
 		parsed_float_string, err := strconv.ParseFloat(as_string, 64)
 		if err == nil {
@@ -140,20 +125,23 @@ func getFloat64(in interface{}) float64 {
 		}
 		parsed_int_string, err := strconv.ParseInt(as_string, 10, 32)
 		if err == nil {
+			// I don't think this can happen, but I'll leave it in just in
+			// case
+			// ke: {"block": {"notest": true}}
 			value := float64(parsed_int_string)
 			return value
 		}
 	}
-	panic(fmt.Sprintf("ERR: %T", in))
 	result := float64(-1)
-	log.Print("Error transforming ", in, " into Float64")
+	logger.Print("Error transforming ", in, " into Float64")
 	return result
+
 }
 
 func getInt32(in interface{}) int32 {
 	value := int32(getFloat64(in))
 	if value == -1 {
-		log.Print("Error transforming ", in, " into Int32")
+		logger.Print("Error transforming ", in, " into Int32")
 	}
 	return value
 }
@@ -202,30 +190,30 @@ func getJsonString(in interface{}) string {
 	}
 	marshaled_result, err := json.Marshal(in)
 	if err != nil {
-		log.Print("Error transforming ", in, " into JSON string")
+		logger.Print("Error transforming ", in, " into JSON string")
 	}
 	result := string(marshaled_result)
 	return result
 }
 
-func exprElementIsTruthy(e exprElement) (bool, error) {
+func exprElementIsTruthy(e exprElement) bool {
 	switch e.typ {
 	case json.J_STRING:
-		return len(e.value.(string)) > 0, nil
+		return len(e.value.(string)) > 0
 	case json.J_NUMBER:
-		return e.value.(float64) > 0, nil
+		return e.value.(float64) > 0
 	case json.J_OBJECT:
-		return true, nil
+		return true
 	case json.J_MAP:
-		return true, nil
+		return true
 	case json.J_ARRAY:
-		return true, nil
+		return true
 	case json.J_BOOL:
-		return e.value.(bool), nil
+		return e.value.(bool)
 	case json.J_NULL:
-		return false, nil
+		return false
 	default:
-		return false, nil
+		return false
 	}
 }
 
