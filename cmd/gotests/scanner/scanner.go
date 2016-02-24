@@ -77,7 +77,7 @@ func Get(dir string) (*Source, error) {
 		return nil
 	}
 	if err := filepath.Walk(baseDir, walker); err != nil {
-		return nil, err
+		return nil, kerr.Wrap("UIBJTFCKHQ", err)
 	}
 
 	return source, nil
@@ -93,18 +93,18 @@ func scanFile(filename string) error {
 
 	b, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return err
+		return kerr.Wrap("DNMNGWPEYO", err)
 	}
 
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
 	if err != nil {
-		return err
+		return kerr.Wrap("WTIOTIMQDV", err)
 	}
 
 	pkg, err := packages.GetPackageFromDir(context.Background(), filepath.Dir(filename))
 	if err != nil {
-		return err
+		return kerr.Wrap("PJFJLKNVBO", err)
 	}
 
 	kerrName := ""
@@ -129,7 +129,7 @@ func scanFile(filename string) error {
 
 	relfilename, err := filepath.Rel(filepath.Join(baseDir, ".."), filename)
 	if err != nil {
-		return err
+		return kerr.Wrap("WSDPGDGMDH", err)
 	}
 
 	for _, cg := range file.Comments {
@@ -150,7 +150,7 @@ func scanFile(filename string) error {
 				}{}
 				err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
 				if err != nil {
-					return err
+					return kerr.Wrap("LAWVOJLLRJ", err)
 				}
 				if val.Block.Notest {
 					source.ExcludedBlocks = append(source.ExcludedBlocks, PosDef{
@@ -327,33 +327,3 @@ func getErrorId(t *testing.T, args []ast.Expr, arg int, file string) (string, er
 	}
 	return id, nil
 }
-
-/*
-func getErrData(t *testing.T, args []ast.Expr, arg int, file string) *errDef {
-	assert.True(t, len(args) > arg, "Not enough args (%s)", file)
-	b, ok := args[arg].(*ast.BasicLit)
-	assert.True(t, ok, "Arg should be *ast.BasicLit (%s)", file)
-	assert.Equal(t, b.Kind, token.STRING, "kind should be token.STRING (%s)", file)
-	id, err := strconv.Unquote(b.Value)
-	assert.NoError(t, err, "Error unquoting arg (%s)", file)
-	assert.True(t, kerrsource.IsId(id), "Invalid kerr ID %s (%s)", id, file)
-	def, ok := all[id]
-	if ok {
-		return def
-	}
-	def = &errDef{}
-	def.id = id
-	all[id] = def
-	return def
-}
-
-func getPkgDef(path string) *pkgDef {
-	def, ok := pkgs[path]
-	if ok {
-		return def
-	}
-	def = &pkgDef{}
-	pkgs[path] = def
-	return def
-}
-*/

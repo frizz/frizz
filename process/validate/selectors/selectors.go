@@ -1,7 +1,7 @@
 //go:generate ke kego.io/process/validate/selectors/tests
 package selectors // import "kego.io/process/validate/selectors"
 
-// ke: {"package": "complete": true}}
+// ke: {"package": {"complete": true}}
 
 import (
 	"regexp"

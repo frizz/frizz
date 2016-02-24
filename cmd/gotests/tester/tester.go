@@ -15,6 +15,7 @@ import (
 
 	"golang.org/x/net/context"
 	"golang.org/x/tools/cover"
+	"kego.io/kerr"
 	"kego.io/process/packages"
 )
 
@@ -25,7 +26,7 @@ var merged []*cover.Profile
 func Save(profiles []*cover.Profile, filename string) error {
 	f, err := os.Create(filename)
 	if err != nil {
-		return err
+		return kerr.Wrap("TWQHWMXWMN", err)
 	}
 	defer f.Close()
 	dumpProfiles(profiles, f)
@@ -39,7 +40,7 @@ func Js(packages map[string]bool) error {
 		exe.Stderr = os.Stderr
 		exe.Stdout = os.Stdout
 		if err := exe.Run(); err != nil {
-			return err
+			return kerr.Wrap("DMLLRIOUFL", err)
 		}
 	}
 	return nil
@@ -96,7 +97,7 @@ func get(base string, singlePackage string) ([]*cover.Profile, error) {
 func processCoverageFile(filename string) error {
 	profiles, err := cover.ParseProfiles(filename)
 	if err != nil {
-		return err
+		return kerr.Wrap("DVBQJEVTJU", err)
 	}
 	for _, p := range profiles {
 		merged = addProfile(merged, p)
@@ -119,7 +120,7 @@ func processDir(dir string) error {
 
 	relDir, err := filepath.Rel(filepath.Join(baseDir, ".."), dir)
 	if err != nil {
-		return err
+		return kerr.Wrap("YYJUSYYGKE", err)
 	}
 	coverageFilename := strings.Replace(relDir, string(os.PathSeparator), "_", -1) + ".out"
 	coverageFilePath := filepath.Join(coverDir, coverageFilename)
@@ -137,7 +138,7 @@ func processDir(dir string) error {
 	}
 	fmt.Println(string(b))
 	if err != nil {
-		return err
+		return kerr.Wrap("GIDQRLQARA", err)
 	}
 	return processCoverageFile(coverageFilePath)
 }
