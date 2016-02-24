@@ -367,7 +367,9 @@ func (p *Parser) pclassProduction(value interface{}) func(*node.Node) (bool, err
 		}
 	}
 	logger.Print("Error: Unknown pclass: ", pclass)
+	// ke: {"block": {"notest": true}}
 	return func(n *node.Node) (bool, error) {
+		// ke: {"block": {"notest": true}}
 		logger.Print("Asserting false due to failed pclassProduction")
 		return false, nil
 	}
@@ -384,7 +386,9 @@ func (p *Parser) nthChildProduction(value interface{}, tokens []*token) (func(*n
 
 	logger.Print("Creating nthChildProduction validator ", pattern)
 	if logger.Enabled {
+		// ke: {"block": {"notest": true}}
 		for idx, pat := range pattern {
+			// ke: {"block": {"notest": true}}
 			logger.Print("[", idx, "] ", pat)
 		}
 	}
@@ -470,7 +474,9 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 	logme := func(lexString string, args []*token) {
 		logger.Print("pclassFuncProduction lex results for [", lexString, "]: (follow)")
 		if logger.Enabled {
+			// ke: {"block": {"notest": true}}
 			for i, arg := range args {
+				// ke: {"block": {"notest": true}}
 				logger.Print("[", i, "]: ", arg)
 			}
 		}
@@ -480,6 +486,7 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 	case "expr":
 		tokens, err := lex(sargs.(string), expressionScanner)
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			panic(err)
 		}
 		logme(sargs.(string), tokens)
@@ -524,8 +531,8 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		logme(lexString, args)
 
 		return func(node *node.Node) (bool, error) {
-			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", json.J_STRING, " AND ", strings.Count(node.Value.(string), args[0].val.(string)), " > 0")
-			return node.JsonType == json.J_STRING && strings.Count(node.Value.(string), args[0].val.(string)) > 0, nil
+			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", json.J_STRING, " AND ", strings.Count(node.ValueString, args[0].val.(string)), " > 0")
+			return node.JsonType == json.J_STRING && strings.Count(node.ValueString, args[0].val.(string)) > 0, nil
 		}, tokens
 
 	case "val":
@@ -555,9 +562,11 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		}, tokens
 
 	default:
+		// ke: {"block": {"notest": true}}
 		// If we didn't find a known pclass, do not match anything.
 		logger.Print("Error: Unknown pclass: ", pclass)
 		return func(node *node.Node) (bool, error) {
+			// ke: {"block": {"notest": true}}
 			logger.Print("Asserting false due to failed pclassFuncProduction")
 			return false, nil
 		}, tokens

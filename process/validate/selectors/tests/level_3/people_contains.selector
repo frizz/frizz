@@ -1,1 +1,1 @@
-{person}:has(.colour:expr(x *= "re")).name
+{person}:has(.colour:contains("re")).name
