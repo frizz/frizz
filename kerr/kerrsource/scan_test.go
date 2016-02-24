@@ -87,6 +87,11 @@ func walkFile(path string, t *testing.T) error {
 		return kerr.Wrap("FIPPWAKAGK", err)
 	}
 
+	// ignore anything that starts with kego.io/demo/
+	if strings.HasPrefix(pkg, "kego.io/demo/") {
+		return nil
+	}
+
 	def := getPkgDef(pkg)
 	if strings.HasSuffix(path, "_test.go") {
 		def.tested = true
