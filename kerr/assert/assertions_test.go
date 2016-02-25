@@ -8,6 +8,34 @@ import (
 	"time"
 )
 
+func TestContains1(t *testing.T) {
+	mockT := new(testing.T)
+	if Contains(mockT, 123, "a") {
+		t.Error("Contains should return false")
+	}
+	if NotContains(mockT, 123, "a") {
+		t.Error("NotContains should return false")
+	}
+}
+
+func TestNotNilChan(t *testing.T) {
+	mockT := new(testing.T)
+	var a chan int
+	if NotNil(mockT, a, "b") {
+		t.Error("NotNil should return false")
+	}
+	if !isNil(a) {
+		t.Error("isNil should return true")
+	}
+}
+
+func TestEqualValues(t *testing.T) {
+	mockT := new(testing.T)
+	if EqualValues(mockT, 1, 2, "a") {
+		t.Error("EqualValues should return false")
+	}
+}
+
 func TestObjectsAreEqualValues(t *testing.T) {
 	if !ObjectsAreEqualValues(int32(10), int32(10)) {
 		t.Error("ObjectsAreEqualValues should return true")

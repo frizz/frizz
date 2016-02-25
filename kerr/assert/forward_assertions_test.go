@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+func TestFail(t *testing.T) {
+	assert := New(new(testing.T))
+	if assert.Fail("a") {
+		t.Error("assert.Fail should return false")
+	}
+}
+
 func TestImplementsWrapper(t *testing.T) {
 	assert := New(new(testing.T))
 

@@ -294,12 +294,6 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 			} else if pkg == v.assertName && (name == "SkipError") {
 				def := getErrData(v.t, ty.Args, 0, v.file)
 				def.skipped = true
-			} else if pkg == v.assertName && (name == "IsErrorMulti" || name == "HasErrorMulti") {
-				assert.True(v.t, len(ty.Args) > 2, "Not enough args (%s)", v.file)
-				for arg := 2; arg < len(ty.Args); arg++ {
-					def := getErrData(v.t, ty.Args, arg, v.file)
-					def.tested = true
-				}
 			}*/
 
 		}

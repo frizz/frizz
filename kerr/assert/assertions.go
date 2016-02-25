@@ -112,10 +112,7 @@ func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
 	if len(msgAndArgs) == 1 {
 		return msgAndArgs[0].(string)
 	}
-	if len(msgAndArgs) > 1 {
-		return fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
-	}
-	return ""
+	return fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
 }
 
 // Indents all lines of the message by appending a number of tabs to each line, in an output format compatible with Go's
