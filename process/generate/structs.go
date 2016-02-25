@@ -41,6 +41,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	for _, name := range types.Keys() {
 		t, ok := types.Get(name)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			continue
 		}
 		typ := t.(*system.Type)
@@ -149,6 +150,7 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTyp
 		for _, name := range types.Keys() {
 			t, ok := types.Get(name)
 			if !ok {
+				// ke: {"block": {"notest": true}}
 				continue
 			}
 			typ := t.(*system.Type)
