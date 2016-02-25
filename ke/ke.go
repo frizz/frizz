@@ -4,24 +4,24 @@ package ke // import "kego.io/ke"
 
 import (
 	"io"
-	"os"
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 	"kego.io/json"
 	"kego.io/kerr"
+	"kego.io/process/scanner"
 )
 
 func Open(ctx context.Context, filename string) (value interface{}, err error) {
-
-	file, err := os.Open(filename)
+	bytes, err := scanner.ProcessFile(filename)
 	if err != nil {
-		return nil, kerr.Wrap("NDJKHCDCIW", err)
+		return nil, kerr.Wrap("HPWXWFTKWA", err)
 	}
-	defer file.Close()
-
-	err = json.NewDecoder(ctx, file).Decode(&value)
+	err = json.Unmarshal(ctx, bytes, &value)
+	if err != nil {
+		return nil, kerr.Wrap("CXIULJCEBE", err)
+	}
 	return
 }
 

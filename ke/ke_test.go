@@ -21,7 +21,7 @@ func TestKego(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/system", nil)
 
 	_, err := ke.Open(ctx, "")
-	assert.IsError(t, err, "NDJKHCDCIW")
+	assert.IsError(t, err, "CXIULJCEBE")
 
 	systemDir, err := packages.GetDirFromPackage(ctx, "kego.io/system")
 	assert.NoError(t, err)

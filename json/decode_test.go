@@ -22,10 +22,6 @@ import (
 	"kego.io/process/tests"
 )
 
-func TestDefaultNativeValue(t *testing.T) {
-
-}
-
 func TestInitializableTypeError(t *testing.T) {
 	err := &InitializableTypeError{
 		UnmarshalledPath: "a",

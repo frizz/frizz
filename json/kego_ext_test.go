@@ -2,15 +2,34 @@ package json_test
 
 import (
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"testing"
 
+	"golang.org/x/net/context"
+
 	. "kego.io/json"
+	"kego.io/json/systests"
+	"kego.io/ke"
 	"kego.io/kerr"
 	"kego.io/kerr/assert"
+	"kego.io/process/packages"
 	"kego.io/process/tests"
 	"kego.io/process/tests/unpacker"
 )
+
+func TestUnpack1(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{})
+	dir, err := packages.GetDirFromPackage(ctx, "kego.io/json/systests")
+	assert.NoError(t, err)
+	value, err := ke.Open(ctx, filepath.Join(dir, "b.yaml"))
+	assert.NoError(t, err)
+	a, ok := value.(*systests.A)
+	assert.True(t, ok)
+	assert.Equal(t, "foo", a.A.GetString(ctx).Value())
+	assert.Equal(t, 2.0, a.B.GetNumber(ctx).Value())
+	assert.Equal(t, true, a.C.GetBool(ctx).Value())
+}
 
 func TestDecodeSimple(t *testing.T) {
 	testDecodeSimple(t, unpacker.Unmarshal)

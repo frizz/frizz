@@ -17,7 +17,6 @@ func TestGoName(t *testing.T) {
 	assert.Equal(t, "", GoInterfaceName(""))
 	assert.Equal(t, "AbcInterface", GoInterfaceName("abc"))
 	assert.Equal(t, "AbcInterface", GoInterfaceName("@abc"))
-
 }
 
 func TestNoType(t *testing.T) {
