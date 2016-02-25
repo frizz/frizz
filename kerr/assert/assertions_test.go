@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+func TestObjectsAreEqualValues(t *testing.T) {
+	if !ObjectsAreEqualValues(int32(10), int32(10)) {
+		t.Error("ObjectsAreEqualValues should return true")
+	}
+	if ObjectsAreEqualValues(int32(1), int32(2)) {
+		t.Error("ObjectsAreEqualValues should return false")
+	}
+}
+
 // AssertionTesterInterface defines an interface to be used for testing assertion methods
 type AssertionTesterInterface interface {
 	TestMethod()

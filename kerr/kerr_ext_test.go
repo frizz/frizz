@@ -22,9 +22,12 @@ func TestErr(t *testing.T) {
 	e = kerr.Wrap("IIUTGFRFFV", fmt.Errorf("a"), 1, 2, 3)
 	assert.Equal(t, "\nIIUTGFRFFV error in kerr_ext_test.go:22 TestErr: 1 2 3: \na", e.Error())
 
+	e = kerr.Wrap("ESFXCVJSOH", fmt.Errorf("a"), "%s")
+	assert.Equal(t, "\nESFXCVJSOH error in kerr_ext_test.go:25 TestErr: %s: \na", e.Error())
+
 	// Should remove a leading new-line from errors
 	e = kerr.Wrap("OHUKDAEMPT", fmt.Errorf("\na"))
-	assert.Equal(t, "\nOHUKDAEMPT error in kerr_ext_test.go:26 TestErr: \na", e.Error())
+	assert.Equal(t, "\nOHUKDAEMPT error in kerr_ext_test.go:29 TestErr: \na", e.Error())
 
 	e = kerr.New("TUPDJYPRNU", "b")
 	assert.Equal(t, "TUPDJYPRNU", e.ErrorId())

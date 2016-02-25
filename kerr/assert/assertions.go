@@ -75,6 +75,7 @@ func CallerInfo() string {
 	for i := 0; ; i++ {
 		_, file, line, ok = runtime.Caller(i)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			return ""
 		}
 		parts := strings.Split(file, "/")
@@ -94,6 +95,7 @@ func getWhitespaceString() string {
 
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
+		// ke: {"block": {"notest": true}}
 		return ""
 	}
 	parts := strings.Split(file, "/")
