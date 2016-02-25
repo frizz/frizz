@@ -1,9 +1,10 @@
-package parser_test
+package parser
 
 import (
 	"testing"
 
-	"kego.io/process/parser"
+	"io/ioutil"
+	"path/filepath"
 
 	"kego.io/context/sysctx"
 	"kego.io/kerr/assert"
@@ -12,13 +13,235 @@ import (
 	"kego.io/system"
 )
 
+func TestRuleId(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, dirA := cb.TempPackage("a", map[string]string{
+		"a.json": `{
+			"type": "system:type",
+			"id": "a",
+			"rule": {
+				"type": "system:type",
+				"id": "foo"
+			}
+		}`,
+	})
+	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
+	_, err := Parse(cb.Ctx(), pathA)
+	assert.IsError(t, err, "VFUNPHUFHD")
+	assert.HasError(t, err, "JKARKEDTIW")
+
+	cb.TempFile("a.json", `{
+			"type": "system:type",
+			"id": "a",
+			"rule": {
+				"type": "system:type"
+			}
+		}`)
+	_, err = Parse(cb.Ctx(), pathA)
+	assert.IsError(t, err, "VFUNPHUFHD")
+	assert.HasError(t, err, "LMALEMKFDI")
+}
+
+func TestTypesUnknownType(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, dirA := cb.TempPackage("a", map[string]string{
+		"a.json": `{
+			"type": "system:type",
+			"id": "a",
+			"rules": [
+				{
+					"type": "foo:bar"
+				}
+			]
+		}`,
+	})
+	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
+	_, err := Parse(cb.Ctx(), pathA)
+	// unknown packages / types are tolerated when scanning types
+	assert.NoError(t, err)
+
+	cb.TempFile("a.json", `{
+			"type": "system:package",
+			"rules": [
+				{
+					"type": "foo:bar"
+				}
+			]
+		}`)
+	_, err = Parse(cb.Ctx(), pathA)
+	// unknown packages / types are tolerated when scanning types
+	assert.NoError(t, err)
+
+	// Types should always unpack to *system.Type
+	assert.SkipError("IVIFIOFGVK")
+
+}
+
+func TestNoIdError(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, dirA := cb.TempPackage("a", map[string]string{
+		"a.json": `{
+			"type": "system:type"
+		}`,
+	})
+	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
+	_, err := Parse(cb.Ctx(), pathA)
+	assert.IsError(t, err, "VFUNPHUFHD")
+	assert.HasError(t, err, "DLLMKTDYFW")
+
+}
+
+func TestNoTypeError(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, dirA := cb.TempPackage("a", map[string]string{
+		"a.json": `{
+			"id": "a"
+		}`,
+	})
+	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
+	_, err := Parse(cb.Ctx(), pathA)
+	assert.IsError(t, err, "GJRHNGGWFD")
+	assert.HasError(t, err, "MSNIGTIDIO")
+
+	err = scanForTypes(cb.Ctx(), cb.Env(), nil, &PackageHasher{})
+	assert.IsError(t, err, "NUKWIHYFMQ")
+
+}
+
+func TestGoGet(t *testing.T) {
+	cb := tests.New().TempGopath(true).Cmd()
+	defer cb.Cleanup()
+	pathA, _ := cb.TempPackage("a", map[string]string{
+		"a.json": `{
+			"type": "system:type",
+			"id": "a"
+		}`,
+	})
+	err := GoGet(cb.Ctx(), pathA)
+	assert.NoError(t, err)
+
+	cb.CmdUpdate(true)
+	err = GoGet(cb.Ctx(), pathA)
+	assert.IsError(t, err, "NIKCKQAKUI")
+
+}
+
+func TestImport(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, _ := cb.TempPackage("a", map[string]string{
+		"a.json": `{
+			"type": "system:type",
+			"id": "a"
+		}`,
+	})
+	pathB, dirB := cb.TempPackage("b", map[string]string{
+		"package.json": `{
+			"type": "system:package",
+			"aliases": {
+				"` + pathA + `": "a"
+			}
+		}`,
+		"b.json": `{
+			"type": "a:a",
+			"id": "a"
+		}`,
+		"c.json": `{
+			"type": "system:foo",
+			"id": "c"
+		}`,
+	})
+	cb.Path(pathB).Dir(dirB).Cmd().Sempty().Jsystem()
+
+	_, err := Parse(cb.Ctx(), pathB)
+	assert.NoError(t, err)
+
+}
+
+func TestImportSystem(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, dirA := cb.TempPackage("a", map[string]string{
+		"package.json": `{
+			"type": "system:package",
+			"aliases": {
+				"kego.io/system": "s"
+			}
+		}`,
+	})
+	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
+	_, err := Parse(cb.Ctx(), pathA)
+	assert.IsError(t, err, "EWMLNJDXKC")
+
+	pathB, dirB := cb.TempPackage("b", map[string]string{
+		"package.json": `{
+			"type": "system:package",
+			"aliases": {
+				"a.b/c": "system"
+			}
+		}`,
+	})
+	cb.Path(pathB).Dir(dirB)
+	_, err = Parse(cb.Ctx(), pathB)
+	assert.IsError(t, err, "EWMLNJDXKC")
+
+}
+
+func TestCircularImport(t *testing.T) {
+
+	cb := tests.New().TempGopath(true)
+	defer cb.Cleanup()
+
+	pathA, dirA := cb.TempPackage("a", map[string]string{})
+	pathB, dirB := cb.TempPackage("b", map[string]string{})
+	ioutil.WriteFile(filepath.Join(dirA, "package.json"), []byte(`
+			{
+				"type": "system:package",
+				"aliases": {
+					"`+pathB+`": "b"
+				}
+			}
+		`), 0777)
+	ioutil.WriteFile(filepath.Join(dirB, "package.json"), []byte(`
+			{
+				"type": "system:package",
+				"aliases": {
+					"`+pathA+`": "a"
+				}
+			}
+		`), 0777)
+
+	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
+
+	_, err := Parse(cb.Ctx(), pathA)
+	assert.IsError(t, err, "NOVMGYKHHI")
+	assert.HasError(t, err, "SCSCFJPPHD")
+
+}
+
 func TestScan_errors(t *testing.T) {
 
 	cb := tests.Context("").Cmd().Sempty().Jsystem().TempGopath(true)
 	defer cb.Cleanup()
 
-	_, err := parser.Parse(cb.Ctx(), "does-not-exist")
-	assert.IsError(t, err, "SBALWXUPKN")  // Error from parser.ScanForEnv
+	_, err := Parse(cb.Ctx(), "does-not-exist")
+	assert.IsError(t, err, "SBALWXUPKN")  // Error from ScanForEnv
 	assert.HasError(t, err, "NIKCKQAKUI") // GoGet: exit status 1: package does-not-exist
 
 	path, _ := cb.TempPackage("a", map[string]string{
@@ -31,8 +254,8 @@ func TestScan_errors(t *testing.T) {
 
 	cb.Path(path)
 
-	_, err = parser.Parse(cb.Ctx(), path)
-	assert.IsError(t, err, "VFUNPHUFHD")  // Error from parser.scanForTypes
+	_, err = Parse(cb.Ctx(), path)
+	assert.IsError(t, err, "VFUNPHUFHD")  // Error from scanForTypes
 	assert.HasError(t, err, "HCYGNBDFFA") // Error trying to unmarshal a type
 
 	path, _ = cb.TempPackage("a", map[string]string{
@@ -41,8 +264,8 @@ func TestScan_errors(t *testing.T) {
 
 	cb.Path(path)
 
-	_, err = parser.Parse(cb.Ctx(), path)
-	assert.IsError(t, err, "GJRHNGGWFD")  // Error from parser.ScanForEnv
+	_, err = Parse(cb.Ctx(), path)
+	assert.IsError(t, err, "GJRHNGGWFD")  // Error from ScanForEnv
 	assert.HasError(t, err, "MTDCXBYBEJ") // Error trying to scan for packages
 
 }
@@ -78,7 +301,7 @@ func TestParseRule(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	_, err := parser.Parse(cb.Ctx(), path)
+	_, err := Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -110,7 +333,7 @@ func TestParse1(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	_, err := parser.Parse(cb.Ctx(), path)
+	_, err := Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -162,7 +385,7 @@ func TestParse(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
-	pi, err := parser.Parse(cb.Ctx(), path)
+	pi, err := Parse(cb.Ctx(), path)
 	assert.NoError(t, err)
 
 	_, err = generate.Structs(cb.Ctx(), pi.Env)

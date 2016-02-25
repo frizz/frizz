@@ -1,5 +1,7 @@
 package tests // import "kego.io/process/tests"
 
+// ke: {"package": {"notest": true}}
+
 import (
 	"reflect"
 	"sync"
@@ -126,6 +128,12 @@ func (c *ContextBuilder) initVos() vosctx.Vos {
 
 func (c *ContextBuilder) Cmd() *ContextBuilder {
 	c.initCmd()
+	return c
+}
+
+func (c *ContextBuilder) CmdUpdate(value bool) *ContextBuilder {
+	cmd := c.initCmd()
+	cmd.Update = value
 	return c
 }
 

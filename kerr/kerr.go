@@ -3,9 +3,9 @@ package kerr // import "kego.io/kerr"
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -39,15 +39,29 @@ type Interface interface {
 
 // New creates a new kerr.Struct
 func New(id string, descriptionFormat string, descriptionArgs ...interface{}) Struct {
-	return get(id, nil, descriptionFormat, descriptionArgs...)
+	descriptionFormatAndArgs := append(
+		[]interface{}{descriptionFormat},
+		descriptionArgs...,
+	)
+	return get(id, nil, descriptionFormatAndArgs...)
 }
 
 // Wrap wraps an error in a kerr.Struct
-func Wrap(id string, inner error) Struct {
-	return get(id, inner, "")
+func Wrap(id string, inner error, descriptionFormatAndArgs ...interface{}) Struct {
+	return get(id, inner, descriptionFormatAndArgs...)
 }
 
-func get(id string, inner error, descriptionFormat string, descriptionArgs ...interface{}) Struct {
+func get(id string, inner error, descriptionFormatAndArgs ...interface{}) Struct {
+
+	description := ""
+	if len(descriptionFormatAndArgs) > 0 {
+		if s, ok := descriptionFormatAndArgs[0].(string); ok {
+			description = fmt.Sprintf(s, descriptionFormatAndArgs[1:]...)
+		} else {
+			description = fmt.Sprint(descriptionFormatAndArgs...)
+		}
+	}
+
 	stack := []string{id}
 	if i, ok := inner.(Interface); ok {
 		stack = append(i.ErrorStack(), id)
@@ -72,7 +86,7 @@ func get(id string, inner error, descriptionFormat string, descriptionArgs ...in
 		Line:        line,
 		Package:     packageName,
 		Function:    functionName,
-		Description: fmt.Sprintf(descriptionFormat, descriptionArgs...),
+		Description: description,
 		Stack:       stack,
 	}
 }
@@ -87,7 +101,11 @@ func (e Struct) Error() string {
 		// Remove the leading new-line from inner error
 		inner = inner[1:]
 	}
-	return fmt.Sprintf("\n%s error in %s:%d %s: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, inner)
+	description := e.Description
+	if len(e.Description) > 0 {
+		description = ": " + e.Description
+	}
+	return fmt.Sprintf("\n%s error in %s:%d %s%s: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, description, inner)
 }
 
 func getRelPath(filePath string) (out string) {

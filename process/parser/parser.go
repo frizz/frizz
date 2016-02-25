@@ -1,5 +1,7 @@
 package parser // import "kego.io/process/parser"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"fmt"
 	"os/exec"
@@ -13,6 +15,7 @@ import (
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
+	"kego.io/context/vosctx"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/kerr"
@@ -108,28 +111,24 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 }
 
 func GoGet(ctx context.Context, path string) error {
+	vos := vosctx.FromContext(ctx)
 	cmd := cmdctx.FromContext(ctx)
-	if cmd.Log {
-		minusUString := ""
-		if cmd.Update {
-			minusUString = "-u "
-		}
-		fmt.Printf("Running go get -d %s%s...", minusUString, path)
-	}
+	cmd.Print("Running go get -d ")
 	args := []string{"get", "-d"}
 	if cmd.Update {
+		cmd.Print("-u ")
 		args = append(args, "-u")
 	}
+	cmd.Print(path, "...")
 	args = append(args, path)
 	exe := exec.Command("go", args...)
+	exe.Env = vos.Environ()
 	if combined, err := exe.CombinedOutput(); err != nil {
 		if !strings.Contains(string(combined), "no buildable Go source files") {
-			return kerr.New("NIKCKQAKUI", fmt.Sprintf("%s: %s", err.Error(), combined))
+			return kerr.New("NIKCKQAKUI", "%s: %s", err.Error(), combined)
 		}
 	}
-	if cmd.Log {
-		fmt.Println(" OK.")
-	}
+	cmd.Println(" OK.")
 	return nil
 }
 
@@ -179,6 +178,10 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 		if o.Type == nil {
 			return kerr.New("NUKWIHYFMQ", "%s has no type", b.File)
 		}
+		if o.Id == nil && *o.Type != *system.NewReference("kego.io/system", "package") {
+			// we tolerate missing ID only for system:package
+			return kerr.New("DLLMKTDYFW", "%s has no id", b.File)
+		}
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "type"):
 			if err := ProcessTypeSourceBytes(ctx, env, b.Bytes, cache, hash); err != nil {
@@ -187,9 +190,6 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 		case *system.NewReference("kego.io/system", "package"):
 			cache.PackageBytes = b.Bytes
 		default:
-			if o.Id == nil {
-				return kerr.New("DLLMKTDYFW", "%s has no id", b.File)
-			}
 			relativeFile, err := filepath.Rel(env.Dir, b.File)
 			if err != nil {
 				return kerr.Wrap("AWYRJSCYQS", err)
@@ -268,11 +268,16 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		if b.Err != nil {
-			return nil, kerr.Wrap("GATNNQKNHY", b.Err)
+			return nil, kerr.Wrap("GATNNQKNHY", b.Err, b.File)
 		}
 		o := &objectStub{}
 		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
-			return nil, kerr.Wrap("MTDCXBYBEJ", err)
+			switch kerr.Source(err).(type) {
+			case json.UnknownPackageError, json.UnknownTypeError:
+				// don't return error
+			default:
+				return nil, kerr.Wrap("MTDCXBYBEJ", err, b.File)
+			}
 		}
 		if o.Type == nil {
 			return nil, kerr.New("MSNIGTIDIO", "%s has no type", b.File)
@@ -284,7 +289,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 			if err != nil {
 				switch kerr.Source(err).(type) {
 				case json.UnknownPackageError, json.UnknownTypeError:
-				// don't return error
+					// don't return error
 				default:
 					return nil, kerr.Wrap("XTEQCAYQJP", err)
 				}
