@@ -63,7 +63,7 @@ func main() {
 		coverProfiles, err = tester.Get(baseDir)
 	} else {
 		//coverProfiles, err = tester.Get(baseDir)
-		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/kerr/assert")
+		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/system")
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -216,7 +216,8 @@ func excludeBlocks(profiles map[string]*Profile, source *scanner.Source) error {
 			continue
 		}
 		for _, b := range p.Blocks {
-			if b.StartLine <= eb.Line && b.EndLine >= eb.Line && b.Count == 0 {
+			actualLine := eb.Line + 1
+			if b.StartLine <= actualLine && b.EndLine >= actualLine && b.Count == 0 {
 				b.Exclude = true
 				fmt.Printf("Excluding block from %s:%d\n", eb.File, eb.Line)
 			}

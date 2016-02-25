@@ -14,10 +14,161 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-errors/errors"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/kerr"
+	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
+
+func TestDefaultNativeValue(t *testing.T) {
+
+}
+
+func TestInitializableTypeError(t *testing.T) {
+	err := &InitializableTypeError{
+		UnmarshalledPath: "a",
+		UnmarshalledName: "b",
+		IntoPath:         "c",
+		IntoName:         "d",
+	}
+	assert.Equal(t, "Tried to unmarshal a:b into c:d", err.Error())
+}
+
+func TestInitializeType(t *testing.T) {
+	cb := tests.New()
+	e := &InitializableTesterOuter{}
+	err := initialiseUnmarshaledObject(cb.Ctx(), reflect.ValueOf(e).Elem(), []field{}, true, true, "f", "g")
+	assert.NoError(t, err)
+	assert.Equal(t, "f", e.path)
+	assert.Equal(t, "g", e.name)
+
+	f := &InitializableTester{}
+	err = initialiseUnmarshaledObject(cb.Ctx(), reflect.ValueOf(f).Elem(), []field{}, true, true, "f", "g")
+	assert.NoError(t, err)
+	assert.Equal(t, "f", f.path)
+	assert.Equal(t, "g", f.name)
+
+	err = initialiseUnmarshaledObject(cb.Ctx(), reflect.ValueOf(f).Elem(), []field{}, true, true, "ite", "g")
+	ute, ok := err.(*UnmarshalTypeError)
+	assert.True(t, ok)
+	assert.Equal(t, "a:b", ute.Value)
+
+	err = initialiseUnmarshaledObject(cb.Ctx(), reflect.ValueOf(f).Elem(), []field{}, true, true, "ge", "g")
+	ute, ok = err.(*UnmarshalTypeError)
+	assert.True(t, ok)
+	assert.Equal(t, "unknown object", ute.Value)
+
+}
+
+type InitializableTesterOuter struct {
+	*InitializableTester
+}
+
+type InitializableTester struct {
+	path string
+	name string
+}
+
+func (i *InitializableTester) InitializeType(concreteTypePath string, concreteTypeName string) error {
+	if concreteTypePath == "ite" {
+		return InitializableTypeError{
+			UnmarshalledPath: "a",
+			UnmarshalledName: "b",
+			IntoPath:         "c",
+			IntoName:         "d",
+		}
+	}
+	if concreteTypePath == "ge" {
+		return errors.New("error")
+	}
+	i.path = concreteTypePath
+	i.name = concreteTypeName
+	return nil
+}
+
+var _ InitializableType = (*InitializableTester)(nil)
+
+func TestInitialiseUnmarshaledObject(t *testing.T) {
+	cb := tests.New()
+	a := struct {
+		B *string `kego:"{\"default\":{\"value\":\"foo\"}}"`
+	}{}
+	err := initialiseUnmarshaledObject(cb.Ctx(), reflect.ValueOf(&a).Elem(), []field{}, false, false, "", "")
+	assert.NoError(t, err)
+
+	type D string
+	cb.Path("a.b/c").Jtype("d", reflect.TypeOf(D("")))
+	b := struct {
+		B *D `kego:"{\"default\":{\"type\":\"a.b/c:d\",\"value\":\"foo\"}}"`
+	}{}
+	err = initialiseUnmarshaledObject(cb.Ctx(), reflect.ValueOf(&b).Elem(), []field{}, false, false, "", "")
+	assert.NoError(t, err)
+}
+
+func TestGetReferencePartsFromTypeString(t *testing.T) {
+	cb := tests.New().Path("a.b/c")
+
+	path, name, err := GetReferencePartsFromTypeString(cb.Ctx(), "kego.io/system:a")
+	assert.NoError(t, err)
+	assert.Equal(t, "kego.io/system", path)
+	assert.Equal(t, "a", name)
+
+	path, name, err = GetReferencePartsFromTypeString(cb.Ctx(), "kego.io/json:b")
+	assert.NoError(t, err)
+	assert.Equal(t, "kego.io/json", path)
+	assert.Equal(t, "b", name)
+
+	path, name, err = GetReferencePartsFromTypeString(cb.Ctx(), "system:c")
+	assert.NoError(t, err)
+	assert.Equal(t, "kego.io/system", path)
+	assert.Equal(t, "c", name)
+
+	path, name, err = GetReferencePartsFromTypeString(cb.Ctx(), "json:d")
+	assert.NoError(t, err)
+	assert.Equal(t, "kego.io/json", path)
+	assert.Equal(t, "d", name)
+
+	cb.Alias("e.f/g", "g")
+	path, name, err = GetReferencePartsFromTypeString(cb.Ctx(), "g:h")
+	assert.NoError(t, err)
+	assert.Equal(t, "e.f/g", path)
+	assert.Equal(t, "h", name)
+}
+
+func TestSetType1(t *testing.T) {
+	err := setType(reflect.ValueOf("foo"), reflect.TypeOf(""))
+	assert.NoError(t, err)
+
+	err = setType(reflect.ValueOf("foo"), reflect.TypeOf(1))
+	assert.IsError(t, err, "HDJOTUDTIR")
+}
+
+func TestUnmarshalNoTypeAttribute(t *testing.T) {
+	s := `{"foo":"bar"}`
+	var v interface{}
+	err := Unmarshal(context.Background(), []byte(s), &v)
+	assert.IsError(t, err, "YEOQSWVFVH")
+}
+
+func TestUnmarshalFieldErroressage(t *testing.T) {
+	s := struct{ A string }{"b"}
+	ufe := UnmarshalFieldError{
+		Key:   "c",
+		Type:  reflect.TypeOf(1),
+		Field: reflect.ValueOf(s).Type().Field(0),
+	}
+	assert.Equal(t, "json: cannot unmarshal object key \"c\" into unexported field A of type int", ufe.Error())
+}
+
+func TestUnmarshalTypeErrorMessage(t *testing.T) {
+	ute := UnmarshalTypeError{
+		Value: "a",
+		Type:  reflect.TypeOf(""),
+	}
+	assert.Equal(t, "json: cannot unmarshal a into Go value of type string", ute.Error())
+}
 
 type T struct {
 	X string

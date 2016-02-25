@@ -92,6 +92,7 @@ func UnmarshalUntyped(ctx context.Context, data []byte, v interface{}) error {
 	var d decodeState
 	err := checkValid(data, &d.scan)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return err
 	}
 	d.init(ctx, data, false)
@@ -116,6 +117,7 @@ func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
 	err := checkValid(data, &d.scan)
 	err = d.getError(err)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return err
 	}
 
@@ -192,6 +194,7 @@ func (d *decodeState) unmarshalValue(rv reflect.Value) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if _, ok := r.(runtime.Error); ok {
+				// ke: {"block": {"notest": true}}
 				panic(r)
 			}
 			err = r.(error)
@@ -250,6 +253,7 @@ type decodeState struct {
 
 func (d *decodeState) getError(err error) error {
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return err
 	}
 	if d.unknownPackage != "" {
@@ -334,6 +338,7 @@ func (d *decodeState) next() []byte {
 	c := d.data[d.off]
 	item, rest, err := nextValue(d.data[d.off:], &d.nextscan)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		d.error(err)
 	}
 	d.off = len(d.data) - len(rest)
@@ -377,6 +382,7 @@ func (d *decodeState) value(v reflect.Value) {
 	if !v.IsValid() {
 		_, rest, err := nextValue(d.data[d.off:], &d.nextscan)
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 		}
 		d.off = len(d.data) - len(rest)
@@ -406,6 +412,7 @@ func (d *decodeState) value(v reflect.Value) {
 
 	switch op := d.scanWhile(scanSkipSpace); op {
 	default:
+		// ke: {"block": {"notest": true}}
 		d.error(errPhase)
 
 	case scanBeginArray:
@@ -428,12 +435,15 @@ type unquotedValue struct{}
 func (d *decodeState) valueQuoted() interface{} {
 	switch op := d.scanWhile(scanSkipSpace); op {
 	default:
+		// ke: {"block": {"notest": true}}
 		d.error(errPhase)
 
 	case scanBeginArray:
+		// ke: {"block": {"notest": true}}
 		d.array(reflect.Value{})
 
 	case scanBeginObject:
+		// ke: {"block": {"notest": true}}
 		d.object(reflect.Value{})
 
 	case scanBeginLiteral:
@@ -442,6 +452,8 @@ func (d *decodeState) valueQuoted() interface{} {
 			return v
 		}
 	}
+
+	// ke: {"block": {"notest": true}}
 	return unquotedValue{}
 }
 
@@ -507,11 +519,13 @@ func (d *decodeState) array(v reflect.Value) {
 		d.off--
 		err := u.UnmarshalJSON(d.ctx, d.next())
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 		}
 		return
 	}
 	if ut != nil {
+		// ke: {"block": {"notest": true}}
 		d.saveError(&UnmarshalTypeError{"array", v.Type()})
 		d.off--
 		d.next()
@@ -521,10 +535,12 @@ func (d *decodeState) array(v reflect.Value) {
 		d.off--
 		var i interface{}
 		if err := UnmarshalUntyped(d.ctx, d.next(), &i); err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 			return
 		}
 		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 			return
 		}
@@ -597,6 +613,7 @@ func (d *decodeState) array(v reflect.Value) {
 			break
 		}
 		if op != scanArrayValue {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 	}
@@ -609,6 +626,7 @@ func (d *decodeState) array(v reflect.Value) {
 				v.Index(i).Set(z)
 			}
 		} else {
+			// ke: {"block": {"notest": true}}
 			v.SetLen(i)
 		}
 	}
@@ -635,10 +653,12 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 		// Read opening " of string key or closing }.
 		op := d.scanWhile(scanSkipSpace)
 		if op == scanEndObject {
+			// ke: {"block": {"notest": true}}
 			// closing } - can only happen on first iteration.
 			break
 		}
 		if op != scanBeginLiteral {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -648,14 +668,17 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 		item := d.data[start : d.off-1]
 		key, ok := unquoteBytes(item)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
 		// Read : before value.
 		if op == scanSkipSpace {
+			// ke: {"block": {"notest": true}}
 			op = d.scanWhile(scanSkipSpace)
 		}
 		if op != scanObjectKey {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -674,9 +697,11 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 		// Next token must be , or }.
 		op = d.scanWhile(scanSkipSpace)
 		if op == scanEndObject {
+			// ke: {"block": {"notest": true}}
 			break
 		}
 		if op != scanObjectValue {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -848,11 +873,13 @@ func (d *decodeState) object(v reflect.Value) {
 		d.off--
 		err := u.UnmarshalJSON(d.ctx, d.next())
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 		}
 		return
 	}
 	if ut != nil {
+		// ke: {"block": {"notest": true}}
 		d.saveError(&UnmarshalTypeError{"object", v.Type()})
 		d.off--
 		d.next() // skip over { } in input
@@ -862,10 +889,12 @@ func (d *decodeState) object(v reflect.Value) {
 		d.off--
 		var i interface{}
 		if err := UnmarshalUntyped(d.ctx, d.next(), &i); err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 			return
 		}
 		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 			return
 		}
@@ -917,6 +946,7 @@ func (d *decodeState) object(v reflect.Value) {
 			break
 		}
 		if op != scanBeginLiteral {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -926,6 +956,7 @@ func (d *decodeState) object(v reflect.Value) {
 		item := d.data[start : d.off-1]
 		key, ok := unquoteBytes(item)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -975,6 +1006,7 @@ func (d *decodeState) object(v reflect.Value) {
 			op = d.scanWhile(scanSkipSpace)
 		}
 		if op != scanObjectKey {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -986,6 +1018,7 @@ func (d *decodeState) object(v reflect.Value) {
 			case string:
 				d.literalStore([]byte(qv), subv, true)
 			default:
+				// ke: {"block": {"notest": true}}
 				d.saveError(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal unquoted value into %v", item, v.Type()))
 			}
 		} else {
@@ -1005,10 +1038,12 @@ func (d *decodeState) object(v reflect.Value) {
 			break
 		}
 		if op != scanObjectValue {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 	}
 	if err := initialiseUnmarshaledObject(d.ctx, v, foundFields, d.typed, hasConcreteType, concreteTypePath, concreteTypeName); err != nil {
+		// ke: {"block": {"notest": true}}
 		d.saveError(err)
 	}
 }
@@ -1025,15 +1060,21 @@ func initialiseUnmarshaledObject(ctx context.Context, v reflect.Value, foundFiel
 					continue outer
 				}
 			}
+
 			// field not found
 			if f.kego != nil && f.kego.Default != nil {
 				// Figure out field corresponding to key.
 				subv := v
 				for _, i := range f.index {
 					if subv.Kind() == reflect.Ptr {
+						// I can't seem to get in here. I'm sure it's possible.
+						// TODO: Get coverage in here!
+						// ke: {"block": {"notest": true}}
 						if subv.IsNil() {
+							// ke: {"block": {"notest": true}}
 							subv.Set(reflect.New(subv.Type().Elem()))
 						}
+						// ke: {"block": {"notest": true}}
 						subv = subv.Elem()
 					}
 					subv = subv.Field(i)
@@ -1078,7 +1119,11 @@ func initialiseUnmarshaledObject(ctx context.Context, v reflect.Value, foundFiel
 	// the type with the InitializableType interface. This is implemented by system:object. This
 	// enables us to allow the type to be omitted from the json.
 	if typed && hasConcreteType && v.Kind() == reflect.Struct {
-		if it, ok := v.Interface().(InitializableType); ok {
+		it, ok := v.Interface().(InitializableType)
+		if !ok && v.CanAddr() {
+			it, ok = v.Addr().Interface().(InitializableType)
+		}
+		if ok {
 			if err := it.InitializeType(concreteTypePath, concreteTypeName); err != nil {
 				if ite, ok := err.(InitializableTypeError); ok {
 					return &UnmarshalTypeError{fmt.Sprint(ite.UnmarshalledPath, ":", ite.UnmarshalledName), v.Type()}
@@ -1131,6 +1176,7 @@ func (d *decodeState) convertNumber(s string) (interface{}, error) {
 	}
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return nil, &UnmarshalTypeError{"number " + s, reflect.TypeOf(0.0)}
 	}
 	return f, nil
@@ -1161,22 +1207,29 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	}
 	if ut != nil {
 		if item[0] != '"' {
+			// ke: {"block": {"notest": true}}
 			if fromQuoted {
+				// ke: {"block": {"notest": true}}
 				d.saveError(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
 			} else {
+				// ke: {"block": {"notest": true}}
 				d.saveError(&UnmarshalTypeError{"string", v.Type()})
 			}
 		}
 		s, ok := unquoteBytes(item)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			if fromQuoted {
+				// ke: {"block": {"notest": true}}
 				d.error(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
 			} else {
+				// ke: {"block": {"notest": true}}
 				d.error(errPhase)
 			}
 		}
 		err := ut.UnmarshalText(s)
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 		}
 		return
@@ -1184,10 +1237,12 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	if up != nil {
 		var i interface{}
 		if err := UnmarshalUntyped(d.ctx, item, &i); err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 			return
 		}
 		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
+			// ke: {"block": {"notest": true}}
 			d.error(err)
 			return
 		}
@@ -1210,6 +1265,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			if fromQuoted {
 				d.saveError(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
 			} else {
+				// ke: {"block": {"notest": true}}
 				d.saveError(&UnmarshalTypeError{"bool", v.Type()})
 			}
 		case reflect.Bool:
@@ -1230,22 +1286,27 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		s, ok := unquoteBytes(item)
 		if !ok {
 			if fromQuoted {
+				// ke: {"block": {"notest": true}}
 				d.error(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
 			} else {
+				// ke: {"block": {"notest": true}}
 				d.error(errPhase)
 			}
 		}
 		switch v.Kind() {
 		default:
+			// ke: {"block": {"notest": true}}
 			d.saveError(&UnmarshalTypeError{"string", v.Type()})
 		case reflect.Slice:
 			if v.Type().Elem().Kind() != reflect.Uint8 {
+				// ke: {"block": {"notest": true}}
 				d.saveError(&UnmarshalTypeError{"string", v.Type()})
 				break
 			}
 			b := make([]byte, base64.StdEncoding.DecodedLen(len(s)))
 			n, err := base64.StdEncoding.Decode(b, s)
 			if err != nil {
+				// ke: {"block": {"notest": true}}
 				d.saveError(err)
 				break
 			}
@@ -1269,6 +1330,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			if fromQuoted {
 				d.error(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
 			} else {
+				// ke: {"block": {"notest": true}}
 				d.error(errPhase)
 			}
 		}
@@ -1282,11 +1344,13 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 			if fromQuoted {
 				d.error(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
 			} else {
+				// ke: {"block": {"notest": true}}
 				d.error(&UnmarshalTypeError{"number", v.Type()})
 			}
 		case reflect.Interface:
 			n, err := d.convertNumber(s)
 			if err != nil {
+				// ke: {"block": {"notest": true}}
 				d.saveError(err)
 				break
 			}
@@ -1305,6 +1369,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			n, err := strconv.ParseInt(s, 10, 64)
 			if err != nil || v.OverflowInt(n) {
+				// ke: {"block": {"notest": true}}
 				d.saveError(&UnmarshalTypeError{"number " + s, v.Type()})
 				break
 			}
@@ -1313,6 +1378,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			n, err := strconv.ParseUint(s, 10, 64)
 			if err != nil || v.OverflowUint(n) {
+				// ke: {"block": {"notest": true}}
 				d.saveError(&UnmarshalTypeError{"number " + s, v.Type()})
 				break
 			}
@@ -1321,6 +1387,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		case reflect.Float32, reflect.Float64:
 			n, err := strconv.ParseFloat(s, v.Type().Bits())
 			if err != nil || v.OverflowFloat(n) {
+				// ke: {"block": {"notest": true}}
 				d.saveError(&UnmarshalTypeError{"number " + s, v.Type()})
 				break
 			}
@@ -1354,6 +1421,7 @@ func setDefaultNativeValue(ctx context.Context, v reflect.Value, value []byte) e
 func (d *decodeState) valueInterface() interface{} {
 	switch d.scanWhile(scanSkipSpace) {
 	default:
+		// ke: {"block": {"notest": true}}
 		d.error(errPhase)
 		panic("unreachable")
 	case scanBeginArray:
@@ -1387,6 +1455,7 @@ func (d *decodeState) arrayInterface() []interface{} {
 			break
 		}
 		if op != scanArrayValue {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 	}
@@ -1400,10 +1469,12 @@ func (d *decodeState) objectInterface() map[string]interface{} {
 		// Read opening " of string key or closing }.
 		op := d.scanWhile(scanSkipSpace)
 		if op == scanEndObject {
+			// ke: {"block": {"notest": true}}
 			// closing } - can only happen on first iteration.
 			break
 		}
 		if op != scanBeginLiteral {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -1413,14 +1484,17 @@ func (d *decodeState) objectInterface() map[string]interface{} {
 		item := d.data[start : d.off-1]
 		key, ok := unquote(item)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
 		// Read : before value.
 		if op == scanSkipSpace {
+			// ke: {"block": {"notest": true}}
 			op = d.scanWhile(scanSkipSpace)
 		}
 		if op != scanObjectKey {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 
@@ -1433,6 +1507,7 @@ func (d *decodeState) objectInterface() map[string]interface{} {
 			break
 		}
 		if op != scanObjectValue {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 	}
@@ -1460,16 +1535,19 @@ func (d *decodeState) literalInterface() interface{} {
 	case '"': // string
 		s, ok := unquote(item)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 		return s
 
 	default: // number
 		if c != '-' && (c < '0' || c > '9') {
+			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
 		n, err := d.convertNumber(string(item))
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			d.saveError(err)
 		}
 		return n
@@ -1484,6 +1562,7 @@ func getu4(s []byte) rune {
 	}
 	r, err := strconv.ParseUint(string(s[2:6]), 16, 64)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return -1
 	}
 	return rune(r)
@@ -1499,6 +1578,7 @@ func unquote(s []byte) (t string, ok bool) {
 
 func unquoteBytes(s []byte) (t []byte, ok bool) {
 	if len(s) < 2 || s[0] != '"' || s[len(s)-1] != '"' {
+		// ke: {"block": {"notest": true}}
 		return
 	}
 	s = s[1 : len(s)-1]
@@ -1541,20 +1621,24 @@ func unquoteBytes(s []byte) (t []byte, ok bool) {
 		case c == '\\':
 			r++
 			if r >= len(s) {
+				// ke: {"block": {"notest": true}}
 				return
 			}
 			switch s[r] {
 			default:
+				// ke: {"block": {"notest": true}}
 				return
 			case '"', '\\', '/', '\'':
 				b[w] = s[r]
 				r++
 				w++
 			case 'b':
+				// ke: {"block": {"notest": true}}
 				b[w] = '\b'
 				r++
 				w++
 			case 'f':
+				// ke: {"block": {"notest": true}}
 				b[w] = '\f'
 				r++
 				w++
@@ -1574,6 +1658,7 @@ func unquoteBytes(s []byte) (t []byte, ok bool) {
 				r--
 				rr := getu4(s[r:])
 				if rr < 0 {
+					// ke: {"block": {"notest": true}}
 					return
 				}
 				r += 6
@@ -1593,6 +1678,7 @@ func unquoteBytes(s []byte) (t []byte, ok bool) {
 
 		// Quote, control characters are invalid.
 		case c == '"', c < ' ':
+			// ke: {"block": {"notest": true}}
 			return
 
 		// ASCII
