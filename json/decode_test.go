@@ -22,6 +22,13 @@ import (
 	"kego.io/process/tests"
 )
 
+func TestSetDefaultNativeValue(t *testing.T) {
+	cb := tests.New().Jempty()
+	type s struct{}
+	err := setDefaultNativeValue(cb.Ctx(), reflect.ValueOf(s{}), []byte{})
+	assert.IsError(t, err, "LDURBUTUXQ")
+}
+
 func TestInitializableTypeError(t *testing.T) {
 	err := &InitializableTypeError{
 		UnmarshalledPath: "a",

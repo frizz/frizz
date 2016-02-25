@@ -1285,6 +1285,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 	case '"': // string
 		s, ok := unquoteBytes(item)
 		if !ok {
+			// ke: {"block": {"notest": true}}
 			if fromQuoted {
 				// ke: {"block": {"notest": true}}
 				d.error(fmt.Errorf("json: invalid use of ,string struct tag, trying to unmarshal %q into %v", item, v.Type()))
