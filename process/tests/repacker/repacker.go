@@ -1,5 +1,7 @@
 package repacker // import "kego.io/process/tests/repacker"
 
+// ke: {"package": {"notest": true}}
+
 import (
 	"golang.org/x/net/context"
 	"kego.io/json"
