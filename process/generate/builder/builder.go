@@ -1,5 +1,7 @@
 package builder // import "kego.io/process/generate/builder"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"bytes"
 	"fmt"

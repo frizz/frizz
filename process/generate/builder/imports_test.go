@@ -37,6 +37,11 @@ func TestImports(t *testing.T) {
 	assert.Equal(t, 9, len(p))
 	assert.Equal(t, "[a.a/a a.b/c d.e/f g.h/f i.j/f k.l/f m.n/f o.p/map q.r/map]", fmt.Sprintf("%v", p))
 
+	i.add("s.t/u", true)
+	assert.Equal(t, "_", i["s.t/u"].Alias)
+	i.add("s.t/u", false)
+	assert.Equal(t, "u", i["s.t/u"].Alias)
+
 }
 
 func TestImports1(t *testing.T) {

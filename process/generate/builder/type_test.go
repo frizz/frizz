@@ -59,6 +59,10 @@ func TestFormatTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
+	s, err = formatTag(ctx, "`", false, []byte("null"), r)
+	assert.NoError(t, err)
+	assert.Equal(t, "\"json:\\\"`\\\"\"", s)
+
 	s, err = formatTag(ctx, "n", true, []byte("null"), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"-\"`", s)
@@ -158,6 +162,17 @@ func (r *ruleStructE) GetDefault() interface{} {
 
 var _ system.DefaultRule = (*ruleStructE)(nil)
 
+type ruleStructF struct {
+	*system.Object
+	*system.Rule
+}
+
+func (r *ruleStructF) GetDefault() interface{} {
+	return nil
+}
+
+var _ system.DefaultRule = (*ruleStructF)(nil)
+
 func TestGetTag(t *testing.T) {
 	type parentStruct struct {
 		*system.Object
@@ -216,6 +231,11 @@ func TestGetTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":{\\\"A\\\":\\\"b\\\"},\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
+	r.Interface = &ruleStructF{}
+	s, err = getTag(ctx, "n", false, r)
+	assert.NoError(t, err)
+	assert.Equal(t, "`json:\"n\"`", s)
+
 }
 
 func TestGoTypeDescriptor(t *testing.T) {
@@ -232,6 +252,18 @@ func TestGoTypeDescriptor(t *testing.T) {
 	s, err := Type(cb.Ctx(), "n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "string `json:\"n\"`", s)
+
+	p = &system.StringRule{
+		Object: &system.Object{
+			Type: system.NewReference("kego.io/json", "@string"),
+		},
+		Rule: &system.Rule{
+			Interface: true,
+		},
+	}
+	s, err = Type(cb.Ctx(), "n", p, "kego.io/system", i.Add)
+	assert.NoError(t, err)
+	assert.Equal(t, "json.StringInterface `json:\"n\"`", s)
 
 	p = &system.StringRule{
 		Object: &system.Object{

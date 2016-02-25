@@ -9,11 +9,11 @@ import (
 
 type Import struct {
 	// Go package path
-	Path	string
+	Path string
 	// Alias used in the source, if different from the name
-	Alias	string
+	Alias string
 	// Package name - this is determined by executing "go list -f '{{.Name}}' [path]"
-	Name	string
+	Name string
 }
 
 type Imports map[string]Import
@@ -84,6 +84,7 @@ func (i Imports) alias(preferredAlias string) string {
 		}
 		count++
 		if count > 100 {
+			// ke: {"block": {"notest": true}}
 			panic(kerr.New("FOVRTYCGSI", "too many iterations").Error())
 		}
 	}
@@ -99,29 +100,29 @@ func (i Imports) hasAlias(alias string) bool {
 }
 
 var keyword = map[string]bool{
-	"break":	true,
-	"case":		true,
-	"chan":		true,
-	"const":	true,
-	"continue":	true,
-	"default":	true,
-	"else":		true,
-	"defer":	true,
-	"fallthrough":	true,
-	"for":		true,
-	"func":		true,
-	"go":		true,
-	"goto":		true,
-	"if":		true,
-	"import":	true,
-	"interface":	true,
-	"map":		true,
-	"package":	true,
-	"range":	true,
-	"return":	true,
-	"select":	true,
-	"struct":	true,
-	"switch":	true,
-	"type":		true,
-	"var":		true,
+	"break":       true,
+	"case":        true,
+	"chan":        true,
+	"const":       true,
+	"continue":    true,
+	"default":     true,
+	"else":        true,
+	"defer":       true,
+	"fallthrough": true,
+	"for":         true,
+	"func":        true,
+	"go":          true,
+	"goto":        true,
+	"if":          true,
+	"import":      true,
+	"interface":   true,
+	"map":         true,
+	"package":     true,
+	"range":       true,
+	"return":      true,
+	"select":      true,
+	"struct":      true,
+	"switch":      true,
+	"type":        true,
+	"var":         true,
 }
