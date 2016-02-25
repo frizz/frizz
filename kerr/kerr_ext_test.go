@@ -16,9 +16,15 @@ func TestErr(t *testing.T) {
 	e = kerr.Wrap("LBDLIDLDPE", fmt.Errorf("a"))
 	assert.Equal(t, "\nLBDLIDLDPE error in kerr_ext_test.go:16 TestErr: \na", e.Error())
 
+	e = kerr.Wrap("LBDLIDLDPE", fmt.Errorf("a"), "b %s", "c")
+	assert.Equal(t, "\nLBDLIDLDPE error in kerr_ext_test.go:19 TestErr: b c: \na", e.Error())
+
+	e = kerr.Wrap("LBDLIDLDPE", fmt.Errorf("a"), 1, 2, 3)
+	assert.Equal(t, "\nLBDLIDLDPE error in kerr_ext_test.go:22 TestErr: 1 2 3: \na", e.Error())
+
 	// Should remove a leading new-line from errors
 	e = kerr.Wrap("OHUKDAEMPT", fmt.Errorf("\na"))
-	assert.Equal(t, "\nOHUKDAEMPT error in kerr_ext_test.go:20 TestErr: \na", e.Error())
+	assert.Equal(t, "\nOHUKDAEMPT error in kerr_ext_test.go:26 TestErr: \na", e.Error())
 
 	e = kerr.New("TUPDJYPRNU", "b")
 	assert.Equal(t, "TUPDJYPRNU", e.ErrorId())

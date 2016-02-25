@@ -63,7 +63,7 @@ func main() {
 		coverProfiles, err = tester.Get(baseDir)
 	} else {
 		//coverProfiles, err = tester.Get(baseDir)
-		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/process/generate/builder")
+		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/kerr")
 	}
 	if err != nil {
 		log.Fatal(err)

@@ -1,6 +1,8 @@
 // Package kerr is an error with a unique ID
 package kerr // import "kego.io/kerr"
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"fmt"
 	"os"
@@ -108,18 +110,17 @@ func (e Struct) Error() string {
 	return fmt.Sprintf("\n%s error in %s:%d %s%s: \n%v", e.Id, getRelPath(e.File), e.Line, e.Function, description, inner)
 }
 
-func getRelPath(filePath string) (out string) {
+func getRelPath(filePath string) string {
 	wd, err := os.Getwd()
 	if err != nil {
-		out = filePath
-		return
+		// ke: {"block": {"notest": true}}
+		return filePath
 	}
-	out, err = filepath.Rel(wd, filePath)
+	out, err := filepath.Rel(wd, filePath)
 	if err != nil {
-		out = filePath
-		return
+		return filePath
 	}
-	return
+	return out
 }
 
 // ErrorId returns the unique id of the error
