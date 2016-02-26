@@ -13,7 +13,28 @@ import (
 	"testing"
 
 	"kego.io/context/envctx"
+	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
+
+func TestEncodeContext(t *testing.T) {
+	a := A{}
+	cb := tests.New().Path("p")
+
+	buf := bytes.NewBuffer([]byte{})
+	e := NewEncoder(buf)
+
+	err := e.EncodeContext(cb.Ctx(), &a)
+	assert.NoError(t, err)
+	assert.Equal(t, "\"cp\"\n", buf.String())
+
+	buf = bytes.NewBuffer([]byte{})
+	e = NewEncoder(buf)
+
+	err = e.Encode(&a)
+	assert.NoError(t, err)
+	assert.Equal(t, "\"b\"\n", buf.String())
+}
 
 // Test values for the stream test.
 // One of each JSON kind.

@@ -6,11 +6,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"fmt"
-
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
-	"kego.io/editor/client/console"
 	"kego.io/kerr"
 )
 
@@ -35,49 +32,34 @@ func Unpack(ctx context.Context, in Packed, out *interface{}) error {
 		return kerr.Wrap("NUHCPRKRXT", err)
 	}
 
-	if err := us.unpackFragment(ctx, in, out, typ, false); err != nil {
+	if err := us.unpackFragment(ctx, in, out, typ); err != nil {
 		return kerr.Wrap("LJBTNGPVSY", err)
 	}
 	return nil
 }
 
-func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type, debug bool) error {
+func UnpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
 
 	us := &unpackStruct{}
-	if err := us.unpackFragment(ctx, in, out, typ, debug); err != nil {
+	if err := us.unpackFragment(ctx, in, out, typ); err != nil {
 		return kerr.Wrap("KXHDXGWTUU", err)
 	}
 	return nil
 }
 
-func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type, debug bool) error {
+func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *interface{}, typ reflect.Type) error {
 
 	var p reflect.Value
 	if typ != nil {
 		p = getEmptyValue(typ)
 	}
 
-	if debug {
-		console.Log("typ.String()", typ.String())
-		console.Log("in.String()", in.String())
-	}
-
-	if debug {
-		console.Log("p", p.Type().String(), p.Interface())
-		console.Log("in", in.Type(), in.String())
-	}
-
 	err := us.unpack(ctx, in, p)
-
-	if debug {
-		console.Log("p", p.Type().String(), p.Interface())
-	}
 
 	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
 		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
 		v := reflect.ValueOf(out)
 		v.Elem().Set(p)
-
 	}
 
 	if us.unknownPackage != "" {
@@ -94,10 +76,6 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 	}
 	if err != nil {
 		return kerr.Wrap("FPPKQJMBNA", err)
-	}
-
-	if debug {
-		console.Log("unpacked successfully...", fmt.Sprintf("%T %s", out, *out))
 	}
 
 	return nil
@@ -240,7 +218,7 @@ func setDefaultNativeValueUnpack(ctx context.Context, v reflect.Value, in Packed
 		return kerr.New("YSBBTCVOUU", "No type found for %s", v.Type().Name())
 	}
 	var i interface{}
-	err := UnpackFragment(ctx, in, &i, t, false)
+	err := UnpackFragment(ctx, in, &i, t)
 	if err != nil {
 		return kerr.Wrap("BCVBRIKFJX", err)
 	}

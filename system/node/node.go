@@ -263,7 +263,7 @@ func (n *Node) UpdateValue(ctx context.Context, in json.Packed) error {
 	if err != nil {
 		return kerr.Wrap("DQJDYPIANO", err)
 	}
-	if err := json.UnpackFragment(ctx, in, &n.Value, t, false); err != nil {
+	if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
 		return kerr.Wrap("PEVKGFFHLL", err)
 	}
 	return nil

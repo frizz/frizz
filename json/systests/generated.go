@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/json/systests","Hash":12168294983261538158}
+// info:{"Path":"kego.io/json/systests","Hash":18371002632141142948}
 package systests
 
 import (
@@ -28,6 +28,6 @@ func (o *A) GetA(ctx context.Context) *A {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/json/systests", 12168294983261538158)
+	pkg := jsonctx.InitPackage("kego.io/json/systests", 18371002632141142948)
 	pkg.InitType("a", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*ARule)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem())
 }
