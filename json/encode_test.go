@@ -13,7 +13,34 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
+	"kego.io/kerr/assert"
+	"kego.io/process/tests"
 )
+
+func TestMarshalContext(t *testing.T) {
+	a := A{}
+	cb := tests.New().Path("p")
+
+	b, err := MarshalContext(cb.Ctx(), &a)
+	assert.NoError(t, err)
+	assert.Equal(t, `"cp"`, string(b))
+
+	b, err = Marshal(&a)
+	assert.NoError(t, err)
+	assert.Equal(t, `"b"`, string(b))
+}
+
+type A struct{}
+
+var _ Marshaler = (*A)(nil)
+
+func (a *A) MarshalJSON(ctx context.Context) ([]byte, error) {
+	env := envctx.FromContextOrNil(ctx)
+	if env == nil || env.Path == "" {
+		return []byte(`"b"`), nil
+	}
+	return []byte("\"c" + env.Path + "\""), nil
+}
 
 type Optionals struct {
 	Sr string `json:"sr"`
