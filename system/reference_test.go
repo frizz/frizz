@@ -17,6 +17,7 @@ import (
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {
 	testUnpackDefaultNativeTypeReference(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeReference(t, unpacker.Unpack)
+	testUnpackDefaultNativeTypeReference(t, unpacker.Decode)
 }
 func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 

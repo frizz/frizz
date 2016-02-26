@@ -14,6 +14,7 @@ import (
 func TestUnpackDefaultNativeTypeBool(t *testing.T) {
 	testUnpackDefaultNativeTypeBool(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeBool(t, unpacker.Unpack)
+	testUnpackDefaultNativeTypeBool(t, unpacker.Decode)
 }
 func testUnpackDefaultNativeTypeBool(t *testing.T, up unpacker.Interface) {
 

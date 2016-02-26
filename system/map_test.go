@@ -14,6 +14,7 @@ import (
 func TestMapMarshal(t *testing.T) {
 	testMapMarshal(t, unpacker.Unmarshal)
 	testMapMarshal(t, unpacker.Unpack)
+	testMapMarshal(t, unpacker.Decode)
 }
 func testMapMarshal(t *testing.T, up unpacker.Interface) {
 

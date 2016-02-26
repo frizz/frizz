@@ -252,6 +252,7 @@ func TestWrapRule(t *testing.T) {
 func TestInitialiseAnonymousFields(t *testing.T) {
 	testInitialiseAnonymousFields(t, unpacker.Unmarshal)
 	testInitialiseAnonymousFields(t, unpacker.Unpack)
+	testInitialiseAnonymousFields(t, unpacker.Decode)
 }
 func testInitialiseAnonymousFields(t *testing.T, up unpacker.Interface) {
 

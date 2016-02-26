@@ -20,6 +20,7 @@ func TestIntSet(t *testing.T) {
 func TestUnpackDefaultNativeTypeInt(t *testing.T) {
 	testUnpackDefaultNativeTypeInt(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeInt(t, unpacker.Unpack)
+	testUnpackDefaultNativeTypeInt(t, unpacker.Decode)
 }
 func testUnpackDefaultNativeTypeInt(t *testing.T, up unpacker.Interface) {
 

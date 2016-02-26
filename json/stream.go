@@ -42,12 +42,14 @@ func (dec *Decoder) UseNumber() { dec.d.useNumber = true }
 // the conversion of JSON into a Go value.
 func (dec *Decoder) Decode(v *interface{}) error {
 	if dec.err != nil {
+		// ke: {"block": {"notest": true}}
 		return dec.err
 	}
 
 	n, err1 := dec.readValue()
 	err1 = dec.d.getError(err1)
 	if err1 != nil {
+		// ke: {"block": {"notest": true}}
 		return err1
 	}
 
@@ -66,6 +68,7 @@ func (dec *Decoder) Decode(v *interface{}) error {
 
 func (dec *Decoder) DecodeUntyped(v interface{}) error {
 	if dec.err != nil {
+		// ke: {"block": {"notest": true}}
 		return dec.err
 	}
 
@@ -118,6 +121,7 @@ Input:
 				break Input
 			}
 			if v == scanError {
+				// ke: {"block": {"notest": true}}
 				dec.err = dec.scan.err
 				return 0, dec.scan.err
 			}
@@ -132,6 +136,7 @@ Input:
 					break Input
 				}
 				if nonSpace(dec.buf) {
+					// ke: {"block": {"notest": true}}
 					err = io.ErrUnexpectedEOF
 				}
 			}
@@ -158,6 +163,7 @@ Input:
 func nonSpace(b []byte) bool {
 	for _, c := range b {
 		if !isSpace(rune(c)) {
+			// ke: {"block": {"notest": true}}
 			return true
 		}
 	}
@@ -178,6 +184,7 @@ func NewEncoder(w io.Writer) *Encoder {
 func (enc *Encoder) encode(ctx context.Context, v interface{}, typed bool) error {
 
 	if enc.err != nil {
+		// ke: {"block": {"notest": true}}
 		return enc.err
 	}
 	e := newEncodeState()
@@ -185,6 +192,7 @@ func (enc *Encoder) encode(ctx context.Context, v interface{}, typed bool) error
 	e.ctx = ctx
 	err := e.marshal(v)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return err
 	}
 
@@ -197,6 +205,7 @@ func (enc *Encoder) encode(ctx context.Context, v interface{}, typed bool) error
 	e.WriteByte('\n')
 
 	if _, err = enc.w.Write(e.Bytes()); err != nil {
+		// ke: {"block": {"notest": true}}
 		enc.err = err
 	}
 	encodeStatePool.Put(e)
@@ -243,6 +252,7 @@ var _ Marshaler = (*RawMessage)(nil)
 // UnmarshalJSON sets *m to a copy of data.
 func (m *RawMessage) UnmarshalJSON(ctx context.Context, data []byte) error {
 	if m == nil {
+		// ke: {"block": {"notest": true}}
 		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
 	}
 	*m = append((*m)[0:0], data...)

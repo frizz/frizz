@@ -39,6 +39,7 @@ func compact(dst *bytes.Buffer, src []byte, escape bool) error {
 		v := scan.step(&scan, int(c))
 		if v >= scanSkipSpace {
 			if v == scanError {
+				// ke: {"block": {"notest": true}}
 				break
 			}
 			if start < i {
@@ -48,6 +49,7 @@ func compact(dst *bytes.Buffer, src []byte, escape bool) error {
 		}
 	}
 	if scan.eof() == scanError {
+		// ke: {"block": {"notest": true}}
 		dst.Truncate(origLen)
 		return scan.err
 	}

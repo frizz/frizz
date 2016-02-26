@@ -161,11 +161,13 @@ func marshal(ctx context.Context, v interface{}, typed bool) ([]byte, error) {
 func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
 	b, err := MarshalPlain(v)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return nil, err
 	}
 	var buf bytes.Buffer
 	err = Indent(&buf, b, prefix, indent)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return nil, err
 	}
 	return buf.Bytes(), nil
@@ -219,6 +221,7 @@ type UnsupportedTypeError struct {
 }
 
 func (e *UnsupportedTypeError) Error() string {
+	// ke: {"block": {"notest": true}}
 	return "json: unsupported type: " + e.Type.String()
 }
 
@@ -228,6 +231,7 @@ type UnsupportedValueError struct {
 }
 
 func (e *UnsupportedValueError) Error() string {
+	// ke: {"block": {"notest": true}}
 	return "json: unsupported value: " + e.Str
 }
 
@@ -242,6 +246,7 @@ type InvalidUTF8Error struct {
 }
 
 func (e *InvalidUTF8Error) Error() string {
+	// ke: {"block": {"notest": true}}
 	return "json: invalid UTF-8 in string: " + strconv.Quote(e.S)
 }
 
@@ -251,6 +256,7 @@ type MarshalerError struct {
 }
 
 func (e *MarshalerError) Error() string {
+	// ke: {"block": {"notest": true}}
 	return "json: error calling MarshalJSON for type " + e.Type.String() + ": " + e.Err.Error()
 }
 
@@ -279,9 +285,11 @@ func (e *encodeState) marshal(v interface{}) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if _, ok := r.(runtime.Error); ok {
+				// ke: {"block": {"notest": true}}
 				panic(r)
 			}
 			if s, ok := r.(string); ok {
+				// ke: {"block": {"notest": true}}
 				panic(s)
 			}
 			err = r.(error)
@@ -351,6 +359,7 @@ func typeEncoder(t reflect.Type) encoderFunc {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	encoderCache.m[t] = func(e *encodeState, v reflect.Value, quoted bool) {
+		// ke: {"block": {"notest": true}}
 		wg.Wait()
 		f(e, v, quoted)
 	}
@@ -419,6 +428,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 	case reflect.Ptr:
 		return newPtrEncoder(t)
 	default:
+		// ke: {"block": {"notest": true}}
 		return unsupportedTypeEncoder
 	}
 }
@@ -439,6 +449,7 @@ func encoder(e *encodeState, v reflect.Value, quoted bool) {
 		err = compact(&e.Buffer, b, true)
 	}
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		e.error(&MarshalerError{v.Type(), err})
 	}
 }
@@ -453,6 +464,7 @@ func addrMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 func addrEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	va := v.Addr()
 	if va.IsNil() {
+		// ke: {"block": {"notest": true}}
 		e.WriteString("null")
 		return
 	}
@@ -463,12 +475,14 @@ func addrEncoder(e *encodeState, v reflect.Value, quoted bool) {
 		err = compact(&e.Buffer, b, true)
 	}
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		e.error(&MarshalerError{v.Type(), err})
 	}
 }
 
 func textMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	if v.Kind() == reflect.Ptr && v.IsNil() {
+		// ke: {"block": {"notest": true}}
 		e.WriteString("null")
 		return
 	}
@@ -478,6 +492,7 @@ func textMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 		_, err = e.stringBytes(b)
 	}
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		e.error(&MarshalerError{v.Type(), err})
 	}
 }
@@ -485,6 +500,7 @@ func textMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 func addrTextMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	va := v.Addr()
 	if va.IsNil() {
+		// ke: {"block": {"notest": true}}
 		e.WriteString("null")
 		return
 	}
@@ -494,6 +510,7 @@ func addrTextMarshalerEncoder(e *encodeState, v reflect.Value, quoted bool) {
 		_, err = e.stringBytes(b)
 	}
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		e.error(&MarshalerError{v.Type(), err})
 	}
 }
@@ -526,10 +543,12 @@ func intEncoder(e *encodeState, v reflect.Value, quoted bool) {
 func uintEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	b := strconv.AppendUint(e.scratch[:0], v.Uint(), 10)
 	if quoted {
+		// ke: {"block": {"notest": true}}
 		e.WriteByte('"')
 	}
 	e.Write(b)
 	if quoted {
+		// ke: {"block": {"notest": true}}
 		e.WriteByte('"')
 	}
 }
@@ -543,10 +562,12 @@ func (bits floatEncoder) encode(e *encodeState, v reflect.Value, quoted bool) {
 	}
 	b := strconv.AppendFloat(e.scratch[:0], f, 'g', -1, int(bits))
 	if quoted {
+		// ke: {"block": {"notest": true}}
 		e.WriteByte('"')
 	}
 	e.Write(b)
 	if quoted {
+		// ke: {"block": {"notest": true}}
 		e.WriteByte('"')
 	}
 }
@@ -568,6 +589,7 @@ func stringEncoder(e *encodeState, v reflect.Value, quoted bool) {
 	if quoted {
 		sb, err := MarshalPlain(v.String())
 		if err != nil {
+			// ke: {"block": {"notest": true}}
 			e.error(err)
 		}
 		e.string(string(sb))
@@ -585,6 +607,7 @@ func interfaceEncoder(e *encodeState, v reflect.Value, quoted bool) {
 }
 
 func unsupportedTypeEncoder(e *encodeState, v reflect.Value, quoted bool) {
+	// ke: {"block": {"notest": true}}
 	e.error(&UnsupportedTypeError{v.Type()})
 }
 
@@ -650,6 +673,7 @@ func (me *mapEncoder) encode(e *encodeState, v reflect.Value, _ bool) {
 
 func newMapEncoder(t reflect.Type) encoderFunc {
 	if t.Key().Kind() != reflect.String {
+		// ke: {"block": {"notest": true}}
 		return unsupportedTypeEncoder
 	}
 	me := &mapEncoder{typeEncoder(t.Elem())}
@@ -780,6 +804,7 @@ func fieldByIndex(v reflect.Value, index []int) reflect.Value {
 	for _, i := range index {
 		if v.Kind() == reflect.Ptr {
 			if v.IsNil() {
+				// ke: {"block": {"notest": true}}
 				return reflect.Value{}
 			}
 			v = v.Elem()
@@ -1012,6 +1037,7 @@ func (x byIndex) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
 func (x byIndex) Less(i, j int) bool {
 	for k, xik := range x[i].index {
 		if k >= len(x[j].index) {
+			// ke: {"block": {"notest": true}}
 			return false
 		}
 		if xik != x[j].index[k] {
@@ -1082,6 +1108,7 @@ func typeFields(t reflect.Type) []field {
 					// will unmarshal with the provided type and context.
 					err := UnmarshalPlain([]byte(s), k)
 					if err != nil {
+						// ke: {"block": {"notest": true}}
 						panic(err)
 					}
 				}

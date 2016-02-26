@@ -14,6 +14,7 @@ import (
 func TestUnpackDefaultNativeTypeNumber(t *testing.T) {
 	testUnpackDefaultNativeTypeNumber(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeNumber(t, unpacker.Unpack)
+	testUnpackDefaultNativeTypeNumber(t, unpacker.Decode)
 }
 func testUnpackDefaultNativeTypeNumber(t *testing.T, up unpacker.Interface) {
 

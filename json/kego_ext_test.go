@@ -34,6 +34,7 @@ func TestUnpack1(t *testing.T) {
 func TestDecodeSimple(t *testing.T) {
 	testDecodeSimple(t, unpacker.Unmarshal)
 	testDecodeSimple(t, unpacker.Unpack)
+	testDecodeSimple(t, unpacker.Decode)
 }
 func testDecodeSimple(t *testing.T, up unpacker.Interface) {
 
@@ -89,6 +90,7 @@ func testDecodeSimple(t *testing.T, up unpacker.Interface) {
 func TestDecodeDefaults(t *testing.T) {
 	testDecodeDefaults(t, unpacker.Unmarshal)
 	testDecodeDefaults(t, unpacker.Unpack)
+	testDecodeDefaults(t, unpacker.Decode)
 }
 func testDecodeDefaults(t *testing.T, up unpacker.Interface) {
 
@@ -141,6 +143,7 @@ func testDecodeDefaults(t *testing.T, up unpacker.Interface) {
 func TestDecodeCollections(t *testing.T) {
 	testDecodeCollections(t, unpacker.Unmarshal)
 	testDecodeCollections(t, unpacker.Unpack)
+	testDecodeCollections(t, unpacker.Decode)
 }
 func testDecodeCollections(t *testing.T, up unpacker.Interface) {
 
@@ -189,6 +192,7 @@ func testDecodeCollections(t *testing.T, up unpacker.Interface) {
 func TestDecodeEmbed(t *testing.T) {
 	testDecodeEmbed(t, unpacker.Unmarshal)
 	testDecodeEmbed(t, unpacker.Unpack)
+	testDecodeEmbed(t, unpacker.Decode)
 }
 func testDecodeEmbed(t *testing.T, up unpacker.Interface) {
 
@@ -247,6 +251,7 @@ func testDecodeEmbed(t *testing.T, up unpacker.Interface) {
 func TestDecodeEmbedCollections(t *testing.T) {
 	testDecodeEmbedCollections(t, unpacker.Unmarshal)
 	testDecodeEmbedCollections(t, unpacker.Unpack)
+	testDecodeEmbedCollections(t, unpacker.Decode)
 }
 func testDecodeEmbedCollections(t *testing.T, up unpacker.Interface) {
 
@@ -303,6 +308,7 @@ func testDecodeEmbedCollections(t *testing.T, up unpacker.Interface) {
 func TestDecodeComposition(t *testing.T) {
 	testDecodeComposition(t, unpacker.Unmarshal)
 	testDecodeComposition(t, unpacker.Unpack)
+	testDecodeComposition(t, unpacker.Decode)
 }
 func testDecodeComposition(t *testing.T, up unpacker.Interface) {
 
@@ -353,6 +359,7 @@ func (d *Diagram) Url() string {
 func TestInterface(t *testing.T) {
 	testInterface(t, unpacker.Unmarshal)
 	testInterface(t, unpacker.Unpack)
+	testInterface(t, unpacker.Decode)
 }
 func testInterface(t *testing.T, up unpacker.Interface) {
 
@@ -390,6 +397,7 @@ func testInterface(t *testing.T, up unpacker.Interface) {
 func TestNilInterface(t *testing.T) {
 	testNilInterface(t, unpacker.Unmarshal)
 	testNilInterface(t, unpacker.Unpack)
+	testNilInterface(t, unpacker.Decode)
 }
 func testNilInterface(t *testing.T, up unpacker.Interface) {
 
@@ -429,6 +437,7 @@ func testNilInterface(t *testing.T, up unpacker.Interface) {
 func TestInterfaceCollections(t *testing.T) {
 	testInterfaceCollections(t, unpacker.Unmarshal)
 	testInterfaceCollections(t, unpacker.Unpack)
+	testInterfaceCollections(t, unpacker.Decode)
 }
 func testInterfaceCollections(t *testing.T, up unpacker.Interface) {
 
@@ -486,6 +495,7 @@ func testInterfaceCollections(t *testing.T, up unpacker.Interface) {
 func TestInterfaceCollectionsComplex(t *testing.T) {
 	testInterfaceCollectionsComplex(t, unpacker.Unmarshal)
 	testInterfaceCollectionsComplex(t, unpacker.Unpack)
+	testInterfaceCollectionsComplex(t, unpacker.Decode)
 }
 func testInterfaceCollectionsComplex(t *testing.T, up unpacker.Interface) {
 
@@ -544,6 +554,7 @@ func testInterfaceCollectionsComplex(t *testing.T, up unpacker.Interface) {
 func TestDummyInterfaceNotFound(t *testing.T) {
 	testDummyInterfaceNotFound(t, unpacker.Unmarshal)
 	testDummyInterfaceNotFound(t, unpacker.Unpack)
+	testDummyInterfaceNotFound(t, unpacker.Decode)
 }
 func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 
@@ -638,6 +649,7 @@ func (d *dummyImage) Url() string {
 func TestDummyInterface(t *testing.T) {
 	testDummyInterface(t, unpacker.Unmarshal)
 	testDummyInterface(t, unpacker.Unpack)
+	testDummyInterface(t, unpacker.Decode)
 }
 func testDummyInterface(t *testing.T, up unpacker.Interface) {
 

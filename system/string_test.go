@@ -28,6 +28,7 @@ func TestStringSet(t *testing.T) {
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
 	testUnpackDefaultNativeTypeString(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeString(t, unpacker.Unpack)
+	testUnpackDefaultNativeTypeString(t, unpacker.Decode)
 }
 func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 
@@ -61,6 +62,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 func TestMarshal(t *testing.T) {
 	testMarshal(t, unpacker.Unmarshal)
 	testMarshal(t, unpacker.Unpack)
+	testMarshal(t, unpacker.Decode)
 }
 func testMarshal(t *testing.T, up unpacker.Interface) {
 

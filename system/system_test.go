@@ -22,6 +22,7 @@ func TestGoName(t *testing.T) {
 func TestNoType(t *testing.T) {
 	testNoType(t, unpacker.Unmarshal)
 	testNoType(t, unpacker.Unpack)
+	testNoType(t, unpacker.Decode)
 }
 func testNoType(t *testing.T, up unpacker.Interface) {
 	type C struct {
@@ -69,6 +70,7 @@ func testNoType(t *testing.T, up unpacker.Interface) {
 func TestNative(t *testing.T) {
 	testNative(t, unpacker.Unmarshal)
 	testNative(t, unpacker.Unpack)
+	testNative(t, unpacker.Decode)
 }
 func testNative(t *testing.T, up unpacker.Interface) {
 
@@ -120,6 +122,7 @@ func testNative(t *testing.T, up unpacker.Interface) {
 func TestNativeDefaults(t *testing.T) {
 	testNativeDefaults(t, unpacker.Unmarshal)
 	testNativeDefaults(t, unpacker.Unpack)
+	testNativeDefaults(t, unpacker.Decode)
 }
 func testNativeDefaults(t *testing.T, up unpacker.Interface) {
 
@@ -165,6 +168,7 @@ func testNativeDefaults(t *testing.T, up unpacker.Interface) {
 func TestNativeDefaultsShort(t *testing.T) {
 	testNativeDefaultsShort(t, unpacker.Unmarshal)
 	testNativeDefaultsShort(t, unpacker.Unpack)
+	testNativeDefaultsShort(t, unpacker.Decode)
 }
 func testNativeDefaultsShort(t *testing.T, up unpacker.Interface) {
 
@@ -210,6 +214,7 @@ func testNativeDefaultsShort(t *testing.T, up unpacker.Interface) {
 func TestDefaultCustomUnmarshal(t *testing.T) {
 	testDefaultCustomUnmarshal(t, unpacker.Unmarshal)
 	testDefaultCustomUnmarshal(t, unpacker.Unpack)
+	testDefaultCustomUnmarshal(t, unpacker.Decode)
 }
 func testDefaultCustomUnmarshal(t *testing.T, up unpacker.Interface) {
 
@@ -257,6 +262,7 @@ func testDefaultCustomUnmarshal(t *testing.T, up unpacker.Interface) {
 func TestReferenceType(t *testing.T) {
 	testReferenceType(t, unpacker.Unmarshal)
 	testReferenceType(t, unpacker.Unpack)
+	testReferenceType(t, unpacker.Decode)
 }
 func testReferenceType(t *testing.T, up unpacker.Interface) {
 
@@ -287,6 +293,7 @@ func testReferenceType(t *testing.T, up unpacker.Interface) {
 func TestReferenceEmpty(t *testing.T) {
 	testReferenceEmpty(t, unpacker.Unmarshal)
 	testReferenceEmpty(t, unpacker.Unpack)
+	testReferenceEmpty(t, unpacker.Decode)
 }
 func testReferenceEmpty(t *testing.T, up unpacker.Interface) {
 
@@ -313,6 +320,7 @@ func testReferenceEmpty(t *testing.T, up unpacker.Interface) {
 func TestReferencePath(t *testing.T) {
 	testReferencePath(t, unpacker.Unmarshal)
 	testReferencePath(t, unpacker.Unpack)
+	testReferencePath(t, unpacker.Decode)
 }
 func testReferencePath(t *testing.T, up unpacker.Interface) {
 
@@ -343,6 +351,7 @@ func testReferencePath(t *testing.T, up unpacker.Interface) {
 func TestReferenceImport(t *testing.T) {
 	testReferenceImport(t, unpacker.Unmarshal)
 	testReferenceImport(t, unpacker.Unpack)
+	testReferenceImport(t, unpacker.Decode)
 }
 func testReferenceImport(t *testing.T, up unpacker.Interface) {
 
@@ -373,6 +382,7 @@ func testReferenceImport(t *testing.T, up unpacker.Interface) {
 func TestReferenceDefault(t *testing.T) {
 	testReferenceDefault(t, unpacker.Unmarshal)
 	testReferenceDefault(t, unpacker.Unpack)
+	testReferenceDefault(t, unpacker.Decode)
 }
 func testReferenceDefault(t *testing.T, up unpacker.Interface) {
 

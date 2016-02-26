@@ -41,6 +41,7 @@ func nextValue(data []byte, scan *scanner) (value, rest []byte, err error) {
 		if v >= scanEnd {
 			switch v {
 			case scanError:
+				// ke: {"block": {"notest": true}}
 				return nil, nil, scan.err
 			case scanEnd:
 				return data[0:i], data[i:], nil
@@ -48,6 +49,7 @@ func nextValue(data []byte, scan *scanner) (value, rest []byte, err error) {
 		}
 	}
 	if scan.eof() == scanError {
+		// ke: {"block": {"notest": true}}
 		return nil, nil, scan.err
 	}
 	return data, nil, nil
@@ -59,7 +61,10 @@ type SyntaxError struct {
 	Offset int64  // error occurred after reading Offset bytes
 }
 
-func (e *SyntaxError) Error() string { return e.msg }
+func (e *SyntaxError) Error() string {
+	// ke: {"block": {"notest": true}}
+	return e.msg
+}
 
 // A scanner is a JSON scanning state machine.
 // Callers call scan.reset() and then pass bytes in one at a time
@@ -280,6 +285,7 @@ func stateBeginString(s *scanner, c int) int {
 		s.step = stateInString
 		return scanBeginLiteral
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "looking for beginning of object key string")
 }
 
@@ -328,6 +334,7 @@ func stateEndValue(s *scanner, c int) int {
 		}
 		return s.error(c, "after array element")
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "")
 }
 
@@ -353,6 +360,7 @@ func stateInString(s *scanner, c int) int {
 		return scanContinue
 	}
 	if c < 0x20 {
+		// ke: {"block": {"notest": true}}
 		return s.error(c, "in string literal")
 	}
 	return scanContinue
@@ -369,6 +377,7 @@ func stateInStringEsc(s *scanner, c int) int {
 		s.step = stateInStringEscU
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in string escape code")
 }
 
@@ -379,6 +388,7 @@ func stateInStringEscU(s *scanner, c int) int {
 		return scanContinue
 	}
 	// numbers
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in \\u hexadecimal character escape")
 }
 
@@ -389,6 +399,7 @@ func stateInStringEscU1(s *scanner, c int) int {
 		return scanContinue
 	}
 	// numbers
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in \\u hexadecimal character escape")
 }
 
@@ -399,6 +410,7 @@ func stateInStringEscU12(s *scanner, c int) int {
 		return scanContinue
 	}
 	// numbers
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in \\u hexadecimal character escape")
 }
 
@@ -409,6 +421,7 @@ func stateInStringEscU123(s *scanner, c int) int {
 		return scanContinue
 	}
 	// numbers
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in \\u hexadecimal character escape")
 }
 
@@ -422,6 +435,7 @@ func stateNeg(s *scanner, c int) int {
 		s.step = state1
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in numeric literal")
 }
 
@@ -455,6 +469,7 @@ func stateDot(s *scanner, c int) int {
 		s.step = stateDot0
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "after decimal point in numeric literal")
 }
 
@@ -466,6 +481,7 @@ func stateDot0(s *scanner, c int) int {
 		return scanContinue
 	}
 	if c == 'e' || c == 'E' {
+		// ke: {"block": {"notest": true}}
 		s.step = stateE
 		return scanContinue
 	}
@@ -501,6 +517,7 @@ func stateESign(s *scanner, c int) int {
 // such as after reading `314e-2` or `0.314e+1` or `3.14e0`.
 func stateE0(s *scanner, c int) int {
 	if '0' <= c && c <= '9' {
+		// ke: {"block": {"notest": true}}
 		s.step = stateE0
 		return scanContinue
 	}
@@ -513,6 +530,7 @@ func stateT(s *scanner, c int) int {
 		s.step = stateTr
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal true (expecting 'r')")
 }
 
@@ -522,6 +540,7 @@ func stateTr(s *scanner, c int) int {
 		s.step = stateTru
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal true (expecting 'u')")
 }
 
@@ -540,6 +559,7 @@ func stateF(s *scanner, c int) int {
 		s.step = stateFa
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal false (expecting 'a')")
 }
 
@@ -549,6 +569,7 @@ func stateFa(s *scanner, c int) int {
 		s.step = stateFal
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal false (expecting 'l')")
 }
 
@@ -558,6 +579,7 @@ func stateFal(s *scanner, c int) int {
 		s.step = stateFals
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal false (expecting 's')")
 }
 
@@ -576,6 +598,7 @@ func stateN(s *scanner, c int) int {
 		s.step = stateNu
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal null (expecting 'u')")
 }
 
@@ -585,6 +608,7 @@ func stateNu(s *scanner, c int) int {
 		s.step = stateNul
 		return scanContinue
 	}
+	// ke: {"block": {"notest": true}}
 	return s.error(c, "in literal null (expecting 'l')")
 }
 
@@ -600,6 +624,7 @@ func stateNul(s *scanner, c int) int {
 // stateError is the state after reaching a syntax error,
 // such as after reading `[1}` or `5.1.2`.
 func stateError(s *scanner, c int) int {
+	// ke: {"block": {"notest": true}}
 	return scanError
 }
 
@@ -614,6 +639,7 @@ func (s *scanner) error(c int, context string) int {
 func quoteChar(c int) string {
 	// special cases - different from quoted strings
 	if c == '\'' {
+		// ke: {"block": {"notest": true}}
 		return `'\''`
 	}
 	if c == '"' {
@@ -629,6 +655,7 @@ func quoteChar(c int) string {
 // This gives callers a simple 1-byte undo mechanism.
 func (s *scanner) undo(scanCode int) {
 	if s.redo {
+		// ke: {"block": {"notest": true}}
 		panic("json: invalid use of scanner")
 	}
 	s.redoCode = scanCode
