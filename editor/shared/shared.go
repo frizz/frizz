@@ -26,18 +26,10 @@ type DataRequest struct {
 	Name    string
 	Package string
 }
+
 type DataResponse struct {
 	Data    []byte
 	Found   bool
 	Name    string
 	Package string
 }
-
-var MESSAGE_TYPE = M_BINARY
-
-type MessageType string
-
-const (
-	M_STRING MessageType = "string"
-	M_BINARY MessageType = "binary"
-)

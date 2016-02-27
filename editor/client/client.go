@@ -15,6 +15,7 @@ import (
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
 	"kego.io/editor"
+	"kego.io/editor/client/connection"
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared"
@@ -29,7 +30,7 @@ type appData struct {
 	spinner *dom.HTMLDivElement
 	ctx     context.Context
 	env     *envctx.Env
-	client  *rpc.Client
+	conn    *connection.Conn
 }
 
 var app appData
@@ -88,12 +89,12 @@ func Start() error {
 		return kerr.Wrap("KXIKEWOKJI", err)
 	}
 
-	wsrpc, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", window.Location().Hostname, window.Location().Port))
+	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", window.Location().Hostname, window.Location().Port))
 	if err != nil {
 		return kerr.Wrap("HNQFLPFAJD", err)
 	}
 
-	app.client = rpc.NewClient(&socket{wsrpc, shared.MESSAGE_TYPE})
+	app.conn = connection.New(rpc.NewClient(ws))
 
 	app.spinner = body.GetElementsByClassName("mdl-spinner")[0].(*dom.HTMLDivElement)
 
@@ -101,7 +102,7 @@ func Start() error {
 	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
 
 	// We create a new root tree element
-	t := tree.New(app.ctx, content, app.client, app.fail)
+	t := tree.New(app.ctx, content, app.conn, app.fail)
 	root := tree.NewRoot(t, nav)
 
 	if err := root.AddPackage(editorNode, info.Data, types); err != nil {
@@ -131,18 +132,12 @@ func Start() error {
 			console.Error(err.Error())
 			body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
 		}
-		app.client.Close()
+		app.conn.Close()
 	}()
 
 	app.spinner.Style().Set("display", "none")
 
 	return nil
-}
-
-func handle(f func() error) {
-	if err := f(); err != nil {
-		app.fail <- err
-	}
 }
 
 func getInfo(body dom.Element) (info shared.Info, err error) {

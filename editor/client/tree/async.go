@@ -7,9 +7,9 @@ import (
 )
 
 type AsyncInterface interface {
-	LoadContent(client *rpc.Client, fail chan error) (success chan bool, loading bool)
+	LoadContent(fail chan error) (success chan bool, loading bool)
 	Loaded() bool
-	MakeRequest(*rpc.Client) (requestCall *rpc.Call, doneChannel chan *rpc.Call, data interface{})
+	MakeCall(fail chan error) (requestCall *rpc.Call)
 	ProcessResponse(interface{}) error
 	Cancel()
 }
@@ -32,7 +32,7 @@ func (a *Async) Loaded() bool {
 	return a.loaded
 }
 
-func (a *Async) LoadContent(client *rpc.Client, fail chan error) (success chan bool, loading bool) {
+func (a *Async) LoadContent(fail chan error) (success chan bool, loading bool) {
 
 	if a.loading {
 		return nil, true
@@ -49,21 +49,13 @@ func (a *Async) LoadContent(client *rpc.Client, fail chan error) (success chan b
 
 	a.loading = true
 
-	requestCall, done, data := a.self.MakeRequest(client)
+	call := a.self.MakeCall(fail)
 
 	go func() {
 
-		responseCall := <-done
+		<-call.Done
 
-		if requestCall != responseCall {
-			fail <- kerr.New("TMPQETEMGC", "requestCall != responseCall")
-		}
-
-		if data == nil {
-			fail <- kerr.New("XOFACTHWOV", "data == nil")
-		}
-
-		if err := a.self.ProcessResponse(data); err != nil {
+		if err := a.self.ProcessResponse(call.Reply); err != nil {
 			fail <- kerr.Wrap("DLTCGMSREX", err)
 		}
 

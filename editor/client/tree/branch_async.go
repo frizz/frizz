@@ -19,7 +19,7 @@ func (b *Branch) ensureContentLoaded() (done chan bool, success bool) {
 		done = make(chan bool, 1)
 
 		// load content asynchronously
-		responseChannel, loading := async.LoadContent(b.tree.Client, b.tree.Fail)
+		responseChannel, loading := async.LoadContent(b.tree.Fail)
 
 		if loading {
 			// if we're already in the middle of a async request, we should cancel the operation

@@ -92,11 +92,7 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 	rpc.Register(&Server{ctx: ctx})
 
 	http.Handle("/_rpc", websocket.Handler(func(ws *websocket.Conn) {
-		if shared.MESSAGE_TYPE == shared.M_BINARY {
-			ws.PayloadType = websocket.BinaryFrame
-		} else {
-			ws.PayloadType = websocket.TextFrame
-		}
+		ws.PayloadType = websocket.BinaryFrame
 		rpc.ServeConn(ws)
 	}))
 

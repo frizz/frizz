@@ -41,17 +41,15 @@ func (parent *holder) addSources(sources map[string]string) {
 	}
 }
 
-func (s *source) MakeRequest(client *rpc.Client) (requestCall *rpc.Call, doneChannel chan *rpc.Call, responseData interface{}) {
-	env := envctx.FromContext(s.tree.ctx)
-	var data shared.DataResponse
-	done := make(chan *rpc.Call, 1)
+func (s *source) MakeCall(fail chan error) *rpc.Call {
 	request := &shared.DataRequest{
 		File:    s.file,
 		Name:    s.name,
-		Package: env.Path,
+		Package: envctx.FromContext(s.tree.ctx).Path,
 	}
-	call := client.Go("Server.Data", request, &data, done)
-	return call, done, &data
+	data := shared.DataResponse{}
+	done := make(chan *rpc.Call, 1)
+	return s.tree.Conn.Go("Server.Data", request, &data, done, fail)
 }
 
 func (s *source) ProcessResponse(response interface{}) error {
