@@ -21,6 +21,11 @@ import (
 )
 
 func main() {
+	// This turns off focus reporting mode that will print “^[[O” and “^[[I”
+	// when the terminal window gets / loses focus
+	// http://superuser.com/questions/931873/o-and-i-appearing-on-iterm2-when-focus-lost
+	fmt.Print("\033[?1004l")
+
 	ctx, cancel, err := process.Initialise(context.Background(), nil)
 	if err != nil {
 		fmt.Println(err)
