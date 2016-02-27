@@ -1,16 +1,16 @@
 package tree
 
 import (
-	"kego.io/editor/shared/connection"
-	"kego.io/editor/shared/messages"
+	"net/rpc"
+
 	"kego.io/kerr"
 )
 
 type AsyncInterface interface {
-	LoadContent(conn *connection.Conn, fail chan error) (success chan bool, loading bool)
+	LoadContent(client *rpc.Client, fail chan error) (success chan bool, loading bool)
 	Loaded() bool
-	ContentRequest() messages.MessageInterface
-	ProcessResponse(messages.MessageInterface) error
+	MakeRequest(*rpc.Client) (requestCall *rpc.Call, doneChannel chan *rpc.Call, data interface{})
+	ProcessResponse(interface{}) error
 	Cancel()
 }
 
@@ -32,7 +32,7 @@ func (a *Async) Loaded() bool {
 	return a.loaded
 }
 
-func (a *Async) LoadContent(conn *connection.Conn, fail chan error) (success chan bool, loading bool) {
+func (a *Async) LoadContent(client *rpc.Client, fail chan error) (success chan bool, loading bool) {
 
 	if a.loading {
 		return nil, true
@@ -49,13 +49,21 @@ func (a *Async) LoadContent(conn *connection.Conn, fail chan error) (success cha
 
 	a.loading = true
 
-	responseChannel := conn.Request(a.self.ContentRequest())
+	requestCall, done, data := a.self.MakeRequest(client)
 
 	go func() {
 
-		m := <-responseChannel
+		responseCall := <-done
 
-		if err := a.self.ProcessResponse(m); err != nil {
+		if requestCall != responseCall {
+			fail <- kerr.New("TMPQETEMGC", "requestCall != responseCall")
+		}
+
+		if data == nil {
+			fail <- kerr.New("XOFACTHWOV", "data == nil")
+		}
+
+		if err := a.self.ProcessResponse(data); err != nil {
 			fail <- kerr.Wrap("DLTCGMSREX", err)
 		}
 

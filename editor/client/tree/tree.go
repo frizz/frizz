@@ -3,15 +3,16 @@ package tree // import "kego.io/editor/client/tree"
 // ke: {"package": {"jstest": true}}
 
 import (
+	"net/rpc"
+
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor"
-	"kego.io/editor/shared/connection"
 )
 
 type Tree struct {
 	Root     *Root
-	Conn     *connection.Conn
+	Client   *rpc.Client
 	Fail     chan error
 	Selected BranchInterface
 	Editor   editor.EditorInterface
@@ -19,8 +20,8 @@ type Tree struct {
 	ctx      context.Context
 }
 
-func New(ctx context.Context, content *dom.HTMLDivElement, conn *connection.Conn, fail chan error) *Tree {
-	return &Tree{Content: content, Conn: conn, Fail: fail, ctx: ctx}
+func New(ctx context.Context, content *dom.HTMLDivElement, client *rpc.Client, fail chan error) *Tree {
+	return &Tree{Content: content, Client: client, Fail: fail, ctx: ctx}
 }
 
 func (t *Tree) KeyboardEvent(e *dom.KeyboardEvent) {

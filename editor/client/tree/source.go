@@ -1,9 +1,11 @@
 package tree
 
 import (
+	"net/rpc"
+
 	"kego.io/context/envctx"
 	"kego.io/editor"
-	"kego.io/editor/shared/messages"
+	"kego.io/editor/shared"
 	"kego.io/kerr"
 )
 
@@ -39,34 +41,42 @@ func (parent *holder) addSources(sources map[string]string) {
 	}
 }
 
-func (s *source) ContentRequest() messages.MessageInterface {
+func (s *source) MakeRequest(client *rpc.Client) (requestCall *rpc.Call, doneChannel chan *rpc.Call, responseData interface{}) {
 	env := envctx.FromContext(s.tree.ctx)
-	return messages.NewDataRequest(env.Path, s.name, s.file)
+	var data shared.DataResponse
+	done := make(chan *rpc.Call, 1)
+	request := &shared.DataRequest{
+		File:    s.file,
+		Name:    s.name,
+		Package: env.Path,
+	}
+	call := client.Go("Server.Data", request, &data, done)
+	return call, done, &data
 }
 
-func (s *source) ProcessResponse(response messages.MessageInterface) error {
+func (s *source) ProcessResponse(response interface{}) error {
 
-	gr, ok := response.(*messages.DataResponse)
+	gr, ok := response.(*shared.DataResponse)
 	if !ok {
-		return kerr.New("MVPKNNVHOX", "%T is not a *messages.SourceResponse", response)
+		return kerr.New("TIBHFJGNNP", "%T is not a *shared.DataResponse", response)
 	}
 
-	n, err := editor.UnmarshalNode(s.tree.ctx, []byte(gr.Data.Value()))
+	n, err := editor.UnmarshalNode(s.tree.ctx, gr.Data)
 	if err != nil {
-		return kerr.Wrap("ACODETSACJ", err)
+		return kerr.Wrap("IOOQWKIEGC", err)
 	}
 	s.Node = n
 
 	ed := s.Node.Editor()
 
 	if err := ed.Initialize(s.tree.ctx, s, editor.Page, s.tree.Fail); err != nil {
-		return kerr.Wrap("UOPUXTANHO", err)
+		return kerr.Wrap("WXAHRIGKHI", err)
 	}
 
 	s.ListenForEditorChanges(ed.Listen().Ch)
 
 	if err := addEntryChildren(s.Node, s, ed); err != nil {
-		return kerr.Wrap("MLUGRXOWHC", err)
+		return kerr.Wrap("IQMWLPORUF", err)
 	}
 
 	return nil

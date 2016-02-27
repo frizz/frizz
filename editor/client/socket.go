@@ -4,7 +4,7 @@ import (
 	"io"
 
 	"github.com/gopherjs/websocket"
-	"kego.io/editor/shared/connection"
+	"kego.io/editor/shared"
 )
 
 // We create a socket type that will implement ReadWriteCloser that
@@ -12,7 +12,7 @@ import (
 // messages
 type socket struct {
 	c  *websocket.Conn
-	mt connection.MessageType
+	mt shared.MessageType
 }
 
 var _ io.ReadWriteCloser = (*socket)(nil)
@@ -21,7 +21,7 @@ func (s *socket) Read(p []byte) (n int, err error) {
 	return s.c.Read(p)
 }
 func (s *socket) Write(p []byte) (n int, err error) {
-	if s.mt == connection.M_STRING {
+	if s.mt == shared.M_STRING {
 		return s.c.WriteString(string(p))
 	}
 	return s.c.Write(p)

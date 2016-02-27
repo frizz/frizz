@@ -3,6 +3,7 @@ package client // import "kego.io/editor/client"
 // ke: {"package": {"jstest": true}}
 
 import (
+	"net/rpc"
 	"net/url"
 
 	"fmt"
@@ -17,7 +18,6 @@ import (
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
 	"kego.io/editor/shared"
-	"kego.io/editor/shared/connection"
 	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/process/parser"
@@ -26,10 +26,10 @@ import (
 
 type appData struct {
 	fail    chan error
-	conn    *connection.Conn
 	spinner *dom.HTMLDivElement
 	ctx     context.Context
 	env     *envctx.Env
+	client  *rpc.Client
 }
 
 var app appData
@@ -88,17 +88,12 @@ func Start() error {
 		return kerr.Wrap("KXIKEWOKJI", err)
 	}
 
-	// We dial the websocket connection to the server
-	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_socket", window.Location().Hostname, window.Location().Port))
+	wsrpc, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", window.Location().Hostname, window.Location().Port))
 	if err != nil {
-		return kerr.Wrap("XBMAKPJICG", err)
+		return kerr.Wrap("HNQFLPFAJD", err)
 	}
 
-	// socket allows us to specify the message type - binary or string.
-	s := &socket{ws, connection.MESSAGE_TYPE}
-
-	app.conn = connection.New(app.ctx, s, app.fail, false)
-	go handle(app.conn.Receive)
+	app.client = rpc.NewClient(&socket{wsrpc, shared.MESSAGE_TYPE})
 
 	app.spinner = body.GetElementsByClassName("mdl-spinner")[0].(*dom.HTMLDivElement)
 
@@ -106,7 +101,7 @@ func Start() error {
 	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
 
 	// We create a new root tree element
-	t := tree.New(app.ctx, content, app.conn, app.fail)
+	t := tree.New(app.ctx, content, app.client, app.fail)
 	root := tree.NewRoot(t, nav)
 
 	if err := root.AddPackage(editorNode, info.Data, types); err != nil {
@@ -136,7 +131,7 @@ func Start() error {
 			console.Error(err.Error())
 			body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
 		}
-		app.conn.Close()
+		app.client.Close()
 	}()
 
 	app.spinner.Style().Set("display", "none")

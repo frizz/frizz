@@ -24,6 +24,8 @@ import (
 
 	"path/filepath"
 
+	"net/rpc"
+
 	"github.com/gopherjs/gopherjs/build"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
@@ -32,8 +34,6 @@ import (
 	"kego.io/context/wgctx"
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
-	"kego.io/editor/shared/connection"
-	"kego.io/editor/shared/messages"
 	"kego.io/ke"
 	"kego.io/process/generate"
 	"kego.io/process/packages"
@@ -89,21 +89,15 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 		}
 	})
 
-	http.Handle("/_socket", websocket.Handler(func(ws *websocket.Conn) {
-		if connection.MESSAGE_TYPE == connection.M_BINARY {
-			ws.PayloadType = 0x2 // binary messages
+	rpc.Register(&Server{ctx: ctx})
+
+	http.Handle("/_rpc", websocket.Handler(func(ws *websocket.Conn) {
+		if shared.MESSAGE_TYPE == shared.M_BINARY {
+			ws.PayloadType = websocket.BinaryFrame
 		} else {
-			ws.PayloadType = 0x1 // string messages
+			ws.PayloadType = websocket.TextFrame
 		}
-		c := connection.New(ctx, ws, app.fail, cmd.Debug)
-
-		dataRequestsChannel := c.Subscribe(*system.NewReference("kego.io/editor/shared/messages", "dataRequest"))
-		go handle(func() error { return getData(ctx, dataRequestsChannel, c) })
-
-		if err := c.Receive(); err != nil {
-			app.fail <- err
-			return
-		}
+		rpc.ServeConn(ws)
 	}))
 
 	go handle(func() error { return serve(ctx) })
@@ -139,37 +133,35 @@ func handle(f func() error) {
 	}
 }
 
-func getData(ctx context.Context, in chan messages.MessageInterface, conn *connection.Conn) error {
-	//env := envctx.FromContext(ctx)
-	for {
-		m := <-in
-		request, ok := m.(*messages.DataRequest)
-		if !ok {
-			return kerr.New("VOXPGGLWTT", "Message %T is not a *messages.DataRequest", m)
-		}
+type Server struct {
+	ctx context.Context
+}
 
-		env, err := parser.ScanForEnv(ctx, request.Package.Value())
-		if err != nil {
-			return kerr.Wrap("EPCOFHDMBP", err)
-		}
+func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse) error {
 
-		file := filepath.Join(env.Dir, request.File.Value())
-
-		bytes, err := scanner.ProcessFile(file)
-
-		localContext := envctx.NewContext(ctx, env)
-		o := &system.Object{}
-		if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
-			return kerr.Wrap("WHMKLGRVKV", err)
-		}
-		if o.Id.Name != request.Name.Value() {
-			return kerr.New("GDLLEGNJOP", "Id does not match")
-		}
-
-		response := messages.NewDataResponse(request.Package.Value(), request.Name.Value(), true, string(bytes))
-		conn.Respond(response, request.Guid.Value())
-
+	env, err := parser.ScanForEnv(s.ctx, request.Package)
+	if err != nil {
+		return kerr.Wrap("PNAGGKHDYL", err)
 	}
+
+	file := filepath.Join(env.Dir, request.File)
+
+	bytes, err := scanner.ProcessFile(file)
+
+	localContext := envctx.NewContext(s.ctx, env)
+	o := &system.Object{}
+	if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
+		return kerr.Wrap("SVINFEMKBG", err)
+	}
+	if o.Id.Name != request.Name {
+		return kerr.New("TNJSLMPMLB", "Id does not match")
+	}
+
+	response.Package = request.Package
+	response.Name = request.Name
+	response.Found = true
+	response.Data = bytes
+	return nil
 }
 
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
