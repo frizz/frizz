@@ -96,7 +96,11 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 		rpc.ServeConn(ws)
 	}))
 
-	go handle(func() error { return serve(ctx) })
+	go func() {
+		if err := serve(ctx); err != nil {
+			app.fail <- err
+		}
+	}()
 
 	done := app.ctx.Done()
 	for {
@@ -121,12 +125,6 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 	}
 
 	return nil
-}
-
-func handle(f func() error) {
-	if err := f(); err != nil {
-		app.fail <- err
-	}
 }
 
 type Server struct {
