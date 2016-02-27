@@ -1,7 +1,5 @@
 package connection
 
-// ke: {"package": {"notest": true}}
-
 import (
 	"net/rpc"
 	"time"
