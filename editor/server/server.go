@@ -16,15 +16,14 @@ import (
 
 	"fmt"
 
-	"encoding/json"
-
-	"net/url"
-
 	"strings"
 
 	"path/filepath"
 
 	"net/rpc"
+
+	"encoding/base64"
+	"encoding/gob"
 
 	"github.com/gopherjs/gopherjs/build"
 	"golang.org/x/net/context"
@@ -346,11 +345,12 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		Package: pkgBytes,
 		Imports: imports,
 	}
-	marshalled, err := json.Marshal(info)
+	buf := bytes.NewBuffer([]byte{})
+	encoder := base64.NewEncoder(base64.StdEncoding, buf)
+	err = gob.NewEncoder(encoder).Encode(info)
 	if err != nil {
 		return kerr.Wrap("OHBYTULHUQ", err)
 	}
-	attribute := url.QueryEscape(fmt.Sprintf("%s", marshalled))
 
 	source := []byte(`
 		<html>
@@ -364,7 +364,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 				<script src="/bootstrap/js/bootstrap.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
-			<body id="body" info="` + attribute + `"></body>
+			<body id="body" info="` + buf.String() + `"></body>
 			<script src="script.js"></script>
 		</html>`)
 

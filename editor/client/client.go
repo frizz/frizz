@@ -4,9 +4,13 @@ package client // import "kego.io/editor/client"
 
 import (
 	"net/rpc"
-	"net/url"
 
 	"fmt"
+
+	"bytes"
+	"encoding/gob"
+
+	"encoding/base64"
 
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/vecty"
@@ -19,10 +23,7 @@ import (
 	"kego.io/editor"
 	"kego.io/editor/client/components"
 	"kego.io/editor/client/connection"
-	"kego.io/editor/client/console"
-	"kego.io/editor/client/tree"
 	"kego.io/editor/shared"
-	"kego.io/json"
 	"kego.io/kerr"
 	"kego.io/process/parser"
 	"kego.io/system"
@@ -41,25 +42,19 @@ var window dom.Window
 var doc dom.HTMLDocument
 var body *dom.HTMLBodyElement
 
+type Info struct {
+	*js.Object
+	Foo string
+}
+
 func Start() error {
 
 	// We parse the json info attribute from the body tag
-	_, err := getInfo()
-	if err != nil {
-		return kerr.Wrap("MGLVIQIDDY", err)
-	}
-
-	p := &components.PageView{}
-	vecty.RenderAsBody(p)
-	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
-	return nil
-}
-func StartOld() error {
-
 	info, err := getInfo()
 	if err != nil {
 		return kerr.Wrap("MGLVIQIDDY", err)
 	}
+
 	app.env = &envctx.Env{
 		Path:    info.Path,
 		Aliases: info.Aliases,
@@ -94,7 +89,7 @@ func StartOld() error {
 		}
 	}
 
-	editorNode, err := editor.UnmarshalNode(app.ctx, []byte(info.Package))
+	packageNode, err := editor.UnmarshalNode(app.ctx, []byte(info.Package))
 	if err != nil {
 		return kerr.Wrap("KXIKEWOKJI", err)
 	}
@@ -106,47 +101,52 @@ func StartOld() error {
 
 	app.conn = connection.New(rpc.NewClient(ws))
 
-	app.spinner = body.GetElementsByClassName("mdl-spinner")[0].(*dom.HTMLDivElement)
-
-	nav := body.GetElementsByClassName("mdl-navigation")[0].(*dom.BasicHTMLElement)
-	content := body.GetElementsByClassName("page-content")[0].(*dom.HTMLDivElement)
-
-	// We create a new root tree element
-	t := tree.New(app.ctx, content, app.conn, app.fail)
-	root := tree.NewRoot(t, nav)
-
-	if err := root.AddPackage(editorNode, info.Data, types); err != nil {
-		return kerr.Wrap("EAIHJLNBFA", err)
+	p := &components.PageView{
+		Environment: app.env,
+		Package:     packageNode,
 	}
+	vecty.RenderAsBody(p)
+	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
+	return nil
+}
+func StartOld() error {
+	/*
+		// We create a new root tree element
+		t := tree.New(app.ctx, content, app.conn, app.fail)
+		root := tree.NewRoot(t, nav)
 
-	window.AddEventListener("keydown", true, func(e dom.Event) {
-		k := e.(*dom.KeyboardEvent)
-		switch doc.ActiveElement().TagName() {
-		case "INPUT", "TEXTAREA":
-			if k.KeyCode == 27 {
-				doc.ActiveElement().Blur()
+		if err := root.AddPackage(editorNode, info.Data, types); err != nil {
+			return kerr.Wrap("EAIHJLNBFA", err)
+		}
+
+		window.AddEventListener("keydown", true, func(e dom.Event) {
+			k := e.(*dom.KeyboardEvent)
+			switch doc.ActiveElement().TagName() {
+			case "INPUT", "TEXTAREA":
+				if k.KeyCode == 27 {
+					doc.ActiveElement().Blur()
+				}
+				return
+			default:
+				t.KeyboardEvent(k)
 			}
-			return
-		default:
-			t.KeyboardEvent(k)
-		}
-	})
+		})
 
-	go func() {
-		err, open := <-app.fail
-		if !open {
-			// Channel has been closed, so app should gracefully exit.
-			body.SetInnerHTML("<pre>Server disconnected.</pre>")
-		} else {
-			// Error received, so app should display error.
-			console.Error(err.Error())
-			body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
-		}
-		app.conn.Close()
-	}()
+		go func() {
+			err, open := <-app.fail
+			if !open {
+				// Channel has been closed, so app should gracefully exit.
+				body.SetInnerHTML("<pre>Server disconnected.</pre>")
+			} else {
+				// Error received, so app should display error.
+				console.Error(err.Error())
+				body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
+			}
+			app.conn.Close()
+		}()
 
-	app.spinner.Style().Set("display", "none")
-
+		app.spinner.Style().Set("display", "none")
+	*/
 	return nil
 }
 
@@ -154,11 +154,9 @@ func getInfo() (info shared.Info, err error) {
 	window = dom.GetWindow()
 	doc = window.Document().(dom.HTMLDocument)
 	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
-	infoJson, err := url.QueryUnescape(body.GetAttribute("info"))
-	if err != nil {
-		return shared.Info{}, kerr.Wrap("CENGCYKHHP", err)
-	}
-	err = json.UnmarshalPlain([]byte(infoJson), &info)
+	buf := bytes.NewBuffer([]byte(body.GetAttribute("info")))
+	decoder := base64.NewDecoder(base64.StdEncoding, buf)
+	err = gob.NewDecoder(decoder).Decode(&info)
 	if err != nil {
 		return shared.Info{}, kerr.Wrap("AAFXLQRUEW", err)
 	}

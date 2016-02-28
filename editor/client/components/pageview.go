@@ -4,12 +4,16 @@ import (
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/prop"
+	"kego.io/context/envctx"
+	"kego.io/editor"
 )
 
 type PageView struct {
 	vecty.Composite
 
-	Heading string
+	Environment *envctx.Env
+	Package     *editor.Node
+	Heading     string
 }
 
 // Apply implements the vecty.Markup interface.
@@ -57,7 +61,7 @@ func (p *PageView) render() vecty.Component {
 					elem.Anchor(
 						prop.Class("navbar-brand"),
 						prop.Href("#"),
-						vecty.Text("Ke"),
+						vecty.Text(p.Environment.Path),
 					),
 				),
 				elem.Div(
