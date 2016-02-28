@@ -8,6 +8,8 @@ import (
 
 	"fmt"
 
+	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/websocket"
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
@@ -15,6 +17,7 @@ import (
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
 	"kego.io/editor"
+	"kego.io/editor/client/components"
 	"kego.io/editor/client/connection"
 	"kego.io/editor/client/console"
 	"kego.io/editor/client/tree"
@@ -40,16 +43,23 @@ var body *dom.HTMLBodyElement
 
 func Start() error {
 
-	window = dom.GetWindow()
-	doc = window.Document().(dom.HTMLDocument)
-	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
-
 	// We parse the json info attribute from the body tag
-	info, err := getInfo(body)
+	_, err := getInfo()
 	if err != nil {
 		return kerr.Wrap("MGLVIQIDDY", err)
 	}
 
+	p := &components.PageView{}
+	vecty.RenderAsBody(p)
+	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
+	return nil
+}
+func StartOld() error {
+
+	info, err := getInfo()
+	if err != nil {
+		return kerr.Wrap("MGLVIQIDDY", err)
+	}
 	app.env = &envctx.Env{
 		Path:    info.Path,
 		Aliases: info.Aliases,
@@ -140,7 +150,10 @@ func Start() error {
 	return nil
 }
 
-func getInfo(body dom.Element) (info shared.Info, err error) {
+func getInfo() (info shared.Info, err error) {
+	window = dom.GetWindow()
+	doc = window.Document().(dom.HTMLDocument)
+	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
 	infoJson, err := url.QueryUnescape(body.GetAttribute("info"))
 	if err != nil {
 		return shared.Info{}, kerr.Wrap("CENGCYKHHP", err)

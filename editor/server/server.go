@@ -356,67 +356,15 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		<html>
 			<head>
 				<meta charset="utf-8">
-
-				<link rel="stylesheet" href="/material.min.css">
-				<script src="/material.min.js"></script>
-				<link rel="stylesheet" href="/icon.css">
-
+				<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+				<link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.min.css">
+				<link rel="stylesheet" href="/split.css">
+				<script src="/jquery-2.2.1.min.js"></script>
+				<script src="/split.min.js"></script>
+				<script src="/bootstrap/js/bootstrap.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
-				<style>
-					.node {
-						position: relative;
-						margin-left: 15px;
-					}
-					.root {
-						margin-top: -10px;
-						margin-left: 20px;
-					}
-					.toggle {
-						cursor: pointer;
-						position: absolute;
-						left: -20px;
-						top: 2px;
-						width: 15px;
-					}
-					.toggle svg {
-						opacity: 0.5;
-						height: 20px;
-						width: 20px;
-					}
-					.label {
-						cursor: pointer;
-					}
-					.content {
-						padding: 2px 5px 2px 5px;
-					}
-					.content.selected {
-						background-color: #eeeeee;
-					}
-					.mdl-spinner {
-						position: absolute;
-						left: 50%;
-						top: 50%;
-					}
-					.badge {
-						position: absolute;
-						margin-top: -2px;
-						margin-left: -3px;
-						opacity: 0.5;
-					}
-				</style>
 			</head>
-			<body id="body" info="` + attribute + `">
-				<div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
-				<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
-					<div class="mdl-layout__drawer">
-						<span class="mdl-layout-title"></span>
-						<nav class="mdl-navigation"></nav>
-					</div>
-					<main class="mdl-layout__content mdl-color--grey-100">
-						<div class="page-content"></div>
-					</main>
-				</div>
-			</body>
+			<body id="body" info="` + attribute + `"></body>
 			<script src="script.js"></script>
 		</html>`)
 
