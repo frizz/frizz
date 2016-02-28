@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 
 	"golang.org/x/net/websocket"
@@ -364,7 +365,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 				<script src="/bootstrap/js/bootstrap.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
-			<body id="body" info="` + buf.String() + `"></body>
+			<body id="body" info="` + url.QueryEscape(buf.String()) + `"></body>
 			<script src="script.js"></script>
 		</html>`)
 

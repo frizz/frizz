@@ -4,6 +4,7 @@ package client // import "kego.io/editor/client"
 
 import (
 	"net/rpc"
+	"net/url"
 
 	"fmt"
 
@@ -154,10 +155,13 @@ func getInfo() (info shared.Info, err error) {
 	window = dom.GetWindow()
 	doc = window.Document().(dom.HTMLDocument)
 	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
-	buf := bytes.NewBuffer([]byte(body.GetAttribute("info")))
-	decoder := base64.NewDecoder(base64.StdEncoding, buf)
-	err = gob.NewDecoder(decoder).Decode(&info)
+	infoBase64, err := url.QueryUnescape(body.GetAttribute("info"))
 	if err != nil {
+		return shared.Info{}, kerr.Wrap("CENGCYKHHP", err)
+	}
+	buf := bytes.NewBuffer([]byte(infoBase64))
+	decoder := base64.NewDecoder(base64.StdEncoding, buf)
+	if err := gob.NewDecoder(decoder).Decode(&info); err != nil {
 		return shared.Info{}, kerr.Wrap("AAFXLQRUEW", err)
 	}
 	return info, nil
