@@ -1,0 +1,85 @@
+package progress
+
+import (
+	"testing"
+
+	"sync"
+
+	"time"
+
+	"kego.io/kerr/assert"
+)
+
+func TestProgress(t *testing.T) {
+	p := New()
+	assert.Equal(t, starting, p.state)
+
+	p.Start()
+	assert.Equal(t, running, p.state)
+
+	wg1 := &sync.WaitGroup{}
+	wg1.Add(2)
+	wg2 := &sync.WaitGroup{}
+	wg2.Add(1)
+	wg3 := &sync.WaitGroup{}
+	wg3.Add(1)
+	wg4 := &sync.WaitGroup{}
+	wg4.Add(2)
+	a := false
+	go func() {
+		wg1.Done()
+		<-p.Notify()
+		waitWithTimeout(t, wg2)
+		wg4.Done()
+		a = true
+	}()
+	b := false
+	go func() {
+		wg1.Done()
+		<-p.Notify()
+		waitWithTimeout(t, wg3)
+		wg4.Done()
+		b = true
+	}()
+
+	waitWithTimeout(t, wg1)
+
+	close(p.Done)
+
+	wg2.Done()
+	wg3.Done()
+
+	waitWithTimeout(t, wg4)
+
+	assert.Equal(t, finished, p.state)
+
+	assert.True(t, a)
+	assert.True(t, b)
+
+	wg5 := &sync.WaitGroup{}
+	wg5.Add(1)
+	c := false
+	go func() {
+		<-p.Notify()
+		wg5.Done()
+		c = true
+	}()
+
+	waitWithTimeout(t, wg5)
+	assert.True(t, c)
+
+}
+
+func waitWithTimeout(t *testing.T, wg *sync.WaitGroup) {
+	c := make(chan struct{})
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+	select {
+	case <-c:
+		// ok!
+	case <-time.After(200 * time.Millisecond):
+		assert.Fail(t, "Timeout")
+	}
+}

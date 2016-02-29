@@ -63,7 +63,7 @@ func main() {
 		coverProfiles, err = tester.Get(baseDir)
 	} else {
 		//coverProfiles, err = tester.Get(baseDir)
-		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/json")
+		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/editor/client/flux")
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -84,6 +84,10 @@ func main() {
 	}
 
 	if err := excludeWraps(profiles, source); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := excludePanics(profiles, source); err != nil {
 		log.Fatal(err)
 	}
 
@@ -188,6 +192,22 @@ func excludeGenerated(profiles map[string]*Profile) error {
 		if strings.HasSuffix(profile.FileName, "/generated.go") {
 			fmt.Println("Excluding", profile.FileName)
 			profile.Exclude = true
+		}
+	}
+	return nil
+}
+
+func excludePanics(profiles map[string]*Profile, source *scanner.Source) error {
+	for _, def := range source.Panics {
+		p, ok := profiles[def.File]
+		if !ok {
+			continue
+		}
+		for _, b := range p.Blocks {
+			if b.StartLine <= def.Line && b.EndLine >= def.Line && b.Count == 0 {
+				b.Exclude = true
+				fmt.Printf("Excluding panic from %s:%d\n", def.File, def.Line)
+			}
 		}
 	}
 	return nil

@@ -24,6 +24,7 @@ func (w *detector) FinishedWait(store Store) {
 }
 
 func (w *detector) RequestWait(store Store, waitFor ...Store) (loopFound bool, loopStore Store) {
+	// returns true if s1 is waiting for s2
 	var isWaiting func(s1, s2 Store) bool
 	isWaiting = func(s1, s2 Store) bool {
 		w.m.RLock()

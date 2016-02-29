@@ -31,7 +31,7 @@ func (d *Dispatcher) Dispatch(action ActionInterface) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(d.stores))
 
-	loopDetector := detector.New()
+	loop := detector.New()
 
 	for _, store := range d.stores {
 		info[store] = progress.New()
@@ -40,22 +40,20 @@ func (d *Dispatcher) Dispatch(action ActionInterface) {
 		store := storeRange
 		p := info[store]
 		waitFor := func(stores ...StoreInterface) {
-			fmt.Printf("%T is waiting for %T...\n", store, stores[0])
 			// First check to see if any of the stores we want to wait for are waiting for this one.
 			// That would be a deadlock.
-			loopFound, loopStore := loopDetector.RequestWait(store, convertStores(stores))
-			if loopFound {
-				panic(fmt.Sprintf("%T and %T are waiting for each other.", store, loopStore))
+			if found, loopStore := loop.RequestWait(store, convertStores(stores)...); found {
+				panic(fmt.Errorf("%T and %T are waiting for each other.", store, loopStore))
 			}
 			for _, s := range stores {
 				<-info[s].Notify()
 			}
-			loopDetector.FinishedWait(store)
+			loop.FinishedWait(store)
 		}
 		go func() {
 			p.Start()
-			handledSyncronously := store.Handle(&Payload{Action: action, WaitFor: waitFor, Done: p.Done})
-			if handledSyncronously {
+			finished := store.Handle(&Payload{Action: action, WaitFor: waitFor, Done: p.Done})
+			if finished {
 				close(p.Done)
 			}
 		}()

@@ -3,8 +3,6 @@ package flux_test
 import (
 	"testing"
 
-	"fmt"
-
 	"kego.io/editor/client/flux"
 	"kego.io/kerr/assert"
 )
@@ -43,8 +41,6 @@ type MessageStore struct {
 }
 
 func (m *MessageStore) Handle(payload *flux.Payload) (finished bool) {
-	fmt.Println("Handle message...")
-	defer fmt.Println("Done handle message...")
 	switch action := payload.Action.(type) {
 	case *AddTopicAction:
 		payload.WaitFor(store.topic)
@@ -78,11 +74,8 @@ type TopicStore struct {
 }
 
 func (m *TopicStore) Handle(payload *flux.Payload) (finished bool) {
-	fmt.Println("Handle topic...")
-	defer fmt.Println("Done handle topic...")
 	switch action := payload.Action.(type) {
 	case *AddTopicAction:
-		//payload.WaitFor(store.message)
 		m.topics = append(m.topics, action.Topic)
 	}
 	return true

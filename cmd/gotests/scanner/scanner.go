@@ -24,6 +24,7 @@ var baseDir string
 
 type Source struct {
 	Wraps            []ErrDef
+	Panics           []PosDef
 	ExcludedBlocks   []PosDef
 	ExcludedPackages map[string]bool
 	ExcludedFiles    map[string]bool
@@ -251,11 +252,20 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 	case *ast.CallExpr:
 		name := ""
 		pkg := ""
+		if i, ok := ob.Fun.(*ast.Ident); ok {
+			if i.Name == "panic" {
+				source.Panics = append(source.Panics, PosDef{
+					File: v.file,
+					Line: v.fset.Position(ob.Pos()).Line,
+				})
+			}
+		}
 		if f, ok := ob.Fun.(*ast.SelectorExpr); ok {
 			name = f.Sel.Name
 			if i, ok := f.X.(*ast.Ident); ok {
 				pkg = i.Name
 			}
+
 			if pkg == "" {
 				return v
 			}

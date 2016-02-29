@@ -3,7 +3,10 @@ package flux_test
 import (
 	"testing"
 
+	"fmt"
+
 	"kego.io/editor/client/flux"
+	"kego.io/kerr/assert"
 )
 
 var flights struct {
@@ -12,17 +15,55 @@ var flights struct {
 	price   *PriceStore
 }
 
+/*
+func TestLoop(t *testing.T) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovering...")
+			assert.Equal(t, "panic: *flux_test.CityStore and *flux_test.CountryStore are waiting for each other.", r)
+		}
+	}()
+
+	d := flux.NewDispatcher()
+	flights.country = &CountryStore{}
+	flights.city = &CityStore{}
+
+	d.Register(flights.country)
+	d.Register(flights.city)
+
+	//fmt.Println("Before loop...")
+	//d.Dispatch(Loop())
+	//fmt.Println("After loop...")
+
+}*/
+
 func TestFlights(t *testing.T) {
-	/*
-		d := flux.NewDispatcher()
-		store.message = NewMessageStore()
-		store.topic = NewTopicStore()
-		d.Register(store.message)
-		d.Register(store.topic)
-		d.Dispatch(AddMessage("a"))
-		m := store.message.GetMessages()
-		assert.Equal(t, []string{"a"}, m)
-	*/
+
+	d := flux.NewDispatcher()
+	flights.country = &CountryStore{}
+	flights.city = &CityStore{}
+	flights.price = &PriceStore{}
+
+	d.Register(flights.country)
+	d.Register(flights.city)
+	d.Register(flights.price)
+
+	d.Dispatch(UpdateCountry("France"))
+
+	assert.Equal(t, "France", flights.country.GetCountry())
+	assert.Equal(t, "Paris", flights.city.GetCity())
+	assert.Equal(t, "€100", flights.price.GetPrice())
+}
+
+type LoopAction struct {
+	*flux.Action
+}
+
+func Loop() *LoopAction {
+	return &LoopAction{
+		Action: &flux.Action{},
+	}
 }
 
 type UpdateCityAction struct {
@@ -45,8 +86,23 @@ func (m *CityStore) Handle(payload *flux.Payload) (finished bool) {
 	switch action := payload.Action.(type) {
 	case *UpdateCityAction:
 		m.city = action.City
+	case *UpdateCountryAction:
+		payload.WaitFor(flights.country)
+		m.city = getCapital(flights.country.GetCountry())
+	case *LoopAction:
+		payload.WaitFor(flights.country)
 	}
 	return true
+}
+
+func getCapital(country string) string {
+	switch country {
+	case "UK":
+		return "London"
+	case "France":
+		return "Paris"
+	}
+	return fmt.Sprint("Capital of ", country)
 }
 
 func (m *CityStore) GetCity() string {
@@ -72,8 +128,9 @@ type CountryStore struct {
 func (m *CountryStore) Handle(payload *flux.Payload) (finished bool) {
 	switch action := payload.Action.(type) {
 	case *UpdateCountryAction:
-		//payload.WaitFor(flights.price)
 		m.country = action.Country
+	case *LoopAction:
+		payload.WaitFor(flights.city)
 	}
 	return true
 }
@@ -82,31 +139,29 @@ func (m *CountryStore) GetCountry() string {
 	return m.country
 }
 
-type UpdatePriceAction struct {
-	*flux.Action
-	Price string
-}
-
-func UpdatePrice(price string) *UpdatePriceAction {
-	return &UpdatePriceAction{
-		Action: &flux.Action{},
-		Price:  price,
-	}
-}
-
 type PriceStore struct {
 	price string
 }
 
 func (m *PriceStore) Handle(payload *flux.Payload) (finished bool) {
-	switch action := payload.Action.(type) {
-	case *UpdatePriceAction:
-		payload.WaitFor(flights.city, flights.country)
-		m.price = action.Price
+	switch payload.Action.(type) {
+	case *UpdateCountryAction, *UpdateCityAction:
+		payload.WaitFor(flights.city)
+		m.price = calculatePrice(flights.country.GetCountry(), flights.city.GetCity())
 	}
 	return true
 }
 
 func (m *PriceStore) GetPrice() string {
 	return m.price
+}
+
+func calculatePrice(country string, city string) string {
+	switch country {
+	case "UK":
+		return "£100"
+	case "France":
+		return "€100"
+	}
+	return "$100"
 }

@@ -1,13 +1,10 @@
 package progress // import "kego.io/editor/client/flux/progress"
 
-import (
-	"fmt"
-	"sync"
-)
+import "sync"
 
 type Info struct {
-	state       state
 	Done        chan struct{}
+	state       state
 	m           sync.Mutex
 	subscribers []chan struct{}
 }
@@ -19,7 +16,7 @@ func New() *Info {
 	}
 	go func() {
 		<-p.Done
-		// we don't want the notify function to run at the same time as this function, so we use a
+		// We don't want the notify function to run at the same time as this function, so we use a
 		// mutex
 		p.m.Lock()
 		defer p.m.Unlock()
@@ -41,11 +38,10 @@ func (p *Info) Notify() chan struct{} {
 	defer p.m.Unlock()
 	n := make(chan struct{}, 1)
 	if p.state == finished {
-		fmt.Println("Notify called... state is already closed, so closing now.")
+		// state is already finished, so we close the channel before returning
 		close(n)
 		return n
 	}
-	fmt.Println("Notify called... adding sub.")
 	p.subscribers = append(p.subscribers, n)
 	return n
 }
