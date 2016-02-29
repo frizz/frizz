@@ -43,11 +43,6 @@ var window dom.Window
 var doc dom.HTMLDocument
 var body *dom.HTMLBodyElement
 
-type Info struct {
-	*js.Object
-	Foo string
-}
-
 func Start() error {
 
 	// We parse the json info attribute from the body tag
@@ -65,18 +60,8 @@ func Start() error {
 	app.ctx = sysctx.NewContext(app.ctx)
 	app.ctx = jsonctx.AutoContext(app.ctx)
 
-	scache := sysctx.FromContext(app.ctx)
-
-	system.RegisterJsonTypes(app.ctx)
-
-	for _, info := range info.Imports {
-		env := &envctx.Env{Path: info.Path, Aliases: info.Aliases}
-		pcache := scache.SetEnv(env)
-		for _, typeBytes := range info.Types {
-			if err := parser.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
-				return kerr.Wrap("UJLXYWCVUC", err)
-			}
-		}
+	if err := registerTypes(app.ctx, info.Imports); err != nil {
+		return kerr.Wrap("MMJDDOBAUK", err)
 	}
 
 	pcache, ok := scache.Get(app.env.Path)
@@ -149,6 +134,20 @@ func StartOld() error {
 		app.spinner.Style().Set("display", "none")
 	*/
 	return nil
+}
+
+func registerTypes(ctx context.Context, imports map[string]*shared.ImportInfo) error {
+	system.RegisterJsonTypes(ctx)
+	scache := sysctx.FromContext(app.ctx)
+	for _, info := range imports {
+		env := &envctx.Env{Path: info.Path, Aliases: info.Aliases}
+		pcache := scache.SetEnv(env)
+		for _, typeBytes := range info.Types {
+			if err := parser.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
+				return kerr.Wrap("UJLXYWCVUC", err)
+			}
+		}
+	}
 }
 
 func getInfo() (info shared.Info, err error) {
