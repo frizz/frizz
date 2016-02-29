@@ -39,7 +39,6 @@ func TestLoop(t *testing.T) {
 }*/
 
 func TestFlights(t *testing.T) {
-
 	d := flux.NewDispatcher()
 	flights.country = &CountryStore{}
 	flights.city = &CityStore{}

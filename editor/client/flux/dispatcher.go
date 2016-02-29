@@ -1,5 +1,7 @@
 package flux
 
+// ke: {"package": {"complete": true}}
+
 import (
 	"fmt"
 	"sync"
@@ -51,7 +53,6 @@ func (d *Dispatcher) Dispatch(action ActionInterface) {
 			loop.FinishedWait(store)
 		}
 		go func() {
-			p.Start()
 			finished := store.Handle(&Payload{Action: action, WaitFor: waitFor, Done: p.Done})
 			if finished {
 				close(p.Done)

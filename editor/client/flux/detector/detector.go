@@ -1,5 +1,7 @@
 package detector // import "kego.io/editor/client/flux/detector"
 
+// ke: {"package": {"complete": true}}
+
 import "sync"
 
 type Store interface{}
@@ -28,8 +30,8 @@ func (w *detector) RequestWait(store Store, waitFor ...Store) (loopFound bool, l
 	var isWaiting func(s1, s2 Store) bool
 	isWaiting = func(s1, s2 Store) bool {
 		w.m.RLock()
-		defer w.m.RUnlock()
 		waits, ok := w.waiting[s1]
+		w.m.RUnlock()
 		if !ok {
 			return false
 		}

@@ -12,10 +12,7 @@ import (
 
 func TestProgress(t *testing.T) {
 	p := New()
-	assert.Equal(t, starting, p.state)
-
-	p.Start()
-	assert.Equal(t, running, p.state)
+	assert.False(t, p.finished)
 
 	wg1 := &sync.WaitGroup{}
 	wg1.Add(2)
@@ -30,16 +27,16 @@ func TestProgress(t *testing.T) {
 		wg1.Done()
 		<-p.Notify()
 		waitWithTimeout(t, wg2)
-		wg4.Done()
 		a = true
+		wg4.Done()
 	}()
 	b := false
 	go func() {
 		wg1.Done()
 		<-p.Notify()
 		waitWithTimeout(t, wg3)
-		wg4.Done()
 		b = true
+		wg4.Done()
 	}()
 
 	waitWithTimeout(t, wg1)
@@ -51,7 +48,7 @@ func TestProgress(t *testing.T) {
 
 	waitWithTimeout(t, wg4)
 
-	assert.Equal(t, finished, p.state)
+	assert.True(t, p.finished)
 
 	assert.True(t, a)
 	assert.True(t, b)
