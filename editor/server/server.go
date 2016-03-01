@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 
 	"golang.org/x/net/websocket"
@@ -347,11 +346,12 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		Imports: imports,
 	}
 	buf := bytes.NewBuffer([]byte{})
-	encoder := base64.NewEncoder(base64.StdEncoding, buf)
-	err = gob.NewEncoder(encoder).Encode(info)
+	err = gob.NewEncoder(buf).Encode(info)
 	if err != nil {
 		return kerr.Wrap("OHBYTULHUQ", err)
 	}
+	base64EncodedString := base64.StdEncoding.EncodeToString(buf.Bytes())
+	attrib := base64EncodedString
 
 	source := []byte(`
 		<html>
@@ -365,7 +365,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 				<script src="/bootstrap/js/bootstrap.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
-			<body id="body" info="` + url.QueryEscape(buf.String()) + `"></body>
+			<body id="body" info="` + attrib + `"></body>
 			<script src="script.js"></script>
 		</html>`)
 

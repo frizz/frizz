@@ -3,12 +3,11 @@ package client // import "kego.io/editor/client"
 // ke: {"package": {"jstest": true}}
 
 import (
+	"bytes"
 	"net/rpc"
-	"net/url"
 
 	"fmt"
 
-	"bytes"
 	"encoding/gob"
 
 	"encoding/base64"
@@ -60,14 +59,11 @@ func Start() error {
 	app.ctx = sysctx.NewContext(app.ctx)
 	app.ctx = jsonctx.AutoContext(app.ctx)
 
-	if err := registerTypes(app.ctx, info.Imports); err != nil {
+	pcache, err := registerTypes(app.ctx, app.env.Path, info.Imports)
+	if err != nil {
 		return kerr.Wrap("MMJDDOBAUK", err)
 	}
 
-	pcache, ok := scache.Get(app.env.Path)
-	if !ok {
-		return kerr.New("SRPHQPBBRX", "%s not found in sys ctx", app.env.Path)
-	}
 	types := map[string][]byte{}
 	for _, name := range pcache.Files.Keys() {
 		if b, ok := pcache.Files.Get(name); ok {
@@ -136,31 +132,36 @@ func StartOld() error {
 	return nil
 }
 
-func registerTypes(ctx context.Context, imports map[string]*shared.ImportInfo) error {
+func registerTypes(ctx context.Context, path string, imports map[string]*shared.ImportInfo) (*sysctx.SysPackageInfo, error) {
 	system.RegisterJsonTypes(ctx)
-	scache := sysctx.FromContext(app.ctx)
+	scache := sysctx.FromContext(ctx)
+	var current *sysctx.SysPackageInfo
 	for _, info := range imports {
 		env := &envctx.Env{Path: info.Path, Aliases: info.Aliases}
 		pcache := scache.SetEnv(env)
 		for _, typeBytes := range info.Types {
-			if err := parser.ProcessTypeSourceBytes(app.ctx, env, typeBytes, pcache, nil); err != nil {
-				return kerr.Wrap("UJLXYWCVUC", err)
+			if err := parser.ProcessTypeSourceBytes(ctx, env, typeBytes, pcache, nil); err != nil {
+				return nil, kerr.Wrap("UJLXYWCVUC", err)
 			}
 		}
+		if path == info.Path {
+			current = pcache
+		}
 	}
+	return current, nil
 }
 
 func getInfo() (info shared.Info, err error) {
 	window = dom.GetWindow()
 	doc = window.Document().(dom.HTMLDocument)
 	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
-	infoBase64, err := url.QueryUnescape(body.GetAttribute("info"))
+	infoBase64 := body.GetAttribute("info")
+	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
 	if err != nil {
-		return shared.Info{}, kerr.Wrap("CENGCYKHHP", err)
+		return shared.Info{}, kerr.Wrap("UTKDDLYKKH", err)
 	}
-	buf := bytes.NewBuffer([]byte(infoBase64))
-	decoder := base64.NewDecoder(base64.StdEncoding, buf)
-	if err := gob.NewDecoder(decoder).Decode(&info); err != nil {
+	buf := bytes.NewBuffer(infoBytes)
+	if err := gob.NewDecoder(buf).Decode(&info); err != nil {
 		return shared.Info{}, kerr.Wrap("AAFXLQRUEW", err)
 	}
 	return info, nil
