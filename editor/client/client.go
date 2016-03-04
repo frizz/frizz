@@ -152,9 +152,10 @@ func registerTypes(ctx context.Context, path string, imports map[string]*shared.
 }
 
 func getInfo() (info shared.Info, err error) {
-	window = dom.GetWindow()
-	doc = window.Document().(dom.HTMLDocument)
-	body = doc.GetElementByID("body").(*dom.HTMLBodyElement)
+	body = dom.
+		GetWindow().
+		Document().(dom.HTMLDocument).
+		GetElementByID("body").(*dom.HTMLBodyElement)
 	infoBase64 := body.GetAttribute("info")
 	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
 	if err != nil {

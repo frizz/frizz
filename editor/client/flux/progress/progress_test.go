@@ -25,7 +25,7 @@ func TestProgress(t *testing.T) {
 	a := false
 	go func() {
 		wg1.Done()
-		<-p.Notify()
+		<-p.Finished()
 		waitWithTimeout(t, wg2)
 		a = true
 		wg4.Done()
@@ -33,7 +33,7 @@ func TestProgress(t *testing.T) {
 	b := false
 	go func() {
 		wg1.Done()
-		<-p.Notify()
+		<-p.Finished()
 		waitWithTimeout(t, wg3)
 		b = true
 		wg4.Done()
@@ -57,7 +57,7 @@ func TestProgress(t *testing.T) {
 	wg5.Add(1)
 	c := false
 	go func() {
-		<-p.Notify()
+		<-p.Finished()
 		wg5.Done()
 		c = true
 	}()

@@ -29,7 +29,7 @@ func New() *Info {
 	return i
 }
 
-func (i *Info) Notify() chan struct{} {
+func (i *Info) Finished() chan struct{} {
 	// we don't want the done action to run at the same time as this function, so we use a mutex
 	i.m.Lock()
 	defer i.m.Unlock()

@@ -7,45 +7,41 @@ import (
 	"kego.io/kerr/assert"
 )
 
-var store struct {
-	message *MessageStore
-	topic   *TopicStore
+type App struct {
+	Dispatcher *flux.Dispatcher
+	Messages   *MessageStore
+	Topics     *TopicStore
 }
 
 func TestDispatcher(t *testing.T) {
-	d := flux.NewDispatcher()
-	store.message = &MessageStore{}
-	store.topic = &TopicStore{}
-	d.Register(store.message)
-	d.Register(store.topic)
-	d.Dispatch(AddMessage("a"))
-	d.Dispatch(AddTopic("b", "c"))
-	m := store.message.GetMessages()
-	assert.Equal(t, []string{"a", "c"}, m)
+
+	a := &App{}
+	a.Messages = &MessageStore{Store: &flux.Store{}}
+	a.Topics = &TopicStore{Store: &flux.Store{}}
+	a.Dispatcher = flux.NewDispatcher(a.Messages, a.Topics)
+
+	a.Dispatcher.Dispatch(&AddMessage{Message: "a"})
+	a.Dispatcher.Dispatch(&AddTopic{Topic: "b", Message: "c"})
+	msg := a.Messages.GetMessages()
+	assert.Equal(t, []string{"a", "c"}, msg)
 }
 
-type AddMessageAction struct {
-	*flux.Action
+type AddMessage struct {
+	flux.Action
 	Message string
 }
 
-func AddMessage(message string) *AddMessageAction {
-	return &AddMessageAction{
-		Action:  &flux.Action{},
-		Message: message,
-	}
-}
-
 type MessageStore struct {
+	*flux.Store
 	messages []string
 }
 
 func (m *MessageStore) Handle(payload *flux.Payload) (finished bool) {
 	switch action := payload.Action.(type) {
-	case *AddTopicAction:
-		payload.WaitFor(store.topic)
+	case *AddTopic:
+		payload.WaitFor(m.app.Topics)
 		m.messages = append(m.messages, action.Message)
-	case *AddMessageAction:
+	case *AddMessage:
 		m.messages = append(m.messages, action.Message)
 	}
 	return true
@@ -55,27 +51,20 @@ func (m *MessageStore) GetMessages() []string {
 	return m.messages
 }
 
-type AddTopicAction struct {
-	*flux.Action
+type AddTopic struct {
 	Topic   string
 	Message string
 }
 
-func AddTopic(topic string, message string) *AddTopicAction {
-	return &AddTopicAction{
-		Action:  &flux.Action{},
-		Topic:   topic,
-		Message: message,
-	}
-}
-
 type TopicStore struct {
+	*flux.Store
+	app    *App
 	topics []string
 }
 
 func (m *TopicStore) Handle(payload *flux.Payload) (finished bool) {
 	switch action := payload.Action.(type) {
-	case *AddTopicAction:
+	case *AddTopic:
 		m.topics = append(m.topics, action.Topic)
 	}
 	return true

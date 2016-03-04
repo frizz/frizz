@@ -4,20 +4,18 @@ package detector // import "kego.io/editor/client/flux/detector"
 
 import "sync"
 
-type Store interface{}
-
 func New() *detector {
 	return &detector{
-		waiting: map[Store][]Store{},
+		waiting: map[interface{}][]interface{}{},
 	}
 }
 
 type detector struct {
 	m       sync.RWMutex
-	waiting map[Store][]Store
+	waiting map[interface{}][]interface{}
 }
 
-func (w *detector) FinishedWait(store Store) {
+func (w *detector) FinishedWait(store interface{}) {
 	w.m.Lock()
 	defer w.m.Unlock()
 	if _, ok := w.waiting[store]; ok {
@@ -25,10 +23,10 @@ func (w *detector) FinishedWait(store Store) {
 	}
 }
 
-func (w *detector) RequestWait(store Store, waitFor ...Store) (loopFound bool, loopStore Store) {
+func (w *detector) RequestWait(store interface{}, waitFor ...interface{}) (loopFound bool, loopStore interface{}) {
 	// returns true if s1 is waiting for s2
-	var isWaiting func(s1, s2 Store) bool
-	isWaiting = func(s1, s2 Store) bool {
+	var isWaiting func(s1, s2 interface{}) bool
+	isWaiting = func(s1, s2 interface{}) bool {
 		w.m.RLock()
 		waits, ok := w.waiting[s1]
 		w.m.RUnlock()

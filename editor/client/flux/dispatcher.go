@@ -15,8 +15,12 @@ type Dispatcher struct {
 	stores      []StoreInterface
 }
 
-func NewDispatcher() *Dispatcher {
-	return &Dispatcher{}
+func NewDispatcher(stores ...StoreInterface) *Dispatcher {
+	d := &Dispatcher{}
+	for _, s := range stores {
+		d.Register(s)
+	}
+	return d
 }
 
 func (d *Dispatcher) Register(store StoreInterface) {
@@ -44,11 +48,15 @@ func (d *Dispatcher) Dispatch(action ActionInterface) {
 		waitFor := func(stores ...StoreInterface) {
 			// First check to see if any of the stores we want to wait for are waiting for this one.
 			// That would be a deadlock.
-			if found, loopStore := loop.RequestWait(store, convertStores(stores)...); found {
+			ifaces := make([]interface{}, len(stores))
+			for i := range stores {
+				ifaces[i] = stores[i]
+			}
+			if found, loopStore := loop.RequestWait(store, ifaces...); found {
 				panic(fmt.Errorf("%T and %T are waiting for each other.", store, loopStore))
 			}
 			for _, s := range stores {
-				<-info[s].Notify()
+				<-info[s].Finished()
 			}
 			loop.FinishedWait(store)
 		}
@@ -59,23 +67,9 @@ func (d *Dispatcher) Dispatch(action ActionInterface) {
 			}
 		}()
 		go func() {
-			<-p.Notify()
+			<-p.Finished()
 			wg.Done()
 		}()
 	}
 	wg.Wait()
-}
-
-type Payload struct {
-	Action  ActionInterface
-	WaitFor func(stores ...StoreInterface)
-	Done    chan struct{}
-}
-
-func convertStores(stores []StoreInterface) []detector.Store {
-	d := []detector.Store{}
-	for _, s := range stores {
-		d = append(d, s.(detector.Store))
-	}
-	return d
 }

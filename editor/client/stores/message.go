@@ -6,6 +6,7 @@ import (
 )
 
 type MessageStore struct {
+	*flux.Store
 	messages []string
 }
 

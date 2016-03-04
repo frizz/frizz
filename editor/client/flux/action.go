@@ -1,10 +1,11 @@
 package flux
 
-import "reflect"
+type ActionInterface interface{}
 
-type ActionInterface interface {
-}
+type Action struct{}
 
-type Action struct {
-	waiting map[reflect.Type]bool
+type Payload struct {
+	Action  ActionInterface
+	WaitFor func(stores ...StoreInterface)
+	Done    chan struct{}
 }
