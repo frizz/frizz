@@ -27,7 +27,6 @@ func TestDispatcher(t *testing.T) {
 }
 
 type AddMessage struct {
-	flux.Action
 	Message string
 }
 

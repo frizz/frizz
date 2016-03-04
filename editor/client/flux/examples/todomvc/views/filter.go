@@ -34,9 +34,11 @@ func (b *FilterButton) Apply(element *vecty.Element) {
 	element.AddChild(b)
 }
 
-func (b *FilterButton) Reconcile(oldComp vecty.Component) {
-	if oldComp, ok := oldComp.(*FilterButton); ok {
-		b.Body = oldComp.Body
+func (b *FilterButton) Reconcile(old vecty.Component) {
+	if old, ok := old.(*FilterButton); ok {
+		b.Body = old.Body
+		b.Label = old.Label
+		b.Filter = old.Filter
 	}
 	b.RenderFunc = b.render
 	b.ReconcileBody()

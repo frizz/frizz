@@ -1,15 +1,5 @@
 package actions
 
-import "kego.io/editor/client/flux"
-
-type NewMessageAction struct {
-	*flux.Action
+type NewMessage struct {
 	Message string
-}
-
-func NewMessage(message string) *NewMessageAction {
-	return &NewMessageAction{
-		Action:  &flux.Action{},
-		Message: message,
-	}
 }

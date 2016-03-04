@@ -21,14 +21,17 @@ import (
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
 	"kego.io/editor"
-	"kego.io/editor/client/components"
 	"kego.io/editor/client/connection"
+	"kego.io/editor/client/flux"
+	"kego.io/editor/client/stores"
+	"kego.io/editor/client/views"
 	"kego.io/editor/shared"
 	"kego.io/kerr"
 	"kego.io/process/parser"
 	"kego.io/system"
 )
 
+/*
 type appData struct {
 	fail    chan error
 	spinner *dom.HTMLDivElement
@@ -38,11 +41,14 @@ type appData struct {
 }
 
 var app appData
-var window dom.Window
-var doc dom.HTMLDocument
-var body *dom.HTMLBodyElement
+*/
 
 func Start() error {
+
+	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", dom.GetWindow().Location().Hostname, dom.GetWindow().Location().Port))
+	if err != nil {
+		return kerr.Wrap("HNQFLPFAJD", err)
+	}
 
 	// We parse the json info attribute from the body tag
 	info, err := getInfo()
@@ -50,16 +56,26 @@ func Start() error {
 		return kerr.Wrap("MGLVIQIDDY", err)
 	}
 
-	app.env = &envctx.Env{
+	env := &envctx.Env{
 		Path:    info.Path,
 		Aliases: info.Aliases,
 	}
-	app.fail = make(chan error)
-	app.ctx = envctx.NewContext(context.Background(), app.env)
-	app.ctx = sysctx.NewContext(app.ctx)
-	app.ctx = jsonctx.AutoContext(app.ctx)
+	app := &stores.App{
+		Conn: connection.New(rpc.NewClient(ws)),
+		Fail: make(chan error),
+	}
 
-	pcache, err := registerTypes(app.ctx, app.env.Path, info.Imports)
+	var ctx context.Context
+	ctx = context.Background()
+	ctx = envctx.NewContext(ctx, env)
+	ctx = sysctx.NewContext(ctx)
+	ctx = jsonctx.AutoContext(ctx)
+	ctx = stores.NewContext(ctx, app)
+
+	app.Messages = stores.NewMessageStore(ctx)
+	app.Dispatcher = flux.NewDispatcher(app.Messages)
+
+	pcache, err := registerTypes(ctx, env.Path, info.Imports)
 	if err != nil {
 		return kerr.Wrap("MMJDDOBAUK", err)
 	}
@@ -71,22 +87,12 @@ func Start() error {
 		}
 	}
 
-	packageNode, err := editor.UnmarshalNode(app.ctx, []byte(info.Package))
+	pkg, err := editor.UnmarshalNode(ctx, []byte(info.Package))
 	if err != nil {
 		return kerr.Wrap("KXIKEWOKJI", err)
 	}
 
-	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", window.Location().Hostname, window.Location().Port))
-	if err != nil {
-		return kerr.Wrap("HNQFLPFAJD", err)
-	}
-
-	app.conn = connection.New(rpc.NewClient(ws))
-
-	p := &components.PageView{
-		Environment: app.env,
-		Package:     packageNode,
-	}
+	p := views.NewPage(ctx, env, pkg)
 	vecty.RenderAsBody(p)
 	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
 	return nil
@@ -152,11 +158,11 @@ func registerTypes(ctx context.Context, path string, imports map[string]*shared.
 }
 
 func getInfo() (info shared.Info, err error) {
-	body = dom.
+	infoBase64 := dom.
 		GetWindow().
 		Document().(dom.HTMLDocument).
-		GetElementByID("body").(*dom.HTMLBodyElement)
-	infoBase64 := body.GetAttribute("info")
+		GetElementByID("body").(*dom.HTMLBodyElement).
+		GetAttribute("info")
 	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
 	if err != nil {
 		return shared.Info{}, kerr.Wrap("UTKDDLYKKH", err)

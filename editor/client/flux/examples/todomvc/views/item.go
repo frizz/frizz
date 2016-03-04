@@ -36,11 +36,13 @@ func (p *ItemView) Apply(element *vecty.Element) {
 	element.AddChild(p)
 }
 
-func (p *ItemView) Reconcile(oldComp vecty.Component) {
-	if oldComp, ok := oldComp.(*ItemView); ok {
-		p.Body = oldComp.Body
-		p.editing = oldComp.editing
-		p.editTitle = oldComp.editTitle
+func (p *ItemView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*ItemView); ok {
+		p.Body = old.Body
+		p.Index = old.Index
+		p.Item = old.Item
+		p.editing = old.editing
+		p.editTitle = old.editTitle
 	}
 	p.RenderFunc = p.render
 	p.ReconcileBody()

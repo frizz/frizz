@@ -41,6 +41,21 @@ func NewPageView(ctx context.Context) *PageView {
 	return p
 }
 
+// Apply implements the vecty.Markup interface.
+func (p *PageView) Apply(element *vecty.Element) {
+	element.AddChild(p)
+}
+
+func (p *PageView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*PageView); ok {
+		p.Body = old.Body
+		p.Items = old.Items
+		p.newItemTitle = old.newItemTitle
+	}
+	p.RenderFunc = p.render
+	p.ReconcileBody()
+}
+
 func (p *PageView) onNewItemTitleInput(event *vecty.Event) {
 	p.newItemTitle = event.Target.Get("value").String()
 	p.ReconcileBody()
@@ -200,18 +215,4 @@ func (p *PageView) renderItemList() vecty.Component {
 			items,
 		),
 	)
-}
-
-// Apply implements the vecty.Markup interface.
-func (p *PageView) Apply(element *vecty.Element) {
-	element.AddChild(p)
-}
-
-func (p *PageView) Reconcile(oldComp vecty.Component) {
-	if oldComp, ok := oldComp.(*PageView); ok {
-		p.Body = oldComp.Body
-		p.newItemTitle = oldComp.newItemTitle
-	}
-	p.RenderFunc = p.render
-	p.ReconcileBody()
 }
