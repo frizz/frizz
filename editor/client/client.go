@@ -20,7 +20,7 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
-	"kego.io/editor"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/connection"
 	"kego.io/editor/client/flux"
 	"kego.io/editor/client/stores"
@@ -72,8 +72,8 @@ func Start() error {
 	ctx = jsonctx.AutoContext(ctx)
 	ctx = stores.NewContext(ctx, app)
 
-	app.Messages = stores.NewMessageStore(ctx)
-	app.Dispatcher = flux.NewDispatcher(app.Messages)
+	app.Nodes = stores.NewNodeStore(ctx)
+	app.Dispatcher = flux.NewDispatcher(app.Nodes)
 
 	pcache, err := registerTypes(ctx, env.Path, info.Imports)
 	if err != nil {
@@ -87,14 +87,17 @@ func Start() error {
 		}
 	}
 
-	pkg, err := editor.UnmarshalNode(ctx, []byte(info.Package))
-	if err != nil {
-		return kerr.Wrap("KXIKEWOKJI", err)
-	}
-
-	p := views.NewPage(ctx, env, pkg)
+	p := views.NewPage(ctx, env)
 	vecty.RenderAsBody(p)
+
+	// TODO: work out why I can't seem to call this without using eval
 	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
+
+	go func() {
+		app.Dispatcher.Dispatch(&actions.InitialState{
+			Info: info,
+		})
+	}()
 	return nil
 }
 func StartOld() error {
@@ -157,7 +160,8 @@ func registerTypes(ctx context.Context, path string, imports map[string]*shared.
 	return current, nil
 }
 
-func getInfo() (info shared.Info, err error) {
+func getInfo() (info *shared.Info, err error) {
+	info = &shared.Info{}
 	infoBase64 := dom.
 		GetWindow().
 		Document().(dom.HTMLDocument).
@@ -165,11 +169,11 @@ func getInfo() (info shared.Info, err error) {
 		GetAttribute("info")
 	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
 	if err != nil {
-		return shared.Info{}, kerr.Wrap("UTKDDLYKKH", err)
+		return nil, kerr.Wrap("UTKDDLYKKH", err)
 	}
 	buf := bytes.NewBuffer(infoBytes)
-	if err := gob.NewDecoder(buf).Decode(&info); err != nil {
-		return shared.Info{}, kerr.Wrap("AAFXLQRUEW", err)
+	if err := gob.NewDecoder(buf).Decode(info); err != nil {
+		return nil, kerr.Wrap("AAFXLQRUEW", err)
 	}
 	return info, nil
 }

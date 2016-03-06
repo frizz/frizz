@@ -360,6 +360,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 				<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 				<link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.min.css">
 				<link rel="stylesheet" href="/split.css">
+				<link rel="stylesheet" href="/tree.css">
 				<script src="/jquery-2.2.1.min.js"></script>
 				<script src="/split.min.js"></script>
 				<script src="/bootstrap/js/bootstrap.min.js"></script>

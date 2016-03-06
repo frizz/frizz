@@ -9,7 +9,7 @@ import (
 
 type App struct {
 	Dispatcher *flux.Dispatcher
-	Messages   *MessageStore
+	Nodes      *NodeStore
 	Fail       chan error
 	Conn       *connection.Conn
 }

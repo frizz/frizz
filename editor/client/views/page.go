@@ -16,16 +16,24 @@ type Page struct {
 	app *stores.App
 
 	Environment *envctx.Env
-	Package     *editor.Node
+	Root        *editor.Node
 }
 
-func NewPage(ctx context.Context, env *envctx.Env, pkg *editor.Node) *Page {
-	return &Page{
+func NewPage(ctx context.Context, env *envctx.Env) *Page {
+	p := &Page{
 		ctx:         ctx,
 		app:         stores.FromContext(ctx),
 		Environment: env,
-		Package:     pkg,
 	}
+
+	go func() {
+		for _ = range p.app.Nodes.Changed() {
+			p.Root = p.app.Nodes.Root()
+			p.ReconcileBody()
+		}
+	}()
+
+	return p
 }
 
 // Apply implements the vecty.Markup interface.
@@ -37,7 +45,7 @@ func (p *Page) Reconcile(old vecty.Component) {
 	if old, ok := old.(*Page); ok {
 		p.Body = old.Body
 		p.Environment = old.Environment
-		p.Package = old.Package
+		p.Root = old.Root
 	}
 	p.RenderFunc = p.render
 	p.ReconcileBody()
@@ -54,7 +62,16 @@ func (p *Page) render() vecty.Component {
 				prop.Class("split split-horizontal"),
 				elem.Div(
 					prop.Class("content"),
-					vecty.Text("Sidebar"),
+					vecty.If(
+						p.Root != nil,
+						elem.Div(
+							prop.Class("node root"),
+							elem.Div(
+								prop.Class("children"),
+								NewBranch(p.ctx, p.Root),
+							),
+						),
+					),
 				),
 			),
 			elem.Div(
