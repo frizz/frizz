@@ -2,17 +2,8 @@ package stores
 
 import (
 	"golang.org/x/net/context"
-	"kego.io/editor/client/connection"
-	"kego.io/editor/client/flux"
 	"kego.io/kerr"
 )
-
-type App struct {
-	Dispatcher *flux.Dispatcher
-	Nodes      *NodeStore
-	Fail       chan error
-	Conn       *connection.Conn
-}
 
 type ctxKeyType int
 

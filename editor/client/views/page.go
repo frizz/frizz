@@ -6,8 +6,8 @@ import (
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/prop"
 	"kego.io/context/envctx"
-	"kego.io/editor"
 	"kego.io/editor/client/stores"
+	"kego.io/system/node"
 )
 
 type Page struct {
@@ -16,7 +16,7 @@ type Page struct {
 	app *stores.App
 
 	Environment *envctx.Env
-	Root        *editor.Node
+	Root        *node.Node
 }
 
 func NewPage(ctx context.Context, env *envctx.Env) *Page {
@@ -27,8 +27,8 @@ func NewPage(ctx context.Context, env *envctx.Env) *Page {
 	}
 
 	go func() {
-		for _ = range p.app.Nodes.Changed() {
-			p.Root = p.app.Nodes.Root()
+		for range p.app.Branches.Changed() {
+			p.Root = p.app.Nodes.Get()
 			p.ReconcileBody()
 		}
 	}()
@@ -64,13 +64,7 @@ func (p *Page) render() vecty.Component {
 					prop.Class("content"),
 					vecty.If(
 						p.Root != nil,
-						elem.Div(
-							prop.Class("node root"),
-							elem.Div(
-								prop.Class("children"),
-								NewBranch(p.ctx, p.Root),
-							),
-						),
+						NewBranchView(p.ctx, p.Root),
 					),
 				),
 			),

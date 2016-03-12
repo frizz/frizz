@@ -22,7 +22,7 @@ import (
 	"kego.io/context/sysctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/connection"
-	"kego.io/editor/client/flux"
+	"kego.io/editor/client/console"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/client/views"
 	"kego.io/editor/shared"
@@ -72,8 +72,7 @@ func Start() error {
 	ctx = jsonctx.AutoContext(ctx)
 	ctx = stores.NewContext(ctx, app)
 
-	app.Nodes = stores.NewNodeStore(ctx)
-	app.Dispatcher = flux.NewDispatcher(app.Nodes)
+	app.Init(ctx)
 
 	pcache, err := registerTypes(ctx, env.Path, info.Imports)
 	if err != nil {
@@ -98,6 +97,18 @@ func Start() error {
 			Info: info,
 		})
 	}()
+
+	go func() {
+		err, open := <-app.Fail
+		if !open {
+			// Channel has been closed, so app should gracefully exit.
+			console.Error("Server disconnected")
+		} else {
+			// Error received, so app should display error.
+			console.Error(err.Error())
+		}
+	}()
+
 	return nil
 }
 func StartOld() error {

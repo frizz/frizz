@@ -1,50 +1,65 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/event"
 	"github.com/gopherjs/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor"
+	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/system/node"
 )
 
-type Branch struct {
+type BranchView struct {
 	vecty.Composite
 	ctx context.Context
 	app *stores.App
 
-	node *editor.Node
+	node   *node.Node
+	branch *models.BranchModel
 }
 
-func NewBranch(ctx context.Context, node *editor.Node) *Branch {
-	if node == nil {
-		return nil
-	}
-	return &Branch{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
-	}
-}
-
-// Apply implements the vecty.Markup interface.
-func (b *Branch) Apply(element *vecty.Element) {
-	element.AddChild(b)
-}
-
-func (b *Branch) Reconcile(old vecty.Component) {
-	if old, ok := old.(*Branch); ok {
+func (b *BranchView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*BranchView); ok {
 		b.Body = old.Body
 		b.node = old.node
+		b.branch = old.branch
 	}
 	b.RenderFunc = b.render
 	b.ReconcileBody()
 }
 
-func (b *Branch) toggleClick(*vecty.Event) {
-	// dispatch
+func NewBranchView(ctx context.Context, node *node.Node) *BranchView {
+	if node == nil {
+		return nil
+	}
+	app := stores.FromContext(ctx)
+	b := &BranchView{
+		ctx:    ctx,
+		app:    app,
+		node:   node,
+		branch: app.Branches.Get(node),
+	}
+	return b
+}
+
+// Apply implements the vecty.Markup interface.
+func (b *BranchView) Apply(element *vecty.Element) {
+	element.AddChild(b)
+}
+
+func (b *BranchView) toggleClick(*vecty.Event) {
+	go func() {
+		if b.branch.CanOpen() {
+			b.app.Dispatcher.Dispatch(&actions.ToggleNode{Node: b.node})
+		} else {
+			b.app.Dispatcher.Dispatch(&actions.SelectNode{Node: b.node})
+		}
+	}()
 	/*
 		if b.canOpen() {
 			b.toggle()
@@ -54,27 +69,47 @@ func (b *Branch) toggleClick(*vecty.Event) {
 	*/
 }
 
-func (b *Branch) selectClick(*vecty.Event) {
-	// dispatch
+func (b *BranchView) selectClick(*vecty.Event) {
+	go func() {
+		b.app.Dispatcher.Dispatch(&actions.SelectNode{Node: b.node})
+	}()
 	/*
 		b.Select(false)
 	*/
 }
 
-func (b *Branch) render() vecty.Component {
+func (b *BranchView) render() vecty.Component {
+
+	if b.branch == nil {
+		return elem.Div()
+	}
 
 	var childern vecty.List
 	for _, c := range b.node.Map {
-		childern = append(childern, NewBranch(b.ctx, c.(*editor.Node)))
+		childern = append(childern, NewBranchView(b.ctx, c.(*node.Node)))
 	}
 	for _, c := range b.node.Array {
-		childern = append(childern, NewBranch(b.ctx, c.(*editor.Node)))
+		childern = append(childern, NewBranchView(b.ctx, c.(*node.Node)))
+	}
+
+	if b.branch.Root {
+		return elem.Div(
+			prop.Class("node root"),
+			elem.Div(
+				prop.Class("children"),
+				childern,
+			),
+		)
 	}
 
 	return elem.Div(
 		prop.Class("node"),
 		elem.Anchor(
-			prop.Class("toggle plus"),
+			vecty.ClassMap{
+				"toggle": true,
+				"plus":   !b.branch.Open,
+				"minus":  b.branch.Open,
+			},
 			event.Click(b.toggleClick),
 		),
 		elem.Div(
@@ -82,7 +117,8 @@ func (b *Branch) render() vecty.Component {
 			elem.Span(
 				prop.Class("node-label"),
 				event.Click(b.selectClick),
-				vecty.Text("foo"),
+				vecty.If(b.node.Index > -1, vecty.Text(fmt.Sprintf("[%d]", b.node.Index))),
+				vecty.If(b.node.Index == -1, vecty.Text(b.node.Key)),
 			),
 			elem.Span(
 				prop.Class("badge"),
@@ -91,7 +127,7 @@ func (b *Branch) render() vecty.Component {
 		),
 		elem.Div(
 			prop.Class("children"),
-			//vecty.Style("display", "none"),
+			vecty.If(!b.branch.Open, vecty.Style("display", "none")),
 			childern,
 		),
 	)
