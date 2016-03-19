@@ -31,7 +31,7 @@ func (p *Header) Apply(element *vecty.Element) {
 }
 
 func (p *Header) Reconcile(old vecty.Component) {
-	if old, ok := old.(*Page); ok {
+	if old, ok := old.(*PageView); ok {
 		p.Body = old.Body
 		p.Environment = old.Environment
 	}

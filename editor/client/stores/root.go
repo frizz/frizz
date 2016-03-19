@@ -9,7 +9,7 @@ import (
 	"kego.io/system/node"
 )
 
-type NodeStore struct {
+type RootStore struct {
 	*flux.Store
 	ctx context.Context
 	app *App
@@ -17,19 +17,19 @@ type NodeStore struct {
 	root *node.Node
 }
 
-func NewNodeStore(ctx context.Context) *NodeStore {
-	return &NodeStore{
+func NewRootStore(ctx context.Context) *RootStore {
+	return &RootStore{
 		Store: &flux.Store{},
 		ctx:   ctx,
 		app:   FromContext(ctx),
 	}
 }
 
-func (n *NodeStore) Get() *node.Node {
-	return n.root
+func (s *RootStore) Get() *node.Node {
+	return s.root
 }
 
-func (n *NodeStore) Handle(payload *flux.Payload) bool {
+func (s *RootStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
 		/*
@@ -41,12 +41,12 @@ func (n *NodeStore) Handle(payload *flux.Payload) bool {
 			c1.SetMapValue("bar", c2)
 		*/
 		pkg := node.NewNode()
-		err := ke.UnmarshalUntyped(n.ctx, []byte(action.Info.Package), pkg)
+		err := ke.UnmarshalUntyped(s.ctx, []byte(action.Info.Package), pkg)
 		if err != nil {
-			n.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
+			s.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
 		}
-		n.root = pkg
-		n.Notify()
+		s.root = pkg
+		s.Notify()
 	}
 	return true
 }

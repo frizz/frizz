@@ -18,5 +18,6 @@ type ToggleNode struct {
 }
 
 type SelectNode struct {
-	Node *node.Node
+	Node     *node.Node
+	Keyboard bool
 }

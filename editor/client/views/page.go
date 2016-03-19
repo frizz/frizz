@@ -7,51 +7,41 @@ import (
 	"github.com/gopherjs/vecty/prop"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/stores"
-	"kego.io/system/node"
 )
 
-type Page struct {
+type PageView struct {
 	vecty.Composite
 	ctx context.Context
 	app *stores.App
 
 	Environment *envctx.Env
-	Root        *node.Node
 }
 
-func NewPage(ctx context.Context, env *envctx.Env) *Page {
-	p := &Page{
+func NewPage(ctx context.Context, env *envctx.Env) *PageView {
+	p := &PageView{
 		ctx:         ctx,
 		app:         stores.FromContext(ctx),
 		Environment: env,
 	}
 
-	go func() {
-		for range p.app.Branches.Changed() {
-			p.Root = p.app.Nodes.Get()
-			p.ReconcileBody()
-		}
-	}()
-
 	return p
 }
 
 // Apply implements the vecty.Markup interface.
-func (p *Page) Apply(element *vecty.Element) {
+func (p *PageView) Apply(element *vecty.Element) {
 	element.AddChild(p)
 }
 
-func (p *Page) Reconcile(old vecty.Component) {
-	if old, ok := old.(*Page); ok {
+func (p *PageView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*PageView); ok {
 		p.Body = old.Body
 		p.Environment = old.Environment
-		p.Root = old.Root
 	}
 	p.RenderFunc = p.render
 	p.ReconcileBody()
 }
 
-func (p *Page) render() vecty.Component {
+func (p *PageView) render() vecty.Component {
 	return elem.Div(
 		prop.ID("wrapper"),
 		NewHeader(p.ctx, p.Environment),
@@ -60,21 +50,12 @@ func (p *Page) render() vecty.Component {
 			elem.Div(
 				prop.ID("tree"),
 				prop.Class("split split-horizontal"),
-				elem.Div(
-					prop.Class("content"),
-					vecty.If(
-						p.Root != nil,
-						NewBranchView(p.ctx, p.Root),
-					),
-				),
+				NewTreeView(p.ctx),
 			),
 			elem.Div(
 				prop.ID("main"),
 				prop.Class("split split-horizontal"),
-				elem.Div(
-					prop.Class("content"),
-					vecty.Text("Content"),
-				),
+				NewPanelView(p.ctx),
 			),
 		),
 	)

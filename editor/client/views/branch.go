@@ -57,25 +57,15 @@ func (b *BranchView) toggleClick(*vecty.Event) {
 		if b.branch.CanOpen() {
 			b.app.Dispatcher.Dispatch(&actions.ToggleNode{Node: b.node})
 		} else {
-			b.app.Dispatcher.Dispatch(&actions.SelectNode{Node: b.node})
+			b.app.Dispatcher.Dispatch(&actions.SelectNode{Node: b.node, Keyboard: false})
 		}
 	}()
-	/*
-		if b.canOpen() {
-			b.toggle()
-		} else {
-			b.Select(false)
-		}
-	*/
 }
 
 func (b *BranchView) selectClick(*vecty.Event) {
 	go func() {
-		b.app.Dispatcher.Dispatch(&actions.SelectNode{Node: b.node})
+		b.app.Dispatcher.Dispatch(&actions.SelectNode{Node: b.node, Keyboard: false})
 	}()
-	/*
-		b.Select(false)
-	*/
 }
 
 func (b *BranchView) render() vecty.Component {
@@ -83,6 +73,8 @@ func (b *BranchView) render() vecty.Component {
 	if b.branch == nil {
 		return elem.Div()
 	}
+
+	selected := b.app.Selected.Get() == b.node
 
 	var childern vecty.List
 	for _, c := range b.node.Map {
@@ -113,7 +105,10 @@ func (b *BranchView) render() vecty.Component {
 			event.Click(b.toggleClick),
 		),
 		elem.Div(
-			prop.Class("node-content"),
+			vecty.ClassMap{
+				"node-content": true,
+				"selected":     selected,
+			},
 			elem.Span(
 				prop.Class("node-label"),
 				event.Click(b.selectClick),

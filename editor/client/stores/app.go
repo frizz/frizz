@@ -11,18 +11,24 @@ type App struct {
 	Fail       chan error
 	Conn       *connection.Conn
 
-	Nodes    *NodeStore
+	Root     *RootStore
+	Selected *SelectedStore
 	Editors  *EditorStore
 	Branches *BranchStore
+	Panels   *PanelStore
 }
 
 func (app *App) Init(ctx context.Context) {
-	app.Nodes = NewNodeStore(ctx)
+	app.Root = NewRootStore(ctx)
+	app.Selected = NewSelectedStore(ctx)
 	app.Editors = NewEditorStore(ctx)
 	app.Branches = NewBranchStore(ctx)
+	app.Panels = NewPanelStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
-		app.Nodes,
+		app.Root,
+		app.Selected,
 		app.Editors,
 		app.Branches,
+		app.Panels,
 	)
 }

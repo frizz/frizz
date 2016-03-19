@@ -37,8 +37,8 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
-		payload.WaitFor(s.app.Nodes)
-		root := s.app.Nodes.Get()
+		payload.WaitFor(s.app.Root)
+		root := s.app.Root.Get()
 		nodes := root.Flatten(false)
 		for _, n := range nodes {
 			s.branches[n] = &models.BranchModel{

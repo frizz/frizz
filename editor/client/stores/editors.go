@@ -2,8 +2,8 @@ package stores
 
 import (
 	"golang.org/x/net/context"
-	"kego.io/editor"
 	"kego.io/editor/client/flux"
+	"kego.io/editor/client/models"
 	"kego.io/system/node"
 )
 
@@ -12,7 +12,7 @@ type EditorStore struct {
 	ctx context.Context
 	app *App
 
-	editors map[*node.Node]editor.EditorInterface
+	editors map[*node.Node]*models.EditorModel
 }
 
 func NewEditorStore(ctx context.Context) *EditorStore {
@@ -20,11 +20,11 @@ func NewEditorStore(ctx context.Context) *EditorStore {
 		Store:   &flux.Store{},
 		ctx:     ctx,
 		app:     FromContext(ctx),
-		editors: map[*node.Node]editor.EditorInterface{},
+		editors: map[*node.Node]*models.EditorModel{},
 	}
 }
 
-func (n *EditorStore) Get(node *node.Node) editor.EditorInterface {
+func (n *EditorStore) Get(node *node.Node) *models.EditorModel {
 	return n.editors[node]
 }
 
