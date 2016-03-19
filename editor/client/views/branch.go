@@ -94,13 +94,17 @@ func (b *BranchView) render() vecty.Component {
 		)
 	}
 
+	icon := b.branch.Icon()
+
 	return elem.Div(
 		prop.Class("node"),
 		elem.Anchor(
 			vecty.ClassMap{
-				"toggle": true,
-				"plus":   !b.branch.Open,
-				"minus":  b.branch.Open,
+				"toggle":  true,
+				"plus":    icon == "plus",
+				"minus":   icon == "minus",
+				"unknown": icon == "unknown",
+				"empty":   icon == "empty",
 			},
 			event.Click(b.toggleClick),
 		),

@@ -42,6 +42,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		nodes := root.Flatten(false)
 		for _, n := range nodes {
 			s.branches[n] = &models.BranchModel{
+				Node: n,
 				Root: n == root,
 				Open: true,
 			}
