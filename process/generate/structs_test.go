@@ -36,7 +36,7 @@ func TestGenerateSourceErr2(t *testing.T) {
 		},
 	})
 
-	cb.Alias("f.g/h", "e")
+	cb.Alias("e", "f.g/h")
 
 	_, err := Structs(cb.Ctx(), cb.Env())
 	assert.IsError(t, err, "XKRYMXUIJD")
@@ -91,7 +91,7 @@ func TestGenerateSource(t *testing.T) {
 		Interface: true,
 	})
 
-	cb.Alias("f.g/h", "e")
+	cb.Alias("e", "f.g/h")
 
 	source, err := Structs(cb.Ctx(), cb.Env())
 	assert.NoError(t, err)

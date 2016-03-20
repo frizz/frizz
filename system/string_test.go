@@ -171,7 +171,7 @@ func TestMarshal3(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
-	b, err = json.MarshalContext(tests.Context("f.g/h").Alias("c.d/e", "i").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
+	b, err = json.MarshalContext(tests.Context("f.g/h").Alias("i", "c.d/e").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 

@@ -84,7 +84,9 @@ func get(base string, singlePackage string) ([]*cover.Profile, error) {
 			return nil
 		}
 		if file.IsDir() && (singlePackageDir == "" || singlePackageDir == filename) {
-			return processDir(filename)
+			if !strings.Contains(filename, "/editor/") {
+				return processDir(filename)
+			}
 		}
 		return nil
 	}

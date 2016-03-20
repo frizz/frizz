@@ -797,8 +797,8 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 			return "kego.io/json", parts[1], nil
 		}
 
-		_, ok := env.Aliases[parts[0]]
-		if !ok && parts[0] != env.Path {
+		_, found := findKey(env.Aliases, parts[0])
+		if !found && parts[0] != env.Path {
 			return "", "", UnknownPackageError{
 				Struct:         kerr.New("KJSOXDESFD", "Unknown package %s", parts[0]),
 				UnknownPackage: parts[0],
@@ -818,7 +818,7 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 			return "kego.io/json", parts[1], nil
 		}
 
-		packagePath, ok := findKey(env.Aliases, parts[0])
+		packagePath, ok := env.Aliases[parts[0]]
 		if !ok {
 			return "", "", UnknownPackageError{
 				Struct:         kerr.New("DKKFLKDKYI", "Unknown package %s", parts[0]),

@@ -352,7 +352,7 @@ func (u *UnpackContextValue) Unpack(ctx context.Context, in Packed) error {
 	if in.Type() != J_STRING {
 		return kerr.New("CUFSESRMCX", "Should be string")
 	}
-	*u = UnpackContextValue(fmt.Sprint(in.String(), " bar ", env.Path, " ", env.Aliases["d.e/f"]))
+	*u = UnpackContextValue(fmt.Sprint(in.String(), " bar ", env.Path, " ", env.Aliases["g"]))
 	return nil
 }
 
@@ -372,7 +372,7 @@ func (u *UnpackContextArray) Unpack(ctx context.Context, in Packed) error {
 		}
 		out = append(out, child.String())
 	}
-	out = append(out, fmt.Sprint("bar ", env.Path, " ", env.Aliases["d.e/f"]))
+	out = append(out, fmt.Sprint("bar ", env.Path, " ", env.Aliases["g"]))
 	*u = UnpackContextArray(out)
 	return nil
 }
@@ -393,7 +393,7 @@ func (u *UnpackContextObject) Unpack(ctx context.Context, in Packed) error {
 		}
 		out[name] = child.String()
 	}
-	out["baz"] = fmt.Sprint("qux ", env.Path, " ", env.Aliases["d.e/f"])
+	out["baz"] = fmt.Sprint("qux ", env.Path, " ", env.Aliases["g"])
 	*u = UnpackContextObject(out)
 	return nil
 }
@@ -403,14 +403,14 @@ var _ Unpacker = (*UnpackContextObject)(nil)
 func TestUnpackContext(t *testing.T) {
 	in := `{"B":"foo","C":["foo"],"D":{"foo":"bar"}}`
 	a := &UnpackContextA{}
-	err := UnmarshalUntyped(tests.Context("a.b/c").Alias("d.e/f", "g").Ctx(), []byte(in), a)
+	err := UnmarshalUntyped(tests.Context("a.b/c").Alias("g", "d.e/f").Ctx(), []byte(in), a)
 	assert.NoError(t, err)
 	assert.NotNil(t, a)
-	assert.Equal(t, "foo bar a.b/c g", string(a.B))
+	assert.Equal(t, "foo bar a.b/c d.e/f", string(a.B))
 	assert.Equal(t, 2, len(a.C))
 	assert.Equal(t, "foo", a.C[0])
-	assert.Equal(t, "bar a.b/c g", a.C[1])
+	assert.Equal(t, "bar a.b/c d.e/f", a.C[1])
 	assert.Equal(t, 2, len(a.D))
 	assert.Equal(t, "bar", a.D["foo"])
-	assert.Equal(t, "qux a.b/c g", a.D["baz"])
+	assert.Equal(t, "qux a.b/c d.e/f", a.D["baz"])
 }

@@ -91,7 +91,7 @@ func comparePackageHash(ctx context.Context, path string) (changes bool, err err
 		return false, kerr.New("NHXWLPHCHL", "%s not found in sys ctx", path)
 	}
 
-	for aliasPath, _ := range spi.Aliases {
+	for _, aliasPath := range spi.Aliases {
 		changes, err := comparePackageHash(ctx, aliasPath)
 		if err != nil {
 			return false, kerr.Wrap("DGJTLHQOCQ", err)

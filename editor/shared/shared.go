@@ -5,7 +5,7 @@ package shared // import "kego.io/editor/shared"
 type Info struct {
 	// Package path
 	Path string
-	// Map of path:alias
+	// Map of alias:path
 	Aliases map[string]string
 	// Map of data names and relative file names
 	Data map[string]string

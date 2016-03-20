@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":7919859053770161381}
+// info:{"Path":"kego.io/system","Hash":2383263058869989835}
 package system
 
 import (
@@ -6,7 +6,6 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
-	"kego.io/json"
 )
 
 // Restriction rules for arrays
@@ -172,7 +171,7 @@ func (o *Object) GetObject(ctx context.Context) *Object {
 // Package info - forms the root node of the package
 type Package struct {
 	*Object
-	// Map of import aliases used in this package: key = package path, value = alias.
+	// Map of import aliases used in this package: key = alias, value = package path.
 	Aliases map[string]string `json:"aliases"`
 	// Should we scan subdirectories for data files?
 	Recursive bool `json:"recursive"`
@@ -244,19 +243,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	json.RegisterPackage("kego.io/system", 7919859053770161381)
-	json.RegisterType("kego.io/system", "bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "object", reflect.TypeOf((*Object)(nil)), reflect.TypeOf((*ObjectRule)(nil)), reflect.TypeOf((*ObjectInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "package", reflect.TypeOf((*Package)(nil)), reflect.TypeOf((*PackageRule)(nil)), reflect.TypeOf((*PackageInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceRule)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
-	json.RegisterType("kego.io/system", "type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
-}
-func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 7919859053770161381)
+	pkg := jsonctx.InitPackage("kego.io/system", 2383263058869989835)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
 	pkg.InitType("number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())

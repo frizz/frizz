@@ -153,7 +153,7 @@ func TestImport(t *testing.T) {
 		"package.json": `{
 			"type": "system:package",
 			"aliases": {
-				"` + pathA + `": "a"
+				"a": "` + pathA + `"
 			}
 		}`,
 		"b.json": `{
@@ -181,7 +181,7 @@ func TestImportSystem(t *testing.T) {
 		"package.json": `{
 			"type": "system:package",
 			"aliases": {
-				"kego.io/system": "s"
+				"s": "kego.io/system"
 			}
 		}`,
 	})
@@ -193,7 +193,7 @@ func TestImportSystem(t *testing.T) {
 		"package.json": `{
 			"type": "system:package",
 			"aliases": {
-				"a.b/c": "system"
+				"system": "a.b/c"
 			}
 		}`,
 	})
@@ -214,7 +214,7 @@ func TestCircularImport(t *testing.T) {
 			{
 				"type": "system:package",
 				"aliases": {
-					"`+pathB+`": "b"
+					"b": "`+pathB+`"
 				}
 			}
 		`), 0777)
@@ -222,7 +222,7 @@ func TestCircularImport(t *testing.T) {
 			{
 				"type": "system:package",
 				"aliases": {
-					"`+pathA+`": "a"
+					"a": "`+pathA+`"
 				}
 			}
 		`), 0777)

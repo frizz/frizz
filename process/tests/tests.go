@@ -155,9 +155,9 @@ func (c *ContextBuilder) Path(path string) *ContextBuilder {
 	return c
 }
 
-func (c *ContextBuilder) Alias(aliasPath string, aliasName string) *ContextBuilder {
+func (c *ContextBuilder) Alias(aliasName string, aliasPath string) *ContextBuilder {
 	env := c.initEnv()
-	env.Aliases[aliasPath] = aliasName
+	env.Aliases[aliasName] = aliasPath
 	//if env.Path != "" {
 	//	pi := c.initSysPkg(env.Path)
 	//	copyEnv(env, pi.Env)
@@ -170,8 +170,8 @@ func copyEnv(from *envctx.Env, to *envctx.Env) {
 	to.Recursive = from.Recursive
 	to.Hash = from.Hash
 	to.Aliases = map[string]string{}
-	for p, n := range from.Aliases {
-		to.Aliases[p] = n
+	for n, p := range from.Aliases {
+		to.Aliases[n] = p
 	}
 }
 

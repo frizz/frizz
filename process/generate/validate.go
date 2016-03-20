@@ -17,7 +17,7 @@ func ValidateCommand(ctx context.Context) (source []byte, err error) {
 	g.Imports.Add("kego.io/process/validate/command")
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous(env.Path)
-	for p, _ := range env.Aliases {
+	for _, p := range env.Aliases {
 		g.Imports.Anonymous(p)
 	}
 	g.Print(`

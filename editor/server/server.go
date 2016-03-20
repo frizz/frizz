@@ -11,7 +11,6 @@ import (
 	"kego.io/kerr"
 
 	"github.com/gopherjs/gopherjs/compiler"
-	"github.com/neelance/sourcemap"
 	"github.com/pkg/browser"
 
 	"fmt"
@@ -223,8 +222,8 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	}
 
 	sourceMapFilter := &compiler.SourceMapFilter{Writer: buf}
-	m := &sourcemap.Map{File: "script.js"}
-	sourceMapFilter.MappingCallback = build.NewMappingCallback(m, options.GOROOT, options.GOPATH)
+	//m := &sourcemap.Map{File: "script.js"}
+	//sourceMapFilter.MappingCallback = build.NewMappingCallback(m, options.GOROOT, options.GOPATH)
 
 	deps, err := compiler.ImportDependencies(r.archive, s.BuildImportPath)
 	if err != nil {
@@ -235,7 +234,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	}
 
 	mapBuf := bytes.NewBuffer(nil)
-	m.WriteTo(mapBuf)
+	//m.WriteTo(mapBuf)
 	*mapping = mapBuf.Bytes()
 
 	buf.WriteString("//# sourceMappingURL=script.js.map\n")
@@ -309,7 +308,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		}
 		syspi, ok := scache.Get(path)
 		if !ok {
-			return kerr.New("VIGKIUPNCF", "%s not found in sys ctx")
+			return kerr.New("VIGKIUPNCF", "%s not found in sys ctx", path)
 		}
 		info := &shared.ImportInfo{
 			Path:    path,
@@ -323,7 +322,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		}
 		imports[path] = info
 
-		for child, _ := range syspi.Aliases {
+		for _, child := range syspi.Aliases {
 			if err := scan(child); err != nil {
 				return kerr.Wrap("NCULMUUUOT", err)
 			}

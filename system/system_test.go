@@ -232,17 +232,17 @@ func testDefaultCustomUnmarshal(t *testing.T, up unpacker.Interface) {
 
 		// The value is a:b, so a is the package alias for kego.io/d
 		// which we find in the package aliases, and b is the type.
-		Ref2 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"aliases\":{\"kego.io/d\":\"a\"}}}"`
+		Ref2 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"aliases\":{\"a\":\"kego.io/d\"}}}"`
 
 		// The value is a full type with package path.
-		Ref3 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"aliases\":{\"a.b/c\":\"c\"}}}"`
+		Ref3 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"aliases\":{\"c\":\"a.b/c\"}}}"`
 	}
 
 	data := `{
 		"type": "foo"
 	}`
 
-	ctx := tests.Context("kego.io/system").Alias("a.b/c", "c").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("kego.io/system").Alias("c", "a.b/c").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
@@ -333,7 +333,7 @@ func testReferencePath(t *testing.T, up unpacker.Interface) {
 		"ref": "kego.io/pkg:typ"
 	}`
 
-	ctx := tests.Context("kego.io/system").Alias("kego.io/pkg", "pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("kego.io/system").Alias("pkg", "kego.io/pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
@@ -364,7 +364,7 @@ func testReferenceImport(t *testing.T, up unpacker.Interface) {
 		"ref": "pkg:typ"
 	}`
 
-	ctx := tests.Context("kego.io/system").Alias("kego.io/pkg", "pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("kego.io/system").Alias("pkg", "kego.io/pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
@@ -387,8 +387,8 @@ func TestReferenceDefault(t *testing.T) {
 func testReferenceDefault(t *testing.T, up unpacker.Interface) {
 
 	type Foo struct {
-		RefHere    *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkga\":\"pkga\"}}}"`
-		RefDefault *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"aliases\":{\"kego.io/pkgb\":\"pkgb\"}}}"`
+		RefHere    *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"pkga\":\"kego.io/pkga\"}}}"`
+		RefDefault *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"aliases\":{\"pkgb\":\"kego.io/pkgb\"}}}"`
 	}
 
 	data := `{

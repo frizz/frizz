@@ -51,7 +51,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 				return kerr.Wrap("RIARRSCMVE", err)
 			}
 		}
-		hash.Aliases[importPath] = importAlias
+		hash.Aliases[importAlias] = importPath
 		return nil
 	}
 
@@ -82,7 +82,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 		}
 	}
 
-	for aliasPath, aliasName := range env.Aliases {
+	for aliasName, aliasPath := range env.Aliases {
 		if aliasPath == "kego.io/system" || aliasName == "system" {
 			return nil, kerr.New("EWMLNJDXKC", "Illegal import %s", aliasName)
 		}

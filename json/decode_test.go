@@ -133,7 +133,7 @@ func TestGetReferencePartsFromTypeString(t *testing.T) {
 	assert.Equal(t, "kego.io/json", path)
 	assert.Equal(t, "d", name)
 
-	cb.Alias("e.f/g", "g")
+	cb.Alias("g", "e.f/g")
 	path, name, err = GetReferencePartsFromTypeString(cb.Ctx(), "g:h")
 	assert.NoError(t, err)
 	assert.Equal(t, "e.f/g", path)

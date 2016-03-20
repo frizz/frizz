@@ -21,7 +21,7 @@ func TestFieldExtraMap(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -33,7 +33,7 @@ func TestFieldExtraMap(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -49,7 +49,7 @@ func TestFieldExtraArray(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -61,7 +61,7 @@ func TestFieldExtraArray(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -77,7 +77,7 @@ func TestFieldExtraRulesObject(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -88,7 +88,7 @@ func TestFieldExtraRulesObject(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -133,7 +133,7 @@ func TestValidateCollection(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:e
@@ -149,7 +149,7 @@ func TestValidateCollection(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.NoError(t, err)
@@ -216,7 +216,7 @@ func TestRulesEnforcer(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:a
@@ -228,7 +228,7 @@ func TestRulesEnforcer(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -244,7 +244,7 @@ func TestInterface(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:d
@@ -255,7 +255,7 @@ func TestInterface(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
@@ -271,7 +271,7 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				"kego.io/process/validate/tests": tests
+				tests: kego.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:a
@@ -284,7 +284,7 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("kego.io/process/validate/tests", "tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")

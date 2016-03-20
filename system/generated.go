@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":2850462475690888824}
+// info:{"Path":"kego.io/system","Hash":15613995579130226110}
 package system
 
 import (
@@ -171,7 +171,7 @@ func (o *Object) GetObject(ctx context.Context) *Object {
 // Package info - forms the root node of the package
 type Package struct {
 	*Object
-	// Map of import aliases used in this package: key = package path, value = alias.
+	// Map of import aliases used in this package: key = alias, value = package path.
 	Aliases map[string]string `json:"aliases"`
 	// Should we scan subdirectories for data files?
 	Recursive bool `json:"recursive"`
@@ -243,7 +243,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 2850462475690888824)
+	pkg := jsonctx.InitPackage("kego.io/system", 15613995579130226110)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
 	pkg.InitType("number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())

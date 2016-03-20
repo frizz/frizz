@@ -43,7 +43,7 @@ func TestNodeUnpack(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	j := `{"type":"system:package","aliases":{"kego.io/demo/common/images":"images","kego.io/demo/common/units":"units","kego.io/demo/common/words":"words"}}`
+	j := `{"type":"system:package","aliases":{"images":"kego.io/demo/common/images","units":"kego.io/demo/common/units","words":"kego.io/demo/common/words"}}`
 
 	_, err = node.Unmarshal(ctx, []byte(j))
 	assert.NoError(t, err)

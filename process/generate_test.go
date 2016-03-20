@@ -115,7 +115,7 @@ type: system:type`,
 	pathB, _ := cb.TempPackage("b", map[string]string{
 		"pkg.yml": `
 type: system:package
-aliases: {"` + pathA + `": "a"}`,
+aliases: {"a": "` + pathA + `"}`,
 		"b.yml": `
 id: b
 type: system:type`,

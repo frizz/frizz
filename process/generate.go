@@ -41,7 +41,7 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 			return kerr.Wrap("HBKXDVYWUP", err)
 		}
 	}
-	for aliasPath, _ := range pi.Aliases {
+	for _, aliasPath := range pi.Aliases {
 		if err := GenerateAll(ctx, aliasPath, done); err != nil {
 			return kerr.Wrap("WVXTUBQYVT", err)
 		}

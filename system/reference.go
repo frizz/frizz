@@ -46,8 +46,10 @@ func (r Reference) ValueContext(ctx context.Context) (string, error) {
 	if r.Package == "kego.io/system" {
 		return fmt.Sprintf("system:%s", r.Name), nil
 	}
-	if alias, ok := env.Aliases[r.Package]; ok {
-		return fmt.Sprintf("%s:%s", alias, r.Name), nil
+	for alias, pkg := range env.Aliases {
+		if pkg == r.Package {
+			return fmt.Sprintf("%s:%s", alias, r.Name), nil
+		}
 	}
 	return "", kerr.New("WGCDQQCFAD", "Package %s not found in aliases", r.Package)
 }

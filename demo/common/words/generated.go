@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/common/words","Hash":880320337013518116}
+// info:{"Path":"kego.io/demo/common/words","Hash":3294882576782728194}
 package words
 
 import (
@@ -54,7 +54,7 @@ func (o *Translation) GetTranslation(ctx context.Context) *Translation {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/common/words", 880320337013518116)
+	pkg := jsonctx.InitPackage("kego.io/demo/common/words", 3294882576782728194)
 	pkg.InitType("localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), reflect.TypeOf((*LocalizerRule)(nil)), nil)
 	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
 	pkg.InitType("translation", reflect.TypeOf((*Translation)(nil)), reflect.TypeOf((*TranslationRule)(nil)), reflect.TypeOf((*TranslationInterface)(nil)).Elem())

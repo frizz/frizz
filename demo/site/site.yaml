@@ -1,5 +1,5 @@
 type: system:package
 aliases:
-  kego.io/demo/common/images: images
-  kego.io/demo/common/words: words
-  kego.io/demo/common/units: units
+    images: kego.io/demo/common/images
+    words: kego.io/demo/common/words
+    units: kego.io/demo/common/units

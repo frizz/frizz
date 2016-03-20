@@ -653,7 +653,7 @@ func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c", upe.UnknownPackage)
 
-	err = up.Process(cb.Alias("a.b/c", "d").Ctx(), []byte(data), &i)
+	err = up.Process(cb.Alias("d", "a.b/c").Ctx(), []byte(data), &i)
 	if up == unpacker.Unpack {
 		assert.IsError(t, err, "LJBTNGPVSY")
 		assert.HasError(t, err, "VUEFNKSTLG")

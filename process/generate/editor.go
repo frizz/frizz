@@ -13,7 +13,7 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	g.Imports.Anonymous("kego.io/system")
 	g.Imports.Anonymous(env.Path)
-	for p, _ := range env.Aliases {
+	for _, p := range env.Aliases {
 		g.Imports.Anonymous(p)
 	}
 	/*

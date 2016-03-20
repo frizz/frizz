@@ -8,7 +8,7 @@ import (
 )
 
 func TestEditor(t *testing.T) {
-	cb := tests.Context("a.b/c").Alias("d.e/f", "g")
+	cb := tests.Context("a.b/c").Alias("g", "d.e/f")
 	b, err := Editor(cb.Ctx(), cb.Env())
 	assert.NoError(t, err)
 	assert.Contains(t, string(b), `package main
@@ -30,7 +30,7 @@ func main() {
 }
 
 func TestEditorErr(t *testing.T) {
-	cb := tests.Context("a.b/c").Alias("\"", "a")
+	cb := tests.Context("a.b/c").Alias("a", "\"")
 	_, err := Editor(cb.Ctx(), cb.Env())
 	assert.IsError(t, err, "CBTOLUQOGL")
 	assert.HasError(t, err, "CRBYOUOHPG")

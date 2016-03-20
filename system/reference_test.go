@@ -31,7 +31,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 		B ReferenceInterface `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Alias("c.d/e", "e").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("kego.io/system").Alias("e", "c.d/e").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
@@ -101,7 +101,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c", p.UnknownPackage)
 
-	ctx := tests.Context("").Alias("a.b/c", "c").Ctx()
+	ctx := tests.Context("").Alias("c", "a.b/c").Ctx()
 
 	r = reset()
 	err = r.Unpack(ctx, json.Pack("a.b/c:d"))
@@ -219,7 +219,7 @@ func TestReferenceValue(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "system:a", v)
 
-	cb.Alias("d.e/f", "g")
+	cb.Alias("g", "d.e/f")
 	r = NewReference("d.e/f", "h")
 	v, err = r.ValueContext(cb.Ctx())
 	assert.NoError(t, err)

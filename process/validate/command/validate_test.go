@@ -111,7 +111,7 @@ func TestComparePackageHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, changes)
 
-	pi.Aliases["a.b/c"] = "c"
+	pi.Aliases["c"] = "a.b/c"
 
 	changes, err = comparePackageHash(cb.Ctx(), path)
 	assert.IsError(t, err, "DGJTLHQOCQ")
