@@ -4,7 +4,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/flux"
-	"kego.io/system/node"
+	"kego.io/editor/client/models"
 )
 
 type SelectedStore struct {
@@ -12,7 +12,7 @@ type SelectedStore struct {
 	ctx context.Context
 	app *App
 
-	selected *node.Node
+	selected *models.BranchModel
 }
 
 func NewSelectedStore(ctx context.Context) *SelectedStore {
@@ -23,14 +23,14 @@ func NewSelectedStore(ctx context.Context) *SelectedStore {
 	}
 }
 
-func (s *SelectedStore) Get() *node.Node {
+func (s *SelectedStore) Get() *models.BranchModel {
 	return s.selected
 }
 
 func (s *SelectedStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
-	case *actions.SelectNode:
-		s.selected = action.Node
+	case *actions.SelectBranch:
+		s.selected = action.Branch
 		s.Notify()
 	}
 	return true

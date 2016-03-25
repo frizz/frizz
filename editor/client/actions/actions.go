@@ -1,8 +1,8 @@
 package actions
 
 import (
+	"kego.io/editor/client/models"
 	"kego.io/editor/shared"
-	"kego.io/system/node"
 )
 
 type NewMessage struct {
@@ -13,11 +13,16 @@ type InitialState struct {
 	Info *shared.Info
 }
 
-type ToggleNode struct {
-	Node *node.Node
+type ToggleBranch struct {
+	Branch *models.BranchModel
 }
 
-type SelectNode struct {
-	Node     *node.Node
+type SelectBranch struct {
+	Branch   *models.BranchModel
 	Keyboard bool
+}
+
+type LoadSource struct {
+	Contents models.BranchContentsInterface
+	Signal   chan struct{}
 }

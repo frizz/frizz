@@ -14,8 +14,8 @@ type EditorView struct {
 	ctx context.Context
 	app *stores.App
 
-	node   *node.Node
-	editor *models.EditorModel
+	node  *node.Node
+	model *models.EditorModel
 }
 
 func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
@@ -28,7 +28,7 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 
 	go func() {
 		for range e.app.Editors.Changed() {
-			e.editor = e.app.Editors.Get(e.node)
+			e.model = e.app.Editors.Get(e.node)
 			e.ReconcileBody()
 		}
 	}()
@@ -45,7 +45,7 @@ func (e *EditorView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*EditorView); ok {
 		e.Body = old.Body
 		e.node = old.node
-		e.editor = old.editor
+		e.model = old.model
 	}
 	e.RenderFunc = e.render
 	e.ReconcileBody()

@@ -5,7 +5,7 @@ import (
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/prop"
-	"kego.io/editor/client/flux"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/system/node"
 )
@@ -15,8 +15,23 @@ type TreeView struct {
 	ctx context.Context
 	app *stores.App
 
-	Root     *node.Node
-	Selected *node.Node
+	root     *models.BranchModel
+	Package  *node.Node
+	Types    map[string]*node.Node
+	Data     map[string]*models.DataModel
+	Selected *models.BranchModel
+}
+
+func (v *TreeView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*TreeView); ok {
+		v.Body = old.Body
+		v.Selected = old.Selected
+		v.Package = old.Package
+		v.Types = old.Types
+		v.Data = old.Data
+	}
+	v.RenderFunc = v.render
+	v.ReconcileBody()
 }
 
 func NewTreeView(ctx context.Context) *TreeView {
@@ -26,9 +41,29 @@ func NewTreeView(ctx context.Context) *TreeView {
 	}
 
 	go func() {
-		for range flux.Changed(p.app.Branches, p.app.Selected) {
-			p.Root = p.app.Root.Get()
-			p.ReconcileBody()
+		branches := p.app.Branches.Changed()
+		selected := p.app.Selected.Changed()
+		types := p.app.Types.Changed()
+		data := p.app.Data.Changed()
+		pkg := p.app.Package.Changed()
+		for {
+			select {
+			case <-selected:
+				p.Selected = p.app.Selected.Get()
+				p.ReconcileBody()
+			case <-branches:
+				p.root = p.app.Branches.Root()
+				p.ReconcileBody()
+			case <-types:
+				p.Types = p.app.Types.All()
+				p.ReconcileBody()
+			case <-data:
+				p.Data = p.app.Data.All()
+				p.ReconcileBody()
+			case <-pkg:
+				p.Package = p.app.Package.Get()
+				p.ReconcileBody()
+			}
 		}
 	}()
 
@@ -40,22 +75,15 @@ func (p *TreeView) Apply(element *vecty.Element) {
 	element.AddChild(p)
 }
 
-func (v *TreeView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*TreeView); ok {
-		v.Body = old.Body
-		v.Selected = old.Selected
-		v.Root = old.Root
-	}
-	v.RenderFunc = v.render
-	v.ReconcileBody()
-}
-
 func (p *TreeView) render() vecty.Component {
+	if p.root == nil {
+		return elem.Div()
+	}
 	return elem.Div(
 		prop.Class("content"),
 		vecty.If(
-			p.Root != nil,
-			NewBranchView(p.ctx, p.Root),
+			p.Package != nil,
+			NewBranchView(p.ctx, p.root),
 		),
 	)
 }

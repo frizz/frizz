@@ -11,6 +11,7 @@ import (
 	"kego.io/kerr"
 
 	"github.com/gopherjs/gopherjs/compiler"
+	"github.com/neelance/sourcemap"
 	"github.com/pkg/browser"
 
 	"fmt"
@@ -62,13 +63,6 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 
 	// This contains the source map that will be persisted between requests
 	var mapping []byte
-	// TODO: work out how to use script mapping.
-	//http.HandleFunc("/script.js.map", func(w http.ResponseWriter, req *http.Request) {
-	//	if err := script(w, req, path, aliases, true, &mapping); err != nil {
-	//		app.fail <- kerr.New("JRLOMPOHRQ", err, "script (map)")
-	//		return
-	//	}
-	//})
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if strings.HasSuffix(req.URL.Path, "/favicon.ico") {
 			w.WriteHeader(404)
@@ -77,6 +71,13 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 		if strings.HasSuffix(req.URL.Path, "/script.js") {
 			if err := script(ctx, w, req, false, &mapping); err != nil {
 				app.fail <- kerr.Wrap("XPVTVKDWHJ", err)
+				return
+			}
+			return
+		}
+		if strings.HasSuffix(req.URL.Path, "/script.js.map") {
+			if err := script(ctx, w, req, true, &mapping); err != nil {
+				app.fail <- kerr.Wrap("JAIBRHULSI", err)
 				return
 			}
 			return
@@ -161,7 +162,12 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	wgctx.Add(ctx, "script")
 	defer wgctx.Done(ctx, "script")
 
-	path := req.URL.Path[1 : len(req.URL.Path)-10]
+	path := ""
+	if strings.HasSuffix(req.URL.Path, ".map") {
+		path = req.URL.Path[1 : len(req.URL.Path)-14]
+	} else {
+		path = req.URL.Path[1 : len(req.URL.Path)-10]
+	}
 
 	env, err := parser.ScanForEnv(ctx, path)
 
@@ -190,7 +196,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 		return kerr.New("ADHPBPSKYV", "Package name %s should be main", buildPkg.Name)
 	}
 
-	if mapper {
+	if mapper && mapping != nil {
 		if _, err := w.Write(*mapping); err != nil {
 			return kerr.Wrap("WFVDCWDVWL", err)
 		}
@@ -213,29 +219,38 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	var r ret
 	select {
-	case err := <-c:
-		if err != nil {
+	case r = <-c:
+		if r.err != nil {
 			return kerr.Wrap("TXUYQOUNQS", err)
 		}
 	case <-ctx.Done():
 		return nil
 	}
 
-	sourceMapFilter := &compiler.SourceMapFilter{Writer: buf}
-	//m := &sourcemap.Map{File: "script.js"}
-	//sourceMapFilter.MappingCallback = build.NewMappingCallback(m, options.GOROOT, options.GOPATH)
+	filter := &compiler.SourceMapFilter{Writer: buf}
+	smap := &sourcemap.Map{File: "script.js"}
+	filter.MappingCallback = build.NewMappingCallback(smap, options.GOROOT, options.GOPATH)
 
 	deps, err := compiler.ImportDependencies(r.archive, s.BuildImportPath)
 	if err != nil {
 		return kerr.Wrap("OVDUPSTRNR", err)
 	}
-	if err := compiler.WriteProgramCode(deps, sourceMapFilter); err != nil {
+	if err := compiler.WriteProgramCode(deps, filter); err != nil {
 		return kerr.Wrap("YVHQEJXQGP", err)
 	}
 
 	mapBuf := bytes.NewBuffer(nil)
-	//m.WriteTo(mapBuf)
+	if err := smap.WriteTo(mapBuf); err != nil {
+		return kerr.Wrap("VYQGYAAADG", err)
+	}
 	*mapping = mapBuf.Bytes()
+
+	if mapper {
+		if _, err := w.Write(*mapping); err != nil {
+			return kerr.Wrap("SSUPQDWLIV", err)
+		}
+		return nil
+	}
 
 	buf.WriteString("//# sourceMappingURL=script.js.map\n")
 

@@ -22,7 +22,6 @@ import (
 	"kego.io/context/sysctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/connection"
-	"kego.io/editor/client/console"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/client/views"
 	"kego.io/editor/shared"
@@ -93,7 +92,7 @@ func Start() error {
 	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
 
 	go func() {
-		app.Dispatcher.Dispatch(&actions.InitialState{
+		app.Dispatch(&actions.InitialState{
 			Info: info,
 		})
 	}()
@@ -102,10 +101,10 @@ func Start() error {
 		err, open := <-app.Fail
 		if !open {
 			// Channel has been closed, so app should gracefully exit.
-			console.Error("Server disconnected")
+			fmt.Println("Server disconnected")
 		} else {
 			// Error received, so app should display error.
-			console.Error(err.Error())
+			fmt.Println(err.Error())
 		}
 	}()
 

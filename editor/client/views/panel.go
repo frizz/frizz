@@ -5,6 +5,7 @@ import (
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/prop"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/system/node"
 )
@@ -14,7 +15,7 @@ type PanelView struct {
 	ctx context.Context
 	app *stores.App
 
-	Selected *node.Node
+	Selected *models.BranchModel
 }
 
 func NewPanelView(ctx context.Context) *PanelView {
@@ -53,16 +54,24 @@ func (v *PanelView) Reconcile(old vecty.Component) {
 
 func (p *PanelView) render() vecty.Component {
 
+	var n *node.Node
+	if p.Selected != nil {
+		ni, ok := p.Selected.Contents.(models.NodeContentsInterface)
+		if ok {
+			n = ni.GetNode()
+		}
+	}
+
 	return elem.Div(
 		prop.Class("content"),
 		vecty.If(
-			p.Selected == nil,
+			n == nil,
 			vecty.Text("None selected"),
 		),
 		vecty.If(
-			p.Selected != nil,
+			n != nil,
 			NewBreadcrumbsView(p.ctx),
-			NewEditorView(p.ctx, p.Selected),
+			NewEditorView(p.ctx, n),
 			NewSummaryView(p.ctx),
 		),
 	)

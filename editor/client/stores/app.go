@@ -7,28 +7,34 @@ import (
 )
 
 type App struct {
-	Dispatcher *flux.Dispatcher
-	Fail       chan error
-	Conn       *connection.Conn
+	*flux.Dispatcher
+	Fail chan error
+	Conn *connection.Conn
 
-	Root     *RootStore
+	Package  *PackageStore
 	Selected *SelectedStore
 	Editors  *EditorStore
 	Branches *BranchStore
 	Panels   *PanelStore
+	Types    *TypesStore
+	Data     *DataStore
 }
 
 func (app *App) Init(ctx context.Context) {
-	app.Root = NewRootStore(ctx)
+	app.Package = NewPackageStore(ctx)
 	app.Selected = NewSelectedStore(ctx)
 	app.Editors = NewEditorStore(ctx)
 	app.Branches = NewBranchStore(ctx)
 	app.Panels = NewPanelStore(ctx)
+	app.Types = NewTypesStore(ctx)
+	app.Data = NewDataStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
-		app.Root,
+		app.Package,
 		app.Selected,
 		app.Editors,
 		app.Branches,
 		app.Panels,
+		app.Types,
+		app.Data,
 	)
 }

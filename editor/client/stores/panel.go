@@ -4,7 +4,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
-	"kego.io/system/node"
 )
 
 type PanelStore struct {
@@ -12,7 +11,7 @@ type PanelStore struct {
 	ctx context.Context
 	app *App
 
-	panels map[*node.Node]*models.PanelModel
+	panels map[*models.BranchModel]*models.PanelModel
 }
 
 func NewPanelStore(ctx context.Context) *PanelStore {
@@ -20,7 +19,7 @@ func NewPanelStore(ctx context.Context) *PanelStore {
 		Store:  &flux.Store{},
 		ctx:    ctx,
 		app:    FromContext(ctx),
-		panels: map[*node.Node]*models.PanelModel{},
+		panels: map[*models.BranchModel]*models.PanelModel{},
 	}
 }
 
