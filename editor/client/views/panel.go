@@ -1,6 +1,8 @@
 package views // import "kego.io/editor/client/views"
 
 import (
+	"fmt"
+
 	"code.google.com/p/go.net/context"
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
@@ -29,6 +31,7 @@ func NewPanelView(ctx context.Context) *PanelView {
 		for {
 			select {
 			case <-sc:
+				fmt.Println("Selected changed: updating PanelView.")
 				p.Selected = p.app.Selected.Get()
 				p.ReconcileBody()
 			}
@@ -64,10 +67,6 @@ func (p *PanelView) render() vecty.Component {
 
 	return elem.Div(
 		prop.Class("content"),
-		vecty.If(
-			n == nil,
-			vecty.Text("None selected"),
-		),
 		vecty.If(
 			n != nil,
 			NewBreadcrumbsView(p.ctx),

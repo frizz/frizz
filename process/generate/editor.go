@@ -28,8 +28,8 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 		clientStart := builder.Reference("kego.io/editor/client", "Start", env.Path, g.Imports.Add)
 		g.Println("if err := ", clientStart, "(); err != nil {")
 		{
-			consoleError := builder.Reference("kego.io/editor/client/console", "Error", env.Path, g.Imports.Add)
-			g.Println(consoleError, "(err.Error())")
+			fmtPrintln := builder.Reference("fmt", "Println", env.Path, g.Imports.Add)
+			g.Println(fmtPrintln, "(err.Error())")
 		}
 		g.Println("}")
 	}

@@ -55,6 +55,7 @@ type NodeContentsInterface interface {
 type NodeContents struct {
 	BranchContents
 	Node *node.Node
+	Name string
 }
 
 func (c NodeContents) GetNode() *node.Node {
@@ -62,11 +63,13 @@ func (c NodeContents) GetNode() *node.Node {
 }
 
 func (c NodeContents) Label() string {
+	if c.Name != "" {
+		return c.Name
+	}
 	if c.Node.Index > -1 {
 		return fmt.Sprintf("[%d]", c.Node.Index)
-	} else {
-		return c.Node.Key
 	}
+	return c.Node.Key
 }
 
 type SourceContents struct {

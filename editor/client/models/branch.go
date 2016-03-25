@@ -1,5 +1,7 @@
 package models
 
+import "kego.io/system/node"
+
 type BranchModel struct {
 	Children []*BranchModel
 	Root     bool
@@ -31,4 +33,20 @@ func (b *BranchModel) Icon() string {
 		return "minus"
 	}
 	return "plus"
+}
+
+func NewNodeBranch(n *node.Node, name string) *BranchModel {
+	b := &BranchModel{
+		Contents: &NodeContents{
+			Node: n,
+			Name: name,
+		},
+	}
+	for _, c := range n.Array {
+		b.Children = append(b.Children, NewNodeBranch(c.GetNode(), ""))
+	}
+	for _, c := range n.Map {
+		b.Children = append(b.Children, NewNodeBranch(c.GetNode(), ""))
+	}
+	return b
 }

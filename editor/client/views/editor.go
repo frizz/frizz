@@ -1,6 +1,8 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"golang.org/x/net/context"
@@ -28,6 +30,7 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 
 	go func() {
 		for range e.app.Editors.Changed() {
+			fmt.Println("Editors changed: updating EditorView.")
 			e.model = e.app.Editors.Get(e.node)
 			e.ReconcileBody()
 		}

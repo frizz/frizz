@@ -5,8 +5,6 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
-	"kego.io/kerr"
-	"kego.io/system/node"
 )
 
 type BranchStore struct {
@@ -48,25 +46,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
-		payload.WaitFor(s.app.Package)
-		s.pkg = &models.BranchModel{
-			Contents: &models.NodeContents{
-				Node: s.app.Package.Get(),
-			},
-		}
+		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
+		s.pkg = models.NewNodeBranch(s.app.Package.Get(), "package")
 
 		types := []*models.BranchModel{}
-		for _, bytes := range action.Info.Imports[action.Info.Path].Types {
-			n, err := node.Unmarshal(s.ctx, bytes)
-			if err != nil {
-				s.app.Fail <- kerr.Wrap("DBFCBOUPYH", err)
-				return true
-			}
-			types = append(types, &models.BranchModel{
-				Contents: &models.NodeContents{
-					Node: n,
-				},
-			})
+		for name, n := range s.app.Types.All() {
+			types = append(types, models.NewNodeBranch(n, name))
 		}
 		s.types = &models.BranchModel{
 			Contents: &models.TypesContents{},
@@ -74,11 +59,11 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 
 		data := []*models.BranchModel{}
-		for name, filename := range action.Info.Data {
+		for name, d := range s.app.Data.All() {
 			data = append(data, &models.BranchModel{
 				Contents: &models.SourceContents{
 					Name:     name,
-					Filename: filename,
+					Filename: d.File,
 				},
 			})
 		}
@@ -97,7 +82,6 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				s.data,
 			},
 		}
-
 		s.Notify()
 	case *actions.ToggleBranch:
 		if !action.Branch.CanOpen() {
