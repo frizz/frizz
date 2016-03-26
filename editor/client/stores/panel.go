@@ -24,10 +24,10 @@ func NewPanelStore(ctx context.Context) *PanelStore {
 }
 
 func (s *PanelStore) Selected() *models.PanelModel {
-	if s.app.Selected.Get() == nil {
+	if s.app.Branches.Selected() == nil {
 		return nil
 	}
-	return s.panels[s.app.Selected.Get()]
+	return s.panels[s.app.Branches.Selected()]
 }
 
 func (s *PanelStore) Handle(payload *flux.Payload) bool {

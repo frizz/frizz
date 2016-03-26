@@ -7,6 +7,8 @@ type BranchModel struct {
 	Root     bool
 	Open     bool
 	Contents BranchContentsInterface
+	Parent   *BranchModel
+	index    int
 }
 
 func (b *BranchModel) CanOpen() bool {
@@ -43,10 +45,19 @@ func NewNodeBranch(n *node.Node, name string) *BranchModel {
 		},
 	}
 	for _, c := range n.Array {
-		b.Children = append(b.Children, NewNodeBranch(c.GetNode(), ""))
+		b.Append(NewNodeBranch(c.GetNode(), ""))
 	}
 	for _, c := range n.Map {
-		b.Children = append(b.Children, NewNodeBranch(c.GetNode(), ""))
+		b.Append(NewNodeBranch(c.GetNode(), ""))
 	}
+	return b
+}
+
+func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {
+	for i, child := range children {
+		child.index = len(b.Children) + i
+		child.Parent = b
+	}
+	b.Children = append(b.Children, children...)
 	return b
 }

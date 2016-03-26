@@ -12,10 +12,15 @@ type BranchStore struct {
 	ctx context.Context
 	app *App
 
-	root  *models.BranchModel
-	pkg   *models.BranchModel
-	types *models.BranchModel
-	data  *models.BranchModel
+	selected *models.BranchModel
+	root     *models.BranchModel
+	pkg      *models.BranchModel
+	types    *models.BranchModel
+	data     *models.BranchModel
+}
+
+func (b *BranchStore) Selected() *models.BranchModel {
+	return b.selected
 }
 
 func (b *BranchStore) Root() *models.BranchModel {
@@ -43,45 +48,101 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 }
 
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
-
 	switch action := payload.Action.(type) {
+	case *actions.KeyboardEvent:
+		switch action.KeyCode {
+		case 38: // up
+			if s.selected == nil {
+				if b := s.app.Branches.Root().LastVisible(); b != nil {
+					s.selected = b
+					s.Notify()
+				}
+				return true
+			}
+			if b := s.selected.PrevVisible(); b != nil {
+				s.selected = b
+				s.Notify()
+				return true
+			}
+		case 40: // down
+			if s.selected == nil {
+				if b := s.app.Branches.Root().FirstChild(); b != nil {
+					s.selected = b
+					s.Notify()
+				}
+				return true
+			}
+			if b := s.selected.NextVisible(true); b != nil {
+				s.selected = b
+				s.Notify()
+				return true
+			}
+		case 37: // left
+			if s.selected == nil {
+				return true
+			}
+			if s.selected.CanOpen() && s.selected.Open {
+				// if the branch is open, left arrow should close it.
+				s.selected.Open = false
+				s.Notify()
+				return true
+			} else {
+				if b := s.selected.Parent; b != nil {
+					s.selected = b
+					s.Notify()
+					return true
+				}
+			}
+		case 39: // right
+			if s.selected == nil {
+				return true
+			}
+			if s.selected.CanOpen() && !s.selected.Open {
+				// if the branch is closed, right arrow should open it
+				s.selected.Open = true
+				s.Notify()
+				return true
+			} else {
+				if b := s.selected.FirstChild(); b != nil {
+					s.selected = b
+					s.Notify()
+					return true
+				}
+			}
+		}
+	case *actions.SelectBranch:
+		s.selected = action.Branch
+		s.Notify()
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
 		s.pkg = models.NewNodeBranch(s.app.Package.Get(), "package")
 
-		types := []*models.BranchModel{}
-		for name, n := range s.app.Types.All() {
-			types = append(types, models.NewNodeBranch(n, name))
-		}
 		s.types = &models.BranchModel{
 			Contents: &models.TypesContents{},
-			Children: types,
+		}
+		for name, n := range s.app.Types.All() {
+			s.types.Append(models.NewNodeBranch(n, name))
 		}
 
-		data := []*models.BranchModel{}
+		s.data = &models.BranchModel{
+			Contents: &models.DataContents{},
+			Open:     true,
+		}
 		for name, d := range s.app.Data.All() {
-			data = append(data, &models.BranchModel{
+			s.data.Append(&models.BranchModel{
 				Contents: &models.SourceContents{
 					Name:     name,
 					Filename: d.File,
 				},
 			})
 		}
-		s.data = &models.BranchModel{
-			Contents: &models.DataContents{},
-			Open:     true,
-			Children: data,
-		}
 
 		s.root = &models.BranchModel{
 			Root: true,
 			Open: true,
-			Children: []*models.BranchModel{
-				s.pkg,
-				s.types,
-				s.data,
-			},
 		}
+		s.root.Append(s.pkg, s.types, s.data)
+
 		s.Notify()
 	case *actions.ToggleBranch:
 		if !action.Branch.CanOpen() {

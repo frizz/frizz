@@ -97,7 +97,7 @@ func (b *BranchView) render() vecty.Component {
 		return elem.Div()
 	}
 
-	selected := b.app.Selected.Get() == b.model
+	selected := b.app.Branches.Selected() == b.model
 
 	var childern vecty.List
 	for _, c := range b.model.Children {

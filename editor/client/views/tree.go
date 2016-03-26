@@ -36,19 +36,10 @@ func NewTreeView(ctx context.Context) *TreeView {
 	}
 
 	go func() {
-		branches := p.app.Branches.Changed()
-		selected := p.app.Selected.Changed()
-		for {
-			select {
-			case <-selected:
-				fmt.Println("Selected changed: updating TreeView.")
-				p.Selected = p.app.Selected.Get()
-				p.ReconcileBody()
-			case <-branches:
-				fmt.Println("Branches changed: updating TreeView.")
-				p.Root = p.app.Branches.Root()
-				p.ReconcileBody()
-			}
+		for range p.app.Branches.Changed() {
+			fmt.Println("Branches changed: updating TreeView.")
+			p.Root = p.app.Branches.Root()
+			p.ReconcileBody()
 		}
 	}()
 

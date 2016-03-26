@@ -12,7 +12,6 @@ type App struct {
 	Conn *connection.Conn
 
 	Package  *PackageStore
-	Selected *SelectedStore
 	Editors  *EditorStore
 	Branches *BranchStore
 	Panels   *PanelStore
@@ -22,7 +21,6 @@ type App struct {
 
 func (app *App) Init(ctx context.Context) {
 	app.Package = NewPackageStore(ctx)
-	app.Selected = NewSelectedStore(ctx)
 	app.Editors = NewEditorStore(ctx)
 	app.Branches = NewBranchStore(ctx)
 	app.Panels = NewPanelStore(ctx)
@@ -30,7 +28,6 @@ func (app *App) Init(ctx context.Context) {
 	app.Data = NewDataStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
 		app.Package,
-		app.Selected,
 		app.Editors,
 		app.Branches,
 		app.Panels,

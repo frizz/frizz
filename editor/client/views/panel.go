@@ -27,12 +27,12 @@ func NewPanelView(ctx context.Context) *PanelView {
 	}
 
 	go func() {
-		sc := p.app.Selected.Changed()
+		sc := p.app.Branches.Changed()
 		for {
 			select {
 			case <-sc:
 				fmt.Println("Selected changed: updating PanelView.")
-				p.Selected = p.app.Selected.Get()
+				p.Selected = p.app.Branches.Selected()
 				p.ReconcileBody()
 			}
 		}

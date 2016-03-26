@@ -26,3 +26,7 @@ type LoadSource struct {
 	Contents models.BranchContentsInterface
 	Signal   chan struct{}
 }
+
+type KeyboardEvent struct {
+	KeyCode int
+}

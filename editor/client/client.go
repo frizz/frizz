@@ -91,6 +91,8 @@ func Start() error {
 	// TODO: work out why I can't seem to call this without using eval
 	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
 
+	addKeyboardEvents(app)
+
 	go func() {
 		app.Dispatch(&actions.InitialState{
 			Info: info,
@@ -119,19 +121,6 @@ func StartOld() error {
 		if err := root.AddPackage(editorNode, info.Data, types); err != nil {
 			return kerr.Wrap("EAIHJLNBFA", err)
 		}
-
-		window.AddEventListener("keydown", true, func(e dom.Event) {
-			k := e.(*dom.KeyboardEvent)
-			switch doc.ActiveElement().TagName() {
-			case "INPUT", "TEXTAREA":
-				if k.KeyCode == 27 {
-					doc.ActiveElement().Blur()
-				}
-				return
-			default:
-				t.KeyboardEvent(k)
-			}
-		})
 
 		go func() {
 			err, open := <-app.fail
@@ -186,4 +175,28 @@ func getInfo() (info *shared.Info, err error) {
 		return nil, kerr.Wrap("AAFXLQRUEW", err)
 	}
 	return info, nil
+}
+
+func addKeyboardEvents(app *stores.App) {
+	window := dom.GetWindow()
+	document := window.Document().(dom.HTMLDocument)
+	window.AddEventListener("keydown", true, func(e dom.Event) {
+		k := e.(*dom.KeyboardEvent)
+		switch document.ActiveElement().TagName() {
+		case "INPUT", "TEXTAREA":
+			if k.KeyCode == 27 {
+				// escape
+				document.ActiveElement().Blur()
+			}
+			return
+		default:
+			if k.KeyCode >= 37 && k.KeyCode <= 40 {
+				// up, down, left, right
+				k.PreventDefault()
+				go func() {
+					app.Dispatch(&actions.KeyboardEvent{KeyCode: k.KeyCode})
+				}()
+			}
+		}
+	})
 }
