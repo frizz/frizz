@@ -1,8 +1,6 @@
 package views // import "kego.io/editor/client/views"
 
 import (
-	"fmt"
-
 	"code.google.com/p/go.net/context"
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
@@ -26,18 +24,19 @@ func NewPanelView(ctx context.Context) *PanelView {
 		app: stores.FromContext(ctx),
 	}
 
-	go func() {
-		sc := p.app.Branches.Changed()
-		for {
-			select {
-			case <-sc:
-				fmt.Println("Selected changed: updating PanelView.")
-				p.Selected = p.app.Branches.Selected()
-				p.ReconcileBody()
+	/*
+		go func() {
+			sc := p.app.Branches.Changed()
+			for {
+				select {
+				case <-sc:
+					fmt.Println("Selected changed: updating PanelView.")
+					p.Selected = p.app.Branches.Selected()
+					p.ReconcileBody()
+				}
 			}
-		}
-	}()
-
+		}()
+	*/
 	return p
 }
 

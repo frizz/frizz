@@ -48,6 +48,7 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 }
 
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
+	previous := s.selected
 	switch action := payload.Action.(type) {
 	case *actions.KeyboardEvent:
 		switch action.KeyCode {
@@ -55,26 +56,26 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected == nil {
 				if b := s.app.Branches.Root().LastVisible(); b != nil {
 					s.selected = b
-					s.Notify()
+					s.Notify(previous, s.selected)
 				}
 				return true
 			}
-			if b := s.selected.PrevVisible(); b != nil {
+			if b := s.selected.PrevVisible(); b != nil && !b.Root {
 				s.selected = b
-				s.Notify()
+				s.Notify(previous, s.selected)
 				return true
 			}
 		case 40: // down
 			if s.selected == nil {
 				if b := s.app.Branches.Root().FirstChild(); b != nil {
 					s.selected = b
-					s.Notify()
+					s.Notify(previous, s.selected)
 				}
 				return true
 			}
 			if b := s.selected.NextVisible(true); b != nil {
 				s.selected = b
-				s.Notify()
+				s.Notify(previous, s.selected)
 				return true
 			}
 		case 37: // left
@@ -84,12 +85,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected.CanOpen() && s.selected.Open {
 				// if the branch is open, left arrow should close it.
 				s.selected.Open = false
-				s.Notify()
+				s.Notify(s.selected)
 				return true
 			} else {
-				if b := s.selected.Parent; b != nil {
+				if b := s.selected.Parent; b != nil && !b.Root {
 					s.selected = b
-					s.Notify()
+					s.Notify(previous, s.selected)
 					return true
 				}
 			}
@@ -100,19 +101,19 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected.CanOpen() && !s.selected.Open {
 				// if the branch is closed, right arrow should open it
 				s.selected.Open = true
-				s.Notify()
+				s.Notify(s.selected)
 				return true
 			} else {
 				if b := s.selected.FirstChild(); b != nil {
 					s.selected = b
-					s.Notify()
+					s.Notify(previous, s.selected)
 					return true
 				}
 			}
 		}
 	case *actions.SelectBranch:
 		s.selected = action.Branch
-		s.Notify()
+		s.Notify(previous, s.selected)
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
 		s.pkg = models.NewNodeBranch(s.app.Package.Get(), "package")
@@ -150,7 +151,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		action.Branch.Open = !action.Branch.Open
-		s.Notify()
+		s.Notify(action.Branch)
 	}
 
 	return true

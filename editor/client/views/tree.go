@@ -36,8 +36,8 @@ func NewTreeView(ctx context.Context) *TreeView {
 	}
 
 	go func() {
-		for range p.app.Branches.Changed() {
-			fmt.Println("Branches changed: updating TreeView.")
+		for range p.app.Branches.Changed(p.app.Branches.Root()) {
+			fmt.Println("Root changed: updating TreeView.")
 			p.Root = p.app.Branches.Root()
 			p.ReconcileBody()
 		}

@@ -1,6 +1,8 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/event"
@@ -17,6 +19,7 @@ type BranchView struct {
 	app *stores.App
 
 	model *models.BranchModel
+	c     chan struct{}
 }
 
 func (b *BranchView) Reconcile(old vecty.Component) {
@@ -37,8 +40,18 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 		ctx:   ctx,
 		app:   app,
 		model: model,
+		c:     app.Branches.Changed(model),
 	}
+	go func() {
+		for range b.c {
+			fmt.Println("Branch changed: updating BranchView.")
+			b.ReconcileBody()
+		}
+	}()
 	return b
+}
+func (b *BranchView) Unmount() {
+	b.app.Branches.Delete(b.c)
 }
 
 // Apply implements the vecty.Markup interface.
