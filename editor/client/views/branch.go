@@ -16,8 +16,9 @@ type BranchView struct {
 	ctx context.Context
 	app *stores.App
 
-	model *models.BranchModel
-	c     chan struct{}
+	model    *models.BranchModel
+	c        chan struct{}
+	children vecty.List
 }
 
 func (b *BranchView) Reconcile(old vecty.Component) {
@@ -57,11 +58,12 @@ func (b *BranchView) Mount() {
 
 func (b *BranchView) Unmount() {
 	if b.c == nil {
-		panic("unmounting an unmounted branch")
+		return
 	}
 	b.app.Branches.Delete(b.c)
 	close(b.c)
 	b.c = nil
+	b.Body.Unmount()
 }
 
 // Apply implements the vecty.Markup interface.
@@ -121,35 +123,25 @@ func (b *BranchView) render() vecty.Component {
 
 	selected := b.app.Branches.Selected() == b.model
 
-	var children vecty.List
+	b.children = vecty.List{}
 	if b.model.Open {
 		for _, c := range b.model.Children {
-			children = append(children, NewBranchView(b.ctx, c))
+			b.children = append(b.children, NewBranchView(b.ctx, c))
 		}
 	}
 
-	/*
-		if b.model.Root {
-			return elem.Div(
-				prop.Class("node root"),
-				elem.Div(
-					prop.Class("children"),
-					children,
-				),
-			)
-		}
-	*/
 	icon := b.model.Icon()
 
 	return elem.Div(
 		prop.Class("node"),
 		elem.Anchor(
 			vecty.ClassMap{
-				"toggle":  true,
-				"plus":    icon == "plus",
-				"minus":   icon == "minus",
-				"unknown": icon == "unknown",
-				"empty":   icon == "empty",
+				"toggle":   true,
+				"selected": selected,
+				"plus":     icon == "plus",
+				"minus":    icon == "minus",
+				"unknown":  icon == "unknown",
+				"empty":    icon == "empty",
 			},
 			event.Click(b.toggleClick),
 		),
@@ -170,7 +162,7 @@ func (b *BranchView) render() vecty.Component {
 		),
 		elem.Div(
 			prop.Class("children"),
-			children,
+			b.children,
 		),
 	)
 }

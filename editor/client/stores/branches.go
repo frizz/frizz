@@ -50,23 +50,25 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 
 func (s *BranchStore) Notify(changed ...interface{}) {
 	// eliminate descendants...
-	deleted := map[interface{}]bool{}
+	changedBranches := []*models.BranchModel{}
 	for _, c := range changed {
-		b := c.(*models.BranchModel)
-		for _, c1 := range changed {
-			b1 := c1.(*models.BranchModel)
-			if b == nil || b1 == nil {
-				continue
-			}
+		br := c.(*models.BranchModel)
+		if br != nil {
+			changedBranches = append(changedBranches, br)
+		}
+	}
+	deleted := map[interface{}]bool{}
+	for _, b := range changedBranches {
+		for _, b1 := range changedBranches {
 			if b.IsDescendantOf(b1) {
-				deleted[c] = true
+				deleted[b] = true
 			}
 		}
 	}
 	out := []interface{}{}
-	for _, c := range changed {
-		if _, ok := deleted[c]; c != nil && !ok {
-			out = append(out, c)
+	for _, b := range changedBranches {
+		if _, ok := deleted[b]; !ok {
+			out = append(out, b)
 		}
 	}
 	s.Store.Notify(out...)

@@ -8,12 +8,15 @@
 .toggle {
     cursor: pointer;
     position: absolute;
-    left: -20px;
+    left: -21px;
     top: 2px;
     background-size: 20px 20px;
-    opacity: 0.5;
+    opacity: 0.3;
     height: 20px;
     width: 20px;
+}
+.toggle.selected {
+    opacity: 0.5;
 }
 .toggle.plus {
     background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMDAwMDAwIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEzIDdoLTJ2NEg3djJoNHY0aDJ2LTRoNHYtMmgtNFY3em0tMS01QzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0wIDE4Yy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggOHoiLz48L3N2Zz4=");
@@ -33,8 +36,11 @@
 .node-label {
     cursor: pointer;
 }
+.node-content {
+    padding: 2px;
+}
 .node-content.selected {
-    background-color: #eeeeee;
+    background-color: #F6F6F6;
 }
 .mdl-spinner {
     position: absolute;

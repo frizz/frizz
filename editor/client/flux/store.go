@@ -1,6 +1,9 @@
 package flux
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type StoreInterface interface {
 	// Handle consumes the action in the payload. If the operation was performed syncronously,
@@ -86,6 +89,7 @@ func (s *Store) Notify(changed ...interface{}) {
 		}
 	}
 
+	fmt.Println("Notifying", len(matching), "watchers")
 	for c, _ := range matching {
 		c <- struct{}{}
 	}

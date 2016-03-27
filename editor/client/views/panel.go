@@ -64,7 +64,7 @@ func (p *PanelView) render() vecty.Component {
 	}
 
 	return elem.Div(
-		prop.Class("content"),
+		prop.Class("content panel"),
 		vecty.If(
 			n != nil,
 			NewBreadcrumbsView(p.ctx),

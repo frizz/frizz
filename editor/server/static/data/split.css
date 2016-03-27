@@ -5,7 +5,6 @@
 
   body {
     padding: 52px 0px 0px 0px;
-    background-color: #F6F6F6;
     box-sizing: border-box;
   }
 
@@ -21,14 +20,19 @@
   .content {
     background-color: #fff;
     height: 100%;
+
+  }
+  .content.tree {
+    padding: 10px 0 15px 15px;
+  }
+  .content.panel {
     padding: 10px;
   }
 
   .gutter {
-    background-color: transparent;
-
     background-repeat: no-repeat;
     background-position: 50%;
+    background-color: #F6F6F6;
   }
 
   .gutter.gutter-horizontal {
