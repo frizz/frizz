@@ -2,6 +2,7 @@ package stores
 
 import (
 	"golang.org/x/net/context"
+	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
@@ -47,6 +48,30 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 	}
 }
 
+func (s *BranchStore) Notify(changed ...interface{}) {
+	// eliminate descendants...
+	deleted := map[interface{}]bool{}
+	for _, c := range changed {
+		b := c.(*models.BranchModel)
+		for _, c1 := range changed {
+			b1 := c1.(*models.BranchModel)
+			if b == nil || b1 == nil {
+				continue
+			}
+			if b.IsDescendantOf(b1) {
+				deleted[c] = true
+			}
+		}
+	}
+	out := []interface{}{}
+	for _, c := range changed {
+		if _, ok := deleted[c]; c != nil && !ok {
+			out = append(out, c)
+		}
+	}
+	s.Store.Notify(out...)
+}
+
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	previous := s.selected
 	switch action := payload.Action.(type) {
@@ -60,17 +85,15 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				}
 				return true
 			}
-			if b := s.selected.PrevVisible(); b != nil && !b.Root {
+			if b := s.selected.PrevVisible(); b != nil {
 				s.selected = b
 				s.Notify(previous, s.selected)
 				return true
 			}
 		case 40: // down
 			if s.selected == nil {
-				if b := s.app.Branches.Root().FirstChild(); b != nil {
-					s.selected = b
-					s.Notify(previous, s.selected)
-				}
+				s.selected = s.app.Branches.Root()
+				s.Notify(s.selected)
 				return true
 			}
 			if b := s.selected.NextVisible(true); b != nil {
@@ -88,7 +111,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				s.Notify(s.selected)
 				return true
 			} else {
-				if b := s.selected.Parent; b != nil && !b.Root {
+				if b := s.selected.Parent; b != nil {
 					s.selected = b
 					s.Notify(previous, s.selected)
 					return true
@@ -111,6 +134,13 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				}
 			}
 		}
+	case *actions.ToggleBranch:
+		if !action.Branch.CanOpen() {
+			// branch can't open - ignore
+			break
+		}
+		action.Branch.Open = !action.Branch.Open
+		s.Notify(action.Branch)
 	case *actions.SelectBranch:
 		s.selected = action.Branch
 		s.Notify(previous, s.selected)
@@ -141,17 +171,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.root = &models.BranchModel{
 			Root: true,
 			Open: true,
+			Contents: &models.RootContents{
+				Path: envctx.FromContext(s.ctx).Path,
+			},
 		}
 		s.root.Append(s.pkg, s.types, s.data)
-
 		s.Notify()
-	case *actions.ToggleBranch:
-		if !action.Branch.CanOpen() {
-			// branch can't open - ignore
-			break
-		}
-		action.Branch.Open = !action.Branch.Open
-		s.Notify(action.Branch)
 	}
 
 	return true

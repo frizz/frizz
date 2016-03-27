@@ -1,8 +1,6 @@
 package views // import "kego.io/editor/client/views"
 
 import (
-	"fmt"
-
 	"code.google.com/p/go.net/context"
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
@@ -37,7 +35,6 @@ func NewTreeView(ctx context.Context) *TreeView {
 
 	go func() {
 		for range p.app.Branches.Changed(p.app.Branches.Root()) {
-			fmt.Println("Root changed: updating TreeView.")
 			p.Root = p.app.Branches.Root()
 			p.ReconcileBody()
 		}

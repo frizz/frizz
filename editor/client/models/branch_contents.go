@@ -30,6 +30,11 @@ type BranchContentsAsyncInterface interface {
 
 type RootContents struct {
 	BranchContents
+	Path string
+}
+
+func (c RootContents) Label() string {
+	return c.Path
 }
 
 type DataContents struct {

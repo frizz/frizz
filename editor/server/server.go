@@ -400,7 +400,8 @@ func serve(ctx context.Context) error {
 	cmd := cmdctx.FromContext(ctx)
 
 	// Starting with port zero chooses a random open port
-	listner, err := net.Listen("tcp", ":0")
+	//listner, err := net.Listen("tcp", ":0")
+	listner, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		return kerr.Wrap("QGLXHWPWQW", err)
 	}

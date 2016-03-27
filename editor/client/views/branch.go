@@ -1,8 +1,6 @@
 package views
 
 import (
-	"fmt"
-
 	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/vecty/elem"
 	"github.com/gopherjs/vecty/event"
@@ -40,18 +38,30 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 		ctx:   ctx,
 		app:   app,
 		model: model,
-		c:     app.Branches.Changed(model),
 	}
+	b.Mount()
+	return b
+}
+
+func (b *BranchView) Mount() {
+	if b.c != nil {
+		panic("mounting a mounted branch")
+	}
+	b.c = b.app.Branches.Changed(b.model)
 	go func() {
 		for range b.c {
-			fmt.Println("Branch changed: updating BranchView.")
 			b.ReconcileBody()
 		}
 	}()
-	return b
 }
+
 func (b *BranchView) Unmount() {
+	if b.c == nil {
+		panic("unmounting an unmounted branch")
+	}
 	b.app.Branches.Delete(b.c)
+	close(b.c)
+	b.c = nil
 }
 
 // Apply implements the vecty.Markup interface.
@@ -105,28 +115,30 @@ func (b *BranchView) ensureLoaded() chan struct{} {
 }
 
 func (b *BranchView) render() vecty.Component {
-
 	if b.model == nil {
 		return elem.Div()
 	}
 
 	selected := b.app.Branches.Selected() == b.model
 
-	var childern vecty.List
-	for _, c := range b.model.Children {
-		childern = append(childern, NewBranchView(b.ctx, c))
+	var children vecty.List
+	if b.model.Open {
+		for _, c := range b.model.Children {
+			children = append(children, NewBranchView(b.ctx, c))
+		}
 	}
 
-	if b.model.Root {
-		return elem.Div(
-			prop.Class("node root"),
-			elem.Div(
-				prop.Class("children"),
-				childern,
-			),
-		)
-	}
-
+	/*
+		if b.model.Root {
+			return elem.Div(
+				prop.Class("node root"),
+				elem.Div(
+					prop.Class("children"),
+					children,
+				),
+			)
+		}
+	*/
 	icon := b.model.Icon()
 
 	return elem.Div(
@@ -158,8 +170,7 @@ func (b *BranchView) render() vecty.Component {
 		),
 		elem.Div(
 			prop.Class("children"),
-			vecty.If(!b.model.Open, vecty.Style("display", "none")),
-			childern,
+			children,
 		),
 	)
 }

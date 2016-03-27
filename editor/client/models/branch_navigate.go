@@ -42,6 +42,9 @@ func (b *BranchModel) NextVisible(includeChildren bool) *BranchModel {
 	if b.Parent == nil {
 		// if we're testing the root, always return it's first child, or nil if it's empty.
 		if len(b.Children) > 0 {
+			if !b.Open {
+				return nil
+			}
 			return b.Children[0]
 		}
 		return nil
@@ -96,7 +99,7 @@ func (b *BranchModel) isLastSibling() bool {
 }
 
 // isDescendantOf tells us if this branch is a direct descendant of the specified branch
-func (b *BranchModel) isDescendantOf(ancestor *BranchModel) bool {
+func (b *BranchModel) IsDescendantOf(ancestor *BranchModel) bool {
 	current := b.Parent
 	for current != nil {
 		if current == ancestor {
@@ -108,7 +111,7 @@ func (b *BranchModel) isDescendantOf(ancestor *BranchModel) bool {
 }
 
 // isAncestorOf tells us if this branch is a direct ancestor of the specified branch
-func (b *BranchModel) isAncestorOf(descendant *BranchModel) bool {
+func (b *BranchModel) IsAncestorOf(descendant *BranchModel) bool {
 	current := descendant.Parent
 	for current != nil {
 		if current == b {

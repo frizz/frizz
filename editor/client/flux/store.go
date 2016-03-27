@@ -1,9 +1,6 @@
 package flux
 
-import (
-	"fmt"
-	"sync"
-)
+import "sync"
 
 type StoreInterface interface {
 	// Handle consumes the action in the payload. If the operation was performed syncronously,
@@ -35,6 +32,10 @@ func (s *Store) Delete(c chan struct{}) {
 	for v, a := range s.subscribers {
 		for i, ch := range a {
 			if c == ch {
+				if len(s.subscribers[v]) == 1 {
+					delete(s.subscribers, v)
+					break
+				}
 				s.subscribers[v] = append(a[:i], a[i+1:]...)
 				break
 			}
@@ -85,7 +86,6 @@ func (s *Store) Notify(changed ...interface{}) {
 		}
 	}
 
-	fmt.Println("Notifying", len(matching), "watchers")
 	for c, _ := range matching {
 		c <- struct{}{}
 	}
