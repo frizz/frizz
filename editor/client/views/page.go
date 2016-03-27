@@ -2,9 +2,9 @@ package views // import "kego.io/editor/client/views"
 
 import (
 	"code.google.com/p/go.net/context"
-	"github.com/gopherjs/vecty"
-	"github.com/gopherjs/vecty/elem"
-	"github.com/gopherjs/vecty/prop"
+	"github.com/davelondon/vecty"
+	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/prop"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/stores"
 )

@@ -12,8 +12,8 @@ import (
 
 	"encoding/base64"
 
+	"github.com/davelondon/vecty"
 	"github.com/gopherjs/gopherjs/js"
-	"github.com/gopherjs/vecty"
 	"github.com/gopherjs/websocket"
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"

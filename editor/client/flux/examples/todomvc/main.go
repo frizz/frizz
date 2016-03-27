@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gopherjs/vecty"
+	"github.com/davelondon/vecty"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/flux"
 	"kego.io/editor/client/flux/examples/todomvc/stores"

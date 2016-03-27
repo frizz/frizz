@@ -1,10 +1,10 @@
 package views
 
 import (
-	"github.com/gopherjs/vecty"
-	"github.com/gopherjs/vecty/elem"
-	"github.com/gopherjs/vecty/event"
-	"github.com/gopherjs/vecty/prop"
+	"github.com/davelondon/vecty"
+	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/event"
+	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/flux/examples/todomvc/actions"
 	"kego.io/editor/client/flux/examples/todomvc/model"

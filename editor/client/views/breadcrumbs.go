@@ -1,8 +1,8 @@
 package views
 
 import (
-	"github.com/gopherjs/vecty"
-	"github.com/gopherjs/vecty/elem"
+	"github.com/davelondon/vecty"
+	"github.com/davelondon/vecty/elem"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/stores"
 	"kego.io/system/node"
