@@ -73,47 +73,20 @@ func (b *BranchControlView) Apply(element *vecty.Element) {
 
 func (b *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
-		//if _, success := <-b.ensureLoaded(); !success {
-		//	return
-		//}
+		LoadBranch(b.ctx, b.app, b.model, true)
 		if b.model.CanOpen() {
 			b.app.Dispatch(&actions.ToggleBranch{Branch: b.model})
 		} else {
-			b.app.Dispatch(&actions.SelectBranch{Branch: b.model, Keyboard: false})
+			b.app.Dispatch(&actions.SelectBranch{Branch: b.model})
 		}
 	}()
 }
 
-func (b *BranchControlView) selectClick(*vecty.Event) {
+func (b *BranchControlView) labelClick(*vecty.Event) {
 	go func() {
-		if _, success := <-b.ensureLoaded(); !success {
-			return
-		}
-		b.app.Dispatch(&actions.SelectBranch{Branch: b.model, Keyboard: false})
+		LoadBranch(b.ctx, b.app, b.model, true)
+		b.app.Dispatch(&actions.SelectBranch{Branch: b.model})
 	}()
-}
-
-func (b *BranchControlView) ensureLoaded() chan struct{} {
-
-	signal := make(chan struct{}, 1)
-
-	if !b.model.Contents.Async() || b.model.Contents.Loaded() {
-		// If item is not async or content is already loaded, send to the signal before returning.
-		signal <- struct{}{}
-		return signal
-	}
-
-	// Load content asynchronously
-	action := &actions.LoadSource{
-		Contents: b.model.Contents,
-		Signal:   signal,
-	}
-
-	go func() {
-		b.app.Dispatch(action)
-	}()
-
-	return signal
 }
 
 func (b *BranchControlView) render() vecty.Component {
@@ -144,7 +117,7 @@ func (b *BranchControlView) render() vecty.Component {
 			},
 			elem.Span(
 				prop.Class("node-label"),
-				event.Click(b.selectClick),
+				event.Click(b.labelClick),
 				vecty.Text(b.model.Contents.Label()),
 			),
 			elem.Span(

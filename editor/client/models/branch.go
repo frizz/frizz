@@ -15,7 +15,7 @@ func (b *BranchModel) CanOpen() bool {
 	if b.Root {
 		return true
 	}
-	if !b.Contents.Loaded() {
+	if async, ok := b.Contents.(AsyncInterface); ok && !async.Loaded() {
 		return true
 	}
 	if len(b.Children) == 0 {
@@ -28,7 +28,7 @@ func (b *BranchModel) Icon() string {
 	if !b.CanOpen() {
 		return "empty"
 	}
-	if !b.Contents.Loaded() {
+	if async, ok := b.Contents.(AsyncInterface); ok && !async.Loaded() {
 		return "unknown"
 	}
 	if b.Open {
@@ -44,13 +44,17 @@ func NewNodeBranch(n *node.Node, name string) *BranchModel {
 			Name: name,
 		},
 	}
+	AppendNodeChildren(b, n)
+	return b
+}
+
+func AppendNodeChildren(b *BranchModel, n *node.Node) {
 	for _, c := range n.Array {
 		b.Append(NewNodeBranch(c.GetNode(), ""))
 	}
 	for _, c := range n.Map {
 		b.Append(NewNodeBranch(c.GetNode(), ""))
 	}
-	return b
 }
 
 func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {

@@ -24,12 +24,12 @@ type StoreInterface interface {
 
 type Store struct {
 	m           sync.Mutex
-	i           StoreInterface
+	self        StoreInterface
 	subscribers map[interface{}]notifier
 }
 
-func (s *Store) Init(i StoreInterface) {
-	s.i = i
+func (s *Store) Init(si StoreInterface) {
+	s.self = si
 }
 
 type key string
@@ -39,7 +39,7 @@ const all_subscribers key = "all_subscribers"
 const all_values key = "all_values"
 
 func (s *Store) DeleteAll(c chan struct{}) {
-	s.i.DeleteSingle(all_notifications, c)
+	s.self.DeleteSingle(all_notifications, c)
 }
 func (s *Store) DeleteSingle(notificationType interface{}, c chan struct{}) {
 	s.m.Lock()
@@ -66,7 +66,7 @@ func (s *Store) DeleteSingle(notificationType interface{}, c chan struct{}) {
 }
 
 func (s *Store) WatchAll(watch ...interface{}) chan struct{} {
-	return s.i.WatchSingle(all_notifications, watch...)
+	return s.self.WatchSingle(all_notifications, watch...)
 }
 
 func (s *Store) WatchSingle(notificationType interface{}, watch ...interface{}) chan struct{} {
@@ -83,7 +83,7 @@ func (s *Store) WatchSingle(notificationType interface{}, watch ...interface{}) 
 }
 
 func (s *Store) NotifyAll(changed ...interface{}) {
-	s.i.NotifySingle(all_notifications, changed...)
+	s.self.NotifySingle(all_notifications, changed...)
 }
 
 func (s *Store) NotifySingle(notificationType interface{}, changed ...interface{}) {

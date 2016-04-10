@@ -89,81 +89,37 @@ func (s *BranchStore) NotifySingle(notificationType interface{}, changed ...inte
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	previous := s.selected
 	switch action := payload.Action.(type) {
-	case *actions.KeyboardEvent:
-		switch action.KeyCode {
-		case 38: // up
-			if s.selected == nil {
-				if b := s.app.Branches.Root().LastVisible(); b != nil {
-					s.selected = b
-					s.NotifySingle(BranchSelectedChanged, previous, s.selected)
-				}
-				return true
-			}
-			if b := s.selected.PrevVisible(); b != nil {
-				s.selected = b
-				s.NotifySingle(BranchSelectedChanged, previous, s.selected)
-				return true
-			}
-		case 40: // down
-			if s.selected == nil {
-				s.selected = s.app.Branches.Root()
-				s.NotifySingle(BranchSelectedChanged, s.selected)
-				return true
-			}
-			if b := s.selected.NextVisible(true); b != nil {
-				s.selected = b
-				s.NotifySingle(BranchSelectedChanged, previous, s.selected)
-				return true
-			}
-		case 37: // left
-			if s.selected == nil {
-				return true
-			}
-			if s.selected.CanOpen() && s.selected.Open {
-				// if the branch is open, left arrow should close it.
-				s.selected.Open = false
-				s.NotifyAll(s.selected)
-				return true
-			} else {
-				if b := s.selected.Parent; b != nil {
-					s.selected = b
-					s.NotifySingle(BranchSelectedChanged, previous, s.selected)
-					return true
-				}
-			}
-		case 39: // right
-			if s.selected == nil {
-				return true
-			}
-			if s.selected.CanOpen() && !s.selected.Open {
-				// if the branch is closed, right arrow should open it
-				s.selected.Open = true
-				s.NotifyAll(s.selected)
-				return true
-			} else {
-				if b := s.selected.FirstChild(); b != nil {
-					s.selected = b
-					s.NotifySingle(BranchSelectedChanged, previous, s.selected)
-					return true
-				}
-			}
-		}
 	case *actions.ToggleBranch:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
-			break
+			return true
 		}
 		action.Branch.Open = !action.Branch.Open
 		s.NotifyAll(action.Branch)
 		return true
+	case *actions.CloseBranch:
+		if !action.Branch.CanOpen() {
+			// branch can't open - ignore
+			return true
+		}
+		action.Branch.Open = false
+		s.NotifyAll(action.Branch)
+		return true
+	case *actions.OpenBranch:
+		if !action.Branch.CanOpen() {
+			// branch can't open - ignore
+			return true
+		}
+		action.Branch.Open = true
+		s.NotifyAll(action.Branch)
+		return true
 	case *actions.SelectBranch:
-
 		s.selected = action.Branch
 		s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 		return true
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
-		s.pkg = models.NewNodeBranch(s.app.Package.Get(), "package")
+		s.pkg = models.NewNodeBranch(s.app.Package.Node(), "package")
 
 		s.types = &models.BranchModel{
 			Contents: &models.TypesContents{},
@@ -194,6 +150,14 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		s.root.Append(s.pkg, s.types, s.data)
 		s.NotifyAll()
+		return true
+	case *actions.LoadSourceSuccess:
+		n, ok := action.Branch.Contents.(models.NodeContentsInterface)
+		if !ok {
+			return true
+		}
+		models.AppendNodeChildren(action.Branch, n.GetNode())
+		s.NotifyAll(action.Branch)
 		return true
 	}
 

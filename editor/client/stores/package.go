@@ -13,7 +13,7 @@ type PackageStore struct {
 	ctx context.Context
 	app *App
 
-	packageNode *node.Node
+	n *node.Node
 }
 
 func NewPackageStore(ctx context.Context) *PackageStore {
@@ -26,18 +26,18 @@ func NewPackageStore(ctx context.Context) *PackageStore {
 	return s
 }
 
-func (s *PackageStore) Get() *node.Node {
-	return s.packageNode
+func (s *PackageStore) Node() *node.Node {
+	return s.n
 }
 
 func (s *PackageStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
-		pkg, err := node.Unmarshal(s.ctx, action.Info.Package)
+		pkgNode, err := node.Unmarshal(s.ctx, action.Info.Package)
 		if err != nil {
 			s.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
 		}
-		s.packageNode = pkg
+		s.n = pkgNode
 		s.NotifyAll()
 	}
 	return true

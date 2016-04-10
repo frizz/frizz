@@ -3,33 +3,24 @@ package models
 import (
 	"fmt"
 
+	"sync"
+
 	"kego.io/system/node"
 )
 
 type BranchContentsInterface interface {
 	Label() string
+}
+
+type AsyncInterface interface {
 	Loaded() bool
-	Async() bool
 }
 
-type BranchContents struct{}
-
-func (c BranchContents) Label() string {
-	return ""
-}
-func (c BranchContents) Loaded() bool {
-	return true
-}
-func (c BranchContents) Async() bool {
-	return false
-}
-
-type BranchContentsAsyncInterface interface {
-	LoadAction(signal chan struct{}) interface{}
+type NodeContentsInterface interface {
+	GetNode() *node.Node
 }
 
 type RootContents struct {
-	BranchContents
 	Path string
 }
 
@@ -37,28 +28,19 @@ func (c RootContents) Label() string {
 	return c.Path
 }
 
-type DataContents struct {
-	BranchContents
-}
+type DataContents struct{}
 
 func (c DataContents) Label() string {
 	return "data"
 }
 
-type TypesContents struct {
-	BranchContents
-}
+type TypesContents struct{}
 
 func (c TypesContents) Label() string {
 	return "types"
 }
 
-type NodeContentsInterface interface {
-	GetNode() *node.Node
-}
-
 type NodeContents struct {
-	BranchContents
 	Node *node.Node
 	Name string
 }
@@ -78,11 +60,10 @@ func (c NodeContents) Label() string {
 }
 
 type SourceContents struct {
-	BranchContents
 	NodeContents
+	Once     sync.Once
 	Name     string
 	Filename string
-	loaded   bool
 }
 
 func (c SourceContents) Label() string {
@@ -90,9 +71,5 @@ func (c SourceContents) Label() string {
 }
 
 func (c SourceContents) Loaded() bool {
-	return c.loaded
-}
-
-func (c SourceContents) Async() bool {
-	return true
+	return c.Node != nil
 }

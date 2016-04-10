@@ -18,8 +18,13 @@ type ToggleBranch struct {
 }
 
 type SelectBranch struct {
-	Branch   *models.BranchModel
-	Keyboard bool
+	Branch *models.BranchModel
+}
+type OpenBranch struct {
+	Branch *models.BranchModel
+}
+type CloseBranch struct {
+	Branch *models.BranchModel
 }
 
 type LoadSource struct {
@@ -29,4 +34,17 @@ type LoadSource struct {
 
 type KeyboardEvent struct {
 	KeyCode int
+}
+
+type LoadSourceSent struct {
+	Branch *models.BranchModel
+}
+type LoadSourceCancelled struct {
+	Branch *models.BranchModel
+}
+type LoadSourceSuccess struct {
+	Branch *models.BranchModel
+}
+type LoadSourceError struct {
+	Branch *models.BranchModel
 }
