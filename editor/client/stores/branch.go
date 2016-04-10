@@ -154,10 +154,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		action.Branch.Open = !action.Branch.Open
-		s.NotifyAll(s.selected)
+		s.NotifyAll(action.Branch)
+		return true
 	case *actions.SelectBranch:
 		s.selected = action.Branch
 		s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+		return true
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
 		s.pkg = models.NewNodeBranch(s.app.Package.Get(), "package")
@@ -191,6 +193,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		s.root.Append(s.pkg, s.types, s.data)
 		s.NotifyAll()
+		return true
 	}
 
 	return true

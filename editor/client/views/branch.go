@@ -83,7 +83,7 @@ func (b *BranchView) render() vecty.Component {
 
 	return elem.Div(
 		prop.Class("node"),
-		NewBranchLabelView(b.ctx, b.model),
+		NewBranchControlView(b.ctx, b.model),
 		elem.Div(
 			prop.Class("children"),
 			b.children,

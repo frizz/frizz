@@ -11,7 +11,7 @@ import (
 	"kego.io/editor/client/stores"
 )
 
-type BranchLabelView struct {
+type BranchControlView struct {
 	vecty.Composite
 	ctx context.Context
 	app *stores.App
@@ -21,8 +21,8 @@ type BranchLabelView struct {
 	children vecty.List
 }
 
-func (b *BranchLabelView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BranchLabelView); ok {
+func (b *BranchControlView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*BranchControlView); ok {
 		b.Body = old.Body
 		b.model = old.model
 	}
@@ -30,12 +30,12 @@ func (b *BranchLabelView) Reconcile(old vecty.Component) {
 	b.ReconcileBody()
 }
 
-func NewBranchLabelView(ctx context.Context, model *models.BranchModel) *BranchLabelView {
+func NewBranchControlView(ctx context.Context, model *models.BranchModel) *BranchControlView {
 	if model == nil {
 		return nil
 	}
 	app := stores.FromContext(ctx)
-	b := &BranchLabelView{
+	b := &BranchControlView{
 		ctx:   ctx,
 		app:   app,
 		model: model,
@@ -44,9 +44,9 @@ func NewBranchLabelView(ctx context.Context, model *models.BranchModel) *BranchL
 	return b
 }
 
-func (b *BranchLabelView) Mount() {
+func (b *BranchControlView) Mount() {
 	if b.c != nil {
-		panic("mounting a mounted BranchLabel")
+		panic("mounting a mounted BranchControl")
 	}
 	b.c = b.app.Branches.WatchOne(stores.BranchSelectedChanged, b.model)
 	go func() {
@@ -56,7 +56,7 @@ func (b *BranchLabelView) Mount() {
 	}()
 }
 
-func (b *BranchLabelView) Unmount() {
+func (b *BranchControlView) Unmount() {
 	if b.c == nil {
 		return
 	}
@@ -67,15 +67,15 @@ func (b *BranchLabelView) Unmount() {
 }
 
 // Apply implements the vecty.Markup interface.
-func (b *BranchLabelView) Apply(element *vecty.Element) {
+func (b *BranchControlView) Apply(element *vecty.Element) {
 	element.AddChild(b)
 }
 
-func (b *BranchLabelView) toggleClick(*vecty.Event) {
+func (b *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
-		if _, success := <-b.ensureLoaded(); !success {
-			return
-		}
+		//if _, success := <-b.ensureLoaded(); !success {
+		//	return
+		//}
 		if b.model.CanOpen() {
 			b.app.Dispatch(&actions.ToggleBranch{Branch: b.model})
 		} else {
@@ -84,7 +84,7 @@ func (b *BranchLabelView) toggleClick(*vecty.Event) {
 	}()
 }
 
-func (b *BranchLabelView) selectClick(*vecty.Event) {
+func (b *BranchControlView) selectClick(*vecty.Event) {
 	go func() {
 		if _, success := <-b.ensureLoaded(); !success {
 			return
@@ -93,7 +93,7 @@ func (b *BranchLabelView) selectClick(*vecty.Event) {
 	}()
 }
 
-func (b *BranchLabelView) ensureLoaded() chan struct{} {
+func (b *BranchControlView) ensureLoaded() chan struct{} {
 
 	signal := make(chan struct{}, 1)
 
@@ -116,7 +116,7 @@ func (b *BranchLabelView) ensureLoaded() chan struct{} {
 	return signal
 }
 
-func (b *BranchLabelView) render() vecty.Component {
+func (b *BranchControlView) render() vecty.Component {
 	if b.model == nil {
 		return elem.Div()
 	}
