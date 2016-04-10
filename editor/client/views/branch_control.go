@@ -48,7 +48,7 @@ func (b *BranchControlView) Mount() {
 	if b.c != nil {
 		panic("mounting a mounted BranchControl")
 	}
-	b.c = b.app.Branches.WatchOne(stores.BranchSelectedChanged, b.model)
+	b.c = b.app.Branches.WatchSingle(stores.BranchSelectedChanged, b.model)
 	go func() {
 		for range b.c {
 			b.ReconcileBody()
@@ -60,7 +60,7 @@ func (b *BranchControlView) Unmount() {
 	if b.c == nil {
 		return
 	}
-	b.app.Branches.DeleteOne(stores.BranchSelectedChanged, b.c)
+	b.app.Branches.DeleteSingle(stores.BranchSelectedChanged, b.c)
 	close(b.c)
 	b.c = nil
 	b.Body.Unmount()

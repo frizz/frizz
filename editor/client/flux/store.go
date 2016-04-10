@@ -10,16 +10,16 @@ type StoreInterface interface {
 	// Change returns a channel that is signalled when there's a change to this
 	WatchAll(watch ...interface{}) chan struct{}
 
-	WatchOne(notificationType interface{}, watch ...interface{}) chan struct{}
+	WatchSingle(notificationType interface{}, watch ...interface{}) chan struct{}
 
 	// notify is use by this store to send the change signal to all change chanels
 	NotifyAll(changed ...interface{})
 
-	NotifyOne(notificationType interface{}, changed ...interface{})
+	NotifySingle(notificationType interface{}, changed ...interface{})
 
 	DeleteAll(c chan struct{})
 
-	DeleteOne(notificationType interface{}, c chan struct{})
+	DeleteSingle(notificationType interface{}, c chan struct{})
 }
 
 type Store struct {
@@ -39,9 +39,9 @@ const all_subscribers key = "all_subscribers"
 const all_values key = "all_values"
 
 func (s *Store) DeleteAll(c chan struct{}) {
-	s.i.DeleteOne(all_notifications, c)
+	s.i.DeleteSingle(all_notifications, c)
 }
-func (s *Store) DeleteOne(notificationType interface{}, c chan struct{}) {
+func (s *Store) DeleteSingle(notificationType interface{}, c chan struct{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
@@ -66,10 +66,10 @@ func (s *Store) DeleteOne(notificationType interface{}, c chan struct{}) {
 }
 
 func (s *Store) WatchAll(watch ...interface{}) chan struct{} {
-	return s.i.WatchOne(all_notifications, watch...)
+	return s.i.WatchSingle(all_notifications, watch...)
 }
 
-func (s *Store) WatchOne(notificationType interface{}, watch ...interface{}) chan struct{} {
+func (s *Store) WatchSingle(notificationType interface{}, watch ...interface{}) chan struct{} {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
@@ -83,10 +83,10 @@ func (s *Store) WatchOne(notificationType interface{}, watch ...interface{}) cha
 }
 
 func (s *Store) NotifyAll(changed ...interface{}) {
-	s.i.NotifyOne(all_notifications, changed...)
+	s.i.NotifySingle(all_notifications, changed...)
 }
 
-func (s *Store) NotifyOne(notificationType interface{}, changed ...interface{}) {
+func (s *Store) NotifySingle(notificationType interface{}, changed ...interface{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {

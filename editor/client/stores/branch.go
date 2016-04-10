@@ -54,10 +54,10 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 	return s
 }
 
-func (s *BranchStore) NotifyOne(notificationType interface{}, changed ...interface{}) {
+func (s *BranchStore) NotifySingle(notificationType interface{}, changed ...interface{}) {
 
 	if notificationType == BranchSelectedChanged {
-		s.Store.NotifyOne(notificationType, changed...)
+		s.Store.NotifySingle(notificationType, changed...)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (s *BranchStore) NotifyOne(notificationType interface{}, changed ...interfa
 			out = append(out, b)
 		}
 	}
-	s.Store.NotifyOne(notificationType, out...)
+	s.Store.NotifySingle(notificationType, out...)
 }
 
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
@@ -95,24 +95,24 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected == nil {
 				if b := s.app.Branches.Root().LastVisible(); b != nil {
 					s.selected = b
-					s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+					s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 				}
 				return true
 			}
 			if b := s.selected.PrevVisible(); b != nil {
 				s.selected = b
-				s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+				s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 				return true
 			}
 		case 40: // down
 			if s.selected == nil {
 				s.selected = s.app.Branches.Root()
-				s.NotifyOne(BranchSelectedChanged, s.selected)
+				s.NotifySingle(BranchSelectedChanged, s.selected)
 				return true
 			}
 			if b := s.selected.NextVisible(true); b != nil {
 				s.selected = b
-				s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+				s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 				return true
 			}
 		case 37: // left
@@ -127,7 +127,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			} else {
 				if b := s.selected.Parent; b != nil {
 					s.selected = b
-					s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+					s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 					return true
 				}
 			}
@@ -143,7 +143,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			} else {
 				if b := s.selected.FirstChild(); b != nil {
 					s.selected = b
-					s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+					s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 					return true
 				}
 			}
@@ -157,8 +157,9 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.NotifyAll(action.Branch)
 		return true
 	case *actions.SelectBranch:
+
 		s.selected = action.Branch
-		s.NotifyOne(BranchSelectedChanged, previous, s.selected)
+		s.NotifySingle(BranchSelectedChanged, previous, s.selected)
 		return true
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
