@@ -76,7 +76,7 @@ func materialicons_regular_woff2() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "MaterialIcons-Regular.woff2", size: 36888, mode: os.FileMode(420), modTime: time.Unix(1446740529, 0)}
+	info := bindata_file_info{name: "MaterialIcons-Regular.woff2", size: 36888, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -96,7 +96,7 @@ func icon_css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "icon.css", size: 558, mode: os.FileMode(420), modTime: time.Unix(1446740529, 0)}
+	info := bindata_file_info{name: "icon.css", size: 558, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -116,7 +116,7 @@ func logo_png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "logo.png", size: 8181, mode: os.FileMode(384), modTime: time.Unix(1446956563, 0)}
+	info := bindata_file_info{name: "logo.png", size: 8181, mode: os.FileMode(384), modTime: time.Unix(1111111111, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -136,7 +136,7 @@ func material_min_css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "material.min.css", size: 121068, mode: os.FileMode(420), modTime: time.Unix(1446740529, 0)}
+	info := bindata_file_info{name: "material.min.css", size: 121068, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -156,7 +156,7 @@ func material_min_js() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "material.min.js", size: 59355, mode: os.FileMode(420), modTime: time.Unix(1451671922, 0)}
+	info := bindata_file_info{name: "material.min.js", size: 59355, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
