@@ -15,7 +15,7 @@ type App struct {
 	Editors  *EditorStore
 	Branches *BranchStore
 	Panels   *PanelStore
-	Types    *TypesStore
+	Types    *TypeStore
 	Data     *DataStore
 }
 
@@ -24,7 +24,7 @@ func (app *App) Init(ctx context.Context) {
 	app.Editors = NewEditorStore(ctx)
 	app.Branches = NewBranchStore(ctx)
 	app.Panels = NewPanelStore(ctx)
-	app.Types = NewTypesStore(ctx)
+	app.Types = NewTypeStore(ctx)
 	app.Data = NewDataStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
 		app.Package,

@@ -17,11 +17,13 @@ type PackageStore struct {
 }
 
 func NewPackageStore(ctx context.Context) *PackageStore {
-	return &PackageStore{
+	s := &PackageStore{
 		Store: &flux.Store{},
 		ctx:   ctx,
 		app:   FromContext(ctx),
 	}
+	s.Init(s)
+	return s
 }
 
 func (s *PackageStore) Get() *node.Node {
@@ -36,7 +38,7 @@ func (s *PackageStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
 		}
 		s.packageNode = pkg
-		s.Notify()
+		s.NotifyAll()
 	}
 	return true
 }

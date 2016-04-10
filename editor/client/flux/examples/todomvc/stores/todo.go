@@ -88,6 +88,6 @@ func (t *TodoStore) Handle(payload *flux.Payload) (finished bool) {
 		return true // don't notify
 	}
 
-	t.Notify()
+	t.NotifyAll()
 	return true
 }

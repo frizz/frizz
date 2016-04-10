@@ -221,7 +221,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	select {
 	case r = <-c:
 		if r.err != nil {
-			return kerr.Wrap("TXUYQOUNQS", err)
+			return kerr.Wrap("TXUYQOUNQS", r.err)
 		}
 	case <-ctx.Done():
 		return nil

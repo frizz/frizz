@@ -17,12 +17,14 @@ type DataStore struct {
 }
 
 func NewDataStore(ctx context.Context) *DataStore {
-	return &DataStore{
+	s := &DataStore{
 		Store: &flux.Store{},
 		ctx:   ctx,
 		app:   FromContext(ctx),
 		data:  map[string]*models.DataModel{},
 	}
+	s.Init(s)
+	return s
 }
 
 func (s *DataStore) Names() []string {
@@ -54,7 +56,7 @@ func (s *DataStore) Handle(payload *flux.Payload) bool {
 		for name, filename := range action.Info.Data {
 			s.data[name] = &models.DataModel{Name: name, File: filename}
 		}
-		s.Notify()
+		s.NotifyAll()
 	}
 	return true
 }

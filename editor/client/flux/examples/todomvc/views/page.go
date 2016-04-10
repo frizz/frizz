@@ -32,7 +32,7 @@ func NewPageView(ctx context.Context) *PageView {
 	}
 
 	go func() {
-		for _ = range p.app.Todos.Changed() {
+		for _ = range p.app.Todos.WatchAll() {
 			p.Items = p.app.Todos.Items()
 			p.ReconcileBody()
 		}

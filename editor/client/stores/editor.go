@@ -16,12 +16,14 @@ type EditorStore struct {
 }
 
 func NewEditorStore(ctx context.Context) *EditorStore {
-	return &EditorStore{
+	s := &EditorStore{
 		Store:   &flux.Store{},
 		ctx:     ctx,
 		app:     FromContext(ctx),
 		editors: map[*node.Node]*models.EditorModel{},
 	}
+	s.Init(s)
+	return s
 }
 
 func (n *EditorStore) Get(node *node.Node) *models.EditorModel {

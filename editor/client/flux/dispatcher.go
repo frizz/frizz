@@ -33,6 +33,8 @@ func (d *Dispatcher) Dispatch(action ActionInterface) {
 	d.storesMutex.Lock()
 	defer d.storesMutex.Unlock()
 
+	fmt.Printf("Dispatching %T\n", action)
+
 	info := map[StoreInterface]*progress.Info{}
 	wg := sync.WaitGroup{}
 	wg.Add(len(d.stores))

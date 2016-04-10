@@ -34,7 +34,7 @@ func NewTreeView(ctx context.Context) *TreeView {
 	}
 
 	go func() {
-		for range p.app.Branches.Changed(p.app.Branches.Root()) {
+		for range p.app.Branches.WatchAll(p.app.Branches.Root()) {
 			p.Root = p.app.Branches.Root()
 			p.ReconcileBody()
 		}

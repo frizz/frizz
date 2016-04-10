@@ -40,15 +40,27 @@ func (b *BranchStore) Data() *models.BranchModel {
 	return b.data
 }
 
+type branchKey string
+
+const BranchSelectedChanged branchKey = "BranchSelectedChanged"
+
 func NewBranchStore(ctx context.Context) *BranchStore {
-	return &BranchStore{
+	s := &BranchStore{
 		Store: &flux.Store{},
 		ctx:   ctx,
 		app:   FromContext(ctx),
 	}
+	s.Init(s)
+	return s
 }
 
-func (s *BranchStore) Notify(changed ...interface{}) {
+func (s *BranchStore) NotifyOne(notificationType interface{}, changed ...interface{}) {
+
+	if notificationType == BranchSelectedChanged {
+		s.Store.NotifyOne(notificationType, changed...)
+		return
+	}
+
 	// eliminate descendants...
 	changedBranches := []*models.BranchModel{}
 	for _, c := range changed {
@@ -71,7 +83,7 @@ func (s *BranchStore) Notify(changed ...interface{}) {
 			out = append(out, b)
 		}
 	}
-	s.Store.Notify(out...)
+	s.Store.NotifyOne(notificationType, out...)
 }
 
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
@@ -83,24 +95,24 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected == nil {
 				if b := s.app.Branches.Root().LastVisible(); b != nil {
 					s.selected = b
-					s.Notify(previous, s.selected)
+					s.NotifyOne(BranchSelectedChanged, previous, s.selected)
 				}
 				return true
 			}
 			if b := s.selected.PrevVisible(); b != nil {
 				s.selected = b
-				s.Notify(previous, s.selected)
+				s.NotifyOne(BranchSelectedChanged, previous, s.selected)
 				return true
 			}
 		case 40: // down
 			if s.selected == nil {
 				s.selected = s.app.Branches.Root()
-				s.Notify(s.selected)
+				s.NotifyOne(BranchSelectedChanged, s.selected)
 				return true
 			}
 			if b := s.selected.NextVisible(true); b != nil {
 				s.selected = b
-				s.Notify(previous, s.selected)
+				s.NotifyOne(BranchSelectedChanged, previous, s.selected)
 				return true
 			}
 		case 37: // left
@@ -110,12 +122,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected.CanOpen() && s.selected.Open {
 				// if the branch is open, left arrow should close it.
 				s.selected.Open = false
-				s.Notify(s.selected)
+				s.NotifyAll(s.selected)
 				return true
 			} else {
 				if b := s.selected.Parent; b != nil {
 					s.selected = b
-					s.Notify(previous, s.selected)
+					s.NotifyOne(BranchSelectedChanged, previous, s.selected)
 					return true
 				}
 			}
@@ -126,12 +138,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if s.selected.CanOpen() && !s.selected.Open {
 				// if the branch is closed, right arrow should open it
 				s.selected.Open = true
-				s.Notify(s.selected)
+				s.NotifyAll(s.selected)
 				return true
 			} else {
 				if b := s.selected.FirstChild(); b != nil {
 					s.selected = b
-					s.Notify(previous, s.selected)
+					s.NotifyOne(BranchSelectedChanged, previous, s.selected)
 					return true
 				}
 			}
@@ -142,10 +154,10 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		action.Branch.Open = !action.Branch.Open
-		s.Notify(action.Branch)
+		s.NotifyAll(s.selected)
 	case *actions.SelectBranch:
 		s.selected = action.Branch
-		s.Notify(previous, s.selected)
+		s.NotifyOne(BranchSelectedChanged, previous, s.selected)
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
 		s.pkg = models.NewNodeBranch(s.app.Package.Get(), "package")
@@ -178,7 +190,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			},
 		}
 		s.root.Append(s.pkg, s.types, s.data)
-		s.Notify()
+		s.NotifyAll()
 	}
 
 	return true

@@ -15,12 +15,14 @@ type PanelStore struct {
 }
 
 func NewPanelStore(ctx context.Context) *PanelStore {
-	return &PanelStore{
+	s := &PanelStore{
 		Store:  &flux.Store{},
 		ctx:    ctx,
 		app:    FromContext(ctx),
 		panels: map[*models.BranchModel]*models.PanelModel{},
 	}
+	s.Init(s)
+	return s
 }
 
 func (s *PanelStore) Selected() *models.PanelModel {

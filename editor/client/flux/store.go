@@ -1,9 +1,6 @@
 package flux
 
-import (
-	"fmt"
-	"sync"
-)
+import "sync"
 
 type StoreInterface interface {
 	// Handle consumes the action in the payload. If the operation was performed syncronously,
@@ -11,87 +8,132 @@ type StoreInterface interface {
 	Handle(payload *Payload) (finished bool)
 
 	// Change returns a channel that is signalled when there's a change to this
-	Changed(watch ...interface{}) chan struct{}
+	WatchAll(watch ...interface{}) chan struct{}
+
+	WatchOne(notificationType interface{}, watch ...interface{}) chan struct{}
 
 	// notify is use by this store to send the change signal to all change chanels
-	Notify(changed ...interface{})
+	NotifyAll(changed ...interface{})
 
-	Delete(chan struct{})
+	NotifyOne(notificationType interface{}, changed ...interface{})
+
+	DeleteAll(c chan struct{})
+
+	DeleteOne(notificationType interface{}, c chan struct{})
 }
 
 type Store struct {
 	m           sync.Mutex
-	subscribers map[interface{}][]chan struct{}
+	i           StoreInterface
+	subscribers map[interface{}]notifier
+}
+
+func (s *Store) Init(i StoreInterface) {
+	s.i = i
 }
 
 type key string
 
+const all_notifications key = "all_notifications"
 const all_subscribers key = "all_subscribers"
 const all_values key = "all_values"
 
-func (s *Store) Delete(c chan struct{}) {
+func (s *Store) DeleteAll(c chan struct{}) {
+	s.i.DeleteOne(all_notifications, c)
+}
+func (s *Store) DeleteOne(notificationType interface{}, c chan struct{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
-	for v, a := range s.subscribers {
+	if s.subscribers == nil {
+		return
+	}
+	if s.subscribers[notificationType] == nil {
+		return
+	}
+	n := s.subscribers[notificationType]
+	for v, a := range n {
 		for i, ch := range a {
 			if c == ch {
-				if len(s.subscribers[v]) == 1 {
-					delete(s.subscribers, v)
+				if len(n[v]) == 1 {
+					delete(n, v)
 					break
 				}
-				s.subscribers[v] = append(a[:i], a[i+1:]...)
+				n[v] = append(a[:i], a[i+1:]...)
 				break
 			}
 		}
 	}
 }
 
-func (s *Store) Changed(watch ...interface{}) chan struct{} {
+func (s *Store) WatchAll(watch ...interface{}) chan struct{} {
+	return s.i.WatchOne(all_notifications, watch...)
+}
+
+func (s *Store) WatchOne(notificationType interface{}, watch ...interface{}) chan struct{} {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
-		s.subscribers = map[interface{}][]chan struct{}{}
+		s.subscribers = map[interface{}]notifier{}
 	}
-	c := make(chan struct{})
-	// all_subscribers contains all the subscribers reguardless what they are watching.
-	s.subscribers[all_subscribers] = append(s.subscribers[all_subscribers], c)
-	if len(watch) == 0 {
-		// all_values contains only the subscribers that are watching all values.
-		s.subscribers[all_values] = append(s.subscribers[all_values], c)
+	if s.subscribers[notificationType] == nil {
+		s.subscribers[notificationType] = notifier{}
 	}
-	for _, v := range watch {
-		s.subscribers[v] = append(s.subscribers[v], c)
-	}
-	return c
+	return s.subscribers[notificationType].watch(watch)
+
 }
 
-func (s *Store) Notify(changed ...interface{}) {
+func (s *Store) NotifyAll(changed ...interface{}) {
+	s.i.NotifyOne(all_notifications, changed...)
+}
+
+func (s *Store) NotifyOne(notificationType interface{}, changed ...interface{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
 		return
 	}
+	if s.subscribers[notificationType] == nil {
+		return
+	}
+	s.subscribers[notificationType].notify(changed)
+}
+
+type notifier map[interface{}][]chan struct{}
+
+func (n notifier) watch(watch []interface{}) chan struct{} {
+	c := make(chan struct{})
+	// all_subscribers contains all the subscribers reguardless what they are watching.
+	n[all_subscribers] = append(n[all_subscribers], c)
+	if len(watch) == 0 {
+		// all_values contains only the subscribers that are watching all values.
+		n[all_values] = append(n[all_values], c)
+	}
+	for _, v := range watch {
+		n[v] = append(n[v], c)
+	}
+	return c
+}
+
+func (n notifier) notify(changed []interface{}) {
 	matching := map[chan struct{}]bool{}
 	if len(changed) == 0 {
 		// all_subscribers contains all the subscribers reguardless what they are watching.
-		for _, c := range s.subscribers[all_subscribers] {
+		for _, c := range n[all_subscribers] {
 			matching[c] = true
 		}
 	} else {
 		// all_values contains only the subscribers that are watching all values.
-		for _, c := range s.subscribers[all_values] {
+		for _, c := range n[all_values] {
 			matching[c] = true
 		}
 		for _, v := range changed {
-			for _, c := range s.subscribers[v] {
+			for _, c := range n[v] {
 				matching[c] = true
 			}
 		}
 	}
 
-	fmt.Println("Notifying", len(matching), "watchers")
 	for c, _ := range matching {
 		c <- struct{}{}
 	}
-
 }
