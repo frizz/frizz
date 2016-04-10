@@ -202,15 +202,22 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	buf := bytes.NewBuffer(nil)
 	pkg := &build.PackageData{Package: buildPkg.Package}
 
-	c := make(chan error, 1)
+	type ret struct {
+		archive *compiler.Archive
+		err     error
+	}
+
+	c := make(chan ret, 1)
 	go func() {
-		c <- s.BuildPackage(pkg)
+		a, err := s.BuildPackage(pkg)
+		c <- ret{a, err}
 	}()
 
+	var r ret
 	select {
-	case err := <-c:
-		if err != nil {
-			return kerr.Wrap("TXUYQOUNQS", err)
+	case r = <-c:
+		if r.err != nil {
+			return kerr.Wrap("TXUYQOUNQS", r.err)
 		}
 	case <-ctx.Done():
 		return nil
@@ -220,7 +227,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 	m := &sourcemap.Map{File: "script.js"}
 	sourceMapFilter.MappingCallback = build.NewMappingCallback(m, options.GOROOT, options.GOPATH)
 
-	deps, err := compiler.ImportDependencies(pkg.Archive, s.BuildImportPath)
+	deps, err := compiler.ImportDependencies(r.archive, s.BuildImportPath)
 	if err != nil {
 		return kerr.Wrap("OVDUPSTRNR", err)
 	}
