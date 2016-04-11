@@ -24,11 +24,11 @@ func (b *BranchModel) CanOpen() bool {
 	return true
 }
 
-func (b *BranchModel) CloseAllChildren() {
-	for _, c := range b.Children {
-		if c.Open {
-			c.Open = false
-			c.CloseAllChildren()
+func (b *BranchModel) RecursiveClose() {
+	if b.Open {
+		b.Open = false
+		for _, c := range b.Children {
+			c.RecursiveClose()
 		}
 	}
 }

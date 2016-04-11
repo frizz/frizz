@@ -96,9 +96,10 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			// branch can't open - ignore
 			return true
 		}
-		action.Branch.Open = !action.Branch.Open
-		if !action.Branch.Open {
-			action.Branch.CloseAllChildren()
+		if action.Branch.Open {
+			action.Branch.RecursiveClose()
+		} else {
+			action.Branch.Open = true
 		}
 		s.Notify(action.Branch)
 		return true
@@ -107,8 +108,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			// branch can't open - ignore
 			return true
 		}
-		action.Branch.Open = false
-		action.Branch.CloseAllChildren()
+		action.Branch.RecursiveClose()
 		s.Notify(action.Branch)
 		return true
 	case *actions.OpenBranch:
