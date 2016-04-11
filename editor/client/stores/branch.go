@@ -95,6 +95,9 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		action.Branch.Open = !action.Branch.Open
+		if !action.Branch.Open {
+			action.Branch.CloseAllChildren()
+		}
 		s.Notify(action.Branch)
 		return true
 	case *actions.CloseBranch:
@@ -103,6 +106,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		action.Branch.Open = false
+		action.Branch.CloseAllChildren()
 		s.Notify(action.Branch)
 		return true
 	case *actions.OpenBranch:
