@@ -21,11 +21,11 @@ type NodeContentsInterface interface {
 }
 
 type RootContents struct {
-	Path string
+	Name string
 }
 
 func (c RootContents) Label() string {
-	return c.Path
+	return c.Name
 }
 
 type DataContents struct{}

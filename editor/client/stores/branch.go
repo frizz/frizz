@@ -1,6 +1,8 @@
 package stores
 
 import (
+	"strings"
+
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
@@ -145,11 +147,14 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			})
 		}
 
+		path := envctx.FromContext(s.ctx).Path
+		name := path[strings.LastIndex(path, "/")+1:]
+
 		s.root = &models.BranchModel{
 			Root: true,
 			Open: true,
 			Contents: &models.RootContents{
-				Path: envctx.FromContext(s.ctx).Path,
+				Name: name,
 			},
 		}
 		s.root.Append(s.pkg, s.types, s.data)
