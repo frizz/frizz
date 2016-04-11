@@ -27,7 +27,7 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 	}
 
 	go func() {
-		for range e.app.Editors.WatchAll() {
+		for range e.app.Editors.Watch() {
 			e.model = e.app.Editors.Get(e.node)
 			e.ReconcileBody()
 		}

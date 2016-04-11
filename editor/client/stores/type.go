@@ -58,7 +58,7 @@ func (s *TypeStore) Handle(payload *flux.Payload) bool {
 			}
 			s.types[name] = typ
 		}
-		s.NotifyAll()
+		s.Notify()
 	}
 	return true
 }

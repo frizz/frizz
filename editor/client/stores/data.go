@@ -56,7 +56,7 @@ func (s *DataStore) Handle(payload *flux.Payload) bool {
 		for name, filename := range action.Info.Data {
 			s.data[name] = &models.DataModel{Name: name, File: filename}
 		}
-		s.NotifyAll()
+		s.Notify()
 	}
 	return true
 }

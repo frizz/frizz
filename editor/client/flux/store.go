@@ -8,16 +8,16 @@ type StoreInterface interface {
 	Handle(payload *Payload) (finished bool)
 
 	// Change returns a channel that is signalled when there's a change to this
-	WatchAll(watch ...interface{}) chan struct{}
+	Watch(watch ...interface{}) chan struct{}
 
 	WatchSingle(notificationType interface{}, watch ...interface{}) chan struct{}
 
 	// notify is use by this store to send the change signal to all change chanels
-	NotifyAll(changed ...interface{})
+	Notify(changed ...interface{})
 
 	NotifySingle(notificationType interface{}, changed ...interface{})
 
-	DeleteAll(c chan struct{})
+	Delete(c chan struct{})
 
 	DeleteSingle(notificationType interface{}, c chan struct{})
 }
@@ -38,7 +38,7 @@ const all_notifications key = "all_notifications"
 const all_subscribers key = "all_subscribers"
 const all_values key = "all_values"
 
-func (s *Store) DeleteAll(c chan struct{}) {
+func (s *Store) Delete(c chan struct{}) {
 	s.self.DeleteSingle(all_notifications, c)
 }
 func (s *Store) DeleteSingle(notificationType interface{}, c chan struct{}) {
@@ -65,7 +65,7 @@ func (s *Store) DeleteSingle(notificationType interface{}, c chan struct{}) {
 	}
 }
 
-func (s *Store) WatchAll(watch ...interface{}) chan struct{} {
+func (s *Store) Watch(watch ...interface{}) chan struct{} {
 	return s.self.WatchSingle(all_notifications, watch...)
 }
 
@@ -82,7 +82,7 @@ func (s *Store) WatchSingle(notificationType interface{}, watch ...interface{}) 
 
 }
 
-func (s *Store) NotifyAll(changed ...interface{}) {
+func (s *Store) Notify(changed ...interface{}) {
 	s.self.NotifySingle(all_notifications, changed...)
 }
 

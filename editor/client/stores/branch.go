@@ -95,7 +95,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		action.Branch.Open = !action.Branch.Open
-		s.NotifyAll(action.Branch)
+		s.Notify(action.Branch)
 		return true
 	case *actions.CloseBranch:
 		if !action.Branch.CanOpen() {
@@ -103,7 +103,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		action.Branch.Open = false
-		s.NotifyAll(action.Branch)
+		s.Notify(action.Branch)
 		return true
 	case *actions.OpenBranch:
 		if !action.Branch.CanOpen() {
@@ -111,7 +111,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		action.Branch.Open = true
-		s.NotifyAll(action.Branch)
+		s.Notify(action.Branch)
 		return true
 	case *actions.SelectBranch:
 		s.selected = action.Branch
@@ -149,7 +149,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			},
 		}
 		s.root.Append(s.pkg, s.types, s.data)
-		s.NotifyAll()
+		s.Notify()
 		return true
 	case *actions.LoadSourceSuccess:
 		n, ok := action.Branch.Contents.(models.NodeContentsInterface)
@@ -157,7 +157,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		models.AppendNodeChildren(action.Branch, n.GetNode())
-		s.NotifyAll(action.Branch)
+		s.Notify(action.Branch)
 		return true
 	}
 

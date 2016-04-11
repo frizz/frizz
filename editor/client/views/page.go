@@ -136,7 +136,7 @@ func (p *PageView) KeyPress(code int) {
 		}
 		if selected.CanOpen() && !selected.Open {
 			// if the branch is closed, right arrow should open it
-			LoadBranch(p.ctx, p.app, selected, true)
+			LoadBranch(p.ctx, p.app, selected)
 			p.app.Dispatcher.Dispatch(&actions.OpenBranch{Branch: selected})
 			return
 		} else {

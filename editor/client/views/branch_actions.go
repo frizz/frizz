@@ -21,17 +21,19 @@ func LoadBranchDebounced(ctx context.Context, app *stores.App, b *models.BranchM
 	go func() {
 		<-time.After(time.Millisecond * 50)
 		if app.Branches.Selected() == b {
-			LoadBranch(ctx, app, b, false)
+			LoadBranch(ctx, app, b)
 		}
 	}()
 }
 
-func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, openBranch bool) {
+func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel) bool {
 	c, ok := b.Contents.(*models.SourceContents)
 	if !ok {
-		return
+		return false
 	}
+	did := false
 	c.Once.Do(func() {
+		did = true
 		request := &shared.DataRequest{
 			File:    c.Filename,
 			Name:    c.Name,
@@ -58,27 +60,13 @@ func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, ope
 		c.Node = n
 
 		app.Dispatcher.Dispatch(&actions.LoadSourceSuccess{Branch: b})
-		if openBranch {
-			app.Dispatcher.Dispatch(&actions.OpenBranch{Branch: b})
-		}
-		/**
-
-
-		ed := s.Node.Editor()
-
-		if err := ed.Initialize(s.tree.ctx, s, editor.Page, s.tree.Fail); err != nil {
-			return kerr.Wrap("WXAHRIGKHI", err)
-		}
-
-		s.ListenForEditorChanges(ed.Listen().Ch)
-
-		if err := addEntryChildren(s.Node, s, ed); err != nil {
-			return kerr.Wrap("IQMWLPORUF", err)
-		}
-
-		return nil
-		*/
 
 	})
+
+	if !did {
+		app.Dispatcher.Dispatch(&actions.LoadSourceCancelled{Branch: b})
+	}
+
+	return did
 
 }

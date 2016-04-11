@@ -46,7 +46,7 @@ func (b *BranchView) Mount() {
 	if b.c != nil {
 		panic("mounting a mounted branch")
 	}
-	b.c = b.app.Branches.WatchAll(b.model)
+	b.c = b.app.Branches.Watch(b.model)
 	go func() {
 		for range b.c {
 			b.ReconcileBody()
@@ -58,7 +58,7 @@ func (b *BranchView) Unmount() {
 	if b.c == nil {
 		return
 	}
-	b.app.Branches.DeleteAll(b.c)
+	b.app.Branches.Delete(b.c)
 	close(b.c)
 	b.c = nil
 	b.Body.Unmount()

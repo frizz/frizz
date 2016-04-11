@@ -28,6 +28,9 @@ func (b *BranchControlView) Reconcile(old vecty.Component) {
 	}
 	b.RenderFunc = b.render
 	b.ReconcileBody()
+	if b.model != nil && b.app.Branches.Selected() == b.model {
+		b.focus()
+	}
 }
 
 func NewBranchControlView(ctx context.Context, model *models.BranchModel) *BranchControlView {
@@ -44,6 +47,11 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 	return b
 }
 
+// Apply implements the vecty.Markup interface.
+func (b *BranchControlView) Apply(element *vecty.Element) {
+	element.AddChild(b)
+}
+
 func (b *BranchControlView) Mount() {
 	if b.c != nil {
 		panic("mounting a mounted BranchControl")
@@ -52,8 +60,15 @@ func (b *BranchControlView) Mount() {
 	go func() {
 		for range b.c {
 			b.ReconcileBody()
+			if b.model != nil && b.app.Branches.Selected() == b.model {
+				b.focus()
+			}
 		}
 	}()
+}
+
+func (b *BranchControlView) focus() {
+	b.Node().Call("scrollIntoViewIfNeeded")
 }
 
 func (b *BranchControlView) Unmount() {
@@ -66,14 +81,9 @@ func (b *BranchControlView) Unmount() {
 	b.Body.Unmount()
 }
 
-// Apply implements the vecty.Markup interface.
-func (b *BranchControlView) Apply(element *vecty.Element) {
-	element.AddChild(b)
-}
-
 func (b *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
-		LoadBranch(b.ctx, b.app, b.model, true)
+		LoadBranch(b.ctx, b.app, b.model)
 		if b.model.CanOpen() {
 			b.app.Dispatch(&actions.ToggleBranch{Branch: b.model})
 		} else {
@@ -84,8 +94,11 @@ func (b *BranchControlView) toggleClick(*vecty.Event) {
 
 func (b *BranchControlView) labelClick(*vecty.Event) {
 	go func() {
-		LoadBranch(b.ctx, b.app, b.model, true)
+		loaded := LoadBranch(b.ctx, b.app, b.model)
 		b.app.Dispatch(&actions.SelectBranch{Branch: b.model})
+		if loaded {
+			b.app.Dispatch(&actions.OpenBranch{Branch: b.model})
+		}
 	}()
 }
 
