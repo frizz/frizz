@@ -86,7 +86,6 @@ func Start() error {
 	}
 
 	p := views.NewPage(ctx, env)
-	p.AddKeyboardEvents()
 	vecty.RenderAsBody(p)
 
 	// TODO: work out why I can't seem to call this without using eval

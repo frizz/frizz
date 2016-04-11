@@ -26,11 +26,6 @@ func NewBreadcrumbsView(ctx context.Context) *BreadcrumbsView {
 	return e
 }
 
-// Apply implements the vecty.Markup interface.
-func (e *BreadcrumbsView) Apply(element *vecty.Element) {
-	element.AddChild(e)
-}
-
 func (e *BreadcrumbsView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*BreadcrumbsView); ok {
 		e.Body = old.Body
@@ -38,6 +33,11 @@ func (e *BreadcrumbsView) Reconcile(old vecty.Component) {
 	}
 	e.RenderFunc = e.render
 	e.ReconcileBody()
+}
+
+// Apply implements the vecty.Markup interface.
+func (e *BreadcrumbsView) Apply(element *vecty.Element) {
+	element.AddChild(e)
 }
 
 func (e *BreadcrumbsView) render() vecty.Component {

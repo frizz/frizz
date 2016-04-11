@@ -14,12 +14,13 @@ type PanelView struct {
 	vecty.Composite
 	ctx context.Context
 	app *stores.App
+	c   chan struct{}
 
-	Selected *models.BranchModel
+	branch *models.BranchModel
 }
 
 func NewPanelView(ctx context.Context) *PanelView {
-	p := &PanelView{
+	v := &PanelView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
@@ -36,28 +37,51 @@ func NewPanelView(ctx context.Context) *PanelView {
 			}
 		}()
 	*/
-	return p
-}
-
-// Apply implements the vecty.Markup interface.
-func (p *PanelView) Apply(element *vecty.Element) {
-	element.AddChild(p)
+	return v
 }
 
 func (v *PanelView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PanelView); ok {
 		v.Body = old.Body
-		v.Selected = old.Selected
+		v.branch = old.branch
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 
-func (p *PanelView) render() vecty.Component {
+// Apply implements the vecty.Markup interface.
+func (v *PanelView) Apply(element *vecty.Element) {
+	element.AddChild(v)
+}
+
+func (v *PanelView) Mount() {
+	if v.c != nil {
+		panic("mounting a mounted panel")
+	}
+	v.c = v.app.Branches.WatchSingle(stores.BranchSelectedChanged, v.branch)
+	go func() {
+		for range v.c {
+			v.branch = v.app.Branches.Selected()
+			v.ReconcileBody()
+		}
+	}()
+}
+
+func (v *PanelView) Unmount() {
+	if v.c == nil {
+		return
+	}
+	v.app.Branches.DeleteSingle(stores.BranchSelectedChanged, v.c)
+	close(v.c)
+	v.c = nil
+	v.Body.Unmount()
+}
+
+func (v *PanelView) render() vecty.Component {
 
 	var n *node.Node
-	if p.Selected != nil {
-		ni, ok := p.Selected.Contents.(models.NodeContentsInterface)
+	if v.branch != nil {
+		ni, ok := v.branch.Contents.(models.NodeContentsInterface)
 		if ok {
 			n = ni.GetNode()
 		}
@@ -67,9 +91,9 @@ func (p *PanelView) render() vecty.Component {
 		prop.Class("content panel"),
 		vecty.If(
 			n != nil,
-			NewBreadcrumbsView(p.ctx),
-			NewEditorView(p.ctx, n),
-			NewSummaryView(p.ctx),
+			NewBreadcrumbsView(v.ctx),
+			NewEditorView(v.ctx, n),
+			NewSummaryView(v.ctx),
 		),
 	)
 }

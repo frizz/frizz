@@ -26,11 +26,6 @@ func NewSummaryView(ctx context.Context) *SummaryView {
 	return e
 }
 
-// Apply implements the vecty.Markup interface.
-func (e *SummaryView) Apply(element *vecty.Element) {
-	element.AddChild(e)
-}
-
 func (e *SummaryView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*SummaryView); ok {
 		e.Body = old.Body
@@ -38,6 +33,11 @@ func (e *SummaryView) Reconcile(old vecty.Component) {
 	}
 	e.RenderFunc = e.render
 	e.ReconcileBody()
+}
+
+// Apply implements the vecty.Markup interface.
+func (e *SummaryView) Apply(element *vecty.Element) {
+	element.AddChild(e)
 }
 
 func (e *SummaryView) render() vecty.Component {

@@ -25,11 +25,6 @@ func NewHeader(ctx context.Context, env *envctx.Env) *Header {
 	}
 }
 
-// Apply implements the vecty.Markup interface.
-func (p *Header) Apply(element *vecty.Element) {
-	element.AddChild(p)
-}
-
 func (p *Header) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PageView); ok {
 		p.Body = old.Body
@@ -37,6 +32,11 @@ func (p *Header) Reconcile(old vecty.Component) {
 	}
 	p.RenderFunc = p.render
 	p.ReconcileBody()
+}
+
+// Apply implements the vecty.Markup interface.
+func (p *Header) Apply(element *vecty.Element) {
+	element.AddChild(p)
 }
 
 func (p *Header) render() vecty.Component {

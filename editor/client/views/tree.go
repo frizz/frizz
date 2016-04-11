@@ -13,9 +13,19 @@ type TreeView struct {
 	vecty.Composite
 	ctx context.Context
 	app *stores.App
+	c   chan struct{}
 
 	Root     *models.BranchModel
 	Selected *models.BranchModel
+}
+
+func NewTreeView(ctx context.Context) *TreeView {
+	v := &TreeView{
+		ctx: ctx,
+		app: stores.FromContext(ctx),
+	}
+	v.Mount()
+	return v
 }
 
 func (v *TreeView) Reconcile(old vecty.Component) {
@@ -27,33 +37,40 @@ func (v *TreeView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func NewTreeView(ctx context.Context) *TreeView {
-	p := &TreeView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
+// Apply implements the vecty.Markup interface.
+func (v *TreeView) Apply(element *vecty.Element) {
+	element.AddChild(v)
+}
 
+func (v *TreeView) Mount() {
+	if v.c != nil {
+		panic("mounting a mounted tree")
+	}
+	v.c = v.app.Branches.Watch(v.app.Branches.Root())
 	go func() {
-		for range p.app.Branches.Watch(p.app.Branches.Root()) {
-			p.Root = p.app.Branches.Root()
-			p.ReconcileBody()
+		for range v.c {
+			v.Root = v.app.Branches.Root()
+			v.ReconcileBody()
 		}
 	}()
-
-	return p
 }
 
-// Apply implements the vecty.Markup interface.
-func (p *TreeView) Apply(element *vecty.Element) {
-	element.AddChild(p)
+func (v *TreeView) Unmount() {
+	if v.c == nil {
+		return
+	}
+	v.app.Branches.Delete(v.c)
+	close(v.c)
+	v.c = nil
+	v.Body.Unmount()
 }
 
-func (p *TreeView) render() vecty.Component {
-	if p.Root == nil {
+func (v *TreeView) render() vecty.Component {
+	if v.Root == nil {
 		return elem.Div()
 	}
 	return elem.Div(
 		prop.Class("content tree"),
-		NewBranchView(p.ctx, p.Root),
+		NewBranchView(v.ctx, v.Root),
 	)
 }

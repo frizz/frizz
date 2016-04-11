@@ -25,13 +25,8 @@ func NewPage(ctx context.Context, env *envctx.Env) *PageView {
 		app:         stores.FromContext(ctx),
 		Environment: env,
 	}
-
+	p.addKeyboardEvents()
 	return p
-}
-
-// Apply implements the vecty.Markup interface.
-func (p *PageView) Apply(element *vecty.Element) {
-	element.AddChild(p)
 }
 
 func (p *PageView) Reconcile(old vecty.Component) {
@@ -43,27 +38,12 @@ func (p *PageView) Reconcile(old vecty.Component) {
 	p.ReconcileBody()
 }
 
-func (p *PageView) render() vecty.Component {
-	return elem.Div(
-		prop.ID("wrapper"),
-		NewHeader(p.ctx, p.Environment),
-		elem.Div(
-			prop.Class("wrapper"),
-			elem.Div(
-				prop.ID("tree"),
-				prop.Class("split split-horizontal"),
-				NewTreeView(p.ctx),
-			),
-			elem.Div(
-				prop.ID("main"),
-				prop.Class("split split-horizontal"),
-				NewPanelView(p.ctx),
-			),
-		),
-	)
+// Apply implements the vecty.Markup interface.
+func (p *PageView) Apply(element *vecty.Element) {
+	element.AddChild(p)
 }
 
-func (p *PageView) AddKeyboardEvents() {
+func (p *PageView) addKeyboardEvents() {
 	window := dom.GetWindow()
 	document := window.Document().(dom.HTMLDocument)
 	window.AddEventListener("keydown", true, func(e dom.Event) {
@@ -80,14 +60,14 @@ func (p *PageView) AddKeyboardEvents() {
 				// up, down, left, right
 				k.PreventDefault()
 				go func() {
-					p.KeyPress(k.KeyCode)
+					p.keyPress(k.KeyCode)
 				}()
 			}
 		}
 	})
 }
 
-func (p *PageView) KeyPress(code int) {
+func (p *PageView) keyPress(code int) {
 	selected := p.app.Branches.Selected()
 	switch code {
 	case 38: // up
@@ -147,4 +127,24 @@ func (p *PageView) KeyPress(code int) {
 			}
 		}
 	}
+}
+
+func (p *PageView) render() vecty.Component {
+	return elem.Div(
+		prop.ID("wrapper"),
+		NewHeader(p.ctx, p.Environment),
+		elem.Div(
+			prop.Class("wrapper"),
+			elem.Div(
+				prop.ID("tree"),
+				prop.Class("split split-horizontal"),
+				NewTreeView(p.ctx),
+			),
+			elem.Div(
+				prop.ID("main"),
+				prop.Class("split split-horizontal"),
+				NewPanelView(p.ctx),
+			),
+		),
+	)
 }

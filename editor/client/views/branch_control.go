@@ -21,95 +21,95 @@ type BranchControlView struct {
 	children vecty.List
 }
 
-func (b *BranchControlView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BranchControlView); ok {
-		b.Body = old.Body
-		b.model = old.model
-	}
-	b.RenderFunc = b.render
-	b.ReconcileBody()
-	if b.model != nil && b.app.Branches.Selected() == b.model {
-		b.focus()
-	}
-}
-
 func NewBranchControlView(ctx context.Context, model *models.BranchModel) *BranchControlView {
 	if model == nil {
 		return nil
 	}
 	app := stores.FromContext(ctx)
-	b := &BranchControlView{
+	v := &BranchControlView{
 		ctx:   ctx,
 		app:   app,
 		model: model,
 	}
-	b.Mount()
-	return b
+	v.Mount()
+	return v
+}
+
+func (v *BranchControlView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*BranchControlView); ok {
+		v.Body = old.Body
+		v.model = old.model
+	}
+	v.RenderFunc = v.render
+	v.ReconcileBody()
+	if v.model != nil && v.app.Branches.Selected() == v.model {
+		v.focus()
+	}
 }
 
 // Apply implements the vecty.Markup interface.
-func (b *BranchControlView) Apply(element *vecty.Element) {
-	element.AddChild(b)
+func (v *BranchControlView) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
-func (b *BranchControlView) Mount() {
-	if b.c != nil {
+func (v *BranchControlView) Mount() {
+	if v.c != nil {
 		panic("mounting a mounted BranchControl")
 	}
-	b.c = b.app.Branches.WatchSingle(stores.BranchSelectedChanged, b.model)
+	v.c = v.app.Branches.WatchSingle(stores.BranchSelectedChanged, v.model)
 	go func() {
-		for range b.c {
-			b.ReconcileBody()
-			if b.model != nil && b.app.Branches.Selected() == b.model {
-				b.focus()
+		for range v.c {
+			v.ReconcileBody()
+			if v.model != nil && v.app.Branches.Selected() == v.model {
+				v.focus()
 			}
 		}
 	}()
 }
 
-func (b *BranchControlView) focus() {
-	b.Node().Call("scrollIntoViewIfNeeded")
-}
-
-func (b *BranchControlView) Unmount() {
-	if b.c == nil {
+func (v *BranchControlView) Unmount() {
+	if v.c == nil {
 		return
 	}
-	b.app.Branches.DeleteSingle(stores.BranchSelectedChanged, b.c)
-	close(b.c)
-	b.c = nil
-	b.Body.Unmount()
+	v.app.Branches.DeleteSingle(stores.BranchSelectedChanged, v.c)
+	close(v.c)
+	v.c = nil
+	v.Body.Unmount()
 }
 
-func (b *BranchControlView) toggleClick(*vecty.Event) {
+func (v *BranchControlView) focus() {
+	v.Node().Call("scrollIntoViewIfNeeded")
+}
+
+func (v *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
-		LoadBranch(b.ctx, b.app, b.model)
-		if b.model.CanOpen() {
-			b.app.Dispatch(&actions.ToggleBranch{Branch: b.model})
+		LoadBranch(v.ctx, v.app, v.model)
+		if v.model.CanOpen() {
+			v.app.Dispatch(&actions.ToggleBranch{Branch: v.model})
 		} else {
-			b.app.Dispatch(&actions.SelectBranch{Branch: b.model})
+			v.app.Dispatch(&actions.SelectBranch{Branch: v.model})
 		}
 	}()
 }
 
-func (b *BranchControlView) labelClick(*vecty.Event) {
+func (v *BranchControlView) labelClick(*vecty.Event) {
 	go func() {
-		loaded := LoadBranch(b.ctx, b.app, b.model)
-		b.app.Dispatch(&actions.SelectBranch{Branch: b.model})
+		loaded := LoadBranch(v.ctx, v.app, v.model)
+		v.app.Dispatch(&actions.SelectBranch{Branch: v.model})
 		if loaded {
-			b.app.Dispatch(&actions.OpenBranch{Branch: b.model})
+			v.app.Dispatch(&actions.OpenBranch{Branch: v.model})
 		}
 	}()
 }
 
-func (b *BranchControlView) render() vecty.Component {
-	if b.model == nil {
+func (v *BranchControlView) render() vecty.Component {
+	if v.model == nil {
 		return elem.Div()
 	}
 
-	selected := b.app.Branches.Selected() == b.model
+	selected := v.app.Branches.Selected() == v.model
 
-	icon := b.model.Icon()
+	icon := v.model.Icon()
 
 	return elem.Div(
 		elem.Anchor(
@@ -121,7 +121,7 @@ func (b *BranchControlView) render() vecty.Component {
 				"unknown":  icon == "unknown",
 				"empty":    icon == "empty",
 			},
-			event.Click(b.toggleClick),
+			event.Click(v.toggleClick),
 		),
 		elem.Div(
 			vecty.ClassMap{
@@ -130,8 +130,8 @@ func (b *BranchControlView) render() vecty.Component {
 			},
 			elem.Span(
 				prop.Class("node-label"),
-				event.Click(b.labelClick),
-				vecty.Text(b.model.Contents.Label()),
+				event.Click(v.labelClick),
+				vecty.Text(v.model.Contents.Label()),
 			),
 			elem.Span(
 				prop.Class("badge"),
