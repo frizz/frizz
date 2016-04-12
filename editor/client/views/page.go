@@ -20,30 +20,30 @@ type PageView struct {
 }
 
 func NewPage(ctx context.Context, env *envctx.Env) *PageView {
-	p := &PageView{
+	v := &PageView{
 		ctx:         ctx,
 		app:         stores.FromContext(ctx),
 		Environment: env,
 	}
-	p.addKeyboardEvents()
-	return p
+	v.addKeyboardEvents()
+	return v
 }
 
-func (p *PageView) Reconcile(old vecty.Component) {
+func (v *PageView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PageView); ok {
-		p.Body = old.Body
-		p.Environment = old.Environment
+		v.Body = old.Body
+		v.Environment = old.Environment
 	}
-	p.RenderFunc = p.render
-	p.ReconcileBody()
+	v.RenderFunc = v.render
+	v.ReconcileBody()
 }
 
 // Apply implements the vecty.Markup interface.
-func (p *PageView) Apply(element *vecty.Element) {
-	element.AddChild(p)
+func (v *PageView) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
-func (p *PageView) addKeyboardEvents() {
+func (v *PageView) addKeyboardEvents() {
 	window := dom.GetWindow()
 	document := window.Document().(dom.HTMLDocument)
 	window.AddEventListener("keydown", true, func(e dom.Event) {
@@ -60,39 +60,39 @@ func (p *PageView) addKeyboardEvents() {
 				// up, down, left, right
 				k.PreventDefault()
 				go func() {
-					p.keyPress(k.KeyCode)
+					v.keyPress(k.KeyCode)
 				}()
 			}
 		}
 	})
 }
 
-func (p *PageView) keyPress(code int) {
-	selected := p.app.Branches.Selected()
+func (v *PageView) keyPress(code int) {
+	selected := v.app.Branches.Selected()
 	switch code {
 	case 38: // up
 		if selected == nil {
-			if b := p.app.Branches.Root().LastVisible(); b != nil {
-				LoadBranchDebounced(p.ctx, p.app, b)
-				p.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			if b := v.app.Branches.Root().LastVisible(); b != nil {
+				LoadBranchDebounced(v.ctx, v.app, b)
+				v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
 			}
 			return
 		}
 		if b := selected.PrevVisible(); b != nil {
-			LoadBranchDebounced(p.ctx, p.app, b)
-			p.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			LoadBranchDebounced(v.ctx, v.app, b)
+			v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
 			return
 		}
 	case 40: // down
 		if selected == nil {
-			b := p.app.Branches.Root()
-			LoadBranchDebounced(p.ctx, p.app, b)
-			p.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			b := v.app.Branches.Root()
+			LoadBranchDebounced(v.ctx, v.app, b)
+			v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
 			return
 		}
 		if b := selected.NextVisible(true); b != nil {
-			LoadBranchDebounced(p.ctx, p.app, b)
-			p.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			LoadBranchDebounced(v.ctx, v.app, b)
+			v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
 			return
 		}
 	case 37: // left
@@ -101,12 +101,12 @@ func (p *PageView) keyPress(code int) {
 		}
 		if selected.CanOpen() && selected.Open {
 			// if the branch is open, left arrow should close it.
-			p.app.Dispatcher.Dispatch(&actions.CloseBranch{Branch: selected})
+			v.app.Dispatcher.Dispatch(&actions.CloseBranch{Branch: selected})
 			return
 		} else {
 			if b := selected.Parent; b != nil {
-				LoadBranchDebounced(p.ctx, p.app, b)
-				p.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+				LoadBranchDebounced(v.ctx, v.app, b)
+				v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
 				return
 			}
 		}
@@ -116,34 +116,34 @@ func (p *PageView) keyPress(code int) {
 		}
 		if selected.CanOpen() && !selected.Open {
 			// if the branch is closed, right arrow should open it
-			LoadBranch(p.ctx, p.app, selected)
-			p.app.Dispatcher.Dispatch(&actions.OpenBranch{Branch: selected})
+			LoadBranch(v.ctx, v.app, selected)
+			v.app.Dispatcher.Dispatch(&actions.OpenBranch{Branch: selected})
 			return
 		} else {
 			if b := selected.FirstChild(); b != nil {
-				LoadBranchDebounced(p.ctx, p.app, b)
-				p.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+				LoadBranchDebounced(v.ctx, v.app, b)
+				v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
 				return
 			}
 		}
 	}
 }
 
-func (p *PageView) render() vecty.Component {
+func (v *PageView) render() vecty.Component {
 	return elem.Div(
 		prop.ID("wrapper"),
-		NewHeader(p.ctx, p.Environment),
+		NewHeader(v.ctx, v.Environment),
 		elem.Div(
 			prop.Class("wrapper"),
 			elem.Div(
 				prop.ID("tree"),
 				prop.Class("split split-horizontal"),
-				NewTreeView(p.ctx),
+				NewTreeView(v.ctx),
 			),
 			elem.Div(
 				prop.ID("main"),
 				prop.Class("split split-horizontal"),
-				NewPanelView(p.ctx),
+				NewPanelView(v.ctx),
 			),
 		),
 	)

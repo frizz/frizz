@@ -24,19 +24,7 @@ func NewPanelView(ctx context.Context) *PanelView {
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
-
-	/*
-		go func() {
-			sc := p.app.Branches.Changed()
-			for {
-				select {
-				case <-sc:
-					p.Selected = p.app.Branches.Selected()
-					p.ReconcileBody()
-				}
-			}
-		}()
-	*/
+	v.Mount()
 	return v
 }
 
@@ -58,7 +46,7 @@ func (v *PanelView) Mount() {
 	if v.c != nil {
 		panic("mounting a mounted panel")
 	}
-	v.c = v.app.Branches.WatchSingle(stores.BranchSelectedChanged, v.branch)
+	v.c = v.app.Branches.WatchSingle(stores.BranchSelectedChanged)
 	go func() {
 		for range v.c {
 			v.branch = v.app.Branches.Selected()
@@ -80,7 +68,9 @@ func (v *PanelView) Unmount() {
 func (v *PanelView) render() vecty.Component {
 
 	var n *node.Node
+	label := ""
 	if v.branch != nil {
+		label = v.branch.Contents.Label()
 		ni, ok := v.branch.Contents.(models.NodeContentsInterface)
 		if ok {
 			n = ni.GetNode()
@@ -89,11 +79,9 @@ func (v *PanelView) render() vecty.Component {
 
 	return elem.Div(
 		prop.Class("content panel"),
-		vecty.If(
-			n != nil,
-			NewBreadcrumbsView(v.ctx),
-			NewEditorView(v.ctx, n),
-			NewSummaryView(v.ctx),
-		),
+		vecty.Text(label),
+		NewBreadcrumbsView(v.ctx, v.branch),
+		NewEditorView(v.ctx, n),
+		NewSummaryView(v.ctx, n),
 	)
 }

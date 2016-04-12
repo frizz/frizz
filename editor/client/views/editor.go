@@ -29,19 +29,19 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 	return v
 }
 
-func (e *EditorView) Reconcile(old vecty.Component) {
+func (v *EditorView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*EditorView); ok {
-		e.Body = old.Body
-		e.node = old.node
-		e.model = old.model
+		v.Body = old.Body
+		v.node = old.node
+		v.model = old.model
 	}
-	e.RenderFunc = e.render
-	e.ReconcileBody()
+	v.RenderFunc = v.render
+	v.ReconcileBody()
 }
 
 // Apply implements the vecty.Markup interface.
-func (e *EditorView) Apply(element *vecty.Element) {
-	element.AddChild(e)
+func (v *EditorView) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
 func (v *EditorView) Mount() {
@@ -67,12 +67,11 @@ func (v *EditorView) Unmount() {
 	v.Body.Unmount()
 }
 
-func (e *EditorView) render() vecty.Component {
-	label := "no editor selected"
-	if e.node != nil {
-		label = e.node.Key + " editor"
+func (v *EditorView) render() vecty.Component {
+	if v.node == nil {
+		return elem.Div()
 	}
 	return elem.Div(
-		vecty.Text(label),
+		vecty.Text(v.node.Key + " editor"),
 	)
 }

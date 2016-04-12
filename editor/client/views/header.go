@@ -25,21 +25,21 @@ func NewHeader(ctx context.Context, env *envctx.Env) *Header {
 	}
 }
 
-func (p *Header) Reconcile(old vecty.Component) {
+func (v *Header) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PageView); ok {
-		p.Body = old.Body
-		p.Environment = old.Environment
+		v.Body = old.Body
+		v.Environment = old.Environment
 	}
-	p.RenderFunc = p.render
-	p.ReconcileBody()
+	v.RenderFunc = v.render
+	v.ReconcileBody()
 }
 
 // Apply implements the vecty.Markup interface.
-func (p *Header) Apply(element *vecty.Element) {
-	element.AddChild(p)
+func (v *Header) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
-func (p *Header) render() vecty.Component {
+func (v *Header) render() vecty.Component {
 	return elem.Navigation(
 		prop.Class("navbar navbar-inverse navbar-fixed-top"),
 		elem.Div(
@@ -68,7 +68,7 @@ func (p *Header) render() vecty.Component {
 				elem.Anchor(
 					prop.Class("navbar-brand"),
 					prop.Href("#"),
-					vecty.Text(p.Environment.Path),
+					vecty.Text(v.Environment.Path),
 				),
 			),
 			elem.Div(

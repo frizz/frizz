@@ -4,44 +4,47 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/system/node"
 )
 
 type BreadcrumbsView struct {
 	vecty.Composite
 	ctx context.Context
 	app *stores.App
+	c   chan struct{}
 
-	selected *node.Node
+	branch *models.BranchModel
 }
 
-func NewBreadcrumbsView(ctx context.Context) *BreadcrumbsView {
-
-	e := &BreadcrumbsView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
+func NewBreadcrumbsView(ctx context.Context, b *models.BranchModel) *BreadcrumbsView {
+	v := &BreadcrumbsView{
+		ctx:    ctx,
+		app:    stores.FromContext(ctx),
+		branch: b,
 	}
-
-	return e
+	return v
 }
 
-func (e *BreadcrumbsView) Reconcile(old vecty.Component) {
+func (v *BreadcrumbsView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*BreadcrumbsView); ok {
-		e.Body = old.Body
-		e.selected = old.selected
+		v.Body = old.Body
+		v.branch = old.branch
 	}
-	e.RenderFunc = e.render
-	e.ReconcileBody()
+	v.RenderFunc = v.render
+	v.ReconcileBody()
 }
 
 // Apply implements the vecty.Markup interface.
-func (e *BreadcrumbsView) Apply(element *vecty.Element) {
-	element.AddChild(e)
+func (v *BreadcrumbsView) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
-func (e *BreadcrumbsView) render() vecty.Component {
+func (v *BreadcrumbsView) render() vecty.Component {
+	if v.branch == nil {
+		return elem.Div()
+	}
 	return elem.Div(
-		vecty.Text("Breadcrmbs"),
+		vecty.Text(v.branch.Contents.Label()),
 	)
 }

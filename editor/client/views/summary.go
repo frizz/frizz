@@ -16,31 +16,35 @@ type SummaryView struct {
 	selected *node.Node
 }
 
-func NewSummaryView(ctx context.Context) *SummaryView {
+func NewSummaryView(ctx context.Context, n *node.Node) *SummaryView {
 
-	e := &SummaryView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
+	v := &SummaryView{
+		ctx:      ctx,
+		app:      stores.FromContext(ctx),
+		selected: n,
 	}
 
-	return e
+	return v
 }
 
-func (e *SummaryView) Reconcile(old vecty.Component) {
+func (v *SummaryView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*SummaryView); ok {
-		e.Body = old.Body
-		e.selected = old.selected
+		v.Body = old.Body
+		v.selected = old.selected
 	}
-	e.RenderFunc = e.render
-	e.ReconcileBody()
+	v.RenderFunc = v.render
+	v.ReconcileBody()
 }
 
 // Apply implements the vecty.Markup interface.
-func (e *SummaryView) Apply(element *vecty.Element) {
-	element.AddChild(e)
+func (v *SummaryView) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
-func (e *SummaryView) render() vecty.Component {
+func (v *SummaryView) render() vecty.Component {
+	if v.selected == nil {
+		return elem.Div()
+	}
 	return elem.Div(
 		vecty.Text("Summary table"),
 	)

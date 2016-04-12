@@ -23,10 +23,9 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 	if model == nil {
 		return nil
 	}
-	app := stores.FromContext(ctx)
 	v := &BranchView{
 		ctx:   ctx,
-		app:   app,
+		app:   stores.FromContext(ctx),
 		model: model,
 	}
 	v.Mount()
@@ -43,8 +42,8 @@ func (v *BranchView) Reconcile(old vecty.Component) {
 }
 
 // Apply implements the vecty.Markup interface.
-func (b *BranchView) Apply(element *vecty.Element) {
-	element.AddChild(b)
+func (v *BranchView) Apply(element *vecty.Element) {
+	element.AddChild(v)
 }
 
 func (v *BranchView) Mount() {
