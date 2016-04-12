@@ -32,7 +32,6 @@ func NewPage(ctx context.Context, env *envctx.Env) *PageView {
 func (v *PageView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PageView); ok {
 		v.Body = old.Body
-		v.Environment = old.Environment
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()

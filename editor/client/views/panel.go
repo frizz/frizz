@@ -31,7 +31,6 @@ func NewPanelView(ctx context.Context) *PanelView {
 func (v *PanelView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PanelView); ok {
 		v.Body = old.Body
-		v.branch = old.branch
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()

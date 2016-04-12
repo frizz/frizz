@@ -17,20 +17,17 @@ type SummaryView struct {
 }
 
 func NewSummaryView(ctx context.Context, n *node.Node) *SummaryView {
-
 	v := &SummaryView{
 		ctx:      ctx,
 		app:      stores.FromContext(ctx),
 		selected: n,
 	}
-
 	return v
 }
 
 func (v *SummaryView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*SummaryView); ok {
 		v.Body = old.Body
-		v.selected = old.selected
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()

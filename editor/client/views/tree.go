@@ -31,7 +31,6 @@ func NewTreeView(ctx context.Context) *TreeView {
 func (v *TreeView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*TreeView); ok {
 		v.Body = old.Body
-		v.Selected = old.Selected
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()

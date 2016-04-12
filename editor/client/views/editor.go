@@ -32,8 +32,6 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 func (v *EditorView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*EditorView); ok {
 		v.Body = old.Body
-		v.node = old.node
-		v.model = old.model
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()
