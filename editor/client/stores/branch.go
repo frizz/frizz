@@ -51,8 +51,7 @@ const BranchOpenPostLoad branchKey = "BranchOpenPostLoad"
 const BranchClose branchKey = "BranchClose"
 
 const BranchPreSelect branchKey = "BranchPreSelect"
-const BranchSelectClick branchKey = "BranchSelectClick"
-const BranchSelectKeyboard branchKey = "BranchSelectKeyboard"
+const BranchSelect branchKey = "BranchSelect"
 const BranchSelectPostLoad branchKey = "BranchSelectPostLoad"
 const BranchUnselect branchKey = "BranchUnselect"
 
@@ -76,7 +75,6 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		action.Branch.RecursiveClose()
 		s.NotifySingle(BranchClose, action.Branch)
-		return true
 	case *actions.BranchOpen:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
@@ -85,7 +83,6 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		// The branch may not be loaded, so we don't open the branch until the BranchOpenPostLoad
 		// action is received. This will happen immediately if the branch is loaded or not async.
 		s.NotifySingle(BranchOpen, action.Branch)
-		return true
 	case *actions.BranchOpenPostLoad:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
@@ -93,27 +90,23 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		action.Branch.Open = true
 		s.NotifySingle(BranchOpenPostLoad, action.Branch)
-		return true
-	case *actions.BranchSelectKeyboard:
+	case *actions.BranchSelect:
 		s.selected = action.Branch
+		s.selected.LastOp = action.Op
 		s.NotifySingle(BranchUnselect, previous)
 		s.NotifySingle(BranchPreSelect, s.selected)
-		go func() {
-			<-time.After(time.Millisecond * 50)
-			if s.selected == action.Branch {
-				s.NotifySingle(BranchSelectKeyboard, s.selected)
-			}
-		}()
-		return true
-	case *actions.BranchSelectClick:
-		s.selected = action.Branch
-		s.NotifySingle(BranchUnselect, previous)
-		s.NotifySingle(BranchPreSelect, s.selected)
-		s.NotifySingle(BranchSelectClick, s.selected)
-		return true
+		if action.Op == models.BranchOpKeyboard {
+			go func() {
+				<-time.After(time.Millisecond * 50)
+				if s.selected == action.Branch {
+					s.NotifySingle(BranchSelect, s.selected)
+				}
+			}()
+		} else {
+			s.NotifySingle(BranchSelect, s.selected)
+		}
 	case *actions.BranchSelectPostLoad:
 		s.NotifySingle(BranchSelectPostLoad)
-		return true
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
 		s.pkg = models.NewNodeBranch(s.app.Package.Node(), "package")
@@ -150,7 +143,6 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		s.root.Append(s.pkg, s.types, s.data)
 		s.Notify()
-		return true
 	case *actions.LoadSourceSuccess:
 		n, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
@@ -158,7 +150,6 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		models.AppendNodeChildren(action.Branch, n.GetNode())
 		s.Notify(action.Branch)
-		return true
 	}
 
 	return true

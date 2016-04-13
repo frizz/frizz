@@ -16,14 +16,13 @@ type BranchView struct {
 	ctx context.Context
 	app *stores.App
 
-	model           *models.BranchModel
-	cSelectClick    chan struct{}
-	cSelectKeyboard chan struct{}
-	cOpenPostLoad   chan struct{}
-	cClose          chan struct{}
-	cMain           chan struct{}
-	cOpen           chan struct{}
-	children        vecty.List
+	model         *models.BranchModel
+	cSelect       chan struct{}
+	cOpenPostLoad chan struct{}
+	cClose        chan struct{}
+	cMain         chan struct{}
+	cOpen         chan struct{}
+	children      vecty.List
 }
 
 func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
@@ -57,8 +56,7 @@ func (v *BranchView) Mount() {
 	v.cOpenPostLoad = v.app.Branches.WatchSingle(stores.BranchOpenPostLoad, v.model)
 	v.cClose = v.app.Branches.WatchSingle(stores.BranchClose, v.model)
 	v.cMain = v.app.Branches.Watch(v.model)
-	v.cSelectClick = v.app.Branches.WatchSingle(stores.BranchSelectClick, v.model)
-	v.cSelectKeyboard = v.app.Branches.WatchSingle(stores.BranchSelectKeyboard, v.model)
+	v.cSelect = v.app.Branches.WatchSingle(stores.BranchSelect, v.model)
 
 	go func() {
 		for range v.cOpen {
@@ -72,17 +70,11 @@ func (v *BranchView) Mount() {
 		}
 	}()
 	go func() {
-		for range v.cSelectClick {
+		for range v.cSelect {
 			loaded := LoadBranch(v.ctx, v.app, v.model)
-			if loaded {
+			if v.model.LastOp == models.BranchOpClickToggle && loaded {
 				v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
 			}
-			v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
-		}
-	}()
-	go func() {
-		for range v.cSelectKeyboard {
-			loaded := LoadBranch(v.ctx, v.app, v.model)
 			v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
 		}
 	}()
@@ -105,13 +97,9 @@ func (v *BranchView) Unmount() {
 		v.app.Branches.Delete(v.cMain)
 		v.cMain = nil
 	}
-	if v.cSelectClick != nil {
-		v.app.Branches.Delete(v.cSelectClick)
-		v.cSelectClick = nil
-	}
-	if v.cSelectKeyboard != nil {
-		v.app.Branches.Delete(v.cSelectKeyboard)
-		v.cSelectKeyboard = nil
+	if v.cSelect != nil {
+		v.app.Branches.Delete(v.cSelect)
+		v.cSelect = nil
 	}
 	v.Body.Unmount()
 }

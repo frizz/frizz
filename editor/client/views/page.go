@@ -8,6 +8,7 @@ import (
 	"honnef.co/go/js/dom"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 )
 
@@ -72,22 +73,22 @@ func (v *PageView) keyPress(code int) {
 	case 38: // up
 		if selected == nil {
 			if b := v.app.Branches.Root().LastVisible(); b != nil {
-				v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
+				v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
 			}
 			return
 		}
 		if b := selected.PrevVisible(); b != nil {
-			v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
+			v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 	case 40: // down
 		if selected == nil {
 			b := v.app.Branches.Root()
-			v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
+			v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 		if b := selected.NextVisible(true); b != nil {
-			v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
+			v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 	case 37: // left
@@ -100,7 +101,7 @@ func (v *PageView) keyPress(code int) {
 			return
 		} else {
 			if b := selected.Parent; b != nil {
-				v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
+				v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
 				return
 			}
 		}
@@ -115,7 +116,7 @@ func (v *PageView) keyPress(code int) {
 			return
 		} else {
 			if b := selected.FirstChild(); b != nil {
-				v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
+				v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
 				return
 			}
 		}

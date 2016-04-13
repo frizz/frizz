@@ -9,7 +9,14 @@ type BranchModel struct {
 	Contents BranchContentsInterface
 	Parent   *BranchModel
 	index    int
+	LastOp   BranchOps
 }
+
+type BranchOps string
+
+const BranchOpKeyboard BranchOps = "BranchOpKeyboard"
+const BranchOpClickLabel BranchOps = "BranchOpClickLabel"
+const BranchOpClickToggle BranchOps = "BranchOpClickToggle"
 
 func (b *BranchModel) CanOpen() bool {
 	if b.Root {

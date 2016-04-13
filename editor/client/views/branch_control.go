@@ -85,7 +85,7 @@ func (v *BranchControlView) focus() {
 func (v *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
 		if !v.model.CanOpen() {
-			v.app.Dispatch(&actions.BranchSelectClick{Branch: v.model})
+			v.app.Dispatch(&actions.BranchSelect{Branch: v.model, Op: models.BranchOpClickToggle})
 			return
 		}
 		if v.model.Open {
@@ -98,7 +98,7 @@ func (v *BranchControlView) toggleClick(*vecty.Event) {
 
 func (v *BranchControlView) labelClick(*vecty.Event) {
 	go func() {
-		v.app.Dispatch(&actions.BranchSelectClick{Branch: v.model})
+		v.app.Dispatch(&actions.BranchSelect{Branch: v.model, Op: models.BranchOpClickLabel})
 	}()
 }
 
