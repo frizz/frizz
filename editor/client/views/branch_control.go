@@ -84,15 +84,15 @@ func (v *BranchControlView) focus() {
 
 func (v *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
-		if v.model.CanOpen() {
-			if v.model.Open {
-				v.app.Dispatch(&actions.BranchClose{Branch: v.model})
-			} else {
-				v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
-			}
-		} else {
+		if !v.model.CanOpen() {
 			v.app.Dispatch(&actions.BranchSelectClick{Branch: v.model})
+			return
 		}
+		if v.model.Open {
+			v.app.Dispatch(&actions.BranchClose{Branch: v.model})
+			return
+		}
+		v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
 	}()
 }
 
