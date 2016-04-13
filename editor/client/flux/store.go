@@ -18,8 +18,6 @@ type StoreInterface interface {
 	NotifySingle(notificationType interface{}, changed ...interface{})
 
 	Delete(c chan struct{})
-
-	DeleteSingle(notificationType interface{}, c chan struct{})
 }
 
 type Store struct {
@@ -39,30 +37,33 @@ const all_subscribers key = "all_subscribers"
 const all_values key = "all_values"
 
 func (s *Store) Delete(c chan struct{}) {
-	s.self.DeleteSingle(all_notifications, c)
-}
-func (s *Store) DeleteSingle(notificationType interface{}, c chan struct{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
 		return
 	}
-	if s.subscribers[notificationType] == nil {
-		return
-	}
-	n := s.subscribers[notificationType]
-	for v, a := range n {
-		for i, ch := range a {
-			if c == ch {
-				if len(n[v]) == 1 {
-					delete(n, v)
-					break
+
+NotificationTypes:
+	for notificationType, notifierObject := range s.subscribers {
+	Values:
+		for valueType, chans := range notifierObject {
+			for i, ch := range chans {
+				if c == ch {
+					if len(chans) == 1 {
+						if len(notifierObject) == 1 {
+							delete(s.subscribers, notificationType)
+							continue NotificationTypes
+						}
+						delete(notifierObject, valueType)
+						continue Values
+					}
+					notifierObject[valueType] = append(chans[:i], chans[i+1:]...)
+					continue Values
 				}
-				n[v] = append(a[:i], a[i+1:]...)
-				break
 			}
 		}
 	}
+	close(c)
 }
 
 func (s *Store) Watch(watch ...interface{}) chan struct{} {

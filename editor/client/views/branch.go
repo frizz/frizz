@@ -5,6 +5,8 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
+	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 )
@@ -14,9 +16,14 @@ type BranchView struct {
 	ctx context.Context
 	app *stores.App
 
-	model    *models.BranchModel
-	c        chan struct{}
-	children vecty.List
+	model           *models.BranchModel
+	cSelectClick    chan struct{}
+	cSelectKeyboard chan struct{}
+	cOpenPostLoad   chan struct{}
+	cClose          chan struct{}
+	cMain           chan struct{}
+	cOpen           chan struct{}
+	children        vecty.List
 }
 
 func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
@@ -46,24 +53,66 @@ func (v *BranchView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchView) Mount() {
-	if v.c != nil {
-		panic("mounting a mounted branch")
-	}
-	v.c = v.app.Branches.Watch(v.model)
+	v.cOpen = v.app.Branches.WatchSingle(stores.BranchOpen, v.model)
+	v.cOpenPostLoad = v.app.Branches.WatchSingle(stores.BranchOpenPostLoad, v.model)
+	v.cClose = v.app.Branches.WatchSingle(stores.BranchClose, v.model)
+	v.cMain = v.app.Branches.Watch(v.model)
+	v.cSelectClick = v.app.Branches.WatchSingle(stores.BranchSelectClick, v.model)
+	v.cSelectKeyboard = v.app.Branches.WatchSingle(stores.BranchSelectKeyboard, v.model)
+
 	go func() {
-		for range v.c {
+		for range v.cOpen {
+			loaded := LoadBranch(v.ctx, v.app, v.model)
+			v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded})
+		}
+	}()
+	go func() {
+		for range flux.WatchMulti(v.cOpenPostLoad, v.cClose, v.cMain) {
 			v.ReconcileBody()
+		}
+	}()
+	go func() {
+		for range v.cSelectClick {
+			loaded := LoadBranch(v.ctx, v.app, v.model)
+			if loaded {
+				v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
+			}
+			v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
+		}
+	}()
+	go func() {
+		for range v.cSelectKeyboard {
+			loaded := LoadBranch(v.ctx, v.app, v.model)
+			v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
 		}
 	}()
 }
 
 func (v *BranchView) Unmount() {
-	if v.c == nil {
-		return
+	if v.cOpen != nil {
+		v.app.Branches.Delete(v.cOpen)
+		v.cOpen = nil
 	}
-	v.app.Branches.Delete(v.c)
-	close(v.c)
-	v.c = nil
+	if v.cOpenPostLoad != nil {
+		v.app.Branches.Delete(v.cOpenPostLoad)
+		v.cOpenPostLoad = nil
+	}
+	if v.cClose != nil {
+		v.app.Branches.Delete(v.cClose)
+		v.cClose = nil
+	}
+	if v.cMain != nil {
+		v.app.Branches.Delete(v.cMain)
+		v.cMain = nil
+	}
+	if v.cSelectClick != nil {
+		v.app.Branches.Delete(v.cSelectClick)
+		v.cSelectClick = nil
+	}
+	if v.cSelectKeyboard != nil {
+		v.app.Branches.Delete(v.cSelectKeyboard)
+		v.cSelectKeyboard = nil
+	}
 	v.Body.Unmount()
 }
 

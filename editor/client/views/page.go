@@ -72,26 +72,22 @@ func (v *PageView) keyPress(code int) {
 	case 38: // up
 		if selected == nil {
 			if b := v.app.Branches.Root().LastVisible(); b != nil {
-				LoadBranchDebounced(v.ctx, v.app, b)
-				v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+				v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
 			}
 			return
 		}
 		if b := selected.PrevVisible(); b != nil {
-			LoadBranchDebounced(v.ctx, v.app, b)
-			v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
 			return
 		}
 	case 40: // down
 		if selected == nil {
 			b := v.app.Branches.Root()
-			LoadBranchDebounced(v.ctx, v.app, b)
-			v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
 			return
 		}
 		if b := selected.NextVisible(true); b != nil {
-			LoadBranchDebounced(v.ctx, v.app, b)
-			v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+			v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
 			return
 		}
 	case 37: // left
@@ -100,12 +96,11 @@ func (v *PageView) keyPress(code int) {
 		}
 		if selected.CanOpen() && selected.Open {
 			// if the branch is open, left arrow should close it.
-			v.app.Dispatcher.Dispatch(&actions.CloseBranch{Branch: selected})
+			v.app.Dispatcher.Dispatch(&actions.BranchClose{Branch: selected})
 			return
 		} else {
 			if b := selected.Parent; b != nil {
-				LoadBranchDebounced(v.ctx, v.app, b)
-				v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+				v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
 				return
 			}
 		}
@@ -116,12 +111,11 @@ func (v *PageView) keyPress(code int) {
 		if selected.CanOpen() && !selected.Open {
 			// if the branch is closed, right arrow should open it
 			LoadBranch(v.ctx, v.app, selected)
-			v.app.Dispatcher.Dispatch(&actions.OpenBranch{Branch: selected})
+			v.app.Dispatcher.Dispatch(&actions.BranchOpen{Branch: selected})
 			return
 		} else {
 			if b := selected.FirstChild(); b != nil {
-				LoadBranchDebounced(v.ctx, v.app, b)
-				v.app.Dispatcher.Dispatch(&actions.SelectBranch{Branch: b})
+				v.app.Dispatcher.Dispatch(&actions.BranchSelectKeyboard{Branch: b})
 				return
 			}
 		}

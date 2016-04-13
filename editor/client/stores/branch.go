@@ -3,6 +3,8 @@ package stores
 import (
 	"strings"
 
+	"time"
+
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
@@ -44,7 +46,15 @@ func (b *BranchStore) Data() *models.BranchModel {
 
 type branchKey string
 
-const BranchSelectedChanged branchKey = "BranchSelectedChanged"
+const BranchOpen branchKey = "BranchOpen"
+const BranchOpenPostLoad branchKey = "BranchOpenPostLoad"
+const BranchClose branchKey = "BranchClose"
+
+const BranchPreSelect branchKey = "BranchPreSelect"
+const BranchSelectClick branchKey = "BranchSelectClick"
+const BranchSelectKeyboard branchKey = "BranchSelectKeyboard"
+const BranchSelectPostLoad branchKey = "BranchSelectPostLoad"
+const BranchUnselect branchKey = "BranchUnselect"
 
 func NewBranchStore(ctx context.Context) *BranchStore {
 	s := &BranchStore{
@@ -56,72 +66,53 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 	return s
 }
 
-func (s *BranchStore) NotifySingle(notificationType interface{}, changed ...interface{}) {
-
-	if notificationType == BranchSelectedChanged {
-		s.Store.NotifySingle(notificationType, changed...)
-		return
-	}
-
-	// eliminate descendants...
-	changedBranches := []*models.BranchModel{}
-	for _, c := range changed {
-		br := c.(*models.BranchModel)
-		if br != nil {
-			changedBranches = append(changedBranches, br)
-		}
-	}
-	deleted := map[interface{}]bool{}
-	for _, b := range changedBranches {
-		for _, b1 := range changedBranches {
-			if b.IsDescendantOf(b1) {
-				deleted[b] = true
-			}
-		}
-	}
-	out := []interface{}{}
-	for _, b := range changedBranches {
-		if _, ok := deleted[b]; !ok {
-			out = append(out, b)
-		}
-	}
-	s.Store.NotifySingle(notificationType, out...)
-}
-
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	previous := s.selected
 	switch action := payload.Action.(type) {
-	case *actions.ToggleBranch:
-		if !action.Branch.CanOpen() {
-			// branch can't open - ignore
-			return true
-		}
-		if action.Branch.Open {
-			action.Branch.RecursiveClose()
-		} else {
-			action.Branch.Open = true
-		}
-		s.Notify(action.Branch)
-		return true
-	case *actions.CloseBranch:
+	case *actions.BranchClose:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
 			return true
 		}
 		action.Branch.RecursiveClose()
-		s.Notify(action.Branch)
+		s.NotifySingle(BranchClose, action.Branch)
 		return true
-	case *actions.OpenBranch:
+	case *actions.BranchOpen:
+		if !action.Branch.CanOpen() {
+			// branch can't open - ignore
+			return true
+		}
+		// The branch may not be loaded, so we don't open the branch until the BranchOpenPostLoad
+		// action is received. This will happen immediately if the branch is loaded or not async.
+		s.NotifySingle(BranchOpen, action.Branch)
+		return true
+	case *actions.BranchOpenPostLoad:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
 			return true
 		}
 		action.Branch.Open = true
-		s.Notify(action.Branch)
+		s.NotifySingle(BranchOpenPostLoad, action.Branch)
 		return true
-	case *actions.SelectBranch:
+	case *actions.BranchSelectKeyboard:
 		s.selected = action.Branch
-		s.NotifySingle(BranchSelectedChanged, previous, s.selected)
+		s.NotifySingle(BranchUnselect, previous)
+		s.NotifySingle(BranchPreSelect, s.selected)
+		go func() {
+			<-time.After(time.Millisecond * 50)
+			if s.selected == action.Branch {
+				s.NotifySingle(BranchSelectKeyboard, s.selected)
+			}
+		}()
+		return true
+	case *actions.BranchSelectClick:
+		s.selected = action.Branch
+		s.NotifySingle(BranchUnselect, previous)
+		s.NotifySingle(BranchPreSelect, s.selected)
+		s.NotifySingle(BranchSelectClick, s.selected)
+		return true
+	case *actions.BranchSelectPostLoad:
+		s.NotifySingle(BranchSelectPostLoad)
 		return true
 	case *actions.InitialState:
 		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
@@ -172,3 +163,41 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 	return true
 }
+
+/*
+// We don't currently need to eliminate descendants because we never have
+// to update a descendant at the same time it's ancestor. I'll leave the
+// code in here in case we need it.
+func (s *BranchStore) NotifySingle(notificationType interface{}, changed ...interface{}) {
+
+	if notificationType == BranchSelectedImmediate {
+		s.Store.NotifySingle(notificationType, changed...)
+		return
+	}
+
+	// eliminate descendants...
+	changedBranches := []*models.BranchModel{}
+	for _, c := range changed {
+		br := c.(*models.BranchModel)
+		if br != nil {
+			changedBranches = append(changedBranches, br)
+		}
+	}
+	deleted := map[interface{}]bool{}
+	for _, b := range changedBranches {
+		for _, b1 := range changedBranches {
+			if b.IsDescendantOf(b1) {
+				deleted[b] = true
+			}
+		}
+	}
+	out := []interface{}{}
+	for _, b := range changedBranches {
+		if _, ok := deleted[b]; !ok {
+			out = append(out, b)
+		}
+	}
+	s.Store.NotifySingle(notificationType, out...)
+}
+
+*/

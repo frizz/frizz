@@ -42,9 +42,6 @@ func (v *TreeView) Apply(element *vecty.Element) {
 }
 
 func (v *TreeView) Mount() {
-	if v.c != nil {
-		panic("mounting a mounted tree")
-	}
 	v.c = v.app.Branches.Watch(v.app.Branches.Root())
 	go func() {
 		for range v.c {
@@ -55,12 +52,10 @@ func (v *TreeView) Mount() {
 }
 
 func (v *TreeView) Unmount() {
-	if v.c == nil {
-		return
+	if v.c != nil {
+		v.app.Branches.Delete(v.c)
+		v.c = nil
 	}
-	v.app.Branches.Delete(v.c)
-	close(v.c)
-	v.c = nil
 	v.Body.Unmount()
 }
 

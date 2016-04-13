@@ -2,7 +2,6 @@ package views
 
 import (
 	"net/rpc"
-	"time"
 
 	"code.google.com/p/go.net/context"
 	"kego.io/context/envctx"
@@ -13,18 +12,6 @@ import (
 	"kego.io/kerr"
 	"kego.io/system/node"
 )
-
-func LoadBranchDebounced(ctx context.Context, app *stores.App, b *models.BranchModel) {
-	if async, ok := b.Contents.(models.AsyncInterface); !ok || async.Loaded() {
-		return
-	}
-	go func() {
-		<-time.After(time.Millisecond * 50)
-		if app.Branches.Selected() == b {
-			LoadBranch(ctx, app, b)
-		}
-	}()
-}
 
 func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel) bool {
 	c, ok := b.Contents.(*models.SourceContents)

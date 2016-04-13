@@ -13,18 +13,29 @@ type InitialState struct {
 	Info *shared.Info
 }
 
-type ToggleBranch struct {
+type BranchToggle struct {
 	Branch *models.BranchModel
 }
 
-type SelectBranch struct {
+type BranchSelectClick struct {
 	Branch *models.BranchModel
 }
-type OpenBranch struct {
+type BranchSelectKeyboard struct {
 	Branch *models.BranchModel
 }
-type CloseBranch struct {
+type BranchOpen struct {
 	Branch *models.BranchModel
+}
+type BranchOpenPostLoad struct {
+	Branch *models.BranchModel
+	Loaded bool
+}
+type BranchClose struct {
+	Branch *models.BranchModel
+}
+type BranchSelectPostLoad struct {
+	Branch *models.BranchModel
+	Loaded bool
 }
 
 type LoadSource struct {

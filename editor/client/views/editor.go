@@ -43,9 +43,6 @@ func (v *EditorView) Apply(element *vecty.Element) {
 }
 
 func (v *EditorView) Mount() {
-	if v.c != nil {
-		panic("mounting a mounted tree")
-	}
 	v.c = v.app.Editors.Watch(v.c)
 	go func() {
 		for range v.c {
@@ -56,12 +53,10 @@ func (v *EditorView) Mount() {
 }
 
 func (v *EditorView) Unmount() {
-	if v.c == nil {
-		return
+	if v.c != nil {
+		v.app.Editors.Delete(v.c)
+		v.c = nil
 	}
-	v.app.Editors.Delete(v.c)
-	close(v.c)
-	v.c = nil
 	v.Body.Unmount()
 }
 

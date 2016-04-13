@@ -42,10 +42,7 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	if v.c != nil {
-		panic("mounting a mounted panel")
-	}
-	v.c = v.app.Branches.WatchSingle(stores.BranchSelectedChanged)
+	v.c = v.app.Branches.WatchSingle(stores.BranchSelectPostLoad)
 	go func() {
 		for range v.c {
 			v.branch = v.app.Branches.Selected()
@@ -55,12 +52,10 @@ func (v *PanelView) Mount() {
 }
 
 func (v *PanelView) Unmount() {
-	if v.c == nil {
-		return
+	if v.c != nil {
+		v.app.Branches.Delete(v.c)
+		v.c = nil
 	}
-	v.app.Branches.DeleteSingle(stores.BranchSelectedChanged, v.c)
-	close(v.c)
-	v.c = nil
 	v.Body.Unmount()
 }
 

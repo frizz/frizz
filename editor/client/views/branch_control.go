@@ -7,6 +7,7 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 )
@@ -17,7 +18,8 @@ type BranchControlView struct {
 	app *stores.App
 
 	model    *models.BranchModel
-	c        chan struct{}
+	cUnsel   chan struct{}
+	cSel     chan struct{}
 	children vecty.List
 }
 
@@ -52,12 +54,10 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchControlView) Mount() {
-	if v.c != nil {
-		panic("mounting a mounted BranchControl")
-	}
-	v.c = v.app.Branches.WatchSingle(stores.BranchSelectedChanged, v.model)
+	v.cSel = v.app.Branches.WatchSingle(stores.BranchPreSelect, v.model)
+	v.cUnsel = v.app.Branches.WatchSingle(stores.BranchUnselect, v.model)
 	go func() {
-		for range v.c {
+		for range flux.WatchMulti(v.cSel, v.cUnsel) {
 			v.ReconcileBody()
 			if v.model != nil && v.app.Branches.Selected() == v.model {
 				v.focus()
@@ -67,12 +67,14 @@ func (v *BranchControlView) Mount() {
 }
 
 func (v *BranchControlView) Unmount() {
-	if v.c == nil {
-		return
+	if v.cSel != nil {
+		v.app.Branches.Delete(v.cSel)
+		v.cSel = nil
 	}
-	v.app.Branches.DeleteSingle(stores.BranchSelectedChanged, v.c)
-	close(v.c)
-	v.c = nil
+	if v.cUnsel != nil {
+		v.app.Branches.Delete(v.cUnsel)
+		v.cUnsel = nil
+	}
 	v.Body.Unmount()
 }
 
@@ -82,22 +84,21 @@ func (v *BranchControlView) focus() {
 
 func (v *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
-		LoadBranch(v.ctx, v.app, v.model)
 		if v.model.CanOpen() {
-			v.app.Dispatch(&actions.ToggleBranch{Branch: v.model})
+			if v.model.Open {
+				v.app.Dispatch(&actions.BranchClose{Branch: v.model})
+			} else {
+				v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
+			}
 		} else {
-			v.app.Dispatch(&actions.SelectBranch{Branch: v.model})
+			v.app.Dispatch(&actions.BranchSelectClick{Branch: v.model})
 		}
 	}()
 }
 
 func (v *BranchControlView) labelClick(*vecty.Event) {
 	go func() {
-		loaded := LoadBranch(v.ctx, v.app, v.model)
-		v.app.Dispatch(&actions.SelectBranch{Branch: v.model})
-		if loaded {
-			v.app.Dispatch(&actions.OpenBranch{Branch: v.model})
-		}
+		v.app.Dispatch(&actions.BranchSelectClick{Branch: v.model})
 	}()
 }
 
