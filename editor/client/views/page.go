@@ -60,14 +60,14 @@ func (v *PageView) addKeyboardEvents() {
 				// up, down, left, right
 				k.PreventDefault()
 				go func() {
-					v.keyPress(k.KeyCode)
+					v.KeyPress(k.KeyCode)
 				}()
 			}
 		}
 	})
 }
 
-func (v *PageView) keyPress(code int) {
+func (v *PageView) KeyPress(code int) {
 	selected := v.app.Branches.Selected()
 	switch code {
 	case 38: // up

@@ -43,7 +43,7 @@ func (v *EditorView) Apply(element *vecty.Element) {
 }
 
 func (v *EditorView) Mount() {
-	v.c = v.app.Editors.Watch(v.c)
+	v.c = v.app.Editors.Watch(stores.EditorChanged, v.c)
 	go func() {
 		for range v.c {
 			v.model = v.app.Editors.Get(v.node)

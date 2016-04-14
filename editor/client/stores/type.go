@@ -16,6 +16,10 @@ type TypeStore struct {
 	types map[string]*node.Node
 }
 
+type typeKey string
+
+const TypeChanged typeKey = "TypeChanged"
+
 func NewTypeStore(ctx context.Context) *TypeStore {
 	s := &TypeStore{
 		Store: &flux.Store{},
@@ -58,7 +62,7 @@ func (s *TypeStore) Handle(payload *flux.Payload) bool {
 			}
 			s.types[name] = typ
 		}
-		s.Notify()
+		s.Notify(TypeChanged)
 	}
 	return true
 }

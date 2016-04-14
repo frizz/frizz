@@ -54,8 +54,8 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchControlView) Mount() {
-	v.cSel = v.app.Branches.WatchSingle(stores.BranchPreSelect, v.model)
-	v.cUnsel = v.app.Branches.WatchSingle(stores.BranchUnselect, v.model)
+	v.cSel = v.app.Branches.Watch(stores.BranchPreSelect, v.model)
+	v.cUnsel = v.app.Branches.Watch(stores.BranchUnselect, v.model)
 	go func() {
 		for range flux.WatchMulti(v.cSel, v.cUnsel) {
 			v.ReconcileBody()

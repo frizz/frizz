@@ -179,7 +179,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 		return kerr.Wrap("UWPDBQXURR", err)
 	}
 
-	editorPath, _, namespaceDir, err := CreateTemporaryPackage(ctx, "a", map[string]string{"a.go": string(source)})
+	editorPath, namespaceDir, err := CreateTemporaryPackage(ctx, "kego.temporary", "a", map[string]string{"a.go": string(source)})
 	if err != nil {
 		return kerr.Wrap("RDRIUFUOFY", err)
 	}

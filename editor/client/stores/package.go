@@ -16,6 +16,10 @@ type PackageStore struct {
 	n *node.Node
 }
 
+type packageKey string
+
+const PackageChanged packageKey = "PackageChanged"
+
 func NewPackageStore(ctx context.Context) *PackageStore {
 	s := &PackageStore{
 		Store: &flux.Store{},
@@ -38,7 +42,7 @@ func (s *PackageStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
 		}
 		s.n = pkgNode
-		s.Notify()
+		s.Notify(PackageChanged)
 	}
 	return true
 }

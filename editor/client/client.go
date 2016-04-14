@@ -97,6 +97,17 @@ func Start() error {
 		})
 	}()
 
+	/*
+		go func() {
+			rand.Seed(4871203498)
+			for {
+				<-time.After(time.Millisecond * time.Duration(rand.Intn(10)+10))
+				keycode := rand.Intn(4) + 37
+				p.KeyPress(keycode)
+			}
+		}()
+	*/
+
 	go func() {
 		err, open := <-app.Fail
 		if !open {

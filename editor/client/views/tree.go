@@ -42,7 +42,7 @@ func (v *TreeView) Apply(element *vecty.Element) {
 }
 
 func (v *TreeView) Mount() {
-	v.c = v.app.Branches.Watch(v.app.Branches.Root())
+	v.c = v.app.Branches.Watch(stores.BranchInitialStateLoaded, v.app.Branches.Root())
 	go func() {
 		for range v.c {
 			v.Root = v.app.Branches.Root()

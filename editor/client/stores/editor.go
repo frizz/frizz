@@ -15,6 +15,10 @@ type EditorStore struct {
 	editors map[*node.Node]*models.EditorModel
 }
 
+type editorKey string
+
+const EditorChanged editorKey = "EditorChanged"
+
 func NewEditorStore(ctx context.Context) *EditorStore {
 	s := &EditorStore{
 		Store:   &flux.Store{},

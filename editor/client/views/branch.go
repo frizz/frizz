@@ -20,7 +20,7 @@ type BranchView struct {
 	cSelect       chan struct{}
 	cOpenPostLoad chan struct{}
 	cClose        chan struct{}
-	cMain         chan struct{}
+	cLoad         chan struct{}
 	cOpen         chan struct{}
 	children      vecty.List
 }
@@ -52,11 +52,11 @@ func (v *BranchView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchView) Mount() {
-	v.cOpen = v.app.Branches.WatchSingle(stores.BranchOpen, v.model)
-	v.cOpenPostLoad = v.app.Branches.WatchSingle(stores.BranchOpenPostLoad, v.model)
-	v.cClose = v.app.Branches.WatchSingle(stores.BranchClose, v.model)
-	v.cMain = v.app.Branches.Watch(v.model)
-	v.cSelect = v.app.Branches.WatchSingle(stores.BranchSelect, v.model)
+	v.cOpen = v.app.Branches.Watch(stores.BranchOpen, v.model)
+	v.cOpenPostLoad = v.app.Branches.Watch(stores.BranchOpenPostLoad, v.model)
+	v.cClose = v.app.Branches.Watch(stores.BranchClose, v.model)
+	v.cLoad = v.app.Branches.Watch(stores.BranchLoaded, v.model)
+	v.cSelect = v.app.Branches.Watch(stores.BranchSelect, v.model)
 
 	go func() {
 		for range v.cOpen {
@@ -65,7 +65,7 @@ func (v *BranchView) Mount() {
 		}
 	}()
 	go func() {
-		for range flux.WatchMulti(v.cOpenPostLoad, v.cClose, v.cMain) {
+		for range flux.WatchMulti(v.cOpenPostLoad, v.cClose, v.cLoad) {
 			v.ReconcileBody()
 		}
 	}()
@@ -93,9 +93,9 @@ func (v *BranchView) Unmount() {
 		v.app.Branches.Delete(v.cClose)
 		v.cClose = nil
 	}
-	if v.cMain != nil {
-		v.app.Branches.Delete(v.cMain)
-		v.cMain = nil
+	if v.cLoad != nil {
+		v.app.Branches.Delete(v.cLoad)
+		v.cLoad = nil
 	}
 	if v.cSelect != nil {
 		v.app.Branches.Delete(v.cSelect)

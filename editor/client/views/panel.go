@@ -42,7 +42,7 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.c = v.app.Branches.WatchSingle(stores.BranchSelectPostLoad)
+	v.c = v.app.Branches.Watch(stores.BranchSelectPostLoad)
 	go func() {
 		for range v.c {
 			v.branch = v.app.Branches.Selected()
