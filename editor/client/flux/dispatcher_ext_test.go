@@ -16,8 +16,8 @@ type App struct {
 func TestDispatcher(t *testing.T) {
 
 	a := &App{}
-	a.Messages = &MessageStore{Store: &flux.Store{}}
-	a.Topics = &TopicStore{Store: &flux.Store{}}
+	a.Messages = &MessageStore{Store: &flux.Store{}, app: a}
+	a.Topics = &TopicStore{Store: &flux.Store{}, app: a}
 	a.Dispatcher = flux.NewDispatcher(a.Messages, a.Topics)
 
 	a.Dispatcher.Dispatch(&AddMessage{Message: "a"})
@@ -32,6 +32,7 @@ type AddMessage struct {
 
 type MessageStore struct {
 	*flux.Store
+	app      *App
 	messages []string
 }
 

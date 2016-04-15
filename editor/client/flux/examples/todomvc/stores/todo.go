@@ -16,6 +16,10 @@ type TodoStore struct {
 	filter model.FilterState
 }
 
+type todoKey string
+
+const TodoChange todoKey = "TodoChange"
+
 func NewTodoStore(ctx context.Context) *TodoStore {
 	return &TodoStore{
 		Store: &flux.Store{},
@@ -88,6 +92,6 @@ func (t *TodoStore) Handle(payload *flux.Payload) (finished bool) {
 		return true // don't notify
 	}
 
-	t.Notify()
+	t.Notify(TodoChange)
 	return true
 }
