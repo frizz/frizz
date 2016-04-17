@@ -6,9 +6,9 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
-	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 )
 
 type BranchView struct {

@@ -2,9 +2,9 @@ package stores
 
 import (
 	"golang.org/x/net/context"
-	"kego.io/editor/client/flux"
-	"kego.io/editor/client/flux/examples/todomvc/actions"
-	"kego.io/editor/client/flux/examples/todomvc/model"
+	"kego.io/flux"
+	"kego.io/flux/examples/todomvc/actions"
+	"kego.io/flux/examples/todomvc/model"
 )
 
 type TodoStore struct {

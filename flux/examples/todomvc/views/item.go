@@ -7,9 +7,9 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"github.com/davelondon/vecty/style"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/flux/examples/todomvc/actions"
-	"kego.io/editor/client/flux/examples/todomvc/model"
-	"kego.io/editor/client/flux/examples/todomvc/stores"
+	"kego.io/flux/examples/todomvc/actions"
+	"kego.io/flux/examples/todomvc/model"
+	"kego.io/flux/examples/todomvc/stores"
 )
 
 type ItemView struct {

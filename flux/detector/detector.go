@@ -1,4 +1,4 @@
-package detector // import "kego.io/editor/client/flux/detector"
+package detector // import "kego.io/flux/detector"
 
 // ke: {"package": {"complete": true}}
 

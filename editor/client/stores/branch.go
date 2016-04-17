@@ -8,8 +8,8 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
-	"kego.io/editor/client/flux"
 	"kego.io/editor/client/models"
+	"kego.io/flux"
 )
 
 type BranchStore struct {

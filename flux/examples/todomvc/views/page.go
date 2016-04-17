@@ -10,9 +10,9 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"github.com/davelondon/vecty/style"
-	"kego.io/editor/client/flux/examples/todomvc/actions"
-	"kego.io/editor/client/flux/examples/todomvc/model"
-	"kego.io/editor/client/flux/examples/todomvc/stores"
+	"kego.io/flux/examples/todomvc/actions"
+	"kego.io/flux/examples/todomvc/model"
+	"kego.io/flux/examples/todomvc/stores"
 )
 
 type PageView struct {

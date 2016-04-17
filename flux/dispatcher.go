@@ -1,13 +1,11 @@
 package flux
 
-// ke: {"package": {"complete": true}}
-
 import (
 	"fmt"
 	"sync"
 
-	"kego.io/editor/client/flux/detector"
-	"kego.io/editor/client/flux/progress"
+	"kego.io/flux/detector"
+	"kego.io/flux/progress"
 )
 
 type Dispatcher struct {

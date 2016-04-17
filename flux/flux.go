@@ -1,4 +1,6 @@
-package flux // import "kego.io/editor/client/flux"
+package flux // import "kego.io/flux"
+
+// ke: {"package": {"complete": false}}
 
 import "sync"
 

@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/davelondon/vecty"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/flux"
-	"kego.io/editor/client/flux/examples/todomvc/stores"
-	"kego.io/editor/client/flux/examples/todomvc/views"
+	"kego.io/flux"
+	"kego.io/flux/examples/todomvc/stores"
+	"kego.io/flux/examples/todomvc/views"
 )
 
 func main() {

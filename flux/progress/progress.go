@@ -1,4 +1,4 @@
-package progress // import "kego.io/editor/client/flux/progress"
+package progress // import "kego.io/flux/progress"
 
 // ke: {"package": {"complete": true}}
 

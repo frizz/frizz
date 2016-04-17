@@ -3,7 +3,7 @@ package flux_test
 import (
 	"testing"
 
-	"kego.io/editor/client/flux"
+	"kego.io/flux"
 	"kego.io/kerr/assert"
 )
 

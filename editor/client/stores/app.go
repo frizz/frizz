@@ -3,7 +3,7 @@ package stores // import "kego.io/editor/client/stores"
 import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/connection"
-	"kego.io/editor/client/flux"
+	"kego.io/flux"
 )
 
 type App struct {

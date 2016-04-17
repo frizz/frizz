@@ -1,6 +1,6 @@
 package actions
 
-import "kego.io/editor/client/flux/examples/todomvc/model"
+import "kego.io/flux/examples/todomvc/model"
 
 type ReplaceItems struct {
 	Items []*model.Item
