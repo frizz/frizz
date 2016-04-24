@@ -46,7 +46,7 @@ func (m *CityStore) Handle(payload *flux.Payload) (finished bool) {
 	case *UpdateCity:
 		m.city = action.City
 	case *UpdateCountryAction:
-		payload.WaitFor(m.app.Country)
+		payload.Wait(m.app.Country)
 		m.city = getCapital(m.app.Country.GetCountry())
 	}
 	return true
@@ -97,7 +97,7 @@ type PriceStore struct {
 func (m *PriceStore) Handle(payload *flux.Payload) (finished bool) {
 	switch payload.Action.(type) {
 	case *UpdateCountryAction, *UpdateCity:
-		payload.WaitFor(m.app.City)
+		payload.Wait(m.app.City)
 		m.price = calculatePrice(m.app.Country.GetCountry(), m.app.City.GetCity())
 	}
 	return true

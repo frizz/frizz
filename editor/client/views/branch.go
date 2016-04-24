@@ -65,7 +65,7 @@ func (v *BranchView) Mount() {
 		}
 	}()
 	go func() {
-		for range flux.WatchMulti(v.cOpenPostLoad, v.cClose, v.cLoad) {
+		for range flux.Multi(v.cOpenPostLoad, v.cClose, v.cLoad) {
 			v.ReconcileBody()
 		}
 	}()

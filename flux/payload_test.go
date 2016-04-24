@@ -1,4 +1,4 @@
-package progress
+package flux
 
 import (
 	"testing"
@@ -11,8 +11,14 @@ import (
 )
 
 func TestProgress(t *testing.T) {
-	p := New()
-	assert.False(t, p.finished)
+	st1 := &st{}
+	env := map[StoreInterface]*Payload{}
+	loop := newLoopDetector()
+
+	env[st1] = newPayload("a", st1, env, loop)
+
+	p := env[st1]
+	assert.False(t, p.complete)
 
 	wg1 := &sync.WaitGroup{}
 	wg1.Add(2)
@@ -25,7 +31,7 @@ func TestProgress(t *testing.T) {
 	a := false
 	go func() {
 		wg1.Done()
-		<-p.Finished()
+		<-p.finished()
 		waitWithTimeout(t, wg2)
 		a = true
 		wg4.Done()
@@ -33,7 +39,7 @@ func TestProgress(t *testing.T) {
 	b := false
 	go func() {
 		wg1.Done()
-		<-p.Finished()
+		<-p.finished()
 		waitWithTimeout(t, wg3)
 		b = true
 		wg4.Done()
@@ -48,7 +54,7 @@ func TestProgress(t *testing.T) {
 
 	waitWithTimeout(t, wg4)
 
-	assert.True(t, p.finished)
+	assert.True(t, p.complete)
 
 	assert.True(t, a)
 	assert.True(t, b)
@@ -57,7 +63,7 @@ func TestProgress(t *testing.T) {
 	wg5.Add(1)
 	c := false
 	go func() {
-		<-p.Finished()
+		<-p.finished()
 		wg5.Done()
 		c = true
 	}()

@@ -14,7 +14,7 @@ func TestWatchMulti(t *testing.T) {
 		// We watch two channels, a and b
 		a := make(chan struct{}, 1)
 		b := make(chan struct{}, 1)
-		c := WatchMulti(a, b)
+		c := Multi(a, b)
 
 		// We send a signal to a and wait for the response on the
 		a <- struct{}{}
@@ -39,6 +39,7 @@ func TestWatchMulti(t *testing.T) {
 	}()
 	waitFor(t, done, false, "G")
 }
+
 func waitFor(t *testing.T, c chan struct{}, shouldBeOpen bool, description string) {
 	select {
 	case _, open := <-c:

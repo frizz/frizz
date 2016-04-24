@@ -61,7 +61,7 @@ func (s *source) ProcessResponse(response interface{}) error {
 
 	n, err := editor.UnmarshalNode(s.tree.ctx, gr.Data)
 	if err != nil {
-		return kerr.Wrap("IOOQWKIEGC", err)
+		return kerr.Wrap("RVVWUVBKTN", err)
 	}
 	s.Node = n
 

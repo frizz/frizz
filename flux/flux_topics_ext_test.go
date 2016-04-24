@@ -39,7 +39,7 @@ type MessageStore struct {
 func (m *MessageStore) Handle(payload *flux.Payload) (finished bool) {
 	switch action := payload.Action.(type) {
 	case *AddTopic:
-		payload.WaitFor(m.app.Topics)
+		payload.Wait(m.app.Topics)
 		m.messages = append(m.messages, action.Message)
 	case *AddMessage:
 		m.messages = append(m.messages, action.Message)

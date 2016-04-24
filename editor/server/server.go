@@ -247,7 +247,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	if mapper {
 		if _, err := w.Write(*mapping); err != nil {
-			return kerr.Wrap("SSUPQDWLIV", err)
+			return kerr.Wrap("WKAMMWFXAN", err)
 		}
 		return nil
 	}

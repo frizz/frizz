@@ -16,14 +16,14 @@ func TestEditor(t *testing.T) {
 import (
 	_ "a.b/c"
 	_ "d.e/f"
+	"fmt"
 	"kego.io/editor/client"
-	"kego.io/editor/client/console"
 	_ "kego.io/system"
 )
 
 func main() {
 	if err := client.Start(); err != nil {
-		console.Error(err.Error())
+		fmt.Println(err.Error())
 	}
 }
 `)

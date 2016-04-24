@@ -19,7 +19,7 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	/*
 		func main() {
 			if err := client.Start(); err != nil {
-				console.Error(err.Error())
+				fmt.Println(err.Error())
 			}
 		}
 	*/

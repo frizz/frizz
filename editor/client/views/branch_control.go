@@ -57,7 +57,7 @@ func (v *BranchControlView) Mount() {
 	v.cSel = v.app.Branches.Watch(stores.BranchPreSelect, v.model)
 	v.cUnsel = v.app.Branches.Watch(stores.BranchUnselect, v.model)
 	go func() {
-		for range flux.WatchMulti(v.cSel, v.cUnsel) {
+		for range flux.Multi(v.cSel, v.cUnsel) {
 			v.ReconcileBody()
 			if v.model != nil && v.app.Branches.Selected() == v.model {
 				v.focus()

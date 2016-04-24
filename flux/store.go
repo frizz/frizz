@@ -11,7 +11,7 @@ type StoreInterface interface {
 	Watch(notificationType interface{}, watch ...interface{}) chan struct{}
 
 	// notify is use by this store to send the change signal to all change chanels
-	Notify(notificationType interface{}, changed ...interface{})
+	Notify(notificationType interface{}, changed ...interface{}) int
 
 	Delete(c chan struct{})
 }
@@ -28,7 +28,6 @@ func (s *Store) Init(si StoreInterface) {
 
 type key string
 
-const all_notifications key = "all_notifications"
 const all_subscribers key = "all_subscribers"
 const all_values key = "all_values"
 
@@ -75,16 +74,16 @@ func (s *Store) Watch(notificationType interface{}, watch ...interface{}) chan s
 
 }
 
-func (s *Store) Notify(notificationType interface{}, changed ...interface{}) {
+func (s *Store) Notify(notificationType interface{}, changed ...interface{}) int {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
-		return
+		return 0
 	}
 	if s.subscribers[notificationType] == nil {
-		return
+		return 0
 	}
-	s.subscribers[notificationType].notify(changed)
+	return s.subscribers[notificationType].notify(changed)
 }
 
 type notifier map[interface{}][]chan struct{}
@@ -103,7 +102,7 @@ func (n notifier) watch(watch []interface{}) chan struct{} {
 	return c
 }
 
-func (n notifier) notify(changed []interface{}) {
+func (n notifier) notify(changed []interface{}) int {
 	matching := map[chan struct{}]bool{}
 	if len(changed) == 0 {
 		// all_subscribers contains all the subscribers reguardless what they are watching.
@@ -125,4 +124,5 @@ func (n notifier) notify(changed []interface{}) {
 	for c, _ := range matching {
 		c <- struct{}{}
 	}
+	return len(matching)
 }

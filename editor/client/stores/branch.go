@@ -111,7 +111,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.BranchSelectPostLoad:
 		s.Notify(BranchSelectPostLoad)
 	case *actions.InitialState:
-		payload.WaitFor(s.app.Package, s.app.Types, s.app.Data)
+		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
 		s.pkg = models.NewNodeBranch(s.app.Package.Node(), "package")
 
 		s.types = &models.BranchModel{
