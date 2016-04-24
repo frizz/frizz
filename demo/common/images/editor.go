@@ -2,8 +2,8 @@ package images
 
 import (
 	"golang.org/x/net/context"
-	"kego.io/editor"
-	"kego.io/editor/client/mdl"
+	"kego.io/editor/client_old"
+	"kego.io/editor/client_old/mdl"
 )
 
 func (i *Icon) GetEditor(n *editor.Node) editor.EditorInterface {

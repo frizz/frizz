@@ -6,7 +6,7 @@ import (
 	"honnef.co/go/js/dom"
 
 	"golang.org/x/net/context"
-	"kego.io/editor/client/mdl"
+	"kego.io/editor/client_old/mdl"
 	"kego.io/kerr"
 	"kego.io/system"
 )

@@ -2,7 +2,7 @@ package tree
 
 import (
 	"honnef.co/go/js/dom"
-	"kego.io/editor"
+	"kego.io/editor/client_old"
 	"kego.io/kerr"
 )
 

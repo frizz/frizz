@@ -1,4 +1,4 @@
-package editor // import "kego.io/editor"
+package editor // import "kego.io/editor/client_old"
 
 import (
 	"github.com/tjgq/broadcast"

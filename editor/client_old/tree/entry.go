@@ -3,7 +3,7 @@ package tree
 import (
 	"fmt"
 
-	"kego.io/editor"
+	"kego.io/editor/client_old"
 	"kego.io/kerr"
 )
 

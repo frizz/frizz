@@ -4,7 +4,7 @@ import (
 	"net/rpc"
 
 	"kego.io/context/envctx"
-	"kego.io/editor"
+	"kego.io/editor/client_old"
 	"kego.io/editor/shared"
 	"kego.io/kerr"
 )

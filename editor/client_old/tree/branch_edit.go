@@ -1,7 +1,7 @@
 package tree
 
 import (
-	"kego.io/editor"
+	"kego.io/editor/client_old"
 	"kego.io/kerr"
 )
 

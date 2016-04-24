@@ -5,8 +5,8 @@ package tree // import "kego.io/editor/client/tree"
 import (
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
-	"kego.io/editor"
 	"kego.io/editor/client/connection"
+	"kego.io/editor/client_old"
 )
 
 type Tree struct {

@@ -2,7 +2,7 @@ package units
 
 import (
 	"golang.org/x/net/context"
-	"kego.io/editor"
+	"kego.io/editor/client_old"
 )
 
 func (i *Rectangle) GetEditor(n *editor.Node) editor.EditorInterface {
