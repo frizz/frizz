@@ -1,12 +1,6 @@
 package flux
 
-import (
-	"testing"
-
-	"time"
-
-	"kego.io/kerr/assert"
-)
+import "testing"
 
 func TestWatchMulti(t *testing.T) {
 	done := make(chan struct{})
@@ -38,16 +32,4 @@ func TestWatchMulti(t *testing.T) {
 		close(done)
 	}()
 	waitFor(t, done, false, "G")
-}
-
-func waitFor(t *testing.T, c chan struct{}, shouldBeOpen bool, description string) {
-	select {
-	case _, open := <-c:
-		if open != shouldBeOpen {
-			assert.Fail(t, description+" (not in correct state) ")
-		}
-		return
-	case <-time.After(time.Millisecond * 50):
-		assert.Fail(t, description)
-	}
 }

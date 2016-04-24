@@ -25,9 +25,14 @@ func TestDispatcher_Register(t *testing.T) {
 
 func TestDispatcher_Dispatch(t *testing.T) {
 	a := &st1{}
-	b := NewDispatcher(a)
-	b.Dispatch("a")
-	assert.Equal(t, "a", a.handled)
+	b := &st1{}
+	c := &st1{}
+	d := NewDispatcher(a, b)
+	d.Register(c)
+	d.Dispatch("e")
+	assert.Equal(t, "e", a.handled)
+	assert.Equal(t, "e", b.handled)
+	assert.Equal(t, "e", c.handled)
 }
 
 type st1 struct {

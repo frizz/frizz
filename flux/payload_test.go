@@ -5,12 +5,14 @@ import (
 
 	"sync"
 
-	"time"
-
 	"kego.io/kerr/assert"
 )
 
-func TestProgress(t *testing.T) {
+func TestPayload_Wait(t *testing.T) {
+
+}
+
+func TestNewPayload(t *testing.T) {
 	st1 := &st{}
 	env := map[StoreInterface]*Payload{}
 	loop := newLoopDetector()
@@ -32,7 +34,7 @@ func TestProgress(t *testing.T) {
 	go func() {
 		wg1.Done()
 		<-p.finished()
-		waitWithTimeout(t, wg2)
+		waitForGroup(t, wg2, "A")
 		a = true
 		wg4.Done()
 	}()
@@ -40,19 +42,19 @@ func TestProgress(t *testing.T) {
 	go func() {
 		wg1.Done()
 		<-p.finished()
-		waitWithTimeout(t, wg3)
+		waitForGroup(t, wg3, "B")
 		b = true
 		wg4.Done()
 	}()
 
-	waitWithTimeout(t, wg1)
+	waitForGroup(t, wg1, "C")
 
 	close(p.Done)
 
 	wg2.Done()
 	wg3.Done()
 
-	waitWithTimeout(t, wg4)
+	waitForGroup(t, wg4, "D")
 
 	assert.True(t, p.complete)
 
@@ -68,21 +70,7 @@ func TestProgress(t *testing.T) {
 		c = true
 	}()
 
-	waitWithTimeout(t, wg5)
+	waitForGroup(t, wg5, "E")
 	assert.True(t, c)
 
-}
-
-func waitWithTimeout(t *testing.T, wg *sync.WaitGroup) {
-	c := make(chan struct{})
-	go func() {
-		defer close(c)
-		wg.Wait()
-	}()
-	select {
-	case <-c:
-		// ok!
-	case <-time.After(200 * time.Millisecond):
-		assert.Fail(t, "Timeout")
-	}
 }
