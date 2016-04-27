@@ -40,7 +40,7 @@ type ProfileBlock struct {
 
 func main() {
 
-	all := flag.Bool("all", false, "If -all is spefified, gotests will always run all the tests")
+	single := flag.String("single", "", "If -single is spefified, gotests will test only the specified package")
 	flag.Parse()
 
 	var err error
@@ -59,11 +59,10 @@ func main() {
 	//}
 
 	var coverProfiles []*cover.Profile
-	if all != nil && *all {
+	if single == nil {
 		coverProfiles, err = tester.Get(baseDir)
 	} else {
-		//coverProfiles, err = tester.Get(baseDir)
-		coverProfiles, err = tester.GetSingle(baseDir, "kego.io/flux")
+		coverProfiles, err = tester.GetSingle(baseDir, *single)
 	}
 	if err != nil {
 		log.Fatal(err)
