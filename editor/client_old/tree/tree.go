@@ -1,4 +1,4 @@
-package tree // import "kego.io/editor/client/tree"
+package tree // import "kego.io/editor/client_old/tree"
 
 // ke: {"package": {"jstest": true}}
 
