@@ -1,10 +1,9 @@
-// info:{"Path":"kego.io/demo/demo4","Hash":5974341007325696005}
+// info:{"Path":"kego.io/demo/demo4","Hash":16791342417699153656}
 package demo4
 
 import (
 	"reflect"
 
-	"github.com/davelondon/images"
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
 	"kego.io/system"
@@ -17,7 +16,6 @@ type PageRule struct {
 }
 type Page struct {
 	*system.Object
-	Hero  *images.Photo  `json:"hero"`
 	Title *system.String `json:"title"`
 }
 type PageInterface interface {
@@ -28,6 +26,6 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo4", 5974341007325696005)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo4", 16791342417699153656)
 	pkg.InitType("page", reflect.TypeOf((*Page)(nil)), reflect.TypeOf((*PageRule)(nil)), reflect.TypeOf((*PageInterface)(nil)).Elem())
 }
