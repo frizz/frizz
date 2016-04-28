@@ -1,5 +1,7 @@
 package main
 
+// ke: {"package": {"notest": true}}
+
 import (
 	"github.com/davelondon/vecty"
 	"golang.org/x/net/context"
