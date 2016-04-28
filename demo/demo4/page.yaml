@@ -3,5 +3,5 @@ id: page
 fields:
     title:
         type: system:@string
-    hero:
-        type: images:@photo
+    #hero:
+        #type: images:@photo
