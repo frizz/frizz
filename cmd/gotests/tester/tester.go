@@ -72,8 +72,6 @@ func get(base string, singlePackage string) ([]*cover.Profile, error) {
 			return nil, err
 		}
 	}
-	//os.Mkdir(coverDir, 0777)
-	//defer os.RemoveAll(coverDir)
 
 	// walk each file in the working directory
 	walker := func(filename string, file os.FileInfo, err error) error {
@@ -84,9 +82,7 @@ func get(base string, singlePackage string) ([]*cover.Profile, error) {
 			return nil
 		}
 		if file.IsDir() && (singlePackageDir == "" || singlePackageDir == filename) {
-			if !strings.Contains(filename, "/editor/") {
-				return processDir(filename)
-			}
+			return processDir(filename)
 		}
 		return nil
 	}
