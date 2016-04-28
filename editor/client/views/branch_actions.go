@@ -3,7 +3,7 @@ package views
 import (
 	"net/rpc"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
