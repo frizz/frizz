@@ -1,5 +1,7 @@
 package model
 
+// ke: {"package": {"notest": true}}
+
 type Item struct {
 	ID       string
 	Title    string

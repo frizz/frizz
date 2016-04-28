@@ -1,5 +1,7 @@
 package actions
 
+// ke: {"package": {"notest": true}}
+
 import "kego.io/flux/examples/todomvc/model"
 
 type ReplaceItems struct {
