@@ -1,4 +1,4 @@
-package icons // import "kego.io/editor/client/icons"
+package icons // import "kego.io/editor/client_old/icons"
 
 // ke: {"package": {"notest": true}}
 

@@ -1,6 +1,6 @@
 package tree
 
-import "kego.io/editor/client/icons"
+import "kego.io/editor/client_old/icons"
 
 // Open opens the branch. For asynchronously loaded branches it initialises the load.
 func (b *Branch) open() {
