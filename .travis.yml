@@ -7,14 +7,13 @@ notificaitons:
     recipients: dave@brophy.uk
     on_failure: always
 addons:
-  #apt:
-  #  packages:
-  #    - nodejs
+  apt:
+    packages:
+      - nodejs
 install:
-  # gopherjs tests disabled
-  #- go get -u github.com/gopherjs/gopherjs
+  - go get -u github.com/gopherjs/gopherjs
   - go get -t -v ./...
 script:
-  - go run cmd/gotests/gotests.go
+  - go run cmd/gotests/gotests.go -js
 after_success:
   - bash <(curl -s https://codecov.io/bash)

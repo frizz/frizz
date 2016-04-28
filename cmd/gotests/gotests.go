@@ -41,6 +41,7 @@ type ProfileBlock struct {
 func main() {
 
 	single := flag.String("single", "", "If -single is spefified, gotests will test only the specified package")
+	js := flag.Bool("js", false, "If -js is spefified, gotests will run js tests")
 	flag.Parse()
 
 	var err error
@@ -54,9 +55,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//if err := tester.Js(source.JsTestPackages); err != nil {
-	//	log.Fatal(err)
-	//}
+	if js != nil && *js {
+		if err := tester.Js(source.JsTestPackages); err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	var coverProfiles []*cover.Profile
 	if single == nil {
