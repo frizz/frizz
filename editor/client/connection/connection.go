@@ -42,5 +42,5 @@ func (c *Conn) Go(serviceMethod string, args interface{}, reply interface{}, don
 }
 
 func (c *Conn) Close() {
-	c.Close()
+	c.client.Close()
 }
