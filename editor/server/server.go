@@ -305,7 +305,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		pkgBytes = b
 	}
 
-	imports := map[string]*shared.ImportInfo{}
+	imports := map[string]shared.ImportInfo{}
 
 	var scan func(string) error
 	scan = func(path string) error {
@@ -316,7 +316,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		if !ok {
 			return kerr.New("VIGKIUPNCF", "%s not found in sys ctx", path)
 		}
-		info := &shared.ImportInfo{
+		info := shared.ImportInfo{
 			Path:    path,
 			Aliases: syspi.Aliases,
 			Types:   map[string][]byte{},

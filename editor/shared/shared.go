@@ -12,7 +12,7 @@ type Info struct {
 	// Package object
 	Package []byte
 	// Flattened list of all imports
-	Imports map[string]*ImportInfo
+	Imports map[string]ImportInfo
 }
 
 type ImportInfo struct {

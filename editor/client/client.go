@@ -30,18 +30,6 @@ import (
 	"kego.io/system"
 )
 
-/*
-type appData struct {
-	fail    chan error
-	spinner *dom.HTMLDivElement
-	ctx     context.Context
-	env     *envctx.Env
-	conn    *connection.Conn
-}
-
-var app appData
-*/
-
 func Start() error {
 
 	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", dom.GetWindow().Location().Hostname, dom.GetWindow().Location().Port))
@@ -50,7 +38,7 @@ func Start() error {
 	}
 
 	// We parse the json info attribute from the body tag
-	info, err := getInfo()
+	info, err := getInfo(getRawInfo())
 	if err != nil {
 		return kerr.Wrap("MGLVIQIDDY", err)
 	}
@@ -97,17 +85,6 @@ func Start() error {
 		})
 	}()
 
-	/*
-		go func() {
-			rand.Seed(4871203498)
-			for {
-				<-time.After(time.Millisecond * time.Duration(rand.Intn(10)+10))
-				keycode := rand.Intn(4) + 37
-				p.KeyPress(keycode)
-			}
-		}()
-	*/
-
 	go func() {
 		err, open := <-app.Fail
 		if !open {
@@ -121,35 +98,8 @@ func Start() error {
 
 	return nil
 }
-func StartOld() error {
-	/*
-		// We create a new root tree element
-		t := tree.New(app.ctx, content, app.conn, app.fail)
-		root := tree.NewRoot(t, nav)
 
-		if err := root.AddPackage(editorNode, info.Data, types); err != nil {
-			return kerr.Wrap("EAIHJLNBFA", err)
-		}
-
-		go func() {
-			err, open := <-app.fail
-			if !open {
-				// Channel has been closed, so app should gracefully exit.
-				body.SetInnerHTML("<pre>Server disconnected.</pre>")
-			} else {
-				// Error received, so app should display error.
-				console.Error(err.Error())
-				body.SetInnerHTML("<pre>Error:" + err.Error() + "</pre>")
-			}
-			app.conn.Close()
-		}()
-
-		app.spinner.Style().Set("display", "none")
-	*/
-	return nil
-}
-
-func registerTypes(ctx context.Context, path string, imports map[string]*shared.ImportInfo) (*sysctx.SysPackageInfo, error) {
+func registerTypes(ctx context.Context, path string, imports map[string]shared.ImportInfo) (*sysctx.SysPackageInfo, error) {
 	system.RegisterJsonTypes(ctx)
 	scache := sysctx.FromContext(ctx)
 	var current *sysctx.SysPackageInfo
@@ -168,13 +118,8 @@ func registerTypes(ctx context.Context, path string, imports map[string]*shared.
 	return current, nil
 }
 
-func getInfo() (info *shared.Info, err error) {
+func getInfo(infoBase64 string) (info *shared.Info, err error) {
 	info = &shared.Info{}
-	infoBase64 := dom.
-		GetWindow().
-		Document().(dom.HTMLDocument).
-		GetElementByID("body").(*dom.HTMLBodyElement).
-		GetAttribute("info")
 	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
 	if err != nil {
 		return nil, kerr.Wrap("UTKDDLYKKH", err)
@@ -184,4 +129,12 @@ func getInfo() (info *shared.Info, err error) {
 		return nil, kerr.Wrap("AAFXLQRUEW", err)
 	}
 	return info, nil
+}
+
+func getRawInfo() string {
+	return dom.
+		GetWindow().
+		Document().(dom.HTMLDocument).
+		GetElementByID("body").(*dom.HTMLBodyElement).
+		GetAttribute("info")
 }
