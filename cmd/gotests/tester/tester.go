@@ -82,9 +82,7 @@ func get(base string, singlePackage string) ([]*cover.Profile, error) {
 			return nil
 		}
 		if file.IsDir() && (singlePackageDir == "" || singlePackageDir == filename) {
-			if !strings.Contains(filename, "/client_old/") {
-				return processDir(filename)
-			}
+			return processDir(filename)
 		}
 		return nil
 	}

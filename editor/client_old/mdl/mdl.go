@@ -1,5 +1,7 @@
 package mdl // import "kego.io/editor/client_old/mdl"
 
+// ke: {"package": {"notest": true}}
+
 import (
 	"bytes"
 	"math/rand"

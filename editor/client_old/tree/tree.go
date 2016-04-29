@@ -1,6 +1,6 @@
 package tree // import "kego.io/editor/client_old/tree"
 
-// ke: {"package": {"jstest": true}}
+// ke: {"package": {"jstest": true, "notest": true}}
 
 import (
 	"golang.org/x/net/context"
