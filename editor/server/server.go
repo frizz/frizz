@@ -41,23 +41,14 @@ import (
 	"kego.io/system"
 )
 
-type appData struct {
-	fail chan error
-	ctx  context.Context
-}
-
-var app appData
-
 func Start(ctx context.Context, cancel context.CancelFunc) error {
 
 	wgctx.Add(ctx, "Start")
 	defer wgctx.Done(ctx, "Start")
 
-	app.ctx = ctx
-
 	cmd := cmdctx.FromContext(ctx)
 
-	app.fail = make(chan error)
+	fail := make(chan error)
 
 	cmd.Println("Starting editor server... ")
 
@@ -70,20 +61,20 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 		}
 		if strings.HasSuffix(req.URL.Path, "/script.js") {
 			if err := script(ctx, w, req, false, &mapping); err != nil {
-				app.fail <- kerr.Wrap("XPVTVKDWHJ", err)
+				fail <- kerr.Wrap("XPVTVKDWHJ", err)
 				return
 			}
 			return
 		}
 		if strings.HasSuffix(req.URL.Path, "/script.js.map") {
 			if err := script(ctx, w, req, true, &mapping); err != nil {
-				app.fail <- kerr.Wrap("JAIBRHULSI", err)
+				fail <- kerr.Wrap("JAIBRHULSI", err)
 				return
 			}
 			return
 		}
 		if err := root(ctx, w, req); err != nil {
-			app.fail <- kerr.Wrap("QOMJGNOCQF", err)
+			fail <- kerr.Wrap("QOMJGNOCQF", err)
 			return
 		}
 	})
@@ -97,24 +88,24 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 
 	go func() {
 		if err := serve(ctx); err != nil {
-			app.fail <- err
+			fail <- err
 		}
 	}()
 
-	done := app.ctx.Done()
+	done := ctx.Done()
 	for {
 		select {
 		case <-done:
 			fmt.Println("Exiting editor server (interupted)... ")
 			return nil
-		case err, open := <-app.fail:
+		case err, open := <-fail:
 			if !open {
-				cancel()
 				// Channel has been closed, so app should gracefully exit.
+				cancel()
 				cmd.Println("Exiting editor server (finished)... ")
 			} else {
 				// Error received, so app should display error.
-				//return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
+				// return kerr.New("WKHPTVJBIL", err, "Fail channel receive")
 				fmt.Println(err)
 			}
 			if !cmd.Debug {
