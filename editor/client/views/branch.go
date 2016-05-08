@@ -26,9 +26,6 @@ type BranchView struct {
 }
 
 func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
-	if model == nil {
-		return nil
-	}
 	v := &BranchView{
 		ctx:   ctx,
 		app:   stores.FromContext(ctx),

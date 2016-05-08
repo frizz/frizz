@@ -58,6 +58,10 @@ func (c *ContextBuilder) Cancel() *ContextBuilder {
 func (c *ContextBuilder) Ctx() context.Context {
 	return c.ctx
 }
+func (c *ContextBuilder) SetCtx(ctx context.Context) *ContextBuilder {
+	c.ctx = ctx
+	return c
+}
 func (c *ContextBuilder) Env() *envctx.Env {
 	return envctx.FromContext(c.ctx)
 }
