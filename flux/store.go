@@ -7,53 +7,62 @@ type StoreInterface interface {
 	// return true. If not, return false and close the payload.Done channel when finished.
 	Handle(payload *Payload) (finished bool)
 
-	// Change returns a channel that is signalled when there's a change to this
-	Watch(notificationType interface{}, watch ...interface{}) chan struct{}
+	// Watch returns a channel subscribed to reveive notifs notifications about object. If object
+	// is nil, the subscription is for all objects in the store.
+	Watch(object interface{}, notif ...Notif) chan Notif
 
-	// notify is use by this store to send the change signal to all change chanels
-	Notify(notificationType interface{}, changed ...interface{}) int
+	// Notify sends the notif notification to all subscribers of that notification for object. If
+	// object is nil, the notification is sent to all subscribers. The number of notifications sent
+	// is returned.
+	Notify(object interface{}, notif Notif) int
 
-	Delete(c chan struct{})
+	Delete(c chan Notif)
 }
 
 type Store struct {
 	m           sync.Mutex
 	self        StoreInterface
-	subscribers map[interface{}]notifier
+	subscribers map[Notif]notifHelper
 }
 
 func (s *Store) Init(si StoreInterface) {
 	s.self = si
 }
 
+type Notif interface {
+	IsNotif()
+}
+
 type key string
 
-const all_subscribers key = "all_subscribers"
-const all_values key = "all_values"
+const (
+	allSubscribers key = "allSubscribers"
+	allObjects     key = "allObjects"
+)
 
-func (s *Store) Delete(c chan struct{}) {
+func (s *Store) Delete(c chan Notif) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
 		return
 	}
 
-NotificationTypes:
-	for notificationType, notifierObject := range s.subscribers {
-	Values:
-		for valueType, chans := range notifierObject {
+NextHelper:
+	for notif, helper := range s.subscribers {
+	NextObject:
+		for object, chans := range helper {
 			for i, ch := range chans {
 				if c == ch {
 					if len(chans) == 1 {
-						if len(notifierObject) == 1 {
-							delete(s.subscribers, notificationType)
-							continue NotificationTypes
+						if len(helper) == 1 {
+							delete(s.subscribers, notif)
+							continue NextHelper
 						}
-						delete(notifierObject, valueType)
-						continue Values
+						delete(helper, object)
+						continue NextObject
 					}
-					notifierObject[valueType] = append(chans[:i], chans[i+1:]...)
-					continue Values
+					helper[object] = append(chans[:i], chans[i+1:]...)
+					continue NextObject
 				}
 			}
 		}
@@ -61,68 +70,72 @@ NotificationTypes:
 	close(c)
 }
 
-func (s *Store) Watch(notificationType interface{}, watch ...interface{}) chan struct{} {
+// Watch returns a channel subscribed to reveive notifs notifications about object. If object is
+// nil, the subscription is for all objects in the store.
+func (s *Store) Watch(object interface{}, notifs ...Notif) chan Notif {
+	if len(notifs) == 0 {
+		panic("You must specify notification types to watch for")
+	}
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
-		s.subscribers = map[interface{}]notifier{}
+		s.subscribers = map[Notif]notifHelper{}
 	}
-	if s.subscribers[notificationType] == nil {
-		s.subscribers[notificationType] = notifier{}
-	}
-	return s.subscribers[notificationType].watch(watch)
-
-}
-
-func (s *Store) Notify(notificationType interface{}, changed ...interface{}) int {
-	s.m.Lock()
-	defer s.m.Unlock()
-	if s.subscribers == nil {
-		return 0
-	}
-	if s.subscribers[notificationType] == nil {
-		return 0
-	}
-	return s.subscribers[notificationType].notify(changed)
-}
-
-type notifier map[interface{}][]chan struct{}
-
-func (n notifier) watch(watch []interface{}) chan struct{} {
-	c := make(chan struct{})
-	// all_subscribers contains all the subscribers reguardless what they are watching.
-	n[all_subscribers] = append(n[all_subscribers], c)
-	if len(watch) == 0 {
-		// all_values contains only the subscribers that are watching all values.
-		n[all_values] = append(n[all_values], c)
-	}
-	for _, v := range watch {
-		n[v] = append(n[v], c)
+	c := make(chan Notif)
+	for _, notif := range notifs {
+		if s.subscribers[notif] == nil {
+			s.subscribers[notif] = notifHelper{}
+		}
+		s.subscribers[notif].watch(object, c)
 	}
 	return c
 }
 
-func (n notifier) notify(changed []interface{}) int {
-	matching := map[chan struct{}]bool{}
-	if len(changed) == 0 {
-		// all_subscribers contains all the subscribers reguardless what they are watching.
-		for _, c := range n[all_subscribers] {
+// Notify sends the notif notification to all subscribers of that notification for object. If
+// object is nil, the notification is sent to all subscribers.
+func (s *Store) Notify(object interface{}, notif Notif) int {
+	s.m.Lock()
+	defer s.m.Unlock()
+	if s.subscribers == nil {
+		return 0
+	}
+	if s.subscribers[notif] == nil {
+		return 0
+	}
+	return s.subscribers[notif].notify(object, notif)
+}
+
+type notifHelper map[interface{}][]chan Notif
+
+func (n notifHelper) watch(object interface{}, c chan Notif) {
+	// allSubscribers contains all the subscribers reguardless what they are watching.
+	n[allSubscribers] = append(n[allSubscribers], c)
+	if object == nil {
+		// allObjects contains only the subscribers that are watching all objects.
+		n[allObjects] = append(n[allObjects], c)
+	} else {
+		n[object] = append(n[object], c)
+	}
+}
+
+func (n notifHelper) notify(object interface{}, notif Notif) int {
+	matching := map[chan Notif]bool{}
+	if object == nil {
+		// allSubscribers contains all the subscribers reguardless what they are watching.
+		for _, c := range n[allSubscribers] {
 			matching[c] = true
 		}
 	} else {
-		// all_values contains only the subscribers that are watching all values.
-		for _, c := range n[all_values] {
+		// allObjects contains only the subscribers that are watching all objects.
+		for _, c := range n[allObjects] {
 			matching[c] = true
 		}
-		for _, v := range changed {
-			for _, c := range n[v] {
-				matching[c] = true
-			}
+		for _, c := range n[object] {
+			matching[c] = true
 		}
 	}
-
 	for c, _ := range matching {
-		c <- struct{}{}
+		c <- notif
 	}
 	return len(matching)
 }

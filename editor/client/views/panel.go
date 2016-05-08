@@ -7,14 +7,15 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 	"kego.io/system/node"
 )
 
 type PanelView struct {
 	vecty.Composite
-	ctx context.Context
-	app *stores.App
-	c   chan struct{}
+	ctx    context.Context
+	app    *stores.App
+	notifs chan flux.Notif
 
 	branch *models.BranchModel
 }
@@ -42,9 +43,11 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.c = v.app.Branches.Watch(stores.BranchSelectPostLoad)
+	v.notifs = v.app.Branches.Watch(nil,
+		stores.BranchSelectPostLoad,
+	)
 	go func() {
-		for range v.c {
+		for range v.notifs {
 			v.branch = v.app.Branches.Selected()
 			v.ReconcileBody()
 		}
@@ -52,9 +55,9 @@ func (v *PanelView) Mount() {
 }
 
 func (v *PanelView) Unmount() {
-	if v.c != nil {
-		v.app.Branches.Delete(v.c)
-		v.c = nil
+	if v.notifs != nil {
+		v.app.Branches.Delete(v.notifs)
+		v.notifs = nil
 	}
 	v.Body.Unmount()
 }

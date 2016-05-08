@@ -79,11 +79,9 @@ func Start() error {
 	// TODO: work out why I can't seem to call this without using eval
 	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")
 
-	go func() {
-		app.Dispatch(&actions.InitialState{
-			Info: info,
-		})
-	}()
+	app.Dispatch(&actions.InitialState{
+		Info: info,
+	})
 
 	go func() {
 		err, open := <-app.Fail

@@ -14,6 +14,14 @@ type PanelStore struct {
 	panels map[*models.BranchModel]*models.PanelModel
 }
 
+type panelNotif string
+
+func (b panelNotif) IsNotif() {}
+
+const (
+	PanelChanged panelNotif = "PanelChanged"
+)
+
 func NewPanelStore(ctx context.Context) *PanelStore {
 	s := &PanelStore{
 		Store:  &flux.Store{},

@@ -20,8 +20,10 @@ func TestDispatcher(t *testing.T) {
 	a.Topics = &TopicStore{Store: &flux.Store{}, app: a}
 	a.Dispatcher = flux.NewDispatcher(a.Messages, a.Topics)
 
-	a.Dispatcher.Dispatch(&AddMessage{Message: "a"})
-	a.Dispatcher.Dispatch(&AddTopic{Topic: "b", Message: "c"})
+	done := a.Dispatcher.Dispatch(&AddMessage{Message: "a"})
+	<-done
+	done = a.Dispatcher.Dispatch(&AddTopic{Topic: "b", Message: "c"})
+	<-done
 	msg := a.Messages.GetMessages()
 	assert.Equal(t, []string{"a", "c"}, msg)
 }

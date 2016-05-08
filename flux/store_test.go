@@ -10,6 +10,23 @@ type st struct {
 	*Store
 }
 
+type testNotif string
+
+func (t testNotif) IsNotif() {}
+
+const (
+	aNotif testNotif = "aNotif"
+	bNotif testNotif = "bNotif"
+	cNotif testNotif = "cNotif"
+	dNotif testNotif = "dNotif"
+	eNotif testNotif = "eNotif"
+	fNotif testNotif = "fNotif"
+	gNotif testNotif = "gNotif"
+	hNotif testNotif = "hNotif"
+	iNotif testNotif = "iNotif"
+	jNotif testNotif = "jNotif"
+)
+
 func (s *st) Handle(payload *Payload) (finished bool) { return true }
 
 func TestStore_Init(t *testing.T) {
@@ -24,25 +41,25 @@ func TestStore_Notify(t *testing.T) {
 	done := make(chan struct{}, 1)
 
 	// subscribers should be nil, so will return 0
-	count := s.Notify("a", "b")
+	count := s.Notify("a", bNotif)
 	assert.Equal(t, 0, count)
 
-	c := s.Watch("a", "b")
+	c := s.Watch("a", bNotif)
 	go func() {
 		<-c
 		close(done)
 	}()
 
-	// notificationType doesn't exist so will return 0
-	count = s.Notify("b", "c")
+	// notif doesn't exist so will return 0
+	count = s.Notify("a", cNotif)
 	assert.Equal(t, 0, count)
 
-	// watched object doesn't exist so will return 0
-	count = s.Notify("a", "c")
+	// object doesn't exist so will return 0
+	count = s.Notify("b", bNotif)
 	assert.Equal(t, 0, count)
 
 	// should notify
-	count = s.Notify("a", "b")
+	count = s.Notify("a", bNotif)
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify1")
 
@@ -51,91 +68,104 @@ func TestStore_Notify(t *testing.T) {
 		<-c
 		close(done)
 	}()
-	count = s.Notify("a")
+	count = s.Notify(nil, bNotif)
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify2")
 
-	d := s.Watch("e")
+	d := s.Watch(nil, eNotif)
 	done = make(chan struct{}, 1)
 	go func() {
 		<-d
 		close(done)
 	}()
-	count = s.Notify("e", "a")
+	count = s.Notify("f", eNotif)
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify3")
+
+	g := s.Watch("h", iNotif, jNotif)
+	done = make(chan struct{}, 1)
+	go func() {
+		<-g
+		<-g
+		close(done)
+	}()
+	count = s.Notify("h", jNotif)
+	assert.Equal(t, 1, count)
+	count = s.Notify("h", iNotif)
+	assert.Equal(t, 1, count)
+	waitFor(t, done, false, "Timed out waiting for notify4")
 }
 
 func TestStore_Watch(t *testing.T) {
 	s := &st{Store: &Store{}}
-	c := s.Watch("a", "b")
+	c := s.Watch("a", bNotif)
 	assert.Equal(t, 1, len(s.subscribers))
-	assert.Equal(t, 2, len(s.subscribers["a"]))
-	assert.Equal(t, 1, len(s.subscribers["a"][all_subscribers]))
-	assert.Equal(t, 1, len(s.subscribers["a"]["b"]))
-	assert.Equal(t, c, s.subscribers["a"][all_subscribers][0])
-	assert.Equal(t, c, s.subscribers["a"]["b"][0])
+	assert.Equal(t, 2, len(s.subscribers[bNotif]))
+	assert.Equal(t, 1, len(s.subscribers[bNotif][allSubscribers]))
+	assert.Equal(t, 1, len(s.subscribers[bNotif]["a"]))
+	assert.Equal(t, c, s.subscribers[bNotif][allSubscribers][0])
+	assert.Equal(t, c, s.subscribers[bNotif]["a"][0])
 
-	e := s.Watch("a", "d")
+	e := s.Watch("d", bNotif)
 	assert.Equal(t, 1, len(s.subscribers))
-	assert.Equal(t, 3, len(s.subscribers["a"]))
-	assert.Equal(t, 2, len(s.subscribers["a"][all_subscribers]))
-	assert.Equal(t, 1, len(s.subscribers["a"]["b"]))
-	assert.Equal(t, 1, len(s.subscribers["a"]["d"]))
-	assert.Equal(t, c, s.subscribers["a"][all_subscribers][0])
-	assert.Equal(t, e, s.subscribers["a"][all_subscribers][1])
-	assert.Equal(t, c, s.subscribers["a"]["b"][0])
-	assert.Equal(t, e, s.subscribers["a"]["d"][0])
+	assert.Equal(t, 3, len(s.subscribers[bNotif]))
+	assert.Equal(t, 2, len(s.subscribers[bNotif][allSubscribers]))
+	assert.Equal(t, 1, len(s.subscribers[bNotif]["a"]))
+	assert.Equal(t, 1, len(s.subscribers[bNotif]["d"]))
+	assert.Equal(t, c, s.subscribers[bNotif][allSubscribers][0])
+	assert.Equal(t, e, s.subscribers[bNotif][allSubscribers][1])
+	assert.Equal(t, c, s.subscribers[bNotif]["a"][0])
+	assert.Equal(t, e, s.subscribers[bNotif]["d"][0])
 
-	g := s.Watch("a", "b")
+	g := s.Watch("a", bNotif)
 	assert.Equal(t, 1, len(s.subscribers))
-	assert.Equal(t, 3, len(s.subscribers["a"]))
-	assert.Equal(t, 3, len(s.subscribers["a"][all_subscribers]))
-	assert.Equal(t, 2, len(s.subscribers["a"]["b"]))
-	assert.Equal(t, 1, len(s.subscribers["a"]["d"]))
-	assert.Equal(t, c, s.subscribers["a"][all_subscribers][0])
-	assert.Equal(t, e, s.subscribers["a"][all_subscribers][1])
-	assert.Equal(t, g, s.subscribers["a"][all_subscribers][2])
-	assert.Equal(t, c, s.subscribers["a"]["b"][0])
-	assert.Equal(t, g, s.subscribers["a"]["b"][1])
-	assert.Equal(t, e, s.subscribers["a"]["d"][0])
+	assert.Equal(t, 3, len(s.subscribers[bNotif]))
+	assert.Equal(t, 3, len(s.subscribers[bNotif][allSubscribers]))
+	assert.Equal(t, 2, len(s.subscribers[bNotif]["a"]))
+	assert.Equal(t, 1, len(s.subscribers[bNotif]["d"]))
+	assert.Equal(t, c, s.subscribers[bNotif][allSubscribers][0])
+	assert.Equal(t, e, s.subscribers[bNotif][allSubscribers][1])
+	assert.Equal(t, g, s.subscribers[bNotif][allSubscribers][2])
+	assert.Equal(t, c, s.subscribers[bNotif]["a"][0])
+	assert.Equal(t, g, s.subscribers[bNotif]["a"][1])
+	assert.Equal(t, e, s.subscribers[bNotif]["d"][0])
 
-	j := s.Watch("i", "h")
+	j := s.Watch("i", hNotif)
 	assert.Equal(t, 2, len(s.subscribers))
-	assert.Equal(t, 2, len(s.subscribers["i"]))
-	assert.Equal(t, 1, len(s.subscribers["i"][all_subscribers]))
-	assert.Equal(t, 1, len(s.subscribers["i"]["h"]))
-	assert.Equal(t, j, s.subscribers["i"][all_subscribers][0])
-	assert.Equal(t, j, s.subscribers["i"]["h"][0])
+	assert.Equal(t, 2, len(s.subscribers[hNotif]))
+	assert.Equal(t, 1, len(s.subscribers[hNotif][allSubscribers]))
+	assert.Equal(t, 1, len(s.subscribers[hNotif]["i"]))
+	assert.Equal(t, j, s.subscribers[hNotif][allSubscribers][0])
+	assert.Equal(t, j, s.subscribers[hNotif]["i"][0])
 
-	k := s.Watch("l")
+	k := s.Watch(nil, iNotif)
 	assert.Equal(t, 3, len(s.subscribers))
-	assert.Equal(t, 2, len(s.subscribers["l"]))
-	assert.Equal(t, 1, len(s.subscribers["l"][all_subscribers]))
-	assert.Equal(t, 1, len(s.subscribers["l"][all_values]))
-	assert.Equal(t, k, s.subscribers["l"][all_subscribers][0])
-	assert.Equal(t, k, s.subscribers["l"][all_values][0])
+	assert.Equal(t, 2, len(s.subscribers[iNotif]))
+	assert.Equal(t, 1, len(s.subscribers[iNotif][allSubscribers]))
+	assert.Equal(t, 1, len(s.subscribers[iNotif][allObjects]))
+	assert.Equal(t, k, s.subscribers[iNotif][allSubscribers][0])
+	assert.Equal(t, k, s.subscribers[iNotif][allObjects][0])
 }
 
 func TestStore_Delete(t *testing.T) {
 	s := &st{Store: &Store{}}
-	z := make(chan struct{})
+	z := make(chan Notif)
 	s.Delete(z)
-	c := s.Watch("a", "b")
-	e := s.Watch("a", "c")
-	g := s.Watch("a", "b")
-	j := s.Watch("i", "h")
+	c := s.Watch("b", aNotif)
+	e := s.Watch("c", aNotif)
+	g := s.Watch("b", aNotif)
+	j := s.Watch("h", iNotif)
 	assert.Equal(t, 2, len(s.subscribers))
-	assert.Equal(t, c, s.subscribers["a"]["b"][0])
-	assert.Equal(t, e, s.subscribers["a"]["c"][0])
-	assert.Equal(t, g, s.subscribers["a"]["b"][1])
-	assert.Equal(t, j, s.subscribers["i"]["h"][0])
-	assert.Equal(t, 3, len(s.subscribers["a"]))
+	assert.Equal(t, c, s.subscribers[aNotif]["b"][0])
+	assert.Equal(t, e, s.subscribers[aNotif]["c"][0])
+	assert.Equal(t, g, s.subscribers[aNotif]["b"][1])
+	assert.Equal(t, j, s.subscribers[iNotif]["h"][0])
+	assert.Equal(t, 3, len(s.subscribers[aNotif]))
 	s.Delete(c)
-	assert.Equal(t, 3, len(s.subscribers["a"]))
-	assert.Equal(t, g, s.subscribers["a"]["b"][0])
+	assert.Equal(t, 3, len(s.subscribers[aNotif]))
+	assert.Equal(t, g, s.subscribers[aNotif]["b"][0])
 	s.Delete(g)
-	assert.Equal(t, 2, len(s.subscribers["a"]))
+	assert.Equal(t, 2, len(s.subscribers[aNotif]))
 	assert.Equal(t, 2, len(s.subscribers))
 	s.Delete(e)
 	assert.Equal(t, 1, len(s.subscribers))

@@ -1,6 +1,8 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
@@ -16,13 +18,9 @@ type BranchView struct {
 	ctx context.Context
 	app *stores.App
 
-	model         *models.BranchModel
-	cSelect       chan struct{}
-	cOpenPostLoad chan struct{}
-	cClose        chan struct{}
-	cLoad         chan struct{}
-	cOpen         chan struct{}
-	children      vecty.List
+	model    *models.BranchModel
+	notifs   chan flux.Notif
+	children vecty.List
 }
 
 func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
@@ -49,54 +47,48 @@ func (v *BranchView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchView) Mount() {
-	v.cOpen = v.app.Branches.Watch(stores.BranchOpen, v.model)
-	v.cOpenPostLoad = v.app.Branches.Watch(stores.BranchOpenPostLoad, v.model)
-	v.cClose = v.app.Branches.Watch(stores.BranchClose, v.model)
-	v.cLoad = v.app.Branches.Watch(stores.BranchLoaded, v.model)
-	v.cSelect = v.app.Branches.Watch(stores.BranchSelect, v.model)
+
+	v.notifs = v.app.Branches.Watch(v.model,
+		stores.BranchOpen,
+		stores.BranchOpenPostLoad,
+		stores.BranchClose,
+		stores.BranchLoaded,
+		stores.BranchSelect,
+	)
 
 	go func() {
-		for range v.cOpen {
-			loaded := LoadBranch(v.ctx, v.app, v.model)
-			v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded})
+		if v.model.Contents.Label() == "frontpage" {
+			fmt.Printf("watching frontpage branch c=%p...\n", v.notifs)
 		}
-	}()
-	go func() {
-		for range flux.Multi(v.cOpenPostLoad, v.cClose, v.cLoad) {
-			v.ReconcileBody()
-		}
-	}()
-	go func() {
-		for range v.cSelect {
-			loaded := LoadBranch(v.ctx, v.app, v.model)
-			if v.model.LastOp == models.BranchOpClickToggle && loaded {
-				v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
+		for notif := range v.notifs {
+			fmt.Printf("** Starting %s\n", notif)
+			switch notif {
+			case stores.BranchOpen:
+				loaded := LoadBranch(v.ctx, v.app, v.model)
+				v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded})
+			case stores.BranchSelect:
+				loaded := LoadBranch(v.ctx, v.app, v.model)
+				if v.model.LastOp == models.BranchOpClickToggle && loaded {
+					v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
+				}
+				v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
+			case stores.BranchOpenPostLoad,
+				stores.BranchClose,
+				stores.BranchLoaded:
+				v.ReconcileBody()
 			}
-			v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
+			fmt.Printf("** Finished %s\n", notif)
+		}
+		if v.model.Contents.Label() == "frontpage" {
+			fmt.Printf("finished watching frontpage branch c=%p...\n", v.notifs)
 		}
 	}()
 }
 
 func (v *BranchView) Unmount() {
-	if v.cOpen != nil {
-		v.app.Branches.Delete(v.cOpen)
-		v.cOpen = nil
-	}
-	if v.cOpenPostLoad != nil {
-		v.app.Branches.Delete(v.cOpenPostLoad)
-		v.cOpenPostLoad = nil
-	}
-	if v.cClose != nil {
-		v.app.Branches.Delete(v.cClose)
-		v.cClose = nil
-	}
-	if v.cLoad != nil {
-		v.app.Branches.Delete(v.cLoad)
-		v.cLoad = nil
-	}
-	if v.cSelect != nil {
-		v.app.Branches.Delete(v.cSelect)
-		v.cSelect = nil
+	if v.notifs != nil {
+		v.app.Branches.Delete(v.notifs)
+		v.notifs = nil
 	}
 	v.Body.Unmount()
 }

@@ -7,13 +7,14 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 )
 
 type TreeView struct {
 	vecty.Composite
-	ctx context.Context
-	app *stores.App
-	c   chan struct{}
+	ctx    context.Context
+	app    *stores.App
+	notifs chan flux.Notif
 
 	Root     *models.BranchModel
 	Selected *models.BranchModel
@@ -42,9 +43,11 @@ func (v *TreeView) Apply(element *vecty.Element) {
 }
 
 func (v *TreeView) Mount() {
-	v.c = v.app.Branches.Watch(stores.BranchInitialStateLoaded, v.app.Branches.Root())
+	v.notifs = v.app.Branches.Watch(v.app.Branches.Root(),
+		stores.BranchInitialStateLoaded,
+	)
 	go func() {
-		for range v.c {
+		for range v.notifs {
 			v.Root = v.app.Branches.Root()
 			v.ReconcileBody()
 		}
@@ -52,9 +55,9 @@ func (v *TreeView) Mount() {
 }
 
 func (v *TreeView) Unmount() {
-	if v.c != nil {
-		v.app.Branches.Delete(v.c)
-		v.c = nil
+	if v.notifs != nil {
+		v.app.Branches.Delete(v.notifs)
+		v.notifs = nil
 	}
 	v.Body.Unmount()
 }

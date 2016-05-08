@@ -15,9 +15,13 @@ type EditorStore struct {
 	editors map[*node.Node]*models.EditorModel
 }
 
-type editorKey string
+type editorNotif string
 
-const EditorChanged editorKey = "EditorChanged"
+func (b editorNotif) IsNotif() {}
+
+const (
+	EditorChanged editorNotif = "EditorChanged"
+)
 
 func NewEditorStore(ctx context.Context) *EditorStore {
 	s := &EditorStore{

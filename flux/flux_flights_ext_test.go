@@ -24,7 +24,8 @@ func TestFlights(t *testing.T) {
 	a.Price = &PriceStore{app: a, Store: &flux.Store{}}
 	a.Dispatcher = flux.NewDispatcher(a.Country, a.City, a.Price)
 
-	a.Dispatcher.Dispatch(&UpdateCountryAction{Country: "France"})
+	done := a.Dispatcher.Dispatch(&UpdateCountryAction{Country: "France"})
+	<-done
 
 	assert.Equal(t, "France", a.Country.GetCountry())
 	assert.Equal(t, "Paris", a.City.GetCity())

@@ -29,7 +29,8 @@ func TestDispatcher_Dispatch(t *testing.T) {
 	c := &st1{}
 	d := NewDispatcher(a, b)
 	d.Register(c)
-	d.Dispatch("e")
+	done := d.Dispatch("e")
+	<-done
 	assert.Equal(t, "e", a.handled)
 	assert.Equal(t, "e", b.handled)
 	assert.Equal(t, "e", c.handled)

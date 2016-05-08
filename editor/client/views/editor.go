@@ -6,14 +6,15 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 	"kego.io/system/node"
 )
 
 type EditorView struct {
 	vecty.Composite
-	ctx context.Context
-	app *stores.App
-	c   chan struct{}
+	ctx    context.Context
+	app    *stores.App
+	notifs chan flux.Notif
 
 	node  *node.Node
 	model *models.EditorModel
@@ -43,9 +44,11 @@ func (v *EditorView) Apply(element *vecty.Element) {
 }
 
 func (v *EditorView) Mount() {
-	v.c = v.app.Editors.Watch(stores.EditorChanged, v.c)
+	v.notifs = v.app.Editors.Watch(v.node,
+		stores.EditorChanged,
+	)
 	go func() {
-		for range v.c {
+		for range v.notifs {
 			v.model = v.app.Editors.Get(v.node)
 			v.ReconcileBody()
 		}
@@ -53,9 +56,9 @@ func (v *EditorView) Mount() {
 }
 
 func (v *EditorView) Unmount() {
-	if v.c != nil {
-		v.app.Editors.Delete(v.c)
-		v.c = nil
+	if v.notifs != nil {
+		v.app.Editors.Delete(v.notifs)
+		v.notifs = nil
 	}
 	v.Body.Unmount()
 }

@@ -18,8 +18,7 @@ type BranchControlView struct {
 	app *stores.App
 
 	model    *models.BranchModel
-	cUnsel   chan struct{}
-	cSel     chan struct{}
+	notifs   chan flux.Notif
 	children vecty.List
 }
 
@@ -54,10 +53,12 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchControlView) Mount() {
-	v.cSel = v.app.Branches.Watch(stores.BranchPreSelect, v.model)
-	v.cUnsel = v.app.Branches.Watch(stores.BranchUnselect, v.model)
+	v.notifs = v.app.Branches.Watch(v.model,
+		stores.BranchPreSelect,
+		stores.BranchUnselect,
+	)
 	go func() {
-		for range flux.Multi(v.cSel, v.cUnsel) {
+		for range v.notifs {
 			v.ReconcileBody()
 			if v.model != nil && v.app.Branches.Selected() == v.model {
 				v.focus()
@@ -67,13 +68,9 @@ func (v *BranchControlView) Mount() {
 }
 
 func (v *BranchControlView) Unmount() {
-	if v.cSel != nil {
-		v.app.Branches.Delete(v.cSel)
-		v.cSel = nil
-	}
-	if v.cUnsel != nil {
-		v.app.Branches.Delete(v.cUnsel)
-		v.cUnsel = nil
+	if v.notifs != nil {
+		v.app.Branches.Delete(v.notifs)
+		v.notifs = nil
 	}
 	v.Body.Unmount()
 }
@@ -97,9 +94,7 @@ func (v *BranchControlView) toggleClick(*vecty.Event) {
 }
 
 func (v *BranchControlView) labelClick(*vecty.Event) {
-	go func() {
-		v.app.Dispatch(&actions.BranchSelect{Branch: v.model, Op: models.BranchOpClickLabel})
-	}()
+	v.app.Dispatch(&actions.BranchSelect{Branch: v.model, Op: models.BranchOpClickLabel})
 }
 
 func (v *BranchControlView) render() vecty.Component {
