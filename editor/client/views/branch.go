@@ -1,8 +1,6 @@
 package views
 
 import (
-	"fmt"
-
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
@@ -57,11 +55,7 @@ func (v *BranchView) Mount() {
 	)
 
 	go func() {
-		if v.model.Contents.Label() == "frontpage" {
-			fmt.Printf("watching frontpage branch c=%p...\n", v.notifs)
-		}
 		for notif := range v.notifs {
-			fmt.Printf("** Starting %s\n", notif)
 			switch notif {
 			case stores.BranchOpen:
 				loaded := LoadBranch(v.ctx, v.app, v.model)
@@ -77,10 +71,6 @@ func (v *BranchView) Mount() {
 				stores.BranchLoaded:
 				v.ReconcileBody()
 			}
-			fmt.Printf("** Finished %s\n", notif)
-		}
-		if v.model.Contents.Label() == "frontpage" {
-			fmt.Printf("finished watching frontpage branch c=%p...\n", v.notifs)
 		}
 	}()
 }
