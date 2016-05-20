@@ -1,8 +1,6 @@
 package views
 
 import (
-	"sync"
-
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
@@ -58,7 +56,7 @@ func (v *BranchView) Mount() {
 
 	go func() {
 		for notif := range v.notifs {
-			wait := &Waiter{}
+			wait := &flux.Waiter{}
 			switch notif.Type {
 			case stores.BranchOpen:
 				loaded := LoadBranch(v.ctx, v.app, v.model, wait)
@@ -107,32 +105,4 @@ func (v *BranchView) render() vecty.Component {
 			v.children,
 		),
 	)
-}
-
-type Waiter struct {
-	m  sync.RWMutex
-	wg *sync.WaitGroup
-}
-
-func (w *Waiter) Add(wait chan struct{}) {
-	if w.wg == nil {
-		w.wg = &sync.WaitGroup{}
-	}
-	w.m.Lock()
-	defer w.m.Unlock()
-	w.wg.Add(1)
-	go func() {
-		<-wait
-		w.wg.Done()
-	}()
-}
-
-func (w *Waiter) Go(done chan struct{}) {
-	if w.wg == nil {
-		w.wg = &sync.WaitGroup{}
-	}
-	go func() {
-		w.wg.Wait()
-		close(done)
-	}()
 }
