@@ -1,5 +1,7 @@
-// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":8741093833673039461}
+// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":9397774896687891332}
 package tests
+
+// ke: {"file": {"notest": true}}
 
 import (
 	"reflect"
@@ -475,7 +477,7 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 8741093833673039461)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 9397774896687891332)
 	pkg.InitType("basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
 	pkg.InitType("collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/sysctx"
 	"kego.io/process/generate"
 	"kego.io/process/tests"
@@ -241,7 +242,7 @@ func TestScan_errors(t *testing.T) {
 	defer cb.Cleanup()
 
 	_, err := Parse(cb.Ctx(), "does-not-exist")
-	assert.IsError(t, err, "SBALWXUPKN")  // Error from ScanForEnv
+	require.IsError(t, err, "SBALWXUPKN") // Error from ScanForEnv
 	assert.HasError(t, err, "NIKCKQAKUI") // GoGet: exit status 1: package does-not-exist
 
 	path, _ := cb.TempPackage("a", map[string]string{

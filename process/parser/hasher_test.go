@@ -20,5 +20,5 @@ func TestHasher(t *testing.T) {
 	}
 	h, err := p.Hash()
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0x9f31cab0a9900716), h)
+	assert.Equal(t, uint64(0xb047e2645f15ceac), h)
 }

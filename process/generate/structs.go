@@ -30,6 +30,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	infoBytes, _ := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
 
 	g.SetPackageComment("info:" + string(infoBytes))
+	g.SetIntroComment(`ke: {"file": {"notest": true}}`)
 
 	if types.Len() == 0 {
 		b, err := g.Build()

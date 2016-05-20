@@ -1,5 +1,7 @@
-// info:{"Path":"kego.io/demo/demo5/translation","Hash":15213008964671100022}
+// info:{"Path":"kego.io/demo/demo5/translation","Hash":13545408849668201489}
 package translation
+
+// ke: {"file": {"notest": true}}
 
 import (
 	"reflect"
@@ -51,7 +53,7 @@ func (o *Smartling) GetSmartling(ctx context.Context) *Smartling {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo5/translation", 15213008964671100022)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo5/translation", 13545408849668201489)
 	pkg.InitType("localized", reflect.TypeOf((*Localized)(nil)).Elem(), reflect.TypeOf((*LocalizedRule)(nil)), nil)
 	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
 	pkg.InitType("smartling", reflect.TypeOf((*Smartling)(nil)), reflect.TypeOf((*SmartlingRule)(nil)), reflect.TypeOf((*SmartlingInterface)(nil)).Elem())

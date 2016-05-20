@@ -8,6 +8,7 @@ import (
 
 	"golang.org/x/net/websocket"
 
+	"github.com/davelondon/gopackages"
 	"github.com/davelondon/kerr"
 
 	"github.com/gopherjs/gopherjs/compiler"
@@ -35,7 +36,6 @@ import (
 	"kego.io/editor/shared"
 	"kego.io/ke"
 	"kego.io/process/generate"
-	"kego.io/process/packages"
 	"kego.io/process/parser"
 	"kego.io/process/scanner"
 	"kego.io/system"
@@ -273,7 +273,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 
 	env, err := parser.ScanForEnv(ctx, path)
 	if err != nil {
-		if _, ok := kerr.Source(err).(packages.NotFoundError); !ok {
+		if _, ok := kerr.Source(err).(gopackages.NotFoundError); !ok {
 			return kerr.Wrap("ALINBMKDRP", err)
 		}
 		w.WriteHeader(404)

@@ -11,6 +11,7 @@ import (
 
 	"path/filepath"
 
+	"github.com/davelondon/gopackages"
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
@@ -58,12 +59,11 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 	packageDirectoryExists := true
 	_, err := packages.GetDirFromPackage(ctx, path)
 	if err != nil {
-		_, ok := kerr.Source(err).(packages.NotFoundError)
+		_, ok := kerr.Source(err).(gopackages.NotFoundError)
 		if ok {
 			packageDirectoryExists = false
 		}
 	}
-
 	if !packageDirectoryExists || cmd.Update {
 		if err := GoGet(ctx, path); err != nil {
 			return nil, kerr.Wrap("SBALWXUPKN", err)

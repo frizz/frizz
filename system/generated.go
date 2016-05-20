@@ -1,5 +1,7 @@
-// info:{"Path":"kego.io/system","Hash":15613995579130226110}
+// info:{"Path":"kego.io/system","Hash":17235803469318960821}
 package system
+
+// ke: {"file": {"notest": true}}
 
 import (
 	"reflect"
@@ -243,7 +245,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 15613995579130226110)
+	pkg := jsonctx.InitPackage("kego.io/system", 17235803469318960821)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
 	pkg.InitType("number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())

@@ -16,6 +16,7 @@ type Builder struct {
 	path       string
 	name       string
 	comment    string
+	intro      string
 	Imports    Imports
 	statements []string
 	buffer     *bytes.Buffer
@@ -31,6 +32,10 @@ func WithName(path string, name string) *Builder {
 
 func (g *Builder) SetPackageComment(comment string) {
 	g.comment = comment
+}
+
+func (g *Builder) SetIntroComment(comment string) {
+	g.intro = comment
 }
 
 func (g *Builder) Print(args ...interface{}) *Builder {
@@ -76,6 +81,12 @@ func (g *Builder) Build() ([]byte, error) {
 		fmt.Fprintf(b, "// %s\n", g.comment)
 	}
 	fmt.Fprintf(b, "package %s", g.name)
+
+	if len(g.intro) > 0 {
+		fmt.Fprintf(b, "\n\n")
+		fmt.Fprintf(b, "// %s\n", g.intro)
+	}
+
 	if len(g.Imports) > 0 {
 		fmt.Fprintf(b, "\n\n")
 		fmt.Fprintf(b, "import (")

@@ -20,7 +20,7 @@ type AliasInfo struct {
 
 func (p *PackageHasher) Hash() (uint64, error) {
 
-	p.Version = 3
+	p.Version = 4
 
 	bytes, err := json.MarshalPlain(p)
 	if err != nil {

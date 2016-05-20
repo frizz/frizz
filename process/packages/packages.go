@@ -4,7 +4,6 @@ package packages // import "kego.io/process/packages"
 
 import (
 	"github.com/davelondon/gopackages"
-	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/vosctx"
 )
@@ -17,10 +16,6 @@ func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) 
 func GetDirFromEmptyPackage(ctx context.Context, path string) (string, error) {
 	vos := vosctx.FromContext(ctx)
 	return gopackages.GetDirFromEmptyPackage(vos.Getenv("GOPATH"), path)
-}
-
-type NotFoundError struct {
-	kerr.Struct
 }
 
 func GetPackageFromDir(ctx context.Context, dir string) (string, error) {

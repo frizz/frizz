@@ -1,5 +1,7 @@
-// info:{"Path":"kego.io/demo/site","Hash":4565612606053512268}
+// info:{"Path":"kego.io/demo/site","Hash":8148798309499944976}
 package site
+
+// ke: {"file": {"notest": true}}
 
 import (
 	"reflect"
@@ -154,7 +156,7 @@ func (o *Gallery3a) GetGallery3a(ctx context.Context) *Gallery3a {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/site", 4565612606053512268)
+	pkg := jsonctx.InitPackage("kego.io/demo/site", 8148798309499944976)
 	pkg.InitType("gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Rule)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem())
 	pkg.InitType("gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aRule)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem())
 	pkg.InitType("gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Rule)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem())
