@@ -13,9 +13,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"golang.org/x/tools/cover"
-	"kego.io/kerr"
 	"kego.io/process/packages"
 )
 

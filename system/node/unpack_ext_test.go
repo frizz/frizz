@@ -5,12 +5,12 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
 	_ "kego.io/demo/common/images"
 	_ "kego.io/demo/common/units"
 	_ "kego.io/demo/common/words"
 	_ "kego.io/demo/site"
-	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/scanner"
 	"kego.io/system/node"

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/sysctx"
-	"kego.io/kerr/assert"
 	"kego.io/process/parser"
 	"kego.io/process/tests"
 	_ "kego.io/process/validate/tests"

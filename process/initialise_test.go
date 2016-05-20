@@ -3,8 +3,8 @@ package process
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
-	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
 

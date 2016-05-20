@@ -3,7 +3,7 @@ package selectors
 import (
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 	"kego.io/process/parser"
 	"kego.io/process/tests"
 	"kego.io/system/node"

@@ -1,9 +1,9 @@
 package parser
 
 import (
+	"github.com/davelondon/kerr"
 	"github.com/surge/cityhash"
 	"kego.io/json"
-	"kego.io/kerr"
 )
 
 type PackageHasher struct {

@@ -1,8 +1,8 @@
 package stores
 
 import (
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
-	"kego.io/kerr"
 )
 
 type ctxKeyType int

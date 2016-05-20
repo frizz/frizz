@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestHasher(t *testing.T) {

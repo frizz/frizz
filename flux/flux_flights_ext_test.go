@@ -5,8 +5,8 @@ import (
 
 	"fmt"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/flux"
-	"kego.io/kerr/assert"
 )
 
 type Flights struct {

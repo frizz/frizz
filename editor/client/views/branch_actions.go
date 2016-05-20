@@ -3,17 +3,18 @@ package views
 import (
 	"net/rpc"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/shared"
-	"kego.io/kerr"
+	"kego.io/flux"
 	"kego.io/system/node"
 )
 
-func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wait *Waiter) bool {
+func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wait *flux.Waiter) bool {
 	c, ok := b.Contents.(*models.SourceContents)
 	if !ok {
 		return false

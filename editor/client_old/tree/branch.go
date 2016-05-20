@@ -1,9 +1,9 @@
 package tree
 
 import (
+	"github.com/davelondon/kerr"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client_old"
-	"kego.io/kerr"
 )
 
 var _ BranchInterface = (*Branch)(nil)

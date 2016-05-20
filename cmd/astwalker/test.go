@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 )
 
 func foo() {

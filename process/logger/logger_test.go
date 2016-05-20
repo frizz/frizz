@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestLogger(t *testing.T) {

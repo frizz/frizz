@@ -5,9 +5,9 @@ import (
 
 	"reflect"
 
+	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
 	"kego.io/json"
-	"kego.io/kerr/assert"
 	"kego.io/process/parser"
 	"kego.io/process/tests"
 	"kego.io/system"

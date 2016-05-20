@@ -3,8 +3,8 @@ package system_test
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
-	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/tests/repacker"
 	"kego.io/process/tests/unpacker"

@@ -3,7 +3,7 @@ package literal
 import (
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 	"kego.io/process/generate/builder"
 )
 

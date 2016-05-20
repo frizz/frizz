@@ -7,7 +7,7 @@ import (
 	"kego.io/system"
 	"kego.io/system/node"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 	"kego.io/process/tests"
 	_ "kego.io/process/validate/tests"
 )

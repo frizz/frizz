@@ -15,7 +15,7 @@ import (
 
 	"io/ioutil"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 	"kego.io/system"
 )
 

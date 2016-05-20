@@ -1,10 +1,10 @@
 package editor
 
 import (
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client_old/mdl"
-	"kego.io/kerr"
 	"kego.io/system"
 )
 

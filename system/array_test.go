@@ -3,8 +3,8 @@ package system
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
-	"kego.io/kerr/assert"
 )
 
 func TestArrayRule_Enforce(t *testing.T) {

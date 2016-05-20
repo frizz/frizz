@@ -3,8 +3,8 @@ package flux_test
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/flux"
-	"kego.io/kerr/assert"
 )
 
 type App struct {

@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/net/websocket"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"

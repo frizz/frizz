@@ -12,6 +12,7 @@ import (
 
 	"encoding/base64"
 
+	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
@@ -25,7 +26,6 @@ import (
 	"kego.io/editor/client/stores"
 	"kego.io/editor/client/views"
 	"kego.io/editor/shared"
-	"kego.io/kerr"
 	"kego.io/process/parser"
 	"kego.io/system"
 )

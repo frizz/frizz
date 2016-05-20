@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/davelondon/kerr"
+	"github.com/davelondon/ktest/assert"
 	"github.com/go-errors/errors"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
-	"kego.io/kerr"
-	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 )
 

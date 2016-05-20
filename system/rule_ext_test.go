@@ -3,9 +3,9 @@ package system_test
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
 	"kego.io/context/sysctx"
-	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/system"
 )

@@ -5,8 +5,8 @@ import (
 
 	"fmt"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
-	"kego.io/kerr"
 )
 
 func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {

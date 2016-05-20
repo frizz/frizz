@@ -3,7 +3,7 @@ package selectors
 import (
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestLexUnterminated(t *testing.T) {

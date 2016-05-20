@@ -3,10 +3,10 @@ package validate // import "kego.io/process/validate"
 // ke: {"package": {"complete": true}}
 
 import (
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
-	"kego.io/kerr"
 	"kego.io/process/scanner"
 	"kego.io/process/validate/selectors"
 	"kego.io/system"

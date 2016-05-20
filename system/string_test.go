@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
 	"kego.io/json"
-	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 	"kego.io/process/tests/unpacker"
 )

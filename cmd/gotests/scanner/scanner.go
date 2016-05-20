@@ -11,10 +11,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/davelondon/kerr"
+	"github.com/davelondon/kerr/ksrc"
 	"golang.org/x/net/context"
 	"kego.io/json"
-	"kego.io/kerr"
-	"kego.io/kerr/kerrsource"
 	"kego.io/process/packages"
 )
 
@@ -113,13 +113,13 @@ func scanFile(filename string) error {
 	for _, is := range file.Imports {
 		importPath, _ := strconv.Unquote(is.Path.Value)
 		switch importPath {
-		case "kego.io/kerr":
+		case "github.com/davelondon/kerr":
 			if is.Name != nil {
 				kerrName, _ = strconv.Unquote(is.Name.Name)
 			} else {
 				kerrName = "kerr"
 			}
-		case "kego.io/kerr/assert":
+		case "github.com/davelondon/ktest/assert":
 			if is.Name != nil {
 				assertName, _ = strconv.Unquote(is.Name.Name)
 			} else {
@@ -326,7 +326,7 @@ func getErrorId(t *testing.T, args []ast.Expr, arg int, file string) (string, er
 	if err != nil {
 		return "", kerr.Wrap("NTUDBTYOQY", err)
 	}
-	if !kerrsource.IsId(id) {
+	if !ksrc.IsId(id) {
 		return "", kerr.New("YLTSLGODKR", "Invalid kerr ID %s (%s)", id, file)
 	}
 	return id, nil

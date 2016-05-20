@@ -3,10 +3,10 @@ package tree
 import (
 	"net/rpc"
 
+	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/editor/client_old"
 	"kego.io/editor/shared"
-	"kego.io/kerr"
 )
 
 type source struct {

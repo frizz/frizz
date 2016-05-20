@@ -5,8 +5,8 @@ import (
 
 	"path/filepath"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/vosctx"
-	"kego.io/kerr/assert"
 	. "kego.io/process/packages"
 	"kego.io/process/tests"
 )

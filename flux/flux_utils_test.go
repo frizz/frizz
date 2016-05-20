@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func waitFor(t *testing.T, c chan struct{}, shouldBeOpen bool, description string) {

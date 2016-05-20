@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 
 	"fmt"
 	"io/ioutil"

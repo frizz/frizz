@@ -11,6 +11,7 @@ import (
 
 	"path/filepath"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
@@ -18,7 +19,6 @@ import (
 	"kego.io/context/vosctx"
 	"kego.io/json"
 	"kego.io/ke"
-	"kego.io/kerr"
 	"kego.io/process/packages"
 	"kego.io/process/scanner"
 	"kego.io/system"

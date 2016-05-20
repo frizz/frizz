@@ -5,9 +5,9 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/davelondon/ktest/assert"
 	"github.com/go-errors/errors"
 	"kego.io/json"
-	"kego.io/kerr/assert"
 	"kego.io/process/parser"
 	"kego.io/process/tests"
 	"kego.io/system"

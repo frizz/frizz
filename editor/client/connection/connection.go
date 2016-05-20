@@ -4,7 +4,7 @@ import (
 	"net/rpc"
 	"time"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 )
 
 type Interface interface {

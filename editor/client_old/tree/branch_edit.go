@@ -1,8 +1,8 @@
 package tree
 
 import (
+	"github.com/davelondon/kerr"
 	"kego.io/editor/client_old"
-	"kego.io/kerr"
 )
 
 func (b *Branch) showEditPanel(fromKeyboard bool) {

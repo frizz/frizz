@@ -9,12 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/wgctx"
 	"kego.io/editor/server"
-	"kego.io/kerr"
 	"kego.io/process"
 	"kego.io/process/validate"
 	_ "kego.io/system"

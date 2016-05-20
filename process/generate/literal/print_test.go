@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 	"kego.io/process/generate/builder"
 )
 
@@ -38,7 +38,7 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "*h.MyType", GetName(reflect.TypeOf(&m), "a.b/c", impk.Add))
 
-	asp := "kego.io/kerr/assert"
+	asp := "github.com/davelondon/ktest/assert"
 	impa := builder.Imports{
 		"e.f/g": builder.Import{Path: "e.f/g", Name: "g", Alias: "d"},
 		asp:     builder.Import{Path: asp, Name: "assert", Alias: "as"},

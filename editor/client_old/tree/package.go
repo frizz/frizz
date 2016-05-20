@@ -1,9 +1,9 @@
 package tree
 
 import (
+	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/editor/client_old"
-	"kego.io/kerr"
 )
 
 // Pkg is the top-level item. It holds the entry items for th package object, and

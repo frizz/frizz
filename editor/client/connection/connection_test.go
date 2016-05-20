@@ -4,7 +4,7 @@ import (
 	"net/rpc"
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestNew(t *testing.T) {

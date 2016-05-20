@@ -23,9 +23,9 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
-	"kego.io/kerr"
 )
 
 // UnmarshalPlain parses the JSON-encoded data and stores the result

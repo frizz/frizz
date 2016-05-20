@@ -5,7 +5,7 @@ import (
 
 	"sync"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestPayload_Wait(t *testing.T) {

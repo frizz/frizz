@@ -3,7 +3,7 @@ package system
 import (
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestEmptyPackage(t *testing.T) {

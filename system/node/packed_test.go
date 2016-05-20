@@ -3,8 +3,8 @@ package node
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/json"
-	"kego.io/kerr/assert"
 )
 
 func TestPackedType(t *testing.T) {

@@ -3,7 +3,7 @@ package tree
 import (
 	"net/rpc"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 )
 
 type AsyncInterface interface {

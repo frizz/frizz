@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 )
 
 type tokenType string

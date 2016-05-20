@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/sysctx"
-	"kego.io/kerr/assert"
 	"kego.io/process/generate/builder"
 	"kego.io/process/parser"
 	"kego.io/process/tests"

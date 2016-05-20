@@ -3,7 +3,7 @@ package flux
 import (
 	"testing"
 
-	"kego.io/kerr/assert"
+	"github.com/davelondon/ktest/assert"
 )
 
 func TestNewLoopDetector(t *testing.T) {

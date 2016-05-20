@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/sysctx"
-	"kego.io/kerr/assert"
 	"kego.io/process/generate"
 	"kego.io/process/tests"
 	"kego.io/system"

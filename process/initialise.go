@@ -5,6 +5,7 @@ import (
 
 	"kego.io/process/parser"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
@@ -12,7 +13,6 @@ import (
 	"kego.io/context/sysctx"
 	"kego.io/context/vosctx"
 	"kego.io/context/wgctx"
-	"kego.io/kerr"
 	"kego.io/process/packages"
 )
 

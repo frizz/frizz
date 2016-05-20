@@ -3,10 +3,10 @@ package system
 import (
 	"reflect"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
 	"kego.io/json"
-	"kego.io/kerr"
 )
 
 // Enforcer is a rule with properties that need to be enforced against data.

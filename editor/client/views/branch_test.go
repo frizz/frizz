@@ -5,6 +5,7 @@ import (
 
 	"reflect"
 
+	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
@@ -14,7 +15,6 @@ import (
 	"kego.io/editor/client/stores"
 	"kego.io/editor/shared"
 	"kego.io/ke"
-	"kego.io/kerr/assert"
 	"kego.io/process/parser"
 	"kego.io/system"
 )

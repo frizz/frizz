@@ -1,10 +1,10 @@
 package stores
 
 import (
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/flux"
-	"kego.io/kerr"
 	"kego.io/system/node"
 )
 

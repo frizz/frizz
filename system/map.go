@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/net/context"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 )
 
 func (r *MapRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {

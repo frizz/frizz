@@ -10,9 +10,9 @@ import (
 
 	"os"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/vosctx"
-	"kego.io/kerr"
 )
 
 func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) {

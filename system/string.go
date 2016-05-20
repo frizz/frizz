@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/davelondon/kerr"
 	"kego.io/json"
-	"kego.io/kerr"
 )
 
 type String string

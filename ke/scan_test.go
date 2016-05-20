@@ -1,4 +1,4 @@
-package kerrsource_test
+package ke_test
 
 import (
 	"fmt"
@@ -13,11 +13,11 @@ import (
 
 	"strconv"
 
+	"github.com/davelondon/kerr"
+	"github.com/davelondon/kerr/ksrc"
+	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
 	"kego.io/json"
-	"kego.io/kerr"
-	"kego.io/kerr/assert"
-	"kego.io/kerr/kerrsource"
 	"kego.io/process/packages"
 )
 
@@ -102,13 +102,13 @@ func walkFile(path string, t *testing.T) error {
 	for _, is := range file.Imports {
 		importPath, _ := strconv.Unquote(is.Path.Value)
 		switch importPath {
-		case "kego.io/kerr":
+		case "github.com/davelondon/kerr":
 			if is.Name != nil {
 				kerrName, _ = strconv.Unquote(is.Name.Name)
 			} else {
 				kerrName = "kerr"
 			}
-		case "kego.io/kerr/assert":
+		case "github.com/davelondon/ktest/assert":
 			if is.Name != nil {
 				assertName, _ = strconv.Unquote(is.Name.Name)
 			} else {
@@ -213,7 +213,7 @@ func getErrData(t *testing.T, args []ast.Expr, arg int, file string) *errDef {
 	assert.Equal(t, b.Kind, token.STRING, "kind should be token.STRING (%s)", file)
 	id, err := strconv.Unquote(b.Value)
 	assert.NoError(t, err, "Error unquoting arg (%s)", file)
-	assert.True(t, kerrsource.IsId(id), "Invalid kerr ID %s (%s)", id, file)
+	assert.True(t, ksrc.IsId(id), "Invalid kerr ID %s (%s)", id, file)
 	def, ok := all[id]
 	if ok {
 		return def

@@ -3,8 +3,8 @@ package tree
 import (
 	"fmt"
 
+	"github.com/davelondon/kerr"
 	"kego.io/editor/client_old"
-	"kego.io/kerr"
 )
 
 // Entry items are nodes. Each branch inside a source branch are entry.

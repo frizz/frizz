@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
-	"kego.io/kerr/assert"
 	"kego.io/process"
 	"kego.io/process/tests"
 )
@@ -231,7 +231,7 @@ func TestImport(t *testing.T) {
 			package site
 			import (
 				"testing"
-				"kego.io/kerr/assert"
+				"github.com/davelondon/ktest/assert"
 			)
 			func TestMain(t *testing.T) {
 				assert.Equal(t, "Heading", Site.Title.Text.Value())

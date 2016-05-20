@@ -10,11 +10,11 @@ import (
 
 	"io/ioutil"
 
+	"github.com/davelondon/kerr"
+	"github.com/davelondon/ktest/assert"
 	. "kego.io/json"
 	"kego.io/json/systests"
 	"kego.io/ke"
-	"kego.io/kerr"
-	"kego.io/kerr/assert"
 	"kego.io/process/packages"
 	"kego.io/process/tests"
 	"kego.io/process/tests/unpacker"

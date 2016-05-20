@@ -10,8 +10,8 @@ import (
 
 	"github.com/ghodss/yaml"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
-	"kego.io/kerr"
 )
 
 type File struct {

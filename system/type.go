@@ -5,10 +5,10 @@ import (
 
 	"reflect"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/sysctx"
 	"kego.io/json"
-	"kego.io/kerr"
 )
 
 func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {

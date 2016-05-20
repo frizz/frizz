@@ -12,11 +12,11 @@ import (
 
 	"flag"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"golang.org/x/tools/cover"
 	"kego.io/cmd/gotests/scanner"
 	"kego.io/cmd/gotests/tester"
-	"kego.io/kerr"
 	"kego.io/process/packages"
 )
 

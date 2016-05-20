@@ -10,8 +10,8 @@ import (
 
 	"sync"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
-	"kego.io/kerr"
 )
 
 // key is an unexported type for keys defined in this package.

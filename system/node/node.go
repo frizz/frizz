@@ -3,10 +3,10 @@ package node // import "kego.io/system/node"
 // ke: {"package": {"complete": true}}
 
 import (
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/ke"
-	"kego.io/kerr"
 	"kego.io/system"
 )
 

@@ -7,10 +7,10 @@ import (
 
 	"kego.io/process/parser"
 
+	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
-	"kego.io/kerr/assert"
 	"kego.io/process/tests"
 	"kego.io/system"
 )

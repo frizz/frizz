@@ -5,9 +5,9 @@ import (
 
 	"honnef.co/go/js/dom"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client_old/mdl"
-	"kego.io/kerr"
 	"kego.io/system"
 )
 

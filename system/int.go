@@ -8,8 +8,8 @@ import (
 
 	"math"
 
+	"github.com/davelondon/kerr"
 	"kego.io/json"
-	"kego.io/kerr"
 )
 
 type Int int

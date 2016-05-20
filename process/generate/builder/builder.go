@@ -9,7 +9,7 @@ import (
 
 	"strings"
 
-	"kego.io/kerr"
+	"github.com/davelondon/kerr"
 )
 
 type Builder struct {

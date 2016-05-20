@@ -5,8 +5,8 @@ import (
 
 	"fmt"
 
+	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
-	"kego.io/kerr/assert"
 )
 
 type dummy struct {
