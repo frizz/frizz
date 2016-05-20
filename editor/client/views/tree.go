@@ -14,7 +14,7 @@ type TreeView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
-	notifs chan flux.Notif
+	notifs chan flux.NotifPayload
 
 	Root     *models.BranchModel
 	Selected *models.BranchModel
@@ -47,9 +47,10 @@ func (v *TreeView) Mount() {
 		stores.BranchInitialStateLoaded,
 	)
 	go func() {
-		for range v.notifs {
+		for notif := range v.notifs {
 			v.Root = v.app.Branches.Root()
 			v.ReconcileBody()
+			close(notif.Done)
 		}
 	}()
 }

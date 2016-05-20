@@ -14,7 +14,7 @@ type EditorView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
-	notifs chan flux.Notif
+	notifs chan flux.NotifPayload
 
 	node  *node.Node
 	model *models.EditorModel
@@ -48,9 +48,10 @@ func (v *EditorView) Mount() {
 		stores.EditorChanged,
 	)
 	go func() {
-		for range v.notifs {
+		for notif := range v.notifs {
 			v.model = v.app.Editors.Get(v.node)
 			v.ReconcileBody()
+			close(notif.Done)
 		}
 	}()
 }

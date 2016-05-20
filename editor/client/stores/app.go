@@ -7,9 +7,9 @@ import (
 )
 
 type App struct {
-	*flux.Dispatcher
-	Fail chan error
-	Conn *connection.Conn
+	Dispatcher flux.DispatcherInterface
+	Fail       chan error
+	Conn       connection.Interface
 
 	Package  *PackageStore
 	Editors  *EditorStore
@@ -34,4 +34,8 @@ func (app *App) Init(ctx context.Context) {
 		app.Types,
 		app.Data,
 	)
+}
+
+func (a *App) Dispatch(action flux.ActionInterface) chan struct{} {
+	return a.Dispatcher.Dispatch(action)
 }

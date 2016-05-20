@@ -15,7 +15,7 @@ type PanelView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
-	notifs chan flux.Notif
+	notifs chan flux.NotifPayload
 
 	branch *models.BranchModel
 }
@@ -47,9 +47,10 @@ func (v *PanelView) Mount() {
 		stores.BranchSelectPostLoad,
 	)
 	go func() {
-		for range v.notifs {
+		for notif := range v.notifs {
 			v.branch = v.app.Branches.Selected()
 			v.ReconcileBody()
+			close(notif.Done)
 		}
 	}()
 }

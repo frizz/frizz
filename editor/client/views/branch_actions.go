@@ -13,7 +13,7 @@ import (
 	"kego.io/system/node"
 )
 
-func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel) bool {
+func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wait *Waiter) bool {
 	c, ok := b.Contents.(*models.SourceContents)
 	if !ok {
 		return false
@@ -29,8 +29,7 @@ func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel) boo
 		data := shared.DataResponse{}
 		done := make(chan *rpc.Call, 1)
 		call := app.Conn.Go("Server.Data", request, &data, done, app.Fail)
-
-		app.Dispatcher.Dispatch(&actions.LoadSourceSent{Branch: b})
+		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSent{Branch: b}))
 
 		<-call.Done
 
@@ -46,14 +45,12 @@ func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel) boo
 
 		c.Node = n
 
-		app.Dispatcher.Dispatch(&actions.LoadSourceSuccess{Branch: b})
-
+		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSuccess{Branch: b}))
 	})
 
 	if !did {
-		app.Dispatcher.Dispatch(&actions.LoadSourceCancelled{Branch: b})
+		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceCancelled{Branch: b}))
 	}
-
 	return did
 
 }

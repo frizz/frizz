@@ -41,57 +41,70 @@ func TestStore_Notify(t *testing.T) {
 	done := make(chan struct{}, 1)
 
 	// subscribers should be nil, so will return 0
-	count := s.Notify("a", bNotif)
+	count, finished := s.Notify("a", bNotif)
+	<-finished
 	assert.Equal(t, 0, count)
 
 	c := s.Watch("a", bNotif)
 	go func() {
-		<-c
+		notif := <-c
+		close(notif.Done)
 		close(done)
 	}()
 
 	// notif doesn't exist so will return 0
-	count = s.Notify("a", cNotif)
+	count, finished = s.Notify("a", cNotif)
+	<-finished
 	assert.Equal(t, 0, count)
 
 	// object doesn't exist so will return 0
-	count = s.Notify("b", bNotif)
+	count, finished = s.Notify("b", bNotif)
+	<-finished
 	assert.Equal(t, 0, count)
 
 	// should notify
-	count = s.Notify("a", bNotif)
+	count, finished = s.Notify("a", bNotif)
+	<-finished
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify1")
 
 	done = make(chan struct{}, 1)
 	go func() {
-		<-c
+		notif := <-c
+		close(notif.Done)
 		close(done)
 	}()
-	count = s.Notify(nil, bNotif)
+	count, finished = s.Notify(nil, bNotif)
+	<-finished
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify2")
 
 	d := s.Watch(nil, eNotif)
 	done = make(chan struct{}, 1)
 	go func() {
-		<-d
+		notif := <-d
+		close(notif.Done)
 		close(done)
 	}()
-	count = s.Notify("f", eNotif)
+	count, finished = s.Notify("f", eNotif)
+	<-finished
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify3")
 
 	g := s.Watch("h", iNotif, jNotif)
 	done = make(chan struct{}, 1)
 	go func() {
-		<-g
-		<-g
+		notif1 := <-g
+		close(notif1.Done)
+		notif2 := <-g
+		close(notif2.Done)
 		close(done)
 	}()
-	count = s.Notify("h", jNotif)
+	count, finished = s.Notify("h", jNotif)
+	<-finished
 	assert.Equal(t, 1, count)
-	count = s.Notify("h", iNotif)
+	count, finished = s.Notify("h", iNotif)
+	<-finished
 	assert.Equal(t, 1, count)
 	waitFor(t, done, false, "Timed out waiting for notify4")
 }
@@ -149,7 +162,7 @@ func TestStore_Watch(t *testing.T) {
 
 func TestStore_Delete(t *testing.T) {
 	s := &st{Store: &Store{}}
-	z := make(chan Notif)
+	z := make(chan NotifPayload)
 	s.Delete(z)
 	c := s.Watch("b", aNotif)
 	e := s.Watch("c", aNotif)

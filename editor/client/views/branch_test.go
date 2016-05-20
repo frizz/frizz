@@ -8,23 +8,30 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/ctests"
 	"kego.io/editor/client/models"
+	"kego.io/editor/client/stores"
+	"kego.io/editor/shared"
+	"kego.io/ke"
 	"kego.io/kerr/assert"
+	"kego.io/process/parser"
+	"kego.io/system"
 )
 
-func TestBranchRender(t *testing.T) {
-
+func TestBranchRender1(t *testing.T) {
 	cb := ctests.New().App()
-
 	b := NewBranchView(cb.Ctx(), nil)
 	expected := elem.Div()
 	equal(t, expected, b.render().(*vecty.Element))
+}
 
-	b = NewBranchView(cb.Ctx(), &models.BranchModel{
+func TestBranchRender2(t *testing.T) {
+	cb := ctests.New().App()
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
 		Contents: &models.RootContents{Name: "a"},
 	})
-	expected = elem.Div(
+	expected := elem.Div(
 		prop.Class("node"),
 		&BranchControlView{},
 		elem.Div(
@@ -33,6 +40,7 @@ func TestBranchRender(t *testing.T) {
 	)
 	equal(t, expected, b.render().(*vecty.Element))
 
+	b.model.Open = false
 	b.model.Children = append(b.model.Children, &models.BranchModel{
 		Contents: &models.RootContents{Name: "b"},
 	})
@@ -40,6 +48,7 @@ func TestBranchRender(t *testing.T) {
 	equal(t, expected, b.render().(*vecty.Element))
 
 	b.model.Open = true
+
 	expected = elem.Div(
 		prop.Class("node"),
 		&BranchControlView{},
@@ -49,6 +58,56 @@ func TestBranchRender(t *testing.T) {
 		),
 	)
 	equal(t, expected, b.render().(*vecty.Element))
+
+}
+
+func TestBranchNotify1(t *testing.T) {
+	cb := ctests.New().App()
+
+	app := stores.FromContext(cb.Ctx())
+
+	m := &models.BranchModel{
+		Contents: &models.RootContents{Name: "a"},
+	}
+	b := NewBranchView(cb.Ctx(), m)
+
+	app.Branches.Notify(b.model, stores.BranchOpen)
+	assert.Equal(t, 0, len(cb.Conn().Log))
+	assert.Equal(t, 1, len(cb.GetDispatcher().Log))
+	a, ok := cb.GetDispatcher().Log[0].(*actions.BranchOpenPostLoad)
+	assert.True(t, ok)
+	assert.Equal(t, m, a.Branch)
+	assert.Equal(t, false, a.Loaded)
+}
+func TestBranchNotify2(t *testing.T) {
+
+	cb := ctests.New().App()
+
+	// We have to unmarshal the
+	cb.Base.Path("").Jauto().Sauto(parser.Parse)
+
+	app := stores.FromContext(cb.Ctx())
+
+	m := &models.BranchModel{
+		Contents: &models.SourceContents{Name: "a", Filename: "b"},
+	}
+
+	b := NewBranchView(cb.Ctx(), m)
+
+	var bytes []byte
+	bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
+	assert.NoError(t, err)
+	cb.ConnReply(&shared.DataResponse{Data: bytes})
+
+	_, done := app.Branches.Notify(b.model, stores.BranchOpen)
+	<-done
+
+	assert.Equal(t, 1, len(cb.Conn().Log))
+	assert.Equal(t, 3, len(cb.GetDispatcher().Log))
+	assert.IsType(t, new(actions.LoadSourceSent), cb.GetDispatcher().Log[0])
+	assert.IsType(t, new(actions.LoadSourceSuccess), cb.GetDispatcher().Log[1])
+	assert.IsType(t, new(actions.BranchOpenPostLoad), cb.GetDispatcher().Log[2])
+
 }
 
 func equal(t *testing.T, expected, actual *vecty.Element) {

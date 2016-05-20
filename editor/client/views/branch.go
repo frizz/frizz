@@ -1,6 +1,8 @@
 package views
 
 import (
+	"sync"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
@@ -17,7 +19,7 @@ type BranchView struct {
 	app *stores.App
 
 	model    *models.BranchModel
-	notifs   chan flux.Notif
+	notifs   chan flux.NotifPayload
 	children vecty.List
 }
 
@@ -56,21 +58,23 @@ func (v *BranchView) Mount() {
 
 	go func() {
 		for notif := range v.notifs {
-			switch notif {
+			wait := &Waiter{}
+			switch notif.Type {
 			case stores.BranchOpen:
-				loaded := LoadBranch(v.ctx, v.app, v.model)
-				v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded})
+				loaded := LoadBranch(v.ctx, v.app, v.model, wait)
+				wait.Add(v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded}))
 			case stores.BranchSelect:
-				loaded := LoadBranch(v.ctx, v.app, v.model)
+				loaded := LoadBranch(v.ctx, v.app, v.model, wait)
 				if v.model.LastOp == models.BranchOpClickToggle && loaded {
-					v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
+					wait.Add(v.app.Dispatch(&actions.BranchOpen{Branch: v.model}))
 				}
-				v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded})
+				wait.Add(v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded}))
 			case stores.BranchOpenPostLoad,
 				stores.BranchClose,
 				stores.BranchLoaded:
 				v.ReconcileBody()
 			}
+			wait.Go(notif.Done)
 		}
 	}()
 }
@@ -103,4 +107,32 @@ func (v *BranchView) render() vecty.Component {
 			v.children,
 		),
 	)
+}
+
+type Waiter struct {
+	m  sync.RWMutex
+	wg *sync.WaitGroup
+}
+
+func (w *Waiter) Add(wait chan struct{}) {
+	if w.wg == nil {
+		w.wg = &sync.WaitGroup{}
+	}
+	w.m.Lock()
+	defer w.m.Unlock()
+	w.wg.Add(1)
+	go func() {
+		<-wait
+		w.wg.Done()
+	}()
+}
+
+func (w *Waiter) Go(done chan struct{}) {
+	if w.wg == nil {
+		w.wg = &sync.WaitGroup{}
+	}
+	go func() {
+		w.wg.Wait()
+		close(done)
+	}()
 }

@@ -18,7 +18,7 @@ type BranchControlView struct {
 	app *stores.App
 
 	model    *models.BranchModel
-	notifs   chan flux.Notif
+	notifs   chan flux.NotifPayload
 	children vecty.List
 }
 
@@ -58,11 +58,12 @@ func (v *BranchControlView) Mount() {
 		stores.BranchUnselect,
 	)
 	go func() {
-		for range v.notifs {
+		for notif := range v.notifs {
 			v.ReconcileBody()
 			if v.model != nil && v.app.Branches.Selected() == v.model {
 				v.focus()
 			}
+			close(notif.Done)
 		}
 	}()
 }

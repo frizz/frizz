@@ -2,6 +2,10 @@ package flux
 
 import "sync"
 
+type DispatcherInterface interface {
+	Dispatch(action ActionInterface) chan struct{}
+}
+
 type Dispatcher struct {
 	m      sync.Mutex
 	stores []StoreInterface
@@ -44,8 +48,8 @@ func (d *Dispatcher) Dispatch(action ActionInterface) chan struct{} {
 		}
 
 		for _, sr := range d.stores {
-			// The store will be used inside a goroutine, so we can't use sr, which is re-used by the
-			// range.
+			// The store will be used inside a goroutine, so we can't use sr, which is re-used by
+			// the range.
 			store := sr
 
 			payload := payloads[store]
@@ -54,8 +58,9 @@ func (d *Dispatcher) Dispatch(action ActionInterface) chan struct{} {
 				// Start the store handler.
 				finished := store.Handle(payload)
 
-				// If we finished syncronously, we close the tracker's Done channel. If we are still
-				// processing asyncronously, we leave it to be closed when the handler has finished.
+				// If we finished syncronously, we close the tracker's Done channel. If we are
+				// still processing asyncronously, we leave it to be closed when the handler has
+				// finished.
 				if finished {
 					close(payload.Done)
 				}

@@ -7,6 +7,11 @@ import (
 	"kego.io/kerr"
 )
 
+type Interface interface {
+	Go(serviceMethod string, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call
+	Close()
+}
+
 type Conn struct {
 	client *rpc.Client
 }
