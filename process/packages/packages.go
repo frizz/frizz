@@ -3,47 +3,20 @@ package packages // import "kego.io/process/packages"
 // ke: {"package": {"complete": true}}
 
 import (
-	"fmt"
-	"os/exec"
-	"path/filepath"
-	"strings"
-
-	"os"
-
+	"github.com/davelondon/gopackages"
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/vosctx"
 )
 
 func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) {
-
 	vos := vosctx.FromContext(ctx)
-
-	exe := exec.Command("go", "list", "-f", "{{.Dir}}", packagePath)
-	exe.Env = vos.Environ()
-	out, err := exe.CombinedOutput()
-	if err == nil {
-		return strings.TrimSpace(string(out)), nil
-	}
-
-	dir, err := GetDirFromEmptyPackage(ctx, packagePath)
-	if err != nil {
-		return "", kerr.Wrap("GXTUPMHETV", err)
-	}
-	return dir, nil
-
+	return gopackages.GetDirFromPackage(vos.Environ(), vos.Getenv("GOPATH"), packagePath)
 }
 
 func GetDirFromEmptyPackage(ctx context.Context, path string) (string, error) {
 	vos := vosctx.FromContext(ctx)
-	gopaths := filepath.SplitList(vos.Getenv("GOPATH"))
-	for _, gopath := range gopaths {
-		dir := filepath.Join(gopath, "src", path)
-		if s, err := os.Stat(dir); err == nil && s.IsDir() {
-			return dir, nil
-		}
-	}
-	return "", NotFoundError{Struct: kerr.New("SUTCWEVRXS", "%s not found", path)}
+	return gopackages.GetDirFromEmptyPackage(vos.Getenv("GOPATH"), path)
 }
 
 type NotFoundError struct {
@@ -52,42 +25,11 @@ type NotFoundError struct {
 
 func GetPackageFromDir(ctx context.Context, dir string) (string, error) {
 	vos := vosctx.FromContext(ctx)
-	gopaths := filepath.SplitList(vos.Getenv("GOPATH"))
-	var savedError error
-	for _, gopath := range gopaths {
-		if strings.HasPrefix(dir, gopath) {
-			gosrc := fmt.Sprintf("%s/src", gopath)
-			relpath, err := filepath.Rel(gosrc, dir)
-			if err != nil {
-				// ke: {"block": {"notest": true}}
-				// I don't *think* we can trigger this error if dir starts with gopath
-				savedError = err
-				continue
-			}
-			if relpath == "" {
-				// ke: {"block": {"notest": true}}
-				// I don't *think* we can trigger this either
-				continue
-			}
-			// Remember we're returning a package path which uses forward slashes even on windows
-			return filepath.ToSlash(relpath), nil
-		}
-	}
-	if savedError != nil {
-		// ke: {"block": {"notest": true}}
-		return "", savedError
-	}
-	return "", kerr.New("CXOETFPTGM", "Package not found for %s", dir)
+	return gopackages.GetPackageFromDir(vos.Getenv("GOPATH"), dir)
 }
 
 func GetCurrentGopath(ctx context.Context) string {
 	vos := vosctx.FromContext(ctx)
 	currentDir, _ := vos.Getwd()
-	gopaths := filepath.SplitList(vos.Getenv("GOPATH"))
-	for _, gopath := range gopaths {
-		if strings.HasPrefix(currentDir, gopath) {
-			return gopath
-		}
-	}
-	return gopaths[0]
+	return gopackages.GetCurrentGopath(vos.Getenv("GOPATH"), currentDir)
 }

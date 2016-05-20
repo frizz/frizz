@@ -69,5 +69,5 @@ func TestInitialise(t *testing.T) {
 		Path: "",
 	})
 	assert.IsError(t, err, "ADNJKTLAWY")
-	assert.HasError(t, err, "CXOETFPTGM")
+	assert.HasErrorExternal(t, err, "CXOETFPTGM")
 }
