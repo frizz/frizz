@@ -42,6 +42,7 @@ func TestBuilder(t *testing.T) {
 	g.buffer.Reset()
 
 	g.SetPackageComment("comment")
+	g.SetIntroComment("intro")
 	g.Print("var ")
 	g.Println("foo string")
 	g.Printf("var bar int\n%s", "var baz bool")
@@ -55,6 +56,8 @@ func TestBuilder(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, string(b), `// comment
 package c
+
+// intro
 
 import (
 	_ "e.f/g"
