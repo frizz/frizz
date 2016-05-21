@@ -23,7 +23,7 @@ func (cb *ClientContextBuilder) Ctx() context.Context {
 func (cb *ClientContextBuilder) App() *ClientContextBuilder {
 	app := &stores.App{
 		Conn: &connection.Mock{},
-		Fail: make(chan error),
+		Fail: make(chan error, 1),
 	}
 	ctx := stores.NewContext(cb.Ctx(), app)
 	cb.Base.SetCtx(ctx)

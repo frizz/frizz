@@ -31,6 +31,7 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 	return v
 }
 
+// ke: {"func": {"notest": true}}
 func (v *BranchView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*BranchView); ok {
 		v.Body = old.Body

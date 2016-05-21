@@ -72,10 +72,10 @@ func TestBranchNotify1(t *testing.T) {
 	b := NewBranchView(cb.Ctx(), m)
 
 	app.Branches.Notify(b.model, stores.BranchOpen)
+
 	assert.Equal(t, 0, len(cb.Conn().Log))
-	assert.Equal(t, 1, len(cb.GetDispatcher().Log))
-	a, ok := cb.GetDispatcher().Log[0].(*actions.BranchOpenPostLoad)
-	assert.True(t, ok)
+	shouldDispatch(t, cb, new(actions.BranchOpenPostLoad))
+	a := cb.GetDispatcher().Log[0].(*actions.BranchOpenPostLoad)
 	assert.Equal(t, m, a.Branch)
 	assert.Equal(t, false, a.Loaded)
 }
@@ -103,11 +103,57 @@ func TestBranchNotify2(t *testing.T) {
 	<-done
 
 	assert.Equal(t, 1, len(cb.Conn().Log))
-	assert.Equal(t, 3, len(cb.GetDispatcher().Log))
-	assert.IsType(t, new(actions.LoadSourceSent), cb.GetDispatcher().Log[0])
-	assert.IsType(t, new(actions.LoadSourceSuccess), cb.GetDispatcher().Log[1])
-	assert.IsType(t, new(actions.BranchOpenPostLoad), cb.GetDispatcher().Log[2])
+	shouldDispatch(t, cb,
+		new(actions.LoadSourceSent),
+		new(actions.LoadSourceSuccess),
+		new(actions.BranchOpenPostLoad),
+	)
 
+}
+
+func TestBranchNotify3(t *testing.T) {
+
+	cb := ctests.New().App()
+	cb.Base.Path("")
+
+	app := stores.FromContext(cb.Ctx())
+
+	m := &models.BranchModel{
+		Contents: &models.SourceContents{Name: "a", Filename: "b"},
+	}
+
+	b := NewBranchView(cb.Ctx(), m)
+
+	cb.ConnReply("a")
+
+	_, done := app.Branches.Notify(b.model, stores.BranchOpen)
+	<-done
+
+	err := readErrorOrNil(app.Fail)
+	assert.IsError(t, err, "OCVFGLPIQG")
+
+	shouldDispatch(t, cb,
+		new(actions.LoadSourceSent),
+		new(actions.LoadSourceCancelled),
+		new(actions.BranchOpenPostLoad),
+	)
+
+}
+
+func shouldDispatch(t *testing.T, cb *ctests.ClientContextBuilder, expected ...interface{}) {
+	assert.Equal(t, len(expected), len(cb.GetDispatcher().Log))
+	for i, action := range expected {
+		assert.IsType(t, action, cb.GetDispatcher().Log[i])
+	}
+}
+
+func readErrorOrNil(c chan error) error {
+	select {
+	case err := <-c:
+		return err
+	default:
+		return nil
+	}
 }
 
 func equal(t *testing.T, expected, actual *vecty.Element) {

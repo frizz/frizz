@@ -21,7 +21,6 @@ func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 	}
 	did := false
 	c.Once.Do(func() {
-		did = true
 		request := &shared.DataRequest{
 			File:    c.Filename,
 			Name:    c.Name,
@@ -37,16 +36,20 @@ func LoadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 		gr, ok := call.Reply.(*shared.DataResponse)
 		if !ok {
 			app.Fail <- kerr.New("OCVFGLPIQG", "%T is not a *shared.DataResponse", call.Reply)
+			return
 		}
 
 		n, err := node.Unmarshal(ctx, gr.Data)
 		if err != nil {
 			app.Fail <- kerr.Wrap("IOOQWKIEGC", err)
+			return
 		}
 
 		c.Node = n
 
 		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSuccess{Branch: b}))
+
+		did = true
 	})
 
 	if !did {
