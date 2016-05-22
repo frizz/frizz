@@ -20,7 +20,7 @@ func (cb *ClientContextBuilder) Ctx() context.Context {
 	return cb.Base.Ctx()
 }
 
-func (cb *ClientContextBuilder) App() *ClientContextBuilder {
+func (cb *ClientContextBuilder) SetApp() *ClientContextBuilder {
 	app := &stores.App{
 		Conn: &connection.Mock{},
 		Fail: make(chan error, 1),
@@ -33,17 +33,21 @@ func (cb *ClientContextBuilder) App() *ClientContextBuilder {
 	return cb
 }
 
+func (cb *ClientContextBuilder) GetApp() *stores.App {
+	return stores.FromContext(cb.Ctx())
+}
+
 func (cb *ClientContextBuilder) GetDispatcher() *flux.DispatcherMock {
 	app := stores.FromContext(cb.Ctx())
 	return app.Dispatcher.(*flux.DispatcherMock)
 }
 
-func (cb *ClientContextBuilder) ConnReply(reply interface{}) *ClientContextBuilder {
-	cb.Conn().Reply = reply
+func (cb *ClientContextBuilder) SetConnReply(reply interface{}) *ClientContextBuilder {
+	cb.GetConn().Reply = reply
 	return cb
 }
 
-func (cb *ClientContextBuilder) Conn() *connection.Mock {
+func (cb *ClientContextBuilder) GetConn() *connection.Mock {
 	app := stores.FromContext(cb.Ctx())
 	return app.Conn.(*connection.Mock)
 }

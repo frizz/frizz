@@ -5,29 +5,34 @@ import (
 
 	"reflect"
 
+	"fmt"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/mock_vecty"
 	"github.com/davelondon/vecty/prop"
+	"github.com/golang/mock/gomock"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/ctests"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/shared"
+	"kego.io/flux"
 	"kego.io/ke"
 	"kego.io/process/parser"
 	"kego.io/system"
 )
 
 func TestBranchRender1(t *testing.T) {
-	cb := ctests.New().App()
+	cb := ctests.New().SetApp()
 	b := NewBranchView(cb.Ctx(), nil)
 	expected := elem.Div()
 	equal(t, expected, b.render().(*vecty.Element))
 }
 
 func TestBranchRender2(t *testing.T) {
-	cb := ctests.New().App()
+	cb := ctests.New().SetApp()
 	b := NewBranchView(cb.Ctx(), &models.BranchModel{
 		Contents: &models.RootContents{Name: "a"},
 	})
@@ -61,48 +66,33 @@ func TestBranchRender2(t *testing.T) {
 
 }
 
-func TestBranchNotify1(t *testing.T) {
-	cb := ctests.New().App()
-
-	app := stores.FromContext(cb.Ctx())
-
-	m := &models.BranchModel{
+func TestBranchNotifyOpen(t *testing.T) {
+	cb := ctests.New().SetApp()
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
 		Contents: &models.RootContents{Name: "a"},
-	}
-	b := NewBranchView(cb.Ctx(), m)
-
-	app.Branches.Notify(b.model, stores.BranchOpen)
-
-	assert.Equal(t, 0, len(cb.Conn().Log))
+	})
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpen)
+	<-done
+	assert.Equal(t, 0, len(cb.GetConn().Log))
 	shouldDispatch(t, cb, new(actions.BranchOpenPostLoad))
 	a := cb.GetDispatcher().Log[0].(*actions.BranchOpenPostLoad)
-	assert.Equal(t, m, a.Branch)
+	assert.Equal(t, b.model, a.Branch)
 	assert.Equal(t, false, a.Loaded)
 }
-func TestBranchNotify2(t *testing.T) {
 
-	cb := ctests.New().App()
+func TestBranchNotifyOpenSource(t *testing.T) {
+	cb := ctests.New().SetApp()
 
-	// We have to unmarshal the
-	cb.Base.Path("").Jauto().Sauto(parser.Parse)
+	setupForSuccessfulSourceLoad(t, cb)
 
-	app := stores.FromContext(cb.Ctx())
-
-	m := &models.BranchModel{
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
 		Contents: &models.SourceContents{Name: "a", Filename: "b"},
-	}
+	})
 
-	b := NewBranchView(cb.Ctx(), m)
-
-	var bytes []byte
-	bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
-	assert.NoError(t, err)
-	cb.ConnReply(&shared.DataResponse{Data: bytes})
-
-	_, done := app.Branches.Notify(b.model, stores.BranchOpen)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpen)
 	<-done
 
-	assert.Equal(t, 1, len(cb.Conn().Log))
+	assert.Equal(t, 1, len(cb.GetConn().Log))
 	shouldDispatch(t, cb,
 		new(actions.LoadSourceSent),
 		new(actions.LoadSourceSuccess),
@@ -111,26 +101,34 @@ func TestBranchNotify2(t *testing.T) {
 
 }
 
-func TestBranchNotify3(t *testing.T) {
+func setupForSuccessfulSourceLoad(t *testing.T, cb *ctests.ClientContextBuilder) {
 
-	cb := ctests.New().App()
+	// We have to unmarshal the received object, so we'll have to load some types.
+	cb.Base.Path("").Jauto().Sauto(parser.Parse)
+
+	// Create a simple ke object and marshal it to a []byte
+	var bytes []byte
+	bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
+	assert.NoError(t, err)
+	cb.SetConnReply(&shared.DataResponse{Data: bytes})
+
+}
+
+func TestBranchNotifyOpenSourceError(t *testing.T) {
+
+	cb := ctests.New().SetApp()
 	cb.Base.Path("")
 
-	app := stores.FromContext(cb.Ctx())
-
-	m := &models.BranchModel{
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
 		Contents: &models.SourceContents{Name: "a", Filename: "b"},
-	}
+	})
 
-	b := NewBranchView(cb.Ctx(), m)
+	cb.SetConnReply("a")
 
-	cb.ConnReply("a")
-
-	_, done := app.Branches.Notify(b.model, stores.BranchOpen)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpen)
 	<-done
 
-	err := readErrorOrNil(app.Fail)
-	assert.IsError(t, err, "OCVFGLPIQG")
+	assert.IsError(t, readErrorOrNil(cb.GetApp().Fail), "OCVFGLPIQG")
 
 	shouldDispatch(t, cb,
 		new(actions.LoadSourceSent),
@@ -140,10 +138,120 @@ func TestBranchNotify3(t *testing.T) {
 
 }
 
+func TestBranchNotifySelect(t *testing.T) {
+	cb := ctests.New().SetApp()
+
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
+		Contents: &models.RootContents{Name: "a"},
+	})
+
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelect)
+	<-done
+
+	assert.NoError(t, readErrorOrNil(cb.GetApp().Fail))
+
+	shouldDispatch(t, cb,
+		new(actions.BranchSelectPostLoad),
+	)
+}
+
+func TestBranchNotifySelectSource(t *testing.T) {
+	cb := ctests.New().SetApp()
+
+	setupForSuccessfulSourceLoad(t, cb)
+
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
+		Contents: &models.SourceContents{Name: "a", Filename: "b"},
+	})
+
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelect)
+	<-done
+
+	assert.NoError(t, readErrorOrNil(cb.GetApp().Fail))
+
+	shouldDispatch(t, cb,
+		new(actions.LoadSourceSent),
+		new(actions.LoadSourceSuccess),
+		new(actions.BranchSelectPostLoad),
+	)
+
+}
+
+func TestBranchNotifySelectSourceClick(t *testing.T) {
+	cb := ctests.New().SetApp()
+
+	setupForSuccessfulSourceLoad(t, cb)
+
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
+		LastOp:   models.BranchOpClickToggle,
+		Contents: &models.SourceContents{Name: "a", Filename: "b"},
+	})
+
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelect)
+	<-done
+
+	assert.NoError(t, readErrorOrNil(cb.GetApp().Fail))
+
+	shouldDispatch(t, cb,
+		new(actions.LoadSourceSent),
+		new(actions.LoadSourceSuccess),
+		new(actions.BranchOpen),
+		new(actions.BranchSelectPostLoad),
+	)
+
+}
+
+func TestBranchReconcile(t *testing.T) {
+	testBranchReconcile(t, stores.BranchClose)
+	testBranchReconcile(t, stores.BranchOpenPostLoad)
+	testBranchReconcile(t, stores.BranchLoaded)
+}
+func testBranchReconcile(t *testing.T, notif flux.Notif) {
+	cb := ctests.New().SetApp()
+	mc := gomock.NewController(t)
+	defer mc.Finish()
+
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
+		Contents: &models.RootContents{Name: "a"},
+	})
+
+	c := mock_vecty.NewMockComponent(mc)
+	c.EXPECT().Reconcile(nil)
+
+	b.RenderFunc = func() vecty.Component { return c }
+
+	done := cb.GetApp().Branches.Notify(b.model, notif)
+	<-done
+
+	assert.NoError(t, readErrorOrNil(cb.GetApp().Fail))
+	shouldDispatch(t, cb)
+
+}
+
+func TestBranchView_Unmount(t *testing.T) {
+	cb := ctests.New().SetApp()
+	mc := gomock.NewController(t)
+	defer mc.Finish()
+
+	b := NewBranchView(cb.Ctx(), &models.BranchModel{
+		Contents: &models.RootContents{Name: "a"},
+	})
+	c := mock_vecty.NewMockComponent(mc)
+	c.EXPECT().Unmount()
+	b.Body = c
+	b.Unmount()
+	assert.Nil(t, b.notifs)
+}
+
 func shouldDispatch(t *testing.T, cb *ctests.ClientContextBuilder, expected ...interface{}) {
-	assert.Equal(t, len(expected), len(cb.GetDispatcher().Log))
-	for i, action := range expected {
-		assert.IsType(t, action, cb.GetDispatcher().Log[i])
+	if assert.Equal(t, len(expected), len(cb.GetDispatcher().Log)) {
+		for i, action := range expected {
+			assert.IsType(t, action, cb.GetDispatcher().Log[i])
+		}
+	} else {
+		for _, v := range cb.GetDispatcher().Log {
+			fmt.Printf("%T\n", v)
+		}
 	}
 }
 

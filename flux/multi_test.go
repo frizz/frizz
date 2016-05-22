@@ -1,6 +1,10 @@
 package flux
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/davelondon/ktest/assert"
+)
 
 func TestWatchMulti(t *testing.T) {
 	done := make(chan struct{})
@@ -12,24 +16,24 @@ func TestWatchMulti(t *testing.T) {
 
 		// We send a signal to a and wait for the response on the
 		a <- struct{}{}
-		waitFor(t, c, true, "A")
+		assert.WaitFor(t, c, true, "A")
 
 		// We send a signal to a and b and ensure two signals are returned
 		a <- struct{}{}
 		b <- struct{}{}
-		waitFor(t, c, true, "B")
-		waitFor(t, c, true, "C")
+		assert.WaitFor(t, c, true, "B")
+		assert.WaitFor(t, c, true, "C")
 
 		// We close a and send on b to ensure it still works
 		close(a)
 		b <- struct{}{}
-		waitFor(t, c, true, "D")
+		assert.WaitFor(t, c, true, "D")
 
 		// We close the second input channel, and check that the signal channel is also closed
 		close(b)
-		waitFor(t, c, false, "E")
+		assert.WaitFor(t, c, false, "E")
 
 		close(done)
 	}()
-	waitFor(t, done, false, "G")
+	assert.WaitFor(t, done, false, "G")
 }

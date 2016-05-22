@@ -41,7 +41,7 @@ func TestStore_Notify(t *testing.T) {
 	done := make(chan struct{}, 1)
 
 	// subscribers should be nil, so will return 0
-	count, finished := s.Notify("a", bNotif)
+	count, finished := s.notifyCount("a", bNotif)
 	<-finished
 	assert.Equal(t, 0, count)
 
@@ -53,20 +53,20 @@ func TestStore_Notify(t *testing.T) {
 	}()
 
 	// notif doesn't exist so will return 0
-	count, finished = s.Notify("a", cNotif)
+	count, finished = s.notifyCount("a", cNotif)
 	<-finished
 	assert.Equal(t, 0, count)
 
 	// object doesn't exist so will return 0
-	count, finished = s.Notify("b", bNotif)
+	count, finished = s.notifyCount("b", bNotif)
 	<-finished
 	assert.Equal(t, 0, count)
 
 	// should notify
-	count, finished = s.Notify("a", bNotif)
+	count, finished = s.notifyCount("a", bNotif)
 	<-finished
 	assert.Equal(t, 1, count)
-	waitFor(t, done, false, "Timed out waiting for notify1")
+	assert.WaitFor(t, done, false, "Timed out waiting for notify1")
 
 	done = make(chan struct{}, 1)
 	go func() {
@@ -74,10 +74,10 @@ func TestStore_Notify(t *testing.T) {
 		close(notif.Done)
 		close(done)
 	}()
-	count, finished = s.Notify(nil, bNotif)
+	count, finished = s.notifyCount(nil, bNotif)
 	<-finished
 	assert.Equal(t, 1, count)
-	waitFor(t, done, false, "Timed out waiting for notify2")
+	assert.WaitFor(t, done, false, "Timed out waiting for notify2")
 
 	d := s.Watch(nil, eNotif)
 	done = make(chan struct{}, 1)
@@ -86,10 +86,10 @@ func TestStore_Notify(t *testing.T) {
 		close(notif.Done)
 		close(done)
 	}()
-	count, finished = s.Notify("f", eNotif)
+	count, finished = s.notifyCount("f", eNotif)
 	<-finished
 	assert.Equal(t, 1, count)
-	waitFor(t, done, false, "Timed out waiting for notify3")
+	assert.WaitFor(t, done, false, "Timed out waiting for notify3")
 
 	g := s.Watch("h", iNotif, jNotif)
 	done = make(chan struct{}, 1)
@@ -100,13 +100,13 @@ func TestStore_Notify(t *testing.T) {
 		close(notif2.Done)
 		close(done)
 	}()
-	count, finished = s.Notify("h", jNotif)
+	count, finished = s.notifyCount("h", jNotif)
 	<-finished
 	assert.Equal(t, 1, count)
-	count, finished = s.Notify("h", iNotif)
+	count, finished = s.notifyCount("h", iNotif)
 	<-finished
 	assert.Equal(t, 1, count)
-	waitFor(t, done, false, "Timed out waiting for notify4")
+	assert.WaitFor(t, done, false, "Timed out waiting for notify4")
 }
 
 func TestStore_Watch(t *testing.T) {

@@ -1,6 +1,10 @@
 package flux
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/davelondon/ktest/assert"
+)
 
 func TestWaiter_Add(t *testing.T) {
 	c := make(chan struct{}, 1)
@@ -9,10 +13,10 @@ func TestWaiter_Add(t *testing.T) {
 	w.Add(c)
 	close(c)
 	w.Go(done)
-	waitFor(t, done, false, "")
+	assert.WaitFor(t, done, false, "")
 
 	w = &Waiter{}
 	done = make(chan struct{}, 1)
 	w.Go(done)
-	waitFor(t, done, false, "")
+	assert.WaitFor(t, done, false, "")
 }

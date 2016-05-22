@@ -12,9 +12,9 @@ type StoreInterface interface {
 	Watch(object interface{}, notif ...Notif) chan NotifPayload
 
 	// Notify sends the notif notification to all subscribers of that notification for object. If
-	// object is nil, the notification is sent to all subscribers. The number of notifications sent
-	// is returned.
-	Notify(object interface{}, notif Notif) (count int, done chan struct{})
+	// object is nil, the notification is sent to all subscribers. The chanel returned is closed
+	// when the notify action has finished.
+	Notify(object interface{}, notif Notif) (done chan struct{})
 
 	Delete(c chan NotifPayload)
 }
@@ -98,7 +98,12 @@ func (s *Store) Watch(object interface{}, notifs ...Notif) chan NotifPayload {
 
 // Notify sends the notif notification to all subscribers of that notification for object. If
 // object is nil, the notification is sent to all subscribers.
-func (s *Store) Notify(object interface{}, notif Notif) (count int, done chan struct{}) {
+func (s *Store) Notify(object interface{}, notif Notif) (done chan struct{}) {
+	_, done = s.notifyCount(object, notif)
+	return done
+}
+
+func (s *Store) notifyCount(object interface{}, notif Notif) (count int, done chan struct{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
@@ -145,7 +150,7 @@ func (n notifHelper) notify(object interface{}, notif Notif) (count int, done ch
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(len(matching))
-	for c, _ := range matching {
+	for c := range matching {
 		notifDone := make(chan struct{}, 1)
 		go func() {
 			<-notifDone

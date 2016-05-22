@@ -57,25 +57,30 @@ func (v *BranchView) Mount() {
 
 	go func() {
 		for notif := range v.notifs {
-			wait := &flux.Waiter{}
-			switch notif.Type {
-			case stores.BranchOpen:
-				loaded := LoadBranch(v.ctx, v.app, v.model, wait)
-				wait.Add(v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded}))
-			case stores.BranchSelect:
-				loaded := LoadBranch(v.ctx, v.app, v.model, wait)
-				if v.model.LastOp == models.BranchOpClickToggle && loaded {
-					wait.Add(v.app.Dispatch(&actions.BranchOpen{Branch: v.model}))
-				}
-				wait.Add(v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded}))
-			case stores.BranchOpenPostLoad,
-				stores.BranchClose,
-				stores.BranchLoaded:
-				v.ReconcileBody()
-			}
-			wait.Go(notif.Done)
+			v.reaction(notif)
 		}
 	}()
+}
+
+func (v *BranchView) reaction(notif flux.NotifPayload) {
+	wait := &flux.Waiter{}
+	defer wait.Go(notif.Done)
+
+	switch notif.Type {
+	case stores.BranchOpen:
+		loaded := LoadBranch(v.ctx, v.app, v.model, wait)
+		wait.Add(v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded}))
+	case stores.BranchSelect:
+		loaded := LoadBranch(v.ctx, v.app, v.model, wait)
+		if v.model.LastOp == models.BranchOpClickToggle && loaded {
+			wait.Add(v.app.Dispatch(&actions.BranchOpen{Branch: v.model}))
+		}
+		wait.Add(v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded}))
+	case stores.BranchOpenPostLoad,
+		stores.BranchClose,
+		stores.BranchLoaded:
+		v.ReconcileBody()
+	}
 }
 
 func (v *BranchView) Unmount() {

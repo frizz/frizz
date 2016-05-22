@@ -12,5 +12,5 @@ func TestDispatcherMock_Dispatch(t *testing.T) {
 	c := d.Dispatch("a")
 	require.Equal(t, 1, len(d.Log))
 	assert.Equal(t, "a", d.Log[0])
-	waitFor(t, c, false, "")
+	assert.WaitFor(t, c, false)
 }
