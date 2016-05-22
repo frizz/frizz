@@ -23,9 +23,6 @@ type BranchControlView struct {
 }
 
 func NewBranchControlView(ctx context.Context, model *models.BranchModel) *BranchControlView {
-	if model == nil {
-		return nil
-	}
 	app := stores.FromContext(ctx)
 	v := &BranchControlView{
 		ctx:   ctx,
