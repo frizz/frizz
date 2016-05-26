@@ -181,7 +181,7 @@ func NewObjectSummary(ctx context.Context, node *Node, origin *system.Reference)
 	s := &objectSummary{summary: &summary{TableStruct: mdl.Table(), ctx: ctx}}
 	s.Head("name", "origin", "holds", "value", "options")
 	for _, v := range node.Map {
-		if *v.GetNode().Origin != *origin {
+		if *v.Origin != *origin {
 			continue
 		}
 		child := v.(*Node)

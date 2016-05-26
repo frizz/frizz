@@ -11,10 +11,9 @@ import (
 )
 
 type Node struct {
-	Self   NodeInterface
-	Parent NodeInterface
-	Array  []NodeInterface
-	Map    map[string]NodeInterface
+	Parent *Node
+	Array  []*Node
+	Map    map[string]*Node
 
 	Key         string            // in an object or a map, this is the key
 	Index       int               // in an array, this is the index
@@ -40,24 +39,8 @@ func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
 
 func NewNode() *Node {
 	n := &Node{}
-	n.Self = n
 	return n
 }
-
-type NodeInterface interface {
-	NewChild() NodeInterface
-	GetNode() *Node
-}
-
-func (n *Node) NewChild() NodeInterface {
-	return NewNode()
-}
-
-func (n *Node) GetNode() *Node {
-	return n
-}
-
-var _ NodeInterface = (*Node)(nil)
 
 // Unpack unpacks a node from an unpackable
 func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
@@ -92,7 +75,7 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 	//case "array":
 	// nothing to do here
 	//case "map":
-	//	n.Map = map[string]NodeInterface{}
+	//	n.Map = map[string]*Node{}
 	case "object":
 		if err := n.InitialiseFields(ctx, nil); err != nil {
 			return kerr.Wrap("YIHFDLTIMW", err)
@@ -106,7 +89,7 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 			if !ok {
 				return kerr.New("DQKGYKFQKJ", "type field not found")
 			}
-			if err := typeField.GetNode().SetValueString(ctx, typeString); err != nil {
+			if err := typeField.SetValueString(ctx, typeString); err != nil {
 				return kerr.Wrap("CURDKCQLGS", err)
 			}
 		}
@@ -147,7 +130,7 @@ func (n *Node) SetValueBool(ctx context.Context, value bool) error {
 	return nil
 }
 
-func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper) error {
+func (n *Node) extract(ctx context.Context, parent *Node, key string, index int, origin *system.Reference, siblings int, in json.Packed, exists bool, rule *system.RuleWrapper) error {
 
 	objectType, err := extractType(ctx, in, rule)
 	if err != nil {
@@ -218,8 +201,8 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 		}
 		children := in.Array()
 		for i, child := range children {
-			childNode := n.Self.NewChild()
-			if err := childNode.GetNode().extract(ctx, n.Self, "", i, &system.Reference{}, len(children), child, true, childRule); err != nil {
+			childNode := &Node{}
+			if err := childNode.extract(ctx, n, "", i, &system.Reference{}, len(children), child, true, childRule); err != nil {
 				return kerr.Wrap("VWWYPDIJKP", err)
 			}
 			n.Array = append(n.Array, childNode)
@@ -233,11 +216,11 @@ func (n *Node) extract(ctx context.Context, parent NodeInterface, key string, in
 		if err != nil {
 			return kerr.Wrap("SBFTRGJNAO", err)
 		}
-		n.Map = map[string]NodeInterface{}
+		n.Map = map[string]*Node{}
 		children := in.Map()
 		for name, child := range children {
-			childNode := n.Self.NewChild()
-			if err := childNode.GetNode().extract(ctx, n.Self, name, -1, &system.Reference{}, 0, child, true, childRule); err != nil {
+			childNode := &Node{}
+			if err := childNode.extract(ctx, n, name, -1, &system.Reference{}, 0, child, true, childRule); err != nil {
 				return kerr.Wrap("HTOPDOKPRE", err)
 			}
 			n.Map[name] = childNode
@@ -277,7 +260,7 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 		}
 		m = in.Map()
 	}
-	n.Map = map[string]NodeInterface{}
+	n.Map = map[string]*Node{}
 
 	fields := map[string]*system.Field{}
 	if err := extractFields(ctx, fields, n.Type); err != nil {
@@ -290,8 +273,8 @@ func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
 			return kerr.Wrap("YWFSOLOBXH", err)
 		}
 		child, ok := m[name]
-		childNode := n.Self.NewChild()
-		if err := childNode.GetNode().extract(ctx, n.Self, name, -1, f.Origin, 0, child, ok, rule); err != nil {
+		childNode := &Node{}
+		if err := childNode.extract(ctx, n, name, -1, f.Origin, 0, child, ok, rule); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		n.Map[name] = childNode

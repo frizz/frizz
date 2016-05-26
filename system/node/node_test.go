@@ -295,11 +295,11 @@ func TestNodeExtract(t *testing.T) {
 	n := NewNode()
 	err := n.extract(cb.Ctx(), nil, "", -1, &system.Reference{}, 0, json.Pack(s), true, nil)
 	assert.NoError(t, err)
-	f, ok := n.Map["fields"].(*Node)
+	f, ok := n.Map["fields"]
 	assert.True(t, ok)
-	d, ok := f.Map["default"].(*Node)
+	d, ok := f.Map["default"]
 	assert.True(t, ok)
-	o, ok := d.Map["optional"].(*Node)
+	o, ok := d.Map["optional"]
 	assert.True(t, ok)
 	assert.True(t, o.ValueBool)
 
@@ -379,11 +379,11 @@ func TestUnmarshal(t *testing.T) {
 	}`
 	n, err := Unmarshal(cb.Ctx(), []byte(s))
 	assert.NoError(t, err)
-	f, ok := n.Map["fields"].(*Node)
+	f, ok := n.Map["fields"]
 	assert.True(t, ok)
-	d, ok := f.Map["default"].(*Node)
+	d, ok := f.Map["default"]
 	assert.True(t, ok)
-	o, ok := d.Map["optional"].(*Node)
+	o, ok := d.Map["optional"]
 	assert.True(t, ok)
 	assert.True(t, o.ValueBool)
 }

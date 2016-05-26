@@ -149,11 +149,11 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.root.Append(s.pkg, s.types, s.data)
 		s.Notify(nil, BranchInitialStateLoaded)
 	case *actions.LoadSourceSuccess:
-		n, ok := action.Branch.Contents.(models.NodeContentsInterface)
+		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
 			return true
 		}
-		models.AppendNodeChildren(action.Branch, n.GetNode())
+		models.AppendNodeChildren(action.Branch, ni.GetNode())
 		s.Notify(action.Branch, BranchLoaded)
 	}
 

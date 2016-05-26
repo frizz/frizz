@@ -34,7 +34,7 @@ func TestNewPayload(t *testing.T) {
 	go func() {
 		wg1.Done()
 		<-p.finished()
-		waitForGroup(t, wg2, "A")
+		assert.WaitForGroup(t, wg2, "A")
 		a = true
 		wg4.Done()
 	}()
@@ -42,19 +42,19 @@ func TestNewPayload(t *testing.T) {
 	go func() {
 		wg1.Done()
 		<-p.finished()
-		waitForGroup(t, wg3, "B")
+		assert.WaitForGroup(t, wg3, "B")
 		b = true
 		wg4.Done()
 	}()
 
-	waitForGroup(t, wg1, "C")
+	assert.WaitForGroup(t, wg1, "C")
 
 	close(p.Done)
 
 	wg2.Done()
 	wg3.Done()
 
-	waitForGroup(t, wg4, "D")
+	assert.WaitForGroup(t, wg4, "D")
 
 	assert.True(t, p.complete)
 
@@ -70,7 +70,7 @@ func TestNewPayload(t *testing.T) {
 		c = true
 	}()
 
-	waitForGroup(t, wg5, "E")
+	assert.WaitForGroup(t, wg5, "E")
 	assert.True(t, c)
 
 }

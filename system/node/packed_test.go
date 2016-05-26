@@ -36,7 +36,7 @@ func TestPackedBool(t *testing.T) {
 func TestPackedArray(t *testing.T) {
 	n1 := &Node{ValueString: "n1"}
 	n2 := &Node{ValueString: "n2"}
-	p := &packed{n: &Node{Array: []NodeInterface{n1, n2}}}
+	p := &packed{n: &Node{Array: []*Node{n1, n2}}}
 	a := p.Array()
 	assert.Equal(t, 2, len(a))
 	assert.Equal(t, "n1", a[0].String())
@@ -47,7 +47,7 @@ func TestPackedMap(t *testing.T) {
 	n1 := &Node{ValueString: "n1"}
 	n2 := &Node{ValueString: "n2", Missing: true}
 	n3 := &Node{ValueString: "n3"}
-	p := &packed{n: &Node{Map: map[string]NodeInterface{"n1": n1, "n2": n2, "n3": n3}}}
+	p := &packed{n: &Node{Map: map[string]*Node{"n1": n1, "n2": n2, "n3": n3}}}
 	m := p.Map()
 	assert.Equal(t, 2, len(m))
 	assert.Equal(t, "n1", m["n1"].String())

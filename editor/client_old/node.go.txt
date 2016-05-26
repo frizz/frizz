@@ -17,7 +17,6 @@ type Node struct {
 
 func NewEditorNode() *Node {
 	n := &Node{Node: &node.Node{}}
-	n.Self = n
 	n.changes = broadcast.New(0)
 	return n
 }
@@ -30,11 +29,13 @@ func UnmarshalNode(ctx context.Context, data []byte) (*Node, error) {
 	return n, nil
 }
 
+/*
 func (n *Node) NewChild() node.NodeInterface {
 	return NewEditorNode()
 }
 
 var _ node.NodeInterface = (*Node)(nil)
+*/
 
 func (n *Node) Editor() EditorInterface {
 

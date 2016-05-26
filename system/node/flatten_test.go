@@ -69,7 +69,7 @@ func getArrayNode(a ...*Node) *Node {
 func getMapNode(names string, a ...*Node) *Node {
 	n := NewNode()
 	n.JsonType = json.J_MAP
-	n.Map = map[string]NodeInterface{}
+	n.Map = map[string]*Node{}
 	for i, c := range a {
 		n.Map[string(names[i])] = c
 	}

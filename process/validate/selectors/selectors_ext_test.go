@@ -224,7 +224,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 
 		for i, child := range actual.Array {
-			match, err := comparison(child.GetNode(), expectedArray[i])
+			match, err := comparison(child, expectedArray[i])
 			if err != nil {
 				return false, kerr.Wrap("CTHINNYIRI", err)
 			}
@@ -243,7 +243,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			if !ok {
 				return false, nil
 			}
-			match, err := comparison(child.GetNode(), expectedMap[key])
+			match, err := comparison(child, expectedMap[key])
 			if err != nil {
 				return false, kerr.Wrap("QTVTEIETXV", err)
 			}
@@ -278,14 +278,14 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			if !ok {
 				return false, nil
 			}
-			match, err := comparison(child.GetNode(), expectedMap[key])
+			match, err := comparison(child, expectedMap[key])
 			if err != nil {
 				return false, kerr.Wrap("NNCBWVRAJC", err)
 			}
 			return match, nil
 		}
 		for key, field := range actual.Map {
-			if field.GetNode().Missing {
+			if field.Missing {
 				continue
 			}
 			matched, err := compareChild(key)

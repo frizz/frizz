@@ -66,10 +66,10 @@ func NewNodeBranch(n *node.Node, name string) *BranchModel {
 
 func AppendNodeChildren(b *BranchModel, n *node.Node) {
 	for _, c := range n.Array {
-		b.Append(NewNodeBranch(c.GetNode(), ""))
+		b.Append(NewNodeBranch(c, ""))
 	}
 	for _, c := range n.Map {
-		b.Append(NewNodeBranch(c.GetNode(), ""))
+		b.Append(NewNodeBranch(c, ""))
 	}
 }
 

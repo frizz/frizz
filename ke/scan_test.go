@@ -16,6 +16,7 @@ import (
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/kerr/ksrc"
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/packages"
@@ -123,7 +124,8 @@ func walkFile(path string, t *testing.T) error {
 		t:          t,
 		kerrName:   kerrName,
 		assertName: assertName,
-		file:       path,
+		filePath:   path,
+		fset:       fset,
 		pkg:        pkg,
 	}
 	ast.Walk(v, file)
@@ -136,7 +138,8 @@ type visitor struct {
 	t          *testing.T
 	kerrName   string
 	assertName string
-	file       string
+	filePath   string
+	fset       *token.FileSet
 	pkg        string
 }
 
@@ -186,7 +189,10 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				return v
 			}
 			if pkg == v.kerrName && (name == "New" || name == "Wrap") {
-				def := getErrData(v.t, ty.Args, 0, v.file)
+				def := getErrData(v.t, ty.Args, 0, v.filePath, v.fset.Position(f.Pos()))
+				if def == nil {
+					return v
+				}
 				if def.thrown {
 					assert.Fail(v.t, fmt.Sprint("Duplicate kerr id: ", def.id))
 				}
@@ -194,10 +200,16 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				def.new = name == "New"
 				def.thrown = true
 			} else if pkg == v.assertName && (name == "IsError" || name == "HasError") {
-				def := getErrData(v.t, ty.Args, 2, v.file)
+				def := getErrData(v.t, ty.Args, 2, v.filePath, v.fset.Position(f.Pos()))
+				if def == nil {
+					return v
+				}
 				def.tested = true
 			} else if pkg == v.assertName && (name == "SkipError") {
-				def := getErrData(v.t, ty.Args, 0, v.file)
+				def := getErrData(v.t, ty.Args, 0, v.filePath, v.fset.Position(f.Pos()))
+				if def == nil {
+					return v
+				}
 				def.skipped = true
 			}
 
@@ -206,14 +218,16 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 	return v
 }
 
-func getErrData(t *testing.T, args []ast.Expr, arg int, file string) *errDef {
-	assert.True(t, len(args) > arg, "Not enough args (%s)", file)
+func getErrData(t *testing.T, args []ast.Expr, arg int, file string, pos token.Position) *errDef {
+	require.True(t, len(args) > arg, "Not enough args (%s:%d)", file, pos.Line)
 	b, ok := args[arg].(*ast.BasicLit)
-	assert.True(t, ok, "Arg should be *ast.BasicLit (%s)", file)
-	assert.Equal(t, b.Kind, token.STRING, "kind should be token.STRING (%s)", file)
+	if !ok {
+		return nil
+	}
+	require.Equal(t, b.Kind, token.STRING, "kind should be token.STRING (%s:%d)", file, pos.Line)
 	id, err := strconv.Unquote(b.Value)
-	assert.NoError(t, err, "Error unquoting arg (%s)", file)
-	assert.True(t, ksrc.IsId(id), "Invalid kerr ID %s (%s)", id, file)
+	assert.NoError(t, err, "Error unquoting arg (%s:%d)", file, pos.Line)
+	assert.True(t, ksrc.IsId(id), "Invalid kerr ID %s (%s:%d)", id, file, pos.Line)
 	def, ok := all[id]
 	if ok {
 		return def

@@ -119,7 +119,7 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 				return kerr.Wrap("UKOCCFJWAB", err)
 			}
 			for _, match := range matches {
-				ok, message, err := e.Enforce(ctx, match.GetNode().Value)
+				ok, message, err := e.Enforce(ctx, match.Value)
 				if err != nil {
 					return kerr.Wrap("MGHHDYTXVV", err)
 				}
@@ -177,11 +177,11 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 		allRules := append(rules, ob.GetObject(nil).Rules...)
 
 		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(child.GetNode().Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
-			allRules = append(allRules, child.GetNode().Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
+		if len(child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
+			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 		}
 
-		if err := validateObject(ctx, child.GetNode(), allRules); err != nil {
+		if err := validateObject(ctx, child, allRules); err != nil {
 			return kerr.Wrap("YJYSAOQWSJ", err)
 		}
 	}
@@ -196,7 +196,7 @@ func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *syst
 	}
 
 	for _, child := range node.Array {
-		if err := validateObject(ctx, child.GetNode(), rules); err != nil {
+		if err := validateObject(ctx, child, rules); err != nil {
 			return kerr.Wrap("DKVEPIWTPI", err)
 		}
 	}
@@ -211,7 +211,7 @@ func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system
 	}
 
 	for _, child := range node.Map {
-		if err := validateObject(ctx, child.GetNode(), rules); err != nil {
+		if err := validateObject(ctx, child, rules); err != nil {
 			return kerr.Wrap("YLONAMFUAG", err)
 		}
 	}

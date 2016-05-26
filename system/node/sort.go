@@ -2,7 +2,7 @@ package node
 
 import "sort"
 
-func SortNodeMap(nodes map[string]NodeInterface) []NamedNode {
+func SortNodeMap(nodes map[string]*Node) []NamedNode {
 	sortable := SortableNamedNodes{}
 	for name, node := range nodes {
 		sortable = append(sortable, NamedNode{name, node})
@@ -13,7 +13,7 @@ func SortNodeMap(nodes map[string]NodeInterface) []NamedNode {
 
 type NamedNode struct {
 	Name string
-	Node NodeInterface
+	Node *Node
 }
 
 type SortableNamedNodes []NamedNode
