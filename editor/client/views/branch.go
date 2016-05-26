@@ -94,7 +94,7 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 	if !ok {
 		return false
 	}
-	did := false
+	loaded := false
 	c.Once.Do(func() {
 		request := &shared.DataRequest{
 			File:    c.Filename,
@@ -124,13 +124,13 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 
 		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSuccess{Branch: b}))
 
-		did = true
+		loaded = true
 	})
 
-	if !did {
+	if !loaded {
 		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceCancelled{Branch: b}))
 	}
-	return did
+	return loaded
 
 }
 

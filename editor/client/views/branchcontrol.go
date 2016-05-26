@@ -33,6 +33,7 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 	return v
 }
 
+// ke: {"func": {"notest": true}}
 func (v *BranchControlView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*BranchControlView); ok {
 		v.Body = old.Body
@@ -56,13 +57,17 @@ func (v *BranchControlView) Mount() {
 	)
 	go func() {
 		for notif := range v.notifs {
-			v.ReconcileBody()
-			if v.model != nil && v.app.Branches.Selected() == v.model {
-				v.focus()
-			}
-			close(notif.Done)
+			v.reaction(notif)
 		}
 	}()
+}
+
+func (v *BranchControlView) reaction(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	v.ReconcileBody()
+	if v.model != nil && v.app.Branches.Selected() == v.model {
+		v.focus()
+	}
 }
 
 func (v *BranchControlView) Unmount() {
