@@ -41,8 +41,12 @@ func TestStore_Notify(t *testing.T) {
 	done := make(chan struct{}, 1)
 
 	// subscribers should be nil, so will return 0
+	finished := s.Notify("a", bNotif)
+	assert.WaitFor(t, finished, false)
+
+	// subscribers should be nil, so will return 0
 	count, finished := s.notifyCount("a", bNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 0, count)
 
 	c := s.Watch("a", bNotif)
@@ -54,17 +58,17 @@ func TestStore_Notify(t *testing.T) {
 
 	// notif doesn't exist so will return 0
 	count, finished = s.notifyCount("a", cNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 0, count)
 
 	// object doesn't exist so will return 0
 	count, finished = s.notifyCount("b", bNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 0, count)
 
 	// should notify
 	count, finished = s.notifyCount("a", bNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 1, count)
 	assert.WaitFor(t, done, false, "Timed out waiting for notify1")
 
@@ -75,7 +79,7 @@ func TestStore_Notify(t *testing.T) {
 		close(done)
 	}()
 	count, finished = s.notifyCount(nil, bNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 1, count)
 	assert.WaitFor(t, done, false, "Timed out waiting for notify2")
 
@@ -87,7 +91,7 @@ func TestStore_Notify(t *testing.T) {
 		close(done)
 	}()
 	count, finished = s.notifyCount("f", eNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 1, count)
 	assert.WaitFor(t, done, false, "Timed out waiting for notify3")
 
@@ -101,10 +105,10 @@ func TestStore_Notify(t *testing.T) {
 		close(done)
 	}()
 	count, finished = s.notifyCount("h", jNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 1, count)
 	count, finished = s.notifyCount("h", iNotif)
-	<-finished
+	assert.WaitFor(t, finished, false)
 	assert.Equal(t, 1, count)
 	assert.WaitFor(t, done, false, "Timed out waiting for notify4")
 }
