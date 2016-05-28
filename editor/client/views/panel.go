@@ -79,7 +79,7 @@ func (v *PanelView) render() vecty.Component {
 		prop.Class("content panel"),
 		vecty.Text(label),
 		NewBreadcrumbsView(v.ctx, v.branch),
-		NewEditorView(v.ctx, n),
+		GetEditor(v.ctx, n),
 		NewSummaryView(v.ctx, n),
 	)
 }

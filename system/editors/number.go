@@ -1,17 +1,25 @@
-package views
+package editors
 
 import (
+	"fmt"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/system/node"
 )
 
-type EditorView struct {
+type NumberEditor struct{}
+
+func (s *NumberEditor) GetEditorView(ctx context.Context, node *node.Node) vecty.Component {
+	return NewNumberEditorView(ctx, node)
+}
+
+type NumberEditorView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
@@ -20,24 +28,8 @@ type EditorView struct {
 	model *models.EditorModel
 }
 
-func GetEditor(ctx context.Context, node *node.Node) vecty.Component {
-	if node == nil {
-		return NewEditorView(ctx, node)
-	}
-	editors := clientctx.FromContext(ctx)
-	e, ok := editors.Get(node.Type.Id.String())
-	if ok {
-		return e.GetEditorView(ctx, node)
-	}
-	e, ok = editors.Get(string(node.JsonType))
-	if ok {
-		return e.GetEditorView(ctx, node)
-	}
-	return NewEditorView(ctx, node)
-}
-
-func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
-	v := &EditorView{
+func NewNumberEditorView(ctx context.Context, node *node.Node) *NumberEditorView {
+	v := &NumberEditorView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
@@ -46,8 +38,8 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 	return v
 }
 
-func (v *EditorView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*EditorView); ok {
+func (v *NumberEditorView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*NumberEditorView); ok {
 		v.Body = old.Body
 	}
 	v.RenderFunc = v.render
@@ -55,11 +47,11 @@ func (v *EditorView) Reconcile(old vecty.Component) {
 }
 
 // Apply implements the vecty.Markup interface.
-func (v *EditorView) Apply(element *vecty.Element) {
+func (v *NumberEditorView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *EditorView) Mount() {
+func (v *NumberEditorView) Mount() {
 	v.notifs = v.app.Editors.Watch(v.model,
 		stores.EditorLoaded,
 		stores.EditorInitialStateLoaded,
@@ -71,12 +63,12 @@ func (v *EditorView) Mount() {
 	}()
 }
 
-func (v *EditorView) reaction(notif flux.NotifPayload) {
+func (v *NumberEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
 }
 
-func (v *EditorView) Unmount() {
+func (v *NumberEditorView) Unmount() {
 	if v.notifs != nil {
 		v.app.Editors.Delete(v.notifs)
 		v.notifs = nil
@@ -84,11 +76,14 @@ func (v *EditorView) Unmount() {
 	v.Body.Unmount()
 }
 
-func (v *EditorView) render() vecty.Component {
+func (v *NumberEditorView) render() vecty.Component {
 	if v.model == nil {
 		return elem.Div()
 	}
 	return elem.Div(
-		vecty.Text(v.model.Node.Key + " editor (" + v.model.Node.Type.Id.String() + ")"),
+		elem.Input(
+			prop.Type(prop.TypeNumber),
+			prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
+		),
 	)
 }

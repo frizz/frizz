@@ -22,12 +22,14 @@ import (
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/connection"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/client/views"
 	"kego.io/editor/shared"
 	"kego.io/process/parser"
 	"kego.io/system"
+	"kego.io/system/editors"
 )
 
 func Start() error {
@@ -58,6 +60,11 @@ func Start() error {
 	ctx = sysctx.NewContext(ctx)
 	ctx = jsonctx.AutoContext(ctx)
 	ctx = stores.NewContext(ctx, app)
+	ctx = clientctx.NewContext(ctx)
+
+	// Do not do this. Implement the Editable interface instead. We can't do this for system types
+	// so we use this method instead.
+	editors.Register(ctx)
 
 	app.Init(ctx)
 
