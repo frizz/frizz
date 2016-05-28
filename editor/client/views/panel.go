@@ -48,11 +48,15 @@ func (v *PanelView) Mount() {
 	)
 	go func() {
 		for notif := range v.notifs {
-			v.branch = v.app.Branches.Selected()
-			v.ReconcileBody()
-			close(notif.Done)
+			v.reaction(notif)
 		}
 	}()
+}
+
+func (v *PanelView) reaction(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	v.branch = v.app.Branches.Selected()
+	v.ReconcileBody()
 }
 
 func (v *PanelView) Unmount() {
