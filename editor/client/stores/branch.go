@@ -114,38 +114,32 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.Notify(nil, BranchSelectPostLoad)
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
-		s.pkg = models.NewNodeBranch(s.app.Package.Node(), "package")
+		s.pkg = models.NewNodeBranch(s.ctx, s.app.Package.Node(), "package")
 
-		s.types = &models.BranchModel{
-			Contents: &models.TypesContents{},
-		}
+		s.types = models.NewBranchModel(s.ctx, &models.TypesContents{})
 		for name, n := range s.app.Types.All() {
-			s.types.Append(models.NewNodeBranch(n, name))
+			s.types.Append(models.NewNodeBranch(s.ctx, n, name))
 		}
 
-		s.data = &models.BranchModel{
-			Contents: &models.DataContents{},
-			Open:     true,
-		}
+		s.data = models.NewBranchModel(s.ctx, &models.DataContents{})
+		s.data.Open = true
+
 		for name, d := range s.app.Data.All() {
-			s.data.Append(&models.BranchModel{
-				Contents: &models.SourceContents{
-					Name:     name,
-					Filename: d.File,
-				},
-			})
+			s.data.Append(models.NewBranchModel(s.ctx, &models.SourceContents{
+				Name:     name,
+				Filename: d.File,
+			}))
 		}
 
 		path := envctx.FromContext(s.ctx).Path
 		name := path[strings.LastIndex(path, "/")+1:]
 
-		s.root = &models.BranchModel{
-			Root: true,
-			Open: true,
-			Contents: &models.RootContents{
-				Name: name,
-			},
-		}
+		s.root = models.NewBranchModel(s.ctx, &models.RootContents{
+			Name: name,
+		})
+		s.root.Root = true
+		s.root.Open = true
+
 		s.root.Append(s.pkg, s.types, s.data)
 		s.Notify(nil, BranchInitialStateLoaded)
 	case *actions.LoadSourceSuccess:

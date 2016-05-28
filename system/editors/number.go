@@ -7,6 +7,7 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -15,7 +16,11 @@ import (
 
 type NumberEditor struct{}
 
-func (s *NumberEditor) GetEditorView(ctx context.Context, node *node.Node) vecty.Component {
+func (s *NumberEditor) Format() editable.Format {
+	return editable.Inline
+}
+
+func (s *NumberEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
 	return NewNumberEditorView(ctx, node)
 }
 
@@ -77,13 +82,8 @@ func (v *NumberEditorView) Unmount() {
 }
 
 func (v *NumberEditorView) render() vecty.Component {
-	if v.model == nil {
-		return elem.Div()
-	}
-	return elem.Div(
-		elem.Input(
-			prop.Type(prop.TypeNumber),
-			prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
-		),
+	return elem.Input(
+		prop.Type(prop.TypeNumber),
+		prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
 	)
 }

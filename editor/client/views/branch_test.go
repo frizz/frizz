@@ -41,9 +41,7 @@ func TestBranchRender2(t *testing.T) {
 	cb := ctests.New(t).SetApp()
 	defer cb.Finish()
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.RootContents{Name: "a"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 	expected := elem.Div(
 		prop.Class("node"),
 		&BranchControlView{},
@@ -54,9 +52,7 @@ func TestBranchRender2(t *testing.T) {
 	equal(t, expected, b.render().(*vecty.Element))
 
 	b.model.Open = false
-	b.model.Children = append(b.model.Children, &models.BranchModel{
-		Contents: &models.RootContents{Name: "b"},
-	})
+	b.model.Children = append(b.model.Children, models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "b"}))
 	// Extra child but HTML doesn't change because branch is closed.
 	equal(t, expected, b.render().(*vecty.Element))
 
@@ -80,9 +76,7 @@ func TestBranchNotifyOpen(t *testing.T) {
 	cb := ctests.New(t).SetApp()
 	defer cb.Finish()
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.RootContents{Name: "a"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 
 	cb.GetConnection().EXPECT().Go(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
@@ -100,9 +94,7 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 
 	setupForSuccessfulSourceLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.SourceContents{Name: "a", Filename: "b"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"}))
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -123,9 +115,7 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 
 	setupForFailedSourceLoad(cb)
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.SourceContents{Name: "a", Filename: "b"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"}))
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -144,9 +134,7 @@ func TestBranchNotifySelect(t *testing.T) {
 	cb := ctests.New(t).SetApp()
 	defer cb.Finish()
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.RootContents{Name: "a"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 
 	cb.ExpectDispatched(
 		&actions.BranchSelectPostLoad{Branch: b.model, Loaded: false},
@@ -165,9 +153,7 @@ func TestBranchNotifySelectSource(t *testing.T) {
 
 	setupForSuccessfulSourceLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.SourceContents{Name: "a", Filename: "b"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"}))
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -188,10 +174,9 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 
 	setupForSuccessfulSourceLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		LastOp:   models.BranchOpClickToggle,
-		Contents: &models.SourceContents{Name: "a", Filename: "b"},
-	})
+	m := models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"})
+	m.LastOp = models.BranchOpClickToggle
+	b := NewBranchView(cb.Ctx(), m)
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -217,9 +202,7 @@ func testBranchReconcile(t *testing.T, notif flux.Notif) {
 	cb := ctests.New(t).SetApp()
 	defer cb.Finish()
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.RootContents{Name: "a"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 
 	cb.ExpectReconcile(&b.Composite)
 	cb.ExpectNoneDispatched()
@@ -235,9 +218,8 @@ func TestBranchView_Unmount(t *testing.T) {
 	cb := ctests.New(t).SetApp()
 	defer cb.Finish()
 
-	b := NewBranchView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.RootContents{Name: "a"},
-	})
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
+
 	c := mock_vecty.NewMockComponent(cb.GetMock())
 	c.EXPECT().Unmount()
 	b.Body = c

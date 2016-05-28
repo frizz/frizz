@@ -17,17 +17,17 @@ func NewContext(ctx context.Context) context.Context {
 }
 
 func FromContext(ctx context.Context) *EditorCache {
-	app, ok := ctx.Value(ctxKey).(*EditorCache)
+	ec, ok := ctx.Value(ctxKey).(*EditorCache)
 	if !ok {
 		panic(kerr.New("BIUVXISEMA", "No editors in ctx").Error())
 	}
-	return app
+	return ec
 }
 
 func FromContextOrNil(ctx context.Context) *EditorCache {
-	e, ok := ctx.Value(ctxKey).(*EditorCache)
+	ec, ok := ctx.Value(ctxKey).(*EditorCache)
 	if ok {
-		return e
+		return ec
 	}
 	return nil
 }

@@ -27,9 +27,8 @@ func TestBranchControlView_Render(t *testing.T) {
 	cb := ctests.New(t).SetApp()
 	defer cb.Finish()
 
-	b := NewBranchControlView(cb.Ctx(), &models.BranchModel{
-		Contents: &models.RootContents{Name: "a"},
-	})
+	b := NewBranchControlView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
+
 	expected := elem.Div(
 		elem.Anchor(
 			vecty.ClassMap{

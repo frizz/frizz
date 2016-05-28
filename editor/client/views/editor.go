@@ -5,11 +5,27 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/clientctx"
+	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/system/node"
 )
+
+func RegisterDefaultEditor(ctx context.Context) {
+	editors := clientctx.FromContext(ctx)
+	editors.Set("", new(DefaultEditor))
+}
+
+type DefaultEditor struct{}
+
+func (s *DefaultEditor) Format() editable.Format {
+	return editable.Branch
+}
+
+func (s *DefaultEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
+	return NewEditorView(ctx, node)
+}
 
 type EditorView struct {
 	vecty.Composite
@@ -18,22 +34,6 @@ type EditorView struct {
 	notifs chan flux.NotifPayload
 
 	model *models.EditorModel
-}
-
-func GetEditor(ctx context.Context, node *node.Node) vecty.Component {
-	if node == nil {
-		return NewEditorView(ctx, node)
-	}
-	editors := clientctx.FromContext(ctx)
-	e, ok := editors.Get(node.Type.Id.String())
-	if ok {
-		return e.GetEditorView(ctx, node)
-	}
-	e, ok = editors.Get(string(node.JsonType))
-	if ok {
-		return e.GetEditorView(ctx, node)
-	}
-	return NewEditorView(ctx, node)
 }
 
 func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
@@ -86,9 +86,20 @@ func (v *EditorView) Unmount() {
 
 func (v *EditorView) render() vecty.Component {
 	if v.model == nil {
-		return elem.Div()
+		return vecty.Text("default editor (nil)")
 	}
-	return elem.Div(
-		vecty.Text(v.model.Node.Key + " editor (" + v.model.Node.Type.Id.String() + ")"),
-	)
+
+	children := vecty.List{}
+	for label, n := range v.model.Node.Map {
+		e := models.GetEditable(v.ctx, n)
+		if e.Format() == editable.Block || e.Format() == editable.Inline {
+			children = append(children, elem.Div(vecty.Text(label)))
+			children = append(children, elem.Div(e.EditorView(v.ctx, n)))
+		}
+	}
+	if len(children) > 0 {
+		return elem.Div(children)
+	}
+
+	return vecty.Text("default editor (" + v.model.Node.Type.Id.String() + ")")
 }

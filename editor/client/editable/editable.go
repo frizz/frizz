@@ -6,6 +6,15 @@ import (
 	"kego.io/system/node"
 )
 
+type Format string
+
+const (
+	Branch Format = "branch"
+	Block  Format = "block"
+	Inline Format = "inline"
+)
+
 type Editable interface {
-	GetEditorView(ctx context.Context, node *node.Node) vecty.Component
+	EditorView(ctx context.Context, node *node.Node) vecty.Component
+	Format() Format
 }

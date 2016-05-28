@@ -5,6 +5,7 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -13,7 +14,11 @@ import (
 
 type BoolEditor struct{}
 
-func (s *BoolEditor) GetEditorView(ctx context.Context, node *node.Node) vecty.Component {
+func (s *BoolEditor) Format() editable.Format {
+	return editable.Inline
+}
+
+func (s *BoolEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
 	return NewBoolEditorView(ctx, node)
 }
 
@@ -75,13 +80,8 @@ func (v *BoolEditorView) Unmount() {
 }
 
 func (v *BoolEditorView) render() vecty.Component {
-	if v.model == nil {
-		return elem.Div()
-	}
-	return elem.Div(
-		elem.Input(
-			prop.Type(prop.TypeCheckbox),
-			prop.Checked(v.model.Node.ValueBool),
-		),
+	return elem.Input(
+		prop.Type(prop.TypeCheckbox),
+		prop.Checked(v.model.Node.ValueBool),
 	)
 }
