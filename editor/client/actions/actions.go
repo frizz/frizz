@@ -3,6 +3,7 @@ package actions
 import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/shared"
+	"kego.io/system/node"
 )
 
 type NewMessage struct {
@@ -52,4 +53,7 @@ type LoadSourceSuccess struct {
 }
 type LoadSourceError struct {
 	Branch *models.BranchModel
+}
+type AddNodeClick struct {
+	Node *node.Node
 }

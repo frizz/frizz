@@ -55,9 +55,8 @@ func (v *BoolEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *BoolEditorView) Mount() {
-	v.notifs = v.app.Editors.Watch(v.model,
-		stores.EditorLoaded,
-		stores.EditorInitialStateLoaded,
+	v.notifs = v.app.Nodes.Watch(v.model.Node,
+		stores.NodeInitialised,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -73,7 +72,7 @@ func (v *BoolEditorView) reaction(notif flux.NotifPayload) {
 
 func (v *BoolEditorView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Nodes.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

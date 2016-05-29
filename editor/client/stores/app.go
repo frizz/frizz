@@ -14,6 +14,7 @@ type App struct {
 	Package  *PackageStore
 	Editors  *EditorStore
 	Branches *BranchStore
+	Nodes    *NodeStore
 	Panels   *PanelStore
 	Types    *TypeStore
 	Data     *DataStore
@@ -23,6 +24,7 @@ func (app *App) Init(ctx context.Context) {
 	app.Package = NewPackageStore(ctx)
 	app.Editors = NewEditorStore(ctx)
 	app.Branches = NewBranchStore(ctx)
+	app.Nodes = NewNodeStore(ctx)
 	app.Panels = NewPanelStore(ctx)
 	app.Types = NewTypeStore(ctx)
 	app.Data = NewDataStore(ctx)
@@ -30,6 +32,7 @@ func (app *App) Init(ctx context.Context) {
 		app.Package,
 		app.Editors,
 		app.Branches,
+		app.Nodes,
 		app.Panels,
 		app.Types,
 		app.Data,

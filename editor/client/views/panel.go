@@ -13,11 +13,13 @@ import (
 
 type PanelView struct {
 	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	ctx            context.Context
+	app            *stores.App
+	notifsBranches chan flux.NotifPayload
+	notifsEditors  chan flux.NotifPayload
 
 	branch *models.BranchModel
+	node   *node.Node
 }
 
 func NewPanelView(ctx context.Context) *PanelView {
@@ -43,11 +45,21 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.notifs = v.app.Branches.Watch(nil,
+	v.notifsBranches = v.app.Branches.Watch(nil,
 		stores.BranchSelectPostLoad,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.notifsBranches {
+			v.reaction(notif)
+		}
+	}()
+
+	v.notifsEditors = v.app.Editors.Watch(nil,
+		stores.EditorLoaded,
+		stores.EditorInitialStateLoaded,
+	)
+	go func() {
+		for notif := range v.notifsEditors {
 			v.reaction(notif)
 		}
 	}()
@@ -56,38 +68,39 @@ func (v *PanelView) Mount() {
 func (v *PanelView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.branch = v.app.Branches.Selected()
+	v.node = v.app.Nodes.Selected()
 	v.ReconcileBody()
 }
 
 func (v *PanelView) Unmount() {
-	if v.notifs != nil {
-		v.app.Branches.Delete(v.notifs)
-		v.notifs = nil
+	if v.notifsBranches != nil {
+		v.app.Branches.Delete(v.notifsBranches)
+		v.notifsBranches = nil
+	}
+	if v.notifsEditors != nil {
+		v.app.Editors.Delete(v.notifsEditors)
+		v.notifsEditors = nil
 	}
 	v.Body.Unmount()
 }
 
 func (v *PanelView) render() vecty.Component {
-
-	var n *node.Node
-	var editor vecty.Component
-	label := ""
+	var editor, summary, label vecty.Component
 	if v.branch != nil {
-		label = v.branch.Contents.Label()
-		ni, ok := v.branch.Contents.(models.NodeContentsInterface)
-		if ok {
-			n = ni.GetNode()
-			if !n.Missing && !n.Null {
-				editor = models.GetEditable(v.ctx, n).EditorView(v.ctx, n)
-			}
+		label = vecty.Text(v.branch.Contents.Label())
+	}
+	if v.node != nil {
+		if !v.node.Missing && !v.node.Null {
+			editor = models.GetEditable(v.ctx, v.node).EditorView(v.ctx, v.node)
 		}
+		summary = NewSummaryView(v.ctx, v.node)
 	}
 
 	return elem.Div(
 		prop.Class("content panel"),
-		vecty.Text(label),
+		label,
 		NewBreadcrumbsView(v.ctx, v.branch),
 		editor,
-		NewSummaryView(v.ctx, n),
+		summary,
 	)
 }

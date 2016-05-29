@@ -96,6 +96,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		action.Branch.Open = true
 		s.Notify(action.Branch, BranchOpenPostLoad)
 	case *actions.BranchSelect:
+		payload.Wait(s.app.Nodes)
 		s.selected = action.Branch
 		s.selected.LastOp = action.Op
 		s.Notify(previous, BranchUnselect)
@@ -111,6 +112,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			s.Notify(s.selected, BranchSelect)
 		}
 	case *actions.BranchSelectPostLoad:
+		payload.Wait(s.app.Nodes)
 		s.Notify(nil, BranchSelectPostLoad)
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
