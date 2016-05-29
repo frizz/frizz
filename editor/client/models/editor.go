@@ -51,9 +51,11 @@ func GetEditable(ctx context.Context, node *node.Node) editable.Editable {
 		return e
 	}
 
-	e, ok = editors.Get(string(node.JsonType))
-	if ok {
-		return e
+	if node.JsonType != "" {
+		e, ok = editors.Get(string(node.JsonType))
+		if ok {
+			return e
+		}
 	}
 
 	// DefaultEditor

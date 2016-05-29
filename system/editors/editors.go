@@ -22,4 +22,6 @@ func Register(ctx context.Context) {
 	editors.Set("bool", new(BoolEditor))
 	editors.Set("kego.io/json:bool", new(BoolEditor))
 	editors.Set("kego.io/system:bool", new(BoolEditor))
+
+	editors.Set("object", new(ObjectEditor))
 }

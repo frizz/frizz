@@ -81,6 +81,9 @@ func AppendNodeChildren(b *BranchModel, n *node.Node) {
 }
 
 func AppendChild(b *BranchModel, n *node.Node) {
+	if n.Missing || n.Null {
+		return
+	}
 	f := GetEditable(b.ctx, n).Format()
 	if f == editable.Branch {
 		b.Append(NewNodeBranch(b.ctx, n, ""))

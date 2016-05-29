@@ -77,7 +77,9 @@ func (v *PanelView) render() vecty.Component {
 		ni, ok := v.branch.Contents.(models.NodeContentsInterface)
 		if ok {
 			n = ni.GetNode()
-			editor = models.GetEditable(v.ctx, n).EditorView(v.ctx, n)
+			if !n.Missing && !n.Null {
+				editor = models.GetEditable(v.ctx, n).EditorView(v.ctx, n)
+			}
 		}
 	}
 

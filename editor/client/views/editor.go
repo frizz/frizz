@@ -85,21 +85,5 @@ func (v *EditorView) Unmount() {
 }
 
 func (v *EditorView) render() vecty.Component {
-	if v.model == nil {
-		return vecty.Text("default editor (nil)")
-	}
-
-	children := vecty.List{}
-	for label, n := range v.model.Node.Map {
-		e := models.GetEditable(v.ctx, n)
-		if e.Format() == editable.Block || e.Format() == editable.Inline {
-			children = append(children, elem.Div(vecty.Text(label)))
-			children = append(children, elem.Div(e.EditorView(v.ctx, n)))
-		}
-	}
-	if len(children) > 0 {
-		return elem.Div(children)
-	}
-
-	return vecty.Text("default editor (" + v.model.Node.Type.Id.String() + ")")
+	return elem.Div(vecty.Text("default editor"))
 }
