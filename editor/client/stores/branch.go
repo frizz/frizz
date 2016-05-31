@@ -8,8 +8,10 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
+	"kego.io/system/node"
 )
 
 type BranchStore struct {
@@ -17,11 +19,12 @@ type BranchStore struct {
 	ctx context.Context
 	app *App
 
-	selected *models.BranchModel
-	root     *models.BranchModel
-	pkg      *models.BranchModel
-	types    *models.BranchModel
-	data     *models.BranchModel
+	selected     *models.BranchModel
+	root         *models.BranchModel
+	pkg          *models.BranchModel
+	types        *models.BranchModel
+	data         *models.BranchModel
+	nodeBranches map[*node.Node]*models.BranchModel
 }
 
 func (b *BranchStore) Selected() *models.BranchModel {
@@ -58,13 +61,15 @@ const (
 	BranchSelect             branchNotif = "BranchSelect"
 	BranchSelectPostLoad     branchNotif = "BranchSelectPostLoad"
 	BranchUnselect           branchNotif = "BranchUnselect"
+	BranchChildAdded         branchNotif = "BranchChildAdded"
 )
 
 func NewBranchStore(ctx context.Context) *BranchStore {
 	s := &BranchStore{
-		Store: &flux.Store{},
-		ctx:   ctx,
-		app:   FromContext(ctx),
+		Store:        &flux.Store{},
+		ctx:          ctx,
+		app:          FromContext(ctx),
+		nodeBranches: map[*node.Node]*models.BranchModel{},
 	}
 	s.Init(s)
 	return s
@@ -116,11 +121,15 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.Notify(nil, BranchSelectPostLoad)
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
-		s.pkg = models.NewNodeBranch(s.ctx, s.app.Package.Node(), "package")
+
+		pkgNode := s.app.Package.Node()
+		pkgBranch := s.NewNodeBranchModel(s.ctx, pkgNode, "package")
+		s.pkg = pkgBranch
 
 		s.types = models.NewBranchModel(s.ctx, &models.TypesContents{})
-		for name, n := range s.app.Types.All() {
-			s.types.Append(models.NewNodeBranch(s.ctx, n, name))
+		for name, typeNode := range s.app.Types.All() {
+			typeBranch := s.NewNodeBranchModel(s.ctx, typeNode, name)
+			s.types.Append(typeBranch)
 		}
 
 		s.data = models.NewBranchModel(s.ctx, &models.DataContents{})
@@ -149,11 +158,56 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		if !ok {
 			return true
 		}
-		models.AppendNodeChildren(action.Branch, ni.GetNode())
+		s.AppendNodeBranchModelChildren(action.Branch, ni.GetNode())
 		s.Notify(action.Branch, BranchLoaded)
+	case *actions.AddNodeClick:
+		payload.Wait(s.app.Nodes)
+
+		parent := action.Node.Parent
+		if parent == nil {
+			break
+		}
+		parentBranch, ok := s.nodeBranches[parent]
+		if !ok {
+			break
+		}
+
+		s.AppendNodeBranchModelChild(parentBranch, action.Node, true)
+
+		s.Notify(parentBranch, BranchChildAdded)
+
 	}
 
 	return true
+}
+
+func (s *BranchStore) NewNodeBranchModel(ctx context.Context, n *node.Node, name string) *models.BranchModel {
+	b := models.NewBranchModel(ctx, &models.NodeContents{
+		Node: n,
+		Name: name,
+	})
+	s.AppendNodeBranchModelChildren(b, n)
+	s.nodeBranches[n] = b
+	return b
+}
+
+func (s *BranchStore) AppendNodeBranchModelChildren(b *models.BranchModel, n *node.Node) {
+	for _, c := range n.Array {
+		s.AppendNodeBranchModelChild(b, c, false)
+	}
+	for _, c := range n.Map {
+		s.AppendNodeBranchModelChild(b, c, false)
+	}
+}
+
+func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node, log bool) {
+	if n.Missing || n.Null {
+		return
+	}
+	f := models.GetEditable(s.ctx, n).Format()
+	if f == editable.Branch {
+		b.Append(s.NewNodeBranchModel(s.ctx, n, ""))
+	}
 }
 
 /*

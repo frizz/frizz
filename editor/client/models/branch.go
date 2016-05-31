@@ -1,10 +1,6 @@
 package models
 
-import (
-	"golang.org/x/net/context"
-	"kego.io/editor/client/editable"
-	"kego.io/system/node"
-)
+import "golang.org/x/net/context"
 
 type BranchModel struct {
 	ctx      context.Context
@@ -60,34 +56,6 @@ func (b *BranchModel) Icon() string {
 		return "minus"
 	}
 	return "plus"
-}
-
-func NewNodeBranch(ctx context.Context, n *node.Node, name string) *BranchModel {
-	b := NewBranchModel(ctx, &NodeContents{
-		Node: n,
-		Name: name,
-	})
-	AppendNodeChildren(b, n)
-	return b
-}
-
-func AppendNodeChildren(b *BranchModel, n *node.Node) {
-	for _, c := range n.Array {
-		AppendChild(b, c)
-	}
-	for _, c := range n.Map {
-		AppendChild(b, c)
-	}
-}
-
-func AppendChild(b *BranchModel, n *node.Node) {
-	if n.Missing || n.Null {
-		return
-	}
-	f := GetEditable(b.ctx, n).Format()
-	if f == editable.Branch {
-		b.Append(NewNodeBranch(b.ctx, n, ""))
-	}
 }
 
 func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {

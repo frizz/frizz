@@ -59,6 +59,7 @@ func (v *BranchView) Mount() {
 		stores.BranchClose,
 		stores.BranchLoaded,
 		stores.BranchSelect,
+		stores.BranchChildAdded,
 	)
 
 	go func() {
@@ -84,7 +85,8 @@ func (v *BranchView) reaction(notif flux.NotifPayload) {
 		wait.Add(v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded}))
 	case stores.BranchOpenPostLoad,
 		stores.BranchClose,
-		stores.BranchLoaded:
+		stores.BranchLoaded,
+		stores.BranchChildAdded:
 		v.ReconcileBody()
 	}
 }
