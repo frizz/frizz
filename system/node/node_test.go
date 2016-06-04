@@ -27,11 +27,13 @@ func TestNode_Label(t *testing.T) {
 }
 
 func TestNode_Path(t *testing.T) {
+	var n *Node
+	assert.Nil(t, n.Root())
 	r := &Node{
 		Key:   "",
 		Index: -1,
 	}
-	n := &Node{
+	n = &Node{
 		Key:   "a",
 		Index: -1,
 		Parent: &Node{
