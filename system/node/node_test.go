@@ -14,10 +14,37 @@ import (
 )
 
 func TestNode_Label(t *testing.T) {
-	n := &Node{Key: "a", Index: 0}
-	assert.Equal(t, "0", n.Label())
-	n = &Node{Key: "a", Index: -1}
+	var n *Node
+	assert.Equal(t, "(nil)", n.Label())
+	n = &Node{Key: "a", Index: 0}
+	assert.Equal(t, "root", n.Label())
+	n = &Node{Key: "a", Index: 2, Parent: &Node{}}
+	assert.Equal(t, "2", n.Label())
+	n = &Node{Key: "a", Index: -1, Parent: &Node{}}
 	assert.Equal(t, "a", n.Label())
+	n = &Node{Key: "", Index: -1, Parent: &Node{}}
+	assert.Equal(t, "(empty key)", n.Label())
+}
+
+func TestNode_Path(t *testing.T) {
+	r := &Node{
+		Key:   "",
+		Index: -1,
+	}
+	n := &Node{
+		Key:   "a",
+		Index: -1,
+		Parent: &Node{
+			Key:   "b",
+			Index: -1,
+			Parent: &Node{
+				Key:    "c",
+				Index:  2,
+				Parent: r,
+			},
+		}}
+	assert.Equal(t, "root/2/b/a", n.Path())
+	assert.Equal(t, r, n.Root())
 }
 
 func TestExtractType(t *testing.T) {

@@ -388,7 +388,7 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 
 func (n *Node) Label() string {
 	if n == nil {
-		return "nil"
+		return "(nil)"
 	}
 	if n.Parent == nil {
 		return "root"
