@@ -79,7 +79,20 @@ func (v *StringEditorView) Unmount() {
 }
 
 func (v *StringEditorView) render() vecty.Component {
-	return elem.Input(
-		prop.Value(v.model.Node.ValueString),
+	id := randomId()
+
+	return elem.Div(
+		prop.Class("form-group"),
+		elem.Label(
+			prop.For(id),
+			vecty.Text(v.model.Node.Label()),
+		),
+		elem.Input(
+			prop.Value(v.model.Node.ValueString),
+			prop.Class("form-control"),
+			prop.ID(id),
+			prop.Placeholder(v.model.Node.Label()),
+		),
 	)
+
 }

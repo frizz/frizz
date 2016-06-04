@@ -16,7 +16,7 @@ func NewContext(ctx context.Context, app *App) context.Context {
 func FromContext(ctx context.Context) *App {
 	app, ok := ctx.Value(ctxKey).(*App)
 	if !ok {
-		panic(kerr.New("BIUVXISEMA", "No app in ctx").Error())
+		panic(kerr.New("EJRTLPWCKH", "No app in ctx").Error())
 	}
 	return app
 }

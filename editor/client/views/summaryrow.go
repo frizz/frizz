@@ -74,12 +74,6 @@ func (v *SummaryRowView) render() vecty.Component {
 
 	name := v.node.Key
 
-	origin, err := v.node.Origin.ValueContext(v.ctx)
-	if err != nil {
-		v.app.Fail <- kerr.Wrap("MJIJVBJANG", err)
-		return nil
-	}
-
 	hold, err := v.node.Rule.HoldsDisplayType()
 	if err != nil {
 		v.app.Fail <- kerr.Wrap("CETBRLENSP", err)
@@ -108,7 +102,6 @@ func (v *SummaryRowView) render() vecty.Component {
 
 	return elem.TableRow(
 		elem.TableData(vecty.Text(name)),
-		elem.TableData(vecty.Text(origin)),
 		elem.TableData(vecty.Text(hold)),
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(add),

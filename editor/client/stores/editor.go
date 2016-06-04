@@ -45,9 +45,9 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
-		models.AddEditorsRecursively(s.editors, s.app.Package.Node())
+		s.AddEditorsRecursively(s.app.Package.Node())
 		for _, n := range s.app.Types.All() {
-			models.AddEditorsRecursively(s.editors, n)
+			s.AddEditorsRecursively(n)
 		}
 		s.Notify(nil, EditorInitialStateLoaded)
 	case *actions.LoadSourceSuccess:
@@ -56,12 +56,24 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 		n := ni.GetNode()
-		e := models.AddEditorsRecursively(s.editors, n)
+		e := s.AddEditorsRecursively(n)
 		s.Notify(e, EditorLoaded)
 	case *actions.AddNodeClick:
 		payload.Wait(s.app.Branches)
-		e := models.AddEditorsRecursively(s.editors, action.Node)
+		e := s.AddEditorsRecursively(action.Node)
 		s.Notify(e, EditorLoaded)
 	}
 	return true
+}
+
+func (s *EditorStore) AddEditorsRecursively(n *node.Node) *models.EditorModel {
+	e := models.NewEditor(n)
+	s.editors[n] = e
+	for _, c := range n.Map {
+		s.AddEditorsRecursively(c)
+	}
+	for _, c := range n.Array {
+		s.AddEditorsRecursively(c)
+	}
+	return e
 }

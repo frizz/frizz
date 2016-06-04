@@ -85,22 +85,17 @@ func (v *PanelView) Unmount() {
 }
 
 func (v *PanelView) render() vecty.Component {
-	var editor, summary, label vecty.Component
+	var editor, breadcrumbs vecty.Component
 	if v.branch != nil {
-		label = vecty.Text(v.branch.Contents.Label())
+		breadcrumbs = NewBreadcrumbsView(v.ctx, v.branch)
 	}
 	if v.node != nil {
-		if !v.node.Missing && !v.node.Null {
-			editor = models.GetEditable(v.ctx, v.node).EditorView(v.ctx, v.node)
-		}
-		summary = NewSummaryView(v.ctx, v.node)
+		editor = NewCompositeView(v.ctx, v.node)
 	}
 
 	return elem.Div(
 		prop.Class("content panel"),
-		label,
-		NewBreadcrumbsView(v.ctx, v.branch),
+		breadcrumbs,
 		editor,
-		summary,
 	)
 }

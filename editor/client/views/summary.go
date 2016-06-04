@@ -8,6 +8,7 @@ import (
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/json"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -17,14 +18,16 @@ type SummaryView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	node *node.Node
+	node   *node.Node
+	origin *system.Reference
 }
 
-func NewSummaryView(ctx context.Context, node *node.Node) *SummaryView {
+func NewSummaryView(ctx context.Context, node *node.Node, origin *system.Reference) *SummaryView {
 	v := &SummaryView{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
+		ctx:    ctx,
+		app:    stores.FromContext(ctx),
+		node:   node,
+		origin: origin,
 	}
 	v.Mount()
 	return v
@@ -75,24 +78,30 @@ func (v *SummaryView) render() vecty.Component {
 		return elem.Div()
 	}
 
-	head := elem.TableHead(
-		elem.TableData(vecty.Text("name")),
-		elem.TableData(vecty.Text("origin")),
-		elem.TableData(vecty.Text("holds")),
-		elem.TableData(vecty.Text("value")),
-		elem.TableData(vecty.Text("options")),
+	head := elem.TableRow(
+		elem.TableHeader(vecty.Text("name")),
+		elem.TableHeader(vecty.Text("holds")),
+		elem.TableHeader(vecty.Text("value")),
+		elem.TableHeader(vecty.Text("options")),
 	)
 
 	rows := vecty.List{}
 	for _, c := range v.node.Map {
+		if *c.Origin != *v.origin {
+			continue
+		}
 		rows = append(rows, NewSummaryRowView(v.ctx, c))
 	}
 
 	return elem.Div(
 		elem.Table(
 			prop.Class("table"),
-			head,
-			rows,
+			elem.TableHead(
+				head,
+			),
+			elem.TableBody(
+				rows,
+			),
 		),
 	)
 }

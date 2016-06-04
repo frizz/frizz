@@ -13,6 +13,13 @@ import (
 	"kego.io/system"
 )
 
+func TestNode_Label(t *testing.T) {
+	n := &Node{Key: "a", Index: 0}
+	assert.Equal(t, "0", n.Label())
+	n = &Node{Key: "a", Index: -1}
+	assert.Equal(t, "a", n.Label())
+}
+
 func TestExtractType(t *testing.T) {
 	//extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) (*system.Type, error)
 

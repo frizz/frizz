@@ -40,6 +40,13 @@ func (v *BreadcrumbsView) Apply(element *vecty.Element) {
 }
 
 func (v *BreadcrumbsView) render() vecty.Component {
+	/*
+		<ol class="breadcrumb">
+		  <li><a href="#">Home</a></li>
+		  <li><a href="#">Library</a></li>
+		  <li class="active">Data</li>
+		</ol>
+	*/
 	if v.branch == nil {
 		return elem.Div()
 	}

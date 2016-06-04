@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"sync"
 
 	"kego.io/system/node"
@@ -53,10 +51,7 @@ func (c NodeContents) Label() string {
 	if c.Name != "" {
 		return c.Name
 	}
-	if c.Node.Index > -1 {
-		return fmt.Sprintf("[%d]", c.Node.Index)
-	}
-	return c.Node.Key
+	return c.Node.Label()
 }
 
 type SourceContents struct {

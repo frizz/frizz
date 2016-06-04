@@ -81,8 +81,20 @@ func (v *NumberEditorView) Unmount() {
 }
 
 func (v *NumberEditorView) render() vecty.Component {
-	return elem.Input(
-		prop.Type(prop.TypeNumber),
-		prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
+	id := randomId()
+
+	return elem.Div(
+		prop.Class("form-group"),
+		elem.Label(
+			prop.For(id),
+			vecty.Text(v.model.Node.Label()),
+		),
+		elem.Input(
+			prop.Type(prop.TypeNumber),
+			prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
+			prop.Class("form-control"),
+			prop.ID(id),
+			prop.Placeholder(v.model.Node.Label()),
+		),
 	)
 }

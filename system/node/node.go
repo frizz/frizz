@@ -3,6 +3,8 @@ package node // import "kego.io/system/node"
 // ke: {"package": {"complete": true}}
 
 import (
+	"fmt"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/json"
@@ -382,4 +384,11 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 		fields[name] = &system.Field{Name: name, Rule: rule, Origin: t.Id}
 	}
 	return nil
+}
+
+func (n *Node) Label() string {
+	if n.Index > -1 {
+		return fmt.Sprintf("%d", n.Index)
+	}
+	return n.Key
 }
