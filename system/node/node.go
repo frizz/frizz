@@ -387,8 +387,39 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 }
 
 func (n *Node) Label() string {
+	if n == nil {
+		return "nil"
+	}
+	if n.Parent == nil {
+		return "root"
+	}
 	if n.Index > -1 {
 		return fmt.Sprintf("%d", n.Index)
 	}
+	if n.Key == "" {
+		return "(empty key)"
+	}
 	return n.Key
+}
+
+func (n *Node) Path() (path string) {
+	for n != nil {
+		if path != "" {
+			path = n.Label() + "/" + path
+		} else {
+			path = n.Label()
+		}
+		n = n.Parent
+	}
+	return path
+}
+
+func (n *Node) Root() *Node {
+	for n != nil {
+		if n.Parent == nil {
+			return n
+		}
+		n = n.Parent
+	}
+	return nil
 }

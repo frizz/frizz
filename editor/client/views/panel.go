@@ -56,6 +56,7 @@ func (v *PanelView) Mount() {
 
 	v.notifsEditors = v.app.Editors.Watch(nil,
 		stores.EditorLoaded,
+		stores.EditorAdded,
 		stores.EditorInitialStateLoaded,
 	)
 	go func() {

@@ -23,6 +23,7 @@ func (b editorNotif) IsNotif() {}
 const (
 	EditorChanged            editorNotif = "EditorChanged"
 	EditorLoaded             editorNotif = "EditorLoaded"
+	EditorAdded              editorNotif = "EditorAdded"
 	EditorInitialStateLoaded editorNotif = "EditorInitialStateLoaded"
 )
 
@@ -61,7 +62,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	case *actions.AddNodeClick:
 		payload.Wait(s.app.Branches)
 		e := s.AddEditorsRecursively(action.Node)
-		s.Notify(e, EditorLoaded)
+		s.Notify(e, EditorAdded)
 	}
 	return true
 }

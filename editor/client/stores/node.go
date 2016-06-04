@@ -60,10 +60,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			if err := node.InitialiseWithConcreteType(s.ctx, node.Rule.Parent); err != nil {
 				s.app.Fail <- kerr.Wrap("KBDDDIVSWK", err)
 			}
-			s.Notify(action.Node, NodeInitialised)
-			if action.Node.Parent != nil {
-				s.Notify(action.Node.Parent, NodeInitialised)
-			}
 			return true
 		}
 
