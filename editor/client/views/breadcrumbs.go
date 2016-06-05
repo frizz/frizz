@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -47,10 +48,49 @@ func (v *BreadcrumbsView) render() vecty.Component {
 		  <li class="active">Data</li>
 		</ol>
 	*/
+
 	if v.branch == nil {
 		return elem.Div()
 	}
-	return elem.Div(
-		vecty.Text("Breadcrumbs " + v.branch.Contents.Label()),
+
+	b := v.branch
+	crumbs := vecty.List{}
+
+	for b != nil {
+
+		if v.branch.Parent != nil && b.Parent == nil {
+			break
+		}
+
+		var content vecty.Markup
+		if b == v.branch {
+			content = vecty.Text(
+				b.Contents.Label(),
+			)
+		} else {
+			content = elem.Anchor(
+				prop.Href("#"),
+				vecty.Text(
+					b.Contents.Label(),
+				),
+			)
+		}
+
+		crumbs = append(
+			vecty.List{
+				elem.ListItem(
+					vecty.ClassMap{
+						"active": b == v.branch,
+					},
+					content,
+				),
+			},
+			crumbs...,
+		)
+		b = b.Parent
+	}
+	return elem.OrderedList(
+		prop.Class("breadcrumb"),
+		crumbs,
 	)
 }
