@@ -50,6 +50,14 @@ type RuleWrapper struct {
 	Parent    *Type
 }
 
+func (r *RuleWrapper) ZeroValue() (interface{}, error) {
+	rt, err := r.GetReflectType()
+	if err != nil {
+		return nil, kerr.Wrap("DWWGAWUNCN", err)
+	}
+	return reflect.Zero(rt).Interface(), nil
+}
+
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	if r.Struct.Interface {

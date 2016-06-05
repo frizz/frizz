@@ -56,15 +56,30 @@ var _ json.Unpacker = (*Node)(nil)
 
 func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) error {
 
+	if t == nil {
+		t = n.Rule.Parent
+	}
+
 	n.Type = t
 	n.Missing = false
 	n.Null = false
 	n.JsonType = t.NativeJsonType()
-	v, err := t.ZeroValue(ctx)
-	if err != nil {
-		return kerr.Wrap("RPUWJDKXSP", err)
+	if t.IsNativeCollection() {
+		if n.Rule == nil {
+			return kerr.New("VGKTIRMDTJ", "Can't create collection zero value without a rule")
+		}
+		v, err := n.Rule.ZeroValue()
+		if err != nil {
+			return kerr.Wrap("IIDDGXDDJR", err)
+		}
+		n.Value = v
+	} else {
+		v, err := t.ZeroValue(ctx)
+		if err != nil {
+			return kerr.Wrap("RPUWJDKXSP", err)
+		}
+		n.Value = v
 	}
-	n.Value = v
 
 	switch t.Native.Value() {
 	case "string":
@@ -73,11 +88,8 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 		n.ValueNumber = 0.0
 	case "bool":
 		n.ValueBool = false
-	// TODO: Should be enable collection types here?
-	//case "array":
-	// nothing to do here
-	//case "map":
-	//	n.Map = map[string]*Node{}
+	case "map":
+		n.Map = map[string]*Node{}
 	case "object":
 		if err := n.InitialiseFields(ctx, nil); err != nil {
 			return kerr.Wrap("YIHFDLTIMW", err)

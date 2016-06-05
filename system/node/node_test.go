@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/parser"
@@ -126,6 +127,11 @@ func TestExtractFields(t *testing.T) {
 	ty := &system.Type{Fields: map[string]system.RuleInterface{"a": nil}}
 	err := extractFields(cb.Ctx(), f, ty)
 	assert.IsError(t, err, "BARXPFXQNB")
+
+	ty = &system.Type{Basic: true, Embed: []*system.Reference{system.NewReference("a", "b")}}
+	err = extractFields(cb.Ctx(), f, ty)
+	assert.HasError(t, err, "VEKXQDJFGD")
+
 }
 
 func TestInitialiseFields(t *testing.T) {
@@ -228,7 +234,8 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	type num float64
 	type str string
 	type bol bool
-	cb := tests.Context("a.b/c").Jempty()
+	cb := tests.New().Jauto().Sauto(parser.Parse)
+	cb.Path("a.b/c")
 	ty := &system.Type{
 		Object: &system.Object{Id: system.NewReference("a.b/c", "d")},
 	}
@@ -278,26 +285,43 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 
 	ty.Native = system.NewString("array")
 	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
-	assert.IsError(t, err, "RPUWJDKXSP")
-	assert.HasError(t, err, "PGUHCGBJWE")
+	assert.IsError(t, err, "VGKTIRMDTJ")
 
-	ty.Native = system.NewString("map")
-	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
-	assert.IsError(t, err, "RPUWJDKXSP")
-	assert.HasError(t, err, "PGUHCGBJWE")
+	r, err := system.WrapRule(cb.Ctx(), &system.ArrayRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@array")},
+		Rule:   &system.Rule{},
+		Items: &system.StringRule{
+			Object: &system.Object{Type: system.NewReference("kego.io/system", "@string")},
+			Rule:   &system.Rule{},
+		},
+	})
+	require.NoError(t, err)
+	n.Rule = r
+	err = n.InitialiseWithConcreteType(cb.Ctx(), nil)
+	require.NoError(t, err)
+	require.IsType(t, []*system.String{}, n.Value)
 
-	cb.Sempty()
+	r, err = system.WrapRule(cb.Ctx(), &system.MapRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@map")},
+		Rule:   &system.Rule{},
+		Items: &system.StringRule{
+			Object: &system.Object{Type: system.NewReference("kego.io/system", "@string")},
+			Rule:   &system.Rule{},
+		},
+	})
+	require.NoError(t, err)
+	n.Rule = r
+	err = n.InitialiseWithConcreteType(cb.Ctx(), nil)
+	require.NoError(t, err)
+	require.IsType(t, map[string]*system.String{}, n.Value)
+
 	ty.Native = system.NewString("object")
 	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
-	assert.IsError(t, err, "YIHFDLTIMW")
-	assert.HasError(t, err, "VEKXQDJFGD")
+	assert.NoError(t, err)
+	assert.Equal(t, "d", n.Map["type"].ValueString)
 
 	// InitialiseFields will always create type
 	assert.SkipError("DQKGYKFQKJ")
-
-	cb.Ssystem(parser.Parse)
-	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
-	assert.NoError(t, err)
 
 }
 

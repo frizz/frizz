@@ -4,11 +4,30 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"golang.org/x/net/context"
 	"kego.io/context/sysctx"
 	"kego.io/process"
+	"kego.io/process/parser"
+	"kego.io/process/tests"
 	"kego.io/system"
 )
+
+func TestRuleWrapper_ZeroValue(t *testing.T) {
+	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
+	r, err := system.WrapRule(cb.Ctx(), &system.MapRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@map")},
+		Rule:   &system.Rule{},
+		Items: &system.StringRule{
+			Object: &system.Object{Type: system.NewReference("kego.io/system", "@string")},
+			Rule:   &system.Rule{},
+		},
+	})
+	require.NoError(t, err)
+	v, err := r.ZeroValue()
+	require.NoError(t, err)
+	assert.IsType(t, map[string]*system.String{}, v)
+}
 
 func TestReflectType(t *testing.T) {
 	ctx, _, err := process.Initialise(context.Background(), process.Options{Path: "kego.io/system"})

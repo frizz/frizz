@@ -57,7 +57,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 
 		if !node.Rule.Parent.Interface && !node.Rule.Struct.Interface {
 			// if the rule only permits a single concrete type, we initialise immediately with that type
-			if err := node.InitialiseWithConcreteType(s.ctx, node.Rule.Parent); err != nil {
+			if err := node.InitialiseWithConcreteType(s.ctx, nil); err != nil {
 				s.app.Fail <- kerr.Wrap("KBDDDIVSWK", err)
 			}
 			return true
