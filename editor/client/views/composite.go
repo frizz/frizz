@@ -6,6 +6,7 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
+	"github.com/davelondon/vecty/style"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -89,24 +90,14 @@ func (v *CompositeView) render() vecty.Component {
 			),
 		))
 
-		var editor vecty.Component
-		if !v.model.Node.Missing && !v.model.Node.Null {
-			editor = NewObjectView(v.ctx, v.model.Node, o)
-		} else {
-			editor = elem.Div(vecty.Text("null"))
-		}
-
 		panes = append(panes, elem.Div(
 			vecty.ClassMap{
 				"tab-pane": true,
 				"active":   i == 0,
 			},
 			prop.ID(fmt.Sprintf("pane%d", i)),
-			elem.Header1(
-				vecty.Text(o.Name),
-			),
-			editor,
-			NewSummaryView(v.ctx, v.model.Node, o),
+			NewObjectView(v.ctx, v.model.Node, o),
+			NewObjectTableView(v.ctx, v.model.Node, o),
 		))
 	}
 
@@ -114,6 +105,7 @@ func (v *CompositeView) render() vecty.Component {
 		elem.UnorderedList(
 			prop.ID("tabs"),
 			prop.Class("nav nav-tabs"),
+			style.Margin(style.Size("0 0 15px 0")),
 			vecty.Data("tabs", "tabs"),
 			tabs,
 		),

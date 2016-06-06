@@ -80,13 +80,17 @@ func (v *BoolEditorView) Unmount() {
 
 func (v *BoolEditorView) render() vecty.Component {
 	return elem.Div(
-		prop.Class("checkbox"),
-		elem.Label(
-			elem.Input(
-				prop.Type(prop.TypeCheckbox),
-				prop.Checked(v.model.Node.ValueBool),
+		prop.Class("form-group"),
+		elem.Div(
+			prop.Class("checkbox"),
+			elem.Label(
+				elem.Input(
+					prop.Type(prop.TypeCheckbox),
+					prop.Checked(v.model.Node.ValueBool),
+				),
+				vecty.Text(v.model.Node.Label()),
 			),
-			vecty.Text(v.model.Node.Label()),
 		),
+		helpBlock(v.ctx, v.model.Node),
 	)
 }

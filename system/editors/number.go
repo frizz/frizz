@@ -96,5 +96,6 @@ func (v *NumberEditorView) render() vecty.Component {
 			prop.ID(id),
 			prop.Placeholder(v.model.Node.Label()),
 		),
+		helpBlock(v.ctx, v.model.Node),
 	)
 }

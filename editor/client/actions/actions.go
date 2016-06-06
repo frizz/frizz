@@ -57,3 +57,10 @@ type LoadSourceError struct {
 type AddNodeClick struct {
 	Node *node.Node
 }
+type AddMapItemClick struct {
+	Parent *node.Node
+}
+type AddArrayItemClick struct {
+	Parent *node.Node
+}
+type AddModalCloseClick struct{}

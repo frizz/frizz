@@ -71,7 +71,7 @@ func (v *ObjectView) Unmount() {
 }
 
 func (v *ObjectView) render() vecty.Component {
-	if v.model == nil {
+	if v.model == nil || v.model.Node.Missing || v.model.Node.Null {
 		return elem.Div(vecty.Text("default editor (nil)"))
 	}
 
@@ -89,7 +89,7 @@ func (v *ObjectView) render() vecty.Component {
 		}
 	}
 	if len(children) == 0 {
-		return elem.Div(vecty.Text("default editor"))
+		return elem.Div()
 	}
 	return elem.Div(
 		elem.Form(

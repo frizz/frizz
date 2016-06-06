@@ -91,7 +91,13 @@ func (v *PanelView) render() vecty.Component {
 		breadcrumbs = NewBreadcrumbsView(v.ctx, v.branch)
 	}
 	if v.node != nil {
-		editor = NewCompositeView(v.ctx, v.node)
+		if v.node.Type.IsNativeMap() {
+			editor = NewMapView(v.ctx, v.node)
+		} else if v.node.Type.IsNativeArray() {
+			editor = NewArrayView(v.ctx, v.node)
+		} else {
+			editor = NewCompositeView(v.ctx, v.node)
+		}
 	}
 
 	return elem.Div(

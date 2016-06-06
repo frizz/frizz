@@ -7,12 +7,11 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
-	"kego.io/json"
 	"kego.io/system"
 	"kego.io/system/node"
 )
 
-type SummaryView struct {
+type ObjectTableView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
@@ -22,8 +21,8 @@ type SummaryView struct {
 	origin *system.Reference
 }
 
-func NewSummaryView(ctx context.Context, node *node.Node, origin *system.Reference) *SummaryView {
-	v := &SummaryView{
+func NewObjectTableView(ctx context.Context, node *node.Node, origin *system.Reference) *ObjectTableView {
+	v := &ObjectTableView{
 		ctx:    ctx,
 		app:    stores.FromContext(ctx),
 		node:   node,
@@ -33,8 +32,8 @@ func NewSummaryView(ctx context.Context, node *node.Node, origin *system.Referen
 	return v
 }
 
-func (v *SummaryView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*SummaryView); ok {
+func (v *ObjectTableView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*ObjectTableView); ok {
 		v.Body = old.Body
 	}
 	v.RenderFunc = v.render
@@ -42,11 +41,11 @@ func (v *SummaryView) Reconcile(old vecty.Component) {
 }
 
 // Apply implements the vecty.Markup interface.
-func (v *SummaryView) Apply(element *vecty.Element) {
+func (v *ObjectTableView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *SummaryView) Mount() {
+func (v *ObjectTableView) Mount() {
 	v.notifs = v.app.Branches.Watch(nil,
 		nil,
 	) //stores.BranchSelectPostLoad,
@@ -58,13 +57,13 @@ func (v *SummaryView) Mount() {
 	}()
 }
 
-func (v *SummaryView) reaction(notif flux.NotifPayload) {
+func (v *ObjectTableView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	//v.branch = v.app.Branches.Selected()
 	v.ReconcileBody()
 }
 
-func (v *SummaryView) Unmount() {
+func (v *ObjectTableView) Unmount() {
 	if v.notifs != nil {
 		v.app.Branches.Delete(v.notifs)
 		v.notifs = nil
@@ -72,9 +71,9 @@ func (v *SummaryView) Unmount() {
 	v.Body.Unmount()
 }
 
-func (v *SummaryView) render() vecty.Component {
+func (v *ObjectTableView) render() vecty.Component {
 
-	if v.node == nil || v.node.JsonType != json.J_OBJECT || len(v.node.Map) == 0 {
+	if v.node == nil || len(v.node.Map) == 0 {
 		return elem.Div()
 	}
 
@@ -90,7 +89,7 @@ func (v *SummaryView) render() vecty.Component {
 		if *c.Origin != *v.origin {
 			continue
 		}
-		rows = append(rows, NewSummaryRowView(v.ctx, c))
+		rows = append(rows, NewObjectRowView(v.ctx, c))
 	}
 
 	return elem.Div(

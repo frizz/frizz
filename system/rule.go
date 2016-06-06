@@ -50,6 +50,25 @@ type RuleWrapper struct {
 	Parent    *Type
 }
 
+func (r *RuleWrapper) PermittedTypes(ctx context.Context) []*Type {
+	if !r.Parent.Interface && !r.Struct.Interface {
+		return []*Type{r.Parent}
+	}
+	return GetAllTypesThatImplementInterface(ctx, r.Parent)
+}
+
+func (r *RuleWrapper) CollectionItemsRule(ctx context.Context) (*RuleWrapper, error) {
+	cr, ok := r.Interface.(CollectionRule)
+	if !ok {
+		return nil, kerr.New("EOTAVQKSUF", "%T must be a collection rule", r.Interface)
+	}
+	rw, err := WrapRule(ctx, cr.GetItemsRule())
+	if err != nil {
+		return nil, kerr.Wrap("SCINSUNFPW", err)
+	}
+	return rw, nil
+}
+
 func (r *RuleWrapper) ZeroValue() (interface{}, error) {
 	rt, err := r.GetReflectType()
 	if err != nil {

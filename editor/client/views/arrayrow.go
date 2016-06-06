@@ -4,16 +4,13 @@ import (
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
-	"github.com/davelondon/vecty/event"
-	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/system/node"
 )
 
-type SummaryRowView struct {
+type ArrayRowView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
@@ -22,8 +19,8 @@ type SummaryRowView struct {
 	node *node.Node
 }
 
-func NewSummaryRowView(ctx context.Context, node *node.Node) *SummaryRowView {
-	v := &SummaryRowView{
+func NewArrayRowView(ctx context.Context, node *node.Node) *ArrayRowView {
+	v := &ArrayRowView{
 		ctx:  ctx,
 		app:  stores.FromContext(ctx),
 		node: node,
@@ -32,8 +29,8 @@ func NewSummaryRowView(ctx context.Context, node *node.Node) *SummaryRowView {
 	return v
 }
 
-func (v *SummaryRowView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*SummaryRowView); ok {
+func (v *ArrayRowView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*ArrayRowView); ok {
 		v.Body = old.Body
 	}
 	v.RenderFunc = v.render
@@ -41,11 +38,11 @@ func (v *SummaryRowView) Reconcile(old vecty.Component) {
 }
 
 // Apply implements the vecty.Markup interface.
-func (v *SummaryRowView) Apply(element *vecty.Element) {
+func (v *ArrayRowView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *SummaryRowView) Mount() {
+func (v *ArrayRowView) Mount() {
 	v.notifs = v.app.Nodes.Watch(v.node,
 		stores.NodeInitialised,
 	)
@@ -57,12 +54,12 @@ func (v *SummaryRowView) Mount() {
 	}()
 }
 
-func (v *SummaryRowView) reaction(notif flux.NotifPayload) {
+func (v *ArrayRowView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
 }
 
-func (v *SummaryRowView) Unmount() {
+func (v *ArrayRowView) Unmount() {
 	if v.notifs != nil {
 		v.app.Nodes.Delete(v.notifs)
 		v.notifs = nil
@@ -70,16 +67,9 @@ func (v *SummaryRowView) Unmount() {
 	v.Body.Unmount()
 }
 
-func (v *SummaryRowView) render() vecty.Component {
+func (v *ArrayRowView) render() vecty.Component {
 
-	name := v.node.Key
-
-	hold, err := v.node.Rule.HoldsDisplayType()
-	if err != nil {
-		v.app.Fail <- kerr.Wrap("CETBRLENSP", err)
-		return nil
-	}
-
+	var err error
 	val := ""
 	if !v.node.Missing && !v.node.Null {
 		val, err = v.node.Type.Id.ValueContext(v.ctx)
@@ -89,22 +79,9 @@ func (v *SummaryRowView) render() vecty.Component {
 		}
 	}
 
-	var add vecty.Component
-	if v.node.Missing || v.node.Null {
-		add = elem.Anchor(
-			event.Click(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.AddNodeClick{Node: v.node})
-			}).PreventDefault(),
-			prop.Href("#"),
-			vecty.Text("add"),
-		)
-	}
-
 	return elem.TableRow(
-		elem.TableData(vecty.Text(name)),
-		elem.TableData(vecty.Text(hold)),
 		elem.TableData(vecty.Text(val)),
-		elem.TableData(add),
+		elem.TableData(vecty.Text("")),
 	)
 
 }
