@@ -158,11 +158,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		if !ok {
 			return true
 		}
-		s.AppendNodeBranchModelChildren(action.Branch, ni.GetNode())
+		n := ni.GetNode()
+		s.AppendNodeBranchModelChildren(action.Branch, n)
+		s.nodeBranches[n] = action.Branch
 		s.Notify(action.Branch, BranchLoaded)
 	case *actions.AddNodeClick:
 		payload.Wait(s.app.Nodes)
-
 		parent := action.Node.Parent
 		if parent == nil {
 			break
@@ -171,11 +172,8 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		if !ok {
 			break
 		}
-
 		s.AppendNodeBranchModelChild(parentBranch, action.Node, true)
-
 		s.Notify(parentBranch, BranchChildAdded)
-
 	}
 
 	return true
