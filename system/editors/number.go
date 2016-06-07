@@ -94,7 +94,6 @@ func (v *NumberEditorView) render() vecty.Component {
 			prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
 			prop.Class("form-control"),
 			prop.ID(id),
-			prop.Placeholder(v.model.Node.Label()),
 		),
 		helpBlock(v.ctx, v.model.Node),
 	)

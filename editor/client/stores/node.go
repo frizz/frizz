@@ -76,7 +76,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.AddNodeClick:
 
-		types := action.Node.Rule.PermittedTypes(s.ctx)
+		types := action.Node.Rule.PermittedTypes()
 
 		if len(types) == 1 {
 			// if only one type is compatible, don't show the popup, just add it.
@@ -94,7 +94,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 
 	case *actions.AddArrayItemClick:
 
-		rw, err := action.Parent.Rule.CollectionItemsRule(s.ctx)
+		rw, err := action.Parent.Rule.ItemsRule()
 		if err != nil {
 			s.app.Fail <- kerr.Wrap("GRGOTVDHDN", err)
 		}
@@ -102,13 +102,13 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.addModalVisible = true
 		s.addModalParent = action.Parent
 		s.addModelNode = nil
-		s.addModalTypes = rw.PermittedTypes(s.ctx)
+		s.addModalTypes = rw.PermittedTypes()
 		s.Notify(nil, AddModalChange)
 
 		return true
 	case *actions.AddMapItemClick:
 
-		rw, err := action.Parent.Rule.CollectionItemsRule(s.ctx)
+		rw, err := action.Parent.Rule.ItemsRule()
 		if err != nil {
 			s.app.Fail <- kerr.Wrap("EWYOMNAQMU", err)
 		}
@@ -116,7 +116,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.addModalVisible = true
 		s.addModalParent = action.Parent
 		s.addModelNode = nil
-		s.addModalTypes = rw.PermittedTypes(s.ctx)
+		s.addModalTypes = rw.PermittedTypes()
 		s.Notify(nil, AddModalChange)
 
 		return true

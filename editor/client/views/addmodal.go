@@ -130,7 +130,6 @@ func (v *AddModalView) render() vecty.Component {
 			elem.Input(
 				prop.Class("form-control"),
 				prop.ID("add-modal-name"),
-				prop.Placeholder("name"),
 			),
 			elem.Paragraph(
 				prop.Class("help-block"),
@@ -162,7 +161,6 @@ func (v *AddModalView) render() vecty.Component {
 			elem.Select(
 				prop.Class("form-control"),
 				prop.ID("add-modal-type"),
-				prop.Placeholder("type"),
 				options,
 			),
 			elem.Paragraph(

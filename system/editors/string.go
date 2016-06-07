@@ -91,7 +91,6 @@ func (v *StringEditorView) render() vecty.Component {
 			prop.Value(v.model.Node.ValueString),
 			prop.Class("form-control"),
 			prop.ID(id),
-			prop.Placeholder(v.model.Node.Label()),
 		),
 		helpBlock(v.ctx, v.model.Node),
 	)

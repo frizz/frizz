@@ -76,7 +76,7 @@ func (v *MapRowView) render() vecty.Component {
 	if !v.node.Missing && !v.node.Null {
 		val, err = v.node.Type.Id.ValueContext(v.ctx)
 		if err != nil {
-			v.app.Fail <- kerr.Wrap("AWLAMTFJSO", err)
+			v.app.Fail <- kerr.Wrap("NPJIEIKJVK", err)
 			return nil
 		}
 	}

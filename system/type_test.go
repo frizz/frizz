@@ -213,6 +213,10 @@ func (*tFooBar) bar() {
 
 }
 
+func Test(t *testing.T) {
+
+}
+
 func TestGetAllTypesThatImplementInterface(t *testing.T) {
 
 	ibar := &Type{Object: &Object{Id: NewReference("a.b/c", "ibar")}, Interface: true}
@@ -240,6 +244,16 @@ func TestGetAllTypesThatImplementInterface(t *testing.T) {
 	types = GetAllTypesThatImplementInterface(cb.Ctx(), &Type{Object: &Object{Id: NewReference("a.b/c", "d")}, Interface: true})
 	assert.Nil(t, types)
 
+	rw := &RuleWrapper{Ctx: cb.Ctx(), Interface: nil, Parent: tfoo, Struct: &Rule{Interface: false}}
+	types = rw.PermittedTypes()
+	assert.Equal(t, 1, len(types))
+	assert.Equal(t, "tfoo", types[0].Id.Name)
+
+	rw = &RuleWrapper{Ctx: cb.Ctx(), Interface: nil, Parent: tfoo, Struct: &Rule{Interface: true}}
+	types = rw.PermittedTypes()
+	assert.Equal(t, 2, len(types))
+	assert.Equal(t, "tfoo", types[0].Id.Name)
+	assert.Equal(t, "tfoobar", types[1].Id.Name)
 }
 
 type tInt int
