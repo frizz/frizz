@@ -21,22 +21,22 @@ func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 	}
 
 	fooType.Id.Package = "d.e/f"
-	_, err := foo.HoldsDisplayType()
+	_, err := foo.DisplayType()
 	assert.IsError(t, err, "OPIFCOHGWI")
 
 	fooType.Id.Package = "a.b/c"
-	val, err := foo.HoldsDisplayType()
+	val, err := foo.DisplayType()
 	assert.NoError(t, err)
 	assert.Equal(t, "foo", val)
 
 	fooRule.Interface = true
-	val, err = foo.HoldsDisplayType()
+	val, err = foo.DisplayType()
 	assert.NoError(t, err)
 	assert.Equal(t, "foo*", val)
 
 	fooRule.Interface = false
 	fooType.Interface = true
-	val, err = foo.HoldsDisplayType()
+	val, err = foo.DisplayType()
 	assert.NoError(t, err)
 	assert.Equal(t, "foo*", val)
 

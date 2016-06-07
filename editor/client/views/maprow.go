@@ -71,14 +71,10 @@ func (v *MapRowView) render() vecty.Component {
 
 	name := v.node.Key
 
-	var err error
-	val := ""
-	if !v.node.Missing && !v.node.Null {
-		val, err = v.node.Type.Id.ValueContext(v.ctx)
-		if err != nil {
-			v.app.Fail <- kerr.Wrap("NPJIEIKJVK", err)
-			return nil
-		}
+	val, err := v.node.DisplayType(v.ctx)
+	if err != nil {
+		v.app.Fail <- kerr.Wrap("NPJIEIKJVK", err)
+		return nil
 	}
 
 	return elem.TableRow(

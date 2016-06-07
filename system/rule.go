@@ -147,8 +147,22 @@ func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
 
 // HoldsDisplayType returns the string to display when communicating to
 // the end user what type this rule holds.
-func (r *RuleWrapper) HoldsDisplayType() (string, error) {
-	str, err := r.Parent.Id.ValueContext(r.Ctx)
+func (r *RuleWrapper) DisplayType() (str string, err error) {
+	if r.Parent.IsNativeCollection() {
+		items, err := r.ItemsRule()
+		if err != nil {
+			return "", kerr.Wrap("CIRIPVYUBF", err)
+		}
+		inner, err := items.DisplayType()
+		if err != nil {
+			return "", kerr.Wrap("AGRCYBLJDJ", err)
+		}
+		if r.Parent.IsNativeArray() {
+			return "[]" + inner, nil
+		}
+		return "map[]" + inner, nil
+	}
+	str, err = r.Parent.Id.ValueContext(r.Ctx)
 	if err != nil {
 		return "", kerr.Wrap("OPIFCOHGWI", err)
 	}

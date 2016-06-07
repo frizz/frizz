@@ -74,19 +74,16 @@ func (v *ObjectRowView) render() vecty.Component {
 
 	name := v.node.Key
 
-	hold, err := v.node.Rule.HoldsDisplayType()
+	hold, err := v.node.Rule.DisplayType()
 	if err != nil {
 		v.app.Fail <- kerr.Wrap("CETBRLENSP", err)
 		return nil
 	}
 
-	val := ""
-	if !v.node.Missing && !v.node.Null {
-		val, err = v.node.Type.Id.ValueContext(v.ctx)
-		if err != nil {
-			v.app.Fail <- kerr.Wrap("AWLAMTFJSO", err)
-			return nil
-		}
+	val, err := v.node.DisplayType(v.ctx)
+	if err != nil {
+		v.app.Fail <- kerr.Wrap("AWLAMTFJSO", err)
+		return nil
 	}
 
 	var add vecty.Component

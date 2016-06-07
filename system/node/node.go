@@ -435,3 +435,21 @@ func (n *Node) Root() *Node {
 	}
 	return nil
 }
+
+func (n *Node) DisplayType(ctx context.Context) (string, error) {
+	if n.Missing || n.Null {
+		return "null", nil
+	}
+	if n.Type.IsNativeCollection() {
+		str, err := n.Rule.DisplayType()
+		if err != nil {
+			return "", kerr.Wrap("AKTVTUJXWS", err)
+		}
+		return str, nil
+	}
+	str, err := n.Type.Id.ValueContext(ctx)
+	if err != nil {
+		return "", kerr.Wrap("BGWYLIFSNN", err)
+	}
+	return str, nil
+}

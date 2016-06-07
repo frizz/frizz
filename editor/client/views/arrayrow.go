@@ -69,14 +69,10 @@ func (v *ArrayRowView) Unmount() {
 
 func (v *ArrayRowView) render() vecty.Component {
 
-	var err error
-	val := ""
-	if !v.node.Missing && !v.node.Null {
-		val, err = v.node.Type.Id.ValueContext(v.ctx)
-		if err != nil {
-			v.app.Fail <- kerr.Wrap("MOECUHNHPC", err)
-			return nil
-		}
+	val, err := v.node.DisplayType(v.ctx)
+	if err != nil {
+		v.app.Fail <- kerr.Wrap("MOECUHNHPC", err)
+		return nil
 	}
 
 	return elem.TableRow(
