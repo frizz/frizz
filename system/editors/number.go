@@ -11,12 +11,13 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
 type NumberEditor struct{}
 
-func (s *NumberEditor) Format() editable.Format {
+func (s *NumberEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Inline
 }
 

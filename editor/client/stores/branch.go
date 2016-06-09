@@ -237,7 +237,8 @@ func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.
 	if n.Missing || n.Null {
 		return
 	}
-	f := models.GetEditable(s.ctx, n).Format()
+	e := models.GetEditable(s.ctx, n)
+	f := e.Format(n.Rule)
 	if f == editable.Branch {
 		b.Append(s.NewNodeBranchModel(s.ctx, n, ""))
 	}

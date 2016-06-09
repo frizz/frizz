@@ -9,12 +9,13 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
 type BoolEditor struct{}
 
-func (s *BoolEditor) Format() editable.Format {
+func (s *BoolEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Inline
 }
 

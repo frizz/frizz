@@ -66,6 +66,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			action.Node.Parent = action.Parent
 			action.Node.Key = action.Key
 			action.Node.Index = action.Index
+			action.Node.Rule = action.Rule
 			if action.Index > -1 {
 				action.Parent.Array = append(action.Parent.Array, action.Node)
 			} else {

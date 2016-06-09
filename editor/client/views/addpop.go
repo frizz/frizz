@@ -263,19 +263,29 @@ func (v *AddPopView) save() {
 			// TODO: show an error
 			return
 		}
+		rule, err := v.model.Parent.Rule.ItemsRule()
+		if err != nil {
+			v.app.Fail <- kerr.Wrap("EMTVVALPIQ", err)
+		}
 		v.app.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
 			New:    true,
 			Parent: v.model.Parent,
+			Rule:   rule,
 			Key:    name,
 			Index:  -1,
 			Type:   t,
 		})
 	} else if v.model.Parent.Type.IsNativeArray() {
+		rule, err := v.model.Parent.Rule.ItemsRule()
+		if err != nil {
+			v.app.Fail <- kerr.Wrap("WNPHUTXCSV", err)
+		}
 		v.app.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
 			New:    true,
 			Parent: v.model.Parent,
+			Rule:   rule,
 			Index:  len(v.model.Parent.Array),
 			Type:   t,
 		})

@@ -14,11 +14,12 @@ func clickSummaryRow(app *stores.App, n *node.Node) {
 		Node: n,
 	})
 
-	b := app.Branches.Get(n)
-	if b == nil {
-		return
+	if b := app.Branches.Get(n); b != nil {
+		app.Dispatch(&actions.BranchSelecting{
+			Branch: b,
+			Op:     models.BranchOpClickSummaryRow,
+		})
 	}
-	app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpClickSummaryRow})
 }
 
 func addCollectionItem(app *stores.App, parent *node.Node) {
@@ -41,10 +42,15 @@ func addCollectionItem(app *stores.App, parent *node.Node) {
 	if len(types) == 1 && parent.Type.IsNativeArray() {
 		// if only one type is compatible and adding to an array, don't show the popup, just
 		// add it.
+		rule, err := parent.Rule.ItemsRule()
+		if err != nil {
+			app.Fail <- kerr.Wrap("ROVRPRAMFF", err)
+		}
 		app.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
 			New:    true,
 			Parent: parent,
+			Rule:   rule,
 			Index:  len(parent.Array),
 			Type:   types[0],
 		})

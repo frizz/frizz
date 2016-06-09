@@ -8,12 +8,13 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
 type ObjectEditor struct{}
 
-func (s *ObjectEditor) Format() editable.Format {
+func (s *ObjectEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Branch
 }
 
@@ -88,7 +89,8 @@ func (v *ObjectEditorView) render() vecty.Component {
 			continue
 		}
 		e := models.GetEditable(v.ctx, n)
-		if e.Format() == editable.Block || e.Format() == editable.Inline {
+		f := e.Format(n.Rule)
+		if f == editable.Block || f == editable.Inline {
 			children = append(children, e.EditorView(v.ctx, n))
 		}
 	}

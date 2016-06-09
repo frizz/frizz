@@ -5,6 +5,9 @@ fields:
   title:
     type: system:@string
     maxLength: 20
+  body:
+    type: system:@string
+    long: true
   image:
     type: images:@icon
   size:

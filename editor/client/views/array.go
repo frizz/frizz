@@ -6,6 +6,7 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -73,6 +74,23 @@ func (v *ArrayView) render() vecty.Component {
 		return elem.Div(vecty.Text("Array (nil)"))
 	}
 
+	children := vecty.List{}
+	for _, n := range v.model.Node.Array {
+		e := models.GetEditable(v.ctx, n)
+		f := e.Format(n.Rule)
+		if f == editable.Block || f == editable.Inline {
+			children = append(children, e.EditorView(v.ctx, n))
+		}
+	}
+	editors := elem.Div()
+	if len(children) > 0 {
+		editors = elem.Div(
+			elem.Form(
+				children,
+			),
+		)
+	}
+
 	return elem.Div(
 		elem.Div(
 			elem.Button(
@@ -84,6 +102,7 @@ func (v *ArrayView) render() vecty.Component {
 				}).PreventDefault(),
 			),
 		),
+		editors,
 		NewArrayTableView(v.ctx, v.model.Node),
 	)
 

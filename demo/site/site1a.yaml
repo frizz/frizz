@@ -2,6 +2,7 @@ description: This is an instance of the gallery type
 type: gallery1a
 id: site1a
 title: Hello, world.
+body: This is some long text.
 image:
   type: images:icon
   url: /logo.png

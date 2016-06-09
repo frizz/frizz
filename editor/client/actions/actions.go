@@ -66,6 +66,7 @@ type LoadSourceError struct {
 type InitializeNode struct {
 	Node   *node.Node
 	Parent *node.Node
+	Rule   *system.RuleWrapper
 	New    bool
 	Key    string
 	Index  int

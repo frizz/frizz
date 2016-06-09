@@ -9,6 +9,7 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -19,7 +20,7 @@ func RegisterDefaultEditor(ctx context.Context) {
 
 type DefaultEditor struct{}
 
-func (s *DefaultEditor) Format() editable.Format {
+func (s *DefaultEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Branch
 }
 

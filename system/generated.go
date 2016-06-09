@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":17235803469318960821}
+// info:{"Path":"kego.io/system","Hash":2339344579968857669}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -114,6 +114,8 @@ type StringRule struct {
 	Equal *String `json:"equal"`
 	// This restricts the value to one of several built-in formats
 	Format *String `json:"format"`
+	// The editor should render as a multi-line textbox
+	Long bool `json:"long"`
 	// The value must be shorter or equal to the provided maximum length
 	MaxLength *Int `json:"maxLength"`
 	// The value must be longer or equal to the provided minimum length
@@ -245,7 +247,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 17235803469318960821)
+	pkg := jsonctx.InitPackage("kego.io/system", 2339344579968857669)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
 	pkg.InitType("number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())

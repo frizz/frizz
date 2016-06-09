@@ -9,12 +9,18 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
 type StringEditor struct{}
 
-func (s *StringEditor) Format() editable.Format {
+func (s *StringEditor) Format(rule *system.RuleWrapper) editable.Format {
+	if rule != nil {
+		if r, ok := rule.Interface.(*system.StringRule); ok && r.Long {
+			return editable.Block
+		}
+	}
 	return editable.Inline
 }
 
@@ -86,11 +92,20 @@ func (v *StringEditorView) Unmount() {
 func (v *StringEditorView) render() vecty.Component {
 	id := randomId()
 
-	v.input = elem.Input(
-		prop.Value(v.model.Node.ValueString),
-		prop.Class("form-control"),
-		prop.ID(id),
-	)
+	sr, ok := v.model.Node.Rule.Interface.(*system.StringRule)
+	if ok && sr.Long {
+		v.input = elem.TextArea(
+			prop.Value(v.model.Node.ValueString),
+			prop.Class("form-control"),
+			prop.ID(id),
+		)
+	} else {
+		v.input = elem.Input(
+			prop.Value(v.model.Node.ValueString),
+			prop.Class("form-control"),
+			prop.ID(id),
+		)
+	}
 
 	return elem.Div(
 		prop.Class("form-group"),

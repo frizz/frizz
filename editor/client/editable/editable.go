@@ -3,6 +3,7 @@ package editable
 import (
 	"github.com/davelondon/vecty"
 	"golang.org/x/net/context"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -16,5 +17,5 @@ const (
 
 type Editable interface {
 	EditorView(ctx context.Context, node *node.Node) vecty.Component
-	Format() Format
+	Format(rule *system.RuleWrapper) Format
 }

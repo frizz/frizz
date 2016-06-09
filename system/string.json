@@ -13,6 +13,11 @@
 				"type": "@string",
 				"optional": true
 			},
+			"long": {
+				"description": "The editor should render as a multi-line textbox",
+				"type": "json:@bool",
+				"optional": true
+			},
 			"enum": {
 				"description": "The value of this string is restricted to one of the provided values",
 				"type": "@array",
