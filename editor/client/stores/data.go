@@ -1,11 +1,12 @@
 package stores
 
 import (
+	"sort"
+
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
-	"kego.io/system/node"
 )
 
 type DataStore struct {
@@ -40,15 +41,16 @@ func (s *DataStore) Names() []string {
 	for n, _ := range s.data {
 		names = append(names, n)
 	}
+	sort.Strings(names)
 	return names
 }
 
-func (s *DataStore) Get(name string) (node *node.Node, file string, ok bool) {
+func (s *DataStore) Get(name string) *models.DataModel {
 	info, ok := s.data[name]
 	if !ok {
-		return nil, "", false
+		return nil
 	}
-	return info.Node, info.File, true
+	return info
 }
 
 func (s *DataStore) All() map[string]*models.DataModel {

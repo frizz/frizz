@@ -1,6 +1,8 @@
 package stores
 
 import (
+	"sort"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -40,12 +42,13 @@ func (s *TypeStore) Names() []string {
 	for n, _ := range s.types {
 		names = append(names, n)
 	}
+	sort.Strings(names)
 	return names
 }
 
-func (s *TypeStore) Get(name string) (*node.Node, bool) {
-	n, ok := s.types[name]
-	return n, ok
+func (s *TypeStore) Get(name string) *node.Node {
+	n, _ := s.types[name]
+	return n
 }
 
 func (s *TypeStore) All() map[string]*node.Node {
