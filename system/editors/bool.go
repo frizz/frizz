@@ -29,6 +29,7 @@ type BoolEditorView struct {
 	notifs chan flux.NotifPayload
 
 	model *models.EditorModel
+	input *vecty.Element
 }
 
 func NewBoolEditorView(ctx context.Context, node *node.Node) *BoolEditorView {
@@ -57,6 +58,7 @@ func (v *BoolEditorView) Apply(element *vecty.Element) {
 func (v *BoolEditorView) Mount() {
 	v.notifs = v.app.Nodes.Watch(v.model.Node,
 		stores.NodeInitialised,
+		stores.NodeFocused,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -68,6 +70,9 @@ func (v *BoolEditorView) Mount() {
 func (v *BoolEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
+	if notif.Type == stores.NodeFocused {
+		v.input.Node().Call("focus")
+	}
 }
 
 func (v *BoolEditorView) Unmount() {
@@ -79,15 +84,18 @@ func (v *BoolEditorView) Unmount() {
 }
 
 func (v *BoolEditorView) render() vecty.Component {
+
+	v.input = elem.Input(
+		prop.Type(prop.TypeCheckbox),
+		prop.Checked(v.model.Node.ValueBool),
+	)
+
 	return elem.Div(
 		prop.Class("form-group"),
 		elem.Div(
 			prop.Class("checkbox"),
 			elem.Label(
-				elem.Input(
-					prop.Type(prop.TypeCheckbox),
-					prop.Checked(v.model.Node.ValueBool),
-				),
+				v.input,
 				vecty.Text(v.model.Node.Label()),
 			),
 		),

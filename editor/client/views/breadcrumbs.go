@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 )
@@ -71,7 +70,7 @@ func (v *BreadcrumbsView) render() vecty.Component {
 					current.Contents.Label(),
 				),
 				event.Click(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.BranchSelect{Branch: current, Op: models.BranchOpClickBreadcrumb})
+					selectBranch(v.app, current, models.BranchOpClickBreadcrumb, nil)
 				}).PreventDefault(),
 			)
 		}

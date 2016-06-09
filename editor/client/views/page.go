@@ -60,7 +60,7 @@ func (v *PageView) addKeyboardEvents() {
 			switch k.KeyCode {
 			case 65:
 				// "a"
-				v.app.Dispatch(&actions.AddCollectionItem{Parent: v.app.Nodes.Selected()})
+				addCollectionItem(v.app, v.app.Nodes.Selected())
 			case 37, 38, 39, 40:
 				// up, down, left, right
 				k.PreventDefault()
@@ -78,22 +78,22 @@ func (v *PageView) KeyPress(code int) {
 	case 38: // up
 		if selected == nil {
 			if b := v.app.Branches.Root().LastVisible(); b != nil {
-				v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
+				selectBranch(v.app, b, models.BranchOpKeyboard, nil)
 			}
 			return
 		}
 		if b := selected.PrevVisible(); b != nil {
-			v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
+			selectBranch(v.app, b, models.BranchOpKeyboard, nil)
 			return
 		}
 	case 40: // down
 		if selected == nil {
 			b := v.app.Branches.Root()
-			v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
+			selectBranch(v.app, b, models.BranchOpKeyboard, nil)
 			return
 		}
 		if b := selected.NextVisible(true); b != nil {
-			v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
+			selectBranch(v.app, b, models.BranchOpKeyboard, nil)
 			return
 		}
 	case 37: // left
@@ -106,7 +106,7 @@ func (v *PageView) KeyPress(code int) {
 			return
 		} else {
 			if b := selected.Parent; b != nil {
-				v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
+				selectBranch(v.app, b, models.BranchOpKeyboard, nil)
 				return
 			}
 		}
@@ -117,11 +117,11 @@ func (v *PageView) KeyPress(code int) {
 		if selected.CanOpen() && !selected.Open {
 			// if the branch is closed, right arrow should open it
 			loadBranch(v.ctx, v.app, selected, &flux.Waiter{})
-			v.app.Dispatcher.Dispatch(&actions.BranchOpen{Branch: selected})
+			v.app.Dispatcher.Dispatch(&actions.BranchOpening{Branch: selected})
 			return
 		} else {
 			if b := selected.FirstChild(); b != nil {
-				v.app.Dispatcher.Dispatch(&actions.BranchSelect{Branch: b, Op: models.BranchOpKeyboard})
+				selectBranch(v.app, b, models.BranchOpKeyboard, nil)
 				return
 			}
 		}

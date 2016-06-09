@@ -13,10 +13,9 @@ import (
 
 type PanelView struct {
 	vecty.Composite
-	ctx            context.Context
-	app            *stores.App
-	notifsBranches chan flux.NotifPayload
-	notifsEditors  chan flux.NotifPayload
+	ctx    context.Context
+	app    *stores.App
+	notifs chan flux.NotifPayload
 
 	branch *models.BranchModel
 	node   *node.Node
@@ -45,22 +44,14 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.notifsBranches = v.app.Branches.Watch(nil,
-		stores.BranchSelectPostLoad,
-	)
-	go func() {
-		for notif := range v.notifsBranches {
-			v.reaction(notif)
-		}
-	}()
-
-	v.notifsEditors = v.app.Editors.Watch(nil,
+	v.notifs = v.app.Editors.Watch(nil,
 		stores.EditorLoaded,
 		stores.EditorAdded,
 		stores.EditorInitialStateLoaded,
+		stores.EditorChanged,
 	)
 	go func() {
-		for notif := range v.notifsEditors {
+		for notif := range v.notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -75,13 +66,9 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *PanelView) Unmount() {
-	if v.notifsBranches != nil {
-		v.app.Branches.Delete(v.notifsBranches)
-		v.notifsBranches = nil
-	}
-	if v.notifsEditors != nil {
-		v.app.Editors.Delete(v.notifsEditors)
-		v.notifsEditors = nil
+	if v.notifs != nil {
+		v.app.Editors.Delete(v.notifs)
+		v.notifs = nil
 	}
 	v.Body.Unmount()
 }

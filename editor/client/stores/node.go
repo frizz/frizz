@@ -35,6 +35,7 @@ func (b nodeNotif) IsNotif() {}
 const (
 	NodeInitialised nodeNotif = "NodeInitialised"
 	AddPopChange    nodeNotif = "AddPopChange"
+	NodeFocused     nodeNotif = "NodeFocused"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -49,84 +50,46 @@ func NewNodeStore(ctx context.Context) *NodeStore {
 
 func (s *NodeStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
-	case *actions.BranchSelect:
-		s.selected = nil
+	case *actions.BranchSelecting:
 		if ni, ok := action.Branch.Contents.(models.NodeContentsInterface); ok {
 			s.selected = ni.GetNode()
+		} else {
+			s.selected = nil
 		}
-	case *actions.BranchSelectPostLoad:
-		s.selected = nil
+	case *actions.BranchSelected:
 		if ni, ok := action.Branch.Contents.(models.NodeContentsInterface); ok {
 			s.selected = ni.GetNode()
+		} else {
+			s.selected = nil
 		}
-	case *actions.AddNodeClick:
-
-		types := action.Node.Rule.PermittedTypes()
-
-		if len(types) == 1 {
-			// if only one type is compatible, don't show the popup, just add it.
-			if err := action.Node.InitialiseWithConcreteType(s.ctx, types[0]); err != nil {
-				s.app.Fail <- kerr.Wrap("NEWJOIFGBH", err)
+	case *actions.InitializeNode:
+		if action.New {
+			action.Node.Parent = action.Parent
+			action.Node.Key = action.Key
+			action.Node.Index = action.Index
+			if action.Index > -1 {
+				action.Parent.Array = append(action.Parent.Array, action.Node)
+			} else {
+				action.Parent.Map[action.Key] = action.Node
 			}
-			s.app.Dispatch(&actions.NodeInitialized{Node: action.Node})
-			return true
 		}
-
-		s.addPop = &models.AddPopModel{
-			Visible: true,
-			Parent:  action.Node.Parent,
-			Node:    action.Node,
-			Types:   types,
+		if err := action.Node.InitialiseWithConcreteType(s.ctx, action.Type); err != nil {
+			s.app.Fail <- kerr.Wrap("WWKUVDDLYU", err)
 		}
-		s.Notify(nil, AddPopChange)
-
-	case *actions.AddCollectionItem:
-
-		if action.Parent == nil {
-			return true
-		}
-
-		if !action.Parent.Type.IsNativeCollection() {
-			return true
-		}
-
-		rw, err := action.Parent.Rule.ItemsRule()
-		if err != nil {
-			s.app.Fail <- kerr.Wrap("EWYOMNAQMU", err)
-		}
-
-		types := rw.PermittedTypes()
-
-		if len(types) == 1 && action.Parent.Type.IsNativeArray() {
-			// if only one type is compatible and adding to an array, don't show the popup, just
-			// add it.
-			n := node.NewNode()
-			n.Parent = action.Parent
-			n.Index = len(n.Parent.Array)
-			n.Parent.Array = append(n.Parent.Array, n)
-			if err := n.InitialiseWithConcreteType(s.ctx, types[0]); err != nil {
-				s.app.Fail <- kerr.Wrap("JRFSDHXIRY", err)
-			}
-			s.app.Dispatch(&actions.NodeInitialized{Node: n})
-			return true
-		}
+	case *actions.OpenAddPop:
 
 		s.addPop = &models.AddPopModel{
 			Visible: true,
 			Parent:  action.Parent,
-			Types:   types,
+			Node:    action.Node,
+			Types:   action.Types,
 		}
 		s.Notify(nil, AddPopChange)
-
-		return true
-	case *actions.AddPopClose:
-
+	case *actions.CloseAddPop:
 		s.addPop = &models.AddPopModel{
 			Visible: false,
 		}
 		s.Notify(nil, AddPopChange)
-
-		return true
 	case *actions.AddPopNameChange:
 		s.addPop.Name = action.Value
 		return true
@@ -144,49 +107,8 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 		s.addPop.Type = t
 		return true
-	case *actions.AddPopSaveClick:
-		var t *system.Type
-		if len(s.addPop.Types) == 1 {
-			t = s.addPop.Types[0]
-		} else if s.addPop.Type != nil {
-			t = s.addPop.Type
-		} else {
-			return true
-		}
-		var n *node.Node
-
-		if s.addPop.Node != nil {
-			n = s.addPop.Node
-		} else if s.addPop.Parent.Type.IsNativeMap() {
-			if s.addPop.Name == "" {
-				return true
-			}
-			if _, duplicate := s.addPop.Parent.Map[s.addPop.Name]; duplicate {
-				// TODO: show an error
-				return true
-			}
-			n = node.NewNode()
-			n.Parent = s.addPop.Parent
-			n.Key = s.addPop.Name
-			s.addPop.Parent.Map[s.addPop.Name] = n
-		} else if s.addPop.Parent.Type.IsNativeArray() {
-			n = node.NewNode()
-			n.Parent = s.addPop.Parent
-			n.Index = len(s.addPop.Parent.Array)
-			s.addPop.Parent.Array = append(s.addPop.Parent.Array, n)
-		}
-
-		if err := n.InitialiseWithConcreteType(s.ctx, t); err != nil {
-			s.app.Fail <- kerr.Wrap("NGCOVJKEXG", err)
-		}
-
-		s.app.Dispatch(&actions.NodeInitialized{Node: n})
-
-		s.addPop = &models.AddPopModel{
-			Visible: false,
-		}
-		s.Notify(nil, AddPopChange)
-
+	case *actions.FocusNode:
+		s.Notify(action.Node, NodeFocused)
 		return true
 	}
 	return true

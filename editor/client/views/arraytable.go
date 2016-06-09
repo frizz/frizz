@@ -64,7 +64,7 @@ func (v *ArrayTableView) render() vecty.Component {
 
 	return elem.Div(
 		elem.Table(
-			prop.Class("table"),
+			prop.Class("table table-hover"),
 			elem.TableHead(
 				head,
 			),

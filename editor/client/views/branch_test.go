@@ -80,9 +80,9 @@ func TestBranchNotifyOpen(t *testing.T) {
 
 	cb.GetConnection().EXPECT().Go(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-	cb.ExpectDispatched(&actions.BranchOpenPostLoad{Branch: b.model, Loaded: false})
+	cb.ExpectDispatched(&actions.BranchOpened{Branch: b.model, Loaded: false})
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpen)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -99,10 +99,10 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
 		&actions.LoadSourceSuccess{Branch: b.model},
-		&actions.BranchOpenPostLoad{Branch: b.model, Loaded: true},
+		&actions.BranchOpened{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpen)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -120,10 +120,10 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
 		&actions.LoadSourceCancelled{Branch: b.model},
-		&actions.BranchOpenPostLoad{Branch: b.model, Loaded: false},
+		&actions.BranchOpened{Branch: b.model, Loaded: false},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpen)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppFail("OCVFGLPIQG")
@@ -137,10 +137,10 @@ func TestBranchNotifySelect(t *testing.T) {
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 
 	cb.ExpectDispatched(
-		&actions.BranchSelectPostLoad{Branch: b.model, Loaded: false},
+		&actions.BranchSelected{Branch: b.model, Loaded: false},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelect)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelecting)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -158,10 +158,10 @@ func TestBranchNotifySelectSource(t *testing.T) {
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
 		&actions.LoadSourceSuccess{Branch: b.model},
-		&actions.BranchSelectPostLoad{Branch: b.model, Loaded: true},
+		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelect)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelecting)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -181,11 +181,11 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
 		&actions.LoadSourceSuccess{Branch: b.model},
-		&actions.BranchOpen{Branch: b.model},
-		&actions.BranchSelectPostLoad{Branch: b.model, Loaded: true},
+		&actions.BranchOpening{Branch: b.model},
+		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelect)
+	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelecting)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -194,7 +194,7 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 
 func TestBranchReconcile(t *testing.T) {
 	testBranchReconcile(t, stores.BranchClose)
-	testBranchReconcile(t, stores.BranchOpenPostLoad)
+	testBranchReconcile(t, stores.BranchOpened)
 	testBranchReconcile(t, stores.BranchLoaded)
 }
 

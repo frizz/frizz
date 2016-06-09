@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -81,9 +80,7 @@ func (v *ArrayView) render() vecty.Component {
 				prop.Class("btn btn-primary"),
 				vecty.Text("Add"),
 				event.Click(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.AddCollectionItem{
-						Parent: v.model.Node,
-					})
+					addCollectionItem(v.app, v.model.Node)
 				}).PreventDefault(),
 			),
 		),

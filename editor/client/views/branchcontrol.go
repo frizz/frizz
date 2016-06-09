@@ -52,8 +52,8 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 
 func (v *BranchControlView) Mount() {
 	v.notifs = v.app.Branches.Watch(v.model,
-		stores.BranchPreSelect,
-		stores.BranchUnselect,
+		stores.BranchSelectControl,
+		stores.BranchUnselectControl,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -85,19 +85,19 @@ func (v *BranchControlView) focus() {
 func (v *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
 		if !v.model.CanOpen() {
-			v.app.Dispatch(&actions.BranchSelect{Branch: v.model, Op: models.BranchOpClickToggle})
+			selectBranch(v.app, v.model, models.BranchOpClickToggle, nil)
 			return
 		}
 		if v.model.Open {
 			v.app.Dispatch(&actions.BranchClose{Branch: v.model})
 			return
 		}
-		v.app.Dispatch(&actions.BranchOpen{Branch: v.model})
+		v.app.Dispatch(&actions.BranchOpening{Branch: v.model})
 	}()
 }
 
 func (v *BranchControlView) labelClick(*vecty.Event) {
-	v.app.Dispatch(&actions.BranchSelect{Branch: v.model, Op: models.BranchOpClickLabel})
+	selectBranch(v.app, v.model, models.BranchOpClickLabel, nil)
 }
 
 func (v *BranchControlView) render() vecty.Component {

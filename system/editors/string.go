@@ -29,6 +29,7 @@ type StringEditorView struct {
 	notifs chan flux.NotifPayload
 
 	model *models.EditorModel
+	input *vecty.Element
 }
 
 func NewStringEditorView(ctx context.Context, node *node.Node) *StringEditorView {
@@ -57,6 +58,7 @@ func (v *StringEditorView) Apply(element *vecty.Element) {
 func (v *StringEditorView) Mount() {
 	v.notifs = v.app.Nodes.Watch(v.model.Node,
 		stores.NodeInitialised,
+		stores.NodeFocused,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -68,6 +70,9 @@ func (v *StringEditorView) Mount() {
 func (v *StringEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
+	if notif.Type == stores.NodeFocused {
+		v.input.Node().Call("focus")
+	}
 }
 
 func (v *StringEditorView) Unmount() {
@@ -81,17 +86,19 @@ func (v *StringEditorView) Unmount() {
 func (v *StringEditorView) render() vecty.Component {
 	id := randomId()
 
+	v.input = elem.Input(
+		prop.Value(v.model.Node.ValueString),
+		prop.Class("form-control"),
+		prop.ID(id),
+	)
+
 	return elem.Div(
 		prop.Class("form-group"),
 		elem.Label(
 			prop.For(id),
 			vecty.Text(v.model.Node.Label()),
 		),
-		elem.Input(
-			prop.Value(v.model.Node.ValueString),
-			prop.Class("form-control"),
-			prop.ID(id),
-		),
+		v.input,
 		helpBlock(v.ctx, v.model.Node),
 	)
 

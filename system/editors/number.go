@@ -31,6 +31,7 @@ type NumberEditorView struct {
 	notifs chan flux.NotifPayload
 
 	model *models.EditorModel
+	input *vecty.Element
 }
 
 func NewNumberEditorView(ctx context.Context, node *node.Node) *NumberEditorView {
@@ -59,6 +60,7 @@ func (v *NumberEditorView) Apply(element *vecty.Element) {
 func (v *NumberEditorView) Mount() {
 	v.notifs = v.app.Nodes.Watch(v.model.Node,
 		stores.NodeInitialised,
+		stores.NodeFocused,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -70,6 +72,9 @@ func (v *NumberEditorView) Mount() {
 func (v *NumberEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
+	if notif.Type == stores.NodeFocused {
+		v.input.Node().Call("focus")
+	}
 }
 
 func (v *NumberEditorView) Unmount() {
@@ -83,18 +88,20 @@ func (v *NumberEditorView) Unmount() {
 func (v *NumberEditorView) render() vecty.Component {
 	id := randomId()
 
+	v.input = elem.Input(
+		prop.Type(prop.TypeNumber),
+		prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
+		prop.Class("form-control"),
+		prop.ID(id),
+	)
+
 	return elem.Div(
 		prop.Class("form-group"),
 		elem.Label(
 			prop.For(id),
 			vecty.Text(v.model.Node.Label()),
 		),
-		elem.Input(
-			prop.Type(prop.TypeNumber),
-			prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
-			prop.Class("form-control"),
-			prop.ID(id),
-		),
+		v.input,
 		helpBlock(v.ctx, v.model.Node),
 	)
 }

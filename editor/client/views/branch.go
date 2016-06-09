@@ -54,12 +54,13 @@ func (v *BranchView) Apply(element *vecty.Element) {
 func (v *BranchView) Mount() {
 
 	v.notifs = v.app.Branches.Watch(v.model,
-		stores.BranchOpen,
-		stores.BranchOpenPostLoad,
+		stores.BranchOpening,
+		stores.BranchOpened,
 		stores.BranchClose,
 		stores.BranchLoaded,
-		stores.BranchSelect,
+		stores.BranchSelecting,
 		stores.BranchChildAdded,
+		stores.BranchDescendantSelected,
 	)
 
 	go func() {
@@ -74,16 +75,22 @@ func (v *BranchView) reaction(notif flux.NotifPayload) {
 	defer wait.Go(notif.Done)
 
 	switch notif.Type {
-	case stores.BranchOpen:
+	case stores.BranchOpening:
 		loaded := loadBranch(v.ctx, v.app, v.model, wait)
-		wait.Add(v.app.Dispatch(&actions.BranchOpenPostLoad{Branch: v.model, Loaded: loaded}))
-	case stores.BranchSelect:
+		wait.Add(v.app.Dispatch(&actions.BranchOpened{Branch: v.model, Loaded: loaded}))
+	case stores.BranchSelecting:
 		loaded := loadBranch(v.ctx, v.app, v.model, wait)
 		if v.model.LastOp == models.BranchOpClickToggle && loaded {
-			wait.Add(v.app.Dispatch(&actions.BranchOpen{Branch: v.model}))
+			wait.Add(v.app.Dispatch(&actions.BranchOpening{Branch: v.model}))
 		}
-		wait.Add(v.app.Dispatch(&actions.BranchSelectPostLoad{Branch: v.model, Loaded: loaded}))
-	case stores.BranchOpenPostLoad,
+		wait.Add(v.app.Dispatch(&actions.BranchSelected{Branch: v.model, Loaded: loaded}))
+	case stores.BranchDescendantSelected:
+		// If a descendant is selected, but this branch is closed, we must render the branch open
+		// before reposting the select action.
+		v.ReconcileBody()
+		b := v.app.Branches.Selected()
+		selectBranch(v.app, b, b.LastOp, wait)
+	case stores.BranchOpened,
 		stores.BranchClose,
 		stores.BranchLoaded,
 		stores.BranchChildAdded:
@@ -164,4 +171,27 @@ func (v *BranchView) render() vecty.Component {
 			v.children,
 		),
 	)
+}
+
+func selectBranch(app *stores.App, branch *models.BranchModel, op models.BranchOps, wait *flux.Waiter) {
+
+	if branch.IsVisible() {
+		done := app.Dispatch(&actions.BranchSelecting{
+			Branch: branch,
+			Op:     op,
+		})
+		if wait != nil {
+			wait.Add(done)
+		}
+		return
+	}
+
+	done := app.Dispatch(&actions.BranchDescendantSelect{
+		Branch: branch,
+		Op:     op,
+	})
+	if wait != nil {
+		wait.Add(done)
+	}
+
 }

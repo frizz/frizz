@@ -3,6 +3,7 @@ package actions
 import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/shared"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -14,23 +15,30 @@ type InitialState struct {
 	Info *shared.Info
 }
 
-type BranchSelect struct {
+type BranchDescendantSelect struct {
 	Branch *models.BranchModel
 	Op     models.BranchOps
 }
-type BranchSelectPostLoad struct {
+
+type BranchSelecting struct {
+	Branch *models.BranchModel
+	Op     models.BranchOps
+}
+type BranchSelected struct {
 	Branch *models.BranchModel
 	Loaded bool
 }
-type BranchOpen struct {
+
+type BranchOpening struct {
 	Branch *models.BranchModel
 }
+type BranchOpened struct {
+	Branch *models.BranchModel
+	Loaded bool
+}
+
 type BranchClose struct {
 	Branch *models.BranchModel
-}
-type BranchOpenPostLoad struct {
-	Branch *models.BranchModel
-	Loaded bool
 }
 
 type LoadSource struct {
@@ -54,20 +62,30 @@ type LoadSourceSuccess struct {
 type LoadSourceError struct {
 	Branch *models.BranchModel
 }
-type AddNodeClick struct {
-	Node *node.Node
-}
-type NodeInitialized struct {
-	Node *node.Node
-}
-type AddCollectionItem struct {
+
+type InitializeNode struct {
+	Node   *node.Node
 	Parent *node.Node
+	New    bool
+	Key    string
+	Index  int
+	Type   *system.Type
 }
+
+type OpenAddPop struct {
+	Parent *node.Node
+	Node   *node.Node
+	Types  []*system.Type
+}
+type CloseAddPop struct{}
+
 type AddPopNameChange struct {
 	Value string
 }
 type AddPopTypeChange struct {
 	Value string
 }
-type AddPopClose struct{}
-type AddPopSaveClick struct{}
+
+type FocusNode struct {
+	Node *node.Node
+}

@@ -13,6 +13,8 @@ import (
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/json"
+	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type AddPopView struct {
@@ -96,7 +98,7 @@ func (v *AddPopView) render() vecty.Component {
 			elem.Input(
 				prop.Class("form-control"),
 				prop.ID("add-modal-name"),
-				event.Change(func(ev *vecty.Event) {
+				event.KeyPress(func(ev *vecty.Event) {
 					v.app.Dispatch(&actions.AddPopNameChange{Value: ev.Target.Get("value").String()})
 				}),
 			),
@@ -155,7 +157,7 @@ func (v *AddPopView) render() vecty.Component {
 			prop.Class("modal-body"),
 			elem.Form(
 				event.Submit(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.AddPopSaveClick{})
+					v.save()
 				}).PreventDefault(),
 				nameControl,
 				typeControl,
@@ -184,7 +186,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("×"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddPopClose{})
+							v.app.Dispatch(&actions.CloseAddPop{})
 						}).PreventDefault(),
 					),
 					elem.Header4(
@@ -202,7 +204,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Close"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddPopClose{})
+							v.app.Dispatch(&actions.CloseAddPop{})
 						}).PreventDefault(),
 					),
 					elem.Button(
@@ -212,11 +214,59 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Save"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddPopSaveClick{})
+							v.save()
 						}).PreventDefault(),
 					),
 				),
 			),
 		),
 	)
+}
+
+func (v *AddPopView) save() {
+	var t *system.Type
+	if len(v.model.Types) == 1 {
+		t = v.model.Types[0]
+	} else if v.model.Type != nil {
+		t = v.model.Type
+	} else {
+		return
+	}
+
+	if v.model.Node != nil {
+		v.app.Dispatch(&actions.InitializeNode{
+			Node: v.model.Node,
+			New:  false,
+			Type: t,
+		})
+		return
+	} else if v.model.Parent.Type.IsNativeMap() {
+		if v.model.Name == "" {
+			// TODO: show an error
+			return
+		}
+		if _, duplicate := v.model.Parent.Map[v.model.Name]; duplicate {
+			// TODO: show an error
+			return
+		}
+		v.app.Dispatch(&actions.InitializeNode{
+			Node:   node.NewNode(),
+			New:    true,
+			Parent: v.model.Parent,
+			Key:    v.model.Name,
+			Index:  -1,
+			Type:   t,
+		})
+	} else if v.model.Parent.Type.IsNativeArray() {
+		v.app.Dispatch(&actions.InitializeNode{
+			Node:   node.NewNode(),
+			New:    true,
+			Parent: v.model.Parent,
+			Index:  len(v.model.Parent.Array),
+			Type:   t,
+		})
+	}
+
+	v.app.Dispatch(&actions.CloseAddPop{})
+
 }

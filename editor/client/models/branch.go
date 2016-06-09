@@ -19,10 +19,13 @@ func NewBranchModel(ctx context.Context, contents BranchContentsInterface) *Bran
 
 type BranchOps string
 
-const BranchOpKeyboard BranchOps = "BranchOpKeyboard"
-const BranchOpClickLabel BranchOps = "BranchOpClickLabel"
-const BranchOpClickBreadcrumb BranchOps = "BranchOpClickBreadcrumb"
-const BranchOpClickToggle BranchOps = "BranchOpClickToggle"
+const (
+	BranchOpKeyboard        BranchOps = "BranchOpKeyboard"
+	BranchOpClickLabel      BranchOps = "BranchOpClickLabel"
+	BranchOpClickSummaryRow BranchOps = "BranchOpClickSummaryRow"
+	BranchOpClickBreadcrumb BranchOps = "BranchOpClickBreadcrumb"
+	BranchOpClickToggle     BranchOps = "BranchOpClickToggle"
+)
 
 func (b *BranchModel) CanOpen() bool {
 	if b.Root {
@@ -66,4 +69,31 @@ func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {
 	}
 	b.Children = append(b.Children, children...)
 	return b
+}
+
+// IsVisible checks if all ancestors are open.
+func (b *BranchModel) IsVisible() bool {
+	current := b.Parent
+	for current != nil {
+		if !current.Open {
+			return false
+		}
+		current = current.Parent
+	}
+	return true
+}
+
+// EnsureVisible ensures that all ancestors are open. If any are open, we return the oldest closed
+// ancestor. If all are open we return nil.
+func (b *BranchModel) EnsureVisible() *BranchModel {
+	current := b.Parent
+	var closed *BranchModel
+	for current != nil {
+		if !current.Open {
+			closed = current
+			current.Open = true
+		}
+		current = current.Parent
+	}
+	return closed
 }

@@ -4,6 +4,8 @@ import (
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/event"
+	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -78,6 +80,10 @@ func (v *MapRowView) render() vecty.Component {
 	}
 
 	return elem.TableRow(
+		prop.Class("clickable"),
+		event.Click(func(ev *vecty.Event) {
+			clickSummaryRow(v.app, v.node)
+		}),
 		elem.TableData(vecty.Text(name)),
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(vecty.Text("")),

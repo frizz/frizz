@@ -90,7 +90,21 @@ func (v *ObjectRowView) render() vecty.Component {
 	if v.node.Missing || v.node.Null {
 		add = elem.Anchor(
 			event.Click(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.AddNodeClick{Node: v.node})
+				types := v.node.Rule.PermittedTypes()
+				if len(types) == 1 {
+					// if only one type is compatible, don't show the popup, just add it.
+					v.app.Dispatch(&actions.InitializeNode{
+						Node: v.node,
+						New:  false,
+						Type: types[0],
+					})
+					return
+				}
+				v.app.Dispatch(&actions.OpenAddPop{
+					Parent: v.node.Parent,
+					Node:   v.node,
+					Types:  types,
+				})
 			}).PreventDefault(),
 			prop.Href("#"),
 			vecty.Text("add"),
@@ -98,6 +112,14 @@ func (v *ObjectRowView) render() vecty.Component {
 	}
 
 	return elem.TableRow(
+		vecty.ClassMap{
+			"clickable": !v.node.Missing && !v.node.Null,
+		},
+		event.Click(func(ev *vecty.Event) {
+			if !v.node.Missing && !v.node.Null {
+				clickSummaryRow(v.app, v.node)
+			}
+		}),
 		elem.TableData(vecty.Text(name)),
 		elem.TableData(vecty.Text(hold)),
 		elem.TableData(vecty.Text(val)),
