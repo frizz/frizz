@@ -60,7 +60,6 @@ func (v *BranchView) Mount() {
 		stores.BranchLoaded,
 		stores.BranchSelecting,
 		stores.BranchChildAdded,
-		stores.BranchDescendantSelected,
 	)
 
 	go func() {
@@ -80,21 +79,19 @@ func (v *BranchView) reaction(notif flux.NotifPayload) {
 		wait.Add(v.app.Dispatch(&actions.BranchOpened{Branch: v.model, Loaded: loaded}))
 	case stores.BranchSelecting:
 		loaded := loadBranch(v.ctx, v.app, v.model, wait)
-		if v.model.LastOp == models.BranchOpClickToggle && loaded {
+		data := notif.Data.(*stores.BranchSelectOperationData)
+		if loaded && data.Op == models.BranchOpClickToggle {
 			wait.Add(v.app.Dispatch(&actions.BranchOpening{Branch: v.model}))
 		}
 		wait.Add(v.app.Dispatch(&actions.BranchSelected{Branch: v.model, Loaded: loaded}))
-	case stores.BranchDescendantSelected:
-		// If a descendant is selected, but this branch is closed, we must render the branch open
-		// before reposting the select action.
-		v.ReconcileBody()
-		b := v.app.Branches.Selected()
-		selectBranch(v.app, b, b.LastOp, wait)
 	case stores.BranchOpened,
 		stores.BranchClose,
 		stores.BranchLoaded,
 		stores.BranchChildAdded:
 		v.ReconcileBody()
+		if ds, ok := notif.Data.(*stores.BranchDescendantSelectData); ok {
+			wait.Add(v.app.Dispatch(&actions.BranchSelecting{Branch: ds.Branch, Op: ds.Op}))
+		}
 	}
 }
 
@@ -171,27 +168,4 @@ func (v *BranchView) render() vecty.Component {
 			v.children,
 		),
 	)
-}
-
-func selectBranch(app *stores.App, branch *models.BranchModel, op models.BranchOps, wait *flux.Waiter) {
-
-	if branch.IsVisible() {
-		done := app.Dispatch(&actions.BranchSelecting{
-			Branch: branch,
-			Op:     op,
-		})
-		if wait != nil {
-			wait.Add(done)
-		}
-		return
-	}
-
-	done := app.Dispatch(&actions.BranchDescendantSelect{
-		Branch: branch,
-		Op:     op,
-	})
-	if wait != nil {
-		wait.Add(done)
-	}
-
 }

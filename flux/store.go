@@ -16,6 +16,8 @@ type StoreInterface interface {
 	// when the notify action has finished.
 	Notify(object interface{}, notif Notif) (done chan struct{})
 
+	NotifyWithData(object interface{}, notif Notif, data interface{}) (done chan struct{})
+
 	Delete(c chan NotifPayload)
 }
 
@@ -32,6 +34,7 @@ func (s *Store) Init(si StoreInterface) {
 type NotifPayload struct {
 	Type Notif
 	Done chan struct{}
+	Data interface{}
 }
 
 type Notif interface {
@@ -99,11 +102,16 @@ func (s *Store) Watch(object interface{}, notifs ...Notif) chan NotifPayload {
 // Notify sends the notif notification to all subscribers of that notification for object. If
 // object is nil, the notification is sent to all subscribers.
 func (s *Store) Notify(object interface{}, notif Notif) (done chan struct{}) {
-	_, done = s.notifyCount(object, notif)
+	_, done = s.notifyCount(object, notif, nil)
 	return done
 }
 
-func (s *Store) notifyCount(object interface{}, notif Notif) (count int, done chan struct{}) {
+func (s *Store) NotifyWithData(object interface{}, notif Notif, data interface{}) (done chan struct{}) {
+	_, done = s.notifyCount(object, notif, data)
+	return done
+}
+
+func (s *Store) notifyCount(object interface{}, notif Notif, data interface{}) (count int, done chan struct{}) {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
@@ -116,7 +124,7 @@ func (s *Store) notifyCount(object interface{}, notif Notif) (count int, done ch
 		close(done)
 		return 0, done
 	}
-	return s.subscribers[notif].notify(object, notif)
+	return s.subscribers[notif].notify(object, notif, data)
 }
 
 type notifHelper map[interface{}][]chan NotifPayload
@@ -132,7 +140,7 @@ func (n notifHelper) watch(object interface{}, c chan NotifPayload) {
 	}
 }
 
-func (n notifHelper) notify(object interface{}, notif Notif) (count int, done chan struct{}) {
+func (n notifHelper) notify(object interface{}, notif Notif, data interface{}) (count int, done chan struct{}) {
 	matching := map[chan NotifPayload]bool{}
 	if object == nil {
 		// allSubscribers contains all the subscribers reguardless what they are watching.
@@ -156,7 +164,7 @@ func (n notifHelper) notify(object interface{}, notif Notif) (count int, done ch
 			<-notifDone
 			wg.Done()
 		}()
-		c <- NotifPayload{Type: notif, Done: notifDone}
+		c <- NotifPayload{Type: notif, Done: notifDone, Data: data}
 	}
 	done = make(chan struct{}, 1)
 	go func() {

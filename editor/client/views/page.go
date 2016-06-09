@@ -78,22 +78,22 @@ func (v *PageView) KeyPress(code int) {
 	case 38: // up
 		if selected == nil {
 			if b := v.app.Branches.Root().LastVisible(); b != nil {
-				selectBranch(v.app, b, models.BranchOpKeyboard, nil)
+				v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			}
 			return
 		}
 		if b := selected.PrevVisible(); b != nil {
-			selectBranch(v.app, b, models.BranchOpKeyboard, nil)
+			v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 	case 40: // down
 		if selected == nil {
 			b := v.app.Branches.Root()
-			selectBranch(v.app, b, models.BranchOpKeyboard, nil)
+			v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 		if b := selected.NextVisible(true); b != nil {
-			selectBranch(v.app, b, models.BranchOpKeyboard, nil)
+			v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 	case 37: // left
@@ -106,7 +106,7 @@ func (v *PageView) KeyPress(code int) {
 			return
 		} else {
 			if b := selected.Parent; b != nil {
-				selectBranch(v.app, b, models.BranchOpKeyboard, nil)
+				v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 				return
 			}
 		}
@@ -121,7 +121,7 @@ func (v *PageView) KeyPress(code int) {
 			return
 		} else {
 			if b := selected.FirstChild(); b != nil {
-				selectBranch(v.app, b, models.BranchOpKeyboard, nil)
+				v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 				return
 			}
 		}

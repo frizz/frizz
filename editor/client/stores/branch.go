@@ -60,7 +60,6 @@ const (
 	BranchLoaded             branchNotif = "BranchLoaded"
 	BranchOpening            branchNotif = "BranchOpening"
 	BranchOpened             branchNotif = "BranchOpened"
-	BranchDescendantSelected branchNotif = "BranchDescendantSelected"
 	BranchClose              branchNotif = "BranchClose"
 	BranchSelecting          branchNotif = "BranchSelecting"
 	BranchSelected           branchNotif = "BranchSelected"
@@ -68,6 +67,18 @@ const (
 	BranchSelectControl      branchNotif = "BranchSelectControl"
 	BranchUnselectControl    branchNotif = "BranchUnselectControl"
 )
+
+// BranchDescendantSelect is passed as the notif data when the specified descendant should be
+// selected directly after rendering the branch.
+type BranchDescendantSelectData struct {
+	Branch *models.BranchModel
+	Op     models.BranchOps
+}
+
+// BranchSelectOperation is passed as the notif data to modify the function of BranchSelecting
+type BranchSelectOperationData struct {
+	Op models.BranchOps
+}
 
 func NewBranchStore(ctx context.Context) *BranchStore {
 	s := &BranchStore{
@@ -105,27 +116,18 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		action.Branch.Open = true
 		s.Notify(action.Branch, BranchOpened)
-	case *actions.BranchDescendantSelect:
-
-		s.selected = action.Branch
-		s.selected.LastOp = action.Op
-
-		ancestor := action.Branch.EnsureVisible()
-		if ancestor == nil {
-			break
-		}
-
-		s.Notify(ancestor, BranchDescendantSelected)
 
 	case *actions.BranchSelecting:
 
-		s.selected = action.Branch
-		s.selected.LastOp = action.Op
-
-		if oldestClosedAncestor := action.Branch.EnsureVisible(); oldestClosedAncestor != nil {
-			s.Notify(oldestClosedAncestor, BranchDescendantSelected)
+		if ancestor := action.Branch.EnsureVisible(); ancestor != nil {
+			s.NotifyWithData(ancestor, BranchOpened, &BranchDescendantSelectData{
+				Branch: action.Branch,
+				Op:     action.Op,
+			})
 			break
 		}
+
+		s.selected = action.Branch
 
 		s.Notify(previous, BranchUnselectControl)
 		s.Notify(s.selected, BranchSelectControl)
@@ -134,11 +136,19 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			go func() {
 				<-time.After(time.Millisecond * 50)
 				if s.selected == action.Branch {
-					s.Notify(s.selected, BranchSelecting)
+					s.NotifyWithData(
+						s.selected,
+						BranchSelecting,
+						&BranchSelectOperationData{Op: action.Op},
+					)
 				}
 			}()
 		} else {
-			s.Notify(s.selected, BranchSelecting)
+			s.NotifyWithData(
+				s.selected,
+				BranchSelecting,
+				&BranchSelectOperationData{Op: action.Op},
+			)
 		}
 
 	case *actions.BranchSelected:

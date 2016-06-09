@@ -10,7 +10,6 @@ type BranchModel struct {
 	Contents BranchContentsInterface
 	Parent   *BranchModel
 	index    int
-	LastOp   BranchOps
 }
 
 func NewBranchModel(ctx context.Context, contents BranchContentsInterface) *BranchModel {

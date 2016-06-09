@@ -18,7 +18,7 @@ func clickSummaryRow(app *stores.App, n *node.Node) {
 	if b == nil {
 		return
 	}
-	selectBranch(app, b, models.BranchOpClickSummaryRow, nil)
+	app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpClickSummaryRow})
 }
 
 func addCollectionItem(app *stores.App, parent *node.Node) {
