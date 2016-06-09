@@ -50,7 +50,7 @@ func (v *PageView) addKeyboardEvents() {
 	window.AddEventListener("keydown", true, func(e dom.Event) {
 		k := e.(*dom.KeyboardEvent)
 		switch document.ActiveElement().TagName() {
-		case "INPUT", "TEXTAREA":
+		case "INPUT", "TEXTAREA", "SELECT":
 			if k.KeyCode == 27 {
 				// escape
 				document.ActiveElement().Blur()

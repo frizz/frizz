@@ -62,6 +62,11 @@ func (v *AddPopView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 	if v.model.Visible {
 		js.Global.Call("$", "#add-modal").Call("modal", "show")
+		if v.model.Parent.JsonType == json.J_MAP {
+			js.Global.Call("$", "#add-modal-name").Call("focus")
+		} else {
+			js.Global.Call("$", "#add-modal-type").Call("focus")
+		}
 	} else {
 		js.Global.Call("$", "#add-modal").Call("modal", "hide")
 	}
@@ -149,6 +154,9 @@ func (v *AddPopView) render() vecty.Component {
 		elem.Div(
 			prop.Class("modal-body"),
 			elem.Form(
+				event.Submit(func(ev *vecty.Event) {
+					v.app.Dispatch(&actions.AddPopSaveClick{})
+				}).PreventDefault(),
 				nameControl,
 				typeControl,
 			),

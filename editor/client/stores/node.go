@@ -150,6 +150,13 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		if s.addPop.Node != nil {
 			n = s.addPop.Node
 		} else if s.addPop.Parent.Type.IsNativeMap() {
+			if s.addPop.Name == "" {
+				return true
+			}
+			if _, duplicate := s.addPop.Parent.Map[s.addPop.Name]; duplicate {
+				// TODO: show an error
+				return true
+			}
 			n = node.NewNode()
 			n.Parent = s.addPop.Parent
 			n.Key = s.addPop.Name
