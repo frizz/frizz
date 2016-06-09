@@ -5,7 +5,7 @@ fields:
   title:
     type: words:@localizer
   images:
-      type: system:@map
+      type: system:@array
       items:
         type: images:@image
         secure: true

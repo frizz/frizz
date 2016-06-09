@@ -40,7 +40,7 @@ func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
 }
 
 func NewNode() *Node {
-	n := &Node{}
+	n := &Node{Index: -1}
 	return n
 }
 

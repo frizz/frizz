@@ -8,10 +8,10 @@ title:
     es: Hola mundo.
     fr: Bonjour le monde.
 images:
-  james:
+  -
     type: images:icon
     url: https://www.cryptocoinsnews.com/wp-content/uploads/2014/10/Bitcoin-Logo.png
-  dave:
+  -
     type: images:photo
     path: /dave.jpg
     server: www.brophy.co.uk

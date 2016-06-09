@@ -162,8 +162,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.AppendNodeBranchModelChildren(action.Branch, n)
 		s.nodeBranches[n] = action.Branch
 		s.Notify(action.Branch, BranchLoaded)
-	case *actions.AddNodeClick:
-		payload.Wait(s.app.Nodes)
+	case *actions.NodeInitialized:
 		parent := action.Node.Parent
 		if parent == nil {
 			break
@@ -172,7 +171,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		if !ok {
 			break
 		}
-		s.AppendNodeBranchModelChild(parentBranch, action.Node, true)
+		s.AppendNodeBranchModelChild(parentBranch, action.Node)
 		s.Notify(parentBranch, BranchChildAdded)
 	}
 
@@ -191,14 +190,14 @@ func (s *BranchStore) NewNodeBranchModel(ctx context.Context, n *node.Node, name
 
 func (s *BranchStore) AppendNodeBranchModelChildren(b *models.BranchModel, n *node.Node) {
 	for _, c := range n.Array {
-		s.AppendNodeBranchModelChild(b, c, false)
+		s.AppendNodeBranchModelChild(b, c)
 	}
 	for _, c := range n.Map {
-		s.AppendNodeBranchModelChild(b, c, false)
+		s.AppendNodeBranchModelChild(b, c)
 	}
 }
 
-func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node, log bool) {
+func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node) {
 	if n.Missing || n.Null {
 		return
 	}

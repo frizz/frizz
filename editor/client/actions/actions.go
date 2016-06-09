@@ -57,8 +57,17 @@ type LoadSourceError struct {
 type AddNodeClick struct {
 	Node *node.Node
 }
+type NodeInitialized struct {
+	Node *node.Node
+}
 type AddCollectionItemClick struct {
 	Parent *node.Node
 }
-type AddPopCloseClick struct{}
+type AddPopNameChange struct {
+	Value string
+}
+type AddPopTypeChange struct {
+	Value string
+}
+type AddPopClose struct{}
 type AddPopSaveClick struct{}

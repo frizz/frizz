@@ -14,4 +14,5 @@ type AddPopModel struct {
 	Types   []*system.Type
 	Name    string
 	Type    *system.Type
+	Success bool
 }

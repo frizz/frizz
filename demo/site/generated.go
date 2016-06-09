@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/site","Hash":8148798309499944976}
+// info:{"Path":"kego.io/demo/site","Hash":13584436025365512267}
 package site
 
 // ke: {"file": {"notest": true}}
@@ -145,8 +145,8 @@ func (o *Gallery3) GetGallery3(ctx context.Context) *Gallery3 {
 // This represents a gallery - it has a localizer title and a map of images with a custom rule
 type Gallery3a struct {
 	*system.Object
-	Images map[string]images.Image `json:"images"`
-	Title  words.Localizer         `json:"title"`
+	Images []images.Image  `json:"images"`
+	Title  words.Localizer `json:"title"`
 }
 type Gallery3aInterface interface {
 	GetGallery3a(ctx context.Context) *Gallery3a
@@ -156,7 +156,7 @@ func (o *Gallery3a) GetGallery3a(ctx context.Context) *Gallery3a {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/site", 8148798309499944976)
+	pkg := jsonctx.InitPackage("kego.io/demo/site", 13584436025365512267)
 	pkg.InitType("gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Rule)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem())
 	pkg.InitType("gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aRule)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem())
 	pkg.InitType("gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Rule)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem())

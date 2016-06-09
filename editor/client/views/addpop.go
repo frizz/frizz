@@ -91,6 +91,9 @@ func (v *AddPopView) render() vecty.Component {
 			elem.Input(
 				prop.Class("form-control"),
 				prop.ID("add-modal-name"),
+				event.Change(func(ev *vecty.Event) {
+					v.app.Dispatch(&actions.AddPopNameChange{Value: ev.Target.Get("value").String()})
+				}),
 			),
 			elem.Paragraph(
 				prop.Class("help-block"),
@@ -122,6 +125,17 @@ func (v *AddPopView) render() vecty.Component {
 			elem.Select(
 				prop.Class("form-control"),
 				prop.ID("add-modal-type"),
+				event.Change(func(ev *vecty.Event) {
+					options := ev.Target.Get("options")
+					selectedIndex := ev.Target.Get("selectedIndex").Int()
+					v.app.Dispatch(&actions.AddPopTypeChange{
+						Value: options.Index(selectedIndex).Get("id").String(),
+					})
+				}),
+				elem.Option(
+					prop.ID(""),
+					vecty.Text(""),
+				),
 				options,
 			),
 			elem.Paragraph(
@@ -162,7 +176,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("×"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddPopCloseClick{})
+							v.app.Dispatch(&actions.AddPopClose{})
 						}).PreventDefault(),
 					),
 					elem.Header4(
@@ -180,7 +194,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Close"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddPopCloseClick{})
+							v.app.Dispatch(&actions.AddPopClose{})
 						}).PreventDefault(),
 					),
 					elem.Button(

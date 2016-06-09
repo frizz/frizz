@@ -59,7 +59,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		n := ni.GetNode()
 		e := s.AddEditorsRecursively(n)
 		s.Notify(e, EditorLoaded)
-	case *actions.AddNodeClick:
+	case *actions.NodeInitialized:
 		payload.Wait(s.app.Branches)
 		e := s.AddEditorsRecursively(action.Node)
 		s.Notify(e, EditorAdded)
