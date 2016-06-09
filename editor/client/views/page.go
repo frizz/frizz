@@ -141,6 +141,6 @@ func (v *PageView) render() vecty.Component {
 				NewPanelView(v.ctx),
 			),
 		),
-		NewAddModalView(v.ctx, nil, nil),
+		NewAddPopView(v.ctx),
 	)
 }

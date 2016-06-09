@@ -9,35 +9,32 @@ import (
 	"github.com/gopherjs/gopherjs/js"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/json"
-	"kego.io/system/node"
 )
 
-type AddModalView struct {
+type AddPopView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	parent *node.Node
-	node   *node.Node
+	model *models.AddPopModel
 }
 
-func NewAddModalView(ctx context.Context, parent *node.Node, node *node.Node) *AddModalView {
-	v := &AddModalView{
-		ctx:    ctx,
-		app:    stores.FromContext(ctx),
-		parent: parent,
-		node:   node,
+func NewAddPopView(ctx context.Context) *AddPopView {
+	v := &AddPopView{
+		ctx: ctx,
+		app: stores.FromContext(ctx),
 	}
 	v.Mount()
 	return v
 }
 
-func (v *AddModalView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*AddModalView); ok {
+func (v *AddPopView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*AddPopView); ok {
 		v.Body = old.Body
 	}
 	v.RenderFunc = v.render
@@ -45,12 +42,12 @@ func (v *AddModalView) Reconcile(old vecty.Component) {
 }
 
 // Apply implements the vecty.Markup interface.
-func (v *AddModalView) Apply(element *vecty.Element) {
+func (v *AddPopView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *AddModalView) Mount() {
-	v.notifs = v.app.Nodes.Watch(nil, stores.AddModalChange)
+func (v *AddPopView) Mount() {
+	v.notifs = v.app.Nodes.Watch(nil, stores.AddPopChange)
 
 	go func() {
 		for notif := range v.notifs {
@@ -59,19 +56,18 @@ func (v *AddModalView) Mount() {
 	}()
 }
 
-func (v *AddModalView) reaction(notif flux.NotifPayload) {
+func (v *AddPopView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.node = v.app.Nodes.AddModalNode()
-	v.parent = v.app.Nodes.AddModalParent()
+	v.model = v.app.Nodes.AddPop()
 	v.ReconcileBody()
-	if v.app.Nodes.AddModalVisible() {
+	if v.model.Visible {
 		js.Global.Call("$", "#add-modal").Call("modal", "show")
 	} else {
 		js.Global.Call("$", "#add-modal").Call("modal", "hide")
 	}
 }
 
-func (v *AddModalView) Unmount() {
+func (v *AddPopView) Unmount() {
 	if v.notifs != nil {
 		v.app.Nodes.Delete(v.notifs)
 		v.notifs = nil
@@ -79,48 +75,13 @@ func (v *AddModalView) Unmount() {
 	v.Body.Unmount()
 }
 
-func (v *AddModalView) render() vecty.Component {
-	if v.parent == nil {
+func (v *AddPopView) render() vecty.Component {
+	if v.model == nil || !v.model.Visible {
 		return v.modal()
 	}
 
-	/*
-
-
-		card := mdl.Card("Choose a type", "Add")
-		options := map[string]string{}
-
-		for _, t := range types {
-			displayName, err := t.Id.ValueContext(e.ctx)
-			if err != nil {
-				// we shouldn't be able to get here
-				e.fail <- kerr.Wrap("IPLHSXDWQK", err)
-			}
-			options[t.Id.String()] = displayName
-		}
-
-		dropdown := mdl.Select(options)
-		card.Content.AppendChild(dropdown)
-
-		go func() {
-			result := <-card.Result
-			if result {
-				r, err := system.NewReferenceFromString(e.ctx, dropdown.Value)
-				if err != nil {
-					e.fail <- kerr.Wrap("KHJGQXORPD", err)
-				}
-				t, ok := system.GetTypeFromCache(e.ctx, r.Package, r.Name)
-				if !ok {
-					e.fail <- kerr.New("WEADSXTPYC", "Type %s not found in cache", r.Value())
-				}
-				e.InitialiseChildWithConcreteType(node, t)
-			}
-			card.Hide()
-		}()
-	*/
-
 	var nameControl, typeControl vecty.Markup
-	if v.parent.JsonType == json.J_MAP {
+	if v.model.Parent.JsonType == json.J_MAP {
 		nameControl = elem.Div(
 			prop.Class("form-group"),
 			elem.Label(
@@ -137,10 +98,10 @@ func (v *AddModalView) render() vecty.Component {
 			),
 		)
 	}
-	if len(v.app.Nodes.AddModalTypes()) > 1 {
+	if len(v.model.Types) > 1 {
 
 		var options vecty.List
-		for _, t := range v.app.Nodes.AddModalTypes() {
+		for _, t := range v.model.Types {
 			displayName, err := t.Id.ValueContext(v.ctx)
 			if err != nil {
 				// we shouldn't be able to get here
@@ -181,11 +142,11 @@ func (v *AddModalView) render() vecty.Component {
 	)
 }
 
-func (v *AddModalView) modal(markup ...vecty.Markup) *vecty.Element {
+func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 
 	return elem.Div(
 		prop.ID("add-modal"),
-		prop.Class("modal fade"),
+		prop.Class("modal"),
 		vecty.Data("backdrop", "static"),
 		vecty.Data("keyboard", "false"),
 		elem.Div(
@@ -201,7 +162,7 @@ func (v *AddModalView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("×"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddModalCloseClick{})
+							v.app.Dispatch(&actions.AddPopCloseClick{})
 						}).PreventDefault(),
 					),
 					elem.Header4(
@@ -219,7 +180,7 @@ func (v *AddModalView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Close"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddModalCloseClick{})
+							v.app.Dispatch(&actions.AddPopCloseClick{})
 						}).PreventDefault(),
 					),
 					elem.Button(
@@ -229,7 +190,7 @@ func (v *AddModalView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Save"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.AddModalSaveClick{})
+							v.app.Dispatch(&actions.AddPopSaveClick{})
 						}).PreventDefault(),
 					),
 				),

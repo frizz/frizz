@@ -60,5 +60,5 @@ type AddNodeClick struct {
 type AddCollectionItemClick struct {
 	Parent *node.Node
 }
-type AddModalCloseClick struct{}
-type AddModalSaveClick struct{}
+type AddPopCloseClick struct{}
+type AddPopSaveClick struct{}

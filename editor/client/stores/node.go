@@ -6,7 +6,6 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
-	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -17,30 +16,15 @@ type NodeStore struct {
 
 	selected *node.Node
 
-	addModalVisible bool
-	addModalParent  *node.Node
-	addModelNode    *node.Node
-	addModalTypes   []*system.Type
+	addPop *models.AddPopModel
 }
 
 func (b *NodeStore) Selected() *node.Node {
 	return b.selected
 }
 
-func (b *NodeStore) AddModalVisible() bool {
-	return b.addModalVisible
-}
-
-func (b *NodeStore) AddModalParent() *node.Node {
-	return b.addModalParent
-}
-
-func (b *NodeStore) AddModalNode() *node.Node {
-	return b.addModelNode
-}
-
-func (b *NodeStore) AddModalTypes() []*system.Type {
-	return b.addModalTypes
+func (b *NodeStore) AddPop() *models.AddPopModel {
+	return b.addPop
 }
 
 type nodeNotif string
@@ -49,7 +33,7 @@ func (b nodeNotif) IsNotif() {}
 
 const (
 	NodeInitialised nodeNotif = "NodeInitialised"
-	AddModalChange  nodeNotif = "AddModalChange"
+	AddPopChange    nodeNotif = "AddPopChange"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -86,11 +70,13 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			return true
 		}
 
-		s.addModalVisible = true
-		s.addModalParent = action.Node.Parent
-		s.addModelNode = action.Node
-		s.addModalTypes = types
-		s.Notify(nil, AddModalChange)
+		s.addPop = &models.AddPopModel{
+			Visible: true,
+			Parent:  action.Node.Parent,
+			Node:    action.Node,
+			Types:   types,
+		}
+		s.Notify(nil, AddPopChange)
 
 	case *actions.AddCollectionItemClick:
 
@@ -99,20 +85,20 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("EWYOMNAQMU", err)
 		}
 
-		s.addModalVisible = true
-		s.addModalParent = action.Parent
-		s.addModelNode = nil
-		s.addModalTypes = rw.PermittedTypes()
-		s.Notify(nil, AddModalChange)
+		s.addPop = &models.AddPopModel{
+			Visible: true,
+			Parent:  action.Parent,
+			Types:   rw.PermittedTypes(),
+		}
+		s.Notify(nil, AddPopChange)
 
 		return true
-	case *actions.AddModalCloseClick:
+	case *actions.AddPopCloseClick:
 
-		s.addModalVisible = false
-		s.addModalParent = nil
-		s.addModelNode = nil
-		s.addModalTypes = nil
-		s.Notify(nil, AddModalChange)
+		s.addPop = &models.AddPopModel{
+			Visible: false,
+		}
+		s.Notify(nil, AddPopChange)
 
 		return true
 
