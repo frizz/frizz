@@ -229,7 +229,7 @@ func (v *AddModalView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Save"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(nil)
+							v.app.Dispatch(&actions.AddModalSaveClick{})
 						}).PreventDefault(),
 					),
 				),

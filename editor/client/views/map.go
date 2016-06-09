@@ -81,7 +81,7 @@ func (v *MapView) render() vecty.Component {
 				prop.Class("btn btn-primary"),
 				vecty.Text("Add"),
 				event.Click(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.AddMapItemClick{
+					v.app.Dispatch(&actions.AddCollectionItemClick{
 						Parent: v.model.Node,
 					})
 				}).PreventDefault(),

@@ -92,21 +92,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.addModalTypes = types
 		s.Notify(nil, AddModalChange)
 
-	case *actions.AddArrayItemClick:
-
-		rw, err := action.Parent.Rule.ItemsRule()
-		if err != nil {
-			s.app.Fail <- kerr.Wrap("GRGOTVDHDN", err)
-		}
-
-		s.addModalVisible = true
-		s.addModalParent = action.Parent
-		s.addModelNode = nil
-		s.addModalTypes = rw.PermittedTypes()
-		s.Notify(nil, AddModalChange)
-
-		return true
-	case *actions.AddMapItemClick:
+	case *actions.AddCollectionItemClick:
 
 		rw, err := action.Parent.Rule.ItemsRule()
 		if err != nil {
