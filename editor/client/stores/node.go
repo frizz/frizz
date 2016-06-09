@@ -6,7 +6,6 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
-	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -90,23 +89,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			Visible: false,
 		}
 		s.Notify(nil, AddPopChange)
-	case *actions.AddPopNameChange:
-		s.addPop.Name = action.Value
-		return true
-	case *actions.AddPopTypeChange:
-		if action.Value == "" {
-			s.addPop.Type = nil
-		}
-		r, err := system.NewReferenceFromString(s.ctx, action.Value)
-		if err != nil {
-			s.app.Fail <- kerr.Wrap("DQUOTUHOJR", err)
-		}
-		t, ok := system.GetTypeFromCache(s.ctx, r.Package, r.Name)
-		if !ok {
-			s.app.Fail <- kerr.New("HRHFMOPYGO", "Type %s not found in cache", r.Value())
-		}
-		s.addPop.Type = t
-		return true
 	case *actions.FocusNode:
 		s.Notify(action.Node, NodeFocused)
 		return true

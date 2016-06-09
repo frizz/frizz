@@ -12,7 +12,5 @@ type AddPopModel struct {
 	Parent  *node.Node
 	Node    *node.Node
 	Types   []*system.Type
-	Name    string
-	Type    *system.Type
 	Success bool
 }

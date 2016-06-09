@@ -23,7 +23,9 @@ type AddPopView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model *models.AddPopModel
+	model      *models.AddPopModel
+	nameInput  *vecty.Element
+	typeSelect *vecty.Element
 }
 
 func NewAddPopView(ctx context.Context) *AddPopView {
@@ -87,21 +89,22 @@ func (v *AddPopView) render() vecty.Component {
 		return v.modal()
 	}
 
+	v.nameInput = nil
+	v.typeSelect = nil
+
 	var nameControl, typeControl vecty.Markup
 	if v.model.Parent.JsonType == json.J_MAP {
+		v.nameInput = elem.Input(
+			prop.Class("form-control"),
+			prop.ID("add-modal-name"),
+		)
 		nameControl = elem.Div(
 			prop.Class("form-group"),
 			elem.Label(
 				prop.For("add-modal-name"),
 				vecty.Text("name"),
 			),
-			elem.Input(
-				prop.Class("form-control"),
-				prop.ID("add-modal-name"),
-				event.KeyPress(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.AddPopNameChange{Value: ev.Target.Get("value").String()})
-				}),
-			),
+			v.nameInput,
 			elem.Paragraph(
 				prop.Class("help-block"),
 				vecty.Text("Enter a name for the new item"),
@@ -123,28 +126,23 @@ func (v *AddPopView) render() vecty.Component {
 			))
 		}
 
+		v.typeSelect = elem.Select(
+			prop.Class("form-control"),
+			prop.ID("add-modal-type"),
+			elem.Option(
+				prop.ID(""),
+				vecty.Text(""),
+			),
+			options,
+		)
+
 		typeControl = elem.Div(
 			prop.Class("form-group"),
 			elem.Label(
 				prop.For("add-modal-type"),
 				vecty.Text("type"),
 			),
-			elem.Select(
-				prop.Class("form-control"),
-				prop.ID("add-modal-type"),
-				event.Change(func(ev *vecty.Event) {
-					options := ev.Target.Get("options")
-					selectedIndex := ev.Target.Get("selectedIndex").Int()
-					v.app.Dispatch(&actions.AddPopTypeChange{
-						Value: options.Index(selectedIndex).Get("id").String(),
-					})
-				}),
-				elem.Option(
-					prop.ID(""),
-					vecty.Text(""),
-				),
-				options,
-			),
+			v.typeSelect,
 			elem.Paragraph(
 				prop.Class("help-block"),
 				vecty.Text("Select a type for the new object"),
@@ -224,13 +222,28 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 }
 
 func (v *AddPopView) save() {
+
 	var t *system.Type
 	if len(v.model.Types) == 1 {
 		t = v.model.Types[0]
-	} else if v.model.Type != nil {
-		t = v.model.Type
 	} else {
-		return
+		options := v.typeSelect.Node().Get("options")
+		selectedIndex := v.typeSelect.Node().Get("selectedIndex").Int()
+		value := options.Index(selectedIndex).Get("id").String()
+		if value == "" {
+			return
+		}
+		r, err := system.NewReferenceFromString(v.ctx, value)
+		if err != nil {
+			v.app.Fail <- kerr.Wrap("SEMCIELKRN", err)
+			return
+		}
+		ty, ok := system.GetTypeFromCache(v.ctx, r.Package, r.Name)
+		if !ok {
+			v.app.Fail <- kerr.New("RWHSCOFNQM", "Type %s not found in cache", r.Value())
+			return
+		}
+		t = ty
 	}
 
 	if v.model.Node != nil {
@@ -241,11 +254,12 @@ func (v *AddPopView) save() {
 		})
 		return
 	} else if v.model.Parent.Type.IsNativeMap() {
-		if v.model.Name == "" {
+		name := v.nameInput.Node().Get("value").String()
+		if name == "" {
 			// TODO: show an error
 			return
 		}
-		if _, duplicate := v.model.Parent.Map[v.model.Name]; duplicate {
+		if _, duplicate := v.model.Parent.Map[name]; duplicate {
 			// TODO: show an error
 			return
 		}
@@ -253,7 +267,7 @@ func (v *AddPopView) save() {
 			Node:   node.NewNode(),
 			New:    true,
 			Parent: v.model.Parent,
-			Key:    v.model.Name,
+			Key:    name,
 			Index:  -1,
 			Type:   t,
 		})

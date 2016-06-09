@@ -79,13 +79,6 @@ type OpenAddPop struct {
 }
 type CloseAddPop struct{}
 
-type AddPopNameChange struct {
-	Value string
-}
-type AddPopTypeChange struct {
-	Value string
-}
-
 type FocusNode struct {
 	Node *node.Node
 }
