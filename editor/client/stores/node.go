@@ -80,7 +80,15 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 		s.Notify(nil, AddPopChange)
 
-	case *actions.AddCollectionItemClick:
+	case *actions.AddCollectionItem:
+
+		if action.Parent == nil {
+			return true
+		}
+
+		if !action.Parent.Type.IsNativeCollection() {
+			return true
+		}
 
 		rw, err := action.Parent.Rule.ItemsRule()
 		if err != nil {

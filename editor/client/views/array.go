@@ -81,7 +81,7 @@ func (v *ArrayView) render() vecty.Component {
 				prop.Class("btn btn-primary"),
 				vecty.Text("Add"),
 				event.Click(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.AddCollectionItemClick{
+					v.app.Dispatch(&actions.AddCollectionItem{
 						Parent: v.model.Node,
 					})
 				}).PreventDefault(),

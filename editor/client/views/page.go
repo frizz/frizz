@@ -57,7 +57,11 @@ func (v *PageView) addKeyboardEvents() {
 			}
 			return
 		default:
-			if k.KeyCode >= 37 && k.KeyCode <= 40 {
+			switch k.KeyCode {
+			case 65:
+				// "a"
+				v.app.Dispatch(&actions.AddCollectionItem{Parent: v.app.Nodes.Selected()})
+			case 37, 38, 39, 40:
 				// up, down, left, right
 				k.PreventDefault()
 				go func() {

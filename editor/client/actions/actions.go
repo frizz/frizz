@@ -60,7 +60,7 @@ type AddNodeClick struct {
 type NodeInitialized struct {
 	Node *node.Node
 }
-type AddCollectionItemClick struct {
+type AddCollectionItem struct {
 	Parent *node.Node
 }
 type AddPopNameChange struct {
