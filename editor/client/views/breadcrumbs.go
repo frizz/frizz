@@ -3,8 +3,10 @@ package views
 import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 )
@@ -41,14 +43,6 @@ func (v *BreadcrumbsView) Apply(element *vecty.Element) {
 }
 
 func (v *BreadcrumbsView) render() vecty.Component {
-	/*
-		<ol class="breadcrumb">
-		  <li><a href="#">Home</a></li>
-		  <li><a href="#">Library</a></li>
-		  <li class="active">Data</li>
-		</ol>
-	*/
-
 	if v.branch == nil {
 		return elem.Div()
 	}
@@ -58,21 +52,27 @@ func (v *BreadcrumbsView) render() vecty.Component {
 
 	for b != nil {
 
-		if v.branch.Parent != nil && b.Parent == nil {
+		// copy value of b into new var because it will be used in the click handler
+		current := b
+
+		if v.branch.Parent != nil && current.Parent == nil {
 			break
 		}
 
 		var content vecty.Markup
-		if b == v.branch {
+		if current == v.branch {
 			content = vecty.Text(
-				b.Contents.Label(),
+				current.Contents.Label(),
 			)
 		} else {
 			content = elem.Anchor(
 				prop.Href("#"),
 				vecty.Text(
-					b.Contents.Label(),
+					current.Contents.Label(),
 				),
+				event.Click(func(ev *vecty.Event) {
+					v.app.Dispatch(&actions.BranchSelect{Branch: current, Op: models.BranchOpClickBreadcrumb})
+				}).PreventDefault(),
 			)
 		}
 
@@ -80,7 +80,7 @@ func (v *BreadcrumbsView) render() vecty.Component {
 			vecty.List{
 				elem.ListItem(
 					vecty.ClassMap{
-						"active": b == v.branch,
+						"active": current == v.branch,
 					},
 					content,
 				),

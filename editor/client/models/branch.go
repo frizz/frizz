@@ -21,6 +21,7 @@ type BranchOps string
 
 const BranchOpKeyboard BranchOps = "BranchOpKeyboard"
 const BranchOpClickLabel BranchOps = "BranchOpClickLabel"
+const BranchOpClickBreadcrumb BranchOps = "BranchOpClickBreadcrumb"
 const BranchOpClickToggle BranchOps = "BranchOpClickToggle"
 
 func (b *BranchModel) CanOpen() bool {

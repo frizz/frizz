@@ -71,6 +71,7 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 	v.branch = v.app.Branches.Selected()
 	v.node = v.app.Nodes.Selected()
 	v.ReconcileBody()
+	v.Node().Get("parentNode").Set("scrollTop", "0")
 }
 
 func (v *PanelView) Unmount() {
