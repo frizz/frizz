@@ -6,6 +6,7 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
+	"kego.io/json"
 	"kego.io/system/node"
 )
 
@@ -60,6 +61,25 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.selected = ni.GetNode()
 		} else {
 			s.selected = nil
+		}
+	case *actions.DeleteNode:
+		if action.Node.Parent.Type.IsNativeCollection() {
+			if action.Node.Index > -1 {
+				action.Node.Parent.Array = append(action.Node.Parent.Array[:action.Node.Index], action.Node.Parent.Array[action.Node.Index+1:]...)
+			} else {
+				delete(action.Node.Parent.Map, action.Node.Key)
+			}
+		} else {
+			action.Node.Type = nil
+			action.Node.Array = []*node.Node{}
+			action.Node.JsonType = json.J_NULL
+			action.Node.Map = map[string]*node.Node{}
+			action.Node.Missing = true
+			action.Node.Null = true
+			action.Node.Value = nil
+			action.Node.ValueBool = false
+			action.Node.ValueNumber = 0.0
+			action.Node.ValueString = ""
 		}
 	case *actions.InitializeNode:
 		if action.New {

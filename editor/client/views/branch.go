@@ -60,6 +60,7 @@ func (v *BranchView) Mount() {
 		stores.BranchLoaded,
 		stores.BranchSelecting,
 		stores.BranchChildAdded,
+		stores.BranchChildDeleted,
 	)
 
 	go func() {
@@ -87,7 +88,8 @@ func (v *BranchView) reaction(notif flux.NotifPayload) {
 	case stores.BranchOpened,
 		stores.BranchClose,
 		stores.BranchLoaded,
-		stores.BranchChildAdded:
+		stores.BranchChildAdded,
+		stores.BranchChildDeleted:
 		v.ReconcileBody()
 		if ds, ok := notif.Data.(*stores.BranchDescendantSelectData); ok {
 			wait.Add(v.app.Dispatch(&actions.BranchSelecting{Branch: ds.Branch, Op: ds.Op}))

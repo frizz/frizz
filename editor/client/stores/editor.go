@@ -73,6 +73,16 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		s.Notify(e, EditorChanged)
+	case *actions.DeleteNode:
+		payload.Wait(s.app.Nodes)
+		e, ok := s.editors[action.Node]
+		if !ok {
+			break
+		}
+		if action.Node.Parent.Type.IsNativeCollection() {
+			delete(s.editors, action.Node)
+		}
+		s.Notify(e, EditorChanged)
 	}
 	return true
 }

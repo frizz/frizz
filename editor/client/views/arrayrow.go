@@ -7,6 +7,7 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/system/node"
@@ -83,7 +84,15 @@ func (v *ArrayRowView) render() vecty.Component {
 			clickSummaryRow(v.app, v.node)
 		}),
 		elem.TableData(vecty.Text(val)),
-		elem.TableData(vecty.Text("")),
+		elem.TableData(elem.Anchor(
+			event.Click(func(e *vecty.Event) {
+				v.app.Dispatch(&actions.DeleteNode{
+					Node: v.node,
+				})
+			}).PreventDefault().StopPropagation(),
+			prop.Href("#"),
+			vecty.Text("delete"),
+		)),
 	)
 
 }

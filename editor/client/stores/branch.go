@@ -64,6 +64,7 @@ const (
 	BranchSelecting          branchNotif = "BranchSelecting"
 	BranchSelected           branchNotif = "BranchSelected"
 	BranchChildAdded         branchNotif = "BranchChildAdded"
+	BranchChildDeleted       branchNotif = "BranchChildDeleted"
 	BranchSelectControl      branchNotif = "BranchSelectControl"
 	BranchUnselectControl    branchNotif = "BranchUnselectControl"
 )
@@ -209,6 +210,21 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		s.AppendNodeBranchModelChild(parentBranch, action.Node)
 		s.Notify(parentBranch, BranchChildAdded)
+	case *actions.DeleteNode:
+		payload.Wait(s.app.Nodes)
+		branch, ok := s.nodeBranches[action.Node]
+		if !ok {
+			break
+		}
+		delete(s.nodeBranches, action.Node)
+		for i, c := range branch.Parent.Children {
+			if c == branch {
+				branch.Parent.Children = append(branch.Parent.Children[0:i], branch.Parent.Children[i+1:]...)
+				break
+			}
+		}
+		s.Notify(branch.Parent, BranchChildDeleted)
+
 	}
 
 	return true
