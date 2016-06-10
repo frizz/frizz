@@ -49,6 +49,7 @@ func (v *PanelView) Mount() {
 		stores.EditorAdded,
 		stores.EditorInitialStateLoaded,
 		stores.EditorChanged,
+		stores.EditorSelected,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -62,7 +63,9 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 	v.branch = v.app.Branches.Selected()
 	v.node = v.app.Nodes.Selected()
 	v.ReconcileBody()
-	v.Node().Get("parentNode").Set("scrollTop", "0")
+	if notif.Type == stores.EditorSelected {
+		v.Node().Get("parentNode").Set("scrollTop", "0")
+	}
 }
 
 func (v *PanelView) Unmount() {

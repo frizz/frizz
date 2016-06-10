@@ -1,6 +1,8 @@
 package stores
 
 import (
+	"strconv"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -134,20 +136,22 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.Notify(nil, AddPopChange)
 	case *actions.FocusNode:
 		s.Notify(action.Node, NodeFocused)
+	case *actions.NodeValueChange:
+		n := action.Node
+		switch n.JsonType {
+		case json.J_STRING:
+			n.ValueString = action.Value.(string)
+			n.Value = action.Value
+		case json.J_BOOL:
+			n.ValueBool = action.Value.(bool)
+			n.Value = action.Value
+		case json.J_NUMBER:
+			val, err := strconv.ParseFloat(action.Value.(string), 64)
+			if err == nil {
+				n.ValueNumber = val
+				n.Value = val
+			}
+		}
 	}
 	return true
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

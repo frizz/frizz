@@ -93,3 +93,8 @@ type CloseAddPop struct{}
 type FocusNode struct {
 	Node *node.Node
 }
+
+type NodeValueChange struct {
+	Node  *node.Node
+	Value interface{}
+}

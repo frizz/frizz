@@ -22,6 +22,7 @@ func (b editorNotif) IsNotif() {}
 
 const (
 	EditorChanged            editorNotif = "EditorChanged"
+	EditorSelected           editorNotif = "EditorSelected"
 	EditorLoaded             editorNotif = "EditorLoaded"
 	EditorAdded              editorNotif = "EditorAdded"
 	EditorInitialStateLoaded editorNotif = "EditorInitialStateLoaded"
@@ -72,7 +73,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		if e == nil {
 			break
 		}
-		s.Notify(e, EditorChanged)
+		s.Notify(e, EditorSelected)
 	case *actions.DeleteNode:
 		payload.Wait(s.app.Nodes)
 		e, ok := s.editors[action.Node]
@@ -85,11 +86,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		s.Notify(e, EditorChanged)
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Nodes)
-		e, ok := s.editors[action.Parent]
-		if !ok {
-			break
-		}
-		s.Notify(e, EditorChanged)
+		s.Notify(nil, EditorChanged)
 	}
 	return true
 }
