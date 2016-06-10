@@ -65,6 +65,7 @@ const (
 	BranchSelected           branchNotif = "BranchSelected"
 	BranchChildAdded         branchNotif = "BranchChildAdded"
 	BranchChildDeleted       branchNotif = "BranchChildDeleted"
+	BranchChildrenReordered  branchNotif = "BranchChildrenReordered"
 	BranchSelectControl      branchNotif = "BranchSelectControl"
 	BranchUnselectControl    branchNotif = "BranchUnselectControl"
 )
@@ -224,9 +225,21 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			}
 		}
 		s.Notify(branch.Parent, BranchChildDeleted)
-
+	case *actions.ArrayOrder:
+		payload.Wait(s.app.Nodes)
+		branch, ok := s.nodeBranches[action.Parent]
+		if !ok {
+			break
+		}
+		branch.Children = []*models.BranchModel{}
+		for _, n := range action.Parent.Array {
+			b, ok := s.nodeBranches[n]
+			if ok {
+				branch.Children = append(branch.Children, b)
+			}
+		}
+		s.Notify(branch, BranchChildrenReordered)
 	}
-
 	return true
 }
 

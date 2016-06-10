@@ -50,6 +50,29 @@ func NewNodeStore(ctx context.Context) *NodeStore {
 
 func (s *NodeStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
+	case *actions.ArrayOrder:
+		if !action.Parent.Type.IsNativeArray() {
+			s.app.Fail <- kerr.New("EPBQVIICFM", "Must be array")
+			break
+		}
+		a := action.Parent.Array
+
+		// remove the item we're moving
+		item := a[action.OldIndex]
+		a = append(
+			a[:action.OldIndex],
+			a[action.OldIndex+1:]...)
+
+		// insert it back in the correct place
+		action.Parent.Array = append(
+			a[:action.NewIndex],
+			append([]*node.Node{item}, a[action.NewIndex:]...)...)
+
+		// correct the indexes
+		for i, n := range action.Parent.Array {
+			n.Index = i
+		}
+
 	case *actions.BranchSelecting:
 		if ni, ok := action.Branch.Contents.(models.NodeContentsInterface); ok {
 			s.selected = ni.GetNode()
@@ -97,7 +120,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("WWKUVDDLYU", err)
 		}
 	case *actions.OpenAddPop:
-
 		s.addPop = &models.AddPopModel{
 			Visible: true,
 			Parent:  action.Parent,
@@ -114,4 +136,18 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.Notify(action.Node, NodeFocused)
 	}
 	return true
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -63,6 +63,12 @@ type LoadSourceError struct {
 	Branch *models.BranchModel
 }
 
+type ArrayOrder struct {
+	Parent   *node.Node
+	OldIndex int
+	NewIndex int
+}
+
 type DeleteNode struct {
 	Node *node.Node
 }

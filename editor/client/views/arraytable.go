@@ -6,6 +6,7 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"github.com/gopherjs/gopherjs/js"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
 	"kego.io/system/node"
 )
@@ -41,8 +42,20 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 			"axis":                 "y",
 			"forcePlaceholderSize": true,
 			"placeholder":          "drag-placeholder",
-			"change": func(event *js.Object, ui *js.Object) {
-				//fmt.Println(ui.Get("placeholder").Call("index"))
+			"start": func(event *js.Object, ui *js.Object) {
+				ui.Get("item").Call("data", "start_pos", ui.Get("item").Call("index"))
+			},
+			"beforeStop": func(event *js.Object, ui *js.Object) {
+				oldIndex := ui.Get("item").Call("data", "start_pos").Int()
+				newIndex := ui.Get("placeholder").Call("index").Int() - 1
+				if oldIndex == newIndex {
+					return
+				}
+				v.app.Dispatch(&actions.ArrayOrder{
+					Parent:   v.node,
+					OldIndex: oldIndex,
+					NewIndex: newIndex,
+				})
 			},
 		})
 	}

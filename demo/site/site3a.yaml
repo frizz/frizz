@@ -20,3 +20,12 @@ images:
       type: units:rectangle
       width: 800
       height: 600
+  -
+    type: images:icon
+    url: https://www.cryptocoinsnews.com/wp-content/uploads/2014/10/Bitcoin-Logo.png
+  -
+    type: images:icon
+    url: https://www.cryptocoinsnews.com/wp-content/uploads/2014/10/Bitcoin-Logo.png
+  -
+    type: images:icon
+    url: https://www.cryptocoinsnews.com/wp-content/uploads/2014/10/Bitcoin-Logo.png
