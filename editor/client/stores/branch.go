@@ -97,14 +97,14 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.BranchClose:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
-			return true
+			break
 		}
 		action.Branch.RecursiveClose()
 		s.Notify(action.Branch, BranchClose)
 	case *actions.BranchOpening:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
-			return true
+			break
 		}
 		// The branch may not be loaded, so we don't open the branch until the BranchOpenPostLoad
 		// action is received. This will happen immediately if the branch is loaded or not async.
@@ -112,7 +112,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.BranchOpened:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
-			return true
+			break
 		}
 		action.Branch.Open = true
 		s.Notify(action.Branch, BranchOpened)
@@ -191,7 +191,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
-			return true
+			break
 		}
 		n := ni.GetNode()
 		s.AppendNodeBranchModelChildren(action.Branch, n)

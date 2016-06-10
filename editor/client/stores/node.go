@@ -92,7 +92,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.Notify(nil, AddPopChange)
 	case *actions.FocusNode:
 		s.Notify(action.Node, NodeFocused)
-		return true
 	}
 	return true
 }

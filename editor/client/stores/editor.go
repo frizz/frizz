@@ -54,7 +54,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
-			return true
+			break
 		}
 		n := ni.GetNode()
 		e := s.AddEditorsRecursively(n)
