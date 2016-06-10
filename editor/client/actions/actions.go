@@ -63,6 +63,10 @@ type LoadSourceError struct {
 	Branch *models.BranchModel
 }
 
+type DeleteNode struct {
+	Node *node.Node
+}
+
 type InitializeNode struct {
 	Node   *node.Node
 	Parent *node.Node

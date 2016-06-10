@@ -86,7 +86,7 @@ func (v *ObjectRowView) render() vecty.Component {
 		return nil
 	}
 
-	var add vecty.Component
+	var add, delete vecty.Component
 	if v.node.Missing || v.node.Null {
 		add = elem.Anchor(
 			event.Click(func(e *vecty.Event) {
@@ -105,9 +105,19 @@ func (v *ObjectRowView) render() vecty.Component {
 					Node:   v.node,
 					Types:  types,
 				})
-			}).PreventDefault(),
+			}).PreventDefault().StopPropagation(),
 			prop.Href("#"),
 			vecty.Text("add"),
+		)
+	} else {
+		delete = elem.Anchor(
+			event.Click(func(e *vecty.Event) {
+				v.app.Dispatch(&actions.DeleteNode{
+					Node: v.node,
+				})
+			}).PreventDefault().StopPropagation(),
+			prop.Href("#"),
+			vecty.Text("delete"),
 		)
 	}
 
@@ -123,7 +133,7 @@ func (v *ObjectRowView) render() vecty.Component {
 		elem.TableData(vecty.Text(name)),
 		elem.TableData(vecty.Text(hold)),
 		elem.TableData(vecty.Text(val)),
-		elem.TableData(add),
+		elem.TableData(vecty.List{add, delete}),
 	)
 
 }
