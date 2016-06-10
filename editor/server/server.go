@@ -367,7 +367,8 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 				<link rel="stylesheet" href="/split.css">
 				<link rel="stylesheet" href="/editors.css">
 				<link rel="stylesheet" href="/tree.css">
-				<script src="/jquery-2.2.1.min.js"></script>
+				<script src="/jquery-2.2.4.min.js"></script>
+				<script src="/jquery-ui/jquery-ui.min.js"></script>
 				<script src="/split.min.js"></script>
 				<script src="/bootstrap/js/bootstrap.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">

@@ -4,6 +4,7 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
+	"github.com/gopherjs/gopherjs/js"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/stores"
 	"kego.io/system/node"
@@ -14,7 +15,8 @@ type ArrayTableView struct {
 	ctx context.Context
 	app *stores.App
 
-	node *node.Node
+	node  *node.Node
+	tbody *vecty.Element
 }
 
 func NewArrayTableView(ctx context.Context, node *node.Node) *ArrayTableView {
@@ -33,6 +35,17 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()
+	if v.tbody != nil {
+		js.Global.Call("$", v.tbody.Node()).Call("sortable", js.M{
+			"handle":               ".handle",
+			"axis":                 "y",
+			"forcePlaceholderSize": true,
+			"placeholder":          "drag-placeholder",
+			"change": func(event *js.Object, ui *js.Object) {
+				//fmt.Println(ui.Get("placeholder").Call("index"))
+			},
+		})
+	}
 }
 
 // Apply implements the vecty.Markup interface.
@@ -49,10 +62,15 @@ func (v *ArrayTableView) Unmount() {
 func (v *ArrayTableView) render() vecty.Component {
 
 	if v.node == nil || len(v.node.Array) == 0 {
+		v.tbody = nil
 		return elem.Div()
 	}
 
 	head := elem.TableRow(
+		elem.TableHeader(
+			prop.Class("handle-head"),
+			vecty.Text(""),
+		),
 		elem.TableHeader(vecty.Text("value")),
 		elem.TableHeader(vecty.Text("options")),
 	)
@@ -62,15 +80,17 @@ func (v *ArrayTableView) render() vecty.Component {
 		rows = append(rows, NewArrayRowView(v.ctx, c))
 	}
 
+	v.tbody = elem.TableBody(
+		rows,
+	)
+
 	return elem.Div(
 		elem.Table(
-			prop.Class("table table-hover"),
+			prop.Class("table"),
 			elem.TableHead(
 				head,
 			),
-			elem.TableBody(
-				rows,
-			),
+			v.tbody,
 		),
 	)
 }

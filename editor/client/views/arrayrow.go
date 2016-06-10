@@ -83,6 +83,15 @@ func (v *ArrayRowView) render() vecty.Component {
 		event.Click(func(ev *vecty.Event) {
 			clickSummaryRow(v.app, v.node)
 		}),
+		elem.TableData(
+			prop.Class("handle"),
+			elem.Span(
+				prop.Class("glyphicon glyphicon-option-vertical"),
+			),
+			event.Click(func(e *vecty.Event) {
+				// nothing
+			}).PreventDefault().StopPropagation(),
+		),
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(elem.Anchor(
 			event.Click(func(e *vecty.Event) {
