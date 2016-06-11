@@ -94,7 +94,7 @@ type FocusNode struct {
 	Node *node.Node
 }
 
-type NodeValueChange struct {
-	Node  *node.Node
-	Value interface{}
+type EditorValueChange struct {
+	Editor *models.EditorModel
+	Value  interface{}
 }

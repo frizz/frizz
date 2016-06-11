@@ -41,6 +41,9 @@ func NewEditorStore(ctx context.Context) *EditorStore {
 }
 
 func (s *EditorStore) Get(node *node.Node) *models.EditorModel {
+	if node == nil {
+		return nil
+	}
 	return s.editors[node]
 }
 
@@ -67,14 +70,10 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		s.Notify(e, EditorAdded)
 	case *actions.BranchSelected:
 		payload.Wait(s.app.Nodes)
-		if s.app.Nodes.Selected() == nil {
-			break
+		if e := s.Get(s.app.Nodes.Selected()); e != nil {
+			s.Notify(e, EditorSelected)
 		}
-		e := s.Get(s.app.Nodes.Selected())
-		if e == nil {
-			break
-		}
-		s.Notify(e, EditorSelected)
+		s.Notify(nil, EditorSelected)
 	case *actions.DeleteNode:
 		payload.Wait(s.app.Nodes)
 		e, ok := s.editors[action.Node]
@@ -88,6 +87,8 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Branches)
 		s.Notify(nil, EditorArrayOrderChanged)
+	case *actions.EditorValueChange:
+		action.Editor.TemporaryValue = action.Value
 	}
 	return true
 }

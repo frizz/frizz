@@ -97,9 +97,9 @@ func (v *NumberEditorView) render() vecty.Component {
 		prop.Class("form-control"),
 		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
-			v.app.Dispatch(&actions.NodeValueChange{
-				Node:  v.model.Node,
-				Value: e.Target.Get("value").String(),
+			v.app.Dispatch(&actions.EditorValueChange{
+				Editor: v.model,
+				Value:  e.Target.Get("value").String(),
 			})
 		}),
 	)

@@ -8,7 +8,8 @@ import (
 )
 
 type EditorModel struct {
-	Node *node.Node
+	Node           *node.Node
+	TemporaryValue interface{}
 }
 
 func NewEditor(n *node.Node) *EditorModel {

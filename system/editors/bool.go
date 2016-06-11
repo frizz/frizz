@@ -92,9 +92,9 @@ func (v *BoolEditorView) render() vecty.Component {
 		prop.Type(prop.TypeCheckbox),
 		prop.Checked(v.model.Node.ValueBool),
 		event.Change(func(e *vecty.Event) {
-			v.app.Dispatch(&actions.NodeValueChange{
-				Node:  v.model.Node,
-				Value: e.Target.Get("checked").Bool(),
+			v.app.Dispatch(&actions.EditorValueChange{
+				Editor: v.model,
+				Value:  e.Target.Get("checked").Bool(),
 			})
 		}),
 	)

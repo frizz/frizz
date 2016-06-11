@@ -17,19 +17,18 @@ type Node struct {
 	Array  []*Node
 	Map    map[string]*Node
 
-	Key            string            // in an object or a map, this is the key
-	Index          int               // in an array, this is the index
-	Origin         *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
-	ValueString    string
-	ValueNumber    float64
-	ValueBool      bool
-	Value          interface{} // unmarshalled value
-	Null           bool        // null is true if the json is null or the field is missing
-	Missing        bool        // missing is only true if the field is missing
-	Rule           *system.RuleWrapper
-	Type           *system.Type
-	JsonType       json.Type
-	TemporaryValue interface{}
+	Key         string            // in an object or a map, this is the key
+	Index       int               // in an array, this is the index
+	Origin      *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
+	ValueString string
+	ValueNumber float64
+	ValueBool   bool
+	Value       interface{} // unmarshalled value
+	Null        bool        // null is true if the json is null or the field is missing
+	Missing     bool        // missing is only true if the field is missing
+	Rule        *system.RuleWrapper
+	Type        *system.Type
+	JsonType    json.Type
 }
 
 func Unmarshal(ctx context.Context, data []byte) (*Node, error) {

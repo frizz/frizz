@@ -121,12 +121,12 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.FocusNode:
 		s.Notify(action.Node, NodeFocused)
-	case *actions.NodeValueChange:
-		n := action.Node
-		n.TemporaryValue = action.Value
+	case *actions.EditorValueChange:
+		payload.Wait(s.app.Editors)
 		go func() {
 			<-time.After(time.Millisecond * 50)
-			if n.TemporaryValue == action.Value {
+			if action.Editor.TemporaryValue == action.Value {
+				n := action.Editor.Node
 				switch n.JsonType {
 				case json.J_STRING:
 					val := action.Value.(string)
