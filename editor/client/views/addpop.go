@@ -17,19 +17,19 @@ import (
 	"kego.io/system/node"
 )
 
-type AddPopView struct {
+type AddPopupView struct {
 	vecty.Composite
 	ctx    context.Context
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model      *models.AddPopModel
+	model      *models.AddPopupModel
 	nameInput  *vecty.Element
 	typeSelect *vecty.Element
 }
 
-func NewAddPopView(ctx context.Context) *AddPopView {
-	v := &AddPopView{
+func NewAddPopupView(ctx context.Context) *AddPopupView {
+	v := &AddPopupView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
@@ -37,8 +37,8 @@ func NewAddPopView(ctx context.Context) *AddPopView {
 	return v
 }
 
-func (v *AddPopView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*AddPopView); ok {
+func (v *AddPopupView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*AddPopupView); ok {
 		v.Body = old.Body
 	}
 	v.RenderFunc = v.render
@@ -46,12 +46,12 @@ func (v *AddPopView) Reconcile(old vecty.Component) {
 }
 
 // Apply implements the vecty.Markup interface.
-func (v *AddPopView) Apply(element *vecty.Element) {
+func (v *AddPopupView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *AddPopView) Mount() {
-	v.notifs = v.app.Nodes.Watch(nil, stores.AddPopChange)
+func (v *AddPopupView) Mount() {
+	v.notifs = v.app.Misc.Watch(nil, stores.AddPopupChange)
 
 	go func() {
 		for notif := range v.notifs {
@@ -60,9 +60,9 @@ func (v *AddPopView) Mount() {
 	}()
 }
 
-func (v *AddPopView) reaction(notif flux.NotifPayload) {
+func (v *AddPopupView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.model = v.app.Nodes.AddPop()
+	v.model = v.app.Misc.AddPopup()
 	v.ReconcileBody()
 	if v.model.Visible {
 		js.Global.Call("$", "#add-modal").Call("modal", "show")
@@ -76,7 +76,7 @@ func (v *AddPopView) reaction(notif flux.NotifPayload) {
 	}
 }
 
-func (v *AddPopView) Unmount() {
+func (v *AddPopupView) Unmount() {
 	if v.notifs != nil {
 		v.app.Nodes.Delete(v.notifs)
 		v.notifs = nil
@@ -84,7 +84,7 @@ func (v *AddPopView) Unmount() {
 	v.Body.Unmount()
 }
 
-func (v *AddPopView) render() vecty.Component {
+func (v *AddPopupView) render() vecty.Component {
 	if v.model == nil || !v.model.Visible {
 		return v.modal()
 	}
@@ -164,7 +164,7 @@ func (v *AddPopView) render() vecty.Component {
 	)
 }
 
-func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
+func (v *AddPopupView) modal(markup ...vecty.Markup) *vecty.Element {
 
 	return elem.Div(
 		prop.ID("add-modal"),
@@ -184,7 +184,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("×"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.CloseAddPop{})
+							v.app.Dispatch(&actions.CloseAddPopup{})
 						}).PreventDefault(),
 					),
 					elem.Header4(
@@ -202,7 +202,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Close"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.CloseAddPop{})
+							v.app.Dispatch(&actions.CloseAddPopup{})
 						}).PreventDefault(),
 					),
 					elem.Button(
@@ -221,7 +221,7 @@ func (v *AddPopView) modal(markup ...vecty.Markup) *vecty.Element {
 	)
 }
 
-func (v *AddPopView) save() {
+func (v *AddPopupView) save() {
 
 	var t *system.Type
 	if len(v.model.Types) == 1 {
@@ -291,6 +291,6 @@ func (v *AddPopView) save() {
 		})
 	}
 
-	v.app.Dispatch(&actions.CloseAddPop{})
+	v.app.Dispatch(&actions.CloseAddPopup{})
 
 }

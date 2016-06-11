@@ -101,7 +101,7 @@ func (v *ObjectRowView) render() vecty.Component {
 					})
 					return
 				}
-				v.app.Dispatch(&actions.OpenAddPop{
+				v.app.Dispatch(&actions.OpenAddPopup{
 					Parent: v.node.Parent,
 					Node:   v.node,
 					Types:  types,

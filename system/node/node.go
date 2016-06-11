@@ -74,12 +74,14 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 			return kerr.Wrap("IIDDGXDDJR", err)
 		}
 		n.Value = v
-	} else {
+	} else if t.IsNativeValue() {
 		v, err := t.ZeroValue(ctx)
 		if err != nil {
 			return kerr.Wrap("RPUWJDKXSP", err)
 		}
 		n.Value = v
+	} else {
+		n.Value = nil
 	}
 
 	switch t.Native.Value() {
@@ -406,19 +408,16 @@ func (n *Node) Label(ctx context.Context) string {
 	if n.Parent == nil {
 		return "root"
 	}
-	if n.Value != nil {
-		if l, ok := n.Value.(system.Labelled); ok {
-			if s := l.Label(ctx); s != "" {
-				return s
-			}
+	if l, ok := n.Value.(system.Labelled); ok {
+		if s := l.Label(ctx); s != "" {
+			return s
 		}
 	}
 	if n.Key != "" {
 		return n.Key
 	}
 	if ob, ok := n.Value.(system.ObjectInterface); ok {
-		o := ob.GetObject(ctx)
-		if o.Id != nil {
+		if o := ob.GetObject(ctx); o != nil && o.Id != nil {
 			return o.Id.Name
 		}
 	}

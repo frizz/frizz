@@ -18,6 +18,7 @@ type App struct {
 	Panels   *PanelStore
 	Types    *TypeStore
 	Data     *DataStore
+	Misc     *MiscStore
 }
 
 func (app *App) Init(ctx context.Context) {
@@ -28,6 +29,7 @@ func (app *App) Init(ctx context.Context) {
 	app.Panels = NewPanelStore(ctx)
 	app.Types = NewTypeStore(ctx)
 	app.Data = NewDataStore(ctx)
+	app.Misc = NewMiscStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
 		app.Package,
 		app.Editors,
@@ -36,6 +38,7 @@ func (app *App) Init(ctx context.Context) {
 		app.Panels,
 		app.Types,
 		app.Data,
+		app.Misc,
 	)
 }
 

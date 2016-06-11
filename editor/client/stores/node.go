@@ -20,16 +20,10 @@ type NodeStore struct {
 	app *App
 
 	selected *node.Node
-
-	addPop *models.AddPopModel
 }
 
 func (s *NodeStore) Selected() *node.Node {
 	return s.selected
-}
-
-func (s *NodeStore) AddPop() *models.AddPopModel {
-	return s.addPop
 }
 
 type nodeNotif string
@@ -38,7 +32,6 @@ func (b nodeNotif) IsNotif() {}
 
 const (
 	NodeInitialised  nodeNotif = "NodeInitialised"
-	AddPopChange     nodeNotif = "AddPopChange"
 	NodeFocused      nodeNotif = "NodeFocused"
 	NodeValueChanged nodeNotif = "NodeValueChanged"
 )
@@ -126,19 +119,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		if err := action.Node.InitialiseWithConcreteType(s.ctx, action.Type); err != nil {
 			s.app.Fail <- kerr.Wrap("WWKUVDDLYU", err)
 		}
-	case *actions.OpenAddPop:
-		s.addPop = &models.AddPopModel{
-			Visible: true,
-			Parent:  action.Parent,
-			Node:    action.Node,
-			Types:   action.Types,
-		}
-		s.Notify(nil, AddPopChange)
-	case *actions.CloseAddPop:
-		s.addPop = &models.AddPopModel{
-			Visible: false,
-		}
-		s.Notify(nil, AddPopChange)
 	case *actions.FocusNode:
 		s.Notify(action.Node, NodeFocused)
 	case *actions.NodeValueChange:

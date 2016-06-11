@@ -57,7 +57,7 @@ func addCollectionItem(app *stores.App, parent *node.Node) {
 		return
 	}
 
-	app.Dispatch(&actions.OpenAddPop{
+	app.Dispatch(&actions.OpenAddPopup{
 		Parent: parent,
 		Types:  types,
 	})

@@ -6,7 +6,7 @@ import (
 	"kego.io/system/node"
 )
 
-type AddPopModel struct {
+type AddPopupModel struct {
 	ctx     context.Context
 	Visible bool
 	Parent  *node.Node

@@ -83,12 +83,12 @@ type InitializeNode struct {
 	Type   *system.Type
 }
 
-type OpenAddPop struct {
+type OpenAddPopup struct {
 	Parent *node.Node
 	Node   *node.Node
 	Types  []*system.Type
 }
-type CloseAddPop struct{}
+type CloseAddPopup struct{}
 
 type FocusNode struct {
 	Node *node.Node
