@@ -45,9 +45,6 @@ func (v *ArrayView) Apply(element *vecty.Element) {
 }
 
 func (v *ArrayView) Mount() {
-	v.notifs = v.app.Editors.Watch(v.model,
-		stores.EditorChildAdded,
-	)
 	go func() {
 		for notif := range v.notifs {
 			v.reaction(notif)

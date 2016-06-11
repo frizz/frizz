@@ -38,6 +38,37 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 	}
 	v.RenderFunc = v.render
 	v.ReconcileBody()
+	v.sortable()
+}
+
+// Apply implements the vecty.Markup interface.
+func (v *ArrayTableView) Apply(element *vecty.Element) {
+	element.AddChild(v)
+}
+
+func (v *ArrayTableView) Mount() {
+	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorArrayOrderChanged,
+		stores.EditorChildAdded,
+		stores.EditorChildDeleted,
+	)
+	go func() {
+		for notif := range v.notifs {
+			v.reaction(notif)
+		}
+	}()
+}
+
+func (v *ArrayTableView) reaction(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	if notif.Type == stores.EditorArrayOrderChanged {
+		js.Global.Call("$", v.tbody.Node()).Call("sortable", "cancel")
+	}
+	v.ReconcileBody()
+	v.sortable()
+}
+
+func (v *ArrayTableView) sortable() {
 	if v.tbody != nil {
 		js.Global.Call("$", v.tbody.Node()).Call("sortable", js.M{
 			"handle":               ".handle",
@@ -64,31 +95,6 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 			},
 		})
 	}
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *ArrayTableView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *ArrayTableView) Mount() {
-	v.notifs = v.app.Editors.Watch(nil,
-		stores.EditorArrayOrderChanged,
-		stores.EditorChildDeleted,
-	)
-	go func() {
-		for notif := range v.notifs {
-			v.reaction(notif)
-		}
-	}()
-}
-
-func (v *ArrayTableView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
-	if notif.Type == stores.EditorArrayOrderChanged {
-		js.Global.Call("$", v.tbody.Node()).Call("sortable", "cancel")
-	}
-	v.ReconcileBody()
 }
 
 func (v *ArrayTableView) Unmount() {

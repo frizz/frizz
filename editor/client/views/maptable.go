@@ -43,7 +43,8 @@ func (v *MapTableView) Apply(element *vecty.Element) {
 }
 
 func (v *MapTableView) Mount() {
-	v.notifs = v.app.Editors.Watch(nil,
+	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
 	go func() {

@@ -45,9 +45,6 @@ func (v *MapView) Apply(element *vecty.Element) {
 }
 
 func (v *MapView) Mount() {
-	v.notifs = v.app.Editors.Watch(v.model,
-		stores.EditorChildAdded,
-	)
 	go func() {
 		for notif := range v.notifs {
 			v.reaction(notif)

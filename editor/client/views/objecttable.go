@@ -47,6 +47,7 @@ func (v *ObjectTableView) Apply(element *vecty.Element) {
 
 func (v *ObjectTableView) Mount() {
 	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
 

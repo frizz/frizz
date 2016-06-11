@@ -407,13 +407,13 @@ func (n *Node) Label(ctx context.Context) string {
 	if n.Parent == nil {
 		return "root"
 	}
+	if n.Key != "" {
+		return n.Key
+	}
 	if l, ok := n.Value.(system.Labelled); ok {
 		if s := l.Label(ctx); s != "" {
 			return s
 		}
-	}
-	if n.Key != "" {
-		return n.Key
 	}
 	if ob, ok := n.Value.(system.ObjectInterface); ok {
 		if o := ob.GetObject(ctx); o != nil && o.Id != nil {
