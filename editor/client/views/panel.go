@@ -90,7 +90,6 @@ func (v *PanelView) render() vecty.Component {
 			editor = NewCompositeView(v.ctx, v.node)
 		}
 	}
-
 	return elem.Div(
 		prop.Class("content panel"),
 		breadcrumbs,

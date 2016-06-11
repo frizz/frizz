@@ -112,19 +112,24 @@ func (s *Store) NotifyWithData(object interface{}, notif Notif, data interface{}
 }
 
 func (s *Store) notifyCount(object interface{}, notif Notif, data interface{}) (count int, done chan struct{}) {
+	if sub := s.getSubscriber(notif); sub != nil {
+		return sub.notify(object, notif, data)
+	}
+	done = make(chan struct{}, 1)
+	close(done)
+	return 0, done
+}
+
+func (s *Store) getSubscriber(notif Notif) notifHelper {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.subscribers == nil {
-		done := make(chan struct{}, 1)
-		close(done)
-		return 0, done
+		return nil
 	}
 	if s.subscribers[notif] == nil {
-		done := make(chan struct{}, 1)
-		close(done)
-		return 0, done
+		return nil
 	}
-	return s.subscribers[notif].notify(object, notif, data)
+	return s.subscribers[notif]
 }
 
 type notifHelper map[interface{}][]chan NotifPayload
