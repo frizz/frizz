@@ -46,7 +46,7 @@ func (v *ObjectRowView) Apply(element *vecty.Element) {
 }
 
 func (v *ObjectRowView) Mount() {
-	v.notifs = v.app.Nodes.Watch(v.node,
+	v.notifs = v.app.Watch(v.node,
 		stores.NodeInitialised,
 		stores.NodeValueChanged,
 	)
@@ -65,7 +65,7 @@ func (v *ObjectRowView) reaction(notif flux.NotifPayload) {
 
 func (v *ObjectRowView) Unmount() {
 	if v.notifs != nil {
-		v.app.Nodes.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

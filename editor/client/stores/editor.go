@@ -58,7 +58,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		for _, n := range s.app.Types.All() {
 			s.AddEditorsRecursively(n)
 		}
-		s.Notify(nil, EditorInitialStateLoaded)
+		s.app.Notify(nil, EditorInitialStateLoaded)
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
@@ -66,7 +66,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		}
 		n := ni.GetNode()
 		e := s.AddEditorsRecursively(n)
-		s.Notify(e, EditorLoaded)
+		s.app.Notify(e, EditorLoaded)
 	case *actions.InitializeNode:
 		payload.Wait(s.app.Branches)
 		s.AddEditorsRecursively(action.Node)
@@ -74,13 +74,13 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		if parent == nil {
 			break
 		}
-		s.Notify(parent, EditorChildAdded)
+		s.app.Notify(parent, EditorChildAdded)
 	case *actions.BranchSelected:
 		payload.Wait(s.app.Nodes)
 		if e := s.Get(s.app.Nodes.Selected()); e != nil {
-			s.Notify(e, EditorSelected)
+			s.app.Notify(e, EditorSelected)
 		}
-		s.Notify(nil, EditorSelected)
+		s.app.Notify(nil, EditorSelected)
 	case *actions.DeleteNode:
 		payload.Wait(s.app.Nodes)
 		if action.Node.Parent.Type.IsNativeCollection() && s.editors[action.Node] != nil {
@@ -88,15 +88,15 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		}
 		ed := s.Get(action.Node.Parent)
 		if ed != nil {
-			s.Notify(ed, EditorChildDeleted)
+			s.app.Notify(ed, EditorChildDeleted)
 		}
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Branches)
-		s.Notify(action.Model, EditorArrayOrderChanged)
+		s.app.Notify(action.Model, EditorArrayOrderChanged)
 	case *actions.EditorValueChange:
 		action.Editor.TemporaryValue = action.Value
 	case *actions.EditorFocus:
-		s.Notify(action.Editor, EditorFocus)
+		s.app.Notify(action.Editor, EditorFocus)
 	}
 	return true
 }

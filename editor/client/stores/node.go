@@ -147,8 +147,8 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 					}
 					n.SetValueNumber(s.ctx, val)
 				}
-				s.Notify(n, NodeValueChanged)
-				s.Notify(action.Editor, EditorValueChanged)
+				s.app.Notify(n, NodeValueChanged)
+				s.app.Notify(action.Editor, EditorValueChanged)
 			}
 		}()
 	}

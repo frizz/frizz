@@ -102,7 +102,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		action.Branch.RecursiveClose()
-		s.Notify(action.Branch, BranchClose)
+		s.app.Notify(action.Branch, BranchClose)
 	case *actions.BranchOpening:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
@@ -110,19 +110,19 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 		// The branch may not be loaded, so we don't open the branch until the BranchOpenPostLoad
 		// action is received. This will happen immediately if the branch is loaded or not async.
-		s.Notify(action.Branch, BranchOpening)
+		s.app.Notify(action.Branch, BranchOpening)
 	case *actions.BranchOpened:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
 			break
 		}
 		action.Branch.Open = true
-		s.Notify(action.Branch, BranchOpened)
+		s.app.Notify(action.Branch, BranchOpened)
 
 	case *actions.BranchSelecting:
 
 		if ancestor := action.Branch.EnsureVisible(); ancestor != nil {
-			s.NotifyWithData(ancestor, BranchOpened, &BranchDescendantSelectData{
+			s.app.NotifyWithData(ancestor, BranchOpened, &BranchDescendantSelectData{
 				Branch: action.Branch,
 				Op:     action.Op,
 			})
@@ -131,14 +131,14 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 		s.selected = action.Branch
 
-		s.Notify(previous, BranchUnselectControl)
-		s.Notify(s.selected, BranchSelectControl)
+		s.app.Notify(previous, BranchUnselectControl)
+		s.app.Notify(s.selected, BranchSelectControl)
 
 		if action.Op == models.BranchOpKeyboard {
 			go func() {
 				<-time.After(time.Millisecond * 50)
 				if s.selected == action.Branch {
-					s.NotifyWithData(
+					s.app.NotifyWithData(
 						s.selected,
 						BranchSelecting,
 						&BranchSelectOperationData{Op: action.Op},
@@ -146,7 +146,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				}
 			}()
 		} else {
-			s.NotifyWithData(
+			s.app.NotifyWithData(
 				s.selected,
 				BranchSelecting,
 				&BranchSelectOperationData{Op: action.Op},
@@ -155,7 +155,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 	case *actions.BranchSelected:
 		payload.Wait(s.app.Nodes)
-		s.Notify(s.selected, BranchSelected)
+		s.app.Notify(s.selected, BranchSelected)
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
 
@@ -189,7 +189,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.root.Open = true
 
 		s.root.Append(s.pkg, s.types, s.data)
-		s.Notify(nil, BranchInitialStateLoaded)
+		s.app.Notify(nil, BranchInitialStateLoaded)
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
@@ -198,7 +198,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		n := ni.GetNode()
 		s.AppendNodeBranchModelChildren(action.Branch, n)
 		s.nodeBranches[n] = action.Branch
-		s.Notify(action.Branch, BranchLoaded)
+		s.app.Notify(action.Branch, BranchLoaded)
 	case *actions.InitializeNode:
 		payload.Wait(s.app.Nodes)
 		parent := action.Node.Parent
@@ -210,7 +210,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		s.AppendNodeBranchModelChild(parentBranch, action.Node)
-		s.Notify(parentBranch, BranchChildAdded)
+		s.app.Notify(parentBranch, BranchChildAdded)
 	case *actions.DeleteNode:
 		payload.Wait(s.app.Nodes)
 		branch, ok := s.nodeBranches[action.Node]
@@ -224,7 +224,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 		}
-		s.Notify(branch.Parent, BranchChildDeleted)
+		s.app.Notify(branch.Parent, BranchChildDeleted)
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Nodes)
 		branch, ok := s.nodeBranches[action.Model.Node]
@@ -238,7 +238,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				branch.Children = append(branch.Children, b)
 			}
 		}
-		s.Notify(branch, BranchChildrenReordered)
+		s.app.Notify(branch, BranchChildrenReordered)
 	}
 	return true
 }

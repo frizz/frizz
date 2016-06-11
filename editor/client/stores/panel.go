@@ -48,7 +48,7 @@ func (s *PanelStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 			s.selected = action.Node
-			s.Notify()
+			s.app.Notify()
 		}
 	*/
 	return true

@@ -44,18 +44,9 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.notifs = v.app.Branches.Watch(nil,
+	v.notifs = v.app.Watch(nil,
 		stores.BranchSelected,
 	)
-	/*
-		v.notifs = v.app.Editors.Watch(nil,
-			stores.EditorLoaded,
-			stores.EditorAdded,
-			stores.EditorInitialStateLoaded,
-			stores.EditorChanged,
-			stores.EditorSelected,
-		)
-	*/
 	go func() {
 		for notif := range v.notifs {
 			v.reaction(notif)
@@ -76,7 +67,7 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 
 func (v *PanelView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

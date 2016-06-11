@@ -53,7 +53,7 @@ func (v *BranchView) Apply(element *vecty.Element) {
 
 func (v *BranchView) Mount() {
 
-	v.notifs = v.app.Branches.Watch(v.model,
+	v.notifs = v.app.Watch(v.model,
 		stores.BranchOpening,
 		stores.BranchOpened,
 		stores.BranchClose,
@@ -146,7 +146,7 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 
 func (v *BranchView) Unmount() {
 	if v.notifs != nil {
-		v.app.Branches.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

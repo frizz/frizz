@@ -59,7 +59,7 @@ func (v *BoolEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *BoolEditorView) Mount() {
-	v.notifs = v.app.Editors.Watch(v.model,
+	v.notifs = v.app.Watch(v.model,
 		stores.EditorFocus,
 	)
 	go func() {
@@ -79,7 +79,7 @@ func (v *BoolEditorView) reaction(notif flux.NotifPayload) {
 
 func (v *BoolEditorView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

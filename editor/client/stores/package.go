@@ -46,7 +46,7 @@ func (s *PackageStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
 		}
 		s.n = pkgNode
-		s.Notify(nil, PackageChanged)
+		s.app.Notify(nil, PackageChanged)
 	}
 	return true
 }

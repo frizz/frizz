@@ -59,7 +59,7 @@ func (v *ArrayView) reaction(notif flux.NotifPayload) {
 
 func (v *ArrayView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

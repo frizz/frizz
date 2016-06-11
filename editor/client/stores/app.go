@@ -8,6 +8,7 @@ import (
 
 type App struct {
 	Dispatcher flux.DispatcherInterface
+	Notifier   flux.NotifierInterface
 	Fail       chan error
 	Conn       connection.Interface
 
@@ -40,8 +41,25 @@ func (app *App) Init(ctx context.Context) {
 		app.Data,
 		app.Misc,
 	)
+	app.Notifier = flux.NewNotifier()
 }
 
 func (a *App) Dispatch(action flux.ActionInterface) chan struct{} {
 	return a.Dispatcher.Dispatch(action)
+}
+
+func (a *App) Watch(object interface{}, notif ...flux.Notif) chan flux.NotifPayload {
+	return a.Notifier.Watch(object, notif...)
+}
+
+func (a *App) Notify(object interface{}, notif flux.Notif) (done chan struct{}) {
+	return a.Notifier.Notify(object, notif)
+}
+
+func (a *App) NotifyWithData(object interface{}, notif flux.Notif, data interface{}) (done chan struct{}) {
+	return a.Notifier.NotifyWithData(object, notif, data)
+}
+
+func (a *App) Delete(c chan flux.NotifPayload) {
+	a.Notifier.Delete(c)
 }

@@ -43,7 +43,7 @@ func (v *TreeView) Apply(element *vecty.Element) {
 }
 
 func (v *TreeView) Mount() {
-	v.notifs = v.app.Branches.Watch(v.app.Branches.Root(),
+	v.notifs = v.app.Watch(v.app.Branches.Root(),
 		stores.BranchInitialStateLoaded,
 	)
 	go func() {
@@ -57,7 +57,7 @@ func (v *TreeView) Mount() {
 
 func (v *TreeView) Unmount() {
 	if v.notifs != nil {
-		v.app.Branches.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

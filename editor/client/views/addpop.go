@@ -51,7 +51,7 @@ func (v *AddPopupView) Apply(element *vecty.Element) {
 }
 
 func (v *AddPopupView) Mount() {
-	v.notifs = v.app.Misc.Watch(nil, stores.AddPopupChange)
+	v.notifs = v.app.Watch(nil, stores.AddPopupChange)
 
 	go func() {
 		for notif := range v.notifs {
@@ -78,7 +78,7 @@ func (v *AddPopupView) reaction(notif flux.NotifPayload) {
 
 func (v *AddPopupView) Unmount() {
 	if v.notifs != nil {
-		v.app.Misc.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

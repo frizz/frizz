@@ -55,7 +55,7 @@ func (v *ObjectEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *ObjectEditorView) Mount() {
-	v.notifs = v.app.Nodes.Watch(v.model.Node,
+	v.notifs = v.app.Watch(v.model.Node,
 		stores.NodeInitialised,
 	)
 	go func() {
@@ -72,7 +72,7 @@ func (v *ObjectEditorView) reaction(notif flux.NotifPayload) {
 
 func (v *ObjectEditorView) Unmount() {
 	if v.notifs != nil {
-		v.app.Nodes.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

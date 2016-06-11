@@ -43,7 +43,7 @@ func (v *MapTableView) Apply(element *vecty.Element) {
 }
 
 func (v *MapTableView) Mount() {
-	v.notifs = v.app.Editors.Watch(v.model,
+	v.notifs = v.app.Watch(v.model,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
@@ -61,7 +61,7 @@ func (v *MapTableView) reaction(notif flux.NotifPayload) {
 
 func (v *MapTableView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

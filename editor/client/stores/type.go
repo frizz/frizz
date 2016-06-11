@@ -69,7 +69,7 @@ func (s *TypeStore) Handle(payload *flux.Payload) bool {
 			}
 			s.types[name] = typ
 		}
-		s.Notify(nil, TypeChanged)
+		s.app.Notify(nil, TypeChanged)
 	}
 	return true
 }

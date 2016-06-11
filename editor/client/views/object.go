@@ -61,7 +61,7 @@ func (v *ObjectView) reaction(notif flux.NotifPayload) {
 
 func (v *ObjectView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

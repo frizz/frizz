@@ -51,7 +51,7 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchControlView) Mount() {
-	v.notifs = v.app.Branches.Watch(v.model,
+	v.notifs = v.app.Watch(v.model,
 		stores.BranchSelectControl,
 		stores.BranchUnselectControl,
 	)
@@ -72,7 +72,7 @@ func (v *BranchControlView) reaction(notif flux.NotifPayload) {
 
 func (v *BranchControlView) Unmount() {
 	if v.notifs != nil {
-		v.app.Branches.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

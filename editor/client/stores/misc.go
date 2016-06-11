@@ -46,12 +46,12 @@ func (s *MiscStore) Handle(payload *flux.Payload) bool {
 			Node:    action.Node,
 			Types:   action.Types,
 		}
-		s.Notify(nil, AddPopupChange)
+		s.app.Notify(nil, AddPopupChange)
 	case *actions.CloseAddPopup:
 		s.addPopup = &models.AddPopupModel{
 			Visible: false,
 		}
-		s.Notify(nil, AddPopupChange)
+		s.app.Notify(nil, AddPopupChange)
 	}
 	return true
 }

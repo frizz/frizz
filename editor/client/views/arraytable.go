@@ -47,7 +47,7 @@ func (v *ArrayTableView) Apply(element *vecty.Element) {
 }
 
 func (v *ArrayTableView) Mount() {
-	v.notifs = v.app.Editors.Watch(v.model,
+	v.notifs = v.app.Watch(v.model,
 		stores.EditorArrayOrderChanged,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
@@ -99,7 +99,7 @@ func (v *ArrayTableView) sortable() {
 
 func (v *ArrayTableView) Unmount() {
 	if v.notifs != nil {
-		v.app.Editors.Delete(v.notifs)
+		v.app.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
