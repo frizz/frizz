@@ -51,7 +51,9 @@ func (v *AddPopupView) Apply(element *vecty.Element) {
 }
 
 func (v *AddPopupView) Mount() {
-	v.notifs = v.app.Watch(nil, stores.AddPopupChange)
+	v.notifs = v.app.Watch(nil,
+		stores.AddPopupChange,
+	)
 
 	go func() {
 		for notif := range v.notifs {

@@ -47,7 +47,6 @@ func (v *MapRowView) Apply(element *vecty.Element) {
 
 func (v *MapRowView) Mount() {
 	v.notifs = v.app.Watch(v.node,
-		stores.NodeInitialised,
 		stores.NodeValueChanged,
 	)
 

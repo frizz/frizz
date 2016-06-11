@@ -47,7 +47,6 @@ func (v *ArrayRowView) Apply(element *vecty.Element) {
 
 func (v *ArrayRowView) Mount() {
 	v.notifs = v.app.Watch(v.node,
-		stores.NodeInitialised,
 		stores.NodeValueChanged,
 	)
 

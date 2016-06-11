@@ -88,6 +88,9 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		if action.Node.Parent.Type.IsNativeCollection() {
 			if action.Node.Index > -1 {
 				action.Node.Parent.Array = append(action.Node.Parent.Array[:action.Node.Index], action.Node.Parent.Array[action.Node.Index+1:]...)
+				for i, n := range action.Node.Parent.Array {
+					n.Index = i
+				}
 			} else {
 				delete(action.Node.Parent.Map, action.Node.Key)
 			}
