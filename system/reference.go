@@ -20,6 +20,13 @@ type Reference struct {
 	Name    string
 }
 
+func (r *Reference) Label(ctx context.Context) string {
+	if r == nil {
+		return ""
+	}
+	return r.Name
+}
+
 func (r Reference) Value() string {
 	if r.Package == "" && r.Name == "" {
 		return ""

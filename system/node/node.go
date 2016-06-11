@@ -17,18 +17,19 @@ type Node struct {
 	Array  []*Node
 	Map    map[string]*Node
 
-	Key         string            // in an object or a map, this is the key
-	Index       int               // in an array, this is the index
-	Origin      *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
-	ValueString string
-	ValueNumber float64
-	ValueBool   bool
-	Value       interface{} // unmarshalled value
-	Null        bool        // null is true if the json is null or the field is missing
-	Missing     bool        // missing is only true if the field is missing
-	Rule        *system.RuleWrapper
-	Type        *system.Type
-	JsonType    json.Type
+	Key            string            // in an object or a map, this is the key
+	Index          int               // in an array, this is the index
+	Origin         *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
+	ValueString    string
+	ValueNumber    float64
+	ValueBool      bool
+	Value          interface{} // unmarshalled value
+	Null           bool        // null is true if the json is null or the field is missing
+	Missing        bool        // missing is only true if the field is missing
+	Rule           *system.RuleWrapper
+	Type           *system.Type
+	JsonType       json.Type
+	TemporaryValue interface{}
 }
 
 func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
@@ -398,28 +399,41 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 	return nil
 }
 
-func (n *Node) Label() string {
+func (n *Node) Label(ctx context.Context) string {
 	if n == nil {
 		return "(nil)"
 	}
 	if n.Parent == nil {
 		return "root"
 	}
+	if n.Value != nil {
+		if l, ok := n.Value.(system.Labelled); ok {
+			if s := l.Label(ctx); s != "" {
+				return s
+			}
+		}
+	}
+	if n.Key != "" {
+		return n.Key
+	}
+	if ob, ok := n.Value.(system.ObjectInterface); ok {
+		o := ob.GetObject(ctx)
+		if o.Id != nil {
+			return o.Id.Name
+		}
+	}
 	if n.Index > -1 {
 		return fmt.Sprintf("%d", n.Index)
 	}
-	if n.Key == "" {
-		return "(empty key)"
-	}
-	return n.Key
+	return "(?)"
 }
 
-func (n *Node) Path() (path string) {
+func (n *Node) Path(ctx context.Context) (path string) {
 	for n != nil {
 		if path != "" {
-			path = n.Label() + "/" + path
+			path = n.Label(ctx) + "/" + path
 		} else {
-			path = n.Label()
+			path = n.Label(ctx)
 		}
 		n = n.Parent
 	}

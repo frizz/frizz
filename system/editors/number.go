@@ -108,7 +108,7 @@ func (v *NumberEditorView) render() vecty.Component {
 		prop.Class("form-group"),
 		elem.Label(
 			prop.For(id),
-			vecty.Text(v.model.Node.Label()),
+			vecty.Text(v.model.Node.Label(v.ctx)),
 		),
 		v.input,
 		helpBlock(v.ctx, v.model.Node),

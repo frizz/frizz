@@ -105,7 +105,7 @@ func (v *BoolEditorView) render() vecty.Component {
 			prop.Class("checkbox"),
 			elem.Label(
 				v.input,
-				vecty.Text(v.model.Node.Label()),
+				vecty.Text(v.model.Node.Label(v.ctx)),
 			),
 		),
 		helpBlock(v.ctx, v.model.Node),

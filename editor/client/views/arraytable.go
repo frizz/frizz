@@ -8,13 +8,15 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 	"kego.io/system/node"
 )
 
 type ArrayTableView struct {
 	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	ctx    context.Context
+	app    *stores.App
+	notifs chan flux.NotifPayload
 
 	node  *node.Node
 	tbody *vecty.Element
@@ -46,8 +48,11 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 				ui.Get("item").Call("data", "start_pos", ui.Get("item").Call("index"))
 			},
 			"beforeStop": func(event *js.Object, ui *js.Object) {
+				ui.Get("item").Call("data", "end_pos", ui.Get("placeholder").Call("index"))
+			},
+			"update": func(event *js.Object, ui *js.Object) {
 				oldIndex := ui.Get("item").Call("data", "start_pos").Int()
-				newIndex := ui.Get("placeholder").Call("index").Int() - 1
+				newIndex := ui.Get("item").Call("data", "end_pos").Int() - 1
 				if oldIndex == newIndex {
 					return
 				}
@@ -66,9 +71,30 @@ func (v *ArrayTableView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *ArrayTableView) Mount() {}
+func (v *ArrayTableView) Mount() {
+	v.notifs = v.app.Editors.Watch(nil,
+		stores.EditorArrayOrderChanged,
+	)
+	go func() {
+		for notif := range v.notifs {
+			v.reaction(notif)
+		}
+	}()
+}
+
+func (v *ArrayTableView) reaction(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	if notif.Type == stores.EditorArrayOrderChanged {
+		js.Global.Call("$", v.tbody.Node()).Call("sortable", "cancel")
+	}
+	v.ReconcileBody()
+}
 
 func (v *ArrayTableView) Unmount() {
+	if v.notifs != nil {
+		v.app.Editors.Delete(v.notifs)
+		v.notifs = nil
+	}
 	v.Body.Unmount()
 }
 
@@ -84,6 +110,7 @@ func (v *ArrayTableView) render() vecty.Component {
 			prop.Class("handle-head"),
 			vecty.Text(""),
 		),
+		elem.TableHeader(vecty.Text("label")),
 		elem.TableHeader(vecty.Text("value")),
 		elem.TableHeader(vecty.Text("options")),
 	)

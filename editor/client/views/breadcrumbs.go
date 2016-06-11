@@ -62,13 +62,13 @@ func (v *BreadcrumbsView) render() vecty.Component {
 		var content vecty.Markup
 		if current == v.branch {
 			content = vecty.Text(
-				current.Contents.Label(),
+				current.Contents.Label(v.ctx),
 			)
 		} else {
 			content = elem.Anchor(
 				prop.Href("#"),
 				vecty.Text(
-					current.Contents.Label(),
+					current.Contents.Label(v.ctx),
 				),
 				event.Click(func(ev *vecty.Event) {
 					v.app.Dispatch(&actions.BranchSelecting{Branch: current, Op: models.BranchOpClickBreadcrumb})

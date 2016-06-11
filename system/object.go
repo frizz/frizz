@@ -1,6 +1,13 @@
 package system
 
-import "kego.io/json"
+import (
+	"golang.org/x/net/context"
+	"kego.io/json"
+)
+
+type Labelled interface {
+	Label(ctx context.Context) string
+}
 
 // RulesApplyToObjects returns true if we should apply the rules collection to this object. It
 // returns false if the rules collection should not apply to this object (e.g. it should apply to

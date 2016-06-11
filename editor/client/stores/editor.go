@@ -26,6 +26,7 @@ const (
 	EditorLoaded             editorNotif = "EditorLoaded"
 	EditorAdded              editorNotif = "EditorAdded"
 	EditorInitialStateLoaded editorNotif = "EditorInitialStateLoaded"
+	EditorArrayOrderChanged  editorNotif = "EditorArrayOrderChanged"
 )
 
 func NewEditorStore(ctx context.Context) *EditorStore {
@@ -85,8 +86,8 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		}
 		s.Notify(e, EditorChanged)
 	case *actions.ArrayOrder:
-		payload.Wait(s.app.Nodes)
-		s.Notify(nil, EditorChanged)
+		payload.Wait(s.app.Branches)
+		s.Notify(nil, EditorArrayOrderChanged)
 	}
 	return true
 }

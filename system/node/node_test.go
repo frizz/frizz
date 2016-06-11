@@ -16,19 +16,21 @@ import (
 
 func TestNode_Label(t *testing.T) {
 	var n *Node
-	assert.Equal(t, "(nil)", n.Label())
+	cb := tests.New()
+	assert.Equal(t, "(nil)", n.Label(cb.Ctx()))
 	n = &Node{Key: "a", Index: 0}
-	assert.Equal(t, "root", n.Label())
+	assert.Equal(t, "root", n.Label(cb.Ctx()))
 	n = &Node{Key: "a", Index: 2, Parent: &Node{}}
-	assert.Equal(t, "2", n.Label())
+	assert.Equal(t, "2", n.Label(cb.Ctx()))
 	n = &Node{Key: "a", Index: -1, Parent: &Node{}}
-	assert.Equal(t, "a", n.Label())
+	assert.Equal(t, "a", n.Label(cb.Ctx()))
 	n = &Node{Key: "", Index: -1, Parent: &Node{}}
-	assert.Equal(t, "(empty key)", n.Label())
+	assert.Equal(t, "(empty key)", n.Label(cb.Ctx()))
 }
 
 func TestNode_Path(t *testing.T) {
 	var n *Node
+	cb := tests.New()
 	assert.Nil(t, n.Root())
 	r := &Node{
 		Key:   "",
@@ -46,7 +48,7 @@ func TestNode_Path(t *testing.T) {
 				Parent: r,
 			},
 		}}
-	assert.Equal(t, "root/2/b/a", n.Path())
+	assert.Equal(t, "root/2/b/a", n.Path(cb.Ctx()))
 	assert.Equal(t, r, n.Root())
 }
 

@@ -48,6 +48,7 @@ func (v *ArrayRowView) Apply(element *vecty.Element) {
 func (v *ArrayRowView) Mount() {
 	v.notifs = v.app.Nodes.Watch(v.node,
 		stores.NodeInitialised,
+		stores.NodeValueChanged,
 	)
 
 	go func() {
@@ -92,6 +93,7 @@ func (v *ArrayRowView) render() vecty.Component {
 				// nothing
 			}).PreventDefault().StopPropagation(),
 		),
+		elem.TableData(vecty.Text(v.node.Label(v.ctx))),
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(elem.Anchor(
 			event.Click(func(e *vecty.Event) {

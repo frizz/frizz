@@ -3,6 +3,8 @@ package stores
 import (
 	"strconv"
 
+	"time"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -35,9 +37,10 @@ type nodeNotif string
 func (b nodeNotif) IsNotif() {}
 
 const (
-	NodeInitialised nodeNotif = "NodeInitialised"
-	AddPopChange    nodeNotif = "AddPopChange"
-	NodeFocused     nodeNotif = "NodeFocused"
+	NodeInitialised  nodeNotif = "NodeInitialised"
+	AddPopChange     nodeNotif = "AddPopChange"
+	NodeFocused      nodeNotif = "NodeFocused"
+	NodeValueChanged nodeNotif = "NodeValueChanged"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -57,10 +60,12 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.New("EPBQVIICFM", "Must be array")
 			break
 		}
+
 		a := action.Parent.Array
 
 		// remove the item we're moving
 		item := a[action.OldIndex]
+
 		a = append(
 			a[:action.OldIndex],
 			a[action.OldIndex+1:]...)
@@ -138,20 +143,36 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		s.Notify(action.Node, NodeFocused)
 	case *actions.NodeValueChange:
 		n := action.Node
-		switch n.JsonType {
-		case json.J_STRING:
-			n.ValueString = action.Value.(string)
-			n.Value = action.Value
-		case json.J_BOOL:
-			n.ValueBool = action.Value.(bool)
-			n.Value = action.Value
-		case json.J_NUMBER:
-			val, err := strconv.ParseFloat(action.Value.(string), 64)
-			if err == nil {
-				n.ValueNumber = val
-				n.Value = val
+		n.TemporaryValue = action.Value
+		go func() {
+			<-time.After(time.Millisecond * 50)
+			if n.TemporaryValue == action.Value {
+				switch n.JsonType {
+				case json.J_STRING:
+					val := action.Value.(string)
+					if n.ValueString == val {
+						return
+					}
+					n.SetValueString(s.ctx, val)
+				case json.J_BOOL:
+					val := action.Value.(bool)
+					if n.ValueBool == val {
+						return
+					}
+					n.SetValueBool(s.ctx, val)
+				case json.J_NUMBER:
+					val, err := strconv.ParseFloat(action.Value.(string), 64)
+					if err != nil {
+						return
+					}
+					if n.ValueNumber == val {
+						return
+					}
+					n.SetValueNumber(s.ctx, val)
+				}
+				s.Notify(n, NodeValueChanged)
 			}
-		}
+		}()
 	}
 	return true
 }

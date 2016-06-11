@@ -48,6 +48,7 @@ func (v *ObjectRowView) Apply(element *vecty.Element) {
 func (v *ObjectRowView) Mount() {
 	v.notifs = v.app.Nodes.Watch(v.node,
 		stores.NodeInitialised,
+		stores.NodeValueChanged,
 	)
 
 	go func() {

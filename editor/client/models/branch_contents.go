@@ -3,11 +3,12 @@ package models
 import (
 	"sync"
 
+	"golang.org/x/net/context"
 	"kego.io/system/node"
 )
 
 type BranchContentsInterface interface {
-	Label() string
+	Label(ctx context.Context) string
 }
 
 type AsyncInterface interface {
@@ -22,19 +23,19 @@ type RootContents struct {
 	Name string
 }
 
-func (c RootContents) Label() string {
+func (c RootContents) Label(ctx context.Context) string {
 	return c.Name
 }
 
 type DataContents struct{}
 
-func (c DataContents) Label() string {
+func (c DataContents) Label(ctx context.Context) string {
 	return "data"
 }
 
 type TypesContents struct{}
 
-func (c TypesContents) Label() string {
+func (c TypesContents) Label(ctx context.Context) string {
 	return "types"
 }
 
@@ -47,11 +48,11 @@ func (c NodeContents) GetNode() *node.Node {
 	return c.Node
 }
 
-func (c NodeContents) Label() string {
+func (c NodeContents) Label(ctx context.Context) string {
 	if c.Name != "" {
 		return c.Name
 	}
-	return c.Node.Label()
+	return c.Node.Label(ctx)
 }
 
 type SourceContents struct {
@@ -61,7 +62,7 @@ type SourceContents struct {
 	Filename string
 }
 
-func (c SourceContents) Label() string {
+func (c SourceContents) Label(ctx context.Context) string {
 	return c.Name
 }
 

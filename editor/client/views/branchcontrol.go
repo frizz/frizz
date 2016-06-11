@@ -129,7 +129,7 @@ func (v *BranchControlView) render() vecty.Component {
 			elem.Span(
 				prop.Class("node-label"),
 				event.Click(v.labelClick),
-				vecty.Text(v.model.Contents.Label()),
+				vecty.Text(v.model.Contents.Label(v.ctx)),
 			),
 			elem.Span(
 				prop.Class("badge"),
