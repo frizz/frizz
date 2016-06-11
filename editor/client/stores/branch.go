@@ -155,7 +155,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 	case *actions.BranchSelected:
 		payload.Wait(s.app.Nodes)
-		s.Notify(nil, BranchSelected)
+		s.Notify(s.selected, BranchSelected)
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
 
@@ -227,12 +227,12 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.Notify(branch.Parent, BranchChildDeleted)
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Nodes)
-		branch, ok := s.nodeBranches[action.Parent]
+		branch, ok := s.nodeBranches[action.Model.Node]
 		if !ok {
 			break
 		}
 		branch.Children = []*models.BranchModel{}
-		for _, n := range action.Parent.Array {
+		for _, n := range action.Model.Node.Array {
 			b, ok := s.nodeBranches[n]
 			if ok {
 				branch.Children = append(branch.Children, b)

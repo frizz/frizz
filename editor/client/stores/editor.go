@@ -24,9 +24,11 @@ const (
 	EditorChanged            editorNotif = "EditorChanged"
 	EditorSelected           editorNotif = "EditorSelected"
 	EditorLoaded             editorNotif = "EditorLoaded"
-	EditorAdded              editorNotif = "EditorAdded"
+	EditorChildAdded         editorNotif = "EditorChildAdded"
+	EditorChildDeleted       editorNotif = "EditorChildDeleted"
 	EditorInitialStateLoaded editorNotif = "EditorInitialStateLoaded"
 	EditorArrayOrderChanged  editorNotif = "EditorArrayOrderChanged"
+	EditorValueChanged       editorNotif = "EditorValueChanged"
 )
 
 func NewEditorStore(ctx context.Context) *EditorStore {
@@ -66,8 +68,12 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		s.Notify(e, EditorLoaded)
 	case *actions.InitializeNode:
 		payload.Wait(s.app.Branches)
-		e := s.AddEditorsRecursively(action.Node)
-		s.Notify(e, EditorAdded)
+		s.AddEditorsRecursively(action.Node)
+		parent := s.Get(action.Node.Parent)
+		if parent == nil {
+			break
+		}
+		s.Notify(parent, EditorChildAdded)
 	case *actions.BranchSelected:
 		payload.Wait(s.app.Nodes)
 		if e := s.Get(s.app.Nodes.Selected()); e != nil {
@@ -76,17 +82,16 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		s.Notify(nil, EditorSelected)
 	case *actions.DeleteNode:
 		payload.Wait(s.app.Nodes)
-		e, ok := s.editors[action.Node]
-		if !ok {
-			break
-		}
-		if action.Node.Parent.Type.IsNativeCollection() {
+		if action.Node.Parent.Type.IsNativeCollection() && s.editors[action.Node] != nil {
 			delete(s.editors, action.Node)
 		}
-		s.Notify(e, EditorChanged)
+		ed := s.Get(action.Node.Parent)
+		if ed != nil {
+			s.Notify(ed, EditorChildDeleted)
+		}
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Branches)
-		s.Notify(nil, EditorArrayOrderChanged)
+		s.Notify(action.Model, EditorArrayOrderChanged)
 	case *actions.EditorValueChange:
 		action.Editor.TemporaryValue = action.Value
 	}

@@ -5,10 +5,10 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type ObjectTableView struct {
@@ -17,15 +17,15 @@ type ObjectTableView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	node   *node.Node
+	model  *models.EditorModel
 	origin *system.Reference
 }
 
-func NewObjectTableView(ctx context.Context, node *node.Node, origin *system.Reference) *ObjectTableView {
+func NewObjectTableView(ctx context.Context, model *models.EditorModel, origin *system.Reference) *ObjectTableView {
 	v := &ObjectTableView{
 		ctx:    ctx,
 		app:    stores.FromContext(ctx),
-		node:   node,
+		model:  model,
 		origin: origin,
 	}
 	v.Mount()
@@ -46,9 +46,9 @@ func (v *ObjectTableView) Apply(element *vecty.Element) {
 }
 
 func (v *ObjectTableView) Mount() {
-	v.notifs = v.app.Branches.Watch(nil,
-		nil,
-	) //stores.BranchSelectPostLoad,
+	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorChildDeleted,
+	)
 
 	go func() {
 		for notif := range v.notifs {
@@ -59,13 +59,12 @@ func (v *ObjectTableView) Mount() {
 
 func (v *ObjectTableView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	//v.branch = v.app.Branches.Selected()
 	v.ReconcileBody()
 }
 
 func (v *ObjectTableView) Unmount() {
 	if v.notifs != nil {
-		v.app.Branches.Delete(v.notifs)
+		v.app.Editors.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
@@ -73,7 +72,7 @@ func (v *ObjectTableView) Unmount() {
 
 func (v *ObjectTableView) render() vecty.Component {
 
-	if v.node == nil || len(v.node.Map) == 0 {
+	if v.model.Node == nil || len(v.model.Node.Map) == 0 {
 		return elem.Div()
 	}
 
@@ -85,7 +84,7 @@ func (v *ObjectTableView) render() vecty.Component {
 	)
 
 	rows := vecty.List{}
-	for _, c := range v.node.Map {
+	for _, c := range v.model.Node.Map {
 		if *c.Origin != *v.origin {
 			continue
 		}

@@ -5,23 +5,25 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/system/node"
+	"kego.io/flux"
 )
 
 type MapTableView struct {
 	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	ctx    context.Context
+	app    *stores.App
+	notifs chan flux.NotifPayload
 
-	node *node.Node
+	model *models.EditorModel
 }
 
-func NewMapTableView(ctx context.Context, node *node.Node) *MapTableView {
+func NewMapTableView(ctx context.Context, model *models.EditorModel) *MapTableView {
 	v := &MapTableView{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
+		ctx:   ctx,
+		app:   stores.FromContext(ctx),
+		model: model,
 	}
 	v.Mount()
 	return v
@@ -40,15 +42,33 @@ func (v *MapTableView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *MapTableView) Mount() {}
+func (v *MapTableView) Mount() {
+	v.notifs = v.app.Editors.Watch(nil,
+		stores.EditorChildDeleted,
+	)
+	go func() {
+		for notif := range v.notifs {
+			v.reaction(notif)
+		}
+	}()
+}
+
+func (v *MapTableView) reaction(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	v.ReconcileBody()
+}
 
 func (v *MapTableView) Unmount() {
+	if v.notifs != nil {
+		v.app.Editors.Delete(v.notifs)
+		v.notifs = nil
+	}
 	v.Body.Unmount()
 }
 
 func (v *MapTableView) render() vecty.Component {
 
-	if v.node == nil || len(v.node.Map) == 0 {
+	if v.model.Node == nil || len(v.model.Node.Map) == 0 {
 		return elem.Div()
 	}
 
@@ -59,7 +79,7 @@ func (v *MapTableView) render() vecty.Component {
 	)
 
 	rows := vecty.List{}
-	for _, c := range v.node.Map {
+	for _, c := range v.model.Node.Map {
 		rows = append(rows, NewMapRowView(v.ctx, c))
 	}
 

@@ -49,12 +49,12 @@ func NewNodeStore(ctx context.Context) *NodeStore {
 func (s *NodeStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.ArrayOrder:
-		if !action.Parent.Type.IsNativeArray() {
+		if !action.Model.Node.Type.IsNativeArray() {
 			s.app.Fail <- kerr.New("EPBQVIICFM", "Must be array")
 			break
 		}
 
-		a := action.Parent.Array
+		a := action.Model.Node.Array
 
 		// remove the item we're moving
 		item := a[action.OldIndex]
@@ -64,12 +64,12 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			a[action.OldIndex+1:]...)
 
 		// insert it back in the correct place
-		action.Parent.Array = append(
+		action.Model.Node.Array = append(
 			a[:action.NewIndex],
 			append([]*node.Node{item}, a[action.NewIndex:]...)...)
 
 		// correct the indexes
-		for i, n := range action.Parent.Array {
+		for i, n := range action.Model.Node.Array {
 			n.Index = i
 		}
 
@@ -151,6 +151,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 					n.SetValueNumber(s.ctx, val)
 				}
 				s.Notify(n, NodeValueChanged)
+				s.Notify(action.Editor, EditorValueChanged)
 			}
 		}()
 	}

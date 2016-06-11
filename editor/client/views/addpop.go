@@ -78,7 +78,7 @@ func (v *AddPopupView) reaction(notif flux.NotifPayload) {
 
 func (v *AddPopupView) Unmount() {
 	if v.notifs != nil {
-		v.app.Nodes.Delete(v.notifs)
+		v.app.Misc.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
@@ -252,7 +252,6 @@ func (v *AddPopupView) save() {
 			New:  false,
 			Type: t,
 		})
-		return
 	} else if v.model.Parent.Type.IsNativeMap() {
 		name := v.nameInput.Node().Get("value").String()
 		if name == "" {

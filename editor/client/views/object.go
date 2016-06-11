@@ -1,14 +1,16 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/prop"
+	"github.com/davelondon/vecty/style"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
-	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -18,15 +20,13 @@ type ObjectView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model  *models.EditorModel
-	origin *system.Reference
+	model *models.EditorModel
 }
 
-func NewObjectView(ctx context.Context, node *node.Node, origin *system.Reference) *ObjectView {
+func NewObjectView(ctx context.Context, node *node.Node) *ObjectView {
 	v := &ObjectView{
-		ctx:    ctx,
-		app:    stores.FromContext(ctx),
-		origin: origin,
+		ctx: ctx,
+		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
 	v.Mount()
@@ -47,8 +47,8 @@ func (v *ObjectView) Apply(element *vecty.Element) {
 }
 
 func (v *ObjectView) Mount() {
-	v.notifs = v.app.Nodes.Watch(v.model.Node,
-		stores.NodeInitialised,
+	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorChildAdded,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -64,37 +64,55 @@ func (v *ObjectView) reaction(notif flux.NotifPayload) {
 
 func (v *ObjectView) Unmount() {
 	if v.notifs != nil {
-		v.app.Nodes.Delete(v.notifs)
+		v.app.Editors.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
 }
 
 func (v *ObjectView) render() vecty.Component {
-	if v.model == nil || v.model.Node.Missing || v.model.Node.Null {
-		return elem.Div(vecty.Text("default editor (nil)"))
+	if v.model == nil {
+		return elem.Div(vecty.Text("Object (nil)"))
 	}
 
-	children := vecty.List{}
-	for _, n := range v.model.Node.Map {
-		if n.Missing || n.Null {
-			continue
-		}
-		if *n.Origin != *v.origin {
-			continue
-		}
-		e := models.GetEditable(v.ctx, n)
-		f := e.Format(n.Rule)
-		if f == editable.Block || f == editable.Inline {
-			children = append(children, e.EditorView(v.ctx, n))
-		}
+	tabs := vecty.List{}
+	panes := vecty.List{}
+	for i, o := range v.model.Node.Type.FieldOrigins() {
+
+		tabs = append(tabs, elem.ListItem(
+			vecty.ClassMap{
+				"active": i == 0,
+			},
+			elem.Anchor(
+				prop.Href(fmt.Sprintf("#pane%d", i)),
+				vecty.Data("toggle", "tab"),
+				vecty.Text(o.Name),
+			),
+		))
+
+		panes = append(panes, elem.Div(
+			vecty.ClassMap{
+				"tab-pane": true,
+				"active":   i == 0,
+			},
+			prop.ID(fmt.Sprintf("pane%d", i)),
+			NewEditorListView(v.ctx, v.model, o),
+			NewObjectTableView(v.ctx, v.model, o),
+		))
 	}
-	if len(children) == 0 {
-		return elem.Div()
-	}
+
 	return elem.Div(
-		elem.Form(
-			children,
+		elem.UnorderedList(
+			prop.ID("tabs"),
+			prop.Class("nav nav-tabs"),
+			style.Margin(style.Size("0 0 15px 0")),
+			vecty.Data("tabs", "tabs"),
+			tabs,
+		),
+		elem.Div(
+			prop.Class("tab-content"),
+			panes,
 		),
 	)
+
 }

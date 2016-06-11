@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -46,8 +45,8 @@ func (v *MapView) Apply(element *vecty.Element) {
 }
 
 func (v *MapView) Mount() {
-	v.notifs = v.app.Nodes.Watch(v.model.Node,
-		stores.NodeInitialised,
+	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorChildAdded,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -63,7 +62,7 @@ func (v *MapView) reaction(notif flux.NotifPayload) {
 
 func (v *MapView) Unmount() {
 	if v.notifs != nil {
-		v.app.Nodes.Delete(v.notifs)
+		v.app.Editors.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
@@ -72,23 +71,6 @@ func (v *MapView) Unmount() {
 func (v *MapView) render() vecty.Component {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Map (nil)"))
-	}
-
-	children := vecty.List{}
-	for _, n := range v.model.Node.Map {
-		e := models.GetEditable(v.ctx, n)
-		f := e.Format(n.Rule)
-		if f == editable.Block || f == editable.Inline {
-			children = append(children, e.EditorView(v.ctx, n))
-		}
-	}
-	editors := elem.Div()
-	if len(children) > 0 {
-		editors = elem.Div(
-			elem.Form(
-				children,
-			),
-		)
 	}
 
 	return elem.Div(
@@ -102,8 +84,8 @@ func (v *MapView) render() vecty.Component {
 				}).PreventDefault(),
 			),
 		),
-		editors,
-		NewMapTableView(v.ctx, v.model.Node),
+		NewEditorListView(v.ctx, v.model, nil),
+		NewMapTableView(v.ctx, v.model),
 	)
 
 }

@@ -7,9 +7,9 @@ import (
 	"github.com/gopherjs/gopherjs/js"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
-	"kego.io/system/node"
 )
 
 type ArrayTableView struct {
@@ -18,15 +18,15 @@ type ArrayTableView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	node  *node.Node
+	model *models.EditorModel
 	tbody *vecty.Element
 }
 
-func NewArrayTableView(ctx context.Context, node *node.Node) *ArrayTableView {
+func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTableView {
 	v := &ArrayTableView{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
+		ctx:   ctx,
+		app:   stores.FromContext(ctx),
+		model: model,
 	}
 	v.Mount()
 	return v
@@ -57,7 +57,7 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 					return
 				}
 				v.app.Dispatch(&actions.ArrayOrder{
-					Parent:   v.node,
+					Model:    v.model,
 					OldIndex: oldIndex,
 					NewIndex: newIndex,
 				})
@@ -74,6 +74,7 @@ func (v *ArrayTableView) Apply(element *vecty.Element) {
 func (v *ArrayTableView) Mount() {
 	v.notifs = v.app.Editors.Watch(nil,
 		stores.EditorArrayOrderChanged,
+		stores.EditorChildDeleted,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -100,7 +101,7 @@ func (v *ArrayTableView) Unmount() {
 
 func (v *ArrayTableView) render() vecty.Component {
 
-	if v.node == nil || len(v.node.Array) == 0 {
+	if v.model.Node == nil || len(v.model.Node.Array) == 0 {
 		v.tbody = nil
 		return elem.Div()
 	}
@@ -116,7 +117,7 @@ func (v *ArrayTableView) render() vecty.Component {
 	)
 
 	rows := vecty.List{}
-	for _, c := range v.node.Array {
+	for _, c := range v.model.Node.Array {
 		rows = append(rows, NewArrayRowView(v.ctx, c))
 	}
 

@@ -44,18 +44,24 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.notifs = v.app.Editors.Watch(nil,
-		stores.EditorLoaded,
-		stores.EditorAdded,
-		stores.EditorInitialStateLoaded,
-		stores.EditorChanged,
-		stores.EditorSelected,
+	v.notifs = v.app.Branches.Watch(nil,
+		stores.BranchSelected,
 	)
+	/*
+		v.notifs = v.app.Editors.Watch(nil,
+			stores.EditorLoaded,
+			stores.EditorAdded,
+			stores.EditorInitialStateLoaded,
+			stores.EditorChanged,
+			stores.EditorSelected,
+		)
+	*/
 	go func() {
 		for notif := range v.notifs {
 			v.reaction(notif)
 		}
 	}()
+
 }
 
 func (v *PanelView) reaction(notif flux.NotifPayload) {
@@ -63,7 +69,7 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 	v.branch = v.app.Branches.Selected()
 	v.node = v.app.Nodes.Selected()
 	v.ReconcileBody()
-	if notif.Type == stores.EditorSelected {
+	if notif.Type == stores.BranchSelected {
 		v.Node().Get("parentNode").Set("scrollTop", "0")
 	}
 }
@@ -87,7 +93,7 @@ func (v *PanelView) render() vecty.Component {
 		} else if v.node.Type.IsNativeArray() {
 			editor = NewArrayView(v.ctx, v.node)
 		} else {
-			editor = NewCompositeView(v.ctx, v.node)
+			editor = NewObjectView(v.ctx, v.node)
 		}
 	}
 	return elem.Div(

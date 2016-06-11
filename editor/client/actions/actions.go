@@ -64,7 +64,7 @@ type LoadSourceError struct {
 }
 
 type ArrayOrder struct {
-	Parent   *node.Node
+	Model    *models.EditorModel
 	OldIndex int
 	NewIndex int
 }
