@@ -8,15 +8,13 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 	"kego.io/system/node"
 )
 
 type ArrayView struct {
 	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	ctx context.Context
+	app *stores.App
 
 	model *models.EditorModel
 }
@@ -27,7 +25,6 @@ func NewArrayView(ctx context.Context, node *node.Node) *ArrayView {
 		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
-	v.Mount()
 	return v
 }
 
@@ -42,27 +39,6 @@ func (v *ArrayView) Reconcile(old vecty.Component) {
 // Apply implements the vecty.Markup interface.
 func (v *ArrayView) Apply(element *vecty.Element) {
 	element.AddChild(v)
-}
-
-func (v *ArrayView) Mount() {
-	go func() {
-		for notif := range v.notifs {
-			v.reaction(notif)
-		}
-	}()
-}
-
-func (v *ArrayView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
-	v.ReconcileBody()
-}
-
-func (v *ArrayView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
-	}
-	v.Body.Unmount()
 }
 
 func (v *ArrayView) render() vecty.Component {

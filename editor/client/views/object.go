@@ -10,15 +10,13 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 	"kego.io/system/node"
 )
 
 type ObjectView struct {
 	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	ctx context.Context
+	app *stores.App
 
 	model *models.EditorModel
 }
@@ -29,7 +27,6 @@ func NewObjectView(ctx context.Context, node *node.Node) *ObjectView {
 		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
-	v.Mount()
 	return v
 }
 
@@ -44,27 +41,6 @@ func (v *ObjectView) Reconcile(old vecty.Component) {
 // Apply implements the vecty.Markup interface.
 func (v *ObjectView) Apply(element *vecty.Element) {
 	element.AddChild(v)
-}
-
-func (v *ObjectView) Mount() {
-	go func() {
-		for notif := range v.notifs {
-			v.reaction(notif)
-		}
-	}()
-}
-
-func (v *ObjectView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
-	v.ReconcileBody()
-}
-
-func (v *ObjectView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
-	}
-	v.Body.Unmount()
 }
 
 func (v *ObjectView) render() vecty.Component {
