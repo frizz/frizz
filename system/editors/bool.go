@@ -59,9 +59,8 @@ func (v *BoolEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *BoolEditorView) Mount() {
-	v.notifs = v.app.Nodes.Watch(v.model.Node,
-		stores.NodeInitialised,
-		stores.NodeFocused,
+	v.notifs = v.app.Editors.Watch(v.model,
+		stores.EditorFocus,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -73,14 +72,14 @@ func (v *BoolEditorView) Mount() {
 func (v *BoolEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
-	if notif.Type == stores.NodeFocused {
+	if notif.Type == stores.EditorFocus {
 		v.input.Node().Call("focus")
 	}
 }
 
 func (v *BoolEditorView) Unmount() {
 	if v.notifs != nil {
-		v.app.Nodes.Delete(v.notifs)
+		v.app.Editors.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()

@@ -32,7 +32,6 @@ func (b nodeNotif) IsNotif() {}
 
 const (
 	NodeInitialised  nodeNotif = "NodeInitialised"
-	NodeFocused      nodeNotif = "NodeFocused"
 	NodeValueChanged nodeNotif = "NodeValueChanged"
 )
 
@@ -119,8 +118,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		if err := action.Node.InitialiseWithConcreteType(s.ctx, action.Type); err != nil {
 			s.app.Fail <- kerr.Wrap("WWKUVDDLYU", err)
 		}
-	case *actions.FocusNode:
-		s.Notify(action.Node, NodeFocused)
 	case *actions.EditorValueChange:
 		payload.Wait(s.app.Editors)
 		go func() {

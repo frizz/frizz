@@ -10,9 +10,11 @@ import (
 
 func clickSummaryRow(app *stores.App, n *node.Node) {
 
-	app.Dispatch(&actions.FocusNode{
-		Node: n,
-	})
+	if e := app.Editors.Get(n); e != nil {
+		app.Dispatch(&actions.EditorFocus{
+			Editor: e,
+		})
+	}
 
 	if b := app.Branches.Get(n); b != nil {
 		app.Dispatch(&actions.BranchSelecting{

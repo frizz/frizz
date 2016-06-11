@@ -90,8 +90,8 @@ type OpenAddPopup struct {
 }
 type CloseAddPopup struct{}
 
-type FocusNode struct {
-	Node *node.Node
+type EditorFocus struct {
+	Editor *models.EditorModel
 }
 
 type EditorValueChange struct {

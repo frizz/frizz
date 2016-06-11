@@ -29,6 +29,7 @@ const (
 	EditorInitialStateLoaded editorNotif = "EditorInitialStateLoaded"
 	EditorArrayOrderChanged  editorNotif = "EditorArrayOrderChanged"
 	EditorValueChanged       editorNotif = "EditorValueChanged"
+	EditorFocus              editorNotif = "EditorFocus"
 )
 
 func NewEditorStore(ctx context.Context) *EditorStore {
@@ -94,6 +95,8 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		s.Notify(action.Model, EditorArrayOrderChanged)
 	case *actions.EditorValueChange:
 		action.Editor.TemporaryValue = action.Value
+	case *actions.EditorFocus:
+		s.Notify(action.Editor, EditorFocus)
 	}
 	return true
 }
