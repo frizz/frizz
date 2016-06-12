@@ -24,12 +24,12 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/connection"
+	"kego.io/editor/client/editors"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/client/views"
 	"kego.io/editor/shared"
 	"kego.io/process/parser"
 	"kego.io/system"
-	"kego.io/system/editors"
 )
 
 func Start() error {

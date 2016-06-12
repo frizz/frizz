@@ -9,11 +9,11 @@ import (
 	"github.com/davelondon/vecty/style"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/editable"
+	"kego.io/editor/client/editors"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/system"
-	"kego.io/system/editors"
 	"kego.io/system/node"
 )
 
