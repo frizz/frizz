@@ -287,3 +287,11 @@ func TestSortableReferences(t *testing.T) {
 	assert.Equal(t, *NewReference("a.b/c", "d"), *ra[0])
 	assert.Equal(t, *NewReference("e.f/g", "h"), *ra[1])
 }
+
+func TestReference_Label(t *testing.T) {
+	var r *Reference
+	assert.Equal(t, "", r.Label(nil))
+
+	r = NewReference("a", "b")
+	assert.Equal(t, "b", r.Label(nil))
+}

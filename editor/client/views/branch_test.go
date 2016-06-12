@@ -82,7 +82,7 @@ func TestBranchNotifyOpen(t *testing.T) {
 
 	cb.ExpectDispatched(&actions.BranchOpened{Branch: b.model, Loaded: false})
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpening)
+	done := cb.GetApp().Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -102,7 +102,7 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 		&actions.BranchOpened{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpening)
+	done := cb.GetApp().Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -123,7 +123,7 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 		&actions.BranchOpened{Branch: b.model, Loaded: false},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchOpening)
+	done := cb.GetApp().Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppFail("OCVFGLPIQG")
@@ -140,7 +140,11 @@ func TestBranchNotifySelect(t *testing.T) {
 		&actions.BranchSelected{Branch: b.model, Loaded: false},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelecting)
+	done := cb.GetApp().NotifyWithData(
+		b.model,
+		stores.BranchSelecting,
+		&stores.BranchSelectOperationData{Op: models.BranchOpClickLabel},
+	)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -161,7 +165,11 @@ func TestBranchNotifySelectSource(t *testing.T) {
 		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelecting)
+	done := cb.GetApp().NotifyWithData(
+		b.model,
+		stores.BranchSelecting,
+		&stores.BranchSelectOperationData{Op: models.BranchOpClickLabel},
+	)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -175,7 +183,6 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 	setupForSuccessfulSourceLoad(t, cb)
 
 	m := models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"})
-	m.LastOp = models.BranchOpClickToggle
 	b := NewBranchView(cb.Ctx(), m)
 
 	cb.ExpectDispatched(
@@ -185,7 +192,11 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Branches.Notify(b.model, stores.BranchSelecting)
+	done := cb.GetApp().NotifyWithData(
+		b.model,
+		stores.BranchSelecting,
+		&stores.BranchSelectOperationData{Op: models.BranchOpClickToggle},
+	)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -207,7 +218,7 @@ func testBranchReconcile(t *testing.T, notif flux.Notif) {
 	cb.ExpectReconcile(&b.Composite)
 	cb.ExpectNoneDispatched()
 
-	done := cb.GetApp().Branches.Notify(b.model, notif)
+	done := cb.GetApp().Notify(b.model, notif)
 	<-done
 
 	cb.AssertAppSuccess()

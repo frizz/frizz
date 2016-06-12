@@ -79,7 +79,6 @@ func TestNode_Path(t *testing.T) {
 			Key:   "b",
 			Index: -1,
 			Parent: &Node{
-				Key:    "c",
 				Index:  2,
 				Parent: r,
 			},
@@ -484,4 +483,40 @@ func TestUnmarshal(t *testing.T) {
 	o, ok := d.Map["optional"]
 	assert.True(t, ok)
 	assert.True(t, o.ValueBool)
+}
+
+func TestNode_DisplayType(t *testing.T) {
+
+	n := &Node{Missing: true}
+	v, err := n.DisplayType(nil)
+	assert.NoError(t, err)
+	assert.Equal(t, "null", v)
+
+	n = &Node{Null: true}
+	v, err = n.DisplayType(nil)
+	assert.NoError(t, err)
+	assert.Equal(t, "null", v)
+
+	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
+
+	s := `{
+		"type": "type",
+		"embed": ["rule"],
+		"fields": {}
+	}`
+	n, err = Unmarshal(cb.Ctx(), []byte(s))
+	assert.NoError(t, err)
+
+	v, err = n.Map["fields"].DisplayType(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "map[]rule*", v)
+
+	v, err = n.Map["embed"].DisplayType(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "[]reference", v)
+
+	v, err = n.Map["type"].DisplayType(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "reference", v)
+
 }

@@ -11,7 +11,10 @@ import (
 
 func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 	cb := tests.Context("a.b/c").Jempty()
-	fooType := &Type{Object: &Object{Id: NewReference("a.b/c", "foo")}}
+	fooType := &Type{
+		Object: &Object{Id: NewReference("a.b/c", "foo")},
+		Native: NewString("object"),
+	}
 	fooRule := &fooRuleStruct{Rule: &Rule{}}
 	foo := RuleWrapper{
 		Ctx:       cb.Ctx(),
@@ -39,6 +42,34 @@ func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 	val, err = foo.DisplayType()
 	assert.NoError(t, err)
 	assert.Equal(t, "foo*", val)
+
+	bazType := &Type{
+		Object: &Object{Id: NewReference("a.b/c", "baz")},
+		Native: NewString("object"),
+	}
+	cb.Stype("baz", bazType)
+	barType := &Type{
+		Object: &Object{Id: NewReference("a.b/c", "foo")},
+		Native: NewString("array"),
+	}
+	barRule := &barRuleStruct{
+		Rule:  &Rule{},
+		Items: &IntRule{Rule: &Rule{}, Object: &Object{Type: NewReference("a.b/c", "@baz")}},
+	}
+	bar := RuleWrapper{
+		Ctx:       cb.Ctx(),
+		Interface: barRule,
+		Struct:    barRule.Rule,
+		Parent:    barType,
+	}
+	val, err = bar.DisplayType()
+	assert.NoError(t, err)
+	assert.Equal(t, "[]baz", val)
+
+	barType.Native = NewString("map")
+	val, err = bar.DisplayType()
+	assert.NoError(t, err)
+	assert.Equal(t, "map[]baz", val)
 
 }
 
