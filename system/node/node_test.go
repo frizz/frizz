@@ -14,18 +14,54 @@ import (
 	"kego.io/system"
 )
 
+type labelled struct {
+	v string
+}
+
+func (l *labelled) Label(ctx context.Context) string {
+	return l.v
+}
+
+type embedsObject struct {
+	*system.Object
+}
+
 func TestNode_Label(t *testing.T) {
 	var n *Node
 	cb := tests.New()
+
+	// Nil node
 	assert.Equal(t, "(nil)", n.Label(cb.Ctx()))
-	n = &Node{Key: "a", Index: 0}
+
+	// Root node (parent == nil)
+	n = &Node{Key: "", Index: -1}
 	assert.Equal(t, "root", n.Label(cb.Ctx()))
-	n = &Node{Key: "a", Index: 2, Parent: &Node{}}
-	assert.Equal(t, "2", n.Label(cb.Ctx()))
+
+	// Node in a map (key != "")
 	n = &Node{Key: "a", Index: -1, Parent: &Node{}}
 	assert.Equal(t, "a", n.Label(cb.Ctx()))
+
+	// Node in an array (index > -1)
+	n = &Node{Key: "", Index: 2, Parent: &Node{}}
+	assert.Equal(t, "2", n.Label(cb.Ctx()))
+
+	// This is an invalid Node, but the key should override the index
+	n = &Node{Key: "a", Index: 2, Parent: &Node{}}
+	assert.Equal(t, "a", n.Label(cb.Ctx()))
+
+	// The label for a node in a map will always be the map key even if the value implements
+	// system.Labelled.
+	n = &Node{Key: "a", Index: -1, Parent: &Node{}, Value: &labelled{v: "c"}}
+	assert.Equal(t, "a", n.Label(cb.Ctx()))
+
+	// A node in an array will use the value returned by the system.Labelled interface if it
+	// implements it.
+	n = &Node{Key: "", Index: 2, Parent: &Node{}, Value: &labelled{v: "c"}}
+	assert.Equal(t, "c", n.Label(cb.Ctx()))
+
+	// This is an invalid node
 	n = &Node{Key: "", Index: -1, Parent: &Node{}}
-	assert.Equal(t, "(empty key)", n.Label(cb.Ctx()))
+	assert.Equal(t, "(?)", n.Label(cb.Ctx()))
 }
 
 func TestNode_Path(t *testing.T) {

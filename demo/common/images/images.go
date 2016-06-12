@@ -21,6 +21,14 @@ func (i *Icon) GetUrl() string {
 	return i.Url.Value()
 }
 
+func (i *Icon) Label(ctx context.Context) string {
+	return i.Url.Value()[strings.LastIndex(i.Url.Value(), "/")+1:]
+}
+
+func (i *Photo) Label(ctx context.Context) string {
+	return i.Path.Value()[strings.LastIndex(i.Path.Value(), "/")+1:]
+}
+
 func (t *Photo) GetUrl() string {
 	return fmt.Sprintf("%s://%s%s", t.Protocol.Value(), t.Server.Value(), t.Path.Value())
 }

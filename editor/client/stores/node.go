@@ -31,8 +31,9 @@ type nodeNotif string
 func (b nodeNotif) IsNotif() {}
 
 const (
-	NodeInitialised  nodeNotif = "NodeInitialised"
-	NodeValueChanged nodeNotif = "NodeValueChanged"
+	NodeInitialised            nodeNotif = "NodeInitialised"
+	NodeValueChanged           nodeNotif = "NodeValueChanged"
+	NodeDescendantValueChanged nodeNotif = "NodeDescendantValueChanged"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -150,8 +151,13 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 					}
 					n.SetValueNumber(s.ctx, val)
 				}
-				s.app.Notify(n, NodeValueChanged)
 				s.app.Notify(action.Editor, EditorValueChanged)
+				s.app.Notify(n, NodeValueChanged)
+				c := n.Parent
+				for c != nil {
+					s.app.Notify(c, NodeDescendantValueChanged)
+					c = c.Parent
+				}
 			}
 		}()
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -79,7 +80,9 @@ func (v *PanelView) render() vecty.Component {
 		breadcrumbs = NewBreadcrumbsView(v.ctx, v.branch)
 	}
 	if v.node != nil {
-		if v.node.Type.IsNativeMap() {
+		if ed, ok := v.node.Value.(editable.Editable); ok {
+			editor = ed.EditorView(v.ctx, v.node)
+		} else if v.node.Type.IsNativeMap() {
 			editor = NewMapView(v.ctx, v.node)
 		} else if v.node.Type.IsNativeArray() {
 			editor = NewArrayView(v.ctx, v.node)

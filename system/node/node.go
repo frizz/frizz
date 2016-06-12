@@ -265,6 +265,7 @@ func (n *Node) UpdateValue(ctx context.Context, in json.Packed) error {
 	if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
 		return kerr.Wrap("PEVKGFFHLL", err)
 	}
+
 	return nil
 }
 
@@ -413,11 +414,6 @@ func (n *Node) Label(ctx context.Context) string {
 	if l, ok := n.Value.(system.Labelled); ok {
 		if s := l.Label(ctx); s != "" {
 			return s
-		}
-	}
-	if ob, ok := n.Value.(system.ObjectInterface); ok {
-		if o := ob.GetObject(ctx); o != nil && o.Id != nil {
-			return o.Id.Name
 		}
 	}
 	if n.Index > -1 {
