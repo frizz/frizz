@@ -27,6 +27,7 @@ type Flags struct {
 	Log      *bool
 	Path     *string
 	Debug    *bool
+	Port     *int
 }
 
 type Options struct {
@@ -36,6 +37,7 @@ type Options struct {
 	Log      bool
 	Path     string
 	Debug    bool
+	Port     int
 }
 
 func (f Options) getOptions() Options {
@@ -45,6 +47,7 @@ func (f Options) getOptions() Options {
 func (f Flags) getOptions() Options {
 
 	var edit, update, log, debug, validate *bool
+	var port *int
 	var path *string
 	if f.Edit == nil {
 		edit = flag.Bool("e", false, "Edit: open the editor")
@@ -65,6 +68,11 @@ func (f Flags) getOptions() Options {
 		validate = flag.Bool("v", false, "Validate")
 	} else {
 		validate = f.Validate
+	}
+	if f.Port == nil {
+		port = flag.Int("p", 0, "Port: use a specific port for the editor server. Default: use a random port")
+	} else {
+		port = f.Port
 	}
 	if f.Debug == nil {
 		debug = flag.Bool("d", false, "Debug: don't close the server when the connection is closed")
@@ -89,6 +97,7 @@ func (f Flags) getOptions() Options {
 		Path:     *path,
 		Debug:    *debug,
 		Validate: *validate,
+		Port:     *port,
 	}
 }
 
@@ -113,6 +122,7 @@ func Initialise(ctx context.Context, overrides OptionsInterface) (context.Contex
 	cmd.Update = options.Update
 	cmd.Log = options.Log
 	cmd.Debug = options.Debug
+	cmd.Port = options.Port
 	if options.Path == "" {
 		dir, err := vos.Getwd()
 		if err != nil {

@@ -15,6 +15,7 @@ func TestGetOptions(t *testing.T) {
 		return &val
 	}
 	a := "a"
+	b := 2
 	f := Flags{
 		Edit:     getTrue(),
 		Update:   getTrue(),
@@ -22,6 +23,7 @@ func TestGetOptions(t *testing.T) {
 		Validate: getTrue(),
 		Debug:    getTrue(),
 		Path:     &a,
+		Port:     &b,
 	}
 	d := f.getOptions()
 	assert.True(t, d.Edit)
@@ -29,6 +31,7 @@ func TestGetOptions(t *testing.T) {
 	assert.True(t, d.Log)
 	assert.True(t, d.Validate)
 	assert.True(t, d.Debug)
+	assert.Equal(t, 2, d.Port)
 	assert.Equal(t, "a", d.Path)
 
 }

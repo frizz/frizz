@@ -16,6 +16,7 @@ type Cmd struct {
 	Update   bool
 	Log      bool
 	Debug    bool
+	Port     int
 }
 
 // key is an unexported type for keys defined in this package.
