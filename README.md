@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/kego/ke.svg?branch=vecty)](https://travis-ci.org/kego/ke?branch=vecty)
-[![codecov.io](https://codecov.io/github/kego/ke/coverage.svg?branch=vecty)](https://codecov.io/github/kego/ke/branch/vecty)
+[![Build Status](https://travis-ci.org/kego/ke.svg?branch=master)](https://travis-ci.org/kego/ke?branch=master)
+[![codecov.io](https://codecov.io/github/kego/ke/coverage.svg?branch=master)](https://codecov.io/github/kego/ke/branch/master)
 
 Ke
 ==
