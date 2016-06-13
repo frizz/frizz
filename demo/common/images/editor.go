@@ -88,12 +88,21 @@ func (v *IconEditorView) Unmount() {
 
 func (v *IconEditorView) render() vecty.Component {
 	return elem.Div(
+		prop.Class("container-fluid"),
 		elem.Div(
-			elem.Image(
-				style.MaxWidth("200px"),
-				prop.Src(v.icon.Url.Value()),
+			prop.Class("row"),
+			elem.Div(
+				prop.Class("col-md-10"),
+				editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"]),
+			),
+			elem.Div(
+				prop.Class("col-md-2"),
+				elem.Image(
+					prop.Class("img-responsive"),
+					style.MaxHeight("200px"),
+					prop.Src(v.icon.Url.Value()),
+				),
 			),
 		),
-		editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"]),
 	)
 }

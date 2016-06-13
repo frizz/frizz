@@ -304,6 +304,15 @@ func (n *Node) setVal(v reflect.Value) {
 	} else {
 		n.Val.Set(v)
 	}
+
+	// Maps are not addressable, so we must check all ancestors and set accordingly.
+	c := n
+	for c.Parent != nil {
+		if c.Parent.JsonType == json.J_MAP {
+			c.Parent.Val.SetMapIndex(reflect.ValueOf(c.Key), c.Val)
+		}
+		c = c.Parent
+	}
 }
 
 func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {

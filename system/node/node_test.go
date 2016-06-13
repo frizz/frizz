@@ -540,3 +540,64 @@ func TestNode_DisplayType(t *testing.T) {
 	assert.Equal(t, "reference", v)
 
 }
+
+func TestSetValue(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
+
+	s := `{
+	"description": "a",
+	"type": "type",
+	"embed": ["c"],
+	"fields": {
+		"foo": {
+			"description": "e",
+			"type": "@int",
+			"minimum": 2,
+			"optional": false
+		}
+	},
+	"rules": [
+		{
+			"description": "g",
+			"type": "@int",
+			"minimum": 4,
+			"optional": false
+		}
+	]
+}`
+	n, err := Unmarshal(cb.Ctx(), []byte(s))
+	require.NoError(t, err)
+
+	n.Map["description"].SetValueString(cb.Ctx(), "b")
+	assert.Equal(t, "b", n.Value.(*system.Type).Description)
+	assert.Equal(t, "b", n.Val.Interface().(*system.Type).Description)
+
+	n.Map["embed"].Array[0].SetValueString(cb.Ctx(), "d")
+	assert.Equal(t, "d", n.Value.(*system.Type).Embed[0].Name)
+	assert.Equal(t, "d", n.Val.Interface().(*system.Type).Embed[0].Name)
+
+	n.Map["fields"].Map["foo"].Map["description"].SetValueString(cb.Ctx(), "f")
+	assert.Equal(t, "f", n.Value.(*system.Type).Fields["foo"].(*system.IntRule).Description)
+	assert.Equal(t, "f", n.Val.Interface().(*system.Type).Fields["foo"].(*system.IntRule).Description)
+
+	n.Map["fields"].Map["foo"].Map["minimum"].SetValueNumber(cb.Ctx(), 3.0)
+	assert.Equal(t, 3, n.Value.(*system.Type).Fields["foo"].(*system.IntRule).Minimum.Value())
+	assert.Equal(t, 3, n.Val.Interface().(*system.Type).Fields["foo"].(*system.IntRule).Minimum.Value())
+
+	n.Map["fields"].Map["foo"].Map["optional"].SetValueBool(cb.Ctx(), true)
+	assert.Equal(t, true, n.Value.(*system.Type).Fields["foo"].(*system.IntRule).Optional)
+	assert.Equal(t, true, n.Val.Interface().(*system.Type).Fields["foo"].(*system.IntRule).Optional)
+
+	n.Map["rules"].Array[0].Map["description"].SetValueString(cb.Ctx(), "h")
+	assert.Equal(t, "h", n.Value.(*system.Type).Rules[0].(*system.IntRule).Description)
+	assert.Equal(t, "h", n.Val.Interface().(*system.Type).Rules[0].(*system.IntRule).Description)
+
+	n.Map["rules"].Array[0].Map["minimum"].SetValueNumber(cb.Ctx(), 5.0)
+	assert.Equal(t, 5, n.Value.(*system.Type).Rules[0].(*system.IntRule).Minimum.Value())
+	assert.Equal(t, 5, n.Val.Interface().(*system.Type).Rules[0].(*system.IntRule).Minimum.Value())
+
+	n.Map["rules"].Array[0].Map["optional"].SetValueBool(cb.Ctx(), true)
+	assert.Equal(t, true, n.Value.(*system.Type).Rules[0].(*system.IntRule).Optional)
+	assert.Equal(t, true, n.Val.Interface().(*system.Type).Rules[0].(*system.IntRule).Optional)
+}
