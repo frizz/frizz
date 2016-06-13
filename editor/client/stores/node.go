@@ -5,6 +5,8 @@ import (
 
 	"time"
 
+	"reflect"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -103,6 +105,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			action.Node.Missing = true
 			action.Node.Null = true
 			action.Node.Value = nil
+			action.Node.Val.Set(reflect.ValueOf(nil))
 			action.Node.ValueBool = false
 			action.Node.ValueNumber = 0.0
 			action.Node.ValueString = ""

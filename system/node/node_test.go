@@ -271,11 +271,15 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	type num float64
 	type str string
 	type bol bool
+	type ob struct{ *system.Object }
+
 	cb := tests.New().Jauto().Sauto(parser.Parse)
 	cb.Path("a.b/c")
+
 	ty := &system.Type{
 		Object: &system.Object{Id: system.NewReference("a.b/c", "d")},
 	}
+
 	n := NewNode()
 	n.Missing = true
 	n.Null = true
@@ -283,13 +287,9 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	n.ValueNumber = 1
 
 	ty.Native = system.NewString("number")
-	err := n.InitialiseWithConcreteType(cb.Ctx(), ty)
-	assert.IsError(t, err, "RPUWJDKXSP")
-	assert.HasError(t, err, "RSWTEOTNBD")
-
 	cb.Jtype("d", reflect.TypeOf(num(0)))
 
-	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	err := n.InitialiseWithConcreteType(cb.Ctx(), ty)
 	assert.NoError(t, err)
 	assert.Equal(t, n.Type, ty)
 	assert.False(t, n.Missing)
@@ -297,6 +297,9 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	assert.Equal(t, 0.0, n.ValueNumber)
 	assert.Equal(t, n.JsonType, json.J_NUMBER)
 	f, ok := n.Value.(num)
+	assert.True(t, ok)
+	assert.Equal(t, num(0.0), f)
+	f, ok = n.Val.Interface().(num)
 	assert.True(t, ok)
 	assert.Equal(t, num(0.0), f)
 
@@ -309,6 +312,9 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	s, ok := n.Value.(str)
 	assert.True(t, ok)
 	assert.Equal(t, str(""), s)
+	s, ok = n.Val.Interface().(str)
+	assert.True(t, ok)
+	assert.Equal(t, str(""), s)
 
 	ty.Native = system.NewString("bool")
 	cb.Jtype("d", reflect.TypeOf(bol(false)))
@@ -319,9 +325,13 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	b, ok := n.Value.(bol)
 	assert.True(t, ok)
 	assert.Equal(t, bol(false), b)
+	b, ok = n.Val.Interface().(bol)
+	assert.True(t, ok)
+	assert.Equal(t, bol(false), b)
 
 	ty.Native = system.NewString("array")
 	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
+	// Can't create collection zero value without a rule
 	assert.IsError(t, err, "VGKTIRMDTJ")
 
 	r, err := system.WrapRule(cb.Ctx(), &system.ArrayRule{
@@ -334,9 +344,10 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	})
 	require.NoError(t, err)
 	n.Rule = r
-	err = n.InitialiseWithConcreteType(cb.Ctx(), nil)
+	err = n.InitialiseWithConcreteType(cb.Ctx(), r.Parent)
 	require.NoError(t, err)
 	require.IsType(t, []*system.String{}, n.Value)
+	require.IsType(t, []*system.String{}, n.Val.Interface())
 
 	r, err = system.WrapRule(cb.Ctx(), &system.MapRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/system", "@map")},
@@ -348,14 +359,23 @@ func TestInitialiseWithConcreteType(t *testing.T) {
 	})
 	require.NoError(t, err)
 	n.Rule = r
-	err = n.InitialiseWithConcreteType(cb.Ctx(), nil)
+	err = n.InitialiseWithConcreteType(cb.Ctx(), r.Parent)
 	require.NoError(t, err)
 	require.IsType(t, map[string]*system.String{}, n.Value)
+	require.IsType(t, map[string]*system.String{}, n.Val.Interface())
 
+	n = NewNode()
+	n.Missing = true
+	n.Null = true
+	n.JsonType = json.J_NULL
+
+	cb.Jtype("d", reflect.TypeOf(&ob{}))
 	ty.Native = system.NewString("object")
 	err = n.InitialiseWithConcreteType(cb.Ctx(), ty)
 	assert.NoError(t, err)
 	assert.Equal(t, "d", n.Map["type"].ValueString)
+	assert.IsType(t, &ob{}, n.Value)
+	assert.IsType(t, &ob{}, n.Val.Interface())
 
 	// InitialiseFields will always create type
 	assert.SkipError("DQKGYKFQKJ")
@@ -463,17 +483,17 @@ func TestUnmarshal(t *testing.T) {
 	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
 
 	s := `{
-		"description": "Restriction rules for bools",
-		"type": "type",
-		"embed": ["rule"],
-		"fields": {
-			"default": {
-				"description": "Default value if this is missing or null",
-				"type": "@bool",
-				"optional": true
-			}
+	"description": "Restriction rules for bools",
+	"type": "type",
+	"embed": ["rule"],
+	"fields": {
+		"default": {
+			"description": "Default value if this is missing or null",
+			"type": "@bool",
+			"optional": true
 		}
-	}`
+	}
+}`
 	n, err := Unmarshal(cb.Ctx(), []byte(s))
 	assert.NoError(t, err)
 	f, ok := n.Map["fields"]
@@ -500,10 +520,10 @@ func TestNode_DisplayType(t *testing.T) {
 	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
 
 	s := `{
-		"type": "type",
-		"embed": ["rule"],
-		"fields": {}
-	}`
+	"type": "type",
+	"embed": ["rule"],
+	"fields": {}
+}`
 	n, err = Unmarshal(cb.Ctx(), []byte(s))
 	assert.NoError(t, err)
 

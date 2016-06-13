@@ -198,7 +198,9 @@ type iFoo interface {
 type iBar interface {
 	bar()
 }
-type tFoo struct{}
+type tFoo struct {
+	*Object
+}
 
 func (*tFoo) foo() {
 
@@ -273,9 +275,10 @@ func TestZeroValue(t *testing.T) {
 	assert.NoError(t, err)
 	tf, ok := i.(*tFoo)
 	assert.True(t, ok)
-	assert.Nil(t, tf)
+	assert.NotNil(t, tf)
+	assert.NotNil(t, tf.Object)
 
-	tint := &Type{Object: &Object{Id: NewReference("a.b/c", "tint")}, Native: NewString("int")}
+	tint := &Type{Object: &Object{Id: NewReference("a.b/c", "tint")}, Native: NewString("number")}
 	cb.Jtype("tint", reflect.TypeOf(tInt(0))).Stype("tint", tint)
 
 	i, err = tint.ZeroValue(cb.Ctx())
@@ -287,6 +290,7 @@ func TestZeroValue(t *testing.T) {
 	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "d")}, Native: NewString("object")}
 	i, err = tnil.ZeroValue(cb.Ctx())
 	assert.IsError(t, err, "RSWTEOTNBD")
+
 }
 
 func TestTypeImplements(t *testing.T) {

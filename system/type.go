@@ -78,7 +78,25 @@ func (t *Type) ZeroValue(ctx context.Context) (interface{}, error) {
 	if !ok {
 		return nil, kerr.New("RSWTEOTNBD", "Type not found for %s", t.Id)
 	}
-	return reflect.Zero(rt).Interface(), nil
+	if t.IsNativeValue() {
+		return reflect.Zero(rt).Interface(), nil
+	}
+	v := reflect.New(rt.Elem())
+	zeroEmbed(v.Elem())
+	return v.Interface(), nil
+}
+
+func zeroEmbed(v reflect.Value) {
+	// We loop round the fields, and initialise any anonymous
+	// fields that are nil.
+	for i := 0; i < v.Type().NumField(); i++ {
+		sf := v.Type().Field(i)
+		fv := v.FieldByName(sf.Name)
+		if sf.Anonymous && fv.IsNil() {
+			fv.Set(reflect.New(sf.Type.Elem()))
+			zeroEmbed(fv.Elem())
+		}
+	}
 }
 
 func (t *Type) Implements(ctx context.Context, i reflect.Type) bool {

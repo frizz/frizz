@@ -5,6 +5,8 @@ package node // import "kego.io/system/node"
 import (
 	"fmt"
 
+	"reflect"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/json"
@@ -24,8 +26,9 @@ type Node struct {
 	ValueNumber float64
 	ValueBool   bool
 	Value       interface{} // unmarshalled value
-	Null        bool        // null is true if the json is null or the field is missing
-	Missing     bool        // missing is only true if the field is missing
+	Val         reflect.Value
+	Null        bool // null is true if the json is null or the field is missing
+	Missing     bool // missing is only true if the field is missing
 	Rule        *system.RuleWrapper
 	Type        *system.Type
 	JsonType    json.Type
@@ -56,10 +59,6 @@ var _ json.Unpacker = (*Node)(nil)
 
 func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) error {
 
-	if t == nil {
-		t = n.Rule.Parent
-	}
-
 	n.Type = t
 	n.Missing = false
 	n.Null = false
@@ -80,7 +79,15 @@ func (n *Node) InitialiseWithConcreteType(ctx context.Context, t *system.Type) e
 		}
 		n.Value = v
 	} else {
-		n.Value = nil
+		v, err := t.ZeroValue(ctx)
+		if err != nil {
+			return kerr.Wrap("CIJNBHLPEW", err)
+		}
+		n.Value = v
+	}
+
+	if n.Value != nil {
+		n.setVal(reflect.ValueOf(n.Value))
 	}
 
 	switch t.Native.Value() {
@@ -251,22 +258,52 @@ func (n *Node) extract(ctx context.Context, parent *Node, key string, index int,
 
 func (n *Node) UpdateValue(ctx context.Context, in json.Packed) error {
 
+	if n.Parent != nil {
+		switch n.Parent.JsonType {
+		case json.J_OBJECT:
+			v := n.Parent.Val
+			for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+				v = v.Elem()
+			}
+			n.Val = v.FieldByName(system.GoName(n.Key))
+		case json.J_MAP:
+			n.Val = n.Parent.Val.MapIndex(reflect.ValueOf(n.Key))
+		case json.J_ARRAY:
+			n.Val = n.Parent.Val.Index(n.Index)
+		}
+	}
+
 	if n.Rule.Struct == nil {
 		if err := json.Unpack(ctx, in, &n.Value); err != nil {
 			return kerr.Wrap("CQMWGPLYIJ", err)
 		}
+	} else {
+		t, err := n.Rule.GetReflectType()
+		if err != nil {
+			return kerr.Wrap("DQJDYPIANO", err)
+		}
+		if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
+			return kerr.Wrap("PEVKGFFHLL", err)
+		}
+	}
+
+	if n.JsonType == json.J_NULL {
 		return nil
 	}
 
-	t, err := n.Rule.GetReflectType()
-	if err != nil {
-		return kerr.Wrap("DQJDYPIANO", err)
-	}
-	if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
-		return kerr.Wrap("PEVKGFFHLL", err)
-	}
+	n.setVal(reflect.ValueOf(n.Value))
 
 	return nil
+}
+
+func (n *Node) setVal(v reflect.Value) {
+	if n.Parent == nil {
+		n.Val = v
+	} else if n.Parent.JsonType == json.J_MAP {
+		n.Parent.Val.SetMapIndex(reflect.ValueOf(n.Key), v)
+	} else {
+		n.Val.Set(v)
+	}
 }
 
 func (n *Node) InitialiseFields(ctx context.Context, in json.Packed) error {
