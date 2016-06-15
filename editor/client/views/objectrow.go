@@ -96,7 +96,6 @@ func (v *ObjectRowView) render() vecty.Component {
 					// if only one type is compatible, don't show the popup, just add it.
 					v.app.Dispatch(&actions.InitializeNode{
 						Node: v.node,
-						New:  false,
 						Type: types[0],
 					})
 					return

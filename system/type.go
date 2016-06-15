@@ -70,20 +70,20 @@ func GetTypeFromCache(ctx context.Context, path string, name string) (*Type, boo
 	return t.(*Type), true
 }
 
-func (t *Type) ZeroValue(ctx context.Context) (interface{}, error) {
+func (t *Type) ZeroValue(ctx context.Context) (reflect.Value, error) {
 	if t.IsNativeCollection() {
-		return nil, kerr.New("PGUHCGBJWE", "ZeroValue must not be used with collection type")
+		return reflect.Value{}, kerr.New("PGUHCGBJWE", "ZeroValue must not be used with collection type")
 	}
 	rt, ok := t.Id.GetReflectType(ctx)
 	if !ok {
-		return nil, kerr.New("RSWTEOTNBD", "Type not found for %s", t.Id)
+		return reflect.Value{}, kerr.New("RSWTEOTNBD", "Type not found for %s", t.Id)
 	}
 	if t.IsNativeValue() {
-		return reflect.Zero(rt).Interface(), nil
+		return reflect.Zero(rt), nil
 	}
-	v := reflect.New(rt.Elem())
-	zeroEmbed(v.Elem())
-	return v.Interface(), nil
+	rv := reflect.New(rt.Elem())
+	zeroEmbed(rv.Elem())
+	return rv, nil
 }
 
 func zeroEmbed(v reflect.Value) {

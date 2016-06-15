@@ -5,8 +5,6 @@ import (
 
 	"time"
 
-	"reflect"
-
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -36,6 +34,7 @@ const (
 	NodeInitialised            nodeNotif = "NodeInitialised"
 	NodeValueChanged           nodeNotif = "NodeValueChanged"
 	NodeDescendantValueChanged nodeNotif = "NodeDescendantValueChanged"
+	NodeFocus                  nodeNotif = "NodeFocus"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -55,24 +54,8 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.New("EPBQVIICFM", "Must be array")
 			break
 		}
-
-		a := action.Model.Node.Array
-
-		// remove the item we're moving
-		item := a[action.OldIndex]
-
-		a = append(
-			a[:action.OldIndex],
-			a[action.OldIndex+1:]...)
-
-		// insert it back in the correct place
-		action.Model.Node.Array = append(
-			a[:action.NewIndex],
-			append([]*node.Node{item}, a[action.NewIndex:]...)...)
-
-		// correct the indexes
-		for i, n := range action.Model.Node.Array {
-			n.Index = i
+		if err := action.Model.Node.ReorderArrayChild(action.OldIndex, action.NewIndex); err != nil {
+			s.app.Fail <- kerr.Wrap("QNHBUSLMXF", err)
 		}
 
 	case *actions.BranchSelecting:
@@ -88,43 +71,34 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.selected = nil
 		}
 	case *actions.DeleteNode:
-		if action.Node.Parent.Type.IsNativeCollection() {
-			if action.Node.Index > -1 {
-				action.Node.Parent.Array = append(action.Node.Parent.Array[:action.Node.Index], action.Node.Parent.Array[action.Node.Index+1:]...)
-				for i, n := range action.Node.Parent.Array {
-					n.Index = i
-				}
-			} else {
-				delete(action.Node.Parent.Map, action.Node.Key)
+		parent := action.Node.Parent
+		if parent.Type.IsNativeMap() {
+			if err := parent.DeleteMapChild(action.Node.Key); err != nil {
+				s.app.Fail <- kerr.Wrap("AKHHXJBDSL", err)
 			}
-		} else {
-			action.Node.Type = nil
-			action.Node.Array = []*node.Node{}
-			action.Node.JsonType = json.J_NULL
-			action.Node.Map = map[string]*node.Node{}
-			action.Node.Missing = true
-			action.Node.Null = true
-			action.Node.Value = nil
-			action.Node.Val.Set(reflect.ValueOf(nil))
-			action.Node.ValueBool = false
-			action.Node.ValueNumber = 0.0
-			action.Node.ValueString = ""
+		} else if parent.Type.IsNativeArray() {
+			if err := parent.DeleteArrayChild(action.Node.Index); err != nil {
+				s.app.Fail <- kerr.Wrap("PWYVESSUXV", err)
+			}
+		} else if parent.Type.IsNativeObject() {
+			if err := parent.DeleteObjectChild(s.ctx, action.Node.Key); err != nil {
+				s.app.Fail <- kerr.Wrap("AYBJTREOOE", err)
+			}
 		}
 	case *actions.InitializeNode:
-		if action.New {
-			action.Node.Parent = action.Parent
-			action.Node.Key = action.Key
-			action.Node.Index = action.Index
-			action.Node.Rule = action.Rule
+		if action.Parent.Type.IsNativeCollection() {
 			if action.Index > -1 {
 				action.Parent.Array = append(action.Parent.Array, action.Node)
 			} else {
 				action.Parent.Map[action.Key] = action.Node
 			}
+			action.Node.Initialise(s.ctx, action.Parent, action.Rule, action.Key, action.Index, nil)
 		}
-		if err := action.Node.InitialiseWithConcreteType(s.ctx, action.Type); err != nil {
-			s.app.Fail <- kerr.Wrap("WWKUVDDLYU", err)
+		if err := action.Node.SetValueZero(s.ctx, action.Type); err != nil {
+			s.app.Fail <- kerr.Wrap("NLSRNQGLLW", err)
 		}
+	case *actions.EditorFocus:
+		s.app.Notify(action.Editor.Node, NodeFocus)
 	case *actions.EditorValueChange:
 		payload.Wait(s.app.Editors)
 		go func() {

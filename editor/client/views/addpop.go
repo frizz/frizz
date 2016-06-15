@@ -248,13 +248,7 @@ func (v *AddPopupView) save() {
 		t = ty
 	}
 
-	if v.model.Node != nil {
-		v.app.Dispatch(&actions.InitializeNode{
-			Node: v.model.Node,
-			New:  false,
-			Type: t,
-		})
-	} else if v.model.Parent.Type.IsNativeMap() {
+	if v.model.Parent.Type.IsNativeMap() {
 		name := v.nameInput.Node().Get("value").String()
 		if name == "" {
 			// TODO: show an error
@@ -270,7 +264,6 @@ func (v *AddPopupView) save() {
 		}
 		v.app.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
-			New:    true,
 			Parent: v.model.Parent,
 			Rule:   rule,
 			Key:    name,
@@ -284,11 +277,15 @@ func (v *AddPopupView) save() {
 		}
 		v.app.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
-			New:    true,
 			Parent: v.model.Parent,
 			Rule:   rule,
 			Index:  len(v.model.Parent.Array),
 			Type:   t,
+		})
+	} else {
+		v.app.Dispatch(&actions.InitializeNode{
+			Node: v.model.Node,
+			Type: t,
 		})
 	}
 

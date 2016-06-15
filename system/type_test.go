@@ -273,7 +273,7 @@ func TestZeroValue(t *testing.T) {
 
 	i, err := tfoo.ZeroValue(cb.Ctx())
 	assert.NoError(t, err)
-	tf, ok := i.(*tFoo)
+	tf, ok := i.Interface().(*tFoo)
 	assert.True(t, ok)
 	assert.NotNil(t, tf)
 	assert.NotNil(t, tf.Object)
@@ -283,7 +283,7 @@ func TestZeroValue(t *testing.T) {
 
 	i, err = tint.ZeroValue(cb.Ctx())
 	assert.NoError(t, err)
-	ti, ok := i.(tInt)
+	ti, ok := i.Interface().(tInt)
 	assert.True(t, ok)
 	assert.Equal(t, ti, tInt(0))
 

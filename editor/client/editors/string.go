@@ -78,8 +78,12 @@ func (v *StringEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
 	if notif.Type == stores.EditorFocus {
-		v.input.Node().Call("focus")
+		v.Focus()
 	}
+}
+
+func (v *StringEditorView) Focus() {
+	v.input.Node().Call("focus")
 }
 
 func (v *StringEditorView) Unmount() {

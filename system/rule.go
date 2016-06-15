@@ -57,17 +57,17 @@ func (r *RuleWrapper) PermittedTypes() []*Type {
 	return GetAllTypesThatImplementInterface(r.Ctx, r.Parent)
 }
 
-func (r *RuleWrapper) ZeroValue() (interface{}, error) {
+func (r *RuleWrapper) ZeroValue() (reflect.Value, error) {
 	rt, err := r.GetReflectType()
 	if err != nil {
-		return nil, kerr.Wrap("DWWGAWUNCN", err)
+		return reflect.Value{}, kerr.Wrap("DWWGAWUNCN", err)
 	}
-	return reflect.Zero(rt).Interface(), nil
+	return reflect.Zero(rt), nil
 }
 
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
-	if r.Struct.Interface {
+	if r.Struct != nil && r.Struct.Interface {
 		typ, ok := r.Parent.Id.GetReflectInterface(r.Ctx)
 		if !ok {
 			return nil, kerr.New("QGUVEUTXAN", "Type interface for %s not found", r.Parent.Id.Value())

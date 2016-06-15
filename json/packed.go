@@ -46,12 +46,21 @@ func (j *packed) Type() Type {
 	panic(fmt.Sprintf("Illegal type %T", j.v))
 }
 func (j *packed) Number() float64 {
+	if j.v == nil {
+		return 0.0
+	}
 	return j.v.(float64)
 }
 func (j *packed) String() string {
+	if j.v == nil {
+		return ""
+	}
 	return j.v.(string)
 }
 func (j *packed) Bool() bool {
+	if j.v == nil {
+		return false
+	}
 	return j.v.(bool)
 }
 func (j *packed) Array() []Packed {

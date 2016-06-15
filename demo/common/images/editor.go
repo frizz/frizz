@@ -31,9 +31,10 @@ type IconEditorView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model *models.EditorModel
-	icon  *Icon
-	input *vecty.Element
+	model  *models.EditorModel
+	icon   *Icon
+	input  *vecty.Element
+	editor *editors.StringEditorView
 }
 
 func NewIconEditorView(ctx context.Context, node *node.Node) *IconEditorView {
@@ -64,6 +65,7 @@ func (v *IconEditorView) Mount() {
 	v.notifs = v.app.Watch(v.model.Node,
 		stores.NodeValueChanged,
 		stores.NodeDescendantValueChanged,
+		stores.NodeFocus,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -76,6 +78,13 @@ func (v *IconEditorView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.icon = v.model.Node.Value.(*Icon)
 	v.ReconcileBody()
+	if notif.Type == stores.NodeFocus {
+		v.Focus()
+	}
+}
+
+func (v *IconEditorView) Focus() {
+	v.editor.Focus()
 }
 
 func (v *IconEditorView) Unmount() {
@@ -87,13 +96,14 @@ func (v *IconEditorView) Unmount() {
 }
 
 func (v *IconEditorView) render() vecty.Component {
+	v.editor = editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"])
 	return elem.Div(
 		prop.Class("container-fluid"),
 		elem.Div(
 			prop.Class("row"),
 			elem.Div(
 				prop.Class("col-md-10"),
-				editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"]),
+				v.editor,
 			),
 			elem.Div(
 				prop.Class("col-md-2"),

@@ -26,7 +26,7 @@ func TestRuleWrapper_ZeroValue(t *testing.T) {
 	require.NoError(t, err)
 	v, err := r.ZeroValue()
 	require.NoError(t, err)
-	assert.IsType(t, map[string]*system.String{}, v)
+	assert.IsType(t, map[string]*system.String{}, v.Interface())
 }
 
 func TestReflectType(t *testing.T) {

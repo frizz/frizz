@@ -50,7 +50,6 @@ func addCollectionItem(app *stores.App, parent *node.Node) {
 		}
 		app.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
-			New:    true,
 			Parent: parent,
 			Rule:   rule,
 			Index:  len(parent.Array),
