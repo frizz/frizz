@@ -15,14 +15,16 @@ import (
 	"kego.io/system/node"
 )
 
+var _ editable.Editable = (*BoolEditor)(nil)
+
 type BoolEditor struct{}
 
 func (s *BoolEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Inline
 }
 
-func (s *BoolEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
-	return NewBoolEditorView(ctx, node)
+func (s *BoolEditor) EditorView(ctx context.Context, node *node.Node, format editable.Format) vecty.Component {
+	return NewBoolEditorView(ctx, node, format)
 }
 
 type BoolEditorView struct {
@@ -31,16 +33,18 @@ type BoolEditorView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model *models.EditorModel
-	input *vecty.Element
+	model  *models.EditorModel
+	input  *vecty.Element
+	format editable.Format
 }
 
-func NewBoolEditorView(ctx context.Context, node *node.Node) *BoolEditorView {
+func NewBoolEditorView(ctx context.Context, node *node.Node, format editable.Format) *BoolEditorView {
 	v := &BoolEditorView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
+	v.format = format
 	v.Mount()
 	return v
 }
@@ -102,7 +106,7 @@ func (v *BoolEditorView) render() vecty.Component {
 		}),
 	)
 
-	return elem.Div(
+	group := elem.Div(
 		prop.Class("form-group"),
 		elem.Div(
 			prop.Class("checkbox"),
@@ -111,6 +115,12 @@ func (v *BoolEditorView) render() vecty.Component {
 				vecty.Text(v.model.Node.Label(v.ctx)),
 			),
 		),
-		helpBlock(v.ctx, v.model.Node),
 	)
+
+	if v.format == editable.Inline {
+		return group
+	}
+
+	helpBlock(v.ctx, v.model.Node).Apply(group)
+	return group
 }

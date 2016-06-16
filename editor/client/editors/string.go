@@ -15,6 +15,8 @@ import (
 	"kego.io/system/node"
 )
 
+var _ editable.Editable = (*StringEditor)(nil)
+
 type StringEditor struct{}
 
 func (s *StringEditor) Format(rule *system.RuleWrapper) editable.Format {
@@ -26,8 +28,8 @@ func (s *StringEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Inline
 }
 
-func (s *StringEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
-	return NewStringEditorView(ctx, node)
+func (s *StringEditor) EditorView(ctx context.Context, node *node.Node, format editable.Format) vecty.Component {
+	return NewStringEditorView(ctx, node, format)
 }
 
 type StringEditorView struct {
@@ -36,16 +38,18 @@ type StringEditorView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model *models.EditorModel
-	input *vecty.Element
+	model  *models.EditorModel
+	input  *vecty.Element
+	format editable.Format
 }
 
-func NewStringEditorView(ctx context.Context, node *node.Node) *StringEditorView {
+func NewStringEditorView(ctx context.Context, node *node.Node, format editable.Format) *StringEditorView {
 	v := &StringEditorView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
+	v.format = format
 	v.Mount()
 	return v
 }
@@ -98,40 +102,40 @@ func (v *StringEditorView) render() vecty.Component {
 	id := randomId()
 
 	sr, ok := v.model.Node.Rule.Interface.(*system.StringRule)
+
 	if ok && sr.Long {
-		v.input = elem.TextArea(
-			prop.Value(v.model.Node.ValueString),
-			prop.Class("form-control"),
-			prop.ID(id),
-			event.KeyUp(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.EditorValueChange{
-					Editor: v.model,
-					Value:  e.Target.Get("value").String(),
-				})
-			}),
-		)
+		v.input = elem.TextArea()
 	} else {
 		v.input = elem.Input(
-			prop.Value(v.model.Node.ValueString),
-			prop.Class("form-control"),
-			prop.ID(id),
-			event.KeyUp(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.EditorValueChange{
-					Editor: v.model,
-					Value:  e.Target.Get("value").String(),
-				})
-			}),
+			prop.Type(prop.TypeText),
 		)
 	}
 
-	return elem.Div(
+	vecty.List{
+		prop.Value(v.model.Node.ValueString),
+		prop.Class("form-control"),
+		prop.ID(id),
+		event.KeyUp(func(e *vecty.Event) {
+			v.app.Dispatch(&actions.EditorValueChange{
+				Editor: v.model,
+				Value:  e.Target.Get("value").String(),
+			})
+		}),
+	}.Apply(v.input)
+
+	group := elem.Div(
 		prop.Class("form-group"),
 		elem.Label(
 			prop.For(id),
 			vecty.Text(v.model.Node.Label(v.ctx)),
 		),
 		v.input,
-		helpBlock(v.ctx, v.model.Node),
 	)
 
+	if v.format == editable.Inline {
+		return group
+	}
+
+	helpBlock(v.ctx, v.model.Node).Apply(group)
+	return group
 }

@@ -81,7 +81,7 @@ func (v *PanelView) render() vecty.Component {
 	}
 	if v.node != nil {
 		if ed, ok := v.node.Value.(editable.Editable); ok {
-			editor = ed.EditorView(v.ctx, v.node)
+			editor = ed.EditorView(v.ctx, v.node, editable.Branch)
 		} else if v.node.Type.IsNativeMap() {
 			editor = NewMapView(v.ctx, v.node)
 		} else if v.node.Type.IsNativeArray() {

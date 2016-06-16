@@ -24,8 +24,8 @@ func (s *DefaultEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Branch
 }
 
-func (s *DefaultEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
-	return NewEditorView(ctx, node)
+func (s *DefaultEditor) EditorView(ctx context.Context, node *node.Node, format editable.Format) vecty.Component {
+	return NewEditorView(ctx, node, format)
 }
 
 type EditorView struct {
@@ -37,7 +37,7 @@ type EditorView struct {
 	model *models.EditorModel
 }
 
-func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
+func NewEditorView(ctx context.Context, node *node.Node, format editable.Format) *EditorView {
 	v := &EditorView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),

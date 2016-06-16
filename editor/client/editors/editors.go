@@ -34,11 +34,11 @@ func Register(ctx context.Context) {
 
 func helpBlock(ctx context.Context, n *node.Node) vecty.Markup {
 	if n.Rule == nil {
-		return nil
+		return vecty.List{}
 	}
 	description := n.Rule.Interface.(system.ObjectInterface).GetObject(ctx).Description
 	if description == "" {
-		return nil
+		return vecty.List{}
 	}
 	return elem.Paragraph(
 		prop.Class("help-block"),

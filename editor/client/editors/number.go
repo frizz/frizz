@@ -17,14 +17,16 @@ import (
 	"kego.io/system/node"
 )
 
+var _ editable.Editable = (*NumberEditor)(nil)
+
 type NumberEditor struct{}
 
 func (s *NumberEditor) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Inline
 }
 
-func (s *NumberEditor) EditorView(ctx context.Context, node *node.Node) vecty.Component {
-	return NewNumberEditorView(ctx, node)
+func (s *NumberEditor) EditorView(ctx context.Context, node *node.Node, format editable.Format) vecty.Component {
+	return NewNumberEditorView(ctx, node, format)
 }
 
 type NumberEditorView struct {
@@ -33,16 +35,18 @@ type NumberEditorView struct {
 	app    *stores.App
 	notifs chan flux.NotifPayload
 
-	model *models.EditorModel
-	input *vecty.Element
+	model  *models.EditorModel
+	input  *vecty.Element
+	format editable.Format
 }
 
-func NewNumberEditorView(ctx context.Context, node *node.Node) *NumberEditorView {
+func NewNumberEditorView(ctx context.Context, node *node.Node, format editable.Format) *NumberEditorView {
 	v := &NumberEditorView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
+	v.format = format
 	v.Mount()
 	return v
 }
@@ -107,13 +111,19 @@ func (v *NumberEditorView) render() vecty.Component {
 		}),
 	)
 
-	return elem.Div(
+	group := elem.Div(
 		prop.Class("form-group"),
 		elem.Label(
 			prop.For(id),
 			vecty.Text(v.model.Node.Label(v.ctx)),
 		),
 		v.input,
-		helpBlock(v.ctx, v.model.Node),
 	)
+
+	if v.format == editable.Inline {
+		return group
+	}
+
+	helpBlock(v.ctx, v.model.Node).Apply(group)
+	return group
 }

@@ -84,7 +84,7 @@ func (v *EditorListView) render() vecty.Component {
 		e := models.GetEditable(v.ctx, n)
 		f := e.Format(n.Rule)
 		if f == editable.Block || f == editable.Inline {
-			children = append(children, e.EditorView(v.ctx, n))
+			children = append(children, e.EditorView(v.ctx, n, editable.Block))
 		}
 	}
 

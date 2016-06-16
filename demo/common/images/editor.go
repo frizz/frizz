@@ -17,12 +17,14 @@ import (
 	"kego.io/system/node"
 )
 
+var _ editable.Editable = (*Icon)(nil)
+
 func (s *Icon) Format(rule *system.RuleWrapper) editable.Format {
 	return editable.Block
 }
 
-func (s *Icon) EditorView(ctx context.Context, node *node.Node) vecty.Component {
-	return NewIconEditorView(ctx, node)
+func (s *Icon) EditorView(ctx context.Context, node *node.Node, format editable.Format) vecty.Component {
+	return NewIconEditorView(ctx, node, format)
 }
 
 type IconEditorView struct {
@@ -37,7 +39,7 @@ type IconEditorView struct {
 	editor *editors.StringEditorView
 }
 
-func NewIconEditorView(ctx context.Context, node *node.Node) *IconEditorView {
+func NewIconEditorView(ctx context.Context, node *node.Node, format editable.Format) *IconEditorView {
 	v := &IconEditorView{
 		ctx: ctx,
 		app: stores.FromContext(ctx),
@@ -96,17 +98,19 @@ func (v *IconEditorView) Unmount() {
 }
 
 func (v *IconEditorView) render() vecty.Component {
-	v.editor = editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"])
+	v.editor = editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"], editable.Inline)
 	return elem.Div(
 		prop.Class("container-fluid"),
 		elem.Div(
 			prop.Class("row"),
 			elem.Div(
-				prop.Class("col-md-10"),
+				prop.Class("col-sm-10"),
+				vecty.Style("padding-left", "0"),
+				vecty.Style("padding-right", "0"),
 				v.editor,
 			),
 			elem.Div(
-				prop.Class("col-md-2"),
+				prop.Class("col-sm-2"),
 				elem.Image(
 					prop.Class("img-responsive"),
 					style.MaxHeight("200px"),
