@@ -99,6 +99,10 @@ func (v *IconEditorView) Unmount() {
 
 func (v *IconEditorView) render() vecty.Component {
 	v.editor = editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"], editable.Inline)
+	url := ""
+	if v.icon.Url != nil {
+		url = v.icon.Url.Value()
+	}
 	return elem.Div(
 		prop.Class("container-fluid"),
 		elem.Div(
@@ -114,7 +118,7 @@ func (v *IconEditorView) render() vecty.Component {
 				elem.Image(
 					prop.Class("img-responsive"),
 					style.MaxHeight("200px"),
-					prop.Src(v.icon.Url.Value()),
+					prop.Src(url),
 				),
 			),
 		),

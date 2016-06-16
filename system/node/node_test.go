@@ -66,7 +66,6 @@ func TestNode_Label(t *testing.T) {
 
 func TestNode_Path(t *testing.T) {
 	var n *Node
-	cb := tests.New()
 	assert.Nil(t, n.Root())
 	r := &Node{
 		Key:   "",
@@ -83,7 +82,7 @@ func TestNode_Path(t *testing.T) {
 				Parent: r,
 			},
 		}}
-	assert.Equal(t, "root/2/b/a", n.Path(cb.Ctx()))
+	assert.Equal(t, "root/2/b/a", n.Path())
 	assert.Equal(t, r, n.Root())
 }
 
@@ -174,14 +173,17 @@ func TestExtractFields(t *testing.T) {
 func TestInitialiseFields(t *testing.T) {
 	cb := tests.Context("a.b/c")
 	n := NewNode()
-	err := n.initialiseFields(cb.Ctx(), json.Pack(true))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
+	err := n.SetValueUnpack(cb.Ctx(), json.Pack(true))
 	// Should be J_MAP
-	assert.IsError(t, err, "CVCRNWMDYF")
+	assert.HasError(t, err, "DLSQRFLINL")
 
 	cb.Ssystem(parser.Parse)
-	n.Type = &system.Type{}
-	err = n.initialiseFields(cb.Ctx(), json.Pack(map[string]interface{}{"foo": "bar"}))
-	assert.IsError(t, err, "SRANLETJRS")
+	n = NewNode()
+	//n.Type = &system.Type{}
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
+	err = n.SetValueUnpack(cb.Ctx(), json.Pack(map[string]interface{}{"type": "system:type", "foo": "bar"}))
+	assert.HasError(t, err, "SRANLETJRS")
 
 }
 
@@ -289,7 +291,7 @@ func TestNode_SetValueZero(t *testing.T) {
 	ty.Native = system.NewString("number")
 	cb.Jtype("d", reflect.TypeOf(num(0)))
 
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	assert.NoError(t, n.SetValueZero(cb.Ctx(), ty))
 	assert.Equal(t, n.Type, ty)
 	assert.False(t, n.Missing)
@@ -305,7 +307,7 @@ func TestNode_SetValueZero(t *testing.T) {
 
 	ty.Native = system.NewString("string")
 	cb.Jtype("d", reflect.TypeOf(str("")))
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	assert.NoError(t, n.SetValueZero(cb.Ctx(), ty))
 	assert.Equal(t, "", n.ValueString)
 	assert.Equal(t, n.JsonType, json.J_STRING)
@@ -318,7 +320,7 @@ func TestNode_SetValueZero(t *testing.T) {
 
 	ty.Native = system.NewString("bool")
 	cb.Jtype("d", reflect.TypeOf(bol(false)))
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	assert.NoError(t, n.SetValueZero(cb.Ctx(), ty))
 	assert.Equal(t, false, n.ValueBool)
 	assert.Equal(t, n.JsonType, json.J_BOOL)
@@ -330,7 +332,7 @@ func TestNode_SetValueZero(t *testing.T) {
 	assert.Equal(t, bol(false), b)
 
 	ty.Native = system.NewString("array")
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	err := n.SetValueZero(cb.Ctx(), ty)
 	// Can't create collection zero value without a rule
 	assert.HasError(t, err, "VGKTIRMDTJ")
@@ -344,7 +346,7 @@ func TestNode_SetValueZero(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
 	assert.NoError(t, n.SetValueZero(cb.Ctx(), r.Parent))
 	require.IsType(t, []*system.String{}, n.Value)
 	require.IsType(t, []*system.String{}, n.Val.Interface())
@@ -358,7 +360,7 @@ func TestNode_SetValueZero(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
 	assert.NoError(t, n.SetValueZero(cb.Ctx(), r.Parent))
 	require.NoError(t, err)
 	require.IsType(t, map[string]*system.String{}, n.Value)
@@ -371,7 +373,7 @@ func TestNode_SetValueZero(t *testing.T) {
 
 	cb.Jtype("d", reflect.TypeOf(&ob{}))
 	ty.Native = system.NewString("object")
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	assert.NoError(t, n.SetValueZero(cb.Ctx(), ty))
 	assert.Equal(t, "d", n.Map["type"].ValueString)
 	assert.IsType(t, &ob{}, n.Value)
@@ -385,7 +387,7 @@ func TestNode_SetValueZero(t *testing.T) {
 	assert.HasError(t, err, "VHOSYBMDQL")
 
 	n = NewNode()
-	err = n.SetValueZero(context.Background(), nil)
+	err = n.setZero(context.Background())
 	assert.HasError(t, err, "ABXFQOYCBA")
 
 }
@@ -419,8 +421,11 @@ func TestNodeExtract(t *testing.T) {
 		},
 	}
 	n := NewNode()
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	assert.NoError(t, n.SetValueUnpack(cb.Ctx(), json.Pack(s)))
+	e, ok := n.Map["embed"]
+	assert.True(t, ok)
+	assert.Equal(t, 1, len(e.Array))
 	f, ok := n.Map["fields"]
 	assert.True(t, ok)
 	d, ok := f.Map["default"]
@@ -430,58 +435,63 @@ func TestNodeExtract(t *testing.T) {
 	assert.True(t, o.ValueBool)
 
 	// Can't extract the object type from the rule (can't have interface rule and parent)
-	r := &system.RuleWrapper{
-		Interface: &system.StringRule{},
-		Struct:    &system.Rule{Interface: true},
-		Parent:    &system.Type{Interface: true},
-	}
-	err := n.Initialise(cb.Ctx(), nil, r, "", -1, nil)
-	assert.IsError(t, err, "RBDBRRUVMM")
-	assert.HasError(t, err, "TDXTPGVFAK")
+	/*
+		r := &system.RuleWrapper{
+			Interface: &system.StringRule{},
+			Struct:    &system.Rule{Interface: true},
+			Parent:    &system.Type{Interface: true},
+		}
+		err := n.InitialiseValue(cb.Ctx(), nil, r, "", -1, nil)
+		assert.IsError(t, err, "RBDBRRUVMM")
+		assert.HasError(t, err, "TDXTPGVFAK")
+	*/
 
 	// Rule specifies a string type, but we're unpacking a number
-	r = &system.RuleWrapper{
+	n = NewNode()
+	r := &system.RuleWrapper{
 		Interface: &system.StringRule{},
 		Struct:    &system.Rule{},
 		Parent:    &system.Type{Native: system.NewString("string")},
 	}
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
-	err = n.SetValueUnpack(cb.Ctx(), json.Pack(1.0))
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
+	err := n.SetValueUnpack(cb.Ctx(), json.Pack(1.0))
 	assert.HasError(t, err, "VEPLUIJXSN")
 
 	// Id is the wrong type
+	n = NewNode()
 	s = map[string]interface{}{"type": "package", "id": 1.0}
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	err = n.SetValueUnpack(cb.Ctx(), json.Pack(s))
 	assert.HasError(t, err, "CQMWGPLYIJ")
 
+	n = NewNode()
 	s = map[string]interface{}{"type": "package"}
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, nil, "", -1, nil))
+	assert.NoError(t, n.InitialiseRoot(cb.Ctx()))
 	err = n.SetValueUnpack(cb.Ctx(), json.Pack(s))
 	assert.NoError(t, err)
 
+	n = NewNode()
 	r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "string")}, Native: system.NewString("string")}
 	r.Ctx = cb.Ctx()
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
-	assert.NoError(t, n.SetValueZero(cb.Ctx(), nil))
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
+	assert.NoError(t, n.setZero(cb.Ctx()))
 
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
+	n = NewNode()
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
 	assert.NoError(t, n.SetValueUnpack(cb.Ctx(), json.Pack("a")))
 	assert.Equal(t, "a", n.ValueString)
 
+	n = NewNode()
 	r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "number")}, Native: system.NewString("number")}
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
 	assert.NoError(t, n.SetValueUnpack(cb.Ctx(), json.Pack(2.0)))
 	assert.Equal(t, 2.0, n.ValueNumber)
 
+	n = NewNode()
 	r.Parent = &system.Type{Object: &system.Object{Id: system.NewReference("kego.io/system", "bool")}, Native: system.NewString("bool")}
-	assert.NoError(t, n.Initialise(cb.Ctx(), nil, r, "", -1, nil))
+	assert.NoError(t, n.initialiseValue(cb.Ctx(), nil, r, "", -1, nil))
 	assert.NoError(t, n.SetValueUnpack(cb.Ctx(), json.Pack(true)))
 	assert.Equal(t, true, n.ValueBool)
-
-	// This is checked in Node.UpdateValue -> Rule.GetReflectType
-	assert.SkipError("IUTONSPQOL")
-	assert.SkipError("RTQUNQEKUY")
 
 }
 
@@ -733,6 +743,9 @@ func TestNode_DeleteArrayChild(t *testing.T) {
 	n, err := Unmarshal(cb.Ctx(), []byte(s))
 	require.NoError(t, err)
 
+	assert.Equal(t, 3, len(n.Map["rules"].Array))
+	assert.Equal(t, 3, len(n.Value.(*system.Type).Rules))
+
 	err = n.DeleteArrayChild(0)
 	assert.IsError(t, err, "NFVEWWCSMV")
 
@@ -780,6 +793,8 @@ func TestNode_ReorderArrayChild(t *testing.T) {
 	c := n.Map["rules"].Array[2]
 
 	assert.NoError(t, n.Map["rules"].ReorderArrayChild(1, 2))
+
+	assert.Equal(t, 3, len(n.Map["rules"].Array))
 
 	assert.Equal(t, 0, a.Index)
 	assert.Equal(t, 2, b.Index)
@@ -846,4 +861,104 @@ func TestNode_SetValueEmpty(t *testing.T) {
 	assert.NoError(t, n.Map["rules"].Array[0].Map["description"].SetValueEmpty(cb.Ctx()))
 	assert.Equal(t, "", n.Value.(*system.Type).Rules[0].(*system.IntRule).Description)
 
+}
+
+func TestNode_UnmarshalArray(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Ssystem(parser.Parse)
+
+	s := `{
+	"type": "type",
+	"rules": [
+		{
+			"type": "@int"
+		}
+	]
+}`
+	n, err := Unmarshal(cb.Ctx(), []byte(s))
+	require.NoError(t, err)
+
+	assert.Equal(t, 1, len(n.Map["rules"].Array))
+	assert.Equal(t, 1, len(n.Value.(*system.Type).Rules))
+
+}
+
+func TestNode_UnmarshalType(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Jsystem().Ssystem(parser.Parse)
+
+	s := `{
+		"type": "type",
+		"fields": {
+			"a": {
+				"type": "@map",
+				"items": {
+					"type": "@int"
+				}
+			}
+		}
+	}`
+	n := NewNode()
+	require.NoError(t, n.InitialiseRoot(cb.Ctx()))
+	require.NoError(t, n.SetValueUnpack(cb.Ctx(), json.PackString(s)))
+
+}
+
+func TestNode_InitialiseArrayChild(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Jsystem().Ssystem(parser.Parse)
+
+	s := `{
+		"type": "type",
+		"rules": [
+			{
+				"type": "@int"
+			}
+		]
+	}`
+	n := NewNode()
+	require.NoError(t, n.InitialiseRoot(cb.Ctx()))
+	require.NoError(t, n.SetValueUnpack(cb.Ctx(), json.PackString(s)))
+	c := NewNode()
+	require.NoError(t, c.InitialiseArrayChild(cb.Ctx(), n.Map["rules"], 1))
+	assert.Equal(t, 2, len(n.Value.(*system.Type).Rules))
+	require.NoError(t, c.SetValueUnpack(cb.Ctx(), json.PackString(`{"type": "@string", "description": "a"}`)))
+	assert.Equal(t, "a", n.Value.(*system.Type).Rules[1].(*system.StringRule).Description)
+	assert.NoError(t, c.InitialiseArrayChild(cb.Ctx(), n.Map["rules"], 1))
+	assert.Nil(t, n.Value.(*system.Type).Rules[1])
+
+}
+
+func TestNode_InitialiseExistingField(t *testing.T) {
+
+	cb := tests.Context("kego.io/system").Jsystem().Ssystem(parser.Parse)
+
+	s := `{
+		"type": "type",
+		"description": "a"
+	}`
+	n := NewNode()
+	require.NoError(t, n.InitialiseRoot(cb.Ctx()))
+	require.NoError(t, n.SetValueUnpack(cb.Ctx(), json.PackString(s)))
+	n.Map["description"].InitialiseExistingField(cb.Ctx())
+	n.Map["description"].setZero(cb.Ctx())
+	assert.Equal(t, "", n.Value.(*system.Type).Description)
+
+}
+
+func TestNode_setCorrectTypeField(t *testing.T) {
+	cb := tests.Context("kego.io/system").Jsystem().Ssystem(parser.Parse)
+
+	s := `{
+		"type": "object"
+	}`
+	n := NewNode()
+	require.NoError(t, n.InitialiseRoot(cb.Ctx()))
+	require.NoError(t, n.SetValueUnpack(cb.Ctx(), json.PackString(s)))
+}
+
+func TestNode_initialiseFields(t *testing.T) {
+	n := NewNode()
+	err := n.initialiseFields(context.Background(), json.Pack(""))
+	assert.IsError(t, err, "CVCRNWMDYF")
 }

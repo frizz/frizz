@@ -16,4 +16,6 @@ func TestPackedType(t *testing.T) {
 	assert.Equal(t, false, p.Bool())
 	p = &packed{v: "a"}
 	assert.Equal(t, "a", p.Interface())
+	p = PackString(`"s"`)
+	assert.Equal(t, "s", p.Interface())
 }

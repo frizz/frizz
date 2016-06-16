@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"golang.org/x/net/context"
 	"kego.io/process"
 	"kego.io/process/tests/repacker"
@@ -115,7 +116,7 @@ func testType(t *testing.T, up unpacker.Interface) {
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)

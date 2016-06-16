@@ -1,6 +1,9 @@
 package json
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type Packed interface {
 	Type() Type // json.packed will never be J_OBJECT, only J_MAP
@@ -19,6 +22,14 @@ type packed struct {
 }
 
 func Pack(v interface{}) *packed {
+	return &packed{v: v}
+}
+
+func PackString(s string) *packed {
+	var v interface{}
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		panic(err.Error())
+	}
 	return &packed{v: v}
 }
 

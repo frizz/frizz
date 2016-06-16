@@ -76,7 +76,6 @@ type DeleteNode struct {
 type InitializeNode struct {
 	Node   *node.Node
 	Parent *node.Node
-	Rule   *system.RuleWrapper
 	Key    string
 	Index  int
 	Type   *system.Type

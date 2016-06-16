@@ -49,7 +49,7 @@ func NewNode() *Node {
 
 // Unpack unpacks a node from an unpackable
 func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
-	if err := n.Initialise(ctx, nil, nil, "", -1, nil); err != nil {
+	if err := n.InitialiseRoot(ctx); err != nil {
 		return kerr.Wrap("FUYLKYTQYD", err)
 	}
 	if err := n.SetValueUnpack(ctx, in); err != nil {
@@ -160,7 +160,86 @@ func insertIntoSlice(v reflect.Value, i int, val reflect.Value) {
 	v.Index(i).Set(val)
 }
 
-func (n *Node) Initialise(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, index int, origin *system.Reference) error {
+func (n *Node) InitialiseRoot(ctx context.Context) error {
+	if err := n.initialiseValue(ctx, nil, nil, "", -1, nil); err != nil {
+		return kerr.Wrap("UAIUVLEYAY", err)
+	}
+	return nil
+}
+
+func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int) error {
+	n.Parent = parent
+
+	rule, err := parent.Rule.ItemsRule()
+	if err != nil {
+		return kerr.Wrap("SBJVMGUOOA", err)
+	}
+
+	if index >= len(parent.Array) {
+		parent.Array = append(parent.Array, n)
+	} else {
+		parent.Array[index] = n
+	}
+
+	if index >= parent.Val.Len() {
+		insertIntoSlice(parent.Val, index, reflect.Zero(parent.Val.Type().Elem()))
+	} else {
+		parent.Val.Index(index).Set(reflect.Zero(parent.Val.Type().Elem()))
+	}
+
+	n.propagateValueChange()
+	if err := n.initialiseValue(ctx, parent, rule, "", index, nil); err != nil {
+		return kerr.Wrap("NGOTROVHTY", err)
+	}
+	return nil
+}
+
+func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string) error {
+	n.Parent = parent
+	rule, err := parent.Rule.ItemsRule()
+	if err != nil {
+		return kerr.Wrap("MMUUKGFEAA", err)
+	}
+	parent.Map[key] = n
+	parent.Val.SetMapIndex(reflect.ValueOf(key), reflect.Zero(parent.Val.Type().Elem()))
+	n.propagateValueChange()
+	if err := n.initialiseValue(ctx, parent, rule, key, -1, nil); err != nil {
+		return kerr.Wrap("JVQMBBQQNB", err)
+	}
+	return nil
+}
+
+func (n *Node) InitialiseNewField(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference) error {
+	n.Parent = parent
+	parent.Map[key] = n
+	rt, err := rule.GetReflectType()
+	if err != nil {
+		return kerr.Wrap("QMGGBWEMPT", err)
+	}
+	p := parent.Val
+	for p.Kind() == reflect.Interface || p.Kind() == reflect.Ptr {
+		p = p.Elem()
+	}
+	f := p.FieldByName(system.GoName(key))
+	if f.IsValid() {
+		f.Set(reflect.Zero(rt))
+		n.propagateValueChange()
+	}
+
+	if err := n.initialiseValue(ctx, parent, rule, key, -1, origin); err != nil {
+		return kerr.Wrap("JLGHALSKER", err)
+	}
+	return nil
+}
+
+func (n *Node) InitialiseExistingField(ctx context.Context) error {
+	if err := n.initialiseValue(ctx, n.Parent, n.Rule, n.Key, -1, n.Origin); err != nil {
+		return kerr.Wrap("UHLCKTUMCW", err)
+	}
+	return nil
+}
+
+func (n *Node) initialiseValue(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, index int, origin *system.Reference) error {
 	// zero everything that isn't set below
 	n.Array = []*Node{}
 	n.Map = map[string]*Node{}
@@ -200,6 +279,7 @@ func (n *Node) Initialise(ctx context.Context, parent *Node, rule *system.RuleWr
 			n.Val = n.Parent.Val.Index(n.Index)
 		}
 	}
+
 	return nil
 }
 
@@ -227,197 +307,197 @@ func (n *Node) SetValueEmpty(ctx context.Context) error {
 }
 
 func (n *Node) SetValueUnpack(ctx context.Context, in json.Packed) error {
-	if err := n.setValue(ctx, false, in, nil); err != nil {
+	if err := n.setValue(ctx, in); err != nil {
 		return kerr.Wrap("FAVEHOUYHB", err)
 	}
 	return nil
 }
 
 func (n *Node) SetValueZero(ctx context.Context, t *system.Type) error {
-	if err := n.setValue(ctx, true, nil, t); err != nil {
+	if err := n.setType(t); err != nil {
+		return kerr.Wrap("TGPRRSUSMQ", err)
+	}
+	if err := n.setZero(ctx); err != nil {
 		return kerr.Wrap("JWCKCAJXUB", err)
 	}
 	return nil
 }
 
+func (n *Node) setType(t *system.Type) error {
+	if t.Interface {
+		return kerr.New("VHOSYBMDQL", "Can't set type to an interface - must be concrete type.")
+	}
+	n.Type = t
+	n.JsonType = t.NativeJsonType()
+	return nil
+}
+
 // SetValueFromPacked unpacks a json.Packed into the value. If zero == true, the value is ignored and the zero value is used.
-func (n *Node) setValue(ctx context.Context, zero bool, in json.Packed, setType *system.Type) error {
+func (n *Node) setValue(ctx context.Context, in json.Packed) error {
 
 	n.Missing = false
 
-	if setType != nil {
-		if setType.Interface {
-			return kerr.New("VHOSYBMDQL", "Can't set type to an interface... Must be concrete type.")
-		}
-		n.Type = setType
-		n.JsonType = setType.NativeJsonType()
+	objectType, err := extractType(ctx, in, n.Rule)
+	if err != nil {
+		return kerr.Wrap("MKMNOOYQJY", err)
+	}
+	n.Type = objectType
+
+	if n.Rule == nil && objectType != nil {
+		n.Rule = system.WrapEmptyRule(ctx, objectType)
 	}
 
-	if zero {
-		if n.Type == nil {
-			return kerr.New("ABXFQOYCBA", "Can't set value without a type")
-		}
-		n.Null = false
+	if in.Type() == json.J_MAP && n.Type.IsNativeObject() {
+		// for objects and maps, Type() from the json.Packed is always J_MAP, so we correct it
+		// for object types here.
+		n.JsonType = json.J_OBJECT
 	} else {
+		n.JsonType = in.Type()
+	}
+	n.Null = in.Type() == json.J_NULL
 
-		objectType, err := extractType(ctx, in, n.Rule)
-		if err != nil {
-			return kerr.Wrap("MKMNOOYQJY", err)
-		}
-		n.Type = objectType
-
-		if n.Rule == nil && objectType != nil {
-			n.Rule = system.WrapEmptyRule(ctx, objectType)
-		}
-
-		if in.Type() == json.J_MAP && n.Type.IsNativeObject() {
-			// for objects and maps, Type() from the json.Packed is always J_MAP, so we correct it
-			// for object types here.
-			n.JsonType = json.J_OBJECT
-		} else {
-			n.JsonType = in.Type()
-		}
-		n.Null = in.Type() == json.J_NULL
-
-		// validate json type
-		if !n.Null && n.Type.NativeJsonType() != n.JsonType {
-			return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
-		}
-
+	// validate json type
+	if !n.Null && n.Type.NativeJsonType() != n.JsonType {
+		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
 	var rv reflect.Value
-	if zero {
-		if n.Type.IsNativeCollection() {
-			if n.Rule == nil {
-				return kerr.New("VGKTIRMDTJ", "Can't create collection zero value without a rule")
-			}
-			var err error
-			if rv, err = n.Rule.ZeroValue(); err != nil {
-				return kerr.Wrap("IIDDGXDDJR", err)
-			}
-		} else {
-			// this is for both objects and native values
-			var err error
-			if rv, err = n.Type.ZeroValue(ctx); err != nil {
-				return kerr.Wrap("RPUWJDKXSP", err)
-			}
+	if n.Rule.Struct == nil {
+		if err := json.Unpack(ctx, in, &n.Value); err != nil {
+			return kerr.Wrap("CQMWGPLYIJ", err)
 		}
-		n.Value = rv.Interface()
 	} else {
-		if n.Rule.Struct == nil {
-			if err := json.Unpack(ctx, in, &n.Value); err != nil {
-				return kerr.Wrap("CQMWGPLYIJ", err)
-			}
-		} else {
-			t, err := n.Rule.GetReflectType()
-			if err != nil {
-				return kerr.Wrap("DQJDYPIANO", err)
-			}
-			if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
-				return kerr.Wrap("PEVKGFFHLL", err)
-			}
+		t, err := n.Rule.GetReflectType()
+		if err != nil {
+			return kerr.Wrap("DQJDYPIANO", err)
 		}
-		rv = reflect.ValueOf(n.Value)
+		if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
+			return kerr.Wrap("PEVKGFFHLL", err)
+		}
 	}
+	rv = reflect.ValueOf(n.Value)
 
-	if n.Parent == nil {
-		n.Val = rv
-	} else if n.Parent.JsonType == json.J_MAP {
-		n.Parent.Val.SetMapIndex(reflect.ValueOf(n.Key), rv)
-	} else {
-		n.Val.Set(rv)
-	}
-
+	n.setVal(rv)
 	n.propagateValueChange()
 
 	switch n.Type.NativeJsonType() {
 	case json.J_STRING:
-		if zero {
-			n.ValueString = ""
-			break
-		}
 		n.ValueString = in.String()
 	case json.J_NUMBER:
-		if zero {
-			n.ValueNumber = 0.0
-			break
-		}
 		n.ValueNumber = in.Number()
 	case json.J_BOOL:
-		if zero {
-			n.ValueBool = false
-			break
-		}
 		n.ValueBool = in.Bool()
 	case json.J_ARRAY:
-		if zero {
-			n.Array = []*Node{}
-			break
-		}
-		c, ok := n.Rule.Interface.(system.CollectionRule)
-		if !ok {
-			return kerr.New("IUTONSPQOL", "Rule %t must implement *CollectionRule for array types", n.Rule.Interface)
-		}
-		childRule, err := system.WrapRule(ctx, c.GetItemsRule())
-		if err != nil {
-			return kerr.Wrap("KPIBIOCTGF", err)
-		}
 		children := in.Array()
 		for i, child := range children {
-			childNode := &Node{}
-			if err := childNode.Initialise(ctx, n, childRule, "", i, nil); err != nil {
+			childNode := NewNode()
+			if err := childNode.InitialiseArrayChild(ctx, n, i); err != nil {
 				return kerr.Wrap("VWWYPDIJKP", err)
 			}
 			if err := childNode.SetValueUnpack(ctx, child); err != nil {
 				return kerr.Wrap("KUCBPFFJNT", err)
 			}
-			n.Array = append(n.Array, childNode)
 		}
 	case json.J_MAP:
-		if zero {
-			n.Map = map[string]*Node{}
-			break
-		}
-		c, ok := n.Rule.Interface.(system.CollectionRule)
-		if !ok {
-			return kerr.New("RTQUNQEKUY", "Rule %t must implement *CollectionRule for map types", n.Rule.Interface)
-		}
-		childRule, err := system.WrapRule(ctx, c.GetItemsRule())
-		if err != nil {
-			return kerr.Wrap("SBFTRGJNAO", err)
-		}
 		n.Map = map[string]*Node{}
 		children := in.Map()
 		for name, child := range children {
-			childNode := &Node{}
-			if err := childNode.Initialise(ctx, n, childRule, name, -1, nil); err != nil {
+			childNode := NewNode()
+			if err := childNode.InitialiseMapChild(ctx, n, name); err != nil {
 				return kerr.Wrap("HTOPDOKPRE", err)
 			}
 			if err := childNode.SetValueUnpack(ctx, child); err != nil {
 				return kerr.Wrap("LWCSAHSBDF", err)
 			}
-			n.Map[name] = childNode
 		}
 	case json.J_OBJECT:
 		if err := n.initialiseFields(ctx, in); err != nil {
 			return kerr.Wrap("XCRYJWKPKP", err)
 		}
-		if zero && !n.Type.Basic {
-			typeString, err := n.Type.Id.ValueContext(ctx)
-			if err != nil {
-				return kerr.Wrap("MRHEBUUXBB", err)
-			}
-			typeField, ok := n.Map["type"]
-			if !ok {
-				return kerr.New("DQKGYKFQKJ", "type field not found")
-			}
-			if err := typeField.SetValueString(ctx, typeString); err != nil {
-				return kerr.Wrap("CURDKCQLGS", err)
-			}
+	}
+
+	return nil
+}
+
+func (n *Node) setZero(ctx context.Context) error {
+
+	if n.Type == nil {
+		return kerr.New("ABXFQOYCBA", "Can't set value without a type")
+	}
+	n.Missing = false
+	n.Null = false
+	n.ValueString = ""
+	n.ValueNumber = 0.0
+	n.ValueBool = false
+	n.Array = []*Node{}
+	n.Map = map[string]*Node{}
+
+	var rv reflect.Value
+	if n.Type.IsNativeCollection() {
+		if n.Rule == nil {
+			return kerr.New("VGKTIRMDTJ", "Can't create collection zero value without a rule")
+		}
+		var err error
+		if rv, err = n.Rule.ZeroValue(); err != nil {
+			return kerr.Wrap("WNQLTRJRBD", err)
+		}
+	} else {
+		// this is for both objects and native values
+		var err error
+		if rv, err = n.Type.ZeroValue(ctx); err != nil {
+			return kerr.Wrap("UDBVTIDRIK", err)
 		}
 	}
+	n.Value = rv.Interface()
+
+	n.setVal(rv)
+	n.propagateValueChange()
+
+	if n.Type.IsNativeObject() {
+		if err := n.initialiseFields(ctx, nil); err != nil {
+			return kerr.Wrap("VSAXCHGCOG", err)
+		}
+		if err := n.setCorrectTypeField(ctx); err != nil {
+			return kerr.Wrap("CUCJDNBBSU", err)
+		}
+	}
+
 	return nil
+}
+
+func (n *Node) setCorrectTypeField(ctx context.Context) error {
+	typeString, err := n.Type.Id.ValueContext(ctx)
+	if err != nil {
+		return kerr.Wrap("MRHEBUUXBB", err)
+	}
+	typeField, ok := n.Map["type"]
+	if !ok {
+		return kerr.New("DQKGYKFQKJ", "type field not found")
+	}
+	if err := typeField.SetValueString(ctx, typeString); err != nil {
+		return kerr.Wrap("CURDKCQLGS", err)
+	}
+	return nil
+}
+
+func (n *Node) setVal(rv reflect.Value) {
+	if n.Parent == nil {
+		n.Val = rv
+	} else if n.Parent.Type.IsNativeMap() {
+		n.Parent.Val.SetMapIndex(reflect.ValueOf(n.Key), rv)
+		n.Val = n.Parent.Val.MapIndex(reflect.ValueOf(n.Key))
+		for n.Val.Kind() == reflect.Interface {
+			n.Val = n.Val.Elem()
+		}
+	} else if n.Parent.Type.IsNativeArray() {
+		n.Val = n.Parent.Val.Index(n.Index)
+		n.Val.Set(rv)
+		for n.Val.Kind() == reflect.Interface {
+			n.Val = n.Val.Elem()
+		}
+	} else {
+		n.Val.Set(rv)
+	}
 }
 
 func (n *Node) propagateValueChange() {
@@ -452,8 +532,8 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed) error {
 			return kerr.Wrap("YWFSOLOBXH", err)
 		}
 		valueField, valueExists := valueFields[name]
-		childNode := &Node{}
-		if err := childNode.Initialise(ctx, n, rule, name, -1, typeField.Origin); err != nil {
+		childNode := NewNode()
+		if err := childNode.InitialiseNewField(ctx, n, rule, name, typeField.Origin); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		if valueExists {
@@ -598,12 +678,12 @@ func (n *Node) Label(ctx context.Context) string {
 	return "(?)"
 }
 
-func (n *Node) Path(ctx context.Context) (path string) {
+func (n *Node) Path() (path string) {
 	for n != nil {
 		if path != "" {
-			path = n.Label(ctx) + "/" + path
+			path = n.Label(nil) + "/" + path
 		} else {
-			path = n.Label(ctx)
+			path = n.Label(nil)
 		}
 		n = n.Parent
 	}
