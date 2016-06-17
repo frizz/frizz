@@ -272,8 +272,9 @@ func (v *AddPopupView) save() {
 		})
 	} else {
 		v.app.Dispatch(&actions.InitializeNode{
-			Node: v.model.Node,
-			Type: t,
+			Parent: v.model.Parent,
+			Node:   v.model.Node,
+			Type:   t,
 		})
 	}
 

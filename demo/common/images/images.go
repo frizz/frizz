@@ -22,10 +22,16 @@ func (i *Icon) GetUrl() string {
 }
 
 func (i *Icon) Label(ctx context.Context) string {
+	if i.Url == nil {
+		return ""
+	}
 	return i.Url.Value()[strings.LastIndex(i.Url.Value(), "/")+1:]
 }
 
 func (i *Photo) Label(ctx context.Context) string {
+	if i.Path == nil {
+		return ""
+	}
 	return i.Path.Value()[strings.LastIndex(i.Path.Value(), "/")+1:]
 }
 
