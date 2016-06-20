@@ -10,8 +10,8 @@ import (
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/sysctx"
 	"kego.io/process/generate"
-	"kego.io/process/tests"
 	"kego.io/system"
+	"kego.io/tests"
 )
 
 func TestRuleId(t *testing.T) {

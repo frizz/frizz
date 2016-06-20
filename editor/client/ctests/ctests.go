@@ -12,7 +12,7 @@ import (
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 	"kego.io/flux/mock_flux"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 type ClientContextBuilder struct {

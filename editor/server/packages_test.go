@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestCreateTemporaryPackage(t *testing.T) {

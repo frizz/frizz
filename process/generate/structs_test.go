@@ -8,8 +8,8 @@ import (
 	"kego.io/context/sysctx"
 	"kego.io/process/generate/builder"
 	"kego.io/process/parser"
-	"kego.io/process/tests"
 	"kego.io/system"
+	"kego.io/tests"
 )
 
 func TestGenerateSourceErr1(t *testing.T) {
@@ -190,9 +190,16 @@ func TestPrintInitFunction(t *testing.T) {
 
 	cb.Stype("amap", &system.Type{
 		Object: &system.Object{
-			Id:   system.NewReference("b.c/d", "a"),
+			Id:   system.NewReference("b.c/d", "amap"),
 			Type: system.NewReference("kego.io/system", "type")},
 		Native: system.NewString("map"),
+	})
+
+	cb.Stype("@amap", &system.Type{
+		Object: &system.Object{
+			Id:   system.NewReference("b.c/d", "@amap"),
+			Type: system.NewReference("kego.io/system", "type")},
+		Native: system.NewString("object"),
 	})
 
 	cb.Stype("aiface", &system.Type{
@@ -224,6 +231,7 @@ func init() {
 	pkg := jsonctx.InitPackage("b.c/d", 0)
 	pkg.InitType("a", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*ARule)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem())
 	pkg.InitType("aiface", reflect.TypeOf((*Aiface)(nil)).Elem(), reflect.TypeOf((*AifaceRule)(nil)), nil)
+	pkg.InitType("amap", nil, reflect.TypeOf((*AmapRule)(nil)), nil)
 }
 `)
 

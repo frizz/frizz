@@ -1,4 +1,4 @@
-package repacker // import "kego.io/process/tests/repacker"
+package repacker // import "kego.io/tests/repacker"
 
 // ke: {"package": {"notest": true}}
 

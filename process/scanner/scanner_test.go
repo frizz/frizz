@@ -10,7 +10,7 @@ import (
 	"io/ioutil"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestScanFilesToBytes(t *testing.T) {

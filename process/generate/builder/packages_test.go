@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestGuessPackageName(t *testing.T) {

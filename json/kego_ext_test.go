@@ -16,8 +16,8 @@ import (
 	"kego.io/json/systests"
 	"kego.io/ke"
 	"kego.io/process/packages"
-	"kego.io/process/tests"
-	"kego.io/process/tests/unpacker"
+	"kego.io/tests"
+	"kego.io/tests/unpacker"
 )
 
 func TestUnpack2(t *testing.T) {

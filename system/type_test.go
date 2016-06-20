@@ -8,7 +8,7 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"golang.org/x/net/context"
 	"kego.io/json"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestFieldOrigins(t *testing.T) {
@@ -154,12 +154,15 @@ func TestIsNativeValue(t *testing.T) {
 }
 
 func TestIsJsonValue(t *testing.T) {
-	test := func(expected bool, in *Reference) {
-		ty := &Type{Object: &Object{Id: in}}
-		assert.Equal(t, expected, ty.IsJsonValue(), in)
+	test := func(expected bool, in *Reference, na json.Type) {
+		ty := &Type{Object: &Object{Id: in}, Native: NewString(string(na))}
+		assert.Equal(t, expected, ty.IsJsonValue())
 	}
-	test(false, NewReference("a.b/c", "d"))
-	test(true, NewReference("kego.io/json", "a"))
+	test(false, NewReference("a.b/c", "d"), json.J_STRING)
+	test(false, NewReference("kego.io/json", "a"), json.J_OBJECT)
+	test(false, NewReference("kego.io/json", "a"), json.J_NULL)
+	test(false, NewReference("kego.io/json", "a"), json.J_MAP)
+	test(true, NewReference("kego.io/json", "a"), json.J_STRING)
 }
 
 func TestNativeJsonType(t *testing.T) {
@@ -222,8 +225,8 @@ func Test(t *testing.T) {
 func TestGetAllTypesThatImplementInterface(t *testing.T) {
 
 	ibar := &Type{Object: &Object{Id: NewReference("a.b/c", "ibar")}, Interface: true}
-	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}}
-	tfoobar := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoobar")}}
+	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}, Native: NewString("object")}
+	tfoobar := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoobar")}, Native: NewString("object")}
 
 	cb := tests.
 		Context("a.b/c").
@@ -263,7 +266,7 @@ type tInt int
 func TestZeroValue(t *testing.T) {
 
 	ty := &Type{Native: NewString("map")}
-	_, err := ty.ZeroValue(context.Background())
+	_, err := ty.ZeroValue(context.Background(), true)
 	assert.IsError(t, err, "PGUHCGBJWE")
 
 	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}, Native: NewString("object")}
@@ -271,37 +274,64 @@ func TestZeroValue(t *testing.T) {
 		Context("a.b/c").
 		Jtype("tfoo", reflect.TypeOf(&tFoo{})).Stype("tfoo", tfoo)
 
-	i, err := tfoo.ZeroValue(cb.Ctx())
+	i, err := tfoo.ZeroValue(cb.Ctx(), true)
+	assert.NoError(t, err)
+	tfn, ok := i.Interface().(*tFoo)
+	assert.True(t, ok)
+	assert.Nil(t, tfn)
+
+	i, err = tfoo.ZeroValue(cb.Ctx(), false)
 	assert.NoError(t, err)
 	tf, ok := i.Interface().(*tFoo)
 	assert.True(t, ok)
 	assert.NotNil(t, tf)
 	assert.NotNil(t, tf.Object)
 
-	tint := &Type{Object: &Object{Id: NewReference("a.b/c", "tint")}, Native: NewString("number")}
-	cb.Jtype("tint", reflect.TypeOf(tInt(0))).Stype("tint", tint)
-
-	i, err = tint.ZeroValue(cb.Ctx())
-	assert.NoError(t, err)
-	ti, ok := i.Interface().(tInt)
-	assert.True(t, ok)
-	assert.Equal(t, ti, tInt(0))
-
 	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "d")}, Native: NewString("object")}
-	i, err = tnil.ZeroValue(cb.Ctx())
+	i, err = tnil.ZeroValue(cb.Ctx(), true)
 	assert.IsError(t, err, "RSWTEOTNBD")
+
+	tint := &Type{Object: &Object{Id: NewReference("a.b/c", "tint")}, Native: NewString("number")}
+	cb.Jtype("tint", reflect.TypeOf((*tInt)(nil))).Stype("tint", tint)
+
+	i, err = tint.ZeroValue(cb.Ctx(), true)
+	assert.NoError(t, err)
+	tin, ok := i.Interface().(*tInt)
+	assert.True(t, ok)
+	assert.Nil(t, tin)
+
+	i, err = tint.ZeroValue(cb.Ctx(), false)
+	assert.NoError(t, err)
+	ti, ok := i.Interface().(*tInt)
+	assert.True(t, ok)
+	assert.Equal(t, tInt(0), *ti)
+
+	tjstr := &Type{Object: &Object{Id: NewReference("a.b/c", "tjstr")}, Native: NewString("string")}
+	cb.Jtype("tjstr", reflect.TypeOf("")).Stype("tjstr", tjstr)
+
+	i, err = tjstr.ZeroValue(cb.Ctx(), true)
+	assert.NoError(t, err)
+	tjs, ok := i.Interface().(string)
+	assert.True(t, ok)
+	assert.Equal(t, "", tjs)
+
+	i, err = tjstr.ZeroValue(cb.Ctx(), false)
+	assert.NoError(t, err)
+	tjs, ok = i.Interface().(string)
+	assert.True(t, ok)
+	assert.Equal(t, "", tjs)
 
 }
 
 func TestTypeImplements(t *testing.T) {
-	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}}
+	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}, Native: NewString("object")}
 	cb := tests.
 		Context("a.b/c").
 		Jtype("tfoo", reflect.TypeOf(&tFoo{})).Stype("tfoo", tfoo)
 
 	assert.False(t, tfoo.Implements(cb.Ctx(), reflect.TypeOf((*iBar)(nil)).Elem()))
 	assert.True(t, tfoo.Implements(cb.Ctx(), reflect.TypeOf((*iFoo)(nil)).Elem()))
-	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "tnil")}}
+	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "tnil")}, Native: NewString("object")}
 	assert.False(t, tnil.Implements(cb.Ctx(), reflect.TypeOf((*iFoo)(nil)).Elem()))
 }
 

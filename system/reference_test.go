@@ -10,8 +10,8 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
-	"kego.io/process/tests"
-	"kego.io/process/tests/unpacker"
+	"kego.io/tests"
+	"kego.io/tests/unpacker"
 )
 
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {

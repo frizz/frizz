@@ -5,8 +5,8 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"kego.io/process/parser"
-	"kego.io/process/tests"
 	"kego.io/system/node"
+	"kego.io/tests"
 )
 
 func TestUniversalProduction(t *testing.T) {

@@ -70,7 +70,7 @@ func GetTypeFromCache(ctx context.Context, path string, name string) (*Type, boo
 	return t.(*Type), true
 }
 
-func (t *Type) ZeroValue(ctx context.Context) (reflect.Value, error) {
+func (t *Type) ZeroValue(ctx context.Context, null bool) (reflect.Value, error) {
 	if t.IsNativeCollection() {
 		return reflect.Value{}, kerr.New("PGUHCGBJWE", "ZeroValue must not be used with collection type")
 	}
@@ -78,12 +78,27 @@ func (t *Type) ZeroValue(ctx context.Context) (reflect.Value, error) {
 	if !ok {
 		return reflect.Value{}, kerr.New("RSWTEOTNBD", "Type not found for %s", t.Id)
 	}
-	if t.IsNativeValue() {
-		return reflect.Zero(rt), nil
+	return zeroValue(rt, null), nil
+}
+
+func zeroValue(rt reflect.Type, null bool) reflect.Value {
+	if rt.Kind() == reflect.String || rt.Kind() == reflect.Float64 || rt.Kind() == reflect.Bool {
+		return reflect.Zero(rt)
+	}
+	if null {
+		return reflect.Zero(rt)
+	}
+	if rt.Kind() == reflect.Slice {
+		return reflect.MakeSlice(rt, 0, 5)
+	}
+	if rt.Kind() == reflect.Map {
+		return reflect.MakeMap(rt)
 	}
 	rv := reflect.New(rt.Elem())
-	zeroEmbed(rv.Elem())
-	return rv, nil
+	if rv.Elem().Kind() == reflect.Struct {
+		zeroEmbed(rv.Elem())
+	}
+	return rv
 }
 
 func zeroEmbed(v reflect.Value) {
@@ -100,11 +115,14 @@ func zeroEmbed(v reflect.Value) {
 }
 
 func (t *Type) Implements(ctx context.Context, i reflect.Type) bool {
-	ob, ok := t.Id.GetReflectType(ctx)
+	if t.IsNativeCollection() {
+		return false
+	}
+	rt, ok := t.Id.GetReflectType(ctx)
 	if !ok {
 		return false
 	}
-	return ob.Implements(i)
+	return rt.Implements(i)
 }
 
 // Validator is a type that needs to have it's data validated.
@@ -164,7 +182,7 @@ func nativeGoType(jsonNativeType string) (string, error) {
 }
 
 func (t *Type) IsJsonValue() bool {
-	return t.Id.Package == "kego.io/json"
+	return t.IsNativeValue() && t.Id.Package == "kego.io/json"
 }
 func (t *Type) IsNativeValue() bool {
 	return nativeTypeClass(t.Native.Value()) == nativeValue

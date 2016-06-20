@@ -7,9 +7,9 @@ import (
 	"github.com/davelondon/ktest/require"
 	"golang.org/x/net/context"
 	"kego.io/process"
-	"kego.io/process/tests/repacker"
-	"kego.io/process/tests/unpacker"
 	"kego.io/system"
+	"kego.io/tests/repacker"
+	"kego.io/tests/unpacker"
 )
 
 var systemContext context.Context

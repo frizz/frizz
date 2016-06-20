@@ -9,9 +9,9 @@ import (
 	"github.com/go-errors/errors"
 	"kego.io/json"
 	"kego.io/process/parser"
-	"kego.io/process/tests"
 	"kego.io/system"
 	"kego.io/system/node"
+	"kego.io/tests"
 )
 
 func TestGetIndex(t *testing.T) {

@@ -9,8 +9,8 @@ import (
 	"kego.io/context/sysctx"
 	"kego.io/process"
 	"kego.io/process/parser"
-	"kego.io/process/tests"
 	"kego.io/system"
+	"kego.io/tests"
 )
 
 func TestRuleWrapper_ZeroValue(t *testing.T) {
@@ -24,9 +24,40 @@ func TestRuleWrapper_ZeroValue(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
-	v, err := r.ZeroValue()
+
+	v, err := r.ZeroValue(true)
 	require.NoError(t, err)
 	assert.IsType(t, map[string]*system.String{}, v.Interface())
+	assert.Nil(t, v.Interface())
+
+	v, err = r.ZeroValue(false)
+	require.NoError(t, err)
+	assert.IsType(t, map[string]*system.String{}, v.Interface())
+	assert.NotNil(t, v.Interface())
+	vv := v.Interface().(map[string]*system.String)
+	vv["a"] = system.NewString("")
+
+	r, err = system.WrapRule(cb.Ctx(), &system.MapRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@array")},
+		Rule:   &system.Rule{},
+		Items: &system.StringRule{
+			Object: &system.Object{Type: system.NewReference("kego.io/system", "@string")},
+			Rule:   &system.Rule{},
+		},
+	})
+	require.NoError(t, err)
+
+	v, err = r.ZeroValue(true)
+	require.NoError(t, err)
+	assert.IsType(t, []*system.String{}, v.Interface())
+	assert.Nil(t, v.Interface())
+
+	v, err = r.ZeroValue(false)
+	require.NoError(t, err)
+	assert.IsType(t, []*system.String{}, v.Interface())
+	assert.NotNil(t, v.Interface())
+	va := v.Interface().([]*system.String)
+	va = append(va, system.NewString(""))
 }
 
 func TestReflectType(t *testing.T) {

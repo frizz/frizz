@@ -5,7 +5,7 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestGetOptions(t *testing.T) {

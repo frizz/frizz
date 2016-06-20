@@ -1,4 +1,4 @@
-package unpacker // import "kego.io/process/tests/unpacker"
+package unpacker // import "kego.io/tests/unpacker"
 
 // ke: {"package": {"notest": true}}
 

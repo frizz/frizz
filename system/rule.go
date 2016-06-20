@@ -57,12 +57,12 @@ func (r *RuleWrapper) PermittedTypes() []*Type {
 	return GetAllTypesThatImplementInterface(r.Ctx, r.Parent)
 }
 
-func (r *RuleWrapper) ZeroValue() (reflect.Value, error) {
+func (r *RuleWrapper) ZeroValue(null bool) (reflect.Value, error) {
 	rt, err := r.GetReflectType()
 	if err != nil {
 		return reflect.Value{}, kerr.Wrap("DWWGAWUNCN", err)
 	}
-	return reflect.Zero(rt), nil
+	return zeroValue(rt, null), nil
 }
 
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {

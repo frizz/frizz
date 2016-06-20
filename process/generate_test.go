@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestSave(t *testing.T) {

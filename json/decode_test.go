@@ -19,7 +19,7 @@ import (
 	"github.com/go-errors/errors"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestSetDefaultNativeValue(t *testing.T) {

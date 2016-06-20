@@ -87,11 +87,11 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.InitializeNode:
 		if action.Parent.Type.IsNativeArray() {
-			action.Node.InitialiseArrayChild(s.ctx, action.Parent, len(action.Parent.Array))
+			action.Node.InitialiseArrayChild(s.ctx, action.Parent, len(action.Parent.Array), false)
 		} else if action.Parent.Type.IsNativeMap() {
-			action.Node.InitialiseMapChild(s.ctx, action.Parent, action.Key)
+			action.Node.InitialiseMapChild(s.ctx, action.Parent, action.Key, false)
 		}
-		if err := action.Node.SetValueZero(s.ctx, action.Type); err != nil {
+		if err := action.Node.SetValueZero(s.ctx, false, action.Type); err != nil {
 			s.app.Fail <- kerr.Wrap("NLSRNQGLLW", err)
 		}
 	case *actions.EditorFocus:

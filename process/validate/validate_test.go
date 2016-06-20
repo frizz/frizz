@@ -8,8 +8,8 @@ import (
 	"kego.io/system/node"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/process/tests"
 	_ "kego.io/process/validate/tests"
+	"kego.io/tests"
 )
 
 func TestFieldExtraMap(t *testing.T) {

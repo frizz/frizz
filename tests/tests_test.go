@@ -10,7 +10,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/process"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestDefaultInterfaceNativeType(t *testing.T) {

@@ -1,0 +1,9 @@
+{
+  "type": "system:type",
+  "id": "faceb",
+  "fields": {
+    "b": {
+      "type": "system:@string"
+    }
+  }
+}

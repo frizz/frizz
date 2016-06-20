@@ -7,9 +7,9 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"kego.io/context/sysctx"
 	"kego.io/process/parser"
-	"kego.io/process/tests"
 	_ "kego.io/process/validate/tests"
 	_ "kego.io/system"
+	"kego.io/tests"
 )
 
 func TestValidateMain(t *testing.T) {

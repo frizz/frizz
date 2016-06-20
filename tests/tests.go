@@ -1,4 +1,4 @@
-package tests // import "kego.io/process/tests"
+package tests // import "kego.io/tests"
 
 // ke: {"package": {"notest": true}}
 

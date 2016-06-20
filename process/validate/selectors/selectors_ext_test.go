@@ -10,10 +10,10 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/parser"
-	"kego.io/process/tests"
 	. "kego.io/process/validate/selectors"
 	_ "kego.io/process/validate/selectors/tests"
 	"kego.io/system/node"
+	"kego.io/tests"
 )
 
 // Used for storing the results of the benchmarking tests below

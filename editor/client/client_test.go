@@ -10,8 +10,8 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"kego.io/context/sysctx"
 	"kego.io/editor/shared"
-	"kego.io/process/tests"
 	"kego.io/system"
+	"kego.io/tests"
 )
 
 func TestRegisterTypes(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
-	"kego.io/process/tests"
+	"kego.io/tests"
 )
 
 func TestRun(t *testing.T) {

@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":8222251394440015967}
+// info:{"Path":"kego.io/system","Hash":2339344579968857669}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -115,7 +115,7 @@ type StringRule struct {
 	// This restricts the value to one of several built-in formats
 	Format *String `json:"format"`
 	// The editor should render as a multi-line textbox
-	Long *Bool `json:"long"`
+	Long bool `json:"long"`
 	// The value must be shorter or equal to the provided maximum length
 	MaxLength *Int `json:"maxLength"`
 	// The value must be longer or equal to the provided minimum length
@@ -247,7 +247,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 8222251394440015967)
+	pkg := jsonctx.InitPackage("kego.io/system", 2339344579968857669)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
 	pkg.InitType("number", reflect.TypeOf((*Number)(nil)), reflect.TypeOf((*NumberRule)(nil)), reflect.TypeOf((*NumberInterface)(nil)).Elem())
@@ -257,4 +257,7 @@ func init() {
 	pkg.InitType("rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
 	pkg.InitType("string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
 	pkg.InitType("type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
+
+	pkg.InitType("map", nil, reflect.TypeOf((*MapRule)(nil)), nil)
+	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 }

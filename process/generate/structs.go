@@ -161,10 +161,6 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTyp
 				continue
 			}
 
-			if typ.IsNativeCollection() {
-				continue
-			}
-
 			typeOf1 := ""
 			if typ.Interface {
 				typeOf1 = g.SprintFunctionCall(
@@ -195,14 +191,25 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTyp
 				) + ".Elem()"
 			}
 
-			g.PrintMethodCall(
-				"pkg",
-				"InitType",
-				strconv.Quote(typ.Id.Name),
-				typeOf1,
-				typeOf2,
-				typeOf3,
-			)
+			if typ.IsNativeCollection() {
+				g.PrintMethodCall(
+					"pkg",
+					"InitType",
+					strconv.Quote(typ.Id.Name),
+					"nil",
+					typeOf2,
+					"nil",
+				)
+			} else {
+				g.PrintMethodCall(
+					"pkg",
+					"InitType",
+					strconv.Quote(typ.Id.Name),
+					typeOf1,
+					typeOf2,
+					typeOf3,
+				)
+			}
 			g.Println("")
 		}
 	}

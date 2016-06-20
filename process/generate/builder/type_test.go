@@ -11,8 +11,8 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
-	"kego.io/process/tests"
 	"kego.io/system"
+	"kego.io/tests"
 )
 
 func TestGetPointer(t *testing.T) {
@@ -22,7 +22,7 @@ func TestGetPointer(t *testing.T) {
 	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("bool"), Interface: false}))
 	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("number"), Interface: false}))
 	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("string"), Interface: false}))
-	assert.Equal(t, "", getPointer(&system.Type{Object: j, Native: system.NewString("object"), Interface: false}))
+	assert.Equal(t, "*", getPointer(&system.Type{Object: j, Native: system.NewString("object"), Interface: false}))
 	assert.Equal(t, "", getPointer(&system.Type{Object: s, Native: system.NewString("object"), Interface: true}))
 	assert.Equal(t, "*", getPointer(&system.Type{Object: s, Native: system.NewString("bool"), Interface: false}))
 	assert.Equal(t, "", getPointer(&system.Type{Object: s, Native: system.NewString("object"), Interface: true}))

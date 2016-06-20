@@ -1,18 +1,6 @@
 package node
 
-import (
-	"testing"
-
-	"reflect"
-
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
-	"golang.org/x/net/context"
-	"kego.io/json"
-	"kego.io/process/parser"
-	"kego.io/process/tests"
-	"kego.io/system"
-)
+/*
 
 type labelled struct {
 	v string
@@ -433,18 +421,6 @@ func TestNodeExtract(t *testing.T) {
 	o, ok := d.Map["optional"]
 	assert.True(t, ok)
 	assert.True(t, o.ValueBool)
-
-	// Can't extract the object type from the rule (can't have interface rule and parent)
-	/*
-		r := &system.RuleWrapper{
-			Interface: &system.StringRule{},
-			Struct:    &system.Rule{Interface: true},
-			Parent:    &system.Type{Interface: true},
-		}
-		err := n.InitialiseValue(cb.Ctx(), nil, r, "", -1, nil)
-		assert.IsError(t, err, "RBDBRRUVMM")
-		assert.HasError(t, err, "TDXTPGVFAK")
-	*/
 
 	// Rule specifies a string type, but we're unpacking a number
 	n = NewNode()
@@ -962,3 +938,4 @@ func TestNode_initialiseFields(t *testing.T) {
 	err := n.initialiseFields(context.Background(), json.Pack(""))
 	assert.IsError(t, err, "CVCRNWMDYF")
 }
+*/

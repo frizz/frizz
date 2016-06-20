@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/process/tests"
-	"kego.io/process/tests/unpacker"
+	"kego.io/tests"
+	"kego.io/tests/unpacker"
 )
 
 func TestRuleWrapperHoldsDisplayType(t *testing.T) {
