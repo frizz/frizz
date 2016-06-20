@@ -1,5 +1,28 @@
 package node
 
+import (
+	"testing"
+
+	"github.com/davelondon/ktest/assert"
+	"golang.org/x/net/context"
+)
+
+func TestNode_SetValueZero3(t *testing.T) {
+
+	n := NewNode()
+	err := n.setZero(context.Background(), false, true)
+	assert.IsError(t, err, "NYQULBBBHO")
+
+	n = NewNode()
+	err = n.setZero(context.Background(), true, true)
+	assert.IsError(t, err, "XRYLQWRNPH")
+
+	n = NewNode()
+	err = n.setZero(context.Background(), true, false)
+	assert.IsError(t, err, "ABXFQOYCBA")
+
+}
+
 /*
 
 type labelled struct {

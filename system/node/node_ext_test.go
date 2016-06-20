@@ -620,6 +620,15 @@ func TestNode_SetValueZero2(t *testing.T) {
 }
 
 func TestNode_SetValueZero3(t *testing.T) {
-	//cb, n := setup(t)
+	cb, n := empty(t)
+	f, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "face")
+	assert.True(t, ok)
+	err := n.SetValueZero(cb.Ctx(), true, f)
+	assert.HasError(t, err, "VHOSYBMDQL")
+}
 
+func TestNode_SetValueUnpack(t *testing.T) {
+	cb, n := empty(t)
+	err := n.SetValueUnpack(cb.Ctx(), json.PackString(`"a"`))
+	assert.HasError(t, err, "VEPLUIJXSN")
 }

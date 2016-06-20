@@ -1,6 +1,6 @@
 package node // import "kego.io/system/node"
 
-// xke: {"package": {"complete": true}}
+// ke: {"package": {"complete": true}}
 
 import (
 	"fmt"
@@ -84,7 +84,7 @@ func (n *Node) DeleteObjectChild(ctx context.Context, field string) error {
 		return kerr.New("BMUSITINTC", "Must be J_OBJECT")
 	}
 	child := n.Map[field]
-	if err := child.setValueEmpty(ctx); err != nil {
+	if err := child.setZero(ctx, true, true); err != nil {
 		return kerr.Wrap("HPXJKGQYLL", err)
 	}
 	return nil
@@ -166,7 +166,7 @@ func (n *Node) InitialiseRoot() {
 	n.resetAllValues()
 }
 
-func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int, exists bool) error {
+func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int, useParentVal bool) error {
 	n.resetAllValues()
 	n.Parent = parent
 	n.Index = index
@@ -192,7 +192,7 @@ func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int
 		parent.Array[index] = n
 	}
 
-	if !exists {
+	if !useParentVal {
 		if index > parent.Val.Len() {
 			return kerr.New("YFKMXFUPHY", "Index out of bounds")
 		} else if index == parent.Val.Len() {
@@ -207,7 +207,7 @@ func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int
 	return nil
 }
 
-func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string, exists bool) error {
+func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string, useParentVal bool) error {
 	n.resetAllValues()
 	n.Parent = parent
 	n.Key = key
@@ -226,7 +226,7 @@ func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string,
 	n.Type = t
 
 	parent.Map[key] = n
-	if !exists {
+	if !useParentVal {
 		parent.Val.SetMapIndex(reflect.ValueOf(key), reflect.Zero(parent.Val.Type().Elem()))
 		n.propagateValChange()
 	}
@@ -234,7 +234,7 @@ func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string,
 	return nil
 }
 
-func (n *Node) initialiseNewField(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, exists bool) error {
+func (n *Node) initialiseNewField(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, useParentVal bool) error {
 
 	n.resetAllValues()
 	n.Parent = parent
@@ -258,12 +258,8 @@ func (n *Node) initialiseNewField(ctx context.Context, parent *Node, rule *syste
 		p = p.Elem()
 	}
 	f := p.FieldByName(system.GoName(key))
-	if !f.IsValid() {
-		// sometimes the parent object doesn't have the field e.g. DummyRule
-		return nil
-	}
 
-	if !exists {
+	if !useParentVal {
 		f.Set(reflect.Zero(rt))
 		n.propagateValChange()
 	}
@@ -312,29 +308,6 @@ func (n *Node) initialiseValFromParent() {
 	n.Value = n.Val.Interface()
 }
 
-func (n *Node) setValueEmpty(ctx context.Context) error {
-
-	if n.Parent == nil || n.Parent.JsonType != json.J_OBJECT {
-		return kerr.New("XRYLQWRNPH", "Parent must be J_OBJECT")
-	}
-
-	n.Array = []*Node{}
-	n.Map = map[string]*Node{}
-
-	n.ValueString = ""
-	n.ValueNumber = 0.0
-	n.ValueBool = false
-
-	n.Val.Set(reflect.Zero(n.Val.Type()))
-	n.Value = n.Val.Interface()
-	n.propagateValChange()
-
-	n.Null = true
-	n.Missing = true
-	n.JsonType = json.J_NULL
-	return nil
-}
-
 func (n *Node) SetValueUnpack(ctx context.Context, in json.Packed) error {
 	if err := n.setValue(ctx, in, false); err != nil {
 		return kerr.Wrap("FAVEHOUYHB", err)
@@ -342,7 +315,7 @@ func (n *Node) SetValueUnpack(ctx context.Context, in json.Packed) error {
 	return nil
 }
 
-func (n *Node) setValue(ctx context.Context, in json.Packed, exists bool) error {
+func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) error {
 
 	n.Missing = false
 
@@ -370,7 +343,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, exists bool) error 
 		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
-	if !exists {
+	if !useParentVal {
 		var rv reflect.Value
 		if n.Rule.Struct == nil {
 			if err := json.Unpack(ctx, in, &n.Value); err != nil {
@@ -402,7 +375,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, exists bool) error 
 		children := in.Array()
 		for i, child := range children {
 			childNode := NewNode()
-			if err := childNode.InitialiseArrayChild(ctx, n, i, exists); err != nil {
+			if err := childNode.InitialiseArrayChild(ctx, n, i, useParentVal); err != nil {
 				return kerr.Wrap("VWWYPDIJKP", err)
 			}
 			if err := childNode.setValue(ctx, child, true); err != nil {
@@ -414,7 +387,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, exists bool) error 
 		children := in.Map()
 		for name, child := range children {
 			childNode := NewNode()
-			if err := childNode.InitialiseMapChild(ctx, n, name, exists); err != nil {
+			if err := childNode.InitialiseMapChild(ctx, n, name, useParentVal); err != nil {
 				return kerr.Wrap("HTOPDOKPRE", err)
 			}
 			if err := childNode.setValue(ctx, child, true); err != nil {
@@ -436,7 +409,7 @@ func (n *Node) SetValueZero(ctx context.Context, null bool, t *system.Type) erro
 			return kerr.Wrap("TGPRRSUSMQ", err)
 		}
 	}
-	if err := n.setZero(ctx, null); err != nil {
+	if err := n.setZero(ctx, null, false); err != nil {
 		return kerr.Wrap("JWCKCAJXUB", err)
 	}
 	return nil
@@ -451,19 +424,31 @@ func (n *Node) setType(t *system.Type) error {
 	return nil
 }
 
-func (n *Node) setZero(ctx context.Context, null bool) error {
+func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
+
+	if missing && !null {
+		return kerr.New("NYQULBBBHO", "If missing, must also be null")
+	}
+
+	if missing && (n.Parent == nil || n.Parent.JsonType != json.J_OBJECT) {
+		return kerr.New("XRYLQWRNPH", "Parent must be J_OBJECT")
+	}
 
 	if n.Type == nil {
 		return kerr.New("ABXFQOYCBA", "Can't set value without a type")
 	}
-	n.Missing = false
+
+	n.Missing = missing
 	n.Null = null
 	n.ValueString = ""
 	n.ValueNumber = 0.0
 	n.ValueBool = false
 	n.Array = []*Node{}
 	n.Map = map[string]*Node{}
-	if !null {
+
+	if null {
+		n.JsonType = json.J_NULL
+	} else {
 		// if this node was previously null, we must reset the json type
 		n.JsonType = n.Type.NativeJsonType()
 	}
@@ -551,7 +536,7 @@ func (n *Node) propagateValChange() {
 
 }
 
-func (n *Node) initialiseFields(ctx context.Context, in json.Packed, exists bool) error {
+func (n *Node) initialiseFields(ctx context.Context, in json.Packed, useParentVal bool) error {
 
 	valueFields := map[string]json.Packed{}
 	if in != nil && in.Type() != json.J_NULL {
@@ -570,7 +555,7 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, exists bool
 		}
 		valueField, valueExists := valueFields[name]
 		childNode := NewNode()
-		if err := childNode.initialiseNewField(ctx, n, rule, name, typeField.Origin, exists); err != nil {
+		if err := childNode.initialiseNewField(ctx, n, rule, name, typeField.Origin, useParentVal); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		if valueExists {
