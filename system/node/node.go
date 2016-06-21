@@ -438,6 +438,10 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 		return kerr.New("ABXFQOYCBA", "Can't set value without a type")
 	}
 
+	if n.Type.IsNativeCollection() && n.Rule == nil {
+		return kerr.New("VGKTIRMDTJ", "Can't create collection zero value without a rule")
+	}
+
 	n.Missing = missing
 	n.Null = null
 	n.ValueString = ""
@@ -455,9 +459,6 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 
 	var rv reflect.Value
 	if n.Type.IsNativeCollection() {
-		if n.Rule == nil {
-			return kerr.New("VGKTIRMDTJ", "Can't create collection zero value without a rule")
-		}
 		var err error
 		if rv, err = n.Rule.ZeroValue(null); err != nil {
 			return kerr.Wrap("WNQLTRJRBD", err)
@@ -487,13 +488,13 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 }
 
 func (n *Node) setCorrectTypeField(ctx context.Context) error {
-	typeString, err := n.Type.Id.ValueContext(ctx)
-	if err != nil {
-		return kerr.Wrap("MRHEBUUXBB", err)
-	}
 	typeField, ok := n.Map["type"]
 	if !ok {
 		return kerr.New("DQKGYKFQKJ", "type field not found")
+	}
+	typeString, err := n.Type.Id.ValueContext(ctx)
+	if err != nil {
+		return kerr.Wrap("MRHEBUUXBB", err)
 	}
 	if err := typeField.SetValueString(ctx, typeString); err != nil {
 		return kerr.Wrap("CURDKCQLGS", err)
@@ -645,27 +646,20 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 }
 
 func extractFields(ctx context.Context, fields map[string]*system.Field, t *system.Type) error {
-	getType := func(r *system.Reference) (*system.Type, error) {
-		t, ok := system.GetTypeFromCache(ctx, r.Package, r.Name)
-		if !ok {
-			return nil, kerr.New("VEKXQDJFGD", "Type %s not found in sys ctx", r.String())
-		}
-		return t, nil
-	}
 	if !t.Basic && !t.Interface {
 		// All types apart from Basic types embed system:object
-		ob, err := getType(system.NewReference("kego.io/system", "object"))
-		if err != nil {
-			return kerr.Wrap("YRFWOTIGFT", err)
+		ob, ok := system.GetTypeFromCache(ctx, "kego.io/system", "object")
+		if !ok {
+			return kerr.New("YRFWOTIGFT", "Type system:object not found in sys ctx")
 		}
 		if err := extractFields(ctx, fields, ob); err != nil {
 			return kerr.Wrap("DTQEFALIMM", err)
 		}
 	}
 	for _, embedRef := range t.Embed {
-		embed, err := getType(embedRef)
-		if err != nil {
-			return kerr.Wrap("SLIRILCARQ", err)
+		embed, ok := system.GetTypeFromCache(ctx, embedRef.Package, embedRef.Name)
+		if !ok {
+			return kerr.New("SLIRILCARQ", "Type %s not found in sys ctx", embedRef)
 		}
 		if err := extractFields(ctx, fields, embed); err != nil {
 			return kerr.Wrap("JWAPCVIYBJ", err)

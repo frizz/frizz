@@ -7,6 +7,7 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
+	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/parser"
 	"kego.io/system"
@@ -49,6 +50,21 @@ func TestNode_Unpack(t *testing.T) {
 
 }
 
+func TestNode_Unpack3(t *testing.T) {
+
+	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+
+	s := `{
+	"type": "multi",
+	"a": "b"
+}`
+
+	n := node.NewNode()
+	err := n.Unpack(cb.Ctx(), json.PackString(s))
+	assert.HasError(t, err, "SRANLETJRS")
+
+}
+
 func setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 
 	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
@@ -75,7 +91,7 @@ func setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 "mjb": { "a": true, "b": false },
 "msb": { "a": false, "b": true },
 "anri": [ "anri0", { "type": "facea", "a": "anri1" }, { "type": "multi", "ss": "anri2" } ],
-"mnri": { "a": "anria", "b": { "type": "facea", "a": "anrib" }, "c": { "type": "multi", "ss": "anric" } }
+"mnri": { "a": "mnria", "b": { "type": "facea", "a": "mnrib" }, "c": { "type": "multi", "ss": "mnric" } }
 `
 	mm := m + `,
 "m": { "type": "multi" },
@@ -157,9 +173,9 @@ func TestNode_Unpack2(t *testing.T) {
 		assert.Equal(t, "anri0", m.Anri[0].GetString(cb.Ctx()).Value())
 		assert.Equal(t, "anri1", m.Anri[1].GetString(cb.Ctx()).Value())
 		assert.Equal(t, "anri2", m.Anri[2].GetString(cb.Ctx()).Value())
-		assert.Equal(t, "anria", m.Mnri["a"].GetString(cb.Ctx()).Value())
-		assert.Equal(t, "anrib", m.Mnri["b"].GetString(cb.Ctx()).Value())
-		assert.Equal(t, "anric", m.Mnri["c"].GetString(cb.Ctx()).Value())
+		assert.Equal(t, "mnria", m.Mnri["a"].GetString(cb.Ctx()).Value())
+		assert.Equal(t, "mnrib", m.Mnri["b"].GetString(cb.Ctx()).Value())
+		assert.Equal(t, "mnric", m.Mnri["c"].GetString(cb.Ctx()).Value())
 	}
 
 	multi(t, n, n.Value.(*data.Multi), test)
@@ -581,6 +597,30 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.NoError(t, c6a.SetValueZero(cb.Ctx(), false, facea))
 		assert.NotNil(t, m.Anri[6])
 		assert.IsType(t, &data.Facea{}, m.Anri[6])
+
+		c7 := node.NewNode()
+		assert.NoError(t, c7.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "d", false))
+		assert.NoError(t, c7.SetValueZero(cb.Ctx(), true, sstring))
+		assert.Nil(t, m.Mnri["d"])
+		assert.IsType(t, system.NewString(""), m.Mnri["d"])
+
+		c7a := node.NewNode()
+		assert.NoError(t, c7a.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "e", false))
+		assert.NoError(t, c7a.SetValueZero(cb.Ctx(), false, sstring))
+		assert.NotNil(t, m.Mnri["e"])
+		assert.IsType(t, system.NewString(""), m.Mnri["e"])
+
+		c8 := node.NewNode()
+		assert.NoError(t, c8.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "f", false))
+		assert.NoError(t, c8.SetValueZero(cb.Ctx(), true, facea))
+		assert.Nil(t, m.Mnri["f"])
+		assert.IsType(t, &data.Facea{}, m.Mnri["f"])
+
+		c8a := node.NewNode()
+		assert.NoError(t, c8a.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "g", false))
+		assert.NoError(t, c8a.SetValueZero(cb.Ctx(), false, facea))
+		assert.NotNil(t, m.Mnri["g"])
+		assert.IsType(t, &data.Facea{}, m.Mnri["g"])
 	}
 	multi(t, n, n.Value.(*data.Multi), test)
 
@@ -631,4 +671,75 @@ func TestNode_SetValueUnpack(t *testing.T) {
 	cb, n := empty(t)
 	err := n.SetValueUnpack(cb.Ctx(), json.PackString(`"a"`))
 	assert.HasError(t, err, "VEPLUIJXSN")
+}
+
+type lab struct{}
+
+func (l *lab) Label(ctx context.Context) string {
+	return "b"
+}
+
+func TestNode_Label(t *testing.T) {
+	n := node.NewNode()
+	n.Parent = node.NewNode()
+	n.Key = ""
+	n.Value = ""
+	n.Index = -1
+
+	assert.Equal(t, "(?)", n.Label(context.Background()))
+
+	n.Index = 1
+	assert.Equal(t, "1", n.Label(context.Background()))
+
+	n.Value = &lab{}
+	assert.Equal(t, "b", n.Label(context.Background()))
+
+	n.Key = "a"
+	assert.Equal(t, "a", n.Label(context.Background()))
+
+	n.Parent = nil
+	assert.Equal(t, "root", n.Label(context.Background()))
+
+	n = nil
+	assert.Equal(t, "(nil)", n.Label(context.Background()))
+
+}
+
+func TestNode_Path(t *testing.T) {
+	r := node.NewNode()
+	a := node.NewNode()
+	b := node.NewNode()
+	a.Key = "a"
+	b.Key = "b"
+	a.Parent = r
+	b.Parent = a
+	assert.Equal(t, "root/a/b", b.Path())
+}
+
+func TestNode_Root(t *testing.T) {
+	r := node.NewNode()
+	a := node.NewNode()
+	b := node.NewNode()
+	a.Parent = r
+	b.Parent = a
+	assert.Equal(t, r, a.Root())
+	assert.Equal(t, r, b.Root())
+	n := (*node.Node)(nil)
+	assert.Nil(t, n.Root())
+}
+
+func TestNode_DisplayType(t *testing.T) {
+	cb, n := setup(t)
+
+	dt, err := n.DisplayType(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "multi", dt)
+
+	dt, err = n.Map["ai"].DisplayType(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "null", dt)
+
+	dt, err = n.Map["ajs"].DisplayType(cb.Ctx())
+	assert.NoError(t, err)
+	assert.Equal(t, "[]json:string", dt)
 }
