@@ -383,3 +383,8 @@ func TestTypeGoName(t *testing.T) {
 	n := y.GoName()
 	assert.Equal(t, "Aa", n)
 }
+
+func TestType_Implements(t *testing.T) {
+	ty := Type{Native: NewString("map")}
+	assert.False(t, ty.Implements(context.Background(), (reflect.Type)(nil)))
+}

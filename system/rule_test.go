@@ -241,6 +241,12 @@ func TestRuleGetDefault(t *testing.T) {
 	assert.Equal(t, "a", d.GetDefault())
 }
 
+func TestDummyRule_GetItemsRule(t *testing.T) {
+	i := &IntRule{}
+	d := &DummyRule{Items: i}
+	assert.Equal(t, i, d.GetItemsRule())
+}
+
 func TestWrapRule(t *testing.T) {
 
 	type nonObjectStruct struct {
