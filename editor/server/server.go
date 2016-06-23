@@ -374,7 +374,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
 			<body id="body" info="` + attrib + `"></body>
-			<script src="script.js"></script>
+			<script src="/` + env.Path + `/script.js"></script>
 		</html>`)
 
 	if _, err := w.Write(source); err != nil {
