@@ -440,7 +440,7 @@ func TestNode_InitialiseArrayChild(t *testing.T) {
 	cb, n := setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		c := node.NewNode()
-		assert.NoError(t, c.InitialiseArrayChild(cb.Ctx(), n.Map["ajs"], 4, false))
+		assert.NoError(t, c.AddToArray(cb.Ctx(), n.Map["ajs"], 4, false))
 		assert.Equal(t, 5, len(n.Map["ajs"].Array))
 		assert.True(t, n.Map["ajs"].Array[4].Null)
 		assert.False(t, n.Map["ajs"].Array[4].Missing)
@@ -448,22 +448,22 @@ func TestNode_InitialiseArrayChild(t *testing.T) {
 		assert.Equal(t, []string{"ajs0", "ajs1", "ajs2", "ajs3", ""}, m.Ajs)
 
 		c1 := node.NewNode()
-		assert.NoError(t, c1.InitialiseArrayChild(cb.Ctx(), n.Map["ass"], 4, false))
+		assert.NoError(t, c1.AddToArray(cb.Ctx(), n.Map["ass"], 4, false))
 		assert.Equal(t, 5, len(m.Ass))
 		assert.Nil(t, m.Ass[4])
 
 		c2 := node.NewNode()
-		assert.NoError(t, c2.InitialiseArrayChild(cb.Ctx(), n.Map["ajs"], 0, false))
+		assert.NoError(t, c2.AddToArray(cb.Ctx(), n.Map["ajs"], 0, false))
 		assert.Equal(t, 5, len(n.Map["ajs"].Array))
 		assert.Equal(t, []string{"", "ajs1", "ajs2", "ajs3", ""}, m.Ajs)
 
 		c3 := node.NewNode()
-		assert.NoError(t, c3.InitialiseArrayChild(cb.Ctx(), n.Map["ass"], 0, false))
+		assert.NoError(t, c3.AddToArray(cb.Ctx(), n.Map["ass"], 0, false))
 		assert.Equal(t, 5, len(m.Ass))
 		assert.Nil(t, m.Ass[0])
 
 		c4 := node.NewNode()
-		assert.NoError(t, c4.InitialiseArrayChild(cb.Ctx(), n.Map["am"], 2, false))
+		assert.NoError(t, c4.AddToArray(cb.Ctx(), n.Map["am"], 2, false))
 		assert.Equal(t, 3, len(m.Am))
 		assert.Nil(t, m.Am[2])
 	}
@@ -474,12 +474,12 @@ func TestNode_InitialiseArrayChild(t *testing.T) {
 func TestNode_InitialiseArrayChild2(t *testing.T) {
 	cb, n := setup(t)
 	c := node.NewNode()
-	err := c.InitialiseArrayChild(cb.Ctx(), n.Map["ajs"], 5, false)
+	err := c.AddToArray(cb.Ctx(), n.Map["ajs"], 5, false)
 	assert.IsError(t, err, "GHJIDXABLL")
 
 	// kludge the Val to be empty
 	n.Map["ajs"].Val.Set(reflect.ValueOf([]string{}))
-	err = c.InitialiseArrayChild(cb.Ctx(), n.Map["ajs"], 1, false)
+	err = c.AddToArray(cb.Ctx(), n.Map["ajs"], 1, false)
 	assert.IsError(t, err, "YFKMXFUPHY")
 
 }
@@ -489,7 +489,7 @@ func TestNode_InitialiseMapChild(t *testing.T) {
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 
 		c := node.NewNode()
-		assert.NoError(t, c.InitialiseMapChild(cb.Ctx(), n.Map["mjs"], "c", false))
+		assert.NoError(t, c.AddToMap(cb.Ctx(), n.Map["mjs"], "c", false))
 		assert.Equal(t, 3, len(n.Map["mjs"].Map))
 		assert.True(t, n.Map["mjs"].Map["c"].Null)
 		assert.False(t, n.Map["mjs"].Map["c"].Missing)
@@ -497,12 +497,12 @@ func TestNode_InitialiseMapChild(t *testing.T) {
 		assert.Equal(t, "", m.Mjs["c"])
 
 		c1 := node.NewNode()
-		assert.NoError(t, c1.InitialiseMapChild(cb.Ctx(), n.Map["mss"], "c", false))
+		assert.NoError(t, c1.AddToMap(cb.Ctx(), n.Map["mss"], "c", false))
 		assert.Equal(t, 3, len(n.Map["mss"].Map))
 		assert.Nil(t, m.Mss["c"])
 
 		c2 := node.NewNode()
-		assert.NoError(t, c2.InitialiseMapChild(cb.Ctx(), n.Map["mm"], "c", false))
+		assert.NoError(t, c2.AddToMap(cb.Ctx(), n.Map["mm"], "c", false))
 		assert.Equal(t, 3, len(m.Mm))
 		assert.Nil(t, m.Mm["c"])
 	}
@@ -522,14 +522,14 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.True(t, ok)
 
 		c1 := node.NewNode()
-		assert.NoError(t, c1.InitialiseMapChild(cb.Ctx(), n.Map["mss"], "c", false))
+		assert.NoError(t, c1.AddToMap(cb.Ctx(), n.Map["mss"], "c", false))
 		assert.NoError(t, c1.SetValueZero(cb.Ctx(), true, nil))
 		assert.False(t, n.Map["mss"].Map["c"].Missing)
 		assert.True(t, n.Map["mss"].Map["c"].Null)
 		assert.Nil(t, m.Mss["c"])
 
 		c1a := node.NewNode()
-		assert.NoError(t, c1a.InitialiseMapChild(cb.Ctx(), n.Map["mss"], "d", false))
+		assert.NoError(t, c1a.AddToMap(cb.Ctx(), n.Map["mss"], "d", false))
 		assert.NoError(t, c1a.SetValueZero(cb.Ctx(), false, nil))
 		assert.False(t, n.Map["mss"].Map["d"].Missing)
 		assert.False(t, n.Map["mss"].Map["d"].Null)
@@ -537,12 +537,12 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.Equal(t, "", m.Mss["d"].Value())
 
 		c2 := node.NewNode()
-		assert.NoError(t, c2.InitialiseMapChild(cb.Ctx(), n.Map["mm"], "c", false))
+		assert.NoError(t, c2.AddToMap(cb.Ctx(), n.Map["mm"], "c", false))
 		assert.NoError(t, c2.SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Mm["c"])
 
 		c2a := node.NewNode()
-		assert.NoError(t, c2a.InitialiseMapChild(cb.Ctx(), n.Map["mm"], "d", false))
+		assert.NoError(t, c2a.AddToMap(cb.Ctx(), n.Map["mm"], "d", false))
 		assert.NoError(t, c2a.SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Mm["d"])
 		assert.Equal(t, "", m.Mm["d"].Js)
@@ -555,69 +555,69 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.IsType(t, &data.Facea{}, m.Nri)
 
 		c3 := node.NewNode()
-		assert.NoError(t, c3.InitialiseArrayChild(cb.Ctx(), n.Map["ass"], 4, false))
+		assert.NoError(t, c3.AddToArray(cb.Ctx(), n.Map["ass"], 4, false))
 		assert.NoError(t, c3.SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Ass[4])
 
 		c3a := node.NewNode()
-		assert.NoError(t, c3a.InitialiseArrayChild(cb.Ctx(), n.Map["ass"], 5, false))
+		assert.NoError(t, c3a.AddToArray(cb.Ctx(), n.Map["ass"], 5, false))
 		assert.NoError(t, c3a.SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Ass[5])
 
 		c4 := node.NewNode()
-		assert.NoError(t, c4.InitialiseArrayChild(cb.Ctx(), n.Map["am"], 2, false))
+		assert.NoError(t, c4.AddToArray(cb.Ctx(), n.Map["am"], 2, false))
 		assert.NoError(t, c4.SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Am[2])
 
 		c4a := node.NewNode()
-		assert.NoError(t, c4a.InitialiseArrayChild(cb.Ctx(), n.Map["am"], 3, false))
+		assert.NoError(t, c4a.AddToArray(cb.Ctx(), n.Map["am"], 3, false))
 		assert.NoError(t, c4a.SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Am[3])
 
 		c5 := node.NewNode()
-		assert.NoError(t, c5.InitialiseArrayChild(cb.Ctx(), n.Map["anri"], 3, false))
+		assert.NoError(t, c5.AddToArray(cb.Ctx(), n.Map["anri"], 3, false))
 		assert.NoError(t, c5.SetValueZero(cb.Ctx(), true, sstring))
 		assert.Nil(t, m.Anri[3])
 		assert.IsType(t, system.NewString(""), m.Anri[3])
 
 		c5a := node.NewNode()
-		assert.NoError(t, c5a.InitialiseArrayChild(cb.Ctx(), n.Map["anri"], 4, false))
+		assert.NoError(t, c5a.AddToArray(cb.Ctx(), n.Map["anri"], 4, false))
 		assert.NoError(t, c5a.SetValueZero(cb.Ctx(), false, sstring))
 		assert.NotNil(t, m.Anri[4])
 		assert.IsType(t, system.NewString(""), m.Anri[4])
 
 		c6 := node.NewNode()
-		assert.NoError(t, c6.InitialiseArrayChild(cb.Ctx(), n.Map["anri"], 5, false))
+		assert.NoError(t, c6.AddToArray(cb.Ctx(), n.Map["anri"], 5, false))
 		assert.NoError(t, c6.SetValueZero(cb.Ctx(), true, facea))
 		assert.Nil(t, m.Anri[5])
 		assert.IsType(t, &data.Facea{}, m.Anri[5])
 
 		c6a := node.NewNode()
-		assert.NoError(t, c6a.InitialiseArrayChild(cb.Ctx(), n.Map["anri"], 6, false))
+		assert.NoError(t, c6a.AddToArray(cb.Ctx(), n.Map["anri"], 6, false))
 		assert.NoError(t, c6a.SetValueZero(cb.Ctx(), false, facea))
 		assert.NotNil(t, m.Anri[6])
 		assert.IsType(t, &data.Facea{}, m.Anri[6])
 
 		c7 := node.NewNode()
-		assert.NoError(t, c7.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "d", false))
+		assert.NoError(t, c7.AddToMap(cb.Ctx(), n.Map["mnri"], "d", false))
 		assert.NoError(t, c7.SetValueZero(cb.Ctx(), true, sstring))
 		assert.Nil(t, m.Mnri["d"])
 		assert.IsType(t, system.NewString(""), m.Mnri["d"])
 
 		c7a := node.NewNode()
-		assert.NoError(t, c7a.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "e", false))
+		assert.NoError(t, c7a.AddToMap(cb.Ctx(), n.Map["mnri"], "e", false))
 		assert.NoError(t, c7a.SetValueZero(cb.Ctx(), false, sstring))
 		assert.NotNil(t, m.Mnri["e"])
 		assert.IsType(t, system.NewString(""), m.Mnri["e"])
 
 		c8 := node.NewNode()
-		assert.NoError(t, c8.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "f", false))
+		assert.NoError(t, c8.AddToMap(cb.Ctx(), n.Map["mnri"], "f", false))
 		assert.NoError(t, c8.SetValueZero(cb.Ctx(), true, facea))
 		assert.Nil(t, m.Mnri["f"])
 		assert.IsType(t, &data.Facea{}, m.Mnri["f"])
 
 		c8a := node.NewNode()
-		assert.NoError(t, c8a.InitialiseMapChild(cb.Ctx(), n.Map["mnri"], "g", false))
+		assert.NoError(t, c8a.AddToMap(cb.Ctx(), n.Map["mnri"], "g", false))
 		assert.NoError(t, c8a.SetValueZero(cb.Ctx(), false, facea))
 		assert.NotNil(t, m.Mnri["g"])
 		assert.IsType(t, &data.Facea{}, m.Mnri["g"])

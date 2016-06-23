@@ -87,9 +87,9 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.InitializeNode:
 		if action.Parent.Type.IsNativeArray() {
-			action.Node.InitialiseArrayChild(s.ctx, action.Parent, len(action.Parent.Array), false)
+			action.Node.AddToArray(s.ctx, action.Parent, len(action.Parent.Array), false)
 		} else if action.Parent.Type.IsNativeMap() {
-			action.Node.InitialiseMapChild(s.ctx, action.Parent, action.Key, false)
+			action.Node.AddToMap(s.ctx, action.Parent, action.Key, false)
 		}
 		if err := action.Node.SetValueZero(s.ctx, false, action.Type); err != nil {
 			s.app.Fail <- kerr.Wrap("NLSRNQGLLW", err)

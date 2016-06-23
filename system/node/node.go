@@ -96,7 +96,6 @@ func (n *Node) DeleteMapChild(key string) error {
 	}
 	delete(n.Map, key)
 	deleteFromMap(n.Val, key)
-	n.propagateValChange()
 	return nil
 }
 
@@ -109,7 +108,6 @@ func (n *Node) DeleteArrayChild(index int) error {
 		n.Index = i
 	}
 	deleteFromSlice(n.Val, index)
-	n.propagateValChange()
 	return nil
 }
 
@@ -141,7 +139,6 @@ func (n *Node) ReorderArrayChild(from, to int) error {
 	val := n.Val.Index(from).Interface()
 	deleteFromSlice(n.Val, from)
 	insertIntoSlice(n.Val, to, reflect.ValueOf(val))
-	n.propagateValChange()
 	return nil
 }
 
@@ -166,7 +163,7 @@ func (n *Node) InitialiseRoot() {
 	n.resetAllValues()
 }
 
-func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int, useParentVal bool) error {
+func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, useParentVal bool) error {
 	n.resetAllValues()
 	n.Parent = parent
 	n.Index = index
@@ -200,14 +197,14 @@ func (n *Node) InitialiseArrayChild(ctx context.Context, parent *Node, index int
 		} else {
 			parent.Val.Index(index).Set(reflect.Zero(parent.Val.Type().Elem()))
 		}
-		n.propagateValChange()
 	}
+
 	n.initialiseValFromParent()
 
 	return nil
 }
 
-func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string, useParentVal bool) error {
+func (n *Node) AddToMap(ctx context.Context, parent *Node, key string, useParentVal bool) error {
 	n.resetAllValues()
 	n.Parent = parent
 	n.Key = key
@@ -226,15 +223,17 @@ func (n *Node) InitialiseMapChild(ctx context.Context, parent *Node, key string,
 	n.Type = t
 
 	parent.Map[key] = n
+
 	if !useParentVal {
 		parent.Val.SetMapIndex(reflect.ValueOf(key), reflect.Zero(parent.Val.Type().Elem()))
-		n.propagateValChange()
 	}
+
 	n.initialiseValFromParent()
+
 	return nil
 }
 
-func (n *Node) initialiseNewField(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, useParentVal bool) error {
+func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, useParentVal bool) error {
 
 	n.resetAllValues()
 	n.Parent = parent
@@ -261,17 +260,12 @@ func (n *Node) initialiseNewField(ctx context.Context, parent *Node, rule *syste
 
 	if !useParentVal {
 		f.Set(reflect.Zero(rt))
-		n.propagateValChange()
 	}
 
 	n.initialiseValFromParent()
 
 	return nil
 }
-
-//func (n *Node) InitialiseExistingField(ctx context.Context) {
-//	n.initialiseValFromParent()
-//}
 
 func (n *Node) resetAllValues() {
 	n.Parent = nil
@@ -361,7 +355,6 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 		rv = reflect.ValueOf(n.Value)
 
 		n.setVal(rv)
-		n.propagateValChange()
 	}
 
 	switch n.Type.NativeJsonType() {
@@ -375,7 +368,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 		children := in.Array()
 		for i, child := range children {
 			childNode := NewNode()
-			if err := childNode.InitialiseArrayChild(ctx, n, i, useParentVal); err != nil {
+			if err := childNode.AddToArray(ctx, n, i, useParentVal); err != nil {
 				return kerr.Wrap("VWWYPDIJKP", err)
 			}
 			if err := childNode.setValue(ctx, child, true); err != nil {
@@ -387,7 +380,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 		children := in.Map()
 		for name, child := range children {
 			childNode := NewNode()
-			if err := childNode.InitialiseMapChild(ctx, n, name, useParentVal); err != nil {
+			if err := childNode.AddToMap(ctx, n, name, useParentVal); err != nil {
 				return kerr.Wrap("HTOPDOKPRE", err)
 			}
 			if err := childNode.setValue(ctx, child, true); err != nil {
@@ -473,7 +466,6 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 	n.Value = rv.Interface()
 
 	n.setVal(rv)
-	n.propagateValChange()
 
 	if !null && n.Type.IsNativeObject() {
 		if err := n.initialiseFields(ctx, nil, false); err != nil {
@@ -522,21 +514,6 @@ func (n *Node) setVal(rv reflect.Value) {
 	}
 }
 
-func (n *Node) propagateValChange() {
-	// Maps are not addressable, so we must check all ancestors and set accordingly.
-
-	/*
-		c := n
-		for c.Parent != nil {
-			if c.Parent.JsonType == json.J_MAP {
-				c.Parent.Val.SetMapIndex(reflect.ValueOf(c.Key), c.Val)
-			}
-			c = c.Parent
-		}
-	*/
-
-}
-
 func (n *Node) initialiseFields(ctx context.Context, in json.Packed, useParentVal bool) error {
 
 	valueFields := map[string]json.Packed{}
@@ -556,7 +533,7 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, useParentVa
 		}
 		valueField, valueExists := valueFields[name]
 		childNode := NewNode()
-		if err := childNode.initialiseNewField(ctx, n, rule, name, typeField.Origin, useParentVal); err != nil {
+		if err := childNode.addToObject(ctx, n, rule, name, typeField.Origin, useParentVal); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		if valueExists {
@@ -684,7 +661,7 @@ func (n *Node) Label(ctx context.Context) string {
 	if n.Key != "" {
 		return n.Key
 	}
-	if l, ok := n.Value.(system.Labelled); ok {
+	if l, ok := n.Value.(system.Labelled); ok && ctx != nil {
 		if s := l.Label(ctx); s != "" {
 			return s
 		}
