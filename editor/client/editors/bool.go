@@ -65,6 +65,7 @@ func (v *BoolEditorView) Apply(element *vecty.Element) {
 func (v *BoolEditorView) Mount() {
 	v.notifs = v.app.Watch(v.model,
 		stores.EditorFocus,
+		stores.EditorValueChanged,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -107,7 +108,10 @@ func (v *BoolEditorView) render() vecty.Component {
 	)
 
 	group := elem.Div(
-		prop.Class("form-group"),
+		vecty.ClassMap{
+			"form-group": true,
+			"has-error":  v.model.Invalid,
+		},
 		elem.Div(
 			prop.Class("checkbox"),
 			elem.Label(

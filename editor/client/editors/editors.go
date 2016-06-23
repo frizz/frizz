@@ -9,6 +9,7 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/clientctx"
+	"kego.io/editor/client/models"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -43,6 +44,16 @@ func helpBlock(ctx context.Context, n *node.Node) vecty.Markup {
 	return elem.Paragraph(
 		prop.Class("help-block"),
 		vecty.Text(description),
+	)
+}
+
+func errorBlock(ctx context.Context, m *models.EditorModel) vecty.Markup {
+	if !m.Invalid {
+		return vecty.List{}
+	}
+	return elem.Paragraph(
+		prop.Class("help-block text-danger"),
+		vecty.Text(m.Error),
 	)
 }
 

@@ -11,6 +11,7 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/flux"
 	"kego.io/json"
+	"kego.io/process/validate"
 	"kego.io/system/node"
 )
 
@@ -125,13 +126,28 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 					}
 					n.SetValueNumber(s.ctx, val)
 				}
+
+				if err := validate.ValidateNode(s.ctx, n); err != nil {
+					if ve, ok := kerr.Source(err).(validate.ValidationError); ok {
+						action.Editor.Invalid = true
+						action.Editor.Error = ve.Description
+					} else {
+						s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
+					}
+				} else {
+					action.Editor.Invalid = false
+					action.Editor.Error = ""
+				}
+
 				s.app.Notify(action.Editor, EditorValueChanged)
 				s.app.Notify(n, NodeValueChanged)
+
 				c := n.Parent
 				for c != nil {
 					s.app.Notify(c, NodeDescendantValueChanged)
 					c = c.Parent
 				}
+
 			}
 		}()
 	}

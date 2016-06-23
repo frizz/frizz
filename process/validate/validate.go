@@ -36,13 +36,13 @@ func validateBytes(ctx context.Context, bytes []byte) error {
 	if err != nil {
 		return kerr.Wrap("QIVNOQKCQF", err)
 	}
-	if err := validateNode(ctx, n); err != nil {
+	if err := ValidateNode(ctx, n); err != nil {
 		return kerr.Wrap("RVKNMWKQHD", err)
 	}
 	return nil
 }
 
-func validateNode(ctx context.Context, node *node.Node) error {
+func ValidateNode(ctx context.Context, node *node.Node) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil

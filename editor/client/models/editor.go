@@ -10,6 +10,8 @@ import (
 type EditorModel struct {
 	Node           *node.Node
 	TemporaryValue interface{}
+	Invalid        bool
+	Error          string
 }
 
 func NewEditor(n *node.Node) *EditorModel {

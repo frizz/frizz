@@ -70,6 +70,7 @@ func (v *StringEditorView) Apply(element *vecty.Element) {
 func (v *StringEditorView) Mount() {
 	v.notifs = v.app.Watch(v.model,
 		stores.EditorFocus,
+		stores.EditorValueChanged,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -124,7 +125,10 @@ func (v *StringEditorView) render() vecty.Component {
 	}.Apply(v.input)
 
 	group := elem.Div(
-		prop.Class("form-group"),
+		vecty.ClassMap{
+			"form-group": true,
+			"has-error":  v.model.Invalid,
+		},
 		elem.Label(
 			prop.For(id),
 			vecty.Text(v.model.Node.Label(v.ctx)),
@@ -137,5 +141,6 @@ func (v *StringEditorView) render() vecty.Component {
 	}
 
 	helpBlock(v.ctx, v.model.Node).Apply(group)
+	errorBlock(v.ctx, v.model).Apply(group)
 	return group
 }

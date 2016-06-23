@@ -294,11 +294,11 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 
 func TestValidateNode(t *testing.T) {
 	cb := tests.New()
-	err := validateNode(cb.Ctx(), &node.Node{Value: nil})
+	err := ValidateNode(cb.Ctx(), &node.Node{Value: nil})
 	assert.NoError(t, err)
-	err = validateNode(cb.Ctx(), &node.Node{Value: 1, Null: true})
+	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Null: true})
 	assert.NoError(t, err)
-	err = validateNode(cb.Ctx(), &node.Node{Value: 1, Missing: true})
+	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Missing: true})
 	assert.NoError(t, err)
 }
 
