@@ -13,7 +13,7 @@ import (
 	"kego.io/system/node"
 )
 
-func ValidatePackage(ctx context.Context) error {
+func ValidatePackage(ctx context.Context) (errors []ValidationError, err error) {
 
 	env := envctx.FromContext(ctx)
 
@@ -21,31 +21,36 @@ func ValidatePackage(ctx context.Context) error {
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for c := range bytes {
 		if c.Err != nil {
-			return kerr.Wrap("IHSVWAUAYW", c.Err)
+			return nil, kerr.Wrap("IHSVWAUAYW", c.Err)
 		}
-		if err := validateBytes(ctx, c.Bytes); err != nil {
-			return kerr.Wrap("KWLWXKWHLF", err)
+		ve, err := validateBytes(ctx, c.Bytes)
+		if err != nil {
+			return nil, kerr.Wrap("KWLWXKWHLF", err)
+		}
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
 		}
 	}
 
-	return nil
+	return
 }
 
-func validateBytes(ctx context.Context, bytes []byte) error {
+func validateBytes(ctx context.Context, bytes []byte) (errors []ValidationError, err error) {
 	n, err := node.Unmarshal(ctx, bytes)
 	if err != nil {
-		return kerr.Wrap("QIVNOQKCQF", err)
+		return nil, kerr.Wrap("QIVNOQKCQF", err)
 	}
-	if err := ValidateNode(ctx, n, true); err != nil {
-		return kerr.Wrap("RVKNMWKQHD", err)
+	errors, err = ValidateNode(ctx, n, true)
+	if err != nil {
+		return nil, kerr.Wrap("RVKNMWKQHD", err)
 	}
-	return nil
+	return errors, nil
 }
 
-func ValidateNode(ctx context.Context, node *node.Node, children bool) error {
+func ValidateNode(ctx context.Context, node *node.Node, children bool) (errors []ValidationError, err error) {
 
 	if node.Value == nil || node.Null || node.Missing {
-		return nil
+		return
 	}
 
 	// Start with the rules from the type
@@ -56,40 +61,54 @@ func ValidateNode(ctx context.Context, node *node.Node, children bool) error {
 		rules = append(rules, node.Value.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
-	return validateObject(ctx, node, rules, children)
+	errors, err = validateObject(ctx, node, rules, children)
+	if err != nil {
+		return nil, kerr.Wrap("KQBLWNRGTL", err)
+	}
 
+	return errors, nil
+}
+
+type ValidationCommandError struct {
+	kerr.Struct
 }
 
 type ValidationError struct {
 	kerr.Struct
+	Source *node.Node
 }
 
-func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInterface, children bool) error {
+func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInterface, children bool) (errors []ValidationError, err error) {
 
 	if node.Value == nil || node.Null || node.Missing {
-		return nil
+		return nil, nil
 	}
 
 	// Validate the actual object
 	if v, ok := node.Value.(system.Validator); ok {
-		ok, message, err := v.Validate(ctx)
+		failed, messages, err := v.Validate(ctx)
 		if err != nil {
-			return kerr.Wrap("RUGJLUAFAN", err)
+			return nil, kerr.Wrap("RUGJLUAFAN", err)
 		}
-		if !ok {
-			return ValidationError{kerr.New("KULDIJUYFB", message)}
+		if failed {
+			for _, message := range messages {
+				errors = append(errors, ValidationError{Struct: kerr.New("KULDIJUYFB", message), Source: node})
+			}
+			// if the object isn't valid we don't want to continue
+			return errors, nil
 		}
 	}
 
 	if node.Rule.Interface != nil {
-		e, ok := node.Rule.Interface.(system.Enforcer)
-		if ok {
-			ok, message, err := e.Enforce(ctx, node.Value)
+		if e, ok := node.Rule.Interface.(system.Enforcer); ok {
+			failed, messages, err := e.Enforce(ctx, node.Value)
 			if err != nil {
-				return kerr.Wrap("EBEMISLGDX", err)
+				return nil, kerr.Wrap("EBEMISLGDX", err)
 			}
-			if !ok {
-				return ValidationError{kerr.New("HLKQWDCMRN", message)}
+			if failed {
+				for _, message := range messages {
+					errors = append(errors, ValidationError{Struct: kerr.New("HLKQWDCMRN", message), Source: node})
+				}
 			}
 		}
 	}
@@ -98,7 +117,7 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 
 		p, err := selectors.CreateParser(ctx, node)
 		if err != nil {
-			return kerr.Wrap("AIWLGYGGAY", err)
+			return nil, kerr.Wrap("AIWLGYGGAY", err)
 		}
 
 		for _, rule := range rules {
@@ -112,55 +131,75 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 
 			e, ok := rule.(system.Enforcer)
 			if !ok {
-				return kerr.New("ABVWHMMXGG", "rule %T does not implement system.Enforcer", rule)
+				return nil, kerr.New("ABVWHMMXGG", "rule %T does not implement system.Enforcer", rule)
 			}
 			matches, err := p.GetNodes(selector)
 			if err != nil {
-				return kerr.Wrap("UKOCCFJWAB", err)
+				return nil, kerr.Wrap("UKOCCFJWAB", err)
 			}
 			for _, match := range matches {
-				ok, message, err := e.Enforce(ctx, match.Value)
+				failed, messages, err := e.Enforce(ctx, match.Value)
 				if err != nil {
-					return kerr.Wrap("MGHHDYTXVV", err)
+					return nil, kerr.Wrap("MGHHDYTXVV", err)
 				}
-				if !ok {
-					return ValidationError{kerr.New("HAOXUVTFEX", message)}
+				if failed {
+					for _, message := range messages {
+						errors = append(errors, ValidationError{Struct: kerr.New("HAOXUVTFEX", message), Source: node})
+					}
 				}
 			}
 		}
 	}
 
 	if !children {
-		return nil
+		return
 	}
 
 	// Validate the children
 	switch node.Type.NativeJsonType() {
 	case json.J_OBJECT:
-		return validateObjectChildren(ctx, node)
+		ve, err := validateObjectChildren(ctx, node)
+		if err != nil {
+			return nil, kerr.Wrap("WLGMAVXNQN", err)
+		}
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
+		}
 	case json.J_ARRAY:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
-			return kerr.Wrap("YFNERJIKWF", err)
+			return nil, kerr.Wrap("YFNERJIKWF", err)
 		}
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
-		return validateArrayChildren(ctx, node, items, rules)
+		ve, err := validateArrayChildren(ctx, node, items, rules)
+		if err != nil {
+			return nil, kerr.Wrap("SFBYGQOIPN", err)
+		}
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
+		}
 	case json.J_MAP:
 		items, err := node.Rule.ItemsRule()
 		if err != nil {
-			return kerr.Wrap("PRPQQJKIKF", err)
+			return nil, kerr.Wrap("PRPQQJKIKF", err)
 		}
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
-		return validateMapChildren(ctx, node, items, rules)
+		ve, err := validateMapChildren(ctx, node, items, rules)
+		if err != nil {
+			return nil, kerr.Wrap("RFQVHTNHGQ", err)
+		}
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
+		}
 	}
 
-	return nil
+	return
 }
 
-func validateObjectChildren(ctx context.Context, node *node.Node) error {
+func validateObjectChildren(ctx context.Context, node *node.Node) (errors []ValidationError, err error) {
 
 	if node.Value == nil || node.Null || node.Missing {
-		return nil
+		return
 	}
 
 	rules := []system.RuleInterface{}
@@ -171,28 +210,23 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 	for name, field := range node.Type.Fields {
 		child, ok := node.Map[name]
 		if !field.GetRule(nil).Optional && !ok {
-			return kerr.New("ETODESNSET", "Field %s is missing and not optional", name)
+			return nil, kerr.New("ETODESNSET", "Field %s is missing and not optional", name)
 		}
-		ob, ok := field.(system.ObjectInterface)
-		if !ok {
-			return kerr.New("XRTVWVUAMP", "field does not implement system.ObjectInterface")
+		ob := field.(system.ObjectInterface).GetObject(nil)
+		rules = append(rules, ob.Rules...)
+
+		ve, err := validateObject(ctx, child, rules, true)
+		if err != nil {
+			return nil, kerr.Wrap("YJYSAOQWSJ", err)
 		}
-
-		allRules := append(rules, ob.GetObject(nil).Rules...)
-
-		// if we have additional rules on the main field rule, we should add them to allRules
-		if len(child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
-			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
-		}
-
-		if err := validateObject(ctx, child, allRules, true); err != nil {
-			return kerr.Wrap("YJYSAOQWSJ", err)
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
 		}
 	}
-	return nil
+	return
 }
 
-func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) error {
+func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) (errors []ValidationError, err error) {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
@@ -200,14 +234,18 @@ func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *syst
 	}
 
 	for _, child := range node.Array {
-		if err := validateObject(ctx, child, rules, true); err != nil {
-			return kerr.Wrap("DKVEPIWTPI", err)
+		ve, err := validateObject(ctx, child, rules, true)
+		if err != nil {
+			return nil, kerr.Wrap("DKVEPIWTPI", err)
+		}
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
 		}
 	}
-	return nil
+	return
 }
 
-func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) error {
+func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system.RuleWrapper, rules []system.RuleInterface) (errors []ValidationError, err error) {
 
 	// if we have additional rules on the main items rule, we should add them to rules
 	if len(itemsRule.Interface.(system.ObjectInterface).GetObject(nil).Rules) > 0 {
@@ -215,9 +253,13 @@ func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system
 	}
 
 	for _, child := range node.Map {
-		if err := validateObject(ctx, child, rules, true); err != nil {
-			return kerr.Wrap("YLONAMFUAG", err)
+		ve, err := validateObject(ctx, child, rules, true)
+		if err != nil {
+			return nil, kerr.Wrap("YLONAMFUAG", err)
+		}
+		if len(ve) > 0 {
+			errors = append(errors, ve...)
 		}
 	}
-	return nil
+	return
 }

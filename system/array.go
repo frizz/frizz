@@ -9,24 +9,25 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 
 	if r.MaxItems == nil && r.MinItems == nil && !r.UniqueItems {
 		// We should return early here in order to prevent needless reflection
-		return true, "", nil
+		return
 	}
 
 	val := reflect.ValueOf(data)
 
 	if val.Kind() != reflect.Slice {
-		return false, "", kerr.New("OWTAUVVFBL", "val.Kind %s should be slice.", val.Kind())
+		return true, nil, kerr.New("OWTAUVVFBL", "val.Kind %s should be slice.", val.Kind())
 	}
 
 	// This is the maximum number of items allowed in the array
 	// MaxItems Int
 	if r.MaxItems != nil {
 		if val.Len() > r.MaxItems.Value() {
-			return false, fmt.Sprintf("MaxItems: length %d should not be greater than %d", val.Len(), r.MaxItems.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("MaxItems: length %d should not be greater than %d", val.Len(), r.MaxItems.Value()))
 		}
 	}
 
@@ -34,7 +35,8 @@ func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (success bool
 	// MinItems Int
 	if r.MinItems != nil {
 		if val.Len() < r.MinItems.Value() {
-			return false, fmt.Sprintf("MinItems: length %d should not be less than %d", val.Len(), r.MinItems.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("MinItems: length %d should not be less than %d", val.Len(), r.MinItems.Value()))
 		}
 	}
 
@@ -47,13 +49,13 @@ func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (success bool
 					continue
 				}
 				if reflect.DeepEqual(val.Index(i).Interface(), val.Index(j).Interface()) {
-					return false, fmt.Sprintf("UniqueItems: array contains duplicate item %v", val.Index(i).Interface()), nil
+					fail = true
+					messages = append(messages, fmt.Sprintf("UniqueItems: array contains duplicate item %v", val.Index(i).Interface()))
 				}
 			}
 		}
 	}
-
-	return true, "", nil
+	return
 }
 
 var _ Enforcer = (*ArrayRule)(nil)

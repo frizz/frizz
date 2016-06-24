@@ -39,19 +39,22 @@ func (t *Photo) GetUrl() string {
 	return fmt.Sprintf("%s://%s%s", t.Protocol.Value(), t.Server.Value(), t.Path.Value())
 }
 
-func (r *ImageRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+func (r *ImageRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
+
 	i, ok := data.(Image)
 	if !ok {
-		return false, "", kerr.New("OSKCXRKIKC", "ImageRule.Enforce", "data %T does not implement Image", data)
+		return true, nil, kerr.New("OSKCXRKIKC", "ImageRule.Enforce", "data %T does not implement Image", data)
 	}
 	if r.Secure != nil {
 		url := i.GetUrl()
 		secure := strings.HasPrefix(url, "https://")
 		if r.Secure.Value() && !secure {
-			return false, fmt.Sprintf("Url %s must start with 'https://'", url), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("Url %s must start with 'https://'", url))
 		} else if !r.Secure.Value() && secure {
-			return false, fmt.Sprintf("Url %s must not start with 'https://'", url), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("Url %s must not start with 'https://'", url))
 		}
 	}
-	return true, "", nil
+	return
 }

@@ -7,8 +7,8 @@ import (
 	"kego.io/system"
 	"kego.io/system/node"
 
-	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	_ "kego.io/process/validate/tests"
 	"kego.io/tests"
 )
@@ -36,9 +36,9 @@ func TestFieldExtraMap(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
 }
 
 func TestFieldExtraArray(t *testing.T) {
@@ -64,9 +64,9 @@ func TestFieldExtraArray(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
 }
 
 func TestRuleHasExtraRules(t *testing.T) {
@@ -89,10 +89,10 @@ func TestRuleHasExtraRules(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
-	assert.Equal(t, "MinLength: length must not be less than 7", kerr.Source(err).(ValidationError).Description)
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
+	assert.Equal(t, "MinLength: length must not be less than 7", errors[0].Description)
 }
 
 func TestFieldExtraRulesObject(t *testing.T) {
@@ -117,31 +117,34 @@ func TestFieldExtraRulesObject(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
 }
 
 func TestValidateObjectChildren(t *testing.T) {
 	cb := tests.New()
 	n := &node.Node{Value: nil}
-	err := validateObjectChildren(cb.Ctx(), n)
-	assert.NoError(t, err)
+	errors, err := validateObjectChildren(cb.Ctx(), n)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 
 	n = &node.Node{Value: 1, Null: true}
-	err = validateObjectChildren(cb.Ctx(), n)
-	assert.NoError(t, err)
+	errors, err = validateObjectChildren(cb.Ctx(), n)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 
 	n = &node.Node{Value: 1, Missing: true}
-	err = validateObjectChildren(cb.Ctx(), n)
-	assert.NoError(t, err)
+	errors, err = validateObjectChildren(cb.Ctx(), n)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 
 	r := &system.StringRule{Rule: &system.Rule{}}
 	ty := &system.Type{Fields: map[string]system.RuleInterface{
 		"A": r,
 	}}
 	n = &node.Node{Value: 1, Type: ty}
-	err = validateObjectChildren(cb.Ctx(), n)
+	_, err = validateObjectChildren(cb.Ctx(), n)
 	assert.IsError(t, err, "ETODESNSET")
 
 	r.Optional = true
@@ -178,8 +181,9 @@ func TestValidateCollection(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.NoError(t, err)
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 
 	cb.TempFile("c.yaml", `
 			type: tests:e
@@ -194,9 +198,9 @@ func TestValidateCollection(t *testing.T) {
 				- abc
 		`)
 
-	err = ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
+	errors, err = ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
 
 	cb.RemoveTempFile("c.yaml")
 
@@ -213,8 +217,9 @@ func TestValidateCollection(t *testing.T) {
 				b: bcdbcd
 		`)
 
-	err = ValidatePackage(cb.Ctx())
-	assert.NoError(t, err)
+	errors, err = ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 
 	cb.TempFile("e.yaml", `
 			type: tests:e
@@ -229,9 +234,8 @@ func TestValidateCollection(t *testing.T) {
 				b: bcd
 		`)
 
-	err = ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
+	errors, err = ValidatePackage(cb.Ctx())
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
 }
 
 func TestRulesEnforcer(t *testing.T) {
@@ -257,8 +261,7 @@ func TestRulesEnforcer(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
+	_, err := ValidatePackage(cb.Ctx())
 	assert.HasError(t, err, "ABVWHMMXGG")
 }
 
@@ -284,9 +287,9 @@ func TestInterface(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HLKQWDCMRN")
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HLKQWDCMRN")
 }
 
 func TestTestRulesApplyToObjects(t *testing.T) {
@@ -313,20 +316,23 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.IsError(t, err, "KWLWXKWHLF")
-	assert.HasError(t, err, "HAOXUVTFEX")
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "HAOXUVTFEX")
 
 }
 
 func TestValidateNode(t *testing.T) {
 	cb := tests.New()
-	err := ValidateNode(cb.Ctx(), &node.Node{Value: nil}, true)
-	assert.NoError(t, err)
-	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Null: true}, true)
-	assert.NoError(t, err)
-	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Missing: true}, true)
-	assert.NoError(t, err)
+	errors, err := ValidateNode(cb.Ctx(), &node.Node{Value: nil}, true)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
+	errors, err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Null: true}, true)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
+	errors, err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Missing: true}, true)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 }
 
 func TestValidate_NeedsTypes(t *testing.T) {
@@ -349,8 +355,9 @@ func TestValidate_NeedsTypes(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
-	assert.NoError(t, err)
+	errors, err := ValidatePackage(cb.Ctx())
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(errors))
 
 }
 
@@ -376,8 +383,9 @@ func TestValidate_error1(t *testing.T) {
 
 	cb.Path(path).Dir(dir).Jsystem().Sauto(parser.Parse)
 
-	err := ValidatePackage(cb.Ctx())
+	errors, err := ValidatePackage(cb.Ctx())
 	// @string is invalid because minLength > maxLength
-	assert.HasError(t, err, "YLONAMFUAG")
+	require.NoError(t, err)
+	assert.IsError(t, errors[0], "KULDIJUYFB")
 
 }

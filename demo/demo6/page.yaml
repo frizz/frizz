@@ -8,4 +8,7 @@ fields:
         rules:
             -
                 type: system:@string
+                pattern: "foo.+"
+            -
+                type: system:@string
                 minLength: 5

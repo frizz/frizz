@@ -54,7 +54,7 @@ func main() {
 			if !cmd.Log {
 				// in log mode, we have already written the output of the exec'ed ke command,
 				// so we don't need to duplicate the error message.
-				if v, ok := kerr.Source(err).(validate.ValidationError); ok {
+				if v, ok := kerr.Source(err).(validate.ValidationCommandError); ok {
 					fmt.Println(v.Description)
 					wgctx.WaitAndExit(ctx, 4) // Exit code 4: validation error
 				}

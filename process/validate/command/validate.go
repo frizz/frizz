@@ -72,13 +72,16 @@ func validateMain(ctx context.Context, cancel context.CancelFunc, log func(strin
 		return 3 // Exit status 3: hash changed error
 	}
 
-	if err := validate.ValidatePackage(ctx); err != nil {
-		if v, ok := kerr.Source(err).(validate.ValidationError); ok {
-			log(v.Description)
-			return 4 // Exit status 4: validation error
-		}
+	errors, err := validate.ValidatePackage(ctx)
+	if err != nil {
 		log(err.Error())
 		return 1 // Exit status 1: generic error
+	}
+	if len(errors) > 0 {
+		for _, e := range errors {
+			log(fmt.Sprintf("%s: %s", e.Source.Path(), e.Description))
+		}
+		return 4 // Exit status 4: validation error
 	}
 	return 0 // Exit status 0: success
 }

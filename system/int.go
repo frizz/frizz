@@ -32,44 +32,53 @@ func (i *Int) Value() int {
 	return int(*i)
 }
 
-func (r *IntRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+func (r *IntRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
+
+	if i, ok := data.(IntInterface); ok {
+		data = i.GetInt(ctx)
+	}
 
 	i, ok := data.(*Int)
 	if !ok && data != nil {
-		return false, "", kerr.New("AISBHNCJXJ", "Data %T should be *system.Int", data)
+		return true, nil, kerr.New("AISBHNCJXJ", "Data %T should be *system.Int", data)
 	}
 
 	// This provides an upper bound for the restriction
 	if r.Maximum != nil {
 		if i == nil && !r.Optional {
-			return false, "Maximum: value must exist", nil
+			fail = true
+			messages = append(messages, "Maximum: value must exist")
 		}
 		if i != nil && i.Value() > r.Maximum.Value() {
-			return false, fmt.Sprintf("Maximum: value %v must not be greater than %v", i, r.Maximum.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("Maximum: value %v must not be greater than %v", i, r.Maximum.Value()))
 		}
 	}
 
 	// This provides a lower bound for the restriction
 	if r.Minimum != nil {
 		if i == nil && !r.Optional {
-			return false, "Minimum: value must exist", nil
+			fail = true
+			messages = append(messages, "Minimum: value must exist")
 		}
 		if i != nil && i.Value() < r.Minimum.Value() {
-			return false, fmt.Sprintf("Minimum: value %v must not be less than %v", i, r.Minimum.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("Minimum: value %v must not be less than %v", i, r.Minimum.Value()))
 		}
 	}
 
 	// This restricts the number to be a multiple of the given number
 	if r.MultipleOf != nil {
 		if i == nil && !r.Optional {
-			return false, "MultipleOf: value must exist", nil
+			fail = true
+			messages = append(messages, "MultipleOf: value must exist")
 		}
 		if i != nil && i.Value()%r.MultipleOf.Value() != 0 {
-			return false, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", i, r.MultipleOf.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", i, r.MultipleOf.Value()))
 		}
 	}
-
-	return true, "", nil
+	return
 }
 
 var _ Enforcer = (*IntRule)(nil)

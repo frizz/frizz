@@ -24,11 +24,15 @@ func (n *Number) Value() float64 {
 	return float64(*n)
 }
 
-func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
+
+	if i, ok := data.(NumberInterface); ok {
+		data = i.GetNumber(ctx)
+	}
 
 	n, ok := data.(*Number)
 	if !ok && data != nil {
-		return false, "", kerr.New("FUGYGJVHYS", "Data %T should be *system.Number", data)
+		return true, nil, kerr.New("FUGYGJVHYS", "Data %T should be *system.Number", data)
 	}
 
 	// Maximum provides an upper bound for the restriction If ExclusiveMaximum is true, the value
@@ -36,16 +40,19 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// to the maximum.
 	if r.Maximum != nil {
 		if n == nil && !r.Optional {
-			return false, "Maximum: value must exist", nil
+			fail = true
+			messages = append(messages, "Maximum: value must exist")
 		}
 		if n != nil {
 			if r.ExclusiveMaximum {
 				if n.Value() >= r.Maximum.Value() {
-					return false, fmt.Sprintf("Maximum (exclusive): value %v must be less than %v", n, r.Maximum.Value()), nil
+					fail = true
+					messages = append(messages, fmt.Sprintf("Maximum (exclusive): value %v must be less than %v", n, r.Maximum.Value()))
 				}
 			} else {
 				if n.Value() > r.Maximum.Value() {
-					return false, fmt.Sprintf("Maximum: value %v must not be greater than %v", n, r.Maximum.Value()), nil
+					fail = true
+					messages = append(messages, fmt.Sprintf("Maximum: value %v must not be greater than %v", n, r.Maximum.Value()))
 				}
 			}
 		}
@@ -56,16 +63,19 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// equal to the minimum.
 	if r.Minimum != nil {
 		if n == nil && !r.Optional {
-			return false, "Minimum: value must exist", nil
+			fail = true
+			messages = append(messages, "Minimum: value must exist")
 		}
 		if n != nil {
 			if r.ExclusiveMinimum {
 				if n.Value() <= r.Minimum.Value() {
-					return false, fmt.Sprintf("Minimum (exclusive): value %v must be greater than %v", n, r.Minimum.Value()), nil
+					fail = true
+					messages = append(messages, fmt.Sprintf("Minimum (exclusive): value %v must be greater than %v", n, r.Minimum.Value()))
 				}
 			} else {
 				if n.Value() < r.Minimum.Value() {
-					return false, fmt.Sprintf("Minimum: value %v must not be less than %v", n, r.Minimum.Value()), nil
+					fail = true
+					messages = append(messages, fmt.Sprintf("Minimum: value %v must not be less than %v", n, r.Minimum.Value()))
 				}
 			}
 		}
@@ -75,17 +85,19 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// MultipleOf Number
 	if r.MultipleOf != nil {
 		if n == nil && !r.Optional {
-			return false, "MultipleOf: value must exist", nil
+			fail = true
+			messages = append(messages, "MultipleOf: value must exist")
 		}
 		if n != nil {
 			_, frac := math.Modf(n.Value() / r.MultipleOf.Value())
 			if frac != 0 {
-				return false, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", n, r.MultipleOf.Value()), nil
+				fail = true
+				messages = append(messages, fmt.Sprintf("MultipleOf: value %v must be a multiple of %v", n, r.MultipleOf.Value()))
 			}
 		}
 	}
 
-	return true, "", nil
+	return
 }
 
 var _ Enforcer = (*NumberRule)(nil)

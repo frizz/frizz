@@ -127,7 +127,7 @@ func (t *Type) Implements(ctx context.Context, i reflect.Type) bool {
 
 // Validator is a type that needs to have it's data validated.
 type Validator interface {
-	Validate(ctx context.Context) (bool, string, error)
+	Validate(ctx context.Context) (fail bool, messages []string, err error)
 }
 
 type nativeTypeClasses string

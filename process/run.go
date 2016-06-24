@@ -92,7 +92,7 @@ func runValidateCommand(ctx context.Context, build bool, repeat bool) (err error
 			goto Repeat
 		case 4:
 			// Exit status 4 = validation error
-			return validate.ValidationError{Struct: kerr.New("ETWHPXTUVB", strings.TrimSpace(combined.String()))}
+			return validate.ValidationCommandError{Struct: kerr.New("ETWHPXTUVB", strings.TrimSpace(combined.String()))}
 		default:
 			// ke: {"block": {"notest": true}}
 			goto Repeat

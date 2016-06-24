@@ -11,7 +11,7 @@ import (
 
 // Enforcer is a rule with properties that need to be enforced against data.
 type Enforcer interface {
-	Enforce(ctx context.Context, data interface{}) (success bool, message string, error error)
+	Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, error error)
 }
 
 type CollectionRule interface {

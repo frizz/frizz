@@ -18,9 +18,10 @@ type C interface{}
 
 var _ system.Enforcer = (*CRule)(nil)
 
-func (r *CRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+func (r *CRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 	if r.Fail != nil && r.Fail.Value() {
-		return false, "Fail", nil
+		fail = true
+		messages = append(messages, "Fail")
 	}
-	return true, "", nil
+	return
 }

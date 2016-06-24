@@ -26,33 +26,33 @@ func (s *String) Set(in string) {
 	*s = String(in)
 }
 
-func (r *StringRule) Validate(ctx context.Context) (ok bool, message string, err error) {
+func (r *StringRule) Validate(ctx context.Context) (fail bool, messages []string, err error) {
 	if r.MaxLength != nil && r.MinLength != nil {
 		if r.MaxLength.Value() < r.MinLength.Value() {
-			return false, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value(), r.MinLength.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("MaxLength %d must not be less than MinLength %d", r.MaxLength.Value(), r.MinLength.Value()))
 		}
 	}
 	if r.Pattern != nil {
 		if _, err := regexp.Compile(r.Pattern.Value()); err != nil {
-			return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
 		}
 	}
-	return true, "", nil
+	return
 }
 
 var _ Validator = (*StringRule)(nil)
 
-func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success bool, message string, err error) {
+func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 
-	// TODO: do this to all enforcers
-	//i, ok := data.(StringInterface)
-	//if ok {
-	//	data = i.GetString(ctx)
-	//}
+	if i, ok := data.(StringInterface); ok {
+		data = i.GetString(ctx)
+	}
 
 	s, ok := data.(*String)
 	if !ok && data != nil {
-		return false, "", kerr.New("SXFBXGQSEA", "String rule: value %T should be *system.String", data)
+		return true, nil, kerr.New("SXFBXGQSEA", "String rule: value %T should be *system.String", data)
 	}
 
 	// TODO: This restricts the value to one of several built-in formats
@@ -65,15 +65,18 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// Pattern String
 	if r.Pattern != nil {
 		if s == nil && !r.Optional {
-			return false, "Pattern: value must exist", nil
+			fail = true
+			messages = append(messages, "Pattern: value must exist")
 		}
 		if s != nil {
 			reg, err := regexp.Compile(r.Pattern.Value())
 			if err != nil {
-				return false, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()), nil
+				fail = true
+				messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
 			}
 			if !reg.Match([]byte(s.Value())) {
-				return false, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value()), nil
+				fail = true
+				messages = append(messages, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value()))
 			}
 		}
 	}
@@ -82,10 +85,12 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// Equal String
 	if r.Equal != nil {
 		if s == nil && !r.Optional {
-			return false, "Equal: value must exist", nil
+			fail = true
+			messages = append(messages, "Equal: value must exist")
 		}
 		if s != nil && *s != *r.Equal {
-			return false, fmt.Sprintf("Equal: value must equal '%s'", r.Equal.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("Equal: value must equal '%s'", r.Equal.Value()))
 		}
 	}
 
@@ -93,10 +98,12 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// MinLength Int
 	if r.MinLength != nil {
 		if s == nil && !r.Optional {
-			return false, "MinLength: value must exist", nil
+			fail = true
+			messages = append(messages, "MinLength: value must exist")
 		}
 		if s != nil && len(s.Value()) < r.MinLength.Value() {
-			return false, fmt.Sprintf("MinLength: length must not be less than %d", r.MinLength.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("MinLength: length must not be less than %d", r.MinLength.Value()))
 		}
 	}
 
@@ -104,10 +111,12 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// MaxLength Int
 	if r.MaxLength != nil {
 		if s == nil && !r.Optional {
-			return false, "MaxLength: value must exist", nil
+			fail = true
+			messages = append(messages, "MaxLength: value must exist")
 		}
 		if s != nil && len(s.Value()) > r.MaxLength.Value() {
-			return false, fmt.Sprintf("MaxLength: length must not be greater than %d", r.MaxLength.Value()), nil
+			fail = true
+			messages = append(messages, fmt.Sprintf("MaxLength: length must not be greater than %d", r.MaxLength.Value()))
 		}
 	}
 
@@ -115,7 +124,8 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success boo
 	// Enum []string
 	if len(r.Enum) > 0 {
 		if s == nil && !r.Optional {
-			return false, "Enum: value must exist", nil
+			fail = true
+			messages = append(messages, "Enum: value must exist")
 		}
 		if s != nil {
 			found := false
@@ -125,12 +135,13 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (success boo
 				}
 			}
 			if !found {
-				return false, fmt.Sprintf("Enum: value must be one of: %v", r.Enum), nil
+				fail = true
+				messages = append(messages, fmt.Sprintf("Enum: value must be one of: %v", r.Enum))
 			}
 		}
 	}
 
-	return true, "", nil
+	return
 }
 
 var _ Enforcer = (*StringRule)(nil)
