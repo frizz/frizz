@@ -69,10 +69,6 @@ func ValidateNode(ctx context.Context, node *node.Node, children bool) (errors [
 	return errors, nil
 }
 
-type ValidationCommandError struct {
-	kerr.Struct
-}
-
 type ValidationError struct {
 	kerr.Struct
 	Source *node.Node
@@ -186,7 +182,7 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 		rules := node.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules
 		ve, err := validateMapChildren(ctx, node, items, rules)
 		if err != nil {
-			return nil, kerr.Wrap("RFQVHTNHGQ", err)
+			return nil, kerr.Wrap("QWXESWDHOX", err)
 		}
 		if len(ve) > 0 {
 			errors = append(errors, ve...)

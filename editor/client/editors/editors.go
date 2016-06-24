@@ -51,9 +51,14 @@ func errorBlock(ctx context.Context, m *models.EditorModel) vecty.Markup {
 	if !m.Invalid {
 		return vecty.List{}
 	}
+
+	errors := vecty.List{}
+	for _, e := range m.Errors {
+		errors = append(errors, elem.ListItem(vecty.Text(e.Description)))
+	}
 	return elem.Paragraph(
 		prop.Class("help-block text-danger"),
-		vecty.Text(m.Error),
+		elem.UnorderedList(errors),
 	)
 }
 
