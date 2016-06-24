@@ -46,7 +46,7 @@ var _ Validator = (*StringRule)(nil)
 
 func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 
-	if i, ok := data.(StringInterface); ok {
+	if i, ok := data.(StringInterface); ok && i != nil {
 		data = i.GetString(ctx)
 	}
 

@@ -10,7 +10,10 @@ import (
 
 var _ system.StringInterface = (*A)(nil)
 
-func (a A) GetString(ctx context.Context) *system.String {
+func (a *A) GetString(ctx context.Context) *system.String {
+	if a == nil {
+		return nil
+	}
 	return a.B
 }
 

@@ -131,10 +131,10 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				invalid := false
 				errors := []validate.ValidationError{}
 				for current != nil {
-					ve, err := validate.ValidateNode(s.ctx, current, true)
+					ve, err := validate.ValidateNode(s.ctx, current)
 					if err != nil {
 						s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
-						break
+						return
 					} else if len(ve) > 0 {
 						invalid = true
 						errors = append(errors, ve...)
