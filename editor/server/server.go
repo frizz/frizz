@@ -35,6 +35,7 @@ import (
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
 	"kego.io/ke"
+	"kego.io/process"
 	"kego.io/process/generate"
 	"kego.io/process/parser"
 	"kego.io/process/scanner"
@@ -256,8 +257,6 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	wgctx.Add(ctx, "root")
 	defer wgctx.Done(ctx, "root")
 
-	scache := sysctx.FromContext(ctx)
-
 	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
 		if strings.HasSuffix(req.URL.Path, ".css") {
 			w.Header().Set("Content-Type", "text/css")
@@ -271,6 +270,11 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		path = path[0 : len(path)-1]
 	}
 
+	// use a new context with a blank sysctx for the duration of this function to prevent caching
+	ctx = sysctx.NewContext(ctx)
+
+	scache := sysctx.FromContext(ctx)
+
 	env, err := parser.ScanForEnv(ctx, path)
 	if err != nil {
 		if _, ok := kerr.Source(err).(gopackages.NotFoundError); !ok {
@@ -280,13 +284,13 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		return nil
 	}
 
-	pcache, ok := scache.Get(path)
-	if !ok {
-		var err error
-		pcache, err = parser.Parse(ctx, path)
-		if err != nil {
-			return kerr.Wrap("HIHWJRPUKE", err)
-		}
+	pcache, err := parser.Parse(ctx, path)
+	if err != nil {
+		return kerr.Wrap("HIHWJRPUKE", err)
+	}
+
+	if err := process.GenerateAll(ctx, env.Path, map[string]bool{}); err != nil {
+		return kerr.Wrap("LVGHABDYNQ", err)
 	}
 
 	data := map[string]string{}
