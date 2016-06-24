@@ -7,6 +7,7 @@ import (
 	"kego.io/system"
 	"kego.io/system/node"
 
+	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
 	_ "kego.io/process/validate/tests"
 	"kego.io/tests"
@@ -66,6 +67,32 @@ func TestFieldExtraArray(t *testing.T) {
 	err := ValidatePackage(cb.Ctx())
 	assert.IsError(t, err, "KWLWXKWHLF")
 	assert.HasError(t, err, "HAOXUVTFEX")
+}
+
+func TestRuleHasExtraRules(t *testing.T) {
+	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	defer cb.Cleanup()
+
+	path, dir := cb.TempPackage("a", map[string]string{
+		"a.yml": `
+			type: system:package
+			id: a
+			aliases:
+				tests: kego.io/process/validate/tests
+		`,
+		"b.yml": `
+			type: tests:f
+			id: b
+			d: foo
+		`,
+	})
+
+	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+
+	err := ValidatePackage(cb.Ctx())
+	assert.IsError(t, err, "KWLWXKWHLF")
+	assert.HasError(t, err, "HAOXUVTFEX")
+	assert.Equal(t, "MinLength: length must not be less than 7", kerr.Source(err).(ValidationError).Description)
 }
 
 func TestFieldExtraRulesObject(t *testing.T) {
@@ -294,11 +321,11 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 
 func TestValidateNode(t *testing.T) {
 	cb := tests.New()
-	err := ValidateNode(cb.Ctx(), &node.Node{Value: nil})
+	err := ValidateNode(cb.Ctx(), &node.Node{Value: nil}, true)
 	assert.NoError(t, err)
-	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Null: true})
+	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Null: true}, true)
 	assert.NoError(t, err)
-	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Missing: true})
+	err = ValidateNode(cb.Ctx(), &node.Node{Value: 1, Missing: true}, true)
 	assert.NoError(t, err)
 }
 

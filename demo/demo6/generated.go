@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/demo6","Hash":9612237800011176560}
+// info:{"Path":"kego.io/demo/demo6","Hash":2173548238390297568}
 package demo6
 
 // ke: {"file": {"notest": true}}
@@ -28,6 +28,6 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo6", 9612237800011176560)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo6", 2173548238390297568)
 	pkg.InitType("page", reflect.TypeOf((*Page)(nil)), reflect.TypeOf((*PageRule)(nil)), reflect.TypeOf((*PageInterface)(nil)).Elem())
 }

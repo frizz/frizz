@@ -36,13 +36,13 @@ func validateBytes(ctx context.Context, bytes []byte) error {
 	if err != nil {
 		return kerr.Wrap("QIVNOQKCQF", err)
 	}
-	if err := ValidateNode(ctx, n); err != nil {
+	if err := ValidateNode(ctx, n, true); err != nil {
 		return kerr.Wrap("RVKNMWKQHD", err)
 	}
 	return nil
 }
 
-func ValidateNode(ctx context.Context, node *node.Node) error {
+func ValidateNode(ctx context.Context, node *node.Node, children bool) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -56,7 +56,7 @@ func ValidateNode(ctx context.Context, node *node.Node) error {
 		rules = append(rules, node.Value.(system.ObjectInterface).GetObject(nil).Rules...)
 	}
 
-	return validateObject(ctx, node, rules)
+	return validateObject(ctx, node, rules, children)
 
 }
 
@@ -64,7 +64,7 @@ type ValidationError struct {
 	kerr.Struct
 }
 
-func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInterface) error {
+func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInterface, children bool) error {
 
 	if node.Value == nil || node.Null || node.Missing {
 		return nil
@@ -130,6 +130,10 @@ func validateObject(ctx context.Context, node *node.Node, rules []system.RuleInt
 		}
 	}
 
+	if !children {
+		return nil
+	}
+
 	// Validate the children
 	switch node.Type.NativeJsonType() {
 	case json.J_OBJECT:
@@ -181,7 +185,7 @@ func validateObjectChildren(ctx context.Context, node *node.Node) error {
 			allRules = append(allRules, child.Rule.Interface.(system.ObjectInterface).GetObject(nil).Rules...)
 		}
 
-		if err := validateObject(ctx, child, allRules); err != nil {
+		if err := validateObject(ctx, child, allRules, true); err != nil {
 			return kerr.Wrap("YJYSAOQWSJ", err)
 		}
 	}
@@ -196,7 +200,7 @@ func validateArrayChildren(ctx context.Context, node *node.Node, itemsRule *syst
 	}
 
 	for _, child := range node.Array {
-		if err := validateObject(ctx, child, rules); err != nil {
+		if err := validateObject(ctx, child, rules, true); err != nil {
 			return kerr.Wrap("DKVEPIWTPI", err)
 		}
 	}
@@ -211,7 +215,7 @@ func validateMapChildren(ctx context.Context, node *node.Node, itemsRule *system
 	}
 
 	for _, child := range node.Map {
-		if err := validateObject(ctx, child, rules); err != nil {
+		if err := validateObject(ctx, child, rules, true); err != nil {
 			return kerr.Wrap("YLONAMFUAG", err)
 		}
 	}

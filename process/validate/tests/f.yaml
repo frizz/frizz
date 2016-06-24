@@ -27,3 +27,9 @@ fields:
                     selector: ".b"
                     type: system:@string
                     minLength: 5
+    d:
+        type: system:@string
+        rules:
+            -
+                type: system:@string
+                minLength: 7

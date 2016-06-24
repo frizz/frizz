@@ -5,3 +5,7 @@ fields:
         type: system:@string
         maxLength: 10
         long: true
+        rules:
+            -
+                type: system:@string
+                minLength: 5

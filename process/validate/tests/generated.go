@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/process/validate/tests","Hash":531164081649517837}
+// info:{"Path":"kego.io/process/validate/tests","Hash":2799810396823773418}
 package tests
 
 // ke: {"file": {"notest": true}}
@@ -102,9 +102,10 @@ func (o *E) GetE(ctx context.Context) *E {
 // F is a type with an extra rule attached to the field
 type F struct {
 	*system.Object
-	A *A            `json:"a"`
-	B []*A          `json:"b"`
-	C map[string]*A `json:"c"`
+	A *A             `json:"a"`
+	B []*A           `json:"b"`
+	C map[string]*A  `json:"c"`
+	D *system.String `json:"d"`
 }
 type FInterface interface {
 	GetF(ctx context.Context) *F
@@ -114,7 +115,7 @@ func (o *F) GetF(ctx context.Context) *F {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/tests", 531164081649517837)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/tests", 2799810396823773418)
 	pkg.InitType("a", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*ARule)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem())
 	pkg.InitType("b", reflect.TypeOf((*B)(nil)), reflect.TypeOf((*BRule)(nil)), reflect.TypeOf((*BInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)).Elem(), reflect.TypeOf((*CRule)(nil)), nil)

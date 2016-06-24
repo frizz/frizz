@@ -5,6 +5,8 @@ import (
 
 	"time"
 
+	"fmt"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -127,17 +129,25 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 					n.SetValueNumber(s.ctx, val)
 				}
 
-				if err := validate.ValidateNode(s.ctx, n); err != nil {
-					if ve, ok := kerr.Source(err).(validate.ValidationError); ok {
-						action.Editor.Invalid = true
-						action.Editor.Error = ve.Description
+				p := n
+				invalid := false
+				description := ""
+				for p != nil {
+					if err := validate.ValidateNode(s.ctx, p, true); err != nil {
+						if ve, ok := kerr.Source(err).(validate.ValidationError); ok {
+							invalid = true
+							description = ve.Description
+						} else {
+							s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
+						}
 					} else {
-						s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
+						fmt.Println(p.Path(), "ok")
 					}
-				} else {
-					action.Editor.Invalid = false
-					action.Editor.Error = ""
+
+					p = p.Parent
 				}
+				action.Editor.Invalid = invalid
+				action.Editor.Error = description
 
 				s.app.Notify(action.Editor, EditorValueChanged)
 				s.app.Notify(n, NodeValueChanged)
