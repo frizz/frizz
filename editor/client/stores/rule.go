@@ -3,6 +3,8 @@ package stores
 import (
 	"sync"
 
+	"fmt"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -72,13 +74,63 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		}
 		n := ni.GetNode()
 		s.build(n)
+	case *actions.EditorValueChange500ms:
+		changes := s.build(action.Editor.Node.Root())
+		fmt.Println(len(changes), "changes")
 	}
 	return true
 }
 
-func (s *RuleStore) build(n *node.Node) {
-	s.rules[n] = map[*node.Node][]system.RuleInterface{}
-	if err := validate.BuildRulesNode(s.ctx, n, s.rules[n]); err != nil {
+func (s *RuleStore) build(n *node.Node) (changes []*node.Node) {
+	rules := map[*node.Node][]system.RuleInterface{}
+	if err := validate.BuildRulesNode(s.ctx, n, rules); err != nil {
 		s.app.Fail <- kerr.Wrap("BRRRGDBXMR", err)
 	}
+	changes = compare(rules, s.rules[n])
+	s.rules[n] = rules
+	return changes
+}
+
+func compare(a, b map[*node.Node][]system.RuleInterface) (changes []*node.Node) {
+
+	eq := func(a, b []system.RuleInterface) bool {
+
+		if a == nil && b == nil {
+			return true
+		}
+
+		if a == nil || b == nil {
+			return false
+		}
+
+		if len(a) != len(b) {
+			return false
+		}
+
+		for i := range a {
+			if a[i] != b[i] {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	for k, av := range a {
+		if bv, ok := b[k]; !ok {
+			changes = append(changes, k)
+		} else {
+			if !eq(av, bv) {
+				changes = append(changes, k)
+			}
+		}
+	}
+
+	for k := range b {
+		if _, ok := a[k]; !ok {
+			changes = append(changes, k)
+		}
+	}
+
+	return changes
 }

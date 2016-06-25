@@ -3,8 +3,6 @@ package stores
 import (
 	"strconv"
 
-	"time"
-
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -98,72 +96,66 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.EditorFocus:
 		s.app.Notify(action.Editor.Node, NodeFocus)
-	case *actions.EditorValueChange:
-		payload.Wait(s.app.Editors)
-		go func() {
-			<-time.After(time.Millisecond * 50)
-			if action.Editor.TemporaryValue == action.Value {
-				n := action.Editor.Node
-				switch n.JsonType {
-				case json.J_STRING:
-					val := action.Value.(string)
-					if n.ValueString == val {
-						return
-					}
-					n.SetValueString(s.ctx, val)
-				case json.J_BOOL:
-					val := action.Value.(bool)
-					if n.ValueBool == val {
-						return
-					}
-					n.SetValueBool(s.ctx, val)
-				case json.J_NUMBER:
-					val, err := strconv.ParseFloat(action.Value.(string), 64)
-					if err != nil {
-						return
-					}
-					if n.ValueNumber == val {
-						return
-					}
-					n.SetValueNumber(s.ctx, val)
-				}
-
-				rules := s.app.Rule.Get(n.Root(), n)
-				invalid := false
-				errors := []validate.ValidationError{}
-				for _, rule := range rules {
-					en, ok := rule.(system.Enforcer)
-					if !ok {
-						continue
-					}
-					failed, messages, err := en.Enforce(s.ctx, n.Value)
-					if err != nil {
-						s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
-						return
-					} else if failed {
-						invalid = true
-						for _, m := range messages {
-							errors = append(errors, validate.ValidationError{
-								Struct: kerr.New("CKYWJHVVWM", m),
-								Source: n,
-							})
-						}
-					}
-				}
-				action.Editor.Invalid = invalid
-				action.Editor.Errors = errors
-
-				s.app.Notify(action.Editor, EditorValueChanged)
-				s.app.Notify(n, NodeValueChanged)
-
-				c := n.Parent
-				for c != nil {
-					s.app.Notify(c, NodeDescendantValueChanged)
-					c = c.Parent
-				}
-
+	case *actions.EditorValueChange50ms:
+		n := action.Editor.Node
+		switch n.JsonType {
+		case json.J_STRING:
+			val := action.Value.(string)
+			if n.ValueString == val {
+				break
 			}
-		}()
+			n.SetValueString(s.ctx, val)
+		case json.J_BOOL:
+			val := action.Value.(bool)
+			if n.ValueBool == val {
+				break
+			}
+			n.SetValueBool(s.ctx, val)
+		case json.J_NUMBER:
+			val, err := strconv.ParseFloat(action.Value.(string), 64)
+			if err != nil {
+				break
+			}
+			if n.ValueNumber == val {
+				break
+			}
+			n.SetValueNumber(s.ctx, val)
+		}
+
+		rules := s.app.Rule.Get(n.Root(), n)
+		invalid := false
+		errors := []validate.ValidationError{}
+		for _, rule := range rules {
+			en, ok := rule.(system.Enforcer)
+			if !ok {
+				continue
+			}
+			failed, messages, err := en.Enforce(s.ctx, n.Value)
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
+				return true
+			} else if failed {
+				invalid = true
+				for _, m := range messages {
+					errors = append(errors, validate.ValidationError{
+						Struct: kerr.New("CKYWJHVVWM", m),
+						Source: n,
+					})
+				}
+			}
+		}
+		action.Editor.Invalid = invalid
+		action.Editor.Errors = errors
+
+		s.app.Notify(action.Editor, EditorValueChanged)
+		s.app.Notify(n, NodeValueChanged)
+
+		c := n.Parent
+		for c != nil {
+			s.app.Notify(c, NodeDescendantValueChanged)
+			c = c.Parent
+		}
+
 	}
 	return true
 }

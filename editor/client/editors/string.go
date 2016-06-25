@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -117,9 +116,8 @@ func (v *StringEditorView) render() vecty.Component {
 		prop.Class("form-control"),
 		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
-			v.app.Dispatch(&actions.EditorValueChange{
-				Editor: v.model,
-				Value:  e.Target.Get("value").String(),
+			change(v.app, v.model, func() interface{} {
+				return e.Target.Get("value").String()
 			})
 		}),
 	}.Apply(v.input)

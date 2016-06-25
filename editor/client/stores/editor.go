@@ -93,8 +93,6 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	case *actions.ArrayOrder:
 		payload.Wait(s.app.Branches)
 		s.app.Notify(action.Model, EditorArrayOrderChanged)
-	case *actions.EditorValueChange:
-		action.Editor.TemporaryValue = action.Value
 	case *actions.EditorFocus:
 		s.app.Notify(action.Editor, EditorFocus)
 	}

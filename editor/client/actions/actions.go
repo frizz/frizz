@@ -92,7 +92,12 @@ type EditorFocus struct {
 	Editor *models.EditorModel
 }
 
-type EditorValueChange struct {
+type EditorValueChange50ms struct {
+	Editor *models.EditorModel
+	Value  interface{}
+}
+
+type EditorValueChange500ms struct {
 	Editor *models.EditorModel
 	Value  interface{}
 }

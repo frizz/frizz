@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -100,9 +99,8 @@ func (v *BoolEditorView) render() vecty.Component {
 		prop.Type(prop.TypeCheckbox),
 		prop.Checked(v.model.Node.ValueBool),
 		event.Change(func(e *vecty.Event) {
-			v.app.Dispatch(&actions.EditorValueChange{
-				Editor: v.model,
-				Value:  e.Target.Get("checked").Bool(),
+			change(v.app, v.model, func() interface{} {
+				return e.Target.Get("checked").Bool()
 			})
 		}),
 	)
