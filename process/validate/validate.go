@@ -47,7 +47,7 @@ func validateBytes(ctx context.Context, bytes []byte) (errors []ValidationError,
 	return errors, nil
 }
 
-func buildRulesNode(ctx context.Context, n *node.Node, cache map[*node.Node][]system.RuleInterface) error {
+func BuildRulesNode(ctx context.Context, n *node.Node, cache map[*node.Node][]system.RuleInterface) error {
 
 	if n.Value == nil || n.Null || n.Missing {
 		return nil
@@ -170,7 +170,7 @@ func buildRulesCollectionChildren(ctx context.Context, n *node.Node, cache map[*
 
 func ValidateNode(ctx context.Context, n *node.Node) (errors []ValidationError, err error) {
 	cache := map[*node.Node][]system.RuleInterface{}
-	if err := buildRulesNode(ctx, n, cache); err != nil {
+	if err := BuildRulesNode(ctx, n, cache); err != nil {
 		return nil, kerr.Wrap("YPUHTXPGRA", err)
 	}
 	for current, rules := range cache {

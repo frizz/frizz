@@ -12,6 +12,7 @@ import (
 	"kego.io/flux"
 	"kego.io/json"
 	"kego.io/process/validate"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -127,19 +128,27 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 					n.SetValueNumber(s.ctx, val)
 				}
 
-				current := n
+				rules := s.app.Rule.Get(n.Root(), n)
 				invalid := false
 				errors := []validate.ValidationError{}
-				for current != nil {
-					ve, err := validate.ValidateNode(s.ctx, current)
+				for _, rule := range rules {
+					en, ok := rule.(system.Enforcer)
+					if !ok {
+						continue
+					}
+					failed, messages, err := en.Enforce(s.ctx, n.Value)
 					if err != nil {
 						s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
 						return
-					} else if len(ve) > 0 {
+					} else if failed {
 						invalid = true
-						errors = append(errors, ve...)
+						for _, m := range messages {
+							errors = append(errors, validate.ValidationError{
+								Struct: kerr.New("CKYWJHVVWM", m),
+								Source: n,
+							})
+						}
 					}
-					current = current.Parent
 				}
 				action.Editor.Invalid = invalid
 				action.Editor.Errors = errors
