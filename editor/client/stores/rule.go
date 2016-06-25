@@ -3,8 +3,6 @@ package stores
 import (
 	"sync"
 
-	"fmt"
-
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -76,7 +74,10 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		s.build(n)
 	case *actions.EditorValueChange500ms:
 		changes := s.build(action.Editor.Node.Root())
-		fmt.Println(len(changes), "changes")
+		for _, n := range changes {
+			// TODO: ???
+			n.Path()
+		}
 	}
 	return true
 }
@@ -93,6 +94,15 @@ func (s *RuleStore) build(n *node.Node) (changes []*node.Node) {
 
 func compare(a, b map[*node.Node][]system.RuleInterface) (changes []*node.Node) {
 
+	in := func(n system.RuleInterface, h []system.RuleInterface) bool {
+		for _, v := range h {
+			if n == v {
+				return true
+			}
+		}
+		return false
+	}
+
 	eq := func(a, b []system.RuleInterface) bool {
 
 		if a == nil && b == nil {
@@ -107,8 +117,8 @@ func compare(a, b map[*node.Node][]system.RuleInterface) (changes []*node.Node) 
 			return false
 		}
 
-		for i := range a {
-			if a[i] != b[i] {
+		for _, v := range a {
+			if !in(v, b) {
 				return false
 			}
 		}

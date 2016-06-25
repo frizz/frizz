@@ -4,15 +4,12 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/editable"
-	"kego.io/process/validate"
 	"kego.io/system/node"
 )
 
 type EditorModel struct {
 	Node           *node.Node
 	TemporaryValue interface{}
-	Invalid        bool
-	Errors         []validate.ValidationError
 }
 
 func NewEditor(n *node.Node) *EditorModel {

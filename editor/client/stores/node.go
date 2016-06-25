@@ -3,14 +3,14 @@ package stores
 import (
 	"strconv"
 
+	"sync"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
 	"kego.io/json"
-	"kego.io/process/validate"
-	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -20,10 +20,23 @@ type NodeStore struct {
 	app *App
 
 	selected *node.Node
+	m        *sync.Mutex
+	models   map[*node.Node]*models.NodeModel
 }
 
 func (s *NodeStore) Selected() *node.Node {
 	return s.selected
+}
+
+func (s *NodeStore) Get(n *node.Node) *models.NodeModel {
+	s.m.Lock()
+	defer s.m.Unlock()
+	m, ok := s.models[n]
+	if !ok {
+		m = &models.NodeModel{Node: n}
+		s.models[n] = m
+	}
+	return m
 }
 
 type nodeNotif string
@@ -35,13 +48,16 @@ const (
 	NodeValueChanged           nodeNotif = "NodeValueChanged"
 	NodeDescendantValueChanged nodeNotif = "NodeDescendantValueChanged"
 	NodeFocus                  nodeNotif = "NodeFocus"
+	NodeErrorsChanged          nodeNotif = "NodeErrorsChanged"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
 	s := &NodeStore{
-		Store: &flux.Store{},
-		ctx:   ctx,
-		app:   FromContext(ctx),
+		Store:  &flux.Store{},
+		ctx:    ctx,
+		app:    FromContext(ctx),
+		m:      &sync.Mutex{},
+		models: map[*node.Node]*models.NodeModel{},
 	}
 	s.Init(s)
 	return s
@@ -122,30 +138,15 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			n.SetValueNumber(s.ctx, val)
 		}
 
-		rules := s.app.Rule.Get(n.Root(), n)
-		invalid := false
-		errors := []validate.ValidationError{}
-		for _, rule := range rules {
-			en, ok := rule.(system.Enforcer)
-			if !ok {
-				continue
-			}
-			failed, messages, err := en.Enforce(s.ctx, n.Value)
-			if err != nil {
-				s.app.Fail <- kerr.Wrap("BPGDPLCXKK", err)
-				return true
-			} else if failed {
-				invalid = true
-				for _, m := range messages {
-					errors = append(errors, validate.ValidationError{
-						Struct: kerr.New("CKYWJHVVWM", m),
-						Source: n,
-					})
-				}
-			}
+		model := s.app.Nodes.Get(n)
+		changed, err := model.Validate(s.ctx, s.app.Rule.Get(n.Root(), n))
+		if err != nil {
+			s.app.Fail <- kerr.Wrap("EEIYMGQCCA", err)
 		}
-		action.Editor.Invalid = invalid
-		action.Editor.Errors = errors
+		if changed {
+			s.app.Notify(n, NodeErrorsChanged)
+			s.app.Notify(action.Editor, EditorErrorsChanged)
+		}
 
 		s.app.Notify(action.Editor, EditorValueChanged)
 		s.app.Notify(n, NodeValueChanged)

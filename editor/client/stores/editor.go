@@ -30,6 +30,7 @@ const (
 	EditorArrayOrderChanged  editorNotif = "EditorArrayOrderChanged"
 	EditorValueChanged       editorNotif = "EditorValueChanged"
 	EditorFocus              editorNotif = "EditorFocus"
+	EditorErrorsChanged      editorNotif = "EditorErrorsChanged"
 )
 
 func NewEditorStore(ctx context.Context) *EditorStore {

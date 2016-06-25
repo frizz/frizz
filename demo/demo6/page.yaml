@@ -1,5 +1,10 @@
 type: system:type
 id: page
+rules:
+    -
+        selector: ":val(\"foo\")"
+        type: system:@string
+        pattern: "foobar.*"
 fields:
     title:
         type: system:@string

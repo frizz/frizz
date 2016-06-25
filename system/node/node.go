@@ -657,7 +657,10 @@ func (n *Node) Label(ctx context.Context) string {
 	}
 	if n.Parent == nil {
 		if o, ok := n.Value.(system.ObjectInterface); ok {
-			return o.GetObject(ctx).Id.Name
+			ob := o.GetObject(ctx)
+			if ob != nil && ob.Id != nil {
+				return ob.Id.Name
+			}
 		}
 		return "root"
 	}

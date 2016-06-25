@@ -38,6 +38,7 @@ type StringEditorView struct {
 	notifs chan flux.NotifPayload
 
 	model  *models.EditorModel
+	node   *models.NodeModel
 	input  *vecty.Element
 	format editable.Format
 }
@@ -48,6 +49,7 @@ func NewStringEditorView(ctx context.Context, node *node.Node, format editable.F
 		app: stores.FromContext(ctx),
 	}
 	v.model = v.app.Editors.Get(node)
+	v.node = v.app.Nodes.Get(node)
 	v.format = format
 	v.Mount()
 	return v
@@ -70,6 +72,7 @@ func (v *StringEditorView) Mount() {
 	v.notifs = v.app.Watch(v.model,
 		stores.EditorFocus,
 		stores.EditorValueChanged,
+		stores.EditorErrorsChanged,
 	)
 	go func() {
 		for notif := range v.notifs {
@@ -125,7 +128,7 @@ func (v *StringEditorView) render() vecty.Component {
 	group := elem.Div(
 		vecty.ClassMap{
 			"form-group": true,
-			"has-error":  v.model.Invalid,
+			"has-error":  v.node.Invalid,
 		},
 		elem.Label(
 			prop.For(id),
@@ -139,6 +142,6 @@ func (v *StringEditorView) render() vecty.Component {
 	}
 
 	helpBlock(v.ctx, v.model.Node).Apply(group)
-	errorBlock(v.ctx, v.model).Apply(group)
+	errorBlock(v.ctx, v.node).Apply(group)
 	return group
 }

@@ -73,7 +73,7 @@ func helpBlock(ctx context.Context, n *node.Node) vecty.Markup {
 	)
 }
 
-func errorBlock(ctx context.Context, m *models.EditorModel) vecty.Markup {
+func errorBlock(ctx context.Context, m *models.NodeModel) vecty.Markup {
 	if !m.Invalid {
 		return vecty.List{}
 	}
