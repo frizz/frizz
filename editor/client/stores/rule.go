@@ -60,9 +60,11 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types)
-		s.build(s.app.Package.Node())
+		changes := s.build(s.app.Package.Node())
+		s.validateNodes(changes)
 		for _, t := range s.app.Types.All() {
-			s.build(t)
+			changes := s.build(t)
+			s.validateNodes(changes)
 		}
 	case *actions.LoadSourceSuccess:
 		payload.Wait(s.app.Branches)
@@ -71,15 +73,30 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		n := ni.GetNode()
-		s.build(n)
+		changes := s.build(n)
+		s.validateNodes(changes)
 	case *actions.EditorValueChange500ms:
 		changes := s.build(action.Editor.Node.Root())
-		for _, n := range changes {
-			// TODO: ???
-			n.Path()
-		}
+		s.validateNodes(changes)
 	}
 	return true
+}
+
+func (s *RuleStore) validateNodes(changes []*node.Node) {
+	for _, n := range changes {
+		m := s.app.Nodes.Get(n)
+		changed, err := m.Validate(s.ctx, s.app.Rule.Get(n.Root(), n))
+		if err != nil {
+			s.app.Fail <- kerr.Wrap("BYQOBLPRDP", err)
+			break
+		}
+		if changed {
+			s.app.Notify(n, NodeErrorsChanged)
+			if ed := s.app.Editors.Get(n); ed != nil {
+				s.app.Notify(ed, EditorErrorsChanged)
+			}
+		}
+	}
 }
 
 func (s *RuleStore) build(n *node.Node) (changes []*node.Node) {
