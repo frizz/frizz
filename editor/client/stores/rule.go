@@ -60,11 +60,9 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types)
-		changes := s.build(s.app.Package.Node())
-		s.validateNodes(changes)
+		s.validateNodes(s.build(s.app.Package.Node()))
 		for _, t := range s.app.Types.All() {
-			changes := s.build(t)
-			s.validateNodes(changes)
+			s.validateNodes(s.build(t))
 		}
 	case *actions.LoadSourceSuccess:
 		payload.Wait(s.app.Branches)
@@ -73,11 +71,18 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		n := ni.GetNode()
-		changes := s.build(n)
-		s.validateNodes(changes)
+		s.validateNodes(s.build(n))
 	case *actions.EditorValueChange500ms:
-		changes := s.build(action.Editor.Node.Root())
-		s.validateNodes(changes)
+		s.validateNodes(s.build(action.Editor.Node.Root()))
+	case *actions.ArrayOrder:
+		payload.Wait(s.app.Nodes)
+		s.validateNodes(s.build(action.Model.Node.Root()))
+	case *actions.DeleteNode:
+		payload.Wait(s.app.Nodes)
+		s.validateNodes(s.build(action.Node.Root()))
+	case *actions.InitializeNode:
+		payload.Wait(s.app.Nodes)
+		s.validateNodes(s.build(action.Node.Root()))
 	}
 	return true
 }
