@@ -73,8 +73,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 			if err != nil {
 				fail = true
 				messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
-			}
-			if !reg.Match([]byte(s.Value())) {
+			} else if !reg.Match([]byte(s.Value())) {
 				fail = true
 				messages = append(messages, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value()))
 			}

@@ -49,35 +49,35 @@ func testMapMarshal(t *testing.T, up unpacker.Interface) {
 func TestMapRule_Enforce(t *testing.T) {
 
 	r := MapRule{MaxItems: NewInt(2)}
-	ok, message, err := r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
+	fail, messages, err := r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2, "baz": 3})
+	fail, messages, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2, "baz": 3})
 	assert.NoError(t, err)
-	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", messages[0])
+	assert.True(t, fail)
 
 	r = MapRule{MinItems: NewInt(2)}
-	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
+	fail, messages, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1})
+	fail, messages, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1})
 	assert.NoError(t, err)
-	assert.Equal(t, "MinItems: length 1 should not be less than 2", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MinItems: length 1 should not be less than 2", messages[0])
+	assert.True(t, fail)
 
 	_, _, err = r.Enforce(envctx.Empty, "a")
 	assert.IsError(t, err, "NFWPLTOJLP")
 
 	r = MapRule{}
-	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1})
+	fail, messages, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1})
 	assert.NoError(t, err)
-	assert.True(t, ok)
-	assert.Equal(t, "", message)
+	assert.False(t, fail)
+	assert.Equal(t, 0, len(messages))
 
 	var cr CollectionRule = &MapRule{Items: &StringRule{Equal: NewString("a")}}
 	assert.Equal(t, "a", cr.GetItemsRule().(*StringRule).Equal.Value())

@@ -169,12 +169,9 @@ func buildRulesCollectionChildren(ctx context.Context, n *node.Node, cache map[*
 }
 
 func ValidateNode(ctx context.Context, n *node.Node) (errors []ValidationError, err error) {
-	cache := map[*node.Node][]system.RuleInterface{}
-	if err := BuildRulesNode(ctx, n, cache); err != nil {
-		return nil, kerr.Wrap("YPUHTXPGRA", err)
-	}
-	for current, rules := range cache {
 
+	// First validate all the nodes
+	for _, current := range n.Flatten(true) {
 		// Validate the actual object
 		if v, ok := current.Value.(system.Validator); ok {
 			failed, messages, err := v.Validate(ctx)
@@ -185,11 +182,18 @@ func ValidateNode(ctx context.Context, n *node.Node) (errors []ValidationError, 
 				for _, message := range messages {
 					errors = append(errors, ValidationError{Struct: kerr.New("KULDIJUYFB", message), Source: current})
 				}
-				// if the object isn't valid we don't want to continue
-				continue
 			}
 		}
+	}
 
+	// Then build a list of all nodes that have rules
+	cache := map[*node.Node][]system.RuleInterface{}
+	if err := BuildRulesNode(ctx, n, cache); err != nil {
+		return nil, kerr.Wrap("YPUHTXPGRA", err)
+	}
+
+	// Then enforce the rules
+	for current, rules := range cache {
 		for _, rule := range rules {
 			e, ok := rule.(system.Enforcer)
 			if !ok {

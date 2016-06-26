@@ -232,124 +232,124 @@ func TestStringString(t *testing.T) {
 
 func TestStringRule_Validate(t *testing.T) {
 	r := &StringRule{}
-	ok, message, err := r.Validate(envctx.Empty)
+	fail, messages, err := r.Validate(envctx.Empty)
 	assert.NoError(t, err)
-	assert.True(t, ok)
-	assert.Equal(t, "", message)
+	assert.False(t, fail)
+	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{Pattern: NewString("[")}
-	ok, message, err = r.Validate(envctx.Empty)
+	fail, messages, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
-	assert.False(t, ok)
-	assert.Equal(t, "Pattern: regex does not compile: [", message)
+	assert.True(t, fail)
+	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
 
 	r = &StringRule{MaxLength: NewInt(10)}
-	ok, message, err = r.Validate(envctx.Empty)
+	fail, messages, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
-	assert.True(t, ok)
-	assert.Equal(t, "", message)
+	assert.False(t, fail)
+	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{MaxLength: NewInt(10), MinLength: NewInt(5)}
-	ok, message, err = r.Validate(envctx.Empty)
+	fail, messages, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
-	assert.True(t, ok)
-	assert.Equal(t, "", message)
+	assert.False(t, fail)
+	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{MaxLength: NewInt(5), MinLength: NewInt(5)}
-	ok, message, err = r.Validate(envctx.Empty)
+	fail, messages, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
-	assert.True(t, ok)
-	assert.Equal(t, "", message)
+	assert.False(t, fail)
+	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{MaxLength: NewInt(4), MinLength: NewInt(5)}
-	ok, message, err = r.Validate(envctx.Empty)
+	fail, messages, err = r.Validate(envctx.Empty)
 	assert.NoError(t, err)
-	assert.False(t, ok)
-	assert.Equal(t, "MaxLength 4 must not be less than MinLength 5", message)
+	assert.True(t, fail)
+	assert.Equal(t, "MaxLength 4 must not be less than MinLength 5", messages[0])
 }
 
 func TestStringRule_Enforce(t *testing.T) {
 	r := StringRule{Rule: &Rule{Optional: false}, Equal: NewString("a"), MaxLength: NewInt(1)}
-	ok, message, err := r.Enforce(envctx.Empty, NewString("a"))
+	fail, messages, err := r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, nil)
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "Equal: value must exist", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Equal: value must exist", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, NewString("b"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("b"))
 	assert.NoError(t, err)
-	assert.Equal(t, "Equal: value must equal 'a'", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Equal: value must equal 'a'", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, "a")
+	fail, messages, err = r.Enforce(envctx.Empty, "a")
 	assert.IsError(t, err, "SXFBXGQSEA")
 
 	r = StringRule{Rule: &Rule{Optional: false}, MaxLength: NewInt(1)}
-	ok, message, err = r.Enforce(envctx.Empty, NewString("ab"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("ab"))
 	assert.NoError(t, err)
-	assert.Equal(t, "MaxLength: length must not be greater than 1", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MaxLength: length must not be greater than 1", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, nil)
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "MaxLength: value must exist", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MaxLength: value must exist", messages[0])
+	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, MinLength: NewInt(5)}
-	ok, message, err = r.Enforce(envctx.Empty, NewString("abcde"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("abcde"))
 	assert.NoError(t, err)
-	assert.True(t, ok)
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, NewString("abcd"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("abcd"))
 	assert.NoError(t, err)
-	assert.Equal(t, "MinLength: length must not be less than 5", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MinLength: length must not be less than 5", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, nil)
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "MinLength: value must exist", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MinLength: value must exist", messages[0])
+	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Enum: []string{"a", "b"}}
-	ok, message, err = r.Enforce(envctx.Empty, nil)
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "Enum: value must exist", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Enum: value must exist", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, NewString("a"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, NewString("c"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("c"))
 	assert.NoError(t, err)
-	assert.Equal(t, "Enum: value must be one of: [a b]", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Enum: value must be one of: [a b]", messages[0])
+	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
-	ok, message, err = r.Enforce(envctx.Empty, NewString(""))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString(""))
 	assert.NoError(t, err)
-	assert.Equal(t, "Pattern: regex does not compile: [", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
+	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`^foo\d`)}
-	ok, message, err = r.Enforce(envctx.Empty, nil)
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "Pattern: value must exist", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Pattern: value must exist", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, NewString("a"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
-	assert.Equal(t, "Pattern: value must match ^foo\\d", message)
-	assert.False(t, ok)
+	assert.Equal(t, "Pattern: value must match ^foo\\d", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, NewString("foo1"))
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("foo1"))
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
 }

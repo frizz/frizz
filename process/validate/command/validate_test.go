@@ -66,7 +66,7 @@ func TestValidateMain(t *testing.T) {
 	exitStatus = validateMain(cb.Ctx(), cancel, log, interrupt)
 	assert.Equal(t, 4, exitStatus)
 	assert.False(t, cancelled)
-	assert.Equal(t, logged, "MaxLength 1 must not be less than MinLength 2")
+	assert.Equal(t, logged, "a: MaxLength 1 must not be less than MinLength 2")
 	logged = ""
 
 	cb.RemoveTempFile("a.yaml").Sauto(parser.Parse).TempFile("b.yaml", `%`)

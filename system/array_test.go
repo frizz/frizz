@@ -9,51 +9,51 @@ import (
 
 func TestArrayRule_Enforce(t *testing.T) {
 	r := ArrayRule{MaxItems: NewInt(2)}
-	ok, message, err := r.Enforce(envctx.Empty, []int{1, 2})
+	fail, messages, err := r.Enforce(envctx.Empty, []int{1, 2})
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2, 3})
+	fail, messages, err = r.Enforce(envctx.Empty, []int{1, 2, 3})
 	assert.NoError(t, err)
-	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MaxItems: length 3 should not be greater than 2", messages[0])
+	assert.True(t, fail)
 
 	r = ArrayRule{MinItems: NewInt(2)}
-	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2})
+	fail, messages, err = r.Enforce(envctx.Empty, []int{1, 2})
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, []int{1})
+	fail, messages, err = r.Enforce(envctx.Empty, []int{1})
 	assert.NoError(t, err)
-	assert.Equal(t, "MinItems: length 1 should not be less than 2", message)
-	assert.False(t, ok)
+	assert.Equal(t, "MinItems: length 1 should not be less than 2", messages[0])
+	assert.True(t, fail)
 
 	r = ArrayRule{UniqueItems: true}
-	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2, 3, 4})
+	fail, messages, err = r.Enforce(envctx.Empty, []int{1, 2, 3, 4})
 	assert.NoError(t, err)
-	assert.Equal(t, "", message)
-	assert.True(t, ok)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2, 3, 3})
+	fail, messages, err = r.Enforce(envctx.Empty, []int{1, 2, 3, 3})
 	assert.NoError(t, err)
-	assert.Equal(t, "UniqueItems: array contains duplicate item 3", message)
-	assert.False(t, ok)
+	assert.Equal(t, "UniqueItems: array contains duplicate item 3", messages[0])
+	assert.True(t, fail)
 
-	ok, message, err = r.Enforce(envctx.Empty, []string{"foo", "bar", "foo"})
+	fail, messages, err = r.Enforce(envctx.Empty, []string{"foo", "bar", "foo"})
 	assert.NoError(t, err)
-	assert.Equal(t, "UniqueItems: array contains duplicate item foo", message)
-	assert.False(t, ok)
+	assert.Equal(t, "UniqueItems: array contains duplicate item foo", messages[0])
+	assert.True(t, fail)
 
 	r = ArrayRule{}
-	ok, message, err = r.Enforce(envctx.Empty, []int{1, 2})
+	fail, messages, err = r.Enforce(envctx.Empty, []int{1, 2})
 	assert.NoError(t, err)
-	assert.True(t, ok)
-	assert.Equal(t, "", message)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
 
 	r = ArrayRule{MaxItems: NewInt(2)}
-	ok, message, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
+	fail, messages, err = r.Enforce(envctx.Empty, map[string]int{"foo": 1, "bar": 2})
 	assert.IsError(t, err, "OWTAUVVFBL")
 
 	s := &StringRule{}
