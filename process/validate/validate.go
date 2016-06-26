@@ -115,10 +115,6 @@ func buildRulesObject(ctx context.Context, n *node.Node, cache map[*node.Node][]
 
 func buildRulesObjectChildren(ctx context.Context, n *node.Node, cache map[*node.Node][]system.RuleInterface) error {
 
-	if n.Value == nil || n.Null || n.Missing {
-		return nil
-	}
-
 	rules := []system.RuleInterface{}
 
 	if system.RulesApplyToObjects(n.Value) {

@@ -697,7 +697,11 @@ func TestNode_Label(t *testing.T) {
 	n.Key = "a"
 	assert.Equal(t, "a", n.Label(context.Background()))
 
+	n.Value = &system.Object{Id: system.NewReference("a.b/c", "d")}
 	n.Parent = nil
+	assert.Equal(t, "d", n.Label(context.Background()))
+
+	n.Value = nil
 	assert.Equal(t, "root", n.Label(context.Background()))
 
 	n = nil
