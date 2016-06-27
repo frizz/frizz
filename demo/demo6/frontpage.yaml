@@ -1,3 +1,5 @@
 type: page
 id: frontpage
-title: foo
+title:
+    - bar
+    - baz

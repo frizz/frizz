@@ -1,19 +1,12 @@
 type: system:type
 id: page
-rules:
-    -
-        selector: ":val(\"foo\")"
-        type: system:@string
-        pattern: "foobar.*"
 fields:
     title:
-        type: system:@string
-        maxLength: 10
-        long: true
+        type: system:@array
+        items:
+            type: system:@string
         rules:
             -
+                selector: ":last-child"
                 type: system:@string
-                pattern: "foo.+"
-            -
-                type: system:@string
-                minLength: 5
+                pattern: "foo"
