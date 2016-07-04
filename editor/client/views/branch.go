@@ -18,9 +18,7 @@ import (
 )
 
 type BranchView struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	*View
 
 	model    *models.BranchModel
 	notifs   chan flux.NotifPayload
@@ -28,12 +26,9 @@ type BranchView struct {
 }
 
 func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
-	v := &BranchView{
-		ctx:   ctx,
-		app:   stores.FromContext(ctx),
-		model: model,
-	}
-	v.RenderFunc = v.render
+	v := &BranchView{}
+	v.View = New(ctx, v)
+	v.model = model
 	v.Mount()
 	return v
 }
@@ -53,7 +48,7 @@ func (v *BranchView) Apply(element *vecty.Element) {
 
 func (v *BranchView) Mount() {
 
-	v.notifs = v.app.Watch(v.model,
+	v.notifs = v.App.Watch(v.model,
 		stores.BranchOpening,
 		stores.BranchOpened,
 		stores.BranchClose,
@@ -77,15 +72,15 @@ func (v *BranchView) reaction(notif flux.NotifPayload) {
 
 	switch notif.Type {
 	case stores.BranchOpening:
-		loaded := loadBranch(v.ctx, v.app, v.model, wait)
-		wait.Add(v.app.Dispatch(&actions.BranchOpened{Branch: v.model, Loaded: loaded}))
+		loaded := loadBranch(v.Ctx, v.App, v.model, wait)
+		wait.Add(v.App.Dispatch(&actions.BranchOpened{Branch: v.model, Loaded: loaded}))
 	case stores.BranchSelecting:
-		loaded := loadBranch(v.ctx, v.app, v.model, wait)
+		loaded := loadBranch(v.Ctx, v.App, v.model, wait)
 		data := notif.Data.(*stores.BranchSelectOperationData)
 		if loaded && data.Op == models.BranchOpClickToggle {
-			wait.Add(v.app.Dispatch(&actions.BranchOpening{Branch: v.model}))
+			wait.Add(v.App.Dispatch(&actions.BranchOpening{Branch: v.model}))
 		}
-		wait.Add(v.app.Dispatch(&actions.BranchSelected{Branch: v.model, Loaded: loaded}))
+		wait.Add(v.App.Dispatch(&actions.BranchSelected{Branch: v.model, Loaded: loaded}))
 	case stores.BranchOpened,
 		stores.BranchClose,
 		stores.BranchLoaded,
@@ -94,7 +89,7 @@ func (v *BranchView) reaction(notif flux.NotifPayload) {
 		stores.BranchChildrenReordered:
 		v.ReconcileBody()
 		if ds, ok := notif.Data.(*stores.BranchDescendantSelectData); ok {
-			wait.Add(v.app.Dispatch(&actions.BranchSelecting{Branch: ds.Branch, Op: ds.Op}))
+			wait.Add(v.App.Dispatch(&actions.BranchSelecting{Branch: ds.Branch, Op: ds.Op}))
 		}
 	}
 }
@@ -146,13 +141,13 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 
 func (v *BranchView) Unmount() {
 	if v.notifs != nil {
-		v.app.Delete(v.notifs)
+		v.App.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *BranchView) render() vecty.Component {
+func (v *BranchView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div()
 	}
@@ -160,13 +155,13 @@ func (v *BranchView) render() vecty.Component {
 	v.children = vecty.List{}
 	if v.model.Open {
 		for _, c := range v.model.Children {
-			v.children = append(v.children, NewBranchView(v.ctx, c))
+			v.children = append(v.children, NewBranchView(v.Ctx, c))
 		}
 	}
 
 	return elem.Div(
 		prop.Class("node"),
-		NewBranchControlView(v.ctx, v.model),
+		NewBranchControlView(v.Ctx, v.model),
 		elem.Div(
 			prop.Class("children"),
 			v.children,

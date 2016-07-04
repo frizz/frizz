@@ -13,9 +13,7 @@ import (
 )
 
 type BranchControlView struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	*View
 
 	model    *models.BranchModel
 	notifs   chan flux.NotifPayload
@@ -23,13 +21,9 @@ type BranchControlView struct {
 }
 
 func NewBranchControlView(ctx context.Context, model *models.BranchModel) *BranchControlView {
-	app := stores.FromContext(ctx)
-	v := &BranchControlView{
-		ctx:   ctx,
-		app:   app,
-		model: model,
-	}
-	v.RenderFunc = v.render
+	v := &BranchControlView{}
+	v.View = New(ctx, v)
+	v.model = model
 	v.Mount()
 	return v
 }
@@ -40,7 +34,7 @@ func (v *BranchControlView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-	if v.model != nil && v.app.Branches.Selected() == v.model {
+	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}
 }
@@ -51,7 +45,7 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchControlView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.notifs = v.App.Watch(v.model,
 		stores.BranchSelectControl,
 		stores.BranchUnselectControl,
 	)
@@ -65,14 +59,14 @@ func (v *BranchControlView) Mount() {
 func (v *BranchControlView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
-	if v.model != nil && v.app.Branches.Selected() == v.model {
+	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}
 }
 
 func (v *BranchControlView) Unmount() {
 	if v.notifs != nil {
-		v.app.Delete(v.notifs)
+		v.App.Delete(v.notifs)
 		v.notifs = nil
 	}
 	v.Body.Unmount()
@@ -85,27 +79,27 @@ func (v *BranchControlView) focus() {
 func (v *BranchControlView) toggleClick(*vecty.Event) {
 	go func() {
 		if !v.model.CanOpen() {
-			v.app.Dispatch(&actions.BranchSelecting{Branch: v.model, Op: models.BranchOpClickToggle})
+			v.App.Dispatch(&actions.BranchSelecting{Branch: v.model, Op: models.BranchOpClickToggle})
 			return
 		}
 		if v.model.Open {
-			v.app.Dispatch(&actions.BranchClose{Branch: v.model})
+			v.App.Dispatch(&actions.BranchClose{Branch: v.model})
 			return
 		}
-		v.app.Dispatch(&actions.BranchOpening{Branch: v.model})
+		v.App.Dispatch(&actions.BranchOpening{Branch: v.model})
 	}()
 }
 
 func (v *BranchControlView) labelClick(*vecty.Event) {
-	v.app.Dispatch(&actions.BranchSelecting{Branch: v.model, Op: models.BranchOpClickLabel})
+	v.App.Dispatch(&actions.BranchSelecting{Branch: v.model, Op: models.BranchOpClickLabel})
 }
 
-func (v *BranchControlView) render() vecty.Component {
+func (v *BranchControlView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div()
 	}
 
-	selected := v.app.Branches.Selected() == v.model
+	selected := v.App.Branches.Selected() == v.model
 
 	icon := v.model.Icon()
 
@@ -129,7 +123,7 @@ func (v *BranchControlView) render() vecty.Component {
 			elem.Span(
 				prop.Class("node-label"),
 				event.Click(v.labelClick),
-				vecty.Text(v.model.Contents.Label(v.ctx)),
+				vecty.Text(v.model.Contents.Label(v.Ctx)),
 			),
 			elem.Span(
 				prop.Class("badge"),

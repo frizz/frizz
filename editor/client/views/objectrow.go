@@ -14,21 +14,15 @@ import (
 )
 
 type ObjectRowView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	node *node.Node
 }
 
 func NewObjectRowView(ctx context.Context, node *node.Node) *ObjectRowView {
-	v := &ObjectRowView{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
-	}
-	v.RenderFunc = v.render
+	v := &ObjectRowView{}
+	v.View = New(ctx, v)
+	v.node = node
 	v.Mount()
 	return v
 }
@@ -46,13 +40,13 @@ func (v *ObjectRowView) Apply(element *vecty.Element) {
 }
 
 func (v *ObjectRowView) Mount() {
-	v.notifs = v.app.Watch(v.node,
+	v.Notifs = v.App.Watch(v.node,
 		stores.NodeInitialised,
 		stores.NodeValueChanged,
 	)
 
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -64,26 +58,26 @@ func (v *ObjectRowView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *ObjectRowView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *ObjectRowView) render() vecty.Component {
+func (v *ObjectRowView) Render() vecty.Component {
 
 	name := v.node.Key
 
 	hold, err := v.node.Rule.DisplayType()
 	if err != nil {
-		v.app.Fail <- kerr.Wrap("CETBRLENSP", err)
+		v.App.Fail <- kerr.Wrap("CETBRLENSP", err)
 		return nil
 	}
 
-	val, err := v.node.DisplayType(v.ctx)
+	val, err := v.node.DisplayType(v.Ctx)
 	if err != nil {
-		v.app.Fail <- kerr.Wrap("AWLAMTFJSO", err)
+		v.App.Fail <- kerr.Wrap("AWLAMTFJSO", err)
 		return nil
 	}
 
@@ -94,14 +88,14 @@ func (v *ObjectRowView) render() vecty.Component {
 				types := v.node.Rule.PermittedTypes()
 				if len(types) == 1 {
 					// if only one type is compatible, don't show the popup, just add it.
-					v.app.Dispatch(&actions.InitializeNode{
+					v.App.Dispatch(&actions.InitializeNode{
 						Parent: v.node.Parent,
 						Node:   v.node,
 						Type:   types[0],
 					})
 					return
 				}
-				v.app.Dispatch(&actions.OpenAddPopup{
+				v.App.Dispatch(&actions.OpenAddPopup{
 					Parent: v.node.Parent,
 					Node:   v.node,
 					Types:  types,
@@ -113,7 +107,7 @@ func (v *ObjectRowView) render() vecty.Component {
 	} else {
 		delete = elem.Anchor(
 			event.Click(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.DeleteNode{
+				v.App.Dispatch(&actions.DeleteNode{
 					Node: v.node,
 				})
 			}).PreventDefault().StopPropagation(),
@@ -128,7 +122,7 @@ func (v *ObjectRowView) render() vecty.Component {
 		},
 		event.Click(func(ev *vecty.Event) {
 			if !v.node.Missing && !v.node.Null {
-				clickSummaryRow(v.app, v.node)
+				clickSummaryRow(v.App, v.node)
 			}
 		}),
 		elem.TableData(vecty.Text(name)),

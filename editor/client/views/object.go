@@ -9,25 +9,19 @@ import (
 	"github.com/davelondon/vecty/style"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
 	"kego.io/system/node"
 )
 
 type ObjectView struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	*View
 
 	model *models.EditorModel
 }
 
 func NewObjectView(ctx context.Context, node *node.Node) *ObjectView {
-	v := &ObjectView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
+	v := &ObjectView{}
+	v.View = New(ctx, v)
+	v.model = v.App.Editors.Get(node)
 	return v
 }
 
@@ -43,7 +37,7 @@ func (v *ObjectView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *ObjectView) render() vecty.Component {
+func (v *ObjectView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Object (nil)"))
 	}
@@ -69,8 +63,8 @@ func (v *ObjectView) render() vecty.Component {
 				"active":   i == 0,
 			},
 			prop.ID(fmt.Sprintf("pane%d", i)),
-			NewEditorListView(v.ctx, v.model, o),
-			NewObjectTableView(v.ctx, v.model, o),
+			NewEditorListView(v.Ctx, v.model, o),
+			NewObjectTableView(v.Ctx, v.model, o),
 		))
 	}
 

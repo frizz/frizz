@@ -12,6 +12,7 @@ import (
 	"kego.io/editor/client/editors"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/editor/client/views"
 	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -28,10 +29,7 @@ func (s *Icon) EditorView(ctx context.Context, node *node.Node, format editable.
 }
 
 type IconEditorView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*views.View
 
 	model  *models.EditorModel
 	icon   *Icon
@@ -40,12 +38,9 @@ type IconEditorView struct {
 }
 
 func NewIconEditorView(ctx context.Context, node *node.Node, format editable.Format) *IconEditorView {
-	v := &IconEditorView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
+	v := &IconEditorView{}
+	v.View = views.New(ctx, v)
+	v.model = v.App.Editors.Get(node)
 	v.icon = v.model.Node.Value.(*Icon)
 	v.Mount()
 	return v
@@ -64,13 +59,13 @@ func (v *IconEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *IconEditorView) Mount() {
-	v.notifs = v.app.Watch(v.model.Node,
+	v.Notifs = v.App.Watch(v.model.Node,
 		stores.NodeValueChanged,
 		stores.NodeDescendantValueChanged,
 		stores.NodeFocus,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -90,15 +85,15 @@ func (v *IconEditorView) Focus() {
 }
 
 func (v *IconEditorView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *IconEditorView) render() vecty.Component {
-	v.editor = editors.NewStringEditorView(v.ctx, v.model.Node.Map["url"], editable.Inline)
+func (v *IconEditorView) Render() vecty.Component {
+	v.editor = editors.NewStringEditorView(v.Ctx, v.model.Node.Map["url"], editable.Inline)
 	url := ""
 	if v.icon.Url != nil {
 		url = v.icon.Url.Value()

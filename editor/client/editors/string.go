@@ -9,6 +9,7 @@ import (
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/editor/client/views"
 	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -32,10 +33,7 @@ func (s *StringEditor) EditorView(ctx context.Context, node *node.Node, format e
 }
 
 type StringEditorView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*views.View
 
 	model  *models.EditorModel
 	node   *models.NodeModel
@@ -44,13 +42,10 @@ type StringEditorView struct {
 }
 
 func NewStringEditorView(ctx context.Context, node *node.Node, format editable.Format) *StringEditorView {
-	v := &StringEditorView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
-	v.node = v.app.Nodes.Get(node)
+	v := &StringEditorView{}
+	v.View = views.New(ctx, v)
+	v.model = v.App.Editors.Get(node)
+	v.node = v.App.Nodes.Get(node)
 	v.format = format
 	v.Mount()
 	return v
@@ -69,13 +64,13 @@ func (v *StringEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *StringEditorView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.EditorFocus,
 		stores.EditorValueChanged,
 		stores.EditorErrorsChanged,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -94,14 +89,14 @@ func (v *StringEditorView) Focus() {
 }
 
 func (v *StringEditorView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *StringEditorView) render() vecty.Component {
+func (v *StringEditorView) Render() vecty.Component {
 	id := randomId()
 
 	sr, ok := v.model.Node.Rule.Interface.(*system.StringRule)
@@ -119,7 +114,7 @@ func (v *StringEditorView) render() vecty.Component {
 		prop.Class("form-control"),
 		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
-			change(v.app, v.model, func() interface{} {
+			change(v.App, v.model, func() interface{} {
 				return e.Target.Get("value").String()
 			})
 		}),
@@ -132,7 +127,7 @@ func (v *StringEditorView) render() vecty.Component {
 		},
 		elem.Label(
 			prop.For(id),
-			vecty.Text(v.model.Node.Label(v.ctx)),
+			vecty.Text(v.model.Node.Label(v.Ctx)),
 		),
 		v.input,
 	)
@@ -141,7 +136,7 @@ func (v *StringEditorView) render() vecty.Component {
 		return group
 	}
 
-	helpBlock(v.ctx, v.model.Node).Apply(group)
-	errorBlock(v.ctx, v.node).Apply(group)
+	helpBlock(v.Ctx, v.model.Node).Apply(group)
+	errorBlock(v.Ctx, v.node).Apply(group)
 	return group
 }

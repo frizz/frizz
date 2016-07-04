@@ -11,6 +11,7 @@ import (
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/editor/client/views"
 	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -29,10 +30,7 @@ func (s *NumberEditor) EditorView(ctx context.Context, node *node.Node, format e
 }
 
 type NumberEditorView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*views.View
 
 	model  *models.EditorModel
 	node   *models.NodeModel
@@ -41,13 +39,10 @@ type NumberEditorView struct {
 }
 
 func NewNumberEditorView(ctx context.Context, node *node.Node, format editable.Format) *NumberEditorView {
-	v := &NumberEditorView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
-	v.node = v.app.Nodes.Get(node)
+	v := &NumberEditorView{}
+	v.View = views.New(ctx, v)
+	v.model = v.App.Editors.Get(node)
+	v.node = v.App.Nodes.Get(node)
 	v.format = format
 	v.Mount()
 	return v
@@ -66,13 +61,13 @@ func (v *NumberEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *NumberEditorView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.EditorFocus,
 		stores.EditorValueChanged,
 		stores.EditorErrorsChanged,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -91,14 +86,14 @@ func (v *NumberEditorView) Focus() {
 }
 
 func (v *NumberEditorView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *NumberEditorView) render() vecty.Component {
+func (v *NumberEditorView) Render() vecty.Component {
 	id := randomId()
 
 	v.input = elem.Input(
@@ -107,7 +102,7 @@ func (v *NumberEditorView) render() vecty.Component {
 		prop.Class("form-control"),
 		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
-			change(v.app, v.model, func() interface{} {
+			change(v.App, v.model, func() interface{} {
 				return e.Target.Get("value").String()
 			})
 		}),
@@ -120,7 +115,7 @@ func (v *NumberEditorView) render() vecty.Component {
 		},
 		elem.Label(
 			prop.For(id),
-			vecty.Text(v.model.Node.Label(v.ctx)),
+			vecty.Text(v.model.Node.Label(v.Ctx)),
 		),
 		v.input,
 	)
@@ -129,6 +124,6 @@ func (v *NumberEditorView) render() vecty.Component {
 		return group
 	}
 
-	helpBlock(v.ctx, v.model.Node).Apply(group)
+	helpBlock(v.Ctx, v.model.Node).Apply(group)
 	return group
 }

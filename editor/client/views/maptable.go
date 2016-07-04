@@ -11,21 +11,15 @@ import (
 )
 
 type MapTableView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	model *models.EditorModel
 }
 
 func NewMapTableView(ctx context.Context, model *models.EditorModel) *MapTableView {
-	v := &MapTableView{
-		ctx:   ctx,
-		app:   stores.FromContext(ctx),
-		model: model,
-	}
-	v.RenderFunc = v.render
+	v := &MapTableView{}
+	v.View = New(ctx, v)
+	v.model = model
 	v.Mount()
 	return v
 }
@@ -43,12 +37,12 @@ func (v *MapTableView) Apply(element *vecty.Element) {
 }
 
 func (v *MapTableView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -60,14 +54,14 @@ func (v *MapTableView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *MapTableView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *MapTableView) render() vecty.Component {
+func (v *MapTableView) Render() vecty.Component {
 
 	if v.model.Node == nil || len(v.model.Node.Map) == 0 {
 		return elem.Div()
@@ -81,7 +75,7 @@ func (v *MapTableView) render() vecty.Component {
 
 	rows := vecty.List{}
 	for _, c := range v.model.Node.Map {
-		rows = append(rows, NewMapRowView(v.ctx, c))
+		rows = append(rows, NewMapRowView(v.Ctx, c))
 	}
 
 	return elem.Div(

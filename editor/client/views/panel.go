@@ -13,21 +13,15 @@ import (
 )
 
 type PanelView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	branch *models.BranchModel
 	node   *node.Node
 }
 
 func NewPanelView(ctx context.Context) *PanelView {
-	v := &PanelView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
+	v := &PanelView{}
+	v.View = New(ctx, v)
 	v.Mount()
 	return v
 }
@@ -45,11 +39,11 @@ func (v *PanelView) Apply(element *vecty.Element) {
 }
 
 func (v *PanelView) Mount() {
-	v.notifs = v.app.Watch(nil,
+	v.Notifs = v.App.Watch(nil,
 		stores.BranchSelected,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -58,8 +52,8 @@ func (v *PanelView) Mount() {
 
 func (v *PanelView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.branch = v.app.Branches.Selected()
-	v.node = v.app.Nodes.Selected()
+	v.branch = v.App.Branches.Selected()
+	v.node = v.App.Nodes.Selected()
 	v.ReconcileBody()
 	if notif.Type == stores.BranchSelected {
 		v.Node().Get("parentNode").Set("scrollTop", "0")
@@ -67,27 +61,27 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *PanelView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *PanelView) render() vecty.Component {
+func (v *PanelView) Render() vecty.Component {
 	var editor, breadcrumbs vecty.Component
 	if v.branch != nil {
-		breadcrumbs = NewBreadcrumbsView(v.ctx, v.branch)
+		breadcrumbs = NewBreadcrumbsView(v.Ctx, v.branch)
 	}
 	if v.node != nil {
 		if ed, ok := v.node.Value.(editable.Editable); ok {
-			editor = ed.EditorView(v.ctx, v.node, editable.Branch)
+			editor = ed.EditorView(v.Ctx, v.node, editable.Branch)
 		} else if v.node.Type.IsNativeMap() {
-			editor = NewMapView(v.ctx, v.node)
+			editor = NewMapView(v.Ctx, v.node)
 		} else if v.node.Type.IsNativeArray() {
-			editor = NewArrayView(v.ctx, v.node)
+			editor = NewArrayView(v.Ctx, v.node)
 		} else {
-			editor = NewObjectView(v.ctx, v.node)
+			editor = NewObjectView(v.Ctx, v.node)
 		}
 	}
 	return elem.Div(

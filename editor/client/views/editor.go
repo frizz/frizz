@@ -29,21 +29,15 @@ func (s *DefaultEditor) EditorView(ctx context.Context, node *node.Node, format 
 }
 
 type EditorView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	model *models.EditorModel
 }
 
 func NewEditorView(ctx context.Context, node *node.Node, format editable.Format) *EditorView {
-	v := &EditorView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
+	v := &EditorView{}
+	v.View = New(ctx, v)
+	v.model = v.App.Editors.Get(node)
 	v.Mount()
 	return v
 }
@@ -61,11 +55,11 @@ func (v *EditorView) Apply(element *vecty.Element) {
 }
 
 func (v *EditorView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.EditorValueChanged,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -77,13 +71,13 @@ func (v *EditorView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *EditorView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *EditorView) render() vecty.Component {
+func (v *EditorView) Render() vecty.Component {
 	return elem.Div(vecty.Text("default editor"))
 }

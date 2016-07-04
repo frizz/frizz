@@ -14,21 +14,15 @@ import (
 )
 
 type ArrayRowView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	node *node.Node
 }
 
 func NewArrayRowView(ctx context.Context, node *node.Node) *ArrayRowView {
-	v := &ArrayRowView{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
-	}
-	v.RenderFunc = v.render
+	v := &ArrayRowView{}
+	v.View = New(ctx, v)
+	v.node = node
 	v.Mount()
 	return v
 }
@@ -46,12 +40,12 @@ func (v *ArrayRowView) Apply(element *vecty.Element) {
 }
 
 func (v *ArrayRowView) Mount() {
-	v.notifs = v.app.Watch(v.node,
+	v.Notifs = v.App.Watch(v.node,
 		stores.NodeValueChanged,
 	)
 
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -63,25 +57,25 @@ func (v *ArrayRowView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *ArrayRowView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *ArrayRowView) render() vecty.Component {
+func (v *ArrayRowView) Render() vecty.Component {
 
-	val, err := v.node.DisplayType(v.ctx)
+	val, err := v.node.DisplayType(v.Ctx)
 	if err != nil {
-		v.app.Fail <- kerr.Wrap("MOECUHNHPC", err)
+		v.App.Fail <- kerr.Wrap("MOECUHNHPC", err)
 		return nil
 	}
 
 	return elem.TableRow(
 		prop.Class("clickable"),
 		event.Click(func(ev *vecty.Event) {
-			clickSummaryRow(v.app, v.node)
+			clickSummaryRow(v.App, v.node)
 		}),
 		elem.TableData(
 			prop.Class("handle"),
@@ -92,11 +86,11 @@ func (v *ArrayRowView) render() vecty.Component {
 				// nothing
 			}).PreventDefault().StopPropagation(),
 		),
-		elem.TableData(vecty.Text(v.node.Label(v.ctx))),
+		elem.TableData(vecty.Text(v.node.Label(v.Ctx))),
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(elem.Anchor(
 			event.Click(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.DeleteNode{
+				v.App.Dispatch(&actions.DeleteNode{
 					Node: v.node,
 				})
 			}).PreventDefault().StopPropagation(),

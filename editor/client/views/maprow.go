@@ -14,21 +14,15 @@ import (
 )
 
 type MapRowView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	node *node.Node
 }
 
 func NewMapRowView(ctx context.Context, node *node.Node) *MapRowView {
-	v := &MapRowView{
-		ctx:  ctx,
-		app:  stores.FromContext(ctx),
-		node: node,
-	}
-	v.RenderFunc = v.render
+	v := &MapRowView{}
+	v.View = New(ctx, v)
+	v.node = node
 	v.Mount()
 	return v
 }
@@ -46,12 +40,12 @@ func (v *MapRowView) Apply(element *vecty.Element) {
 }
 
 func (v *MapRowView) Mount() {
-	v.notifs = v.app.Watch(v.node,
+	v.Notifs = v.App.Watch(v.node,
 		stores.NodeValueChanged,
 	)
 
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -63,33 +57,33 @@ func (v *MapRowView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *MapRowView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *MapRowView) render() vecty.Component {
+func (v *MapRowView) Render() vecty.Component {
 
 	name := v.node.Key
 
-	val, err := v.node.DisplayType(v.ctx)
+	val, err := v.node.DisplayType(v.Ctx)
 	if err != nil {
-		v.app.Fail <- kerr.Wrap("NPJIEIKJVK", err)
+		v.App.Fail <- kerr.Wrap("NPJIEIKJVK", err)
 		return nil
 	}
 
 	return elem.TableRow(
 		prop.Class("clickable"),
 		event.Click(func(ev *vecty.Event) {
-			clickSummaryRow(v.app, v.node)
+			clickSummaryRow(v.App, v.node)
 		}),
 		elem.TableData(vecty.Text(name)),
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(elem.Anchor(
 			event.Click(func(e *vecty.Event) {
-				v.app.Dispatch(&actions.DeleteNode{
+				v.App.Dispatch(&actions.DeleteNode{
 					Node: v.node,
 				})
 			}).PreventDefault().StopPropagation(),

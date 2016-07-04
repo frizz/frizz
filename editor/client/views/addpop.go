@@ -18,10 +18,7 @@ import (
 )
 
 type AddPopupView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	model      *models.AddPopupModel
 	nameInput  *vecty.Element
@@ -29,11 +26,8 @@ type AddPopupView struct {
 }
 
 func NewAddPopupView(ctx context.Context) *AddPopupView {
-	v := &AddPopupView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
+	v := &AddPopupView{}
+	v.View = New(ctx, v)
 	v.Mount()
 	return v
 }
@@ -51,12 +45,12 @@ func (v *AddPopupView) Apply(element *vecty.Element) {
 }
 
 func (v *AddPopupView) Mount() {
-	v.notifs = v.app.Watch(nil,
+	v.Notifs = v.App.Watch(nil,
 		stores.AddPopupChange,
 	)
 
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -64,7 +58,7 @@ func (v *AddPopupView) Mount() {
 
 func (v *AddPopupView) reaction(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.model = v.app.Misc.AddPopup()
+	v.model = v.App.Misc.AddPopup()
 	v.ReconcileBody()
 	if v.model.Visible {
 		js.Global.Call("$", "#add-modal").Call("modal", "show")
@@ -79,14 +73,14 @@ func (v *AddPopupView) reaction(notif flux.NotifPayload) {
 }
 
 func (v *AddPopupView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *AddPopupView) render() vecty.Component {
+func (v *AddPopupView) Render() vecty.Component {
 	if v.model == nil || !v.model.Visible {
 		return v.modal()
 	}
@@ -117,10 +111,10 @@ func (v *AddPopupView) render() vecty.Component {
 
 		var options vecty.List
 		for _, t := range v.model.Types {
-			displayName, err := t.Id.ValueContext(v.ctx)
+			displayName, err := t.Id.ValueContext(v.Ctx)
 			if err != nil {
 				// we shouldn't be able to get here
-				v.app.Fail <- kerr.Wrap("NTSWPIEAHC", err)
+				v.App.Fail <- kerr.Wrap("NTSWPIEAHC", err)
 			}
 			options = append(options, elem.Option(
 				prop.ID(t.Id.String()),
@@ -186,7 +180,7 @@ func (v *AddPopupView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("×"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.CloseAddPopup{})
+							v.App.Dispatch(&actions.CloseAddPopup{})
 						}).PreventDefault(),
 					),
 					elem.Header4(
@@ -204,7 +198,7 @@ func (v *AddPopupView) modal(markup ...vecty.Markup) *vecty.Element {
 							vecty.Text("Close"),
 						),
 						event.Click(func(ev *vecty.Event) {
-							v.app.Dispatch(&actions.CloseAddPopup{})
+							v.App.Dispatch(&actions.CloseAddPopup{})
 						}).PreventDefault(),
 					),
 					elem.Button(
@@ -235,14 +229,14 @@ func (v *AddPopupView) save() {
 		if value == "" {
 			return
 		}
-		r, err := system.NewReferenceFromString(v.ctx, value)
+		r, err := system.NewReferenceFromString(v.Ctx, value)
 		if err != nil {
-			v.app.Fail <- kerr.Wrap("SEMCIELKRN", err)
+			v.App.Fail <- kerr.Wrap("SEMCIELKRN", err)
 			return
 		}
-		ty, ok := system.GetTypeFromCache(v.ctx, r.Package, r.Name)
+		ty, ok := system.GetTypeFromCache(v.Ctx, r.Package, r.Name)
 		if !ok {
-			v.app.Fail <- kerr.New("RWHSCOFNQM", "Type %s not found in cache", r.Value())
+			v.App.Fail <- kerr.New("RWHSCOFNQM", "Type %s not found in cache", r.Value())
 			return
 		}
 		t = ty
@@ -258,26 +252,26 @@ func (v *AddPopupView) save() {
 			// TODO: show an error
 			return
 		}
-		v.app.Dispatch(&actions.InitializeNode{
+		v.App.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
 			Parent: v.model.Parent,
 			Key:    name,
 			Type:   t,
 		})
 	} else if v.model.Parent.Type.IsNativeArray() {
-		v.app.Dispatch(&actions.InitializeNode{
+		v.App.Dispatch(&actions.InitializeNode{
 			Node:   node.NewNode(),
 			Parent: v.model.Parent,
 			Type:   t,
 		})
 	} else {
-		v.app.Dispatch(&actions.InitializeNode{
+		v.App.Dispatch(&actions.InitializeNode{
 			Parent: v.model.Parent,
 			Node:   v.model.Node,
 			Type:   t,
 		})
 	}
 
-	v.app.Dispatch(&actions.CloseAddPopup{})
+	v.App.Dispatch(&actions.CloseAddPopup{})
 
 }

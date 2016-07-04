@@ -6,24 +6,18 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
-	"kego.io/editor/client/stores"
 )
 
 type Header struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	*View
 
 	Environment *envctx.Env
 }
 
 func NewHeader(ctx context.Context, env *envctx.Env) *Header {
-	v := &Header{
-		ctx:         ctx,
-		app:         stores.FromContext(ctx),
-		Environment: env,
-	}
-	v.RenderFunc = v.render
+	v := &Header{}
+	v.View = New(ctx, v)
+	v.Environment = env
 	return v
 }
 
@@ -39,7 +33,7 @@ func (v *Header) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *Header) render() vecty.Component {
+func (v *Header) Render() vecty.Component {
 	return elem.Navigation(
 		prop.Class("navbar navbar-inverse navbar-fixed-top"),
 		elem.Div(

@@ -7,25 +7,18 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 )
 
 type TreeView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	Root     *models.BranchModel
 	Selected *models.BranchModel
 }
 
 func NewTreeView(ctx context.Context) *TreeView {
-	v := &TreeView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
+	v := &TreeView{}
+	v.View = New(ctx, v)
 	v.Mount()
 	return v
 }
@@ -43,12 +36,12 @@ func (v *TreeView) Apply(element *vecty.Element) {
 }
 
 func (v *TreeView) Mount() {
-	v.notifs = v.app.Watch(v.app.Branches.Root(),
+	v.Notifs = v.App.Watch(v.App.Branches.Root(),
 		stores.BranchInitialStateLoaded,
 	)
 	go func() {
-		for notif := range v.notifs {
-			v.Root = v.app.Branches.Root()
+		for notif := range v.Notifs {
+			v.Root = v.App.Branches.Root()
 			v.ReconcileBody()
 			close(notif.Done)
 		}
@@ -56,19 +49,19 @@ func (v *TreeView) Mount() {
 }
 
 func (v *TreeView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *TreeView) render() vecty.Component {
+func (v *TreeView) Render() vecty.Component {
 	if v.Root == nil {
 		return elem.Div()
 	}
 	return elem.Div(
 		prop.Class("content tree"),
-		NewBranchView(v.ctx, v.Root),
+		NewBranchView(v.Ctx, v.Root),
 	)
 }

@@ -9,25 +9,19 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
 	"kego.io/flux"
 )
 
 type PageView struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	*View
 
 	Environment *envctx.Env
 }
 
 func NewPage(ctx context.Context, env *envctx.Env) *PageView {
-	v := &PageView{
-		ctx:         ctx,
-		app:         stores.FromContext(ctx),
-		Environment: env,
-	}
-	v.RenderFunc = v.render
+	v := &PageView{}
+	v.View = New(ctx, v)
+	v.Environment = env
 	v.addKeyboardEvents()
 	return v
 }
@@ -60,7 +54,7 @@ func (v *PageView) addKeyboardEvents() {
 			switch k.KeyCode {
 			case 65:
 				// "a"
-				addCollectionItem(v.app, v.app.Nodes.Selected())
+				addCollectionItem(v.App, v.App.Nodes.Selected())
 			case 37, 38, 39, 40:
 				// up, down, left, right
 				k.PreventDefault()
@@ -73,27 +67,27 @@ func (v *PageView) addKeyboardEvents() {
 }
 
 func (v *PageView) KeyPress(code int) {
-	selected := v.app.Branches.Selected()
+	selected := v.App.Branches.Selected()
 	switch code {
 	case 38: // up
 		if selected == nil {
-			if b := v.app.Branches.Root().LastVisible(); b != nil {
-				v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
+			if b := v.App.Branches.Root().LastVisible(); b != nil {
+				v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			}
 			return
 		}
 		if b := selected.PrevVisible(); b != nil {
-			v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
+			v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 	case 40: // down
 		if selected == nil {
-			b := v.app.Branches.Root()
-			v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
+			b := v.App.Branches.Root()
+			v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 		if b := selected.NextVisible(true); b != nil {
-			v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
+			v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
 	case 37: // left
@@ -102,11 +96,11 @@ func (v *PageView) KeyPress(code int) {
 		}
 		if selected.CanOpen() && selected.Open {
 			// if the branch is open, left arrow should close it.
-			v.app.Dispatcher.Dispatch(&actions.BranchClose{Branch: selected})
+			v.App.Dispatcher.Dispatch(&actions.BranchClose{Branch: selected})
 			return
 		} else {
 			if b := selected.Parent; b != nil {
-				v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
+				v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 				return
 			}
 		}
@@ -116,35 +110,35 @@ func (v *PageView) KeyPress(code int) {
 		}
 		if selected.CanOpen() && !selected.Open {
 			// if the branch is closed, right arrow should open it
-			loadBranch(v.ctx, v.app, selected, &flux.Waiter{})
-			v.app.Dispatcher.Dispatch(&actions.BranchOpening{Branch: selected})
+			loadBranch(v.Ctx, v.App, selected, &flux.Waiter{})
+			v.App.Dispatcher.Dispatch(&actions.BranchOpening{Branch: selected})
 			return
 		} else {
 			if b := selected.FirstChild(); b != nil {
-				v.app.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
+				v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 				return
 			}
 		}
 	}
 }
 
-func (v *PageView) render() vecty.Component {
+func (v *PageView) Render() vecty.Component {
 	return elem.Div(
 		prop.ID("wrapper"),
-		NewHeader(v.ctx, v.Environment),
+		NewHeader(v.Ctx, v.Environment),
 		elem.Div(
 			prop.Class("wrapper"),
 			elem.Div(
 				prop.ID("tree"),
 				prop.Class("split split-horizontal"),
-				NewTreeView(v.ctx),
+				NewTreeView(v.Ctx),
 			),
 			elem.Div(
 				prop.ID("main"),
 				prop.Class("split split-horizontal"),
-				NewPanelView(v.ctx),
+				NewPanelView(v.Ctx),
 			),
 		),
-		NewAddPopupView(v.ctx),
+		NewAddPopupView(v.Ctx),
 	)
 }

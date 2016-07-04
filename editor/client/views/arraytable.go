@@ -13,22 +13,16 @@ import (
 )
 
 type ArrayTableView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*View
 
 	model *models.EditorModel
 	tbody *vecty.Element
 }
 
 func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTableView {
-	v := &ArrayTableView{
-		ctx:   ctx,
-		app:   stores.FromContext(ctx),
-		model: model,
-	}
-	v.RenderFunc = v.render
+	v := &ArrayTableView{}
+	v.View = New(ctx, v)
+	v.model = model
 	v.Mount()
 	return v
 }
@@ -47,13 +41,13 @@ func (v *ArrayTableView) Apply(element *vecty.Element) {
 }
 
 func (v *ArrayTableView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.EditorArrayOrderChanged,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -87,7 +81,7 @@ func (v *ArrayTableView) sortable() {
 				if oldIndex == newIndex {
 					return
 				}
-				v.app.Dispatch(&actions.ArrayOrder{
+				v.App.Dispatch(&actions.ArrayOrder{
 					Model:    v.model,
 					OldIndex: oldIndex,
 					NewIndex: newIndex,
@@ -98,14 +92,14 @@ func (v *ArrayTableView) sortable() {
 }
 
 func (v *ArrayTableView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *ArrayTableView) render() vecty.Component {
+func (v *ArrayTableView) Render() vecty.Component {
 
 	if v.model.Node == nil || len(v.model.Node.Array) == 0 {
 		v.tbody = nil
@@ -124,7 +118,7 @@ func (v *ArrayTableView) render() vecty.Component {
 
 	rows := vecty.List{}
 	for _, c := range v.model.Node.Array {
-		rows = append(rows, NewArrayRowView(v.ctx, c))
+		rows = append(rows, NewArrayRowView(v.Ctx, c))
 	}
 
 	v.tbody = elem.TableBody(

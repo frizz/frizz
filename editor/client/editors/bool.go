@@ -9,6 +9,7 @@ import (
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/editor/client/views"
 	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -27,10 +28,7 @@ func (s *BoolEditor) EditorView(ctx context.Context, node *node.Node, format edi
 }
 
 type BoolEditorView struct {
-	vecty.Composite
-	ctx    context.Context
-	app    *stores.App
-	notifs chan flux.NotifPayload
+	*views.View
 
 	model  *models.EditorModel
 	node   *models.NodeModel
@@ -39,13 +37,10 @@ type BoolEditorView struct {
 }
 
 func NewBoolEditorView(ctx context.Context, node *node.Node, format editable.Format) *BoolEditorView {
-	v := &BoolEditorView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
-	v.node = v.app.Nodes.Get(node)
+	v := &BoolEditorView{}
+	v.View = views.New(ctx, v)
+	v.model = v.App.Editors.Get(node)
+	v.node = v.App.Nodes.Get(node)
 	v.format = format
 	v.Mount()
 	return v
@@ -64,13 +59,13 @@ func (v *BoolEditorView) Apply(element *vecty.Element) {
 }
 
 func (v *BoolEditorView) Mount() {
-	v.notifs = v.app.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.EditorFocus,
 		stores.EditorValueChanged,
 		stores.EditorErrorsChanged,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -89,20 +84,20 @@ func (v *BoolEditorView) Focus() {
 }
 
 func (v *BoolEditorView) Unmount() {
-	if v.notifs != nil {
-		v.app.Delete(v.notifs)
-		v.notifs = nil
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
 	}
 	v.Body.Unmount()
 }
 
-func (v *BoolEditorView) render() vecty.Component {
+func (v *BoolEditorView) Render() vecty.Component {
 
 	v.input = elem.Input(
 		prop.Type(prop.TypeCheckbox),
 		prop.Checked(v.model.Node.ValueBool),
 		event.Change(func(e *vecty.Event) {
-			change(v.app, v.model, func() interface{} {
+			change(v.App, v.model, func() interface{} {
 				return e.Target.Get("checked").Bool()
 			})
 		}),
@@ -117,7 +112,7 @@ func (v *BoolEditorView) render() vecty.Component {
 			prop.Class("checkbox"),
 			elem.Label(
 				v.input,
-				vecty.Text(v.model.Node.Label(v.ctx)),
+				vecty.Text(v.model.Node.Label(v.Ctx)),
 			),
 		),
 	)
@@ -126,6 +121,6 @@ func (v *BoolEditorView) render() vecty.Component {
 		return group
 	}
 
-	helpBlock(v.ctx, v.model.Node).Apply(group)
+	helpBlock(v.Ctx, v.model.Node).Apply(group)
 	return group
 }

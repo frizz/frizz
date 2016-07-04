@@ -7,25 +7,19 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
 	"kego.io/system/node"
 )
 
 type ArrayView struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
+	*View
 
 	model *models.EditorModel
 }
 
 func NewArrayView(ctx context.Context, node *node.Node) *ArrayView {
-	v := &ArrayView{
-		ctx: ctx,
-		app: stores.FromContext(ctx),
-	}
-	v.RenderFunc = v.render
-	v.model = v.app.Editors.Get(node)
+	v := &ArrayView{}
+	v.View = New(ctx, v)
+	v.model = v.App.Editors.Get(node)
 	return v
 }
 
@@ -41,7 +35,7 @@ func (v *ArrayView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *ArrayView) render() vecty.Component {
+func (v *ArrayView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Array (nil)"))
 	}
@@ -53,12 +47,12 @@ func (v *ArrayView) render() vecty.Component {
 				prop.Class("btn btn-primary"),
 				vecty.Text("Add"),
 				event.Click(func(ev *vecty.Event) {
-					addCollectionItem(v.app, v.model.Node)
+					addCollectionItem(v.App, v.model.Node)
 				}).PreventDefault(),
 			),
 		),
-		NewEditorListView(v.ctx, v.model, nil),
-		NewArrayTableView(v.ctx, v.model),
+		NewEditorListView(v.Ctx, v.model, nil),
+		NewArrayTableView(v.Ctx, v.model),
 	)
 
 }

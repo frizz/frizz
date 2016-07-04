@@ -8,25 +8,19 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
 )
 
 type BreadcrumbsView struct {
-	vecty.Composite
-	ctx context.Context
-	app *stores.App
-	c   chan struct{}
+	*View
 
+	c      chan struct{}
 	branch *models.BranchModel
 }
 
 func NewBreadcrumbsView(ctx context.Context, b *models.BranchModel) *BreadcrumbsView {
-	v := &BreadcrumbsView{
-		ctx:    ctx,
-		app:    stores.FromContext(ctx),
-		branch: b,
-	}
-	v.RenderFunc = v.render
+	v := &BreadcrumbsView{}
+	v.View = New(ctx, v)
+	v.branch = b
 	return v
 }
 
@@ -42,7 +36,7 @@ func (v *BreadcrumbsView) Apply(element *vecty.Element) {
 	element.AddChild(v)
 }
 
-func (v *BreadcrumbsView) render() vecty.Component {
+func (v *BreadcrumbsView) Render() vecty.Component {
 	if v.branch == nil {
 		return elem.Div()
 	}
@@ -62,16 +56,16 @@ func (v *BreadcrumbsView) render() vecty.Component {
 		var content vecty.Markup
 		if current == v.branch {
 			content = vecty.Text(
-				current.Contents.Label(v.ctx),
+				current.Contents.Label(v.Ctx),
 			)
 		} else {
 			content = elem.Anchor(
 				prop.Href("#"),
 				vecty.Text(
-					current.Contents.Label(v.ctx),
+					current.Contents.Label(v.Ctx),
 				),
 				event.Click(func(ev *vecty.Event) {
-					v.app.Dispatch(&actions.BranchSelecting{Branch: current, Op: models.BranchOpClickBreadcrumb})
+					v.App.Dispatch(&actions.BranchSelecting{Branch: current, Op: models.BranchOpClickBreadcrumb})
 				}).PreventDefault(),
 			)
 		}
