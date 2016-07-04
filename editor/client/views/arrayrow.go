@@ -56,14 +56,6 @@ func (v *ArrayRowView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 }
 
-func (v *ArrayRowView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *ArrayRowView) Render() vecty.Component {
 
 	val, err := v.node.DisplayType(v.Ctx)

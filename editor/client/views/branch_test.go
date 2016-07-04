@@ -235,7 +235,7 @@ func TestBranchView_Unmount(t *testing.T) {
 	c.EXPECT().Unmount()
 	b.Body = c
 	b.Unmount()
-	assert.Nil(t, b.notifs)
+	assert.Nil(t, b.Notifs)
 }
 
 func equal(t *testing.T, expected, actual *vecty.Element) {

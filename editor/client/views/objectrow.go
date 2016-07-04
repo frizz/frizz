@@ -57,14 +57,6 @@ func (v *ObjectRowView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 }
 
-func (v *ObjectRowView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *ObjectRowView) Render() vecty.Component {
 
 	name := v.node.Key

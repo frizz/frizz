@@ -70,14 +70,6 @@ func (v *EditorView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 }
 
-func (v *EditorView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *EditorView) Render() vecty.Component {
 	return elem.Div(vecty.Text("default editor"))
 }

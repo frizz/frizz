@@ -83,14 +83,6 @@ func (v *BoolEditorView) Focus() {
 	v.input.Node().Call("focus")
 }
 
-func (v *BoolEditorView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *BoolEditorView) Render() vecty.Component {
 
 	v.input = elem.Input(

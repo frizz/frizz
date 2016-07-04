@@ -91,14 +91,6 @@ func (v *ArrayTableView) sortable() {
 	}
 }
 
-func (v *ArrayTableView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *ArrayTableView) Render() vecty.Component {
 
 	if v.model.Node == nil || len(v.model.Node.Array) == 0 {

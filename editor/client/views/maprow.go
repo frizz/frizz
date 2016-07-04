@@ -56,14 +56,6 @@ func (v *MapRowView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 }
 
-func (v *MapRowView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *MapRowView) Render() vecty.Component {
 
 	name := v.node.Key

@@ -60,14 +60,6 @@ func (v *PanelView) reaction(notif flux.NotifPayload) {
 	}
 }
 
-func (v *PanelView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *PanelView) Render() vecty.Component {
 	var editor, breadcrumbs vecty.Component
 	if v.branch != nil {

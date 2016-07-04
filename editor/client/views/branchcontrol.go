@@ -16,7 +16,6 @@ type BranchControlView struct {
 	*View
 
 	model    *models.BranchModel
-	notifs   chan flux.NotifPayload
 	children vecty.List
 }
 
@@ -45,12 +44,12 @@ func (v *BranchControlView) Apply(element *vecty.Element) {
 }
 
 func (v *BranchControlView) Mount() {
-	v.notifs = v.App.Watch(v.model,
+	v.Notifs = v.App.Watch(v.model,
 		stores.BranchSelectControl,
 		stores.BranchUnselectControl,
 	)
 	go func() {
-		for notif := range v.notifs {
+		for notif := range v.Notifs {
 			v.reaction(notif)
 		}
 	}()
@@ -62,14 +61,6 @@ func (v *BranchControlView) reaction(notif flux.NotifPayload) {
 	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}
-}
-
-func (v *BranchControlView) Unmount() {
-	if v.notifs != nil {
-		v.App.Delete(v.notifs)
-		v.notifs = nil
-	}
-	v.Body.Unmount()
 }
 
 func (v *BranchControlView) focus() {

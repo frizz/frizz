@@ -48,14 +48,6 @@ func (v *TreeView) Mount() {
 	}()
 }
 
-func (v *TreeView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *TreeView) Render() vecty.Component {
 	if v.Root == nil {
 		return elem.Div()

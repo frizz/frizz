@@ -53,14 +53,6 @@ func (v *MapTableView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 }
 
-func (v *MapTableView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *MapTableView) Render() vecty.Component {
 
 	if v.model.Node == nil || len(v.model.Node.Map) == 0 {

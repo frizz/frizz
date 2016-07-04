@@ -72,14 +72,6 @@ func (v *AddPopupView) reaction(notif flux.NotifPayload) {
 	}
 }
 
-func (v *AddPopupView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *AddPopupView) Render() vecty.Component {
 	if v.model == nil || !v.model.Visible {
 		return v.modal()

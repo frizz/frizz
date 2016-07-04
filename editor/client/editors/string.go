@@ -88,14 +88,6 @@ func (v *StringEditorView) Focus() {
 	v.input.Node().Call("focus")
 }
 
-func (v *StringEditorView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *StringEditorView) Render() vecty.Component {
 	id := randomId()
 

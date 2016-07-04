@@ -57,14 +57,6 @@ func (v *ObjectTableView) reaction(notif flux.NotifPayload) {
 	v.ReconcileBody()
 }
 
-func (v *ObjectTableView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *ObjectTableView) Render() vecty.Component {
 
 	if v.model.Node == nil || len(v.model.Node.Map) == 0 {

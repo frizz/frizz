@@ -84,14 +84,6 @@ func (v *IconEditorView) Focus() {
 	v.editor.Focus()
 }
 
-func (v *IconEditorView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *IconEditorView) Render() vecty.Component {
 	v.editor = editors.NewStringEditorView(v.Ctx, v.model.Node.Map["url"], editable.Inline)
 	url := ""

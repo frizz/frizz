@@ -85,14 +85,6 @@ func (v *NumberEditorView) Focus() {
 	v.input.Node().Call("focus")
 }
 
-func (v *NumberEditorView) Unmount() {
-	if v.Notifs != nil {
-		v.App.Delete(v.Notifs)
-		v.Notifs = nil
-	}
-	v.Body.Unmount()
-}
-
 func (v *NumberEditorView) Render() vecty.Component {
 	id := randomId()
 

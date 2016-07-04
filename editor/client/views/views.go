@@ -24,3 +24,11 @@ func New(ctx context.Context, renderer vecty.Renderer) *View {
 	}
 	return v
 }
+
+func (v *View) Unmount() {
+	if v.Notifs != nil {
+		v.App.Delete(v.Notifs)
+		v.Notifs = nil
+	}
+	v.Body.Unmount()
+}
