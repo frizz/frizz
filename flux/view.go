@@ -13,25 +13,34 @@ type ViewInterface interface {
 
 type View struct {
 	vecty.Composite
-	Ctx    context.Context
-	App    AppInterface
-	Notifs []chan NotifPayload
-	Self   ViewInterface
+	Ctx       context.Context
+	App       AppInterface
+	Notifs    []chan NotifPayload
+	Self      ViewInterface
+	unmounted bool
 }
 
 func NewView(ctx context.Context, self ViewInterface, app AppInterface) *View {
 	v := &View{
-		Composite: vecty.Composite{
-			RenderFunc: self.Render,
-		},
 		Ctx:  ctx,
 		App:  app,
 		Self: self,
 	}
+	v.Composite = vecty.Composite{
+		RenderFunc: v.render,
+	}
 	return v
 }
 
+func (v *View) render() vecty.Component {
+	if v.unmounted {
+		return nil
+	}
+	return v.Self.Render()
+}
+
 func (v *View) Unmount() {
+	v.unmounted = true
 	for _, n := range v.Notifs {
 		v.App.Delete(n)
 	}
