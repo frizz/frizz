@@ -42,7 +42,7 @@ func NewIconEditorView(ctx context.Context, node *node.Node, format editable.For
 	v.View = views.New(ctx, v)
 	v.model = v.App.Editors.Get(node)
 	v.icon = v.model.Node.Value.(*Icon)
-	v.Watch(v.reaction, v.model.Node,
+	v.Watch(v.model.Node,
 		stores.NodeValueChanged,
 		stores.NodeDescendantValueChanged,
 		stores.NodeFocus,
@@ -57,7 +57,7 @@ func (v *IconEditorView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func (v *IconEditorView) reaction(notif flux.NotifPayload) {
+func (v *IconEditorView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.icon = v.model.Node.Value.(*Icon)
 	v.ReconcileBody()

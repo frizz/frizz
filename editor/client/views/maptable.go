@@ -7,7 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 )
 
 type MapTableView struct {
@@ -20,7 +19,7 @@ func NewMapTableView(ctx context.Context, model *models.EditorModel) *MapTableVi
 	v := &MapTableView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
@@ -31,11 +30,6 @@ func (v *MapTableView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*MapTableView); ok {
 		v.Body = old.Body
 	}
-	v.ReconcileBody()
-}
-
-func (v *MapTableView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
 	v.ReconcileBody()
 }
 

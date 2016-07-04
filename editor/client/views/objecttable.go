@@ -7,7 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 	"kego.io/system"
 )
 
@@ -23,7 +22,7 @@ func NewObjectTableView(ctx context.Context, model *models.EditorModel, origin *
 	v.View = New(ctx, v)
 	v.model = model
 	v.origin = origin
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)
@@ -34,11 +33,6 @@ func (v *ObjectTableView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ObjectTableView); ok {
 		v.Body = old.Body
 	}
-	v.ReconcileBody()
-}
-
-func (v *ObjectTableView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
 	v.ReconcileBody()
 }
 

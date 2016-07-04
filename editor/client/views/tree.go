@@ -20,7 +20,7 @@ type TreeView struct {
 func NewTreeView(ctx context.Context) *TreeView {
 	v := &TreeView{}
 	v.View = New(ctx, v)
-	v.Watch(v.reaction, v.App.Branches.Root(),
+	v.Watch(v.App.Branches.Root(),
 		stores.BranchInitialStateLoaded,
 	)
 	return v
@@ -33,7 +33,7 @@ func (v *TreeView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func (v *TreeView) reaction(notif flux.NotifPayload) {
+func (v *TreeView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.Root = v.App.Branches.Root()
 	v.ReconcileBody()

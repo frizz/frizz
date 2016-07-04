@@ -7,7 +7,6 @@ import (
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -24,7 +23,7 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	v.View = New(ctx, v)
 	v.model = model
 	v.filter = filter
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.EditorArrayOrderChanged,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
@@ -36,11 +35,6 @@ func (v *EditorListView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*EditorListView); ok {
 		v.Body = old.Body
 	}
-	v.ReconcileBody()
-}
-
-func (v *EditorListView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
 	v.ReconcileBody()
 }
 

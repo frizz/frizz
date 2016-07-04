@@ -22,7 +22,7 @@ type PanelView struct {
 func NewPanelView(ctx context.Context) *PanelView {
 	v := &PanelView{}
 	v.View = New(ctx, v)
-	v.Watch(v.reaction, nil,
+	v.Watch(nil,
 		stores.BranchSelected,
 	)
 	return v
@@ -35,7 +35,7 @@ func (v *PanelView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func (v *PanelView) reaction(notif flux.NotifPayload) {
+func (v *PanelView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.branch = v.App.Branches.Selected()
 	v.node = v.App.Nodes.Selected()

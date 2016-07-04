@@ -23,7 +23,7 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 	v := &BranchControlView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.BranchSelectControl,
 		stores.BranchUnselectControl,
 	)
@@ -41,7 +41,7 @@ func (v *BranchControlView) Reconcile(old vecty.Component) {
 	}
 }
 
-func (v *BranchControlView) reaction(notif flux.NotifPayload) {
+func (v *BranchControlView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
 	if v.model != nil && v.App.Branches.Selected() == v.model {

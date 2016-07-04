@@ -28,7 +28,7 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 	v := &BranchView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.BranchOpening,
 		stores.BranchOpened,
 		stores.BranchClose,
@@ -49,7 +49,7 @@ func (v *BranchView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func (v *BranchView) reaction(notif flux.NotifPayload) {
+func (v *BranchView) Receive(notif flux.NotifPayload) {
 	wait := &flux.Waiter{}
 	defer wait.Go(notif.Done)
 

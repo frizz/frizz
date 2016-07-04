@@ -42,7 +42,7 @@ func NewBoolEditorView(ctx context.Context, node *node.Node, format editable.For
 	v.model = v.App.Editors.Get(node)
 	v.node = v.App.Nodes.Get(node)
 	v.format = format
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.EditorFocus,
 		stores.EditorValueChanged,
 		stores.EditorErrorsChanged)
@@ -56,7 +56,7 @@ func (v *BoolEditorView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func (v *BoolEditorView) reaction(notif flux.NotifPayload) {
+func (v *BoolEditorView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
 	if notif.Type == stores.EditorFocus {

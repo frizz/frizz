@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 	"kego.io/system/node"
 )
 
@@ -23,7 +22,7 @@ func NewObjectRowView(ctx context.Context, node *node.Node) *ObjectRowView {
 	v := &ObjectRowView{}
 	v.View = New(ctx, v)
 	v.node = node
-	v.Watch(v.reaction, v.node,
+	v.Watch(v.node,
 		stores.NodeInitialised,
 		stores.NodeValueChanged,
 	)
@@ -34,11 +33,6 @@ func (v *ObjectRowView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ObjectRowView); ok {
 		v.Body = old.Body
 	}
-	v.ReconcileBody()
-}
-
-func (v *ObjectRowView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
 	v.ReconcileBody()
 }
 

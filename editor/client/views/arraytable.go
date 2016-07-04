@@ -23,7 +23,7 @@ func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTab
 	v := &ArrayTableView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Watch(v.reaction, v.model,
+	v.Watch(v.model,
 		stores.EditorArrayOrderChanged,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
@@ -39,7 +39,7 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 	v.sortable()
 }
 
-func (v *ArrayTableView) reaction(notif flux.NotifPayload) {
+func (v *ArrayTableView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	if notif.Type == stores.EditorArrayOrderChanged {
 		js.Global.Call("$", v.tbody.Node()).Call("sortable", "cancel")

@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
-	"kego.io/flux"
 	"kego.io/system/node"
 )
 
@@ -23,7 +22,7 @@ func NewMapRowView(ctx context.Context, node *node.Node) *MapRowView {
 	v := &MapRowView{}
 	v.View = New(ctx, v)
 	v.node = node
-	v.Watch(v.reaction, v.node,
+	v.Watch(v.node,
 		stores.NodeValueChanged,
 	)
 	return v
@@ -33,11 +32,6 @@ func (v *MapRowView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*MapRowView); ok {
 		v.Body = old.Body
 	}
-	v.ReconcileBody()
-}
-
-func (v *MapRowView) reaction(notif flux.NotifPayload) {
-	defer close(notif.Done)
 	v.ReconcileBody()
 }
 

@@ -7,20 +7,27 @@ import (
 	"kego.io/flux"
 )
 
-type View struct {
-	vecty.Composite
-	Ctx    context.Context
-	App    *stores.App
-	Notifs []chan flux.NotifPayload
+type Receiver interface {
+	vecty.Renderer
+	Receive(notif flux.NotifPayload)
 }
 
-func New(ctx context.Context, self vecty.Renderer) *View {
+type View struct {
+	vecty.Composite
+	Ctx      context.Context
+	App      *stores.App
+	Notifs   []chan flux.NotifPayload
+	Receiver Receiver
+}
+
+func New(ctx context.Context, self Receiver) *View {
 	v := &View{
 		Composite: vecty.Composite{
 			Self: self,
 		},
-		Ctx: ctx,
-		App: stores.FromContext(ctx),
+		Ctx:      ctx,
+		App:      stores.FromContext(ctx),
+		Receiver: self,
 	}
 	return v
 }
@@ -38,12 +45,18 @@ func (v *View) Apply(element *vecty.Element) {
 	element.AddChild(v.Self)
 }
 
-func (v *View) Watch(reaction func(notif flux.NotifPayload), object interface{}, notifs ...flux.Notif) {
+func (v *View) Watch(object interface{}, notifs ...flux.Notif) {
 	n := v.App.Watch(object, notifs...)
 	go func() {
 		for notif := range n {
-			reaction(notif)
+			v.Receiver.Receive(notif)
 		}
 	}()
 	v.Notifs = append(v.Notifs, n)
+}
+
+func (v *View) Receive(notif flux.NotifPayload) {
+	// Default receive function for when view doesn't override it
+	defer close(notif.Done)
+	v.ReconcileBody()
 }

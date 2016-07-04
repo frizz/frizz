@@ -28,7 +28,7 @@ type AddPopupView struct {
 func NewAddPopupView(ctx context.Context) *AddPopupView {
 	v := &AddPopupView{}
 	v.View = New(ctx, v)
-	v.Watch(v.reaction, nil,
+	v.Watch(nil,
 		stores.AddPopupChange,
 	)
 	return v
@@ -41,7 +41,7 @@ func (v *AddPopupView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-func (v *AddPopupView) reaction(notif flux.NotifPayload) {
+func (v *AddPopupView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.model = v.App.Misc.AddPopup()
 	v.ReconcileBody()
