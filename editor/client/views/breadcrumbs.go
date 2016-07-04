@@ -31,11 +31,6 @@ func (v *BreadcrumbsView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *BreadcrumbsView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
 func (v *BreadcrumbsView) Render() vecty.Component {
 	if v.branch == nil {
 		return elem.Div()

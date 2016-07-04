@@ -30,11 +30,6 @@ func (v *ArrayView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *ArrayView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
 func (v *ArrayView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Array (nil)"))

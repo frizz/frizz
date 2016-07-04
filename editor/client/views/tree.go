@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 )
 
 type TreeView struct {
@@ -19,7 +20,9 @@ type TreeView struct {
 func NewTreeView(ctx context.Context) *TreeView {
 	v := &TreeView{}
 	v.View = New(ctx, v)
-	v.Mount()
+	v.Watch(v.reaction, v.App.Branches.Root(),
+		stores.BranchInitialStateLoaded,
+	)
 	return v
 }
 
@@ -30,22 +33,10 @@ func (v *TreeView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *TreeView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *TreeView) Mount() {
-	v.Notifs = v.App.Watch(v.App.Branches.Root(),
-		stores.BranchInitialStateLoaded,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.Root = v.App.Branches.Root()
-			v.ReconcileBody()
-			close(notif.Done)
-		}
-	}()
+func (v *TreeView) reaction(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	v.Root = v.App.Branches.Root()
+	v.ReconcileBody()
 }
 
 func (v *TreeView) Render() vecty.Component {

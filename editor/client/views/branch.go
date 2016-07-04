@@ -28,26 +28,7 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 	v := &BranchView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Mount()
-	return v
-}
-
-// ke: {"func": {"notest": true}}
-func (v *BranchView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BranchView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *BranchView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *BranchView) Mount() {
-
-	v.Notifs = v.App.Watch(v.model,
+	v.Watch(v.reaction, v.model,
 		stores.BranchOpening,
 		stores.BranchOpened,
 		stores.BranchClose,
@@ -57,12 +38,15 @@ func (v *BranchView) Mount() {
 		stores.BranchChildDeleted,
 		stores.BranchChildrenReordered,
 	)
+	return v
+}
 
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
+// ke: {"func": {"notest": true}}
+func (v *BranchView) Reconcile(old vecty.Component) {
+	if old, ok := old.(*BranchView); ok {
+		v.Body = old.Body
+	}
+	v.ReconcileBody()
 }
 
 func (v *BranchView) reaction(notif flux.NotifPayload) {

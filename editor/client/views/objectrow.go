@@ -23,7 +23,10 @@ func NewObjectRowView(ctx context.Context, node *node.Node) *ObjectRowView {
 	v := &ObjectRowView{}
 	v.View = New(ctx, v)
 	v.node = node
-	v.Mount()
+	v.Watch(v.reaction, v.node,
+		stores.NodeInitialised,
+		stores.NodeValueChanged,
+	)
 	return v
 }
 
@@ -32,24 +35,6 @@ func (v *ObjectRowView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *ObjectRowView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *ObjectRowView) Mount() {
-	v.Notifs = v.App.Watch(v.node,
-		stores.NodeInitialised,
-		stores.NodeValueChanged,
-	)
-
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *ObjectRowView) reaction(notif flux.NotifPayload) {

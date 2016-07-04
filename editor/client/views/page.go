@@ -33,11 +33,6 @@ func (v *PageView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *PageView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
 func (v *PageView) addKeyboardEvents() {
 	window := dom.GetWindow()
 	document := window.Document().(dom.HTMLDocument)

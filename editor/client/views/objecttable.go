@@ -23,7 +23,10 @@ func NewObjectTableView(ctx context.Context, model *models.EditorModel, origin *
 	v.View = New(ctx, v)
 	v.model = model
 	v.origin = origin
-	v.Mount()
+	v.Watch(v.reaction, v.model,
+		stores.EditorChildAdded,
+		stores.EditorChildDeleted,
+	)
 	return v
 }
 
@@ -32,24 +35,6 @@ func (v *ObjectTableView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *ObjectTableView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *ObjectTableView) Mount() {
-	v.Notifs = v.App.Watch(v.model,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
-	)
-
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *ObjectTableView) reaction(notif flux.NotifPayload) {

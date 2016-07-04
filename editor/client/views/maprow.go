@@ -23,7 +23,9 @@ func NewMapRowView(ctx context.Context, node *node.Node) *MapRowView {
 	v := &MapRowView{}
 	v.View = New(ctx, v)
 	v.node = node
-	v.Mount()
+	v.Watch(v.reaction, v.node,
+		stores.NodeValueChanged,
+	)
 	return v
 }
 
@@ -32,23 +34,6 @@ func (v *MapRowView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *MapRowView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *MapRowView) Mount() {
-	v.Notifs = v.App.Watch(v.node,
-		stores.NodeValueChanged,
-	)
-
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *MapRowView) reaction(notif flux.NotifPayload) {

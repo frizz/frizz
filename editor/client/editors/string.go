@@ -47,7 +47,11 @@ func NewStringEditorView(ctx context.Context, node *node.Node, format editable.F
 	v.model = v.App.Editors.Get(node)
 	v.node = v.App.Nodes.Get(node)
 	v.format = format
-	v.Mount()
+	v.Watch(v.reaction, v.model,
+		stores.EditorFocus,
+		stores.EditorValueChanged,
+		stores.EditorErrorsChanged,
+	)
 	return v
 }
 
@@ -56,24 +60,6 @@ func (v *StringEditorView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *StringEditorView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *StringEditorView) Mount() {
-	v.Notifs = v.App.Watch(v.model,
-		stores.EditorFocus,
-		stores.EditorValueChanged,
-		stores.EditorErrorsChanged,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *StringEditorView) reaction(notif flux.NotifPayload) {

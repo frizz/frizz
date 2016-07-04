@@ -22,7 +22,9 @@ type PanelView struct {
 func NewPanelView(ctx context.Context) *PanelView {
 	v := &PanelView{}
 	v.View = New(ctx, v)
-	v.Mount()
+	v.Watch(v.reaction, nil,
+		stores.BranchSelected,
+	)
 	return v
 }
 
@@ -31,23 +33,6 @@ func (v *PanelView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *PanelView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *PanelView) Mount() {
-	v.Notifs = v.App.Watch(nil,
-		stores.BranchSelected,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
-
 }
 
 func (v *PanelView) reaction(notif flux.NotifPayload) {

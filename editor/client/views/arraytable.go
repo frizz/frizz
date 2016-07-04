@@ -23,7 +23,11 @@ func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTab
 	v := &ArrayTableView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Mount()
+	v.Watch(v.reaction, v.model,
+		stores.EditorArrayOrderChanged,
+		stores.EditorChildAdded,
+		stores.EditorChildDeleted,
+	)
 	return v
 }
 
@@ -33,24 +37,6 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 	}
 	v.ReconcileBody()
 	v.sortable()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *ArrayTableView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *ArrayTableView) Mount() {
-	v.Notifs = v.App.Watch(v.model,
-		stores.EditorArrayOrderChanged,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *ArrayTableView) reaction(notif flux.NotifPayload) {

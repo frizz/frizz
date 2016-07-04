@@ -24,7 +24,11 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	v.View = New(ctx, v)
 	v.model = model
 	v.filter = filter
-	v.Mount()
+	v.Watch(v.reaction, v.model,
+		stores.EditorArrayOrderChanged,
+		stores.EditorChildAdded,
+		stores.EditorChildDeleted,
+	)
 	return v
 }
 
@@ -33,24 +37,6 @@ func (v *EditorListView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *EditorListView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *EditorListView) Mount() {
-	v.Notifs = v.App.Watch(v.model,
-		stores.EditorArrayOrderChanged,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *EditorListView) reaction(notif flux.NotifPayload) {

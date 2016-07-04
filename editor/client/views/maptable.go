@@ -20,7 +20,10 @@ func NewMapTableView(ctx context.Context, model *models.EditorModel) *MapTableVi
 	v := &MapTableView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Mount()
+	v.Watch(v.reaction, v.model,
+		stores.EditorChildAdded,
+		stores.EditorChildDeleted,
+	)
 	return v
 }
 
@@ -29,23 +32,6 @@ func (v *MapTableView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *MapTableView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *MapTableView) Mount() {
-	v.Notifs = v.App.Watch(v.model,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *MapTableView) reaction(notif flux.NotifPayload) {

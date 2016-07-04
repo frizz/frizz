@@ -32,11 +32,6 @@ func (v *ObjectView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *ObjectView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
 func (v *ObjectView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Object (nil)"))

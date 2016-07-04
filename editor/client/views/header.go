@@ -28,11 +28,6 @@ func (v *Header) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *Header) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
 func (v *Header) Render() vecty.Component {
 	return elem.Navigation(
 		prop.Class("navbar navbar-inverse navbar-fixed-top"),

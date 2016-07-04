@@ -23,7 +23,10 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 	v := &BranchControlView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Mount()
+	v.Watch(v.reaction, v.model,
+		stores.BranchSelectControl,
+		stores.BranchUnselectControl,
+	)
 	return v
 }
 
@@ -36,23 +39,6 @@ func (v *BranchControlView) Reconcile(old vecty.Component) {
 	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *BranchControlView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *BranchControlView) Mount() {
-	v.Notifs = v.App.Watch(v.model,
-		stores.BranchSelectControl,
-		stores.BranchUnselectControl,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *BranchControlView) reaction(notif flux.NotifPayload) {

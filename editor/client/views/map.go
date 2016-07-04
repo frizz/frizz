@@ -30,11 +30,6 @@ func (v *MapView) Reconcile(old vecty.Component) {
 	v.ReconcileBody()
 }
 
-// Apply implements the vecty.Markup interface.
-func (v *MapView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
 func (v *MapView) Render() vecty.Component {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Map (nil)"))

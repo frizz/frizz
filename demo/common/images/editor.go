@@ -42,7 +42,11 @@ func NewIconEditorView(ctx context.Context, node *node.Node, format editable.For
 	v.View = views.New(ctx, v)
 	v.model = v.App.Editors.Get(node)
 	v.icon = v.model.Node.Value.(*Icon)
-	v.Mount()
+	v.Watch(v.reaction, v.model.Node,
+		stores.NodeValueChanged,
+		stores.NodeDescendantValueChanged,
+		stores.NodeFocus,
+	)
 	return v
 }
 
@@ -51,24 +55,6 @@ func (v *IconEditorView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
-}
-
-// Apply implements the vecty.Markup interface.
-func (v *IconEditorView) Apply(element *vecty.Element) {
-	element.AddChild(v)
-}
-
-func (v *IconEditorView) Mount() {
-	v.Notifs = v.App.Watch(v.model.Node,
-		stores.NodeValueChanged,
-		stores.NodeDescendantValueChanged,
-		stores.NodeFocus,
-	)
-	go func() {
-		for notif := range v.Notifs {
-			v.reaction(notif)
-		}
-	}()
 }
 
 func (v *IconEditorView) reaction(notif flux.NotifPayload) {
