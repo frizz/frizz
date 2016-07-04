@@ -209,7 +209,9 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
 	if err != nil {
 		switch kerr.Source(err).(type) {
-		case json.UnknownPackageError, json.UnknownTypeError:
+		case json.UnknownPackageError:
+			return kerr.Wrap("UEKBHAJSME", err)
+		case json.UnknownTypeError:
 			// don't return error
 		default:
 			return kerr.Wrap("NLRRVIDVWM", err)
