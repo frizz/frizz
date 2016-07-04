@@ -27,6 +27,7 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.model = model
 	v.filter = filter
 	v.Mount()
@@ -37,7 +38,6 @@ func (v *EditorListView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*EditorListView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

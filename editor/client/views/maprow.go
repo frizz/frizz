@@ -28,6 +28,7 @@ func NewMapRowView(ctx context.Context, node *node.Node) *MapRowView {
 		app:  stores.FromContext(ctx),
 		node: node,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -36,7 +37,6 @@ func (v *MapRowView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*MapRowView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

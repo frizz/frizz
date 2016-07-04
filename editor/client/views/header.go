@@ -18,18 +18,19 @@ type Header struct {
 }
 
 func NewHeader(ctx context.Context, env *envctx.Env) *Header {
-	return &Header{
+	v := &Header{
 		ctx:         ctx,
 		app:         stores.FromContext(ctx),
 		Environment: env,
 	}
+	v.RenderFunc = v.render
+	return v
 }
 
 func (v *Header) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PageView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

@@ -24,6 +24,7 @@ func NewMapView(ctx context.Context, node *node.Node) *MapView {
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.model = v.app.Editors.Get(node)
 	return v
 }
@@ -32,7 +33,6 @@ func (v *MapView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*MapView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

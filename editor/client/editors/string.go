@@ -48,6 +48,7 @@ func NewStringEditorView(ctx context.Context, node *node.Node, format editable.F
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.model = v.app.Editors.Get(node)
 	v.node = v.app.Nodes.Get(node)
 	v.format = format
@@ -59,7 +60,6 @@ func (v *StringEditorView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*StringEditorView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

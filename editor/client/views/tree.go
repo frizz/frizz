@@ -25,6 +25,7 @@ func NewTreeView(ctx context.Context) *TreeView {
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -33,7 +34,6 @@ func (v *TreeView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*TreeView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

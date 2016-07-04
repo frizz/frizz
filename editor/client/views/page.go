@@ -27,6 +27,7 @@ func NewPage(ctx context.Context, env *envctx.Env) *PageView {
 		app:         stores.FromContext(ctx),
 		Environment: env,
 	}
+	v.RenderFunc = v.render
 	v.addKeyboardEvents()
 	return v
 }
@@ -35,7 +36,6 @@ func (v *PageView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*PageView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

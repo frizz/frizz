@@ -28,6 +28,7 @@ func NewObjectRowView(ctx context.Context, node *node.Node) *ObjectRowView {
 		app:  stores.FromContext(ctx),
 		node: node,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -36,7 +37,6 @@ func (v *ObjectRowView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ObjectRowView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

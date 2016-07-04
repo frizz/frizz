@@ -33,6 +33,7 @@ func NewAddPopupView(ctx context.Context) *AddPopupView {
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -41,7 +42,6 @@ func (v *AddPopupView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*AddPopupView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

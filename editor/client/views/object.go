@@ -26,6 +26,7 @@ func NewObjectView(ctx context.Context, node *node.Node) *ObjectView {
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.model = v.app.Editors.Get(node)
 	return v
 }
@@ -34,7 +35,6 @@ func (v *ObjectView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ObjectView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

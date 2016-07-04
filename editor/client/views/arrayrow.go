@@ -28,6 +28,7 @@ func NewArrayRowView(ctx context.Context, node *node.Node) *ArrayRowView {
 		app:  stores.FromContext(ctx),
 		node: node,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -36,7 +37,6 @@ func (v *ArrayRowView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ArrayRowView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

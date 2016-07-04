@@ -28,6 +28,7 @@ func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTab
 		app:   stores.FromContext(ctx),
 		model: model,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -36,7 +37,6 @@ func (v *ArrayTableView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ArrayTableView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 	v.sortable()
 }

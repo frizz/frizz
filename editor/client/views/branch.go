@@ -33,6 +33,7 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 		app:   stores.FromContext(ctx),
 		model: model,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -42,7 +43,6 @@ func (v *BranchView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*BranchView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

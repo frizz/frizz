@@ -25,6 +25,7 @@ func NewMapTableView(ctx context.Context, model *models.EditorModel) *MapTableVi
 		app:   stores.FromContext(ctx),
 		model: model,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -33,7 +34,6 @@ func (v *MapTableView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*MapTableView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

@@ -29,6 +29,7 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 		app:   app,
 		model: model,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -38,7 +39,6 @@ func (v *BranchControlView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*BranchControlView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 	if v.model != nil && v.app.Branches.Selected() == v.model {
 		v.focus()

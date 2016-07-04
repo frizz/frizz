@@ -28,6 +28,7 @@ func NewObjectTableView(ctx context.Context, model *models.EditorModel, origin *
 		model:  model,
 		origin: origin,
 	}
+	v.RenderFunc = v.render
 	v.Mount()
 	return v
 }
@@ -36,7 +37,6 @@ func (v *ObjectTableView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*ObjectTableView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 

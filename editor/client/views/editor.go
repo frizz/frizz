@@ -42,6 +42,7 @@ func NewEditorView(ctx context.Context, node *node.Node, format editable.Format)
 		ctx: ctx,
 		app: stores.FromContext(ctx),
 	}
+	v.RenderFunc = v.render
 	v.model = v.app.Editors.Get(node)
 	v.Mount()
 	return v
@@ -51,7 +52,6 @@ func (v *EditorView) Reconcile(old vecty.Component) {
 	if old, ok := old.(*EditorView); ok {
 		v.Body = old.Body
 	}
-	v.RenderFunc = v.render
 	v.ReconcileBody()
 }
 
