@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":11312826634280177890}
+// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":10362807576256830877}
 package tests
 
 // ke: {"file": {"notest": true}}
@@ -139,6 +139,12 @@ type SiblingRule struct {
 
 // Automatically created basic rule for simple
 type SimpleRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for simpleArray
+type SimpleArrayRule struct {
 	*system.Object
 	*system.Rule
 }
@@ -448,6 +454,18 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
 
+type SimpleArray struct {
+	*system.Object
+	A []*SimpleItem `json:"a"`
+}
+type SimpleArrayInterface interface {
+	GetSimpleArray(ctx context.Context) *SimpleArray
+}
+
+func (o *SimpleArray) GetSimpleArray(ctx context.Context) *SimpleArray {
+	return o
+}
+
 type SimpleItem struct {
 	*system.Object
 	B *system.String `json:"b"`
@@ -477,7 +495,7 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 11312826634280177890)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests", 10362807576256830877)
 	pkg.InitType("basic", reflect.TypeOf((*Basic)(nil)), reflect.TypeOf((*BasicRule)(nil)), reflect.TypeOf((*BasicInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)), reflect.TypeOf((*CRule)(nil)), reflect.TypeOf((*CInterface)(nil)).Elem())
 	pkg.InitType("collision", reflect.TypeOf((*Collision)(nil)), reflect.TypeOf((*CollisionRule)(nil)), reflect.TypeOf((*CollisionInterface)(nil)).Elem())
@@ -500,6 +518,7 @@ func init() {
 	pkg.InitType("rightscaleList", reflect.TypeOf((*RightscaleList)(nil)), reflect.TypeOf((*RightscaleListRule)(nil)), reflect.TypeOf((*RightscaleListInterface)(nil)).Elem())
 	pkg.InitType("sibling", reflect.TypeOf((*Sibling)(nil)), reflect.TypeOf((*SiblingRule)(nil)), reflect.TypeOf((*SiblingInterface)(nil)).Elem())
 	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
+	pkg.InitType("simpleArray", reflect.TypeOf((*SimpleArray)(nil)), reflect.TypeOf((*SimpleArrayRule)(nil)), reflect.TypeOf((*SimpleArrayInterface)(nil)).Elem())
 	pkg.InitType("simpleItem", reflect.TypeOf((*SimpleItem)(nil)), reflect.TypeOf((*SimpleItemRule)(nil)), reflect.TypeOf((*SimpleItemInterface)(nil)).Elem())
 	pkg.InitType("typed", reflect.TypeOf((*Typed)(nil)), reflect.TypeOf((*TypedRule)(nil)), reflect.TypeOf((*TypedInterface)(nil)).Elem())
 }

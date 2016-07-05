@@ -4,9 +4,9 @@ fields:
     title:
         type: system:@array
         items:
-            type: system:@string
-        rules:
-            -
-                selector: ":last-child"
-                type: system:@string
-                pattern: "foo"
+            type: "@foo"
+            rules:
+                -
+                    selector: ':has(.tags:has(:val("a")))>.foo'
+                    type: system:@string
+                    pattern: "foo"

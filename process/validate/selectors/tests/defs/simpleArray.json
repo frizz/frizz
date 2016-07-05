@@ -1,0 +1,12 @@
+{
+	"type": "system:type",
+	"id": "simpleArray",
+	"fields": {
+		"a": {
+			"type": "system:@array",
+			"items": {
+				"type": "@simpleItem"
+			}
+		}
+	}
+}

@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":4040374471165108152}
+// info:{"Path":"kego.io/system","Hash":14940600384170678354}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -161,6 +161,8 @@ type Object struct {
 	Id *Reference `json:"id"`
 	// Extra validation rules for this object or descendants
 	Rules []RuleInterface `json:"rules"`
+	// Tags for general use
+	Tags []string `json:"tags"`
 	// Type of the object.
 	Type *Reference `json:"type"`
 }
@@ -247,7 +249,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 4040374471165108152)
+	pkg := jsonctx.InitPackage("kego.io/system", 14940600384170678354)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())

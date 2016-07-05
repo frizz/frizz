@@ -1,5 +1,11 @@
 type: page
 id: frontpage
 title:
-    - bar
-    - baz
+    -
+        type: foo
+        tags: [a]
+        foo: bar
+    -
+        type: foo
+        tags: [b]
+        foo: baz

@@ -1,0 +1,16 @@
+{
+  "type": "simpleArray",
+  "id": "sa1",
+  "a": [
+    {
+      "type": "simpleItem",
+      "tags": ["x", "y"],
+      "b": "aa"
+    },
+    {
+      "type": "simpleItem",
+      "tags": ["y", "z"],
+      "b": "bb"
+    }
+  ]
+}

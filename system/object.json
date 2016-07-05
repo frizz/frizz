@@ -13,6 +13,14 @@
 			"type": "@reference",
 			"optional": true
 		},
+		"tags": {
+			"description": "Tags for general use",
+			"type": "@array",
+			"optional": true,
+			"items": {
+				"type": "json:@string"
+			}
+		},
 		"description": {
 			"description": "Description for the developer",
 			"type": "json:@string",
