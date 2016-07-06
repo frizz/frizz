@@ -200,39 +200,35 @@ func TestGetTag(t *testing.T) {
 	}
 
 	// rule has no default field
-	s, err := getTag(ctx, "n", false, r)
+	s, err := getTag(ctx, "n", r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
-	s, err = getTag(ctx, "n", true, r)
-	assert.NoError(t, err)
-	assert.Equal(t, "`json:\"-\"`", s)
-
 	r.Interface = &ruleStructB{Default: system.NewString("c")}
-	s, err = getTag(ctx, "n", false, r)
+	s, err = getTag(ctx, "n", r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"c\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	r.Interface = &ruleStructC{Default: &structWithCustomMarshaler{Object: &system.Object{Id: system.NewReference("d.e/f", "f")}}}
-	s, err = getTag(ctx, "n", false, r)
+	s, err = getTag(ctx, "n", r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"foo\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	r.Interface = &ruleStructC{Default: &structWithCustomMarshaler{Object: &system.Object{Id: system.NewReference("d.e/f", "f")}, throwError: true}}
-	s, err = getTag(ctx, "n", false, r)
+	s, err = getTag(ctx, "n", r)
 	assert.IsError(t, err, "YIEMHYFVCD")
 
 	r.Interface = &ruleStructD{Default: make(typeThatWillCauseJsonMarshalToError)}
-	s, err = getTag(ctx, "n", false, r)
+	s, err = getTag(ctx, "n", r)
 	assert.IsError(t, err, "QQDOLAJKLU")
 
 	r.Interface = &ruleStructE{Default: structWithoutCustomMarshaler{A: "b"}}
-	s, err = getTag(ctx, "n", false, r)
+	s, err = getTag(ctx, "n", r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":{\\\"A\\\":\\\"b\\\"},\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	r.Interface = &ruleStructF{}
-	s, err = getTag(ctx, "n", false, r)
+	s, err = getTag(ctx, "n", r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
@@ -264,18 +260,6 @@ func TestGoTypeDescriptor(t *testing.T) {
 	s, err = Type(cb.Ctx(), "n", p, "kego.io/system", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "json.StringInterface `json:\"n\"`", s)
-
-	p = &system.StringRule{
-		Object: &system.Object{
-			Type: system.NewReference("kego.io/system", "@string"),
-		},
-		Rule: &system.Rule{
-			Exclude: true,
-		},
-	}
-	s, err = Type(cb.Ctx(), "n", p, "kego.io/system", i.Add)
-	assert.NoError(t, err)
-	assert.Equal(t, "*String `json:\"-\"`", s)
 
 	p = &system.StringRule{
 		Object: &system.Object{

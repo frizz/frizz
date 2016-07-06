@@ -42,7 +42,7 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 	}
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
-	tag, err := getTag(envctx.Empty, fieldName, field.GetRule(nil).Exclude, inner)
+	tag, err := getTag(envctx.Empty, fieldName, inner)
 	if err != nil {
 		return "", kerr.Wrap("CSJHNCMHRU", err)
 	}
@@ -84,7 +84,7 @@ func getPointer(t *system.Type) string {
 	return ""
 }
 
-func formatTag(ctx context.Context, fieldName string, exclude bool, defaultBytes []byte, r *system.RuleWrapper) (string, error) {
+func formatTag(ctx context.Context, fieldName string, defaultBytes []byte, r *system.RuleWrapper) (string, error) {
 
 	env := envctx.FromContext(ctx)
 
@@ -122,11 +122,7 @@ func formatTag(ctx context.Context, fieldName string, exclude bool, defaultBytes
 
 	tag := ""
 	tag = addSubTag(tag, "kego", kegoTag)
-	if exclude {
-		tag = addSubTag(tag, "json", "-")
-	} else {
-		tag = addSubTag(tag, "json", fieldName)
-	}
+	tag = addSubTag(tag, "json", fieldName)
 
 	if strconv.CanBackquote(tag) {
 		return "`" + tag + "`", nil
@@ -144,17 +140,17 @@ func addSubTag(tag string, name string, content string) string {
 	return fmt.Sprintf("%s%s:%s", tag, name, strconv.Quote(content))
 }
 
-func getTag(ctx context.Context, fieldName string, exclude bool, r *system.RuleWrapper) (string, error) {
+func getTag(ctx context.Context, fieldName string, r *system.RuleWrapper) (string, error) {
 
 	dr, ok := r.Interface.(system.DefaultRule)
 	if !ok {
 		// Doesn't have a default field
-		return formatTag(ctx, fieldName, exclude, nil, r)
+		return formatTag(ctx, fieldName, nil, r)
 	}
 
 	d := dr.GetDefault()
 	if d == nil {
-		return formatTag(ctx, fieldName, exclude, nil, r)
+		return formatTag(ctx, fieldName, nil, r)
 	}
 
 	// If we have a marshaler, we have to call it manually
@@ -163,7 +159,7 @@ func getTag(ctx context.Context, fieldName string, exclude bool, r *system.RuleW
 		if err != nil {
 			return "", kerr.Wrap("YIEMHYFVCD", err)
 		}
-		return formatTag(ctx, fieldName, exclude, defaultBytes, r)
+		return formatTag(ctx, fieldName, defaultBytes, r)
 	}
 
 	defaultBytes, err := json.MarshalPlain(d)
@@ -171,5 +167,5 @@ func getTag(ctx context.Context, fieldName string, exclude bool, r *system.RuleW
 		return "", kerr.Wrap("QQDOLAJKLU", err)
 	}
 
-	return formatTag(ctx, fieldName, exclude, defaultBytes, r)
+	return formatTag(ctx, fieldName, defaultBytes, r)
 }

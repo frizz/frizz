@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":14940600384170678354}
+// info:{"Path":"kego.io/system","Hash":6587440654785274708}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -200,8 +200,6 @@ func (o *Reference) GetReference(ctx context.Context) *Reference {
 
 // All rules will have this embedded in them.
 type Rule struct {
-	// Special field that should be excluded when marshaling - e.g. package.global
-	Exclude bool `json:"exclude"`
 	// Use the single method getter interface for this type
 	Interface bool `json:"interface"`
 	// If this rule is a field, this specifies that the field is optional
@@ -249,7 +247,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 14940600384170678354)
+	pkg := jsonctx.InitPackage("kego.io/system", 6587440654785274708)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
