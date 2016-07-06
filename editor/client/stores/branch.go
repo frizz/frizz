@@ -220,7 +220,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		delete(s.nodeBranches, action.Node)
 		for i, c := range branch.Parent.Children {
 			if c == branch {
-				branch.Parent.Children = append(branch.Parent.Children[0:i], branch.Parent.Children[i+1:]...)
+				branch.Parent.DeleteChild(i)
 				break
 			}
 		}
@@ -235,7 +235,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		for _, n := range action.Model.Node.Array {
 			b, ok := s.nodeBranches[n]
 			if ok {
-				branch.Children = append(branch.Children, b)
+				branch.Append(b)
 			}
 		}
 		s.app.Notify(branch, BranchChildrenReordered)

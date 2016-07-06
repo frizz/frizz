@@ -70,6 +70,14 @@ func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {
 	return b
 }
 
+func (b *BranchModel) DeleteChild(index int) {
+	b.Children = append(b.Children[0:index], b.Children[index+1:]...)
+	for i := index; i < len(b.Children); i++ {
+		// re-index only the children that have changed index
+		b.Children[i].index = i
+	}
+}
+
 // IsVisible checks if all ancestors are open.
 func (b *BranchModel) IsVisible() bool {
 	current := b.Parent

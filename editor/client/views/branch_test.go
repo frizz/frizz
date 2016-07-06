@@ -52,7 +52,7 @@ func TestBranchRender2(t *testing.T) {
 	equal(t, expected, b.render().(*vecty.Element))
 
 	b.model.Open = false
-	b.model.Children = append(b.model.Children, models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "b"}))
+	b.model.Children = b.model.Append(models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "b"}))
 	// Extra child but HTML doesn't change because branch is closed.
 	equal(t, expected, b.render().(*vecty.Element))
 
