@@ -30,7 +30,7 @@ func TestBranchRender1(t *testing.T) {
 
 	b := NewBranchView(cb.Ctx(), nil)
 	expected := elem.Div()
-	equal(t, expected, b.render().(*vecty.Element))
+	equal(t, expected, b.Render().(*vecty.Element))
 
 	cb.AssertAppSuccess()
 
@@ -44,29 +44,29 @@ func TestBranchRender2(t *testing.T) {
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 	expected := elem.Div(
 		prop.Class("node"),
-		&BranchControlView{},
+		NewBranchControlView(cb.Ctx(), nil),
 		elem.Div(
 			prop.Class("children"),
 		),
 	)
-	equal(t, expected, b.render().(*vecty.Element))
+	equal(t, expected, b.Render().(*vecty.Element))
 
 	b.model.Open = false
-	b.model.Children = b.model.Append(models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "b"}))
+	b.model.Append(models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "b"}))
 	// Extra child but HTML doesn't change because branch is closed.
-	equal(t, expected, b.render().(*vecty.Element))
+	equal(t, expected, b.Render().(*vecty.Element))
 
 	b.model.Open = true
 
 	expected = elem.Div(
 		prop.Class("node"),
-		&BranchControlView{},
+		NewBranchControlView(cb.Ctx(), nil),
 		elem.Div(
 			prop.Class("children"),
-			&BranchView{},
+			NewBranchView(cb.Ctx(), nil),
 		),
 	)
-	equal(t, expected, b.render().(*vecty.Element))
+	equal(t, expected, b.Render().(*vecty.Element))
 
 	cb.AssertAppSuccess()
 

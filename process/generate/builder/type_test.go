@@ -55,28 +55,24 @@ func TestFormatTag(t *testing.T) {
 		Interface: &ruleStruct{},
 		Parent:    parentType,
 	}
-	s, err := formatTag(ctx, "n", false, []byte("null"), r)
+	s, err := formatTag(ctx, "n", []byte("null"), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
-	s, err = formatTag(ctx, "`", false, []byte("null"), r)
+	s, err = formatTag(ctx, "`", []byte("null"), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "\"json:\\\"`\\\"\"", s)
 
-	s, err = formatTag(ctx, "n", true, []byte("null"), r)
-	assert.NoError(t, err)
-	assert.Equal(t, "`json:\"-\"`", s)
-
-	s, err = formatTag(ctx, "n", false, []byte(`"a"`), r)
+	s, err = formatTag(ctx, "n", []byte(`"a"`), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"type\\\":\\\"a.b/c:a\\\",\\\"value\\\":\\\"a\\\",\\\"path\\\":\\\"d.e/f\\\"}}\" json:\"n\"`", s)
 
 	parentType.Id = system.NewReference("kego.io/system", "string")
-	s, err = formatTag(ctx, "n", false, []byte(`"a"`), r)
+	s, err = formatTag(ctx, "n", []byte(`"a"`), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "`kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
 
-	_, err = formatTag(ctx, "n", false, []byte(`foo`), r)
+	_, err = formatTag(ctx, "n", []byte(`foo`), r)
 	assert.IsError(t, err, "LKBWJTMJCF")
 }
 

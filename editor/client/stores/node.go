@@ -138,7 +138,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 			if err := n.SetValueString(s.ctx, val); err != nil {
-				s.app.Fail <- kerr.New("NCIMXDORED", err)
+				s.app.Fail <- kerr.Wrap("NCIMXDORED", err)
 				break
 			}
 		case json.J_BOOL:
@@ -148,7 +148,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 			if err := n.SetValueBool(s.ctx, val); err != nil {
-				s.app.Fail <- kerr.New("HKFEEMFRHR", err)
+				s.app.Fail <- kerr.Wrap("HKFEEMFRHR", err)
 				break
 			}
 		case json.J_NUMBER:
@@ -162,7 +162,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 			if err := n.SetValueNumber(s.ctx, val); err != nil {
-				s.app.Fail <- kerr.New("LBEBBNFJVG", err)
+				s.app.Fail <- kerr.Wrap("LBEBBNFJVG", err)
 				break
 			}
 		}

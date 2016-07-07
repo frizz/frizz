@@ -57,17 +57,17 @@ func TestTypesUnknownType(t *testing.T) {
 			"id": "a",
 			"rules": [
 				{
-					"type": "foo:bar"
+					"type": "system:foo"
 				}
 			]
 		}`,
 	})
 	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
 	_, err := Parse(cb.Ctx(), pathA)
-	// unknown packages / types are tolerated when scanning types
+	// unknown types are tolerated when scanning types
 	assert.NoError(t, err)
 
-	cb.TempFile("a.json", `{
+	cb.TempFile("b.json", `{
 			"type": "system:package",
 			"rules": [
 				{
@@ -76,8 +76,21 @@ func TestTypesUnknownType(t *testing.T) {
 			]
 		}`)
 	_, err = Parse(cb.Ctx(), pathA)
-	// unknown packages / types are tolerated when scanning types
+	// b.json is not a type so unknown packages and types are permitted
 	assert.NoError(t, err)
+
+	cb.TempFile("c.json", `{
+			"type": "system:type",
+			"id": "c",
+			"rules": [
+				{
+					"type": "foo:bar"
+				}
+			]
+		}`)
+	_, err = Parse(cb.Ctx(), pathA)
+	// unknown packages are not tolerated when scanning types
+	assert.HasError(t, err, "DKKFLKDKYI")
 
 	// Types should always unpack to *system.Type
 	assert.SkipError("IVIFIOFGVK")

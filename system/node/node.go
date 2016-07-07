@@ -718,16 +718,28 @@ func (n *Node) DisplayType(ctx context.Context) (string, error) {
 	return str, nil
 }
 
-func (n *Node) Hash() uint64 {
+func (n *Node) Hash(ctx context.Context) (uint64, error) {
 	h := NodeHasher{Map: map[string]uint64{}}
 	h.String = n.ValueString
 	h.Number = n.ValueNumber
 	h.Bool = n.ValueBool
 	for _, c := range n.Array {
-		h.Array = append(h.Array, c.Hash())
+		hash, err := c.Hash(ctx)
+		if err != nil {
+			return 0, kerr.Wrap("WCYWBSKEJH", err)
+		}
+		h.Array = append(h.Array, hash)
 	}
 	for k, c := range n.Map {
-		h.Map[k] = c.Hash()
+		hash, err := c.Hash(ctx)
+		if err != nil {
+			return 0, kerr.Wrap("QDVRLABPYN", err)
+		}
+		h.Map[k] = hash
 	}
-	return h.Hash()
+	hash, err := h.Hash(ctx)
+	if err != nil {
+		return 0, kerr.Wrap("GJNHTFFNAM", err)
+	}
+	return hash, nil
 }

@@ -3,8 +3,11 @@ package node
 import (
 	"github.com/davelondon/kerr"
 	"github.com/surge/cityhash"
+	"golang.org/x/net/context"
 	"kego.io/json"
 )
+
+const currentNodeHasherVersion = 1
 
 type NodeHasher struct {
 	String  string
@@ -15,9 +18,17 @@ type NodeHasher struct {
 	Version int
 }
 
-func (p *NodeHasher) Hash() (uint64, error) {
+type nodeHasherVersionKeyType int
 
-	p.Version = 1
+var nodeHasherVersionKey nodeHasherVersionKeyType = 0
+
+func (p *NodeHasher) Hash(ctx context.Context) (uint64, error) {
+
+	if version, ok := ctx.Value(nodeHasherVersionKey).(int); ok {
+		p.Version = version
+	} else {
+		p.Version = currentNodeHasherVersion
+	}
 
 	bytes, err := json.MarshalPlain(p)
 	if err != nil {
