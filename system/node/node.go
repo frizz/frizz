@@ -717,3 +717,17 @@ func (n *Node) DisplayType(ctx context.Context) (string, error) {
 	}
 	return str, nil
 }
+
+func (n *Node) Hash() uint64 {
+	h := NodeHasher{Map: map[string]uint64{}}
+	h.String = n.ValueString
+	h.Number = n.ValueNumber
+	h.Bool = n.ValueBool
+	for _, c := range n.Array {
+		h.Array = append(h.Array, c.Hash())
+	}
+	for k, c := range n.Map {
+		h.Map[k] = c.Hash()
+	}
+	return h.Hash()
+}

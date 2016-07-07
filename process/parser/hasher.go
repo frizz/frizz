@@ -13,11 +13,6 @@ type PackageHasher struct {
 	Version int
 }
 
-type AliasInfo struct {
-	Alias string
-	Hash  uint64
-}
-
 func (p *PackageHasher) Hash() (uint64, error) {
 
 	p.Version = 5
