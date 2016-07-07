@@ -8,8 +8,7 @@ import (
 )
 
 type EditorModel struct {
-	Node           *node.Node
-	TemporaryValue interface{}
+	Node *node.Node
 }
 
 func NewEditor(n *node.Node) *EditorModel {
@@ -18,36 +17,33 @@ func NewEditor(n *node.Node) *EditorModel {
 
 func GetEditable(ctx context.Context, node *node.Node) editable.Editable {
 
-	var e editable.Editable
-	var ok bool
+	if node != nil {
+		// This is the recommended method of presenting an custom editor.
+		if ed, ok := node.Value.(editable.Editable); ok {
+			return ed
+		}
+	}
+
+	editors := clientctx.FromContext(ctx)
 
 	if node == nil {
-		e, _ = clientctx.FromContext(ctx).Get("")
+		e, _ := editors.Get("")
 		return e
 	}
 
-	// This is the recommended method of presenting an custom editor.
-	ed, ok := node.Value.(editable.Editable)
-	if ok {
-		return ed
-	}
-
-	// Don't do this. Implement the Editable interface instead. We can't do this for system types
-	// so we use this method instead.
-	editors := clientctx.FromContext(ctx)
-	e, ok = editors.Get(node.Type.Id.String())
-	if ok {
+	// Don't do this. Implement the Editable interface instead. We can't do this
+	// for system types so we use this method instead.
+	if e, ok := editors.Get(node.Type.Id.String()); ok {
 		return e
 	}
 
 	if node.JsonType != "" {
-		e, ok = editors.Get(string(node.JsonType))
-		if ok {
+		if e, ok := editors.Get(string(node.JsonType)); ok {
 			return e
 		}
 	}
 
 	// DefaultEditor
-	e, _ = editors.Get("")
+	e, _ := editors.Get("")
 	return e
 }
