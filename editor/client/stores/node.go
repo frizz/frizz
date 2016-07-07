@@ -72,6 +72,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 		if err := action.Model.Node.ReorderArrayChild(action.OldIndex, action.NewIndex); err != nil {
 			s.app.Fail <- kerr.Wrap("QNHBUSLMXF", err)
+			break
 		}
 
 	case *actions.BranchSelecting:
@@ -87,28 +88,43 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.selected = nil
 		}
 	case *actions.DeleteNode:
-		parent := action.Node.Parent
-		if parent.Type.IsNativeMap() {
-			if err := parent.DeleteMapChild(action.Node.Key); err != nil {
-				s.app.Fail <- kerr.Wrap("AKHHXJBDSL", err)
+		p := action.Node.Parent
+		n := action.Node
+		switch p.Type.NativeJsonType() {
+		case json.J_MAP:
+			if err := p.DeleteMapChild(n.Key); err != nil {
+				s.app.Fail <- kerr.Wrap("BUUOWYSJNG", err)
+				break
 			}
-		} else if parent.Type.IsNativeArray() {
-			if err := parent.DeleteArrayChild(action.Node.Index); err != nil {
-				s.app.Fail <- kerr.Wrap("PWYVESSUXV", err)
+		case json.J_ARRAY:
+			if err := p.DeleteArrayChild(n.Index); err != nil {
+				s.app.Fail <- kerr.Wrap("RWFQSINACH", err)
+				break
 			}
-		} else if parent.Type.IsNativeObject() {
-			if err := parent.DeleteObjectChild(s.ctx, action.Node.Key); err != nil {
-				s.app.Fail <- kerr.Wrap("AYBJTREOOE", err)
+		case json.J_OBJECT:
+			if err := p.DeleteObjectChild(s.ctx, n.Key); err != nil {
+				s.app.Fail <- kerr.Wrap("XGVEXEOBUP", err)
+				break
 			}
 		}
 	case *actions.InitializeNode:
-		if action.Parent.Type.IsNativeArray() {
-			action.Node.AddToArray(s.ctx, action.Parent, len(action.Parent.Array), false)
-		} else if action.Parent.Type.IsNativeMap() {
-			action.Node.AddToMap(s.ctx, action.Parent, action.Key, false)
+		p := action.Parent
+		n := action.Node
+		switch p.Type.NativeJsonType() {
+		case json.J_ARRAY:
+			if err := n.AddToArray(s.ctx, p, len(p.Array), false); err != nil {
+				s.app.Fail <- kerr.Wrap("PLEJOTCSGH", err)
+				break
+			}
+		case json.J_MAP:
+			if err := n.AddToMap(s.ctx, p, action.Key, false); err != nil {
+				s.app.Fail <- kerr.Wrap("UEPLLMTLDB", err)
+				break
+			}
 		}
-		if err := action.Node.SetValueZero(s.ctx, false, action.Type); err != nil {
+		if err := n.SetValueZero(s.ctx, false, action.Type); err != nil {
 			s.app.Fail <- kerr.Wrap("NLSRNQGLLW", err)
+			break
 		}
 	case *actions.EditorFocus:
 		s.app.Notify(action.Editor.Node, NodeFocus)
@@ -118,24 +134,37 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		case json.J_STRING:
 			val := action.Value.(string)
 			if n.ValueString == val {
+				// ignore the change if there's no change to the value
 				break
 			}
-			n.SetValueString(s.ctx, val)
+			if err := n.SetValueString(s.ctx, val); err != nil {
+				s.app.Fail <- kerr.New("NCIMXDORED", err)
+				break
+			}
 		case json.J_BOOL:
 			val := action.Value.(bool)
 			if n.ValueBool == val {
+				// ignore the change if there's no change to the value
 				break
 			}
-			n.SetValueBool(s.ctx, val)
+			if err := n.SetValueBool(s.ctx, val); err != nil {
+				s.app.Fail <- kerr.New("HKFEEMFRHR", err)
+				break
+			}
 		case json.J_NUMBER:
 			val, err := strconv.ParseFloat(action.Value.(string), 64)
 			if err != nil {
+				// if there's an error converting to a float, ignore it
 				break
 			}
 			if n.ValueNumber == val {
+				// ignore the change if there's no change to the value
 				break
 			}
-			n.SetValueNumber(s.ctx, val)
+			if err := n.SetValueNumber(s.ctx, val); err != nil {
+				s.app.Fail <- kerr.New("LBEBBNFJVG", err)
+				break
+			}
 		}
 
 		model := s.app.Nodes.Get(n)

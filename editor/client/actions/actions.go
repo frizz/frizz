@@ -77,7 +77,6 @@ type InitializeNode struct {
 	Node   *node.Node
 	Parent *node.Node
 	Key    string
-	Index  int
 	Type   *system.Type
 }
 
