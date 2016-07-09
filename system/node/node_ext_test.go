@@ -65,77 +65,9 @@ func TestNode_Unpack3(t *testing.T) {
 
 }
 
-func setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
-
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
-
-	m := `"type": "multi",
-"js": "js1",
-"ss": "ss1",
-"sr": "sr1",
-"jn": 1.1,
-"sn": 1.2,
-"jb": true,
-"sb": false,
-"i": { "type": "facea", "a": "ia" },
-"ajs": [ "ajs0", "ajs1", "ajs2", "ajs3" ],
-"ass": [ "ass0", "ass1", "ass2", "ass3" ],
-"ajn": [ 2.1, 2.2, 2.3, 2.4 ],
-"asn": [ 3.1, 3.2, 3.3, 3.4 ],
-"ajb": [ true, false, false, false ],
-"asb": [ false, true, false, false ],
-"mjs": { "a": "mjsa", "b": "mjsb" },
-"mss": { "a": "mssa", "b": "mssb" },
-"mjn": { "a": 4.1, "b": 4.2 },
-"msn": { "a": 5.1, "b": 5.2 },
-"mjb": { "a": true, "b": false },
-"msb": { "a": false, "b": true },
-"anri": [ "anri0", { "type": "facea", "a": "anri1" }, { "type": "multi", "ss": "anri2" } ],
-"mnri": { "a": "mnria", "b": { "type": "facea", "a": "mnrib" }, "c": { "type": "multi", "ss": "mnric" } }
-`
-	mm := m + `,
-"m": { "type": "multi" },
-"am": [ { "type": "multi" }, { "type": "multi" } ],
-"mm": { "a": { "type": "multi" }, "b": { "type": "multi" } }`
-
-	s := `{
-	` + m + `,
-	"m": {` + mm + `},
-	"am": [ {` + mm + `}, {` + mm + `} ],
-	"mm": { "a": {` + mm + `}, "b": {` + mm + `} }
-}`
-	n := node.NewNode()
-	require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
-	return cb, n
-}
-
-func empty(t *testing.T) (*tests.ContextBuilder, *node.Node) {
-
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
-
-	s := `{
-	"type": "multi",
-	"m": { "type": "multi" },
-	"am": [ { "type": "multi" }, { "type": "multi" } ],
-	"mm": { "a": { "type": "multi" }, "b": { "type": "multi" } }
-}`
-	n := node.NewNode()
-	require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
-	return cb, n
-}
-
-func multi(t *testing.T, n *node.Node, m *data.Multi, test func(t *testing.T, n *node.Node, m *data.Multi)) {
-	test(t, n.Map["mm"].Map["b"], m.Mm["b"])
-	test(t, n.Map["mm"].Map["a"], m.Mm["a"])
-	test(t, n.Map["am"].Array[1], m.Am[1])
-	test(t, n.Map["am"].Array[0], m.Am[0])
-	test(t, n.Map["m"], m.M)
-	test(t, n, m)
-}
-
 func TestNode_Unpack2(t *testing.T) {
 
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		assert.Equal(t, "js1", m.Js)
@@ -178,13 +110,13 @@ func TestNode_Unpack2(t *testing.T) {
 		assert.Equal(t, "mnric", m.Mnri["c"].GetString(cb.Ctx()).Value())
 	}
 
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 
 }
 
 func TestNode_SetValueString(t *testing.T) {
 
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		n.Map["js"].SetValueString(cb.Ctx(), "aa")
@@ -212,13 +144,13 @@ func TestNode_SetValueString(t *testing.T) {
 		assert.Equal(t, "hh", m.Mjs["b"])
 	}
 
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 
 }
 
 func TestNode_SetValueNumber(t *testing.T) {
 
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		n.Map["jn"].SetValueNumber(cb.Ctx(), 11.0)
@@ -240,12 +172,12 @@ func TestNode_SetValueNumber(t *testing.T) {
 		assert.Equal(t, 16.0, m.Mjn["b"])
 	}
 
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
 func TestNode_SetValueBool(t *testing.T) {
 
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		n.Map["jb"].SetValueBool(cb.Ctx(), true)
@@ -267,11 +199,11 @@ func TestNode_SetValueBool(t *testing.T) {
 		assert.Equal(t, true, m.Mjb["b"])
 	}
 
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
 func TestNode_DeleteObjectChild(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "js"))
@@ -297,11 +229,11 @@ func TestNode_DeleteObjectChild(t *testing.T) {
 		assert.Nil(t, m.Mjs)
 
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
 func TestNode_DeleteObjectChild2(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 	err := n.Map["mjs"].DeleteObjectChild(cb.Ctx(), "a")
 	assert.IsError(t, err, "BMUSITINTC")
 	err = n.Map["ajs"].DeleteObjectChild(cb.Ctx(), "a")
@@ -309,7 +241,7 @@ func TestNode_DeleteObjectChild2(t *testing.T) {
 }
 
 func TestNode_DeleteMapChild(t *testing.T) {
-	_, n := setup(t)
+	_, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		assert.NoError(t, n.Map["mjs"].DeleteMapChild("a"))
 		assert.Equal(t, 1, len(n.Map["mjs"].Map))
@@ -321,11 +253,11 @@ func TestNode_DeleteMapChild(t *testing.T) {
 		assert.Equal(t, 1, len(n.Map["mm"].Map))
 		assert.Equal(t, 1, len(m.Mm))
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
 func TestNode_DeleteMapChild2(t *testing.T) {
-	_, n := setup(t)
+	_, n := data.Setup(t)
 	err := n.DeleteMapChild("js")
 	assert.IsError(t, err, "ACRGPCPPFK")
 	err = n.Map["ajs"].DeleteMapChild("a")
@@ -333,7 +265,7 @@ func TestNode_DeleteMapChild2(t *testing.T) {
 }
 
 func TestNode_DeleteArrayChild(t *testing.T) {
-	_, n := setup(t)
+	_, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		assert.NoError(t, n.Map["ajs"].DeleteArrayChild(1))
 		assert.Equal(t, 3, len(n.Map["ajs"].Array))
@@ -357,11 +289,11 @@ func TestNode_DeleteArrayChild(t *testing.T) {
 		assert.Equal(t, 0, len(n.Map["ajs"].Array))
 		assert.Equal(t, []string{}, m.Ajs)
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
 func TestNode_DeleteArrayChild2(t *testing.T) {
-	_, n := setup(t)
+	_, n := data.Setup(t)
 	err := n.DeleteArrayChild(0)
 	assert.IsError(t, err, "NFVEWWCSMV")
 	err = n.Map["mjs"].DeleteArrayChild(0)
@@ -369,7 +301,7 @@ func TestNode_DeleteArrayChild2(t *testing.T) {
 }
 
 func TestNode_ReorderArrayChild(t *testing.T) {
-	_, n := setup(t)
+	_, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		assert.NoError(t, n.Map["ajs"].ReorderArrayChild(0, 1))
 		assert.Equal(t, 4, len(n.Map["ajs"].Array))
@@ -383,11 +315,11 @@ func TestNode_ReorderArrayChild(t *testing.T) {
 		assert.Equal(t, "ajs3", n.Map["ajs"].Array[3].ValueString)
 		assert.Equal(t, []string{"ajs1", "ajs0", "ajs2", "ajs3"}, m.Ajs)
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
 func TestNode_ReorderArrayChild2(t *testing.T) {
-	_, n := setup(t)
+	_, n := data.Setup(t)
 	err := n.ReorderArrayChild(0, 1)
 	assert.IsError(t, err, "MHEXGBUQOL")
 	err = n.Map["mjs"].ReorderArrayChild(0, 1)
@@ -437,7 +369,7 @@ func TestNode_InitialiseRoot(t *testing.T) {
 }
 
 func TestNode_InitialiseArrayChild(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		c := node.NewNode()
 		assert.NoError(t, c.AddToArray(cb.Ctx(), n.Map["ajs"], 4, false))
@@ -467,12 +399,12 @@ func TestNode_InitialiseArrayChild(t *testing.T) {
 		assert.Equal(t, 3, len(m.Am))
 		assert.Nil(t, m.Am[2])
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 
 }
 
 func TestNode_InitialiseArrayChild2(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 	c := node.NewNode()
 	err := c.AddToArray(cb.Ctx(), n.Map["ajs"], 5, false)
 	assert.IsError(t, err, "GHJIDXABLL")
@@ -485,7 +417,7 @@ func TestNode_InitialiseArrayChild2(t *testing.T) {
 }
 
 func TestNode_InitialiseMapChild(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 
 		c := node.NewNode()
@@ -506,12 +438,12 @@ func TestNode_InitialiseMapChild(t *testing.T) {
 		assert.Equal(t, 3, len(m.Mm))
 		assert.Nil(t, m.Mm["c"])
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 
 }
 
 func TestNode_SetValueZero(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 
 		sstring, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/system", "string")
@@ -622,12 +554,12 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.NotNil(t, m.Mnri["g"])
 		assert.IsType(t, &data.Facea{}, m.Mnri["g"])
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 
 }
 
 func TestNode_SetValueZero2(t *testing.T) {
-	cb, n := empty(t)
+	cb, n := data.Empty(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		sstring, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/system", "string")
 		assert.True(t, ok)
@@ -655,12 +587,12 @@ func TestNode_SetValueZero2(t *testing.T) {
 		assert.Equal(t, 0, len(m.Ai))
 
 	}
-	multi(t, n, n.Value.(*data.Multi), test)
+	data.Run(t, n, n.Value.(*data.Multi), test)
 
 }
 
 func TestNode_SetValueZero3(t *testing.T) {
-	cb, n := empty(t)
+	cb, n := data.Empty(t)
 	f, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "face")
 	assert.True(t, ok)
 	err := n.SetValueZero(cb.Ctx(), true, f)
@@ -668,7 +600,7 @@ func TestNode_SetValueZero3(t *testing.T) {
 }
 
 func TestNode_SetValueUnpack(t *testing.T) {
-	cb, n := empty(t)
+	cb, n := data.Empty(t)
 	err := n.SetValueUnpack(cb.Ctx(), json.PackString(`"a"`))
 	assert.HasError(t, err, "VEPLUIJXSN")
 }
@@ -733,7 +665,7 @@ func TestNode_Root(t *testing.T) {
 }
 
 func TestNode_DisplayType(t *testing.T) {
-	cb, n := setup(t)
+	cb, n := data.Setup(t)
 
 	dt, err := n.DisplayType(cb.Ctx())
 	assert.NoError(t, err)

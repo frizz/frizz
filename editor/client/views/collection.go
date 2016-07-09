@@ -44,7 +44,8 @@ func addCollectionItem(app *stores.App, parent *node.Node) {
 	if len(types) == 1 && parent.Type.IsNativeArray() {
 		// if only one type is compatible and adding to an array, don't show the popup, just
 		// add it.
-		app.Dispatch(&actions.InitializeNode{
+		app.Dispatch(&actions.Add{
+			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
 			Parent: parent,
 			Type:   types[0],

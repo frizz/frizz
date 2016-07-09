@@ -84,38 +84,43 @@ func (v *Header) Render() vecty.Component {
 							prop.Href("#"),
 							prop.Class("dropdown-toggle"),
 							vecty.Data("toggle", "dropdown"),
-							vecty.Text("Dropdown"),
+							vecty.Text("Undo"),
 							elem.Span(
 								prop.Class("caret"),
 							),
 						),
 						elem.UnorderedList(
 							prop.Class("dropdown-menu"),
-							elem.ListItem(
-								elem.Anchor(
-									prop.Href("#"),
-									vecty.Text("Action"),
+							NewUndoView(v.Ctx, true),
+							NewUndoView(v.Ctx, false),
+							/*
+								elem.ListItem(
+									elem.Anchor(
+										prop.Href("#"),
+										vecty.Text("Action"),
+									),
 								),
-							),
-							elem.ListItem(
-								elem.Anchor(
-									prop.Href("#"),
-									vecty.Text("Another action"),
+								elem.ListItem(
+									elem.Anchor(
+										prop.Href("#"),
+										vecty.Text("Another action"),
+									),
 								),
-							),
-							elem.ListItem(
-								prop.Class("divider"),
-							),
-							elem.ListItem(
-								prop.Class("dropdown-header"),
-								vecty.Text("Nav header"),
-							),
-							elem.ListItem(
-								elem.Anchor(
-									prop.Href("#"),
-									vecty.Text("Separated"),
-								),
-							),
+
+									elem.ListItem(
+										prop.Class("divider"),
+									),
+									elem.ListItem(
+										prop.Class("dropdown-header"),
+										vecty.Text("Nav header"),
+									),
+									elem.ListItem(
+										elem.Anchor(
+											prop.Href("#"),
+											vecty.Text("Separated"),
+										),
+									),
+							*/
 						),
 					),
 				),

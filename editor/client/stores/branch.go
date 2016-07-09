@@ -5,6 +5,7 @@ import (
 
 	"time"
 
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
@@ -96,6 +97,58 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	previous := s.selected
 	switch action := payload.Action.(type) {
+	case *actions.Add:
+		payload.Wait(s.app.Nodes)
+		if action.Forward() {
+			b, err := mutateAddBranch(s, action.Parent, action.Node)
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("LDBMBRHWHB", err)
+				break
+			}
+			if b != nil {
+				s.app.Notify(b, BranchChildAdded)
+			}
+		} else {
+			b, err := mutateDeleteBranch(s, action.Node)
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("NLFWVSNNTY", err)
+				break
+			}
+			if b != nil {
+				s.app.Notify(b, BranchChildDeleted)
+			}
+		}
+	case *actions.Delete:
+		payload.Wait(s.app.Nodes)
+		if action.Forward() {
+			b, err := mutateDeleteBranch(s, action.Node)
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("QTXPXAKXHH", err)
+				break
+			}
+			if b != nil {
+				s.app.Notify(b, BranchChildDeleted)
+			}
+		} else {
+			b, err := mutateAddBranch(s, action.Node.Parent, action.Node)
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("OOGOEWKPIL", err)
+				break
+			}
+			if b != nil {
+				s.app.Notify(b, BranchChildAdded)
+			}
+		}
+	case *actions.Reorder:
+		payload.Wait(s.app.Nodes)
+		b, err := mutateReorderBranch(s, action.Model.Node)
+		if err != nil {
+			s.app.Fail <- kerr.Wrap("NUQOPWWXHA", err)
+			break
+		}
+		if b != nil {
+			s.app.Notify(b, BranchChildrenReordered)
+		}
 	case *actions.BranchClose:
 		if !action.Branch.CanOpen() {
 			// branch can't open - ignore
@@ -199,48 +252,50 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.AppendNodeBranchModelChildren(action.Branch, n)
 		s.nodeBranches[n] = action.Branch
 		s.app.Notify(action.Branch, BranchLoaded)
-	case *actions.InitializeNode:
-		payload.Wait(s.app.Nodes)
-		parent := action.Node.Parent
-		if parent == nil {
-			break
-		}
-		parentBranch, ok := s.nodeBranches[parent]
-		if !ok {
-			break
-		}
-		s.AppendNodeBranchModelChild(parentBranch, action.Node)
-		s.app.Notify(parentBranch, BranchChildAdded)
-	case *actions.DeleteNode:
-		payload.Wait(s.app.Nodes)
-		branch, ok := s.nodeBranches[action.Node]
-		if !ok {
-			break
-		}
-		delete(s.nodeBranches, action.Node)
-		for i, c := range branch.Parent.Children {
-			if c == branch {
-				branch.Parent.DeleteChild(i)
-				break
-			}
-		}
-		s.app.Notify(branch.Parent, BranchChildDeleted)
-	case *actions.ArrayOrder:
-		payload.Wait(s.app.Nodes)
-		branch, ok := s.nodeBranches[action.Model.Node]
-		if !ok {
-			break
-		}
-		branch.Children = []*models.BranchModel{}
-		for _, n := range action.Model.Node.Array {
-			b, ok := s.nodeBranches[n]
-			if ok {
-				branch.Append(b)
-			}
-		}
-		s.app.Notify(branch, BranchChildrenReordered)
 	}
 	return true
+}
+
+func mutateDeleteBranch(s *BranchStore, n *node.Node) (*models.BranchModel, error) {
+	branch, ok := s.nodeBranches[n]
+	if !ok {
+		return nil, nil
+	}
+	delete(s.nodeBranches, n)
+	for i, c := range branch.Parent.Children {
+		if c == branch {
+			branch.Parent.DeleteChild(i)
+			break
+		}
+	}
+	return branch.Parent, nil
+}
+
+func mutateAddBranch(s *BranchStore, p *node.Node, n *node.Node) (*models.BranchModel, error) {
+	if p == nil {
+		return nil, nil
+	}
+	parentBranch, ok := s.nodeBranches[p]
+	if !ok {
+		return nil, nil
+	}
+	s.AppendNodeBranchModelChild(parentBranch, n)
+	return parentBranch, nil
+}
+
+func mutateReorderBranch(s *BranchStore, p *node.Node) (*models.BranchModel, error) {
+	branch, ok := s.nodeBranches[p]
+	if !ok {
+		return nil, nil
+	}
+	branch.Children = []*models.BranchModel{}
+	for _, n := range p.Array {
+		b, ok := s.nodeBranches[n]
+		if ok {
+			branch.Append(b)
+		}
+	}
+	return branch, nil
 }
 
 func (s *BranchStore) NewNodeBranchModel(ctx context.Context, n *node.Node, name string) *models.BranchModel {
@@ -272,41 +327,3 @@ func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.
 		b.Append(s.NewNodeBranchModel(s.ctx, n, ""))
 	}
 }
-
-/*
-// We don't currently need to eliminate descendants because we never have
-// to update a descendant at the same time it's ancestor. I'll leave the
-// code in here in case we need it.
-func (s *BranchStore) NotifySingle(notificationType interface{}, changed ...interface{}) {
-
-	if notificationType == BranchSelectedImmediate {
-		s.Store.NotifySingle(notificationType, changed...)
-		return
-	}
-
-	// eliminate descendants...
-	changedBranches := []*models.BranchModel{}
-	for _, c := range changed {
-		br := c.(*models.BranchModel)
-		if br != nil {
-			changedBranches = append(changedBranches, br)
-		}
-	}
-	deleted := map[interface{}]bool{}
-	for _, b := range changedBranches {
-		for _, b1 := range changedBranches {
-			if b.IsDescendantOf(b1) {
-				deleted[b] = true
-			}
-		}
-	}
-	out := []interface{}{}
-	for _, b := range changedBranches {
-		if _, ok := deleted[b]; !ok {
-			out = append(out, b)
-		}
-	}
-	s.Store.NotifySingle(notificationType, out...)
-}
-
-*/

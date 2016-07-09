@@ -61,8 +61,9 @@ func (v *ArrayRowView) Render() vecty.Component {
 		elem.TableData(vecty.Text(val)),
 		elem.TableData(elem.Anchor(
 			event.Click(func(e *vecty.Event) {
-				v.App.Dispatch(&actions.DeleteNode{
-					Node: v.node,
+				v.App.Dispatch(&actions.Delete{
+					Undoer: &actions.Undoer{},
+					Node:   v.node,
 				})
 			}).PreventDefault().StopPropagation(),
 			prop.Href("#"),

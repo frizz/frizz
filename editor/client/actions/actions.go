@@ -63,21 +63,58 @@ type LoadSourceError struct {
 	Branch *models.BranchModel
 }
 
-type ArrayOrder struct {
-	Model    *models.EditorModel
-	OldIndex int
-	NewIndex int
+type Directions int
+
+const (
+	New  Directions = 0
+	Undo Directions = 1
+	Redo Directions = 2
+)
+
+type Undoable interface {
+	Direction() Directions
+	SetUndo()
+	SetRedo()
+	Forward() bool
+	Backward() bool
 }
 
-type DeleteNode struct {
-	Node *node.Node
+type Undoer struct {
+	direction Directions
 }
 
-type InitializeNode struct {
+func (u *Undoer) Direction() Directions { return u.direction }
+func (u *Undoer) SetUndo()              { u.direction = Undo }
+func (u *Undoer) SetRedo()              { u.direction = Redo }
+func (u *Undoer) Forward() bool         { return u.direction == Redo || u.direction == New }
+func (u *Undoer) Backward() bool        { return u.direction == Undo }
+
+type Add struct {
+	*Undoer
 	Node   *node.Node
 	Parent *node.Node
 	Key    string
 	Type   *system.Type
+}
+
+type Delete struct {
+	*Undoer
+	Node   *node.Node
+	Backup *node.Node
+}
+
+type Reorder struct {
+	*Undoer
+	Model  *models.EditorModel
+	Before int
+	After  int
+}
+
+type Modify struct {
+	*Undoer
+	Editor *models.EditorModel
+	After  interface{}
+	Before interface{}
 }
 
 type OpenAddPopup struct {
@@ -89,11 +126,6 @@ type CloseAddPopup struct{}
 
 type EditorFocus struct {
 	Editor *models.EditorModel
-}
-
-type EditorValueChange50ms struct {
-	Editor *models.EditorModel
-	Value  interface{}
 }
 
 type EditorValueChange500ms struct {

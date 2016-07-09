@@ -39,12 +39,17 @@ func Register(ctx context.Context) {
 
 func change(app *stores.App, model *models.EditorModel, valueFunc func() interface{}) {
 	v := valueFunc()
+	if v == nil {
+		return
+	}
 	go func() {
 		<-time.After(time.Millisecond * 50)
 		if v == valueFunc() {
-			app.Dispatch(&actions.EditorValueChange50ms{
+			app.Dispatch(&actions.Modify{
+				Undoer: &actions.Undoer{},
 				Editor: model,
-				Value:  v,
+				Before: model.Node.NativeValue(),
+				After:  v,
 			})
 		}
 	}()

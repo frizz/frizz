@@ -3,6 +3,8 @@ package editors
 import (
 	"fmt"
 
+	"strconv"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
@@ -81,7 +83,12 @@ func (v *NumberEditorView) Render() vecty.Component {
 		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
 			change(v.App, v.model, func() interface{} {
-				return e.Target.Get("value").String()
+				val, err := strconv.ParseFloat(e.Target.Get("value").String(), 64)
+				if err != nil {
+					// if there's an error converting to a float, ignore it
+					return nil
+				}
+				return val
 			})
 		}),
 	)

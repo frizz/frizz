@@ -21,6 +21,7 @@ type App struct {
 	Data     *DataStore
 	Misc     *MiscStore
 	Rule     *RuleStore
+	Actions  *ActionStore
 }
 
 func (app *App) Init(ctx context.Context) {
@@ -33,6 +34,7 @@ func (app *App) Init(ctx context.Context) {
 	app.Data = NewDataStore(ctx)
 	app.Misc = NewMiscStore(ctx)
 	app.Rule = NewRuleStore(ctx)
+	app.Actions = NewActionStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
 		app.Package,
 		app.Editors,
@@ -43,6 +45,7 @@ func (app *App) Init(ctx context.Context) {
 		app.Data,
 		app.Misc,
 		app.Rule,
+		app.Actions,
 	)
 	app.Notifier = flux.NewNotifier()
 }

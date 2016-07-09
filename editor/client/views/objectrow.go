@@ -59,7 +59,8 @@ func (v *ObjectRowView) Render() vecty.Component {
 				types := v.node.Rule.PermittedTypes()
 				if len(types) == 1 {
 					// if only one type is compatible, don't show the popup, just add it.
-					v.App.Dispatch(&actions.InitializeNode{
+					v.App.Dispatch(&actions.Add{
+						Undoer: &actions.Undoer{},
 						Parent: v.node.Parent,
 						Node:   v.node,
 						Type:   types[0],
@@ -78,8 +79,9 @@ func (v *ObjectRowView) Render() vecty.Component {
 	} else {
 		delete = elem.Anchor(
 			event.Click(func(e *vecty.Event) {
-				v.App.Dispatch(&actions.DeleteNode{
-					Node: v.node,
+				v.App.Dispatch(&actions.Delete{
+					Undoer: &actions.Undoer{},
+					Node:   v.node,
 				})
 			}).PreventDefault().StopPropagation(),
 			prop.Href("#"),

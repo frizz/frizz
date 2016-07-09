@@ -53,6 +53,34 @@ func (s *EditorStore) Get(node *node.Node) *models.EditorModel {
 
 func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
+	case *actions.Add:
+		payload.Wait(s.app.Branches)
+		if action.Forward() {
+			if e := mutateAddEditor(s, action.Node, action.Parent); e != nil {
+				s.app.Notify(e, EditorChildAdded)
+			}
+		} else {
+			if e := mutateDeleteEditor(s, action.Node, action.Parent); e != nil {
+				s.app.Notify(e, EditorChildDeleted)
+			}
+		}
+
+	case *actions.Delete:
+		payload.Wait(s.app.Branches)
+		if action.Forward() {
+			if e := mutateDeleteEditor(s, action.Node, action.Node.Parent); e != nil {
+				s.app.Notify(e, EditorChildDeleted)
+			}
+		} else {
+			if e := mutateAddEditor(s, action.Node, action.Node.Parent); e != nil {
+				s.app.Notify(e, EditorChildAdded)
+			}
+		}
+
+	case *actions.Reorder:
+		payload.Wait(s.app.Branches)
+		s.app.Notify(action.Model, EditorArrayOrderChanged)
+
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
 		s.AddEditorsRecursively(s.app.Package.Node())
@@ -68,32 +96,14 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		n := ni.GetNode()
 		e := s.AddEditorsRecursively(n)
 		s.app.Notify(e, EditorLoaded)
-	case *actions.InitializeNode:
-		payload.Wait(s.app.Branches)
-		s.AddEditorsRecursively(action.Node)
-		parent := s.Get(action.Node.Parent)
-		if parent == nil {
-			break
-		}
-		s.app.Notify(parent, EditorChildAdded)
+
 	case *actions.BranchSelected:
 		payload.Wait(s.app.Nodes)
 		if e := s.Get(s.app.Nodes.Selected()); e != nil {
 			s.app.Notify(e, EditorSelected)
 		}
 		s.app.Notify(nil, EditorSelected)
-	case *actions.DeleteNode:
-		payload.Wait(s.app.Nodes)
-		if action.Node.Parent.Type.IsNativeCollection() && s.editors[action.Node] != nil {
-			delete(s.editors, action.Node)
-		}
-		ed := s.Get(action.Node.Parent)
-		if ed != nil {
-			s.app.Notify(ed, EditorChildDeleted)
-		}
-	case *actions.ArrayOrder:
-		payload.Wait(s.app.Branches)
-		s.app.Notify(action.Model, EditorArrayOrderChanged)
+
 	case *actions.EditorFocus:
 		s.app.Notify(action.Editor, EditorFocus)
 	}
@@ -110,4 +120,16 @@ func (s *EditorStore) AddEditorsRecursively(n *node.Node) *models.EditorModel {
 		s.AddEditorsRecursively(c)
 	}
 	return e
+}
+
+func mutateAddEditor(s *EditorStore, n *node.Node, p *node.Node) *models.EditorModel {
+	s.AddEditorsRecursively(n)
+	return s.Get(p)
+}
+
+func mutateDeleteEditor(s *EditorStore, n *node.Node, p *node.Node) *models.EditorModel {
+	if p.Type.IsNativeCollection() && s.editors[n] != nil {
+		delete(s.editors, n)
+	}
+	return s.Get(p)
 }

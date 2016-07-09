@@ -58,6 +58,39 @@ func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
 
 var _ json.Unpacker = (*Node)(nil)
 
+func (n *Node) SetValue(ctx context.Context, value interface{}) error {
+	switch n.JsonType {
+	case json.J_STRING:
+		val := value.(string)
+		if n.ValueString == val {
+			// ignore the change if there's no change to the value
+			return nil
+		}
+		if err := n.SetValueString(ctx, val); err != nil {
+			return kerr.Wrap("NCIMXDORED", err)
+		}
+	case json.J_BOOL:
+		val := value.(bool)
+		if n.ValueBool == val {
+			// ignore the change if there's no change to the value
+			return nil
+		}
+		if err := n.SetValueBool(ctx, val); err != nil {
+			return kerr.Wrap("HKFEEMFRHR", err)
+		}
+	case json.J_NUMBER:
+		val := value.(float64)
+		if n.ValueNumber == val {
+			// ignore the change if there's no change to the value
+			return nil
+		}
+		if err := n.SetValueNumber(ctx, val); err != nil {
+			return kerr.Wrap("LBEBBNFJVG", err)
+		}
+	}
+	return nil
+}
+
 func (n *Node) SetValueString(ctx context.Context, value string) error {
 	if err := n.SetValueUnpack(ctx, json.Pack(value)); err != nil {
 		return kerr.Wrap("GAMJNECRUW", err)
@@ -338,7 +371,6 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 	}
 
 	if !useParentVal {
-		var rv reflect.Value
 		if n.Rule.Struct == nil {
 			if err := json.Unpack(ctx, in, &n.Value); err != nil {
 				return kerr.Wrap("CQMWGPLYIJ", err)
@@ -352,9 +384,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 				return kerr.Wrap("PEVKGFFHLL", err)
 			}
 		}
-		rv = reflect.ValueOf(n.Value)
-
-		n.setVal(rv)
+		n.setVal(reflect.ValueOf(n.Value))
 	}
 
 	switch n.Type.NativeJsonType() {
@@ -742,4 +772,78 @@ func (n *Node) Hash(ctx context.Context) (uint64, error) {
 		return 0, kerr.Wrap("GJNHTFFNAM", err)
 	}
 	return hash, nil
+}
+
+func (n *Node) Backup() *Node {
+	return &Node{
+		Parent:      n.Parent,
+		Array:       n.Array,
+		Map:         n.Map,
+		Key:         n.Key,
+		Index:       n.Index,
+		Origin:      n.Origin,
+		ValueString: n.ValueString,
+		ValueNumber: n.ValueNumber,
+		ValueBool:   n.ValueBool,
+		Value:       n.Value,
+		Val:         n.Val,
+		Null:        n.Null,
+		Missing:     n.Missing,
+		Rule:        n.Rule,
+		Type:        n.Type,
+		JsonType:    n.JsonType,
+	}
+}
+
+func (n *Node) Restore(ctx context.Context, b *Node) error {
+	n.Parent = b.Parent
+	n.Array = b.Array
+	n.Map = b.Map
+	n.Key = b.Key
+	n.Index = b.Index
+	n.Origin = b.Origin
+	n.ValueString = b.ValueString
+	n.ValueNumber = b.ValueNumber
+	n.ValueBool = b.ValueBool
+	n.Value = b.Value
+	n.Val = b.Val
+	n.Null = b.Null
+	n.Missing = b.Missing
+	n.Rule = b.Rule
+	n.Type = b.Type
+	n.JsonType = b.JsonType
+
+	n.setVal(reflect.ValueOf(n.Value))
+
+	/*
+		switch n.JsonType {
+		case json.J_STRING:
+			if err := n.SetValueString(ctx, n.ValueString); err != nil {
+				return kerr.Wrap("BLQHHHTWXM", err)
+			}
+		case json.J_BOOL:
+			if err := n.SetValueBool(ctx, n.ValueBool); err != nil {
+				return kerr.Wrap("SMLUVDPMEY", err)
+			}
+		case json.J_NUMBER:
+			if err := n.SetValueNumber(ctx, n.ValueNumber); err != nil {
+				return kerr.Wrap("CFVEGISFPV", err)
+			}
+		case json.J_OBJECT:
+
+		}*/
+	return nil
+
+}
+
+func (n *Node) NativeValue() interface{} {
+	switch n.JsonType {
+	case json.J_STRING:
+		return n.ValueString
+	case json.J_NUMBER:
+		return n.ValueNumber
+	case json.J_BOOL:
+		return n.ValueBool
+	}
+	return nil
 }

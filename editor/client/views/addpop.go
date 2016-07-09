@@ -229,20 +229,23 @@ func (v *AddPopupView) save() {
 			// TODO: show an error
 			return
 		}
-		v.App.Dispatch(&actions.InitializeNode{
+		v.App.Dispatch(&actions.Add{
+			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
 			Parent: v.model.Parent,
 			Key:    name,
 			Type:   t,
 		})
 	} else if v.model.Parent.Type.IsNativeArray() {
-		v.App.Dispatch(&actions.InitializeNode{
+		v.App.Dispatch(&actions.Add{
+			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
 			Parent: v.model.Parent,
 			Type:   t,
 		})
 	} else {
-		v.App.Dispatch(&actions.InitializeNode{
+		v.App.Dispatch(&actions.Add{
+			Undoer: &actions.Undoer{},
 			Parent: v.model.Parent,
 			Node:   v.model.Node,
 			Type:   t,

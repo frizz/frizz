@@ -74,13 +74,13 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		s.validateNodes(s.build(n))
 	case *actions.EditorValueChange500ms:
 		s.validateNodes(s.build(action.Editor.Node.Root()))
-	case *actions.ArrayOrder:
+	case *actions.Reorder:
 		payload.Wait(s.app.Nodes)
 		s.validateNodes(s.build(action.Model.Node.Root()))
-	case *actions.DeleteNode:
+	case *actions.Delete:
 		payload.Wait(s.app.Nodes)
 		s.validateNodes(s.build(action.Node.Root()))
-	case *actions.InitializeNode:
+	case *actions.Add:
 		payload.Wait(s.app.Nodes)
 		s.validateNodes(s.build(action.Node.Root()))
 	}

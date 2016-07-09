@@ -67,10 +67,11 @@ func (v *ArrayTableView) sortable() {
 				if oldIndex == newIndex {
 					return
 				}
-				v.App.Dispatch(&actions.ArrayOrder{
-					Model:    v.model,
-					OldIndex: oldIndex,
-					NewIndex: newIndex,
+				v.App.Dispatch(&actions.Reorder{
+					Undoer: &actions.Undoer{},
+					Model:  v.model,
+					Before: oldIndex,
+					After:  newIndex,
 				})
 			},
 		})
