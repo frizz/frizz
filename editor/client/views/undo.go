@@ -1,6 +1,8 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
@@ -51,15 +53,19 @@ func (v *UndoView) Render() vecty.Component {
 	var label string
 	var disabled bool
 	if v.Undo {
-		label = "Undo"
 		if v.App.Actions.Index() <= 0 {
 			disabled = true
+			label = "Undo"
+		} else {
+			label = fmt.Sprintf("Undo (%d)", v.App.Actions.Index())
 		}
 
 	} else {
-		label = "Redo"
 		if v.App.Actions.Index() >= v.App.Actions.Count() {
 			disabled = true
+			label = "Redo"
+		} else {
+			label = fmt.Sprintf("Redo (%d)", v.App.Actions.Count()-v.App.Actions.Index())
 		}
 	}
 
@@ -68,7 +74,7 @@ func (v *UndoView) Render() vecty.Component {
 			"disabled": disabled,
 		},
 		elem.Anchor(
-			event.Click(v.click).PreventDefault().StopPropagation(),
+			event.Click(v.click).PreventDefault(),
 			prop.Href("#"),
 			vecty.Text(label),
 		),

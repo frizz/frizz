@@ -141,6 +141,7 @@ func (n *Node) DeleteArrayChild(index int) error {
 		n.Index = i
 	}
 	deleteFromSlice(n.Val, index)
+	n.Value = n.Val.Interface()
 	return nil
 }
 
@@ -196,10 +197,23 @@ func (n *Node) InitialiseRoot() {
 	n.resetAllValues()
 }
 
-func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, useParentVal bool) error {
+func (n *Node) InitialiseArrayItem(ctx context.Context, parent *Node, index int) error {
+	if err := n.initialiseCollectionItem(ctx, parent, "", index); err != nil {
+		return kerr.Wrap("SCHXGKLKOV", err)
+	}
+	return nil
+}
+func (n *Node) InitialiseMapItem(ctx context.Context, parent *Node, key string) error {
+	if err := n.initialiseCollectionItem(ctx, parent, key, -1); err != nil {
+		return kerr.Wrap("SCHXGKLKOV", err)
+	}
+	return nil
+}
+func (n *Node) initialiseCollectionItem(ctx context.Context, parent *Node, key string, index int) error {
 	n.resetAllValues()
 	n.Parent = parent
 	n.Index = index
+	n.Key = key
 	n.Missing = false
 
 	rule, err := parent.Rule.ItemsRule()
@@ -214,22 +228,32 @@ func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, useParen
 	}
 	n.Type = t
 
+	return nil
+}
+
+func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, updateParentVal bool) error {
+
 	if index > len(parent.Array) {
 		return kerr.New("GHJIDXABLL", "Index out of bounds")
 	} else if index == len(parent.Array) {
 		parent.Array = append(parent.Array, n)
 	} else {
-		parent.Array[index] = n
+		parent.Array = append(append(parent.Array[:index], n), parent.Array[index:]...)
 	}
 
-	if !useParentVal {
+	if updateParentVal {
+		val := n.Val
+		if val == (reflect.Value{}) {
+			val = reflect.Zero(parent.Val.Type().Elem())
+		}
 		if index > parent.Val.Len() {
 			return kerr.New("YFKMXFUPHY", "Index out of bounds")
 		} else if index == parent.Val.Len() {
-			appendToSlice(parent.Val, reflect.Zero(parent.Val.Type().Elem()))
+			appendToSlice(parent.Val, val)
 		} else {
-			parent.Val.Index(index).Set(reflect.Zero(parent.Val.Type().Elem()))
+			insertIntoSlice(parent.Val, index, val)
 		}
+		parent.Value = parent.Val.Interface()
 	}
 
 	n.initialiseValFromParent()
@@ -237,28 +261,16 @@ func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, useParen
 	return nil
 }
 
-func (n *Node) AddToMap(ctx context.Context, parent *Node, key string, useParentVal bool) error {
-	n.resetAllValues()
-	n.Parent = parent
-	n.Key = key
-	n.Missing = false
-
-	rule, err := parent.Rule.ItemsRule()
-	if err != nil {
-		return kerr.Wrap("MMUUKGFEAA", err)
-	}
-	n.Rule = rule
-
-	t, err := extractType(ctx, json.Pack(nil), rule)
-	if err != nil {
-		return kerr.Wrap("YYHFMEVMRO", err)
-	}
-	n.Type = t
+func (n *Node) AddToMap(ctx context.Context, parent *Node, key string, updateParentVal bool) error {
 
 	parent.Map[key] = n
 
-	if !useParentVal {
-		parent.Val.SetMapIndex(reflect.ValueOf(key), reflect.Zero(parent.Val.Type().Elem()))
+	if updateParentVal {
+		val := n.Val
+		if val == (reflect.Value{}) {
+			val = reflect.Zero(parent.Val.Type().Elem())
+		}
+		parent.Val.SetMapIndex(reflect.ValueOf(key), val)
 	}
 
 	n.initialiseValFromParent()
@@ -266,7 +278,7 @@ func (n *Node) AddToMap(ctx context.Context, parent *Node, key string, useParent
 	return nil
 }
 
-func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, useParentVal bool) error {
+func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, updateParentVal bool) error {
 
 	n.resetAllValues()
 	n.Parent = parent
@@ -281,17 +293,17 @@ func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleW
 	n.Type = t
 
 	parent.Map[key] = n
-	rt, err := rule.GetReflectType()
-	if err != nil {
-		return kerr.Wrap("QMGGBWEMPT", err)
-	}
-	p := parent.Val
-	for p.Kind() == reflect.Interface || p.Kind() == reflect.Ptr {
-		p = p.Elem()
-	}
-	f := p.FieldByName(system.GoName(key))
 
-	if !useParentVal {
+	if updateParentVal {
+		rt, err := rule.GetReflectType()
+		if err != nil {
+			return kerr.Wrap("QMGGBWEMPT", err)
+		}
+		p := parent.Val
+		for p.Kind() == reflect.Interface || p.Kind() == reflect.Ptr {
+			p = p.Elem()
+		}
+		f := p.FieldByName(system.GoName(key))
 		f.Set(reflect.Zero(rt))
 	}
 
@@ -336,13 +348,13 @@ func (n *Node) initialiseValFromParent() {
 }
 
 func (n *Node) SetValueUnpack(ctx context.Context, in json.Packed) error {
-	if err := n.setValue(ctx, in, false); err != nil {
+	if err := n.setValue(ctx, in, true); err != nil {
 		return kerr.Wrap("FAVEHOUYHB", err)
 	}
 	return nil
 }
 
-func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) error {
+func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error {
 
 	n.Missing = false
 
@@ -370,7 +382,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
 	}
 
-	if !useParentVal {
+	if unpack {
 		if n.Rule.Struct == nil {
 			if err := json.Unpack(ctx, in, &n.Value); err != nil {
 				return kerr.Wrap("CQMWGPLYIJ", err)
@@ -398,10 +410,13 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 		children := in.Array()
 		for i, child := range children {
 			childNode := NewNode()
-			if err := childNode.AddToArray(ctx, n, i, useParentVal); err != nil {
+			if err := childNode.InitialiseArrayItem(ctx, n, i); err != nil {
+				return kerr.Wrap("XHQKQTNRJV", err)
+			}
+			if err := childNode.AddToArray(ctx, n, i, false); err != nil {
 				return kerr.Wrap("VWWYPDIJKP", err)
 			}
-			if err := childNode.setValue(ctx, child, true); err != nil {
+			if err := childNode.setValue(ctx, child, false); err != nil {
 				return kerr.Wrap("KUCBPFFJNT", err)
 			}
 		}
@@ -410,15 +425,18 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, useParentVal bool) 
 		children := in.Map()
 		for name, child := range children {
 			childNode := NewNode()
-			if err := childNode.AddToMap(ctx, n, name, useParentVal); err != nil {
+			if err := childNode.InitialiseMapItem(ctx, n, name); err != nil {
+				return kerr.Wrap("TBNWBMJDIE", err)
+			}
+			if err := childNode.AddToMap(ctx, n, name, false); err != nil {
 				return kerr.Wrap("HTOPDOKPRE", err)
 			}
-			if err := childNode.setValue(ctx, child, true); err != nil {
+			if err := childNode.setValue(ctx, child, false); err != nil {
 				return kerr.Wrap("LWCSAHSBDF", err)
 			}
 		}
 	case json.J_OBJECT:
-		if err := n.initialiseFields(ctx, in, true); err != nil {
+		if err := n.initialiseFields(ctx, in, false); err != nil {
 			return kerr.Wrap("XCRYJWKPKP", err)
 		}
 	}
@@ -498,7 +516,7 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 	n.setVal(rv)
 
 	if !null && n.Type.IsNativeObject() {
-		if err := n.initialiseFields(ctx, nil, false); err != nil {
+		if err := n.initialiseFields(ctx, nil, true); err != nil {
 			return kerr.Wrap("VSAXCHGCOG", err)
 		}
 		if err := n.setCorrectTypeField(ctx); err != nil {
@@ -544,7 +562,7 @@ func (n *Node) setVal(rv reflect.Value) {
 	}
 }
 
-func (n *Node) initialiseFields(ctx context.Context, in json.Packed, useParentVal bool) error {
+func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal bool) error {
 
 	valueFields := map[string]json.Packed{}
 	if in != nil && in.Type() != json.J_NULL {
@@ -563,11 +581,11 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, useParentVa
 		}
 		valueField, valueExists := valueFields[name]
 		childNode := NewNode()
-		if err := childNode.addToObject(ctx, n, rule, name, typeField.Origin, useParentVal); err != nil {
+		if err := childNode.addToObject(ctx, n, rule, name, typeField.Origin, updateVal); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		if valueExists {
-			if err := childNode.setValue(ctx, valueField, true); err != nil {
+			if err := childNode.setValue(ctx, valueField, false); err != nil {
 				return kerr.Wrap("UWOTRJJVNK", err)
 			}
 		}

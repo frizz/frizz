@@ -91,8 +91,7 @@ func (v *Header) Render() vecty.Component {
 						),
 						elem.UnorderedList(
 							prop.Class("dropdown-menu"),
-							NewUndoView(v.Ctx, true),
-							NewUndoView(v.Ctx, false),
+
 							/*
 								elem.ListItem(
 									elem.Anchor(
@@ -123,6 +122,8 @@ func (v *Header) Render() vecty.Component {
 							*/
 						),
 					),
+					NewUndoView(v.Ctx, true),
+					NewUndoView(v.Ctx, false),
 				),
 				elem.Form(
 					prop.Class("navbar-form navbar-right"),

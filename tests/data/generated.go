@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data","Hash":16036900731074541263}
+// info:{"Path":"kego.io/tests/data","Hash":1099647111195420677}
 package data
 
 // ke: {"file": {"notest": true}}
@@ -31,6 +31,12 @@ type FacebRule struct {
 
 // Automatically created basic rule for multi
 type MultiRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for simple
+type SimpleRule struct {
 	*system.Object
 	*system.Rule
 }
@@ -107,10 +113,23 @@ type MultiInterface interface {
 func (o *Multi) GetMulti(ctx context.Context) *Multi {
 	return o
 }
+
+type Simple struct {
+	*system.Object
+	Js string `json:"js"`
+}
+type SimpleInterface interface {
+	GetSimple(ctx context.Context) *Simple
+}
+
+func (o *Simple) GetSimple(ctx context.Context) *Simple {
+	return o
+}
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/tests/data", 16036900731074541263)
+	pkg := jsonctx.InitPackage("kego.io/tests/data", 1099647111195420677)
 	pkg.InitType("face", reflect.TypeOf((*Face)(nil)).Elem(), reflect.TypeOf((*FaceRule)(nil)), nil)
 	pkg.InitType("facea", reflect.TypeOf((*Facea)(nil)), reflect.TypeOf((*FaceaRule)(nil)), reflect.TypeOf((*FaceaInterface)(nil)).Elem())
 	pkg.InitType("faceb", reflect.TypeOf((*Faceb)(nil)), reflect.TypeOf((*FacebRule)(nil)), reflect.TypeOf((*FacebInterface)(nil)).Elem())
 	pkg.InitType("multi", reflect.TypeOf((*Multi)(nil)), reflect.TypeOf((*MultiRule)(nil)), reflect.TypeOf((*MultiInterface)(nil)).Elem())
+	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
 }

@@ -40,8 +40,8 @@ func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 `
 	mm := m + `,
 "m": { "type": "multi" },
-"am": [ { "type": "multi" }, { "type": "multi" } ],
-"mm": { "a": { "type": "multi" }, "b": { "type": "multi" } }`
+"am": [ { "type": "multi", "js": "amjs0" }, { "type": "multi", "js": "amjs1" } ],
+"mm": { "a": { "type": "multi", "js": "mmjsa" }, "b": { "type": "multi", "js": "mmjsb" } }`
 
 	s := `{
 	` + m + `,

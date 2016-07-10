@@ -45,7 +45,7 @@ func (s *ActionStore) Redo() actions.Undoable {
 	if s.index >= len(s.actions) {
 		return nil
 	}
-	a := s.actions[s.index+1]
+	a := s.actions[s.index]
 	a.SetRedo()
 	return a
 }

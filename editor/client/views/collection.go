@@ -48,6 +48,7 @@ func addCollectionItem(app *stores.App, parent *node.Node) {
 			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
 			Parent: parent,
+			Index:  len(parent.Array),
 			Type:   types[0],
 		})
 		return

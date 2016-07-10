@@ -63,6 +63,7 @@ func (v *ObjectRowView) Render() vecty.Component {
 						Undoer: &actions.Undoer{},
 						Parent: v.node.Parent,
 						Node:   v.node,
+						Key:    v.node.Key,
 						Type:   types[0],
 					})
 					return

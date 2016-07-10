@@ -241,6 +241,7 @@ func (v *AddPopupView) save() {
 			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
 			Parent: v.model.Parent,
+			Index:  len(v.model.Parent.Array),
 			Type:   t,
 		})
 	} else {
@@ -248,6 +249,7 @@ func (v *AddPopupView) save() {
 			Undoer: &actions.Undoer{},
 			Parent: v.model.Parent,
 			Node:   v.model.Node,
+			Key:    v.model.Node.Key,
 			Type:   t,
 		})
 	}
