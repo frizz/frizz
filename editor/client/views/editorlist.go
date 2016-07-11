@@ -23,7 +23,7 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	v.View = New(ctx, v)
 	v.model = model
 	v.filter = filter
-	v.Watch(v.model,
+	v.Watch(v.model.Node,
 		stores.EditorArrayOrderChanged,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,

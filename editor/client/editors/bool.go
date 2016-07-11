@@ -42,7 +42,7 @@ func NewBoolEditorView(ctx context.Context, node *node.Node, format editable.For
 	v.model = v.App.Editors.Get(node)
 	v.node = v.App.Nodes.Get(node)
 	v.format = format
-	v.Watch(v.model,
+	v.Watch(v.model.Node,
 		stores.EditorFocus,
 		stores.EditorValueChanged,
 		stores.EditorErrorsChanged)

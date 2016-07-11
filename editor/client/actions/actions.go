@@ -75,8 +75,6 @@ type Undoable interface {
 	Direction() Directions
 	SetUndo()
 	SetRedo()
-	Forward() bool
-	Backward() bool
 }
 
 type Undoer struct {
@@ -86,8 +84,6 @@ type Undoer struct {
 func (u *Undoer) Direction() Directions { return u.direction }
 func (u *Undoer) SetUndo()              { u.direction = Undo }
 func (u *Undoer) SetRedo()              { u.direction = Redo }
-func (u *Undoer) Forward() bool         { return u.direction == Redo || u.direction == New }
-func (u *Undoer) Backward() bool        { return u.direction == Undo }
 
 type Add struct {
 	*Undoer
@@ -101,6 +97,7 @@ type Add struct {
 type Delete struct {
 	*Undoer
 	Node        *node.Node
+	Parent      *node.Node
 	Backup      *node.Node
 	BranchIndex int
 }

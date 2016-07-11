@@ -8,11 +8,13 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/system"
+	"kego.io/system/node"
 )
 
 type ObjectTableView struct {
 	*View
 
+	node   *node.Node
 	model  *models.EditorModel
 	origin *system.Reference
 }
@@ -22,7 +24,7 @@ func NewObjectTableView(ctx context.Context, model *models.EditorModel, origin *
 	v.View = New(ctx, v)
 	v.model = model
 	v.origin = origin
-	v.Watch(v.model,
+	v.Watch(v.model.Node,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)

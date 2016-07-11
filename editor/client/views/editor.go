@@ -37,7 +37,7 @@ func NewEditorView(ctx context.Context, node *node.Node, format editable.Format)
 	v := &EditorView{}
 	v.View = New(ctx, v)
 	v.model = v.App.Editors.Get(node)
-	v.Watch(v.model,
+	v.Watch(v.model.Node,
 		stores.EditorValueChanged,
 	)
 	return v

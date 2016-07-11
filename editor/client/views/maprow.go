@@ -58,6 +58,7 @@ func (v *MapRowView) Render() vecty.Component {
 				v.App.Dispatch(&actions.Delete{
 					Undoer: &actions.Undoer{},
 					Node:   v.node,
+					Parent: v.node.Parent,
 				})
 			}).PreventDefault().StopPropagation(),
 			prop.Href("#"),

@@ -23,7 +23,7 @@ func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTab
 	v := &ArrayTableView{}
 	v.View = New(ctx, v)
 	v.model = model
-	v.Watch(v.model,
+	v.Watch(v.model.Node,
 		stores.EditorArrayOrderChanged,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,

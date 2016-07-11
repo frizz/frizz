@@ -98,7 +98,7 @@ func (s *RuleStore) validateNodes(changes []*node.Node) {
 		if changed {
 			s.app.Notify(n, NodeErrorsChanged)
 			if ed := s.app.Editors.Get(n); ed != nil {
-				s.app.Notify(ed, EditorErrorsChanged)
+				s.app.Notify(ed.Node, EditorErrorsChanged)
 			}
 		}
 	}

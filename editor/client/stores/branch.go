@@ -99,7 +99,8 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.Add:
 		payload.Wait(s.app.Nodes)
-		if action.Forward() {
+		switch action.Direction() {
+		case actions.New, actions.Redo:
 			parent, err := mutateAppendBranch(s, action.Parent, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("LDBMBRHWHB", err)
@@ -108,7 +109,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if parent != nil {
 				s.app.Notify(parent, BranchChildAdded)
 			}
-		} else {
+		case actions.Undo:
 			_, parent, err := mutateDeleteBranch(s, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("NLFWVSNNTY", err)
@@ -120,7 +121,8 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.Delete:
 		payload.Wait(s.app.Nodes)
-		if action.Forward() {
+		switch action.Direction() {
+		case actions.New, actions.Redo:
 			branch, parent, err := mutateDeleteBranch(s, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("QTXPXAKXHH", err)
@@ -132,8 +134,8 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			if parent != nil {
 				s.app.Notify(parent, BranchChildDeleted)
 			}
-		} else {
-			parent, err := mutateInsertBranch(s, action.Node.Parent, action.Node, action.BranchIndex)
+		case actions.Undo:
+			parent, err := mutateInsertBranch(s, action.Parent, action.Node, action.BranchIndex)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("OOGOEWKPIL", err)
 				break

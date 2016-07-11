@@ -111,7 +111,7 @@ func TestDeleteMutation(t *testing.T) {
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		var b, d, p *node.Node
 
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["jb"]
 		p = n
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
@@ -121,7 +121,7 @@ func TestDeleteMutation(t *testing.T) {
 		assert.True(t, n.Map["jb"].ValueBool)
 		assert.True(t, m.Jb)
 
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["ss"]
 		p = n
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
@@ -134,7 +134,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NotNil(t, m.Ss)
 		assert.Equal(t, "ss1", m.Ss.Value())
 
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["i"]
 		p = n
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
@@ -146,7 +146,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NotNil(t, m.I)
 		assert.Equal(t, "ia", m.I.Face())
 
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["ass"]
 		p = n
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
@@ -156,7 +156,7 @@ func TestDeleteMutation(t *testing.T) {
 		assert.False(t, n.Map["ass"].Missing)
 		assert.Equal(t, 4, len(m.Ass))
 
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["mss"]
 		p = n
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
@@ -169,7 +169,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NotNil(t, m.Mss["a"])
 		assert.Equal(t, "mssa", m.Mss["a"].Value())
 
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["ass"].Array[0]
 		p = n.Map["ass"]
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
@@ -191,7 +191,7 @@ func TestDeleteMutation1(t *testing.T) {
 	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		var b, d, p *node.Node
-		b = &node.Node{}
+		b = node.NewNode()
 		d = n.Map["am"].Array[0]
 		p = n.Map["am"]
 		assert.Equal(t, "amjs0", n.Map["am"].Array[0].Map["js"].ValueString)

@@ -1,12 +1,14 @@
 type: system:type
 id: page
 fields:
-    title:
-        type: system:@array
-        items:
-            type: "@foo"
-            rules:
-                -
-                    selector: ':has(.tags:has(:val("a")))>.foo'
-                    type: system:@string
-                    pattern: "foo"
+    bar:
+        type: "@bar"
+#    title:
+#        type: system:@array
+#        items:
+#            type: "@foo"
+#            rules:
+#                -
+#                    selector: ':has(.tags:has(:val("a")))>.foo'
+#                    type: system:@string
+#                    pattern: "foo"

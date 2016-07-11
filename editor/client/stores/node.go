@@ -66,27 +66,34 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.Add:
 		payload.Wait(s.app.Actions)
-		if action.Forward() {
+		switch action.Direction() {
+		case actions.New:
 			if err := mutateAddNode(s.ctx, action.Node, action.Parent, action.Key, action.Index, action.Type); err != nil {
 				s.app.Fail <- kerr.Wrap("HUOGBUQCAO", err)
 				break
 			}
-		} else {
+		case actions.Undo:
 			if err := mutateUndoAddNode(s.ctx, action.Parent, action.Key, action.Index); err != nil {
 				s.app.Fail <- kerr.Wrap("RTAGMUIKMD", err)
+				break
+			}
+		case actions.Redo:
+			if err := mutateRedoAddNode(s.ctx, action.Node, action.Parent, action.Key, action.Index, action.Type); err != nil {
+				s.app.Fail <- kerr.Wrap("MHUTMXOGBP", err)
 				break
 			}
 		}
 	case *actions.Delete:
 		payload.Wait(s.app.Actions)
-		if action.Forward() {
-			action.Backup = &node.Node{}
-			if err := mutateDeleteNode(s.ctx, action.Node, action.Node.Parent, action.Backup); err != nil {
+		switch action.Direction() {
+		case actions.New, actions.Redo:
+			action.Backup = node.NewNode()
+			if err := mutateDeleteNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("DFHTKJRLQC", err)
 				break
 			}
-		} else {
-			if err := mutateUndoDeleteNode(s.ctx, action.Node, action.Node.Parent, action.Backup); err != nil {
+		case actions.Undo:
+			if err := mutateUndoDeleteNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("HAPWUOPBTW", err)
 				break
 			}
@@ -99,7 +106,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 		from := action.Before
 		to := action.After
-		if action.Backward() {
+		if action.Direction() == actions.Undo {
 			from = action.After
 			to = action.Before
 		}
@@ -112,7 +119,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Actions)
 		n := action.Editor.Node
 		val := action.After
-		if action.Backward() {
+		if action.Direction() == actions.Undo {
 			val = action.Before
 		}
 		if err := n.SetValue(s.ctx, val); err != nil {
@@ -129,11 +136,11 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 
 		if changed {
 			s.app.Notify(n, NodeErrorsChanged)
-			s.app.Notify(action.Editor, EditorErrorsChanged)
+			s.app.Notify(action.Editor.Node, EditorErrorsChanged)
 		}
 
 		s.app.Notify(n, NodeValueChanged)
-		s.app.Notify(action.Editor, EditorValueChanged)
+		s.app.Notify(action.Editor.Node, EditorValueChanged)
 
 		c := n.Parent
 		for c != nil {
@@ -219,6 +226,23 @@ func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, 
 		}
 		if err := n.AddToMap(ctx, p, key, true); err != nil {
 			return kerr.Wrap("UEPLLMTLDB", err)
+		}
+	}
+	if err := n.SetValueZero(ctx, false, t); err != nil {
+		return kerr.Wrap("NLSRNQGLLW", err)
+	}
+	return nil
+}
+
+func mutateRedoAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, index int, t *system.Type) error {
+	switch p.Type.NativeJsonType() {
+	case json.J_ARRAY:
+		if err := n.AddToArray(ctx, p, index, true); err != nil {
+			return kerr.Wrap("IKQWMJGXFV", err)
+		}
+	case json.J_MAP:
+		if err := n.AddToMap(ctx, p, key, true); err != nil {
+			return kerr.Wrap("WLQBAXBCRA", err)
 		}
 	}
 	if err := n.SetValueZero(ctx, false, t); err != nil {
