@@ -6,9 +6,40 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 
+	"kego.io/system"
 	"kego.io/system/node"
 	"kego.io/tests/data"
 )
+
+func TestAddMutationRedo(t *testing.T) {
+	cb, n := data.Setup(t)
+
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+		var a, p *node.Node
+		a = node.NewNode()
+		p = n.Map["am"]
+		ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
+		require.True(t, ok)
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty))
+		a1 := node.NewNode()
+		p1 := n.Map["am"].Array[2]
+		require.NoError(t, mutateAddNode(cb.Ctx(), a1, p1, "m", -1, ty))
+		require.Equal(t, 3, len(n.Map["am"].Array))
+		require.Equal(t, 3, len(m.Am))
+		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p1, "m", -1))
+		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 2))
+		require.Equal(t, 2, len(n.Map["am"].Array))
+		require.Equal(t, 2, len(m.Am))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a1, p1, "m", -1, ty))
+		require.Equal(t, 3, len(n.Map["am"].Array))
+		require.Equal(t, 3, len(m.Am))
+		require.NotNil(t, n.Map["am"].Array[2])
+		require.NotNil(t, m.Am[2])
+	}
+
+	test(t, n.Map["m"], n.Value.(*data.Multi).M)
+}
 
 func TestAddMutation(t *testing.T) {
 
