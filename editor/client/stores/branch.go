@@ -100,55 +100,57 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.Add:
 		payload.Wait(s.app.Nodes)
 		if action.Forward() {
-			b, err := mutateAppendBranch(s, action.Parent, action.Node)
+			parent, err := mutateAppendBranch(s, action.Parent, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("LDBMBRHWHB", err)
 				break
 			}
-			if b != nil {
-				s.app.Notify(b, BranchChildAdded)
+			if parent != nil {
+				s.app.Notify(parent, BranchChildAdded)
 			}
 		} else {
-			b, err := mutateDeleteBranch(s, action.Node)
+			_, parent, err := mutateDeleteBranch(s, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("NLFWVSNNTY", err)
 				break
 			}
-			if b != nil {
-				s.app.Notify(b, BranchChildDeleted)
+			if parent != nil {
+				s.app.Notify(parent, BranchChildDeleted)
 			}
 		}
 	case *actions.Delete:
 		payload.Wait(s.app.Nodes)
 		if action.Forward() {
-			b, err := mutateDeleteBranch(s, action.Node)
+			branch, parent, err := mutateDeleteBranch(s, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("QTXPXAKXHH", err)
 				break
 			}
-			if b != nil {
-				action.BranchIndex = b.Index
-				s.app.Notify(b, BranchChildDeleted)
+			if branch != nil {
+				action.BranchIndex = branch.Index
+			}
+			if parent != nil {
+				s.app.Notify(parent, BranchChildDeleted)
 			}
 		} else {
-			b, err := mutateInsertBranch(s, action.Node.Parent, action.Node, action.BranchIndex)
+			parent, err := mutateInsertBranch(s, action.Node.Parent, action.Node, action.BranchIndex)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("OOGOEWKPIL", err)
 				break
 			}
-			if b != nil {
-				s.app.Notify(b, BranchChildAdded)
+			if parent != nil {
+				s.app.Notify(parent, BranchChildAdded)
 			}
 		}
 	case *actions.Reorder:
 		payload.Wait(s.app.Nodes)
-		b, err := mutateReorderBranch(s, action.Model.Node)
+		parent, err := mutateReorderBranch(s, action.Model.Node)
 		if err != nil {
 			s.app.Fail <- kerr.Wrap("NUQOPWWXHA", err)
 			break
 		}
-		if b != nil {
-			s.app.Notify(b, BranchChildrenReordered)
+		if parent != nil {
+			s.app.Notify(parent, BranchChildrenReordered)
 		}
 	case *actions.BranchClose:
 		if !action.Branch.CanOpen() {
@@ -257,10 +259,10 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	return true
 }
 
-func mutateDeleteBranch(s *BranchStore, n *node.Node) (*models.BranchModel, error) {
+func mutateDeleteBranch(s *BranchStore, n *node.Node) (branch *models.BranchModel, parent *models.BranchModel, err error) {
 	branch, ok := s.nodeBranches[n]
 	if !ok {
-		return nil, nil
+		return nil, nil, nil
 	}
 	delete(s.nodeBranches, n)
 	for i, c := range branch.Parent.Children {
@@ -269,10 +271,10 @@ func mutateDeleteBranch(s *BranchStore, n *node.Node) (*models.BranchModel, erro
 			break
 		}
 	}
-	return branch.Parent, nil
+	return branch, branch.Parent, nil
 }
 
-func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int) (*models.BranchModel, error) {
+func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int) (parent *models.BranchModel, err error) {
 	if p == nil {
 		return nil, nil
 	}
@@ -284,7 +286,7 @@ func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int) (*mod
 	return parentBranch, nil
 }
 
-func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node) (*models.BranchModel, error) {
+func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node) (parent *models.BranchModel, err error) {
 	if p == nil {
 		return nil, nil
 	}
@@ -296,19 +298,19 @@ func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node) (*models.Bra
 	return parentBranch, nil
 }
 
-func mutateReorderBranch(s *BranchStore, p *node.Node) (*models.BranchModel, error) {
-	branch, ok := s.nodeBranches[p]
+func mutateReorderBranch(s *BranchStore, p *node.Node) (parent *models.BranchModel, err error) {
+	parentBranch, ok := s.nodeBranches[p]
 	if !ok {
 		return nil, nil
 	}
-	branch.Children = []*models.BranchModel{}
+	parentBranch.Children = []*models.BranchModel{}
 	for _, n := range p.Array {
 		b, ok := s.nodeBranches[n]
 		if ok {
-			branch.Append(b)
+			parentBranch.Append(b)
 		}
 	}
-	return branch, nil
+	return parentBranch, nil
 }
 
 func (s *BranchStore) NewNodeBranchModel(ctx context.Context, n *node.Node, name string) *models.BranchModel {
