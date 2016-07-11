@@ -27,6 +27,11 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 		stores.BranchSelectControl,
 		stores.BranchUnselectControl,
 	)
+	if nci, ok := model.Contents.(models.NodeContentsInterface); ok {
+		v.Watch(nci.GetNode(),
+			stores.NodeDescendantValueChanged,
+		)
+	}
 	return v
 }
 
