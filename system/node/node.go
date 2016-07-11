@@ -238,7 +238,17 @@ func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, updatePa
 	} else if index == len(parent.Array) {
 		parent.Array = append(parent.Array, n)
 	} else {
-		parent.Array = append(append(parent.Array[:index], n), parent.Array[index:]...)
+		na := []*Node{}
+		for i := 0; i < len(parent.Array)+1; i++ {
+			if i < index {
+				na = append(na, parent.Array[i])
+			} else if i == index {
+				na = append(na, n)
+			} else {
+				na = append(na, parent.Array[i-1])
+			}
+		}
+		parent.Array = na
 	}
 
 	if updateParentVal {
@@ -253,7 +263,8 @@ func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, updatePa
 		} else {
 			insertIntoSlice(parent.Val, index, val)
 		}
-		parent.Value = parent.Val.Interface()
+		//TODO: ???
+		//parent.Value = parent.Val.Interface()
 	}
 
 	n.initialiseValFromParent()
@@ -278,7 +289,7 @@ func (n *Node) AddToMap(ctx context.Context, parent *Node, key string, updatePar
 	return nil
 }
 
-func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference, updateParentVal bool) error {
+func (n *Node) initialiseObjectField(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, origin *system.Reference) error {
 
 	n.resetAllValues()
 	n.Parent = parent
@@ -291,6 +302,12 @@ func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleW
 		return kerr.Wrap("RBDBRRUVMM", err)
 	}
 	n.Type = t
+
+	return nil
+
+}
+
+func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, updateParentVal bool) error {
 
 	parent.Map[key] = n
 
@@ -581,7 +598,10 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal b
 		}
 		valueField, valueExists := valueFields[name]
 		childNode := NewNode()
-		if err := childNode.addToObject(ctx, n, rule, name, typeField.Origin, updateVal); err != nil {
+		if err := childNode.initialiseObjectField(ctx, n, rule, name, typeField.Origin); err != nil {
+			return kerr.Wrap("ILIHBXGROP", err)
+		}
+		if err := childNode.addToObject(ctx, n, rule, name, updateVal); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		if valueExists {
@@ -824,14 +844,15 @@ func (n *Node) Restore(ctx context.Context, b *Node) error {
 	n.ValueNumber = b.ValueNumber
 	n.ValueBool = b.ValueBool
 	n.Value = b.Value
-	n.Val = b.Val
+	n.Val = reflect.ValueOf(n.Value)
 	n.Null = b.Null
 	n.Missing = b.Missing
 	n.Rule = b.Rule
 	n.Type = b.Type
 	n.JsonType = b.JsonType
 
-	n.setVal(reflect.ValueOf(n.Value))
+	//n.Val.Set(reflect.ValueOf(n.Value))
+	//n.setVal(reflect.ValueOf(n.Value))
 
 	/*
 		switch n.JsonType {

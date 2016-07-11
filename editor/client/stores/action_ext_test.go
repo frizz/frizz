@@ -50,6 +50,29 @@ func TestAddMutation(t *testing.T) {
 	data.Run(t, n, n.Value.(*data.Multi), test)
 }
 
+func TestAddMutation2(t *testing.T) {
+	cb, n := data.Setup(t)
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+		var a, p *node.Node
+		a = node.NewNode()
+		p = n.Map["am"]
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
+		assert.Equal(t, 3, len(n.Map["am"].Array))
+		assert.Equal(t, 3, len(n.Map["am"].Value.([]*data.Multi)))
+		assert.Equal(t, 3, len(m.Am))
+		assert.Equal(t, "", m.Am[0].Js)
+		assert.Equal(t, "amjs0", m.Am[1].Js)
+		assert.Equal(t, "amjs1", m.Am[2].Js)
+		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 0))
+		assert.Equal(t, 2, len(n.Map["am"].Array))
+		assert.Equal(t, 2, len(n.Map["am"].Value.([]*data.Multi)))
+		assert.Equal(t, 2, len(m.Am))
+		assert.Equal(t, "amjs0", m.Am[0].Js)
+		assert.Equal(t, "amjs1", m.Am[1].Js)
+	}
+	test(t, n.Map["m"], n.Value.(*data.Multi).M)
+}
+
 func TestDeleteMutation(t *testing.T) {
 
 	cb, n := data.Setup(t)
@@ -128,19 +151,34 @@ func TestDeleteMutation(t *testing.T) {
 		require.NotNil(t, m.Ass[0])
 		assert.Equal(t, "ass0", m.Ass[0].Value())
 
-		b = &node.Node{}
-		d = n.Map["am"].Array[0]
-		p = n.Map["am"]
-		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
-		assert.Equal(t, 1, len(n.Map["am"].Array))
-		assert.Equal(t, 1, len(m.Am))
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
-		assert.Equal(t, 2, len(n.Map["am"].Array))
-		assert.Equal(t, 2, len(m.Am))
-		assert.Equal(t, "ass0", n.Map["am"].Array[0].Map["js"].ValueString)
-		require.NotNil(t, m.Am[0])
-		assert.Equal(t, "amjs0", m.Am[0].Js)
 	}
 
 	data.Run(t, n, n.Value.(*data.Multi), test)
+}
+
+func TestDeleteMutation1(t *testing.T) {
+	cb, n := data.Setup(t)
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+		var b, d, p *node.Node
+		b = &node.Node{}
+		d = n.Map["am"].Array[0]
+		p = n.Map["am"]
+		assert.Equal(t, "amjs0", n.Map["am"].Array[0].Map["js"].ValueString)
+		assert.Equal(t, "amjs1", n.Map["am"].Array[1].Map["js"].ValueString)
+		assert.Equal(t, "amjs0", m.Am[0].Js)
+		assert.Equal(t, "amjs1", m.Am[1].Js)
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
+		assert.Equal(t, 1, len(n.Map["am"].Array))
+		assert.Equal(t, 1, len(m.Am))
+		assert.Equal(t, "amjs1", n.Map["am"].Array[0].Map["js"].ValueString)
+		assert.Equal(t, "amjs1", m.Am[0].Js)
+		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		assert.Equal(t, 2, len(n.Map["am"].Array))
+		assert.Equal(t, 2, len(m.Am))
+		assert.Equal(t, "amjs0", n.Map["am"].Array[0].Map["js"].ValueString)
+		assert.Equal(t, "amjs1", n.Map["am"].Array[1].Map["js"].ValueString)
+		assert.Equal(t, "amjs0", m.Am[0].Js)
+		assert.Equal(t, "amjs1", m.Am[1].Js)
+	}
+	test(t, n.Map["m"], n.Value.(*data.Multi).M)
 }

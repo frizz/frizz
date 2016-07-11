@@ -159,6 +159,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 }
 
 func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
+	*b = *n.Backup()
 	switch p.Type.NativeJsonType() {
 	case json.J_MAP:
 		if err := p.DeleteMapChild(n.Key); err != nil {
@@ -169,7 +170,6 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 			return kerr.Wrap("RWFQSINACH", err)
 		}
 	case json.J_OBJECT:
-		*b = *n.Backup()
 		if err := p.DeleteObjectChild(ctx, n.Key); err != nil {
 			return kerr.Wrap("XGVEXEOBUP", err)
 		}
@@ -178,6 +178,9 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 }
 
 func mutateUndoDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
+	if err := n.Restore(ctx, b); err != nil {
+		return kerr.Wrap("EVSGQSPUPT", err)
+	}
 	switch p.Type.NativeJsonType() {
 	case json.J_MAP:
 		// don't have to call n.InitialiseMapItem because the node is already
@@ -190,10 +193,6 @@ func mutateUndoDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *no
 		// initialized
 		if err := n.AddToArray(ctx, p, n.Index, true); err != nil {
 			return kerr.Wrap("WFXSQYOEAY", err)
-		}
-	case json.J_OBJECT:
-		if err := n.Restore(ctx, b); err != nil {
-			return kerr.Wrap("EVSGQSPUPT", err)
 		}
 	}
 	return nil
