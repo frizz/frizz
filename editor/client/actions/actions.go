@@ -100,8 +100,9 @@ type Add struct {
 
 type Delete struct {
 	*Undoer
-	Node   *node.Node
-	Backup *node.Node
+	Node        *node.Node
+	Backup      *node.Node
+	BranchIndex int
 }
 
 type Reorder struct {

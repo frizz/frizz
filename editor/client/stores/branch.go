@@ -100,7 +100,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.Add:
 		payload.Wait(s.app.Nodes)
 		if action.Forward() {
-			b, err := mutateAddBranch(s, action.Parent, action.Node)
+			b, err := mutateAppendBranch(s, action.Parent, action.Node)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("LDBMBRHWHB", err)
 				break
@@ -127,10 +127,11 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 			if b != nil {
+				action.BranchIndex = b.Index
 				s.app.Notify(b, BranchChildDeleted)
 			}
 		} else {
-			b, err := mutateAddBranch(s, action.Node.Parent, action.Node)
+			b, err := mutateInsertBranch(s, action.Node.Parent, action.Node, action.BranchIndex)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("OOGOEWKPIL", err)
 				break
@@ -271,7 +272,19 @@ func mutateDeleteBranch(s *BranchStore, n *node.Node) (*models.BranchModel, erro
 	return branch.Parent, nil
 }
 
-func mutateAddBranch(s *BranchStore, p *node.Node, n *node.Node) (*models.BranchModel, error) {
+func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int) (*models.BranchModel, error) {
+	if p == nil {
+		return nil, nil
+	}
+	parentBranch, ok := s.nodeBranches[p]
+	if !ok {
+		return nil, nil
+	}
+	s.InsertNodeBranchModelChild(parentBranch, n, i)
+	return parentBranch, nil
+}
+
+func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node) (*models.BranchModel, error) {
 	if p == nil {
 		return nil, nil
 	}
@@ -317,13 +330,17 @@ func (s *BranchStore) AppendNodeBranchModelChildren(b *models.BranchModel, n *no
 	}
 }
 
-func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node) {
+func (s *BranchStore) InsertNodeBranchModelChild(b *models.BranchModel, n *node.Node, index int) {
 	if n.Missing || n.Null {
 		return
 	}
 	e := models.GetEditable(s.ctx, n)
 	f := e.Format(n.Rule)
 	if f == editable.Branch {
-		b.Append(s.NewNodeBranchModel(s.ctx, n, ""))
+		b.Insert(index, s.NewNodeBranchModel(s.ctx, n, ""))
 	}
+}
+
+func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node) {
+	s.InsertNodeBranchModelChild(b, n, len(b.Children))
 }

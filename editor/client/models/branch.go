@@ -9,7 +9,7 @@ type BranchModel struct {
 	Open     bool
 	Contents BranchContentsInterface
 	Parent   *BranchModel
-	index    int
+	Index    int
 }
 
 func NewBranchModel(ctx context.Context, contents BranchContentsInterface) *BranchModel {
@@ -61,20 +61,34 @@ func (b *BranchModel) Icon() string {
 	return "plus"
 }
 
-func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {
-	for i, child := range children {
-		child.index = len(b.Children) + i
-		child.Parent = b
+func (b *BranchModel) Insert(index int, children ...*BranchModel) *BranchModel {
+	ca := []*BranchModel{}
+	for i := 0; i < len(children)+len(b.Children); i++ {
+		var c *BranchModel
+		if i < index {
+			c = b.Children[i]
+		} else if i < index+len(children) {
+			c = children[i-index]
+		} else {
+			c = b.Children[i-len(children)]
+		}
+		c.Index = i
+		c.Parent = b
+		ca = append(ca, c)
 	}
-	b.Children = append(b.Children, children...)
+	b.Children = ca
 	return b
+}
+
+func (b *BranchModel) Append(children ...*BranchModel) *BranchModel {
+	return b.Insert(len(b.Children), children...)
 }
 
 func (b *BranchModel) DeleteChild(index int) {
 	b.Children = append(b.Children[0:index], b.Children[index+1:]...)
 	for i := index; i < len(b.Children); i++ {
 		// re-index only the children that have changed index
-		b.Children[i].index = i
+		b.Children[i].Index = i
 	}
 }
 

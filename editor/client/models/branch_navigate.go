@@ -73,7 +73,7 @@ func (b *BranchModel) nextSibling() *BranchModel {
 	if b.Parent == nil {
 		return nil
 	}
-	return b.Parent.Children[b.index+1]
+	return b.Parent.Children[b.Index+1]
 }
 
 func (b *BranchModel) prevSibling() *BranchModel {
@@ -83,11 +83,11 @@ func (b *BranchModel) prevSibling() *BranchModel {
 	if b.Parent == nil {
 		return nil
 	}
-	return b.Parent.Children[b.index-1]
+	return b.Parent.Children[b.Index-1]
 }
 
 func (b *BranchModel) isFirstSibling() bool {
-	return b.index == 0
+	return b.Index == 0
 }
 
 func (b *BranchModel) isLastSibling() bool {
@@ -95,7 +95,7 @@ func (b *BranchModel) isLastSibling() bool {
 		// Only ever one root node.
 		return true
 	}
-	return b.index >= len(b.Parent.Children)-1
+	return b.Index >= len(b.Parent.Children)-1
 }
 
 // isDescendantOf tells us if this branch is a direct descendant of the specified branch
