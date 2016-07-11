@@ -25,6 +25,7 @@ func NewObjectRowView(ctx context.Context, node *node.Node) *ObjectRowView {
 	v.Watch(v.node,
 		stores.NodeInitialised,
 		stores.NodeValueChanged,
+		stores.NodeDescendantValueChanged,
 	)
 	return v
 }
