@@ -263,8 +263,7 @@ func (n *Node) AddToArray(ctx context.Context, parent *Node, index int, updatePa
 		} else {
 			insertIntoSlice(parent.Val, index, val)
 		}
-		//TODO: ???
-		//parent.Value = parent.Val.Interface()
+		parent.Value = parent.Val.Interface()
 	}
 
 	n.initialiseValFromParent()
@@ -307,7 +306,7 @@ func (n *Node) initialiseObjectField(ctx context.Context, parent *Node, rule *sy
 
 }
 
-func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, updateParentVal bool) error {
+func (n *Node) AddToObject(ctx context.Context, parent *Node, rule *system.RuleWrapper, key string, updateParentVal bool) error {
 
 	parent.Map[key] = n
 
@@ -316,12 +315,16 @@ func (n *Node) addToObject(ctx context.Context, parent *Node, rule *system.RuleW
 		if err != nil {
 			return kerr.Wrap("QMGGBWEMPT", err)
 		}
+		val := n.Val
+		if val == (reflect.Value{}) {
+			val = reflect.Zero(rt)
+		}
 		p := parent.Val
 		for p.Kind() == reflect.Interface || p.Kind() == reflect.Ptr {
 			p = p.Elem()
 		}
 		f := p.FieldByName(system.GoName(key))
-		f.Set(reflect.Zero(rt))
+		f.Set(val)
 	}
 
 	n.initialiseValFromParent()
@@ -601,7 +604,7 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal b
 		if err := childNode.initialiseObjectField(ctx, n, rule, name, typeField.Origin); err != nil {
 			return kerr.Wrap("ILIHBXGROP", err)
 		}
-		if err := childNode.addToObject(ctx, n, rule, name, updateVal); err != nil {
+		if err := childNode.AddToObject(ctx, n, rule, name, updateVal); err != nil {
 			return kerr.Wrap("LJUGPMWNPD", err)
 		}
 		if valueExists {
@@ -824,7 +827,7 @@ func (n *Node) Backup() *Node {
 		ValueNumber: n.ValueNumber,
 		ValueBool:   n.ValueBool,
 		Value:       n.Value,
-		Val:         n.Val,
+		Val:         reflect.ValueOf(n.Value),
 		Null:        n.Null,
 		Missing:     n.Missing,
 		Rule:        n.Rule,

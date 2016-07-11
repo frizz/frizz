@@ -72,7 +72,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 		} else {
-			if err := mutateUndoAddNode(s.ctx, action.Node.Parent, action.Key, action.Index); err != nil {
+			if err := mutateUndoAddNode(s.ctx, action.Parent, action.Key, action.Index); err != nil {
 				s.app.Fail <- kerr.Wrap("RTAGMUIKMD", err)
 				break
 			}
@@ -193,6 +193,12 @@ func mutateUndoDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *no
 		// initialized
 		if err := n.AddToArray(ctx, p, n.Index, true); err != nil {
 			return kerr.Wrap("WFXSQYOEAY", err)
+		}
+	case json.J_OBJECT:
+		// don't have to call n.InitialiseObjectField because the node is
+		// already initialized
+		if err := n.AddToObject(ctx, p, n.Rule, n.Key, true); err != nil {
+			return kerr.Wrap("QMBJQMLOCY", err)
 		}
 	}
 	return nil
