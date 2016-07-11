@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
+	"kego.io/editor/client/stores"
 )
 
 type BreadcrumbsView struct {
@@ -21,6 +22,11 @@ func NewBreadcrumbsView(ctx context.Context, b *models.BranchModel) *Breadcrumbs
 	v := &BreadcrumbsView{}
 	v.View = New(ctx, v)
 	v.branch = b
+	if nci, ok := b.Contents.(models.NodeContentsInterface); ok {
+		v.Watch(nci.GetNode(),
+			stores.NodeDescendantValueChanged,
+		)
+	}
 	return v
 }
 
