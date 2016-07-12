@@ -80,7 +80,7 @@ func (s *ActionStore) Handle(payload *flux.Payload) bool {
 		}
 		s.index++
 	}
-	s.app.Notify(nil, ActionsChanged)
+	payload.Notify(nil, ActionsChanged)
 
 	/*
 		switch action := payload.Action.(type) {

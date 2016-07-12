@@ -60,9 +60,9 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types)
-		s.validateNodes(s.build(s.app.Package.Node()))
+		s.validateNodes(payload, s.build(s.app.Package.Node()))
 		for _, t := range s.app.Types.All() {
-			s.validateNodes(s.build(t))
+			s.validateNodes(payload, s.build(t))
 		}
 	case *actions.LoadSourceSuccess:
 		payload.Wait(s.app.Branches)
@@ -71,23 +71,23 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		n := ni.GetNode()
-		s.validateNodes(s.build(n))
+		s.validateNodes(payload, s.build(n))
 	case *actions.EditorValueChange500ms:
-		s.validateNodes(s.build(action.Editor.Node.Root()))
+		s.validateNodes(payload, s.build(action.Editor.Node.Root()))
 	case *actions.Reorder:
 		payload.Wait(s.app.Nodes)
-		s.validateNodes(s.build(action.Model.Node.Root()))
+		s.validateNodes(payload, s.build(action.Model.Node.Root()))
 	case *actions.Delete:
 		payload.Wait(s.app.Nodes)
-		s.validateNodes(s.build(action.Node.Root()))
+		s.validateNodes(payload, s.build(action.Node.Root()))
 	case *actions.Add:
 		payload.Wait(s.app.Nodes)
-		s.validateNodes(s.build(action.Node.Root()))
+		s.validateNodes(payload, s.build(action.Node.Root()))
 	}
 	return true
 }
 
-func (s *RuleStore) validateNodes(changes []*node.Node) {
+func (s *RuleStore) validateNodes(payload *flux.Payload, changes []*node.Node) {
 	for _, n := range changes {
 		m := s.app.Nodes.Get(n)
 		changed, err := m.Validate(s.ctx, s.app.Rule.Get(n.Root(), n))
@@ -96,7 +96,7 @@ func (s *RuleStore) validateNodes(changes []*node.Node) {
 			break
 		}
 		if changed {
-			s.app.Notify(n, NodeErrorsChanged)
+			payload.Notify(n, NodeErrorsChanged)
 		}
 	}
 }

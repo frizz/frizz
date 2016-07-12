@@ -15,15 +15,18 @@ type Payload struct {
 	complete    bool
 	m           sync.Mutex
 	subscribers []chan struct{}
+	notifs      []*notifData
+	notifier    NotifierInterface
 }
 
-func newPayload(action ActionInterface, store StoreInterface, environment map[StoreInterface]*Payload, loop *loopDetector) *Payload {
+func newPayload(action ActionInterface, store StoreInterface, environment map[StoreInterface]*Payload, loop *loopDetector, notifier NotifierInterface) *Payload {
 	p := &Payload{
 		Action:      action,
 		Done:        make(chan struct{}),
 		store:       store,
 		environment: environment,
 		loop:        loop,
+		notifier:    notifier,
 	}
 	go p.monitor()
 	return p
@@ -88,4 +91,26 @@ func (t *Payload) finished() chan struct{} {
 	t.subscribers = append(t.subscribers, notify)
 	return notify
 
+}
+
+type notifData struct {
+	object interface{}
+	notif  Notif
+	data   interface{}
+}
+
+// Notify sends the notif notification to all subscribers of that notification
+// for object. If object is nil, the notification is sent to all subscribers.
+func (p *Payload) Notify(object interface{}, notif Notif) {
+	if p.complete {
+		p.notifier.Notify(object, notif)
+	}
+	p.notifs = append(p.notifs, &notifData{object: object, notif: notif, data: nil})
+}
+
+func (p *Payload) NotifyWithData(object interface{}, notif Notif, data interface{}) {
+	if p.complete {
+		p.notifier.NotifyWithData(object, notif, data)
+	}
+	p.notifs = append(p.notifs, &notifData{object: object, notif: notif, data: data})
 }

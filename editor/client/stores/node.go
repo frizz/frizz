@@ -76,23 +76,23 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				s.app.Fail <- kerr.Wrap("HUOGBUQCAO", err)
 				break
 			}
-			s.app.Notify(action.Node, NodeInitialised)
-			s.app.Notify(action.Parent, NodeChildAdded)
+			payload.Notify(action.Node, NodeInitialised)
+			payload.Notify(action.Parent, NodeChildAdded)
 		case actions.Undo:
 			action.Backup = node.NewNode()
 			if err := mutateDeleteNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("RTAGMUIKMD", err)
 				break
 			}
-			s.app.Notify(action.Node, NodeDeleted)
-			s.app.Notify(action.Parent, NodeChildDeleted)
+			payload.Notify(action.Node, NodeDeleted)
+			payload.Notify(action.Parent, NodeChildDeleted)
 		case actions.Redo:
 			if err := mutateRestoreNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("MHUTMXOGBP", err)
 				break
 			}
-			s.app.Notify(action.Node, NodeInitialised)
-			s.app.Notify(action.Parent, NodeChildAdded)
+			payload.Notify(action.Node, NodeInitialised)
+			payload.Notify(action.Parent, NodeChildAdded)
 		}
 	case *actions.Delete:
 		payload.Wait(s.app.Actions)
@@ -103,15 +103,15 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				s.app.Fail <- kerr.Wrap("DFHTKJRLQC", err)
 				break
 			}
-			s.app.Notify(action.Node, NodeDeleted)
-			s.app.Notify(action.Parent, NodeChildDeleted)
+			payload.Notify(action.Node, NodeDeleted)
+			payload.Notify(action.Parent, NodeChildDeleted)
 		case actions.Undo:
 			if err := mutateRestoreNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("HAPWUOPBTW", err)
 				break
 			}
-			s.app.Notify(action.Node, NodeInitialised)
-			s.app.Notify(action.Parent, NodeChildAdded)
+			payload.Notify(action.Node, NodeInitialised)
+			payload.Notify(action.Parent, NodeChildAdded)
 		}
 	case *actions.Reorder:
 		payload.Wait(s.app.Actions)
@@ -129,7 +129,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("HMIFPKVJCN", err)
 			break
 		}
-		s.app.Notify(action.Model.Node, NodeArrayReorder)
+		payload.Notify(action.Model.Node, NodeArrayReorder)
 
 	case *actions.Modify:
 		payload.Wait(s.app.Actions)
@@ -150,14 +150,14 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		if changed {
-			s.app.Notify(n, NodeErrorsChanged)
+			payload.Notify(n, NodeErrorsChanged)
 		}
 
-		s.app.Notify(n, NodeValueChanged)
+		payload.Notify(n, NodeValueChanged)
 
 		c := n.Parent
 		for c != nil {
-			s.app.Notify(c, NodeDescendantValueChanged)
+			payload.Notify(c, NodeDescendantValueChanged)
 			c = c.Parent
 		}
 	case *actions.BranchSelecting:
@@ -173,7 +173,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.selected = nil
 		}
 	case *actions.EditorFocus:
-		s.app.Notify(action.Editor.Node, NodeFocus)
+		payload.Notify(action.Editor.Node, NodeFocus)
 	}
 	return true
 }

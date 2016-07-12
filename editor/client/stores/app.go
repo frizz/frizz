@@ -25,6 +25,9 @@ type App struct {
 }
 
 func (app *App) Init(ctx context.Context) {
+
+	app.Notifier = flux.NewNotifier()
+
 	app.Package = NewPackageStore(ctx)
 	app.Editors = NewEditorStore(ctx)
 	app.Branches = NewBranchStore(ctx)
@@ -36,7 +39,8 @@ func (app *App) Init(ctx context.Context) {
 	app.Rule = NewRuleStore(ctx)
 	app.Actions = NewActionStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
-		app.Package,
+		app.Notifier, // NotifierInterface
+		app.Package,  // StoreInterface...
 		app.Editors,
 		app.Branches,
 		app.Nodes,
@@ -47,7 +51,6 @@ func (app *App) Init(ctx context.Context) {
 		app.Rule,
 		app.Actions,
 	)
-	app.Notifier = flux.NewNotifier()
 }
 
 func (a *App) Dispatch(action flux.ActionInterface) chan struct{} {
@@ -56,14 +59,6 @@ func (a *App) Dispatch(action flux.ActionInterface) chan struct{} {
 
 func (a *App) Watch(object interface{}, notif ...flux.Notif) chan flux.NotifPayload {
 	return a.Notifier.Watch(object, notif...)
-}
-
-func (a *App) Notify(object interface{}, notif flux.Notif) (done chan struct{}) {
-	return a.Notifier.Notify(object, notif)
-}
-
-func (a *App) NotifyWithData(object interface{}, notif flux.Notif, data interface{}) (done chan struct{}) {
-	return a.Notifier.NotifyWithData(object, notif, data)
 }
 
 func (a *App) Delete(c chan flux.NotifPayload) {
