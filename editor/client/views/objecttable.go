@@ -25,8 +25,8 @@ func NewObjectTableView(ctx context.Context, model *models.EditorModel, origin *
 	v.model = model
 	v.origin = origin
 	v.Watch(v.model.Node,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
+		stores.NodeChildAdded,
+		stores.NodeChildDeleted,
 	)
 	return v
 }

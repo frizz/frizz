@@ -16,15 +16,6 @@ type EditorStore struct {
 	editors map[*node.Node]*models.EditorModel
 }
 
-type editorNotif string
-
-func (b editorNotif) IsNotif() {}
-
-const (
-	EditorChildAdded   editorNotif = "EditorChildAdded"
-	EditorChildDeleted editorNotif = "EditorChildDeleted"
-)
-
 func NewEditorStore(ctx context.Context) *EditorStore {
 	s := &EditorStore{
 		Store:   &flux.Store{},

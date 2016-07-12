@@ -20,8 +20,8 @@ func NewMapTableView(ctx context.Context, model *models.EditorModel) *MapTableVi
 	v.View = New(ctx, v)
 	v.model = model
 	v.Watch(v.model.Node,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
+		stores.NodeChildAdded,
+		stores.NodeChildDeleted,
 	)
 	return v
 }

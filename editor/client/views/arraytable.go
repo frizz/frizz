@@ -25,8 +25,8 @@ func NewArrayTableView(ctx context.Context, model *models.EditorModel) *ArrayTab
 	v.model = model
 	v.Watch(v.model.Node,
 		stores.NodeArrayReorder,
-		stores.EditorChildAdded,
-		stores.EditorChildDeleted,
+		stores.NodeChildAdded,
+		stores.NodeChildDeleted,
 	)
 	return v
 }
