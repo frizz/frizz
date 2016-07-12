@@ -532,7 +532,6 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 		}
 	}
 	n.Value = rv.Interface()
-
 	n.setVal(rv)
 
 	if !null && n.Type.IsNativeObject() {

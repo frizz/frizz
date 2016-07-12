@@ -47,9 +47,9 @@ func NewNumberEditorView(ctx context.Context, node *node.Node, format editable.F
 	v.node = v.App.Nodes.Get(node)
 	v.format = format
 	v.Watch(v.model.Node,
-		stores.EditorFocus,
-		stores.EditorValueChanged,
-		stores.EditorErrorsChanged,
+		stores.NodeFocus,
+		stores.NodeValueChanged,
+		stores.NodeErrorsChanged,
 	)
 	return v
 }
@@ -64,7 +64,7 @@ func (v *NumberEditorView) Reconcile(old vecty.Component) {
 func (v *NumberEditorView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.ReconcileBody()
-	if notif.Type == stores.EditorFocus {
+	if notif.Type == stores.NodeFocus {
 		v.Focus()
 	}
 }

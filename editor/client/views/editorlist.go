@@ -24,7 +24,7 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	v.model = model
 	v.filter = filter
 	v.Watch(v.model.Node,
-		stores.EditorArrayOrderChanged,
+		stores.NodeArrayReorder,
 		stores.EditorChildAdded,
 		stores.EditorChildDeleted,
 	)

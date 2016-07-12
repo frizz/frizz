@@ -44,10 +44,14 @@ func (b nodeNotif) IsNotif() {}
 
 const (
 	NodeInitialised            nodeNotif = "NodeInitialised"
+	NodeDeleted                nodeNotif = "NodeDeleted"
 	NodeValueChanged           nodeNotif = "NodeValueChanged"
 	NodeDescendantValueChanged nodeNotif = "NodeDescendantValueChanged"
 	NodeFocus                  nodeNotif = "NodeFocus"
 	NodeErrorsChanged          nodeNotif = "NodeErrorsChanged"
+	NodeArrayReorder           nodeNotif = "NodeArrayReorder"
+	NodeChildAdded             nodeNotif = "NodeChildAdded"
+	NodeChildDeleted           nodeNotif = "NodeChildDeleted"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -72,16 +76,23 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				s.app.Fail <- kerr.Wrap("HUOGBUQCAO", err)
 				break
 			}
+			s.app.Notify(action.Node, NodeInitialised)
+			s.app.Notify(action.Parent, NodeChildAdded)
 		case actions.Undo:
-			if err := mutateUndoAddNode(s.ctx, action.Parent, action.Key, action.Index); err != nil {
+			action.Backup = node.NewNode()
+			if err := mutateDeleteNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("RTAGMUIKMD", err)
 				break
 			}
+			s.app.Notify(action.Node, NodeDeleted)
+			s.app.Notify(action.Parent, NodeChildDeleted)
 		case actions.Redo:
-			if err := mutateRedoAddNode(s.ctx, action.Node, action.Parent, action.Key, action.Index, action.Type); err != nil {
+			if err := mutateRestoreNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("MHUTMXOGBP", err)
 				break
 			}
+			s.app.Notify(action.Node, NodeInitialised)
+			s.app.Notify(action.Parent, NodeChildAdded)
 		}
 	case *actions.Delete:
 		payload.Wait(s.app.Actions)
@@ -92,11 +103,15 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				s.app.Fail <- kerr.Wrap("DFHTKJRLQC", err)
 				break
 			}
+			s.app.Notify(action.Node, NodeDeleted)
+			s.app.Notify(action.Parent, NodeChildDeleted)
 		case actions.Undo:
-			if err := mutateUndoDeleteNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
+			if err := mutateRestoreNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("HAPWUOPBTW", err)
 				break
 			}
+			s.app.Notify(action.Node, NodeInitialised)
+			s.app.Notify(action.Parent, NodeChildAdded)
 		}
 	case *actions.Reorder:
 		payload.Wait(s.app.Actions)
@@ -114,6 +129,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("HMIFPKVJCN", err)
 			break
 		}
+		s.app.Notify(action.Model.Node, NodeArrayReorder)
 
 	case *actions.Modify:
 		payload.Wait(s.app.Actions)
@@ -133,14 +149,11 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("EEIYMGQCCA", err)
 			break
 		}
-
 		if changed {
 			s.app.Notify(n, NodeErrorsChanged)
-			s.app.Notify(action.Editor.Node, EditorErrorsChanged)
 		}
 
 		s.app.Notify(n, NodeValueChanged)
-		s.app.Notify(action.Editor.Node, EditorValueChanged)
 
 		c := n.Parent
 		for c != nil {
@@ -184,7 +197,7 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 	return nil
 }
 
-func mutateUndoDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
+func mutateRestoreNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
 	if err := n.Restore(ctx, b); err != nil {
 		return kerr.Wrap("EVSGQSPUPT", err)
 	}
@@ -230,41 +243,6 @@ func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, 
 	}
 	if err := n.SetValueZero(ctx, false, t); err != nil {
 		return kerr.Wrap("NLSRNQGLLW", err)
-	}
-	return nil
-}
-
-func mutateRedoAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, index int, t *system.Type) error {
-	switch p.Type.NativeJsonType() {
-	case json.J_ARRAY:
-		if err := n.AddToArray(ctx, p, index, true); err != nil {
-			return kerr.Wrap("IKQWMJGXFV", err)
-		}
-	case json.J_MAP:
-		if err := n.AddToMap(ctx, p, key, true); err != nil {
-			return kerr.Wrap("WLQBAXBCRA", err)
-		}
-	}
-	if err := n.SetValueZero(ctx, false, t); err != nil {
-		return kerr.Wrap("NLSRNQGLLW", err)
-	}
-	return nil
-}
-
-func mutateUndoAddNode(ctx context.Context, p *node.Node, key string, index int) error {
-	switch p.Type.NativeJsonType() {
-	case json.J_ARRAY:
-		if err := p.DeleteArrayChild(index); err != nil {
-			return kerr.Wrap("NJLSXKSGMX", err)
-		}
-	case json.J_MAP:
-		if err := p.DeleteMapChild(key); err != nil {
-			return kerr.Wrap("UQVCSSNLUO", err)
-		}
-	case json.J_OBJECT:
-		if err := p.DeleteObjectChild(ctx, key); err != nil {
-			return kerr.Wrap("MXVPORUPJS", err)
-		}
 	}
 	return nil
 }

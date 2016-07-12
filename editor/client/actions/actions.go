@@ -89,6 +89,7 @@ type Add struct {
 	*Undoer
 	Node   *node.Node
 	Parent *node.Node
+	Backup *node.Node
 	Key    string
 	Index  int
 	Type   *system.Type

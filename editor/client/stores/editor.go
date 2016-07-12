@@ -21,15 +21,8 @@ type editorNotif string
 func (b editorNotif) IsNotif() {}
 
 const (
-	EditorSelected           editorNotif = "EditorSelected"
-	EditorLoaded             editorNotif = "EditorLoaded"
-	EditorChildAdded         editorNotif = "EditorChildAdded"
-	EditorChildDeleted       editorNotif = "EditorChildDeleted"
-	EditorInitialStateLoaded editorNotif = "EditorInitialStateLoaded"
-	EditorArrayOrderChanged  editorNotif = "EditorArrayOrderChanged"
-	EditorValueChanged       editorNotif = "EditorValueChanged"
-	EditorFocus              editorNotif = "EditorFocus"
-	EditorErrorsChanged      editorNotif = "EditorErrorsChanged"
+	EditorChildAdded   editorNotif = "EditorChildAdded"
+	EditorChildDeleted editorNotif = "EditorChildDeleted"
 )
 
 func NewEditorStore(ctx context.Context) *EditorStore {
@@ -63,31 +56,19 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Branches)
 		switch action.Direction() {
 		case actions.New, actions.Redo:
-			if e := mutateAddEditor(s, action.Node, action.Parent); e != nil {
-				s.app.Notify(e.Node, EditorChildAdded)
-			}
+			mutateAddEditor(s, action.Node, action.Parent)
 		case actions.Undo:
-			if e := mutateDeleteEditor(s, action.Node, action.Parent); e != nil {
-				s.app.Notify(e.Node, EditorChildDeleted)
-			}
+			mutateDeleteEditor(s, action.Node, action.Parent)
 		}
 
 	case *actions.Delete:
 		payload.Wait(s.app.Branches)
 		switch action.Direction() {
 		case actions.New, actions.Redo:
-			if e := mutateDeleteEditor(s, action.Node, action.Parent); e != nil {
-				s.app.Notify(e.Node, EditorChildDeleted)
-			}
+			mutateDeleteEditor(s, action.Node, action.Parent)
 		case actions.Undo:
-			if e := mutateAddEditor(s, action.Node, action.Parent); e != nil {
-				s.app.Notify(e.Node, EditorChildAdded)
-			}
+			mutateAddEditor(s, action.Node, action.Parent)
 		}
-
-	case *actions.Reorder:
-		payload.Wait(s.app.Branches)
-		s.app.Notify(action.Model.Node, EditorArrayOrderChanged)
 
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
@@ -95,30 +76,18 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		for _, n := range s.app.Types.All() {
 			s.AddEditorsRecursively(n)
 		}
-		s.app.Notify(nil, EditorInitialStateLoaded)
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
 			break
 		}
 		n := ni.GetNode()
-		e := s.AddEditorsRecursively(n)
-		s.app.Notify(e.Node, EditorLoaded)
-
-	case *actions.BranchSelected:
-		payload.Wait(s.app.Nodes)
-		if e := s.Get(s.app.Nodes.Selected()); e != nil {
-			s.app.Notify(e.Node, EditorSelected)
-		}
-		s.app.Notify(nil, EditorSelected)
-
-	case *actions.EditorFocus:
-		s.app.Notify(action.Editor.Node, EditorFocus)
+		s.AddEditorsRecursively(n)
 	}
 	return true
 }
 
-func (s *EditorStore) AddEditorsRecursively(n *node.Node) *models.EditorModel {
+func (s *EditorStore) AddEditorsRecursively(n *node.Node) {
 	var e *models.EditorModel
 	var ok bool
 	if e, ok = s.editors[n]; !ok {
@@ -132,17 +101,14 @@ func (s *EditorStore) AddEditorsRecursively(n *node.Node) *models.EditorModel {
 	for _, c := range n.Array {
 		s.AddEditorsRecursively(c)
 	}
-	return e
 }
 
-func mutateAddEditor(s *EditorStore, n *node.Node, p *node.Node) *models.EditorModel {
+func mutateAddEditor(s *EditorStore, n *node.Node, p *node.Node) {
 	s.AddEditorsRecursively(n)
-	return s.Get(p)
 }
 
-func mutateDeleteEditor(s *EditorStore, n *node.Node, p *node.Node) *models.EditorModel {
+func mutateDeleteEditor(s *EditorStore, n *node.Node, p *node.Node) {
 	if e, ok := s.editors[n]; ok && p.Type.IsNativeCollection() {
 		e.Deleted = true
 	}
-	return s.Get(p)
 }
