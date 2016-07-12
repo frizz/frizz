@@ -24,7 +24,7 @@ func NewArrayRowView(ctx context.Context, node *node.Node) *ArrayRowView {
 	v.node = node
 	v.Watch(v.node,
 		stores.NodeValueChanged,
-		stores.NodeDescendantValueChanged,
+		stores.NodeDescendantChanged,
 	)
 	return v
 }

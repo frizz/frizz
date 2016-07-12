@@ -44,7 +44,7 @@ func NewIconEditorView(ctx context.Context, node *node.Node, format editable.For
 	v.icon = v.model.Node.Value.(*Icon)
 	v.Watch(v.model.Node,
 		stores.NodeValueChanged,
-		stores.NodeDescendantValueChanged,
+		stores.NodeDescendantChanged,
 		stores.NodeFocus,
 	)
 	return v

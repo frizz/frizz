@@ -43,15 +43,15 @@ type nodeNotif string
 func (b nodeNotif) IsNotif() {}
 
 const (
-	NodeInitialised            nodeNotif = "NodeInitialised"
-	NodeDeleted                nodeNotif = "NodeDeleted"
-	NodeValueChanged           nodeNotif = "NodeValueChanged"
-	NodeDescendantValueChanged nodeNotif = "NodeDescendantValueChanged"
-	NodeFocus                  nodeNotif = "NodeFocus"
-	NodeErrorsChanged          nodeNotif = "NodeErrorsChanged"
-	NodeArrayReorder           nodeNotif = "NodeArrayReorder"
-	NodeChildAdded             nodeNotif = "NodeChildAdded"
-	NodeChildDeleted           nodeNotif = "NodeChildDeleted"
+	NodeInitialised       nodeNotif = "NodeInitialised"
+	NodeDeleted           nodeNotif = "NodeDeleted"
+	NodeValueChanged      nodeNotif = "NodeValueChanged"
+	NodeDescendantChanged nodeNotif = "NodeDescendantChanged"
+	NodeFocus             nodeNotif = "NodeFocus"
+	NodeErrorsChanged     nodeNotif = "NodeErrorsChanged"
+	NodeArrayReorder      nodeNotif = "NodeArrayReorder"
+	NodeChildAdded        nodeNotif = "NodeChildAdded"
+	NodeChildDeleted      nodeNotif = "NodeChildDeleted"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -94,6 +94,11 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			payload.Notify(action.Node, NodeInitialised)
 			payload.Notify(action.Parent, NodeChildAdded)
 		}
+		c := action.Parent
+		for c != nil {
+			payload.Notify(c, NodeDescendantChanged)
+			c = c.Parent
+		}
 	case *actions.Delete:
 		payload.Wait(s.app.Actions)
 		switch action.Direction() {
@@ -113,6 +118,11 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			payload.Notify(action.Node, NodeInitialised)
 			payload.Notify(action.Parent, NodeChildAdded)
 		}
+		c := action.Parent
+		for c != nil {
+			payload.Notify(c, NodeDescendantChanged)
+			c = c.Parent
+		}
 	case *actions.Reorder:
 		payload.Wait(s.app.Actions)
 		if !action.Model.Node.Type.IsNativeArray() {
@@ -130,6 +140,11 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			break
 		}
 		payload.Notify(action.Model.Node, NodeArrayReorder)
+		c := action.Model.Node.Parent
+		for c != nil {
+			payload.Notify(c, NodeDescendantChanged)
+			c = c.Parent
+		}
 
 	case *actions.Modify:
 		payload.Wait(s.app.Actions)
@@ -157,7 +172,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 
 		c := n.Parent
 		for c != nil {
-			payload.Notify(c, NodeDescendantValueChanged)
+			payload.Notify(c, NodeDescendantChanged)
 			c = c.Parent
 		}
 	case *actions.BranchSelecting:

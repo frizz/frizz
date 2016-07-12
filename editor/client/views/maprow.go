@@ -24,7 +24,7 @@ func NewMapRowView(ctx context.Context, node *node.Node) *MapRowView {
 	v.node = node
 	v.Watch(v.node,
 		stores.NodeValueChanged,
-		stores.NodeDescendantValueChanged,
+		stores.NodeDescendantChanged,
 	)
 	return v
 }

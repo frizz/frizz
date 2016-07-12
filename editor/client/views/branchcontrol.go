@@ -29,7 +29,7 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 	)
 	if nci, ok := model.Contents.(models.NodeContentsInterface); ok {
 		v.Watch(nci.GetNode(),
-			stores.NodeDescendantValueChanged,
+			stores.NodeDescendantChanged,
 		)
 	}
 	return v

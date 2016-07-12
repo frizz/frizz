@@ -1,6 +1,6 @@
 package flux
 
 type AppInterface interface {
-	NotifierInterface
+	WatcherInterface
 	DispatcherInterface
 }

@@ -24,7 +24,7 @@ func NewBreadcrumbsView(ctx context.Context, b *models.BranchModel) *Breadcrumbs
 	v.branch = b
 	if nci, ok := b.Contents.(models.NodeContentsInterface); ok {
 		v.Watch(nci.GetNode(),
-			stores.NodeDescendantValueChanged,
+			stores.NodeDescendantChanged,
 		)
 	}
 	return v
