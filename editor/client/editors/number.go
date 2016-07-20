@@ -5,11 +5,14 @@ import (
 
 	"strconv"
 
+	"time"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -82,14 +85,31 @@ func (v *NumberEditorView) Render() vecty.Component {
 		prop.Class("form-control"),
 		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
-			change(v.App, v.model, func() interface{} {
+			getVal := func() interface{} {
 				val, err := strconv.ParseFloat(e.Target.Get("value").String(), 64)
 				if err != nil {
 					// if there's an error converting to a float, ignore it
 					return nil
 				}
 				return val
-			})
+			}
+			val := getVal()
+			changed := func() bool {
+				return val != getVal()
+			}
+			go func() {
+				<-time.After(time.Millisecond * 50)
+				if changed() {
+					return
+				}
+				v.App.Dispatch(&actions.Modify{
+					Undoer:  &actions.Undoer{},
+					Editor:  v.model,
+					Before:  v.model.Node.NativeValue(),
+					After:   val,
+					Changed: changed,
+				})
+			}()
 		}),
 	)
 

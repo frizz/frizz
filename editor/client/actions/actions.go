@@ -112,9 +112,11 @@ type Reorder struct {
 
 type Modify struct {
 	*Undoer
-	Editor *models.EditorModel
-	After  interface{}
-	Before interface{}
+	Editor    *models.EditorModel
+	After     interface{}
+	Before    interface{}
+	Changed   func() bool
+	Immediate bool
 }
 
 type OpenAddPopup struct {
@@ -126,9 +128,4 @@ type CloseAddPopup struct{}
 
 type EditorFocus struct {
 	Editor *models.EditorModel
-}
-
-type EditorValueChange500ms struct {
-	Editor *models.EditorModel
-	Value  interface{}
 }

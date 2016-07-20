@@ -3,6 +3,8 @@ package stores
 import (
 	"sync"
 
+	"time"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
@@ -72,8 +74,21 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		}
 		n := ni.GetNode()
 		s.validateNodes(payload, s.build(n))
-	case *actions.EditorValueChange500ms:
-		s.validateNodes(payload, s.build(action.Editor.Node.Root()))
+	case *actions.Modify:
+		payload.Wait(s.app.Nodes)
+		// Undo and Redo actions are always immediate.
+		// New actions are immediate only if action.Immediate == true
+		if action.Direction() == actions.New && !action.Immediate {
+			go func() {
+				<-time.After(time.Millisecond * 450)
+				if action.Changed() {
+					return
+				}
+				s.validateNodes(payload, s.build(action.Editor.Node.Root()))
+			}()
+		} else {
+			s.validateNodes(payload, s.build(action.Editor.Node.Root()))
+		}
 	case *actions.Reorder:
 		payload.Wait(s.app.Nodes)
 		s.validateNodes(payload, s.build(action.Model.Node.Root()))

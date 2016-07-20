@@ -4,16 +4,12 @@ import (
 	"bytes"
 	"math/rand"
 
-	"time"
-
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -35,33 +31,6 @@ func Register(ctx context.Context) {
 	editors.Set("bool", new(BoolEditor))
 	editors.Set("kego.io/json:bool", new(BoolEditor))
 	editors.Set("kego.io/system:bool", new(BoolEditor))
-}
-
-func change(app *stores.App, model *models.EditorModel, valueFunc func() interface{}) {
-	v := valueFunc()
-	if v == nil {
-		return
-	}
-	go func() {
-		<-time.After(time.Millisecond * 50)
-		if v == valueFunc() {
-			app.Dispatch(&actions.Modify{
-				Undoer: &actions.Undoer{},
-				Editor: model,
-				Before: model.Node.NativeValue(),
-				After:  v,
-			})
-		}
-	}()
-	go func() {
-		<-time.After(time.Millisecond * 500)
-		if v == valueFunc() {
-			app.Dispatch(&actions.EditorValueChange500ms{
-				Editor: model,
-				Value:  v,
-			})
-		}
-	}()
 }
 
 func helpBlock(ctx context.Context, n *node.Node) vecty.Markup {
