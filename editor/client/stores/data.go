@@ -17,14 +17,6 @@ type DataStore struct {
 	data map[string]*models.DataModel
 }
 
-type dataNotif string
-
-func (b dataNotif) IsNotif() {}
-
-const (
-	DataChanged dataNotif = "DataChanged"
-)
-
 func NewDataStore(ctx context.Context) *DataStore {
 	s := &DataStore{
 		Store: &flux.Store{},
@@ -66,7 +58,6 @@ func (s *DataStore) Handle(payload *flux.Payload) bool {
 		for name, filename := range action.Info.Data {
 			s.data[name] = &models.DataModel{Name: name, File: filename}
 		}
-		payload.Notify(nil, DataChanged)
 	}
 	return true
 }

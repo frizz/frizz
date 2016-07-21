@@ -189,7 +189,41 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		}
 	case *actions.EditorFocus:
 		payload.Notify(action.Editor.Node, NodeFocus)
+	case *actions.InitialState:
+		payload.Wait(s.app.Package, s.app.Types)
+		n := s.app.Package.Node()
+		if err := n.RecomputeHash(s.ctx, true); err != nil {
+			s.app.Fail <- kerr.Wrap("NDMDVGISWR", err)
+		}
+		for _, ti := range s.app.Types.All() {
+			if err := ti.Node.RecomputeHash(s.ctx, true); err != nil {
+				s.app.Fail <- kerr.Wrap("YLRDBXIYJH", err)
+			}
+		}
+	case *actions.LoadSourceSuccess:
+		nci, ok := action.Branch.Contents.(models.NodeContentsInterface)
+		if !ok {
+			break
+		}
+		if err := nci.GetNode().RecomputeHash(s.ctx, true); err != nil {
+			s.app.Fail <- kerr.Wrap("BWUPWAFALG", err)
+		}
 	}
+
+	if m, ok := payload.Action.(actions.Mutator); ok {
+		n := m.CommonAncestor()
+		c := n
+		for c != nil {
+			// For the actual node, we recompute the whole hash. For ancestors,
+			// we recompute the hash without recomputing child nodes.
+			recomputeChildren := c == n
+			if err := c.RecomputeHash(s.ctx, recomputeChildren); err != nil {
+				s.app.Fail <- kerr.Wrap("SWHIXHLHXM", err)
+			}
+			c = c.Parent
+		}
+	}
+
 	return true
 }
 

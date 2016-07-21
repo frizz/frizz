@@ -124,6 +124,7 @@ func (v *Header) Render() vecty.Component {
 					),
 					NewUndoView(v.Ctx, true),
 					NewUndoView(v.Ctx, false),
+					NewSaveView(v.Ctx),
 				),
 				elem.Form(
 					prop.Class("navbar-form navbar-right"),

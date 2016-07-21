@@ -6,6 +6,7 @@ import (
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
 	"kego.io/flux"
 	"kego.io/system/node"
 )
@@ -15,7 +16,7 @@ type TypeStore struct {
 	ctx context.Context
 	app *App
 
-	types map[string]*node.Node
+	types map[string]*models.TypeModel
 }
 
 type typeNotif string
@@ -31,7 +32,7 @@ func NewTypeStore(ctx context.Context) *TypeStore {
 		Store: &flux.Store{},
 		ctx:   ctx,
 		app:   FromContext(ctx),
-		types: map[string]*node.Node{},
+		types: map[string]*models.TypeModel{},
 	}
 	s.Init(s)
 	return s
@@ -46,12 +47,15 @@ func (s *TypeStore) Names() []string {
 	return names
 }
 
-func (s *TypeStore) Get(name string) *node.Node {
-	n, _ := s.types[name]
-	return n
+func (s *TypeStore) Get(name string) *models.TypeModel {
+	ti, ok := s.types[name]
+	if !ok {
+		return nil
+	}
+	return ti
 }
 
-func (s *TypeStore) All() map[string]*node.Node {
+func (s *TypeStore) All() map[string]*models.TypeModel {
 	return s.types
 }
 
@@ -62,12 +66,16 @@ func (s *TypeStore) Handle(payload *flux.Payload) bool {
 		if len(types) == 0 {
 			break
 		}
-		for name, bytes := range types {
-			typ, err := node.Unmarshal(s.ctx, bytes)
+		for name, ti := range types {
+			typ, err := node.Unmarshal(s.ctx, ti.Bytes)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("QDOVEIKABS", err)
 			}
-			s.types[name] = typ
+			s.types[name] = &models.TypeModel{
+				Node: typ,
+				File: ti.File,
+			}
+
 		}
 		payload.Notify(nil, TypeChanged)
 	}

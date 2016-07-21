@@ -224,7 +224,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 		s.types = models.NewBranchModel(s.ctx, &models.TypesContents{})
 		for _, name := range s.app.Types.Names() {
-			typeBranch := s.NewNodeBranchModel(s.ctx, s.app.Types.Get(name), name)
+			typeBranch := s.NewNodeBranchModel(s.ctx, s.app.Types.Get(name).Node, name)
 			s.types.Append(typeBranch)
 		}
 
@@ -233,7 +233,9 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 		for _, name := range s.app.Data.Names() {
 			s.data.Append(models.NewBranchModel(s.ctx, &models.SourceContents{
-				Name:     name,
+				NodeContents: models.NodeContents{
+					Name: name,
+				},
 				Filename: s.app.Data.Get(name).File,
 			}))
 		}

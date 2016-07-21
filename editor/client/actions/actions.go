@@ -71,6 +71,10 @@ const (
 	Redo Directions = 2
 )
 
+type Mutator interface {
+	CommonAncestor() *node.Node
+}
+
 type Undoable interface {
 	Direction() Directions
 	SetUndo()
@@ -95,12 +99,20 @@ type Add struct {
 	Type   *system.Type
 }
 
+func (a *Add) CommonAncestor() *node.Node {
+	return a.Parent
+}
+
 type Delete struct {
 	*Undoer
 	Node        *node.Node
 	Parent      *node.Node
 	Backup      *node.Node
 	BranchIndex int
+}
+
+func (a *Delete) CommonAncestor() *node.Node {
+	return a.Parent
 }
 
 type Reorder struct {
@@ -110,6 +122,10 @@ type Reorder struct {
 	After  int
 }
 
+func (a *Reorder) CommonAncestor() *node.Node {
+	return a.Model.Node
+}
+
 type Modify struct {
 	*Undoer
 	Editor    *models.EditorModel
@@ -117,6 +133,10 @@ type Modify struct {
 	Before    interface{}
 	Changed   func() bool
 	Immediate bool
+}
+
+func (a *Modify) CommonAncestor() *node.Node {
+	return a.Editor.Node
 }
 
 type OpenAddPopup struct {

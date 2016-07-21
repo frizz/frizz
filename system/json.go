@@ -87,11 +87,11 @@ func RegisterJsonTypes(ctx context.Context) {
 			Rule:      makeRule(name)}
 	}
 
-	pcache.Types.Set("string", makeType("string"))
-	pcache.Types.Set("number", makeType("number"))
-	pcache.Types.Set("bool", makeType("bool"))
-	pcache.Types.Set("@string", makeRule("string"))
-	pcache.Types.Set("@number", makeRule("number"))
-	pcache.Types.Set("@bool", makeRule("bool"))
+	pcache.Types.Set("string", "", makeType("string"))
+	pcache.Types.Set("number", "", makeType("number"))
+	pcache.Types.Set("bool", "", makeType("bool"))
+	pcache.Types.Set("@string", "", makeRule("string"))
+	pcache.Types.Set("@number", "", makeRule("number"))
+	pcache.Types.Set("@bool", "", makeRule("bool"))
 
 }

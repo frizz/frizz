@@ -19,25 +19,37 @@ type SysCache struct {
 
 type SysPackageInfo struct {
 	*envctx.Env
-	PackageBytes []byte
-	Types        *SysTypes
-	Files        *SysFiles
-	Globals      *SysGlobals
+	PackageBytes    []byte
+	PackageFilename string
+	Types           *SysTypes
+	Files           *SysFiles
+	Globals         *SysGlobals
 }
 
 type SysTypes struct {
 	sync.RWMutex
-	m map[string]interface{}
+	types map[string]*SysTypeInfo
+}
+
+type SysTypeInfo struct {
+	Name string
+	File string
+	Type interface{}
 }
 
 type SysFiles struct {
 	sync.RWMutex
-	m map[string][]byte
+	files map[string]*SysFileInfo
+}
+
+type SysFileInfo struct {
+	File  string
+	Bytes []byte
 }
 
 type SysGlobals struct {
 	sync.RWMutex
-	m map[string]SysGlobalInfo
+	globals map[string]*SysGlobalInfo
 }
 
 type SysGlobalInfo struct {
@@ -58,9 +70,9 @@ func (c *SysCache) SetEnv(env *envctx.Env) *SysPackageInfo {
 	defer c.Unlock()
 	p := &SysPackageInfo{
 		Env:     env,
-		Types:   &SysTypes{m: map[string]interface{}{}},
-		Files:   &SysFiles{m: map[string][]byte{}},
-		Globals: &SysGlobals{m: map[string]SysGlobalInfo{}},
+		Types:   &SysTypes{types: map[string]*SysTypeInfo{}},
+		Files:   &SysFiles{files: map[string]*SysFileInfo{}},
+		Globals: &SysGlobals{globals: map[string]*SysGlobalInfo{}},
 	}
 	c.m[env.Path] = p
 	return p
@@ -71,7 +83,11 @@ func (c *SysCache) GetType(path string, name string) (interface{}, bool) {
 	if !ok {
 		return nil, false
 	}
-	return p.Types.Get(name)
+	t, ok := p.Types.Get(name)
+	if !ok {
+		return nil, false
+	}
+	return t.Type, true
 }
 
 func (c *SysCache) Get(path string) (*SysPackageInfo, bool) {
@@ -92,90 +108,100 @@ func (c *SysCache) Keys() []string {
 	return out
 }
 
-func (c *SysTypes) Set(id string, t interface{}) {
+func (c *SysTypes) Set(id string, filename string, t interface{}) {
 	c.Lock()
 	defer c.Unlock()
-	c.m[id] = t
+	c.types[id] = &SysTypeInfo{
+		Name: id,
+		File: filename,
+		Type: t,
+	}
 }
 
-func (c *SysTypes) Get(id string) (interface{}, bool) {
+func (c *SysTypes) Get(id string) (*SysTypeInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
-	t, ok := c.m[id]
-	return t, ok
+	ti, ok := c.types[id]
+	return ti, ok
 }
 
 func (c *SysTypes) Len() int {
 	c.RLock()
 	defer c.RUnlock()
-	return len(c.m)
+	return len(c.types)
 }
 
 func (c *SysTypes) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
-	for k, _ := range c.m {
+	for k, _ := range c.types {
 		out = append(out, k)
 	}
 	sort.Strings(out)
 	return out
 }
 
-func (c *SysGlobals) Set(id string, t SysGlobalInfo) {
+func (c *SysGlobals) Set(id string, filename string) {
 	c.Lock()
 	defer c.Unlock()
-	c.m[id] = t
+	c.globals[id] = &SysGlobalInfo{
+		Name: id,
+		File: filename,
+	}
 }
 
-func (c *SysGlobals) Get(id string) (SysGlobalInfo, bool) {
+func (c *SysGlobals) Get(id string) (*SysGlobalInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
-	t, ok := c.m[id]
+	t, ok := c.globals[id]
 	return t, ok
 }
 
 func (c *SysGlobals) Len() int {
 	c.RLock()
 	defer c.RUnlock()
-	return len(c.m)
+	return len(c.globals)
 }
 
 func (c *SysGlobals) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
-	for k, _ := range c.m {
+	for k, _ := range c.globals {
 		out = append(out, k)
 	}
 	sort.Strings(out)
 	return out
 }
 
-func (c *SysFiles) Set(id string, b []byte) {
+func (c *SysFiles) Set(id string, filename string, b []byte) {
 	c.Lock()
 	defer c.Unlock()
-	c.m[id] = b
+	c.files[id] = &SysFileInfo{
+		File:  filename,
+		Bytes: b,
+	}
 }
 
-func (c *SysFiles) Get(id string) ([]byte, bool) {
+func (c *SysFiles) Get(id string) (*SysFileInfo, bool) {
 	c.RLock()
 	defer c.RUnlock()
-	t, ok := c.m[id]
-	return t, ok
+	s, ok := c.files[id]
+	return s, ok
 }
 
 func (c *SysFiles) Len() int {
 	c.RLock()
 	defer c.RUnlock()
-	return len(c.m)
+	return len(c.files)
 }
 
 func (c *SysFiles) Keys() []string {
 	out := []string{}
 	c.RLock()
 	defer c.RUnlock()
-	for k, _ := range c.m {
+	for k, _ := range c.files {
 		out = append(out, k)
 	}
 	sort.Strings(out)

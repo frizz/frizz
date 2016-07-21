@@ -10,11 +10,13 @@ import (
 func TestNodeHasher_Hash(t *testing.T) {
 	ctx := context.WithValue(context.Background(), nodeHasherVersionKey, 1)
 	h := NodeHasher{
-		String: "a",
-		Number: 2.0,
-		Bool:   true,
-		Map:    map[string]uint64{"b": 1},
-		Array:  []uint64{1, 2},
+		Missing: true,
+		Null:    true,
+		String:  "a",
+		Number:  2.0,
+		Bool:    true,
+		Map:     map[string]uint64{"b": 1},
+		Array:   []uint64{1, 2},
 	}
 	hash, err := h.Hash(ctx)
 	assert.NoError(t, err)

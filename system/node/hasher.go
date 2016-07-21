@@ -13,6 +13,8 @@ type NodeHasher struct {
 	String  string
 	Number  float64
 	Bool    bool
+	Null    bool
+	Missing bool
 	Map     map[string]uint64
 	Array   []uint64
 	Version int

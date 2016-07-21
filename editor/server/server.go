@@ -301,6 +301,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	}
 
 	pkgBytes := pcache.PackageBytes
+	pkgFilename := pcache.PackageFilename
 	if pkgBytes == nil {
 		b, err := ke.MarshalContext(ctx, system.EmptyPackage())
 		if err != nil {
@@ -323,11 +324,14 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		info := shared.ImportInfo{
 			Path:    path,
 			Aliases: syspi.Aliases,
-			Types:   map[string][]byte{},
+			Types:   map[string]shared.TypeInfo{},
 		}
 		for _, name := range syspi.Files.Keys() {
 			if b, ok := syspi.Files.Get(name); ok {
-				info.Types[name] = b
+				info.Types[name] = shared.TypeInfo{
+					File:  b.File,
+					Bytes: b.Bytes,
+				}
 			}
 		}
 		imports[path] = info
@@ -348,11 +352,12 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	}
 
 	info := shared.Info{
-		Path:    env.Path,
-		Aliases: env.Aliases,
-		Data:    data,
-		Package: pkgBytes,
-		Imports: imports,
+		Path:            env.Path,
+		Aliases:         env.Aliases,
+		Data:            data,
+		Package:         pkgBytes,
+		PackageFilename: pkgFilename,
+		Imports:         imports,
 	}
 	buf := bytes.NewBuffer([]byte{})
 	err = gob.NewEncoder(buf).Encode(info)

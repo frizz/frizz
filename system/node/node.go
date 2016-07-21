@@ -32,6 +32,7 @@ type Node struct {
 	Rule        *system.RuleWrapper
 	Type        *system.Type
 	JsonType    json.Type
+	hash        uint64
 }
 
 func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
@@ -788,30 +789,39 @@ func (n *Node) DisplayType(ctx context.Context) (string, error) {
 	return str, nil
 }
 
-func (n *Node) Hash(ctx context.Context) (uint64, error) {
+func (n *Node) Hash() uint64 {
+	return n.hash
+}
+
+func (n *Node) RecomputeHash(ctx context.Context, children bool) error {
 	h := NodeHasher{Map: map[string]uint64{}}
 	h.String = n.ValueString
 	h.Number = n.ValueNumber
 	h.Bool = n.ValueBool
+	h.Missing = n.Missing
+	h.Null = n.Null
 	for _, c := range n.Array {
-		hash, err := c.Hash(ctx)
-		if err != nil {
-			return 0, kerr.Wrap("WCYWBSKEJH", err)
+		if children {
+			if err := c.RecomputeHash(ctx, true); err != nil {
+				return kerr.Wrap("WCYWBSKEJH", err)
+			}
 		}
-		h.Array = append(h.Array, hash)
+		h.Array = append(h.Array, c.hash)
 	}
 	for k, c := range n.Map {
-		hash, err := c.Hash(ctx)
-		if err != nil {
-			return 0, kerr.Wrap("QDVRLABPYN", err)
+		if children {
+			if err := c.RecomputeHash(ctx, true); err != nil {
+				return kerr.Wrap("QDVRLABPYN", err)
+			}
 		}
-		h.Map[k] = hash
+		h.Map[k] = c.hash
 	}
 	hash, err := h.Hash(ctx)
 	if err != nil {
-		return 0, kerr.Wrap("GJNHTFFNAM", err)
+		return kerr.Wrap("GJNHTFFNAM", err)
 	}
-	return hash, nil
+	n.hash = hash
+	return nil
 }
 
 func (n *Node) Backup() *Node {
@@ -852,27 +862,6 @@ func (n *Node) Restore(ctx context.Context, b *Node) error {
 	n.Rule = b.Rule
 	n.Type = b.Type
 	n.JsonType = b.JsonType
-
-	//n.Val.Set(reflect.ValueOf(n.Value))
-	//n.setVal(reflect.ValueOf(n.Value))
-
-	/*
-		switch n.JsonType {
-		case json.J_STRING:
-			if err := n.SetValueString(ctx, n.ValueString); err != nil {
-				return kerr.Wrap("BLQHHHTWXM", err)
-			}
-		case json.J_BOOL:
-			if err := n.SetValueBool(ctx, n.ValueBool); err != nil {
-				return kerr.Wrap("SMLUVDPMEY", err)
-			}
-		case json.J_NUMBER:
-			if err := n.SetValueNumber(ctx, n.ValueNumber); err != nil {
-				return kerr.Wrap("CFVEGISFPV", err)
-			}
-		case json.J_OBJECT:
-
-		}*/
 	return nil
 
 }

@@ -13,7 +13,8 @@ type PackageStore struct {
 	ctx context.Context
 	app *App
 
-	n *node.Node
+	node     *node.Node
+	filename string
 }
 
 type packageNotif string
@@ -35,7 +36,11 @@ func NewPackageStore(ctx context.Context) *PackageStore {
 }
 
 func (s *PackageStore) Node() *node.Node {
-	return s.n
+	return s.node
+}
+
+func (s *PackageStore) Filename() string {
+	return s.filename
 }
 
 func (s *PackageStore) Handle(payload *flux.Payload) bool {
@@ -45,7 +50,8 @@ func (s *PackageStore) Handle(payload *flux.Payload) bool {
 		if err != nil {
 			s.app.Fail <- kerr.Wrap("KXIKEWOKJI", err)
 		}
-		s.n = pkgNode
+		s.node = pkgNode
+		s.filename = action.Info.PackageFilename
 		payload.Notify(nil, PackageChanged)
 	}
 	return true

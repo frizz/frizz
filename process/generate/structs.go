@@ -45,7 +45,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 			// ke: {"block": {"notest": true}}
 			continue
 		}
-		typ := t.(*system.Type)
+		typ := t.Type.(*system.Type)
 
 		isRule := typ.Id.IsRule()
 
@@ -154,7 +154,7 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTyp
 				// ke: {"block": {"notest": true}}
 				continue
 			}
-			typ := t.(*system.Type)
+			typ := t.Type.(*system.Type)
 			isRule := typ.Id.IsRule()
 
 			if isRule {

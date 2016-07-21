@@ -65,7 +65,7 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Package, s.app.Types)
 		s.validateNodes(payload, s.build(s.app.Package.Node()))
 		for _, t := range s.app.Types.All() {
-			s.validateNodes(payload, s.build(t))
+			s.validateNodes(payload, s.build(t.Node))
 		}
 	case *actions.LoadSourceSuccess:
 		payload.Wait(s.app.Branches)

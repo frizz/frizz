@@ -64,8 +64,8 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
 		s.AddEditorsRecursively(s.app.Package.Node())
-		for _, n := range s.app.Types.All() {
-			s.AddEditorsRecursively(n)
+		for _, ti := range s.app.Types.All() {
+			s.AddEditorsRecursively(ti.Node)
 		}
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)

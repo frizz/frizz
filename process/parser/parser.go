@@ -182,41 +182,32 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 			// we tolerate missing ID only for system:package
 			return kerr.New("DLLMKTDYFW", "%s has no id", b.File)
 		}
+		relativeFile, err := filepath.Rel(env.Dir, b.File)
+		if err != nil {
+			return kerr.Wrap("AWYRJSCYQS", err)
+		}
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "type"):
-			if err := ProcessTypeSourceBytes(ctx, env, b.Bytes, cache, hash); err != nil {
+			if err := ProcessTypeSourceBytes(ctx, env, relativeFile, b.Bytes, cache, hash); err != nil {
 				return kerr.Wrap("IVEFDDSKHE", err)
 			}
 		case *system.NewReference("kego.io/system", "package"):
 			cache.PackageBytes = b.Bytes
+			cache.PackageFilename = relativeFile
 		default:
-			relativeFile, err := filepath.Rel(env.Dir, b.File)
-			if err != nil {
-				return kerr.Wrap("AWYRJSCYQS", err)
-			}
-			cache.Globals.Set(o.Id.Name, sysctx.SysGlobalInfo{
-				File: relativeFile,
-				Name: o.Id.Name,
-			})
+
+			cache.Globals.Set(o.Id.Name, relativeFile)
 		}
 
 	}
 	return nil
 }
 
-func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
+func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, filename string, bytes []byte, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 	var object interface{}
 	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
 	if err != nil {
 		return kerr.Wrap("NLRRVIDVWM", err)
-		//switch kerr.Source(err).(type) {
-		//case json.UnknownPackageError:
-		//	return kerr.Wrap("UEKBHAJSME", err)
-		//case json.UnknownTypeError:
-		//	// don't return error
-		//default:
-		//	return kerr.Wrap("NLRRVIDVWM", err)
-		//}
 	}
 	t, ok := object.(*system.Type)
 	if !ok {
@@ -225,8 +216,8 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 	if hash != nil {
 		hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
 	}
-	cache.Types.Set(t.Id.Name, t)
-	cache.Files.Set(t.Id.Name, bytes)
+	cache.Types.Set(t.Id.Name, filename, t)
+	cache.Files.Set(t.Id.Name, filename, bytes)
 	if t.Rule != nil {
 		id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
 		if t.Rule.Id != nil && *t.Rule.Id != *id {
@@ -245,7 +236,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 			return kerr.New("LMALEMKFDI", "%s does not embed system:rule", id.String())
 		}
 
-		cache.Types.Set(id.Name, t.Rule)
+		cache.Types.Set(id.Name, filename, t.Rule)
 	} else {
 		// If the rule is missing, automatically create a default.
 		id := system.NewReference(t.Id.Package, fmt.Sprint("@", t.Id.Name))
@@ -259,7 +250,7 @@ func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, bytes []byte, 
 			Native:    system.NewString("object"),
 			Interface: false,
 		}
-		cache.Types.Set(id.Name, rule)
+		cache.Types.Set(id.Name, filename, rule)
 	}
 
 	return nil

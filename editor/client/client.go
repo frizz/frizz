@@ -77,7 +77,7 @@ func Start() error {
 	types := map[string][]byte{}
 	for _, name := range pcache.Files.Keys() {
 		if b, ok := pcache.Files.Get(name); ok {
-			types[name] = b
+			types[name] = b.Bytes
 		}
 	}
 
@@ -112,8 +112,8 @@ func registerTypes(ctx context.Context, path string, imports map[string]shared.I
 	for _, info := range imports {
 		env := &envctx.Env{Path: info.Path, Aliases: info.Aliases}
 		pcache := scache.SetEnv(env)
-		for _, typeBytes := range info.Types {
-			if err := parser.ProcessTypeSourceBytes(ctx, env, typeBytes, pcache, nil); err != nil {
+		for _, ti := range info.Types {
+			if err := parser.ProcessTypeSourceBytes(ctx, env, ti.File, ti.Bytes, pcache, nil); err != nil {
 				return nil, kerr.Wrap("UJLXYWCVUC", err)
 			}
 		}

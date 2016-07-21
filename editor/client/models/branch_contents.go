@@ -17,6 +17,12 @@ type AsyncInterface interface {
 
 type NodeContentsInterface interface {
 	GetNode() *node.Node
+	GetName() string
+}
+
+type SourceContentsInterface interface {
+	NodeContentsInterface
+	GetFilename() string
 }
 
 type RootContents struct {
@@ -48,6 +54,10 @@ func (c NodeContents) GetNode() *node.Node {
 	return c.Node
 }
 
+func (c NodeContents) GetName() string {
+	return c.Name
+}
+
 func (c NodeContents) Label(ctx context.Context) string {
 	if c.Name != "" {
 		return c.Name
@@ -58,7 +68,6 @@ func (c NodeContents) Label(ctx context.Context) string {
 type SourceContents struct {
 	NodeContents
 	Once     sync.Once
-	Name     string
 	Filename string
 }
 
@@ -68,4 +77,8 @@ func (c SourceContents) Label(ctx context.Context) string {
 
 func (c SourceContents) Loaded() bool {
 	return c.Node != nil
+}
+
+func (c SourceContents) GetFilename() string {
+	return c.Filename
 }

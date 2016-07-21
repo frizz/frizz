@@ -10,7 +10,8 @@ type Info struct {
 	// Map of data names and relative file names
 	Data map[string]string
 	// Package object
-	Package []byte
+	Package         []byte
+	PackageFilename string
 	// Flattened list of all imports
 	Imports map[string]ImportInfo
 }
@@ -18,7 +19,12 @@ type Info struct {
 type ImportInfo struct {
 	Path    string
 	Aliases map[string]string
-	Types   map[string][]byte
+	Types   map[string]TypeInfo
+}
+
+type TypeInfo struct {
+	File  string
+	Bytes []byte
 }
 
 type DataRequest struct {

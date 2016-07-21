@@ -23,6 +23,7 @@ type App struct {
 	Misc     *MiscStore
 	Rule     *RuleStore
 	Actions  *ActionStore
+	Files    *FileStore
 }
 
 func (app *App) Init(ctx context.Context) {
@@ -41,6 +42,7 @@ func (app *App) Init(ctx context.Context) {
 	app.Misc = NewMiscStore(ctx)
 	app.Rule = NewRuleStore(ctx)
 	app.Actions = NewActionStore(ctx)
+	app.Files = NewFileStore(ctx)
 	app.Dispatcher = flux.NewDispatcher(
 		app.Notifier, // NotifierInterface
 		app.Package,  // StoreInterface...
@@ -53,6 +55,7 @@ func (app *App) Init(ctx context.Context) {
 		app.Misc,
 		app.Rule,
 		app.Actions,
+		app.Files,
 	)
 }
 

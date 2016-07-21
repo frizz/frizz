@@ -1,0 +1,106 @@
+package stores
+
+import (
+	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
+	"kego.io/flux"
+	"kego.io/system/node"
+)
+
+type FileStore struct {
+	*flux.Store
+	ctx context.Context
+	app *App
+
+	files map[*node.Node]*models.FileModel
+}
+
+type fileNotif string
+
+func (b fileNotif) IsNotif() {}
+
+const (
+	FileChangedStateChange fileNotif = "FileChange"
+)
+
+func NewFileStore(ctx context.Context) *FileStore {
+	s := &FileStore{
+		Store: &flux.Store{},
+		ctx:   ctx,
+		app:   FromContext(ctx),
+		files: map[*node.Node]*models.FileModel{},
+	}
+	s.Init(s)
+	return s
+}
+
+func (s *FileStore) Changed() bool {
+	for _, fi := range s.files {
+		if fi.Changed() {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *FileStore) Handle(payload *flux.Payload) bool {
+	switch action := payload.Action.(type) {
+	case *actions.InitialState:
+		payload.Wait(s.app.Nodes)
+		n := s.app.Package.Node()
+		fm := &models.FileModel{
+			Package:  true,
+			Type:     false,
+			Filename: s.app.Package.Filename(),
+			Node:     n,
+			Hash:     n.Hash(),
+			LoadHash: n.Hash(),
+		}
+		s.files[n] = fm
+
+		for _, ti := range s.app.Types.All() {
+			n := ti.Node
+			fm := &models.FileModel{
+				Package:  false,
+				Type:     true,
+				Filename: ti.File,
+				Node:     n,
+				Hash:     n.Hash(),
+				LoadHash: n.Hash(),
+			}
+			s.files[n] = fm
+		}
+	case *actions.LoadSourceSuccess:
+		sci, ok := action.Branch.Contents.(models.SourceContentsInterface)
+		if !ok {
+			break
+		}
+		n := sci.GetNode()
+		fm := &models.FileModel{
+			Package:  false,
+			Type:     false,
+			Filename: sci.GetFilename(),
+			Node:     n,
+			Hash:     n.Hash(),
+			LoadHash: n.Hash(),
+		}
+		s.files[n] = fm
+	}
+
+	if m, ok := payload.Action.(actions.Mutator); ok {
+		payload.Wait(s.app.Nodes)
+		n := m.CommonAncestor().Root()
+		f, ok := s.files[n]
+		if ok {
+			prevChanged := f.Changed()
+			f.Hash = n.Hash()
+			newChanged := f.Changed()
+			if prevChanged != newChanged {
+				// state changed!
+				payload.Notify(n, FileChangedStateChange)
+			}
+		}
+	}
+	return true
+}

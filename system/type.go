@@ -45,11 +45,12 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 				// ke: {"block": {"notest": true}}
 				continue
 			}
-			if typ.(*Type).Interface {
+			t := typ.Type.(*Type)
+			if t.Interface {
 				continue
 			}
-			if typ.(*Type).Implements(ctx, reflectType) {
-				out = append(out, typ.(*Type))
+			if t.Implements(ctx, reflectType) {
+				out = append(out, t)
 			}
 		}
 	}
@@ -67,7 +68,7 @@ func GetTypeFromCache(ctx context.Context, path string, name string) (*Type, boo
 	if !ok {
 		return nil, false
 	}
-	return t.(*Type), true
+	return t.Type.(*Type), true
 }
 
 func (t *Type) ZeroValue(ctx context.Context, null bool) (reflect.Value, error) {
