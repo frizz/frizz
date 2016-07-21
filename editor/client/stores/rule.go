@@ -8,6 +8,7 @@ import (
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/common"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
 	"kego.io/process/validate"
@@ -86,9 +87,11 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 			s.validateNodes(payload, s.build(action.Editor.Node.Root()))
 			break
 		}
-		// Delayed actions wait an extra 450ms before the validation rebuild.
+		// Delayed actions wait an extra time before the validation rebuild.
 		go func() {
-			<-time.After(time.Millisecond * 450)
+			// We have already waited for EditorKeyboardDebounceShort, so we
+			// reduce the duration by this.
+			<-time.After(common.EditorKeyboardDebounceLong - common.EditorKeyboardDebounceShort)
 			if action.Changed() {
 				return
 			}

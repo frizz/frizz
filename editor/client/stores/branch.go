@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/common"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
@@ -194,7 +195,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 
 		if action.Op == models.BranchOpKeyboard {
 			go func() {
-				<-time.After(time.Millisecond * 50)
+				<-time.After(common.EditorKeyboardDebounceShort)
 				if s.selected == action.Branch {
 					payload.NotifyWithData(
 						s.selected,

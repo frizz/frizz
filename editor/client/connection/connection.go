@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/davelondon/kerr"
+	"kego.io/editor/client/common"
 )
 
 type Interface interface {
@@ -37,7 +38,7 @@ func (c *Conn) Go(serviceMethod string, args interface{}, reply interface{}, don
 		select {
 		case <-rpcCall.Done:
 			done <- call
-		case <-time.After(time.Millisecond * 200):
+		case <-time.After(common.ClientConnectionTimeout):
 			fail <- kerr.New("CWOTFNPITL", "Timeout")
 		}
 	}()

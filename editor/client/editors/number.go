@@ -13,6 +13,7 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
+	"kego.io/editor/client/common"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -98,7 +99,7 @@ func (v *NumberEditorView) Render() vecty.Component {
 				return val != getVal()
 			}
 			go func() {
-				<-time.After(time.Millisecond * 50)
+				<-time.After(common.EditorKeyboardDebounceShort)
 				if changed() {
 					return
 				}
