@@ -76,19 +76,24 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		s.validateNodes(payload, s.build(n))
 	case *actions.Modify:
 		payload.Wait(s.app.Nodes)
-		// Undo and Redo actions are always immediate.
-		// New actions are immediate only if action.Immediate == true
-		if action.Direction() == actions.New && !action.Immediate {
-			go func() {
-				<-time.After(time.Millisecond * 450)
-				if action.Changed() {
-					return
-				}
-				s.validateNodes(payload, s.build(action.Editor.Node.Root()))
-			}()
-		} else {
+		// Node mutations that are in response to keyboard input should wait an
+		// additional time before doing a full validation rebuild. This
+		// operation may be expensive, so we shouldn't risk interupting the
+		// user input.
+		if action.Direction() != actions.New || action.Immediate {
+			// Undo and Redo actions are from mouse input, so always immediate.
+			// New actions are immediate if action.Immediate == true
 			s.validateNodes(payload, s.build(action.Editor.Node.Root()))
+			break
 		}
+		// Delayed actions wait an extra 450ms before the validation rebuild.
+		go func() {
+			<-time.After(time.Millisecond * 450)
+			if action.Changed() {
+				return
+			}
+			s.validateNodes(payload, s.build(action.Editor.Node.Root()))
+		}()
 	case *actions.Reorder:
 		payload.Wait(s.app.Nodes)
 		s.validateNodes(payload, s.build(action.Model.Node.Root()))
@@ -121,12 +126,12 @@ func (s *RuleStore) build(n *node.Node) (changes []*node.Node) {
 	if err := validate.BuildRulesNode(s.ctx, n, rules); err != nil {
 		s.app.Fail <- kerr.Wrap("BRRRGDBXMR", err)
 	}
-	changes = compare(rules, s.rules[n])
+	changes = s.compare(rules, s.rules[n])
 	s.rules[n] = rules
 	return changes
 }
 
-func compare(a, b map[*node.Node][]system.RuleInterface) (changes []*node.Node) {
+func (s *RuleStore) compare(a, b map[*node.Node][]system.RuleInterface) (changes []*node.Node) {
 
 	in := func(n system.RuleInterface, h []system.RuleInterface) bool {
 		for _, v := range h {
