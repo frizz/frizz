@@ -102,10 +102,7 @@ type notifData struct {
 // Notify sends the notif notification to all subscribers of that notification
 // for object. If object is nil, the notification is sent to all subscribers.
 func (p *Payload) Notify(object interface{}, notif Notif) {
-	if p.complete {
-		p.notifier.Notify(object, notif)
-	}
-	p.notifs = append(p.notifs, &notifData{object: object, notif: notif, data: nil})
+	p.NotifyWithData(object, notif, nil)
 }
 
 func (p *Payload) NotifyWithData(object interface{}, notif Notif, data interface{}) {

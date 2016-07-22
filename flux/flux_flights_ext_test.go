@@ -22,7 +22,7 @@ func TestFlights(t *testing.T) {
 	a.Country = &CountryStore{app: a, Store: &flux.Store{}}
 	a.City = &CityStore{app: a, Store: &flux.Store{}}
 	a.Price = &PriceStore{app: a, Store: &flux.Store{}}
-	a.Dispatcher = flux.NewDispatcher(a.Country, a.City, a.Price)
+	a.Dispatcher = flux.NewDispatcher(nil, a.Country, a.City, a.Price)
 
 	done := a.Dispatcher.Dispatch(&UpdateCountryAction{Country: "France"})
 	<-done

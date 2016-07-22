@@ -200,7 +200,7 @@ func (n *Node) InitialiseRoot() {
 
 func (n *Node) InitialiseArrayItem(ctx context.Context, parent *Node, index int) error {
 	if err := n.initialiseCollectionItem(ctx, parent, "", index); err != nil {
-		return kerr.Wrap("SCHXGKLKOV", err)
+		return kerr.Wrap("UHIEPCAQAL", err)
 	}
 	return nil
 }
@@ -876,4 +876,12 @@ func (n *Node) NativeValue() interface{} {
 		return n.ValueBool
 	}
 	return nil
+}
+
+func (n *Node) Print(ctx context.Context) string {
+	b, err := ke.MarshalContext(ctx, n.Value)
+	if err != nil {
+		return err.Error()
+	}
+	return string(b)
 }

@@ -50,6 +50,7 @@ func (cb *ClientContextBuilder) SetApp() *ClientContextBuilder {
 
 	app.Init(cb.Ctx())
 	app.Dispatcher = mock_flux.NewMockDispatcherInterface(cb.mock)
+	app.Notifier = mock_flux.NewMockNotifierInterface(cb.mock)
 	return cb
 }
 
@@ -60,6 +61,11 @@ func (cb *ClientContextBuilder) GetApp() *stores.App {
 func (cb *ClientContextBuilder) GetDispatcher() *mock_flux.MockDispatcherInterface {
 	app := stores.FromContext(cb.Ctx())
 	return app.Dispatcher.(*mock_flux.MockDispatcherInterface)
+}
+
+func (cb *ClientContextBuilder) GetNotifier() *mock_flux.MockNotifierInterface {
+	app := stores.FromContext(cb.Ctx())
+	return app.Notifier.(*mock_flux.MockNotifierInterface)
 }
 
 func (cb *ClientContextBuilder) AssertAppFail(errorId string) *ClientContextBuilder {
@@ -90,6 +96,17 @@ func (cb *ClientContextBuilder) ExpectReconcile(comp *vecty.Composite) *ClientCo
 
 func (cb *ClientContextBuilder) ExpectNoneDispatched(actions ...flux.ActionInterface) *ClientContextBuilder {
 	cb.GetDispatcher().EXPECT().Dispatch(gomock.Any()).Times(0)
+	return cb
+}
+
+func (cb *ClientContextBuilder) ExpectNotified(object interface{}, notif flux.Notif, data interface{}) *ClientContextBuilder {
+	closedChannel := func() chan struct{} {
+		c := make(chan struct{}, 1)
+		close(c)
+		return c
+	}
+	call := cb.GetNotifier().EXPECT().NotifyWithData(object, notif, data).Return(closedChannel())
+	gomock.InOrder(call)
 	return cb
 }
 

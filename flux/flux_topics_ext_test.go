@@ -18,7 +18,7 @@ func TestDispatcher(t *testing.T) {
 	a := &App{}
 	a.Messages = &MessageStore{Store: &flux.Store{}, app: a}
 	a.Topics = &TopicStore{Store: &flux.Store{}, app: a}
-	a.Dispatcher = flux.NewDispatcher(a.Messages, a.Topics)
+	a.Dispatcher = flux.NewDispatcher(nil, a.Messages, a.Topics)
 
 	done := a.Dispatcher.Dispatch(&AddMessage{Message: "a"})
 	<-done

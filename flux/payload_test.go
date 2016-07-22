@@ -17,7 +17,7 @@ func TestNewPayload(t *testing.T) {
 	env := map[StoreInterface]*Payload{}
 	loop := newLoopDetector()
 
-	env[st1] = newPayload("a", st1, env, loop)
+	env[st1] = newPayload("a", st1, env, loop, nil)
 
 	p := env[st1]
 	assert.False(t, p.complete)

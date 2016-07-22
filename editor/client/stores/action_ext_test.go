@@ -15,23 +15,31 @@ func TestAddMutationRedo(t *testing.T) {
 	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		var a, p *node.Node
+
+		var a, p, b, a1, p1, b1 *node.Node
 		a = node.NewNode()
 		p = n.Map["am"]
+		b = node.NewNode()
 		ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
 		require.True(t, ok)
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty))
-		a1 := node.NewNode()
-		p1 := n.Map["am"].Array[2]
+		require.Equal(t, `[{"type":"multi","js":"amjs0"},{"type":"multi","js":"amjs1"},{"type":"multi"}]`, p.Print(cb.Ctx()))
+
+		a1 = n.Map["am"].Array[2].Map["m"]
+		p1 = n.Map["am"].Array[2]
+		b1 = node.NewNode()
 		require.NoError(t, mutateAddNode(cb.Ctx(), a1, p1, "m", -1, ty))
 		require.Equal(t, 3, len(n.Map["am"].Array))
 		require.Equal(t, 3, len(m.Am))
-		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p1, "m", -1))
-		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 2))
+		require.False(t, n.Map["am"].Array[2].Map["m"].Missing)
+		require.Equal(t, `[{"type":"multi","js":"amjs0"},{"type":"multi","js":"amjs1"},{"type":"multi","m":{"type":"multi"}}]`, p.Print(cb.Ctx()))
+
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), a1, p1, b1))
 		require.Equal(t, 2, len(n.Map["am"].Array))
 		require.Equal(t, 2, len(m.Am))
-		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty))
-		require.NoError(t, mutateAddNode(cb.Ctx(), a1, p1, "m", -1, ty))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), a, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), a1, p1, b1))
 		require.Equal(t, 3, len(n.Map["am"].Array))
 		require.Equal(t, 3, len(m.Am))
 		require.NotNil(t, n.Map["am"].Array[2])
@@ -46,33 +54,37 @@ func TestAddMutation(t *testing.T) {
 	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		var a, p *node.Node
+		var a, p, b *node.Node
 
 		a = node.NewNode()
 		p = n.Map["ajs"]
+		b = node.NewNode()
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
 		assert.Equal(t, 5, len(n.Map["ajs"].Array))
 		assert.Equal(t, 5, len(m.Ajs))
-		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 0))
+
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
 		assert.Equal(t, 4, len(n.Map["ajs"].Array))
 		assert.Equal(t, 4, len(m.Ajs))
 
 		a = node.NewNode()
 		p = n.Map["ass"]
+		b = node.NewNode()
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
 		assert.Equal(t, 5, len(n.Map["ass"].Array))
 		assert.Equal(t, 5, len(m.Ass))
-		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 0))
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
 		assert.Equal(t, 4, len(n.Map["ass"].Array))
 		assert.Equal(t, 4, len(m.Ass))
 
 		a = node.NewNode()
 		p = n.Map["am"]
+		b = node.NewNode()
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
 		assert.Equal(t, 3, len(n.Map["am"].Array))
 		assert.Equal(t, 3, len(n.Map["am"].Value.([]*data.Multi)))
 		assert.Equal(t, 3, len(m.Am))
-		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 0))
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
 		assert.Equal(t, 2, len(n.Map["am"].Array))
 		assert.Equal(t, 2, len(n.Map["am"].Value.([]*data.Multi)))
 		assert.Equal(t, 2, len(m.Am))
@@ -84,9 +96,10 @@ func TestAddMutation(t *testing.T) {
 func TestAddMutation2(t *testing.T) {
 	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		var a, p *node.Node
+		var a, p, b *node.Node
 		a = node.NewNode()
 		p = n.Map["am"]
+		b = node.NewNode()
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
 		assert.Equal(t, 3, len(n.Map["am"].Array))
 		assert.Equal(t, 3, len(n.Map["am"].Value.([]*data.Multi)))
@@ -94,7 +107,7 @@ func TestAddMutation2(t *testing.T) {
 		assert.Equal(t, "", m.Am[0].Js)
 		assert.Equal(t, "amjs0", m.Am[1].Js)
 		assert.Equal(t, "amjs1", m.Am[2].Js)
-		require.NoError(t, mutateUndoAddNode(cb.Ctx(), p, "", 0))
+		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
 		assert.Equal(t, 2, len(n.Map["am"].Array))
 		assert.Equal(t, 2, len(n.Map["am"].Value.([]*data.Multi)))
 		assert.Equal(t, 2, len(m.Am))
@@ -117,7 +130,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
 		assert.False(t, n.Map["jb"].ValueBool)
 		assert.False(t, m.Jb)
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.True(t, n.Map["jb"].ValueBool)
 		assert.True(t, m.Jb)
 
@@ -128,7 +141,7 @@ func TestDeleteMutation(t *testing.T) {
 		assert.True(t, n.Map["ss"].Missing)
 		assert.Equal(t, "", n.Map["ss"].ValueString)
 		assert.Nil(t, m.Ss)
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.False(t, n.Map["ss"].Missing)
 		assert.Equal(t, "ss1", n.Map["ss"].ValueString)
 		require.NotNil(t, m.Ss)
@@ -140,7 +153,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
 		assert.True(t, n.Map["i"].Missing)
 		assert.Nil(t, m.I)
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.False(t, n.Map["i"].Missing)
 		assert.Equal(t, "ia", n.Map["i"].Value.(*data.Facea).A.Value())
 		require.NotNil(t, m.I)
@@ -152,7 +165,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
 		assert.True(t, n.Map["ass"].Missing)
 		assert.Equal(t, 0, len(m.Ass))
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.False(t, n.Map["ass"].Missing)
 		assert.Equal(t, 4, len(m.Ass))
 
@@ -162,7 +175,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
 		assert.True(t, n.Map["mss"].Missing)
 		assert.Nil(t, m.Mss)
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.False(t, n.Map["mss"].Missing)
 		require.NotNil(t, m.Mss)
 		assert.Equal(t, 2, len(m.Mss))
@@ -175,7 +188,7 @@ func TestDeleteMutation(t *testing.T) {
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), d, p, b))
 		assert.Equal(t, 3, len(n.Map["ass"].Array))
 		assert.Equal(t, 3, len(m.Ass))
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.Equal(t, 4, len(n.Map["ass"].Array))
 		assert.Equal(t, 4, len(m.Ass))
 		assert.Equal(t, "ass0", n.Map["ass"].Array[0].ValueString)
@@ -203,7 +216,7 @@ func TestDeleteMutation1(t *testing.T) {
 		assert.Equal(t, 1, len(m.Am))
 		assert.Equal(t, "amjs1", n.Map["am"].Array[0].Map["js"].ValueString)
 		assert.Equal(t, "amjs1", m.Am[0].Js)
-		require.NoError(t, mutateUndoDeleteNode(cb.Ctx(), d, p, b))
+		require.NoError(t, mutateRestoreNode(cb.Ctx(), d, p, b))
 		assert.Equal(t, 2, len(n.Map["am"].Array))
 		assert.Equal(t, 2, len(m.Am))
 		assert.Equal(t, "amjs0", n.Map["am"].Array[0].Map["js"].ValueString)

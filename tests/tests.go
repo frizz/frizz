@@ -8,6 +8,8 @@ import (
 
 	"strings"
 
+	"fmt"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
@@ -53,6 +55,23 @@ func Context(path string) *ContextBuilder {
 func (c *ContextBuilder) Cancel() *ContextBuilder {
 	c.cancel()
 	return c
+}
+
+type Printer interface {
+	Print(ctx context.Context) string
+}
+
+func (c *ContextBuilder) Println(args ...interface{}) {
+	var args1 []interface{}
+	for _, a := range args {
+		if n, ok := a.(Printer); ok {
+			args1 = append(args1, n.Print(c.Ctx()))
+			continue
+		}
+		args1 = append(args1, a)
+		continue
+	}
+	fmt.Println(args1...)
 }
 
 func (c *ContextBuilder) Ctx() context.Context {
@@ -345,7 +364,7 @@ func (c *ContextBuilder) StypePath(path string, name string, typ interface{}) *C
 		p = scache.Set(path)
 	}
 
-	p.Types.Set(name, typ)
+	p.Types.Set(name, "", typ)
 
 	return c
 }

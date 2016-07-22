@@ -18,16 +18,16 @@ func TestRegisterTypes(t *testing.T) {
 	cb := tests.New().Sempty().Jauto()
 
 	imports := map[string]shared.ImportInfo{
-		"a": shared.ImportInfo{
+		"a": {
 			Path: "b",
-			Types: map[string][]byte{
-				"c": []byte(`{"type": "system:type", "id": "d"}`),
+			Types: map[string]shared.TypeInfo{
+				"c": {Bytes: []byte(`{"type": "system:type", "id": "d"}`)},
 			},
 		},
-		"g": shared.ImportInfo{
+		"g": {
 			Path: "h",
-			Types: map[string][]byte{
-				"i": []byte(`{"type": "system:type", "id": "j"}`),
+			Types: map[string]shared.TypeInfo{
+				"i": {Bytes: []byte(`{"type": "system:type", "id": "j"}`)},
 			},
 		},
 	}
@@ -36,7 +36,7 @@ func TestRegisterTypes(t *testing.T) {
 
 	ti, ok := pi.Types.Get("d")
 	assert.True(t, ok)
-	assert.Equal(t, "b:d", ti.(*system.Type).Id.String())
+	assert.Equal(t, "b:d", ti.Type.(*system.Type).Id.String())
 
 	sc := sysctx.FromContext(cb.Ctx())
 
@@ -45,14 +45,14 @@ func TestRegisterTypes(t *testing.T) {
 
 	ti, ok = pi.Types.Get("d")
 	assert.True(t, ok)
-	assert.Equal(t, "b:d", ti.(*system.Type).Id.String())
+	assert.Equal(t, "b:d", ti.Type.(*system.Type).Id.String())
 
 	pi, ok = sc.Get("h")
 	assert.True(t, ok)
 
 	ti, ok = pi.Types.Get("j")
 	assert.True(t, ok)
-	assert.Equal(t, "h:j", ti.(*system.Type).Id.String())
+	assert.Equal(t, "h:j", ti.Type.(*system.Type).Id.String())
 
 }
 
@@ -66,15 +66,21 @@ func TestGetInfo(t *testing.T) {
 		Data:    map[string]string{"f": "g", "h": "i"},
 		Package: []byte("j"),
 		Imports: map[string]shared.ImportInfo{
-			"k": shared.ImportInfo{
+			"k": {
 				Path:    "l",
 				Aliases: map[string]string{"m": "n", "o": "p"},
-				Types:   map[string][]byte{"q": []byte("r"), "s": []byte("t")},
+				Types: map[string]shared.TypeInfo{
+					"q": {Bytes: []byte("r")},
+					"s": {Bytes: []byte("t")},
+				},
 			},
-			"u": shared.ImportInfo{
+			"u": {
 				Path:    "v",
 				Aliases: map[string]string{"w": "x", "y": "y"},
-				Types:   map[string][]byte{"aa": []byte("ab"), "ac": []byte("ad")},
+				Types: map[string]shared.TypeInfo{
+					"aa": {Bytes: []byte("ab")},
+					"ac": {Bytes: []byte("ad")},
+				},
 			},
 		},
 	}

@@ -44,7 +44,7 @@ func TestBranchRender2(t *testing.T) {
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 	expected := elem.Div(
 		prop.Class("node"),
-		NewBranchControlView(cb.Ctx(), nil),
+		NewBranchControlView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), nil)),
 		elem.Div(
 			prop.Class("children"),
 		),
@@ -60,7 +60,7 @@ func TestBranchRender2(t *testing.T) {
 
 	expected = elem.Div(
 		prop.Class("node"),
-		NewBranchControlView(cb.Ctx(), nil),
+		NewBranchControlView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), nil)),
 		elem.Div(
 			prop.Class("children"),
 			NewBranchView(cb.Ctx(), nil),
@@ -82,7 +82,7 @@ func TestBranchNotifyOpen(t *testing.T) {
 
 	cb.ExpectDispatched(&actions.BranchOpened{Branch: b.model, Loaded: false})
 
-	done := cb.GetApp().Notify(b.model, stores.BranchOpening)
+	done := cb.GetApp().Notifier.Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -94,7 +94,7 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 
 	setupForSuccessfulSourceLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -102,7 +102,7 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 		&actions.BranchOpened{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().Notify(b.model, stores.BranchOpening)
+	done := cb.GetApp().Notifier.Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppSuccess()
@@ -115,7 +115,7 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 
 	setupForFailedSourceLoad(cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -123,7 +123,7 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 		&actions.BranchOpened{Branch: b.model, Loaded: false},
 	)
 
-	done := cb.GetApp().Notify(b.model, stores.BranchOpening)
+	done := cb.GetApp().Notifier.Notify(b.model, stores.BranchOpening)
 	<-done
 
 	cb.AssertAppFail("OCVFGLPIQG")
@@ -140,7 +140,7 @@ func TestBranchNotifySelect(t *testing.T) {
 		&actions.BranchSelected{Branch: b.model, Loaded: false},
 	)
 
-	done := cb.GetApp().NotifyWithData(
+	done := cb.GetApp().Notifier.NotifyWithData(
 		b.model,
 		stores.BranchSelecting,
 		&stores.BranchSelectOperationData{Op: models.BranchOpClickLabel},
@@ -157,7 +157,7 @@ func TestBranchNotifySelectSource(t *testing.T) {
 
 	setupForSuccessfulSourceLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
 
 	cb.ExpectDispatched(
 		&actions.LoadSourceSent{Branch: b.model},
@@ -165,7 +165,7 @@ func TestBranchNotifySelectSource(t *testing.T) {
 		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().NotifyWithData(
+	done := cb.GetApp().Notifier.NotifyWithData(
 		b.model,
 		stores.BranchSelecting,
 		&stores.BranchSelectOperationData{Op: models.BranchOpClickLabel},
@@ -182,7 +182,7 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 
 	setupForSuccessfulSourceLoad(t, cb)
 
-	m := models.NewBranchModel(cb.Ctx(), &models.SourceContents{Name: "a", Filename: "b"})
+	m := models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"})
 	b := NewBranchView(cb.Ctx(), m)
 
 	cb.ExpectDispatched(
@@ -192,7 +192,7 @@ func TestBranchNotifySelectSourceClick(t *testing.T) {
 		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
-	done := cb.GetApp().NotifyWithData(
+	done := cb.GetApp().Notifier.NotifyWithData(
 		b.model,
 		stores.BranchSelecting,
 		&stores.BranchSelectOperationData{Op: models.BranchOpClickToggle},
@@ -218,7 +218,7 @@ func testBranchReconcile(t *testing.T, notif flux.Notif) {
 	cb.ExpectReconcile(&b.Composite)
 	cb.ExpectNoneDispatched()
 
-	done := cb.GetApp().Notify(b.model, notif)
+	done := cb.GetApp().Notifier.Notify(b.model, notif)
 	<-done
 
 	cb.AssertAppSuccess()

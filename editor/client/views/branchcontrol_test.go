@@ -11,17 +11,6 @@ import (
 	"kego.io/editor/client/models"
 )
 
-func TestBranchControlView_Render_Nil(t *testing.T) {
-	cb := ctests.New(t).SetApp()
-	defer cb.Finish()
-
-	b := NewBranchControlView(cb.Ctx(), nil)
-	expected := elem.Div()
-	equal(t, expected, b.Render().(*vecty.Element))
-
-	cb.AssertAppSuccess()
-}
-
 func TestBranchControlView_Render(t *testing.T) {
 
 	cb := ctests.New(t).SetApp()

@@ -9,7 +9,7 @@ import (
 func TestNewDispatcher(t *testing.T) {
 	a := &st{}
 	b := &st{}
-	c := NewDispatcher(a, b)
+	c := NewDispatcher(nil, a, b)
 	assert.Equal(t, 2, len(c.stores))
 	assert.Equal(t, a, c.stores[0])
 	assert.Equal(t, b, c.stores[1])
@@ -17,7 +17,7 @@ func TestNewDispatcher(t *testing.T) {
 
 func TestDispatcher_Register(t *testing.T) {
 	a := &st{}
-	b := NewDispatcher()
+	b := NewDispatcher(nil)
 	b.Register(a)
 	assert.Equal(t, 1, len(b.stores))
 	assert.Equal(t, a, b.stores[0])
@@ -27,7 +27,7 @@ func TestDispatcher_Dispatch(t *testing.T) {
 	a := &st1{}
 	b := &st1{}
 	c := &st1{}
-	d := NewDispatcher(a, b)
+	d := NewDispatcher(nil, a, b)
 	d.Register(c)
 	done := d.Dispatch("e")
 	<-done
