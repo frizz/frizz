@@ -2,10 +2,6 @@ package flux
 
 import "sync"
 
-type DispatcherInterface interface {
-	Dispatch(action ActionInterface) chan struct{}
-}
-
 type Dispatcher struct {
 	m        sync.Mutex
 	notifier NotifierInterface

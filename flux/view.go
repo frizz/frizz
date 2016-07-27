@@ -50,6 +50,7 @@ func (v *View) Unmount() {
 
 // Apply implements the vecty.Markup interface.
 func (v *View) Apply(element *vecty.Element) {
+	// ke: {"block": {"notest": true}}
 	element.AddChild(v.Self)
 }
 
@@ -64,6 +65,7 @@ func (v *View) Watch(object interface{}, notifs ...Notif) {
 }
 
 func (v *View) Receive(notif NotifPayload) {
+	// ke: {"block": {"notest": true}}
 	// Default receive function for when view doesn't override it
 	defer close(notif.Done)
 	v.ReconcileBody()

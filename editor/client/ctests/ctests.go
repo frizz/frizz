@@ -51,6 +51,7 @@ func (cb *ClientContextBuilder) SetApp() *ClientContextBuilder {
 	app.Init(cb.Ctx())
 	app.Dispatcher = mock_flux.NewMockDispatcherInterface(cb.mock)
 	app.Notifier = mock_flux.NewMockNotifierInterface(cb.mock)
+	app.Watcher = mock_flux.NewMockWatcherInterface(cb.mock)
 	return cb
 }
 
@@ -66,6 +67,11 @@ func (cb *ClientContextBuilder) GetDispatcher() *mock_flux.MockDispatcherInterfa
 func (cb *ClientContextBuilder) GetNotifier() *mock_flux.MockNotifierInterface {
 	app := stores.FromContext(cb.Ctx())
 	return app.Notifier.(*mock_flux.MockNotifierInterface)
+}
+
+func (cb *ClientContextBuilder) GetWatcher() *mock_flux.MockWatcherInterface {
+	app := stores.FromContext(cb.Ctx())
+	return app.Watcher.(*mock_flux.MockWatcherInterface)
 }
 
 func (cb *ClientContextBuilder) AssertAppFail(errorId string) *ClientContextBuilder {

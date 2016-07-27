@@ -3,34 +3,39 @@ package flux_test
 import (
 	"testing"
 
-	"kego.io/editor/client/ctests"
+	"github.com/golang/mock/gomock"
 	"kego.io/flux"
+	"kego.io/flux/mock_flux"
 )
 
 func TestDispatcher_Notify(t *testing.T) {
-	cb := ctests.New(t).SetApp()
-	defer cb.Finish()
-	app := cb.GetApp()
+	m := gomock.NewController(t)
+	defer m.Finish()
+	not := mock_flux.NewMockNotifierInterface(m)
 	a := &st1{}
-	app.Dispatcher = flux.NewDispatcher(app.Notifier, a)
-	cb.ExpectNotified("a", notif1{}, nil)
-	done := app.Dispatch(false)
+	gomock.InOrder(not.EXPECT().NotifyWithData("a", notif1{}, nil).Return(closedChannel()))
+	d := flux.NewDispatcher(not, a)
+	done := d.Dispatch(false)
 	<-done
-	cb.AssertAppSuccess()
+}
+
+func closedChannel() chan struct{} {
+	c := make(chan struct{}, 1)
+	close(c)
+	return c
 }
 
 func TestDispatcher_NotifyAfter(t *testing.T) {
-	cb := ctests.New(t).SetApp()
-	defer cb.Finish()
-	app := cb.GetApp()
+	m := gomock.NewController(t)
+	defer m.Finish()
+	not := mock_flux.NewMockNotifierInterface(m)
 	a := &st1{}
-	app.Dispatcher = flux.NewDispatcher(app.Notifier, a)
-	cb.ExpectNotified("b", notif1{}, nil)
-	done := app.Dispatch(true)
+	gomock.InOrder(not.EXPECT().NotifyWithData("b", notif1{}, nil).Return(closedChannel()))
+	d := flux.NewDispatcher(not, a)
+	done := d.Dispatch(true)
 	<-done
 	close(handleDone)
 	<-notifyDone
-	cb.AssertAppSuccess()
 }
 
 var handleDone = make(chan struct{}, 1)
