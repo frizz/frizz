@@ -40,7 +40,7 @@ func (cb *ClientContextBuilder) Ctx() context.Context {
 	return cb.Base.Ctx()
 }
 
-func (cb *ClientContextBuilder) SetApp() *ClientContextBuilder {
+func (cb *ClientContextBuilder) SetApp(mockDispatcher, mockNotifier, mockWatcher bool) *ClientContextBuilder {
 	app := &stores.App{
 		Conn: mock_connection.NewMockInterface(cb.mock),
 		Fail: make(chan error, 1),
@@ -49,9 +49,15 @@ func (cb *ClientContextBuilder) SetApp() *ClientContextBuilder {
 	cb.Base.SetCtx(ctx)
 
 	app.Init(cb.Ctx())
-	app.Dispatcher = mock_flux.NewMockDispatcherInterface(cb.mock)
-	app.Notifier = mock_flux.NewMockNotifierInterface(cb.mock)
-	app.Watcher = mock_flux.NewMockWatcherInterface(cb.mock)
+	if mockDispatcher {
+		app.Dispatcher = mock_flux.NewMockDispatcherInterface(cb.mock)
+	}
+	if mockNotifier {
+		app.Notifier = mock_flux.NewMockNotifierInterface(cb.mock)
+	}
+	if mockWatcher {
+		app.Watcher = mock_flux.NewMockWatcherInterface(cb.mock)
+	}
 	return cb
 }
 

@@ -13,7 +13,7 @@ import (
 
 func TestBranchControlView_Render(t *testing.T) {
 
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	b := NewBranchControlView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))

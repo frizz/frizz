@@ -247,9 +247,7 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 }
 
 func mutateRestoreNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
-	if err := n.Restore(ctx, b); err != nil {
-		return kerr.Wrap("EVSGQSPUPT", err)
-	}
+	n.Restore(ctx, b)
 	switch p.Type.NativeJsonType() {
 	case json.J_MAP:
 		// don't have to call n.InitialiseMapItem because the node is already

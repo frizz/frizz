@@ -15,9 +15,13 @@ type NodeHasher struct {
 	Bool    bool
 	Null    bool
 	Missing bool
-	Map     map[string]uint64
+	Map     []MapItem
 	Array   []uint64
 	Version int
+}
+type MapItem struct {
+	Key  string
+	Hash uint64
 }
 
 type nodeHasherVersionKeyType int

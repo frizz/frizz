@@ -77,7 +77,7 @@ func checkReflectType(ctx context.Context, t *testing.T, path string, name strin
 	assert.True(t, ok)
 	typ, ok := p.Types.Get(name)
 	assert.True(t, ok)
-	ty, ok := typ.(*system.Type)
+	ty, ok := typ.Type.(*system.Type)
 	assert.True(t, ok)
 	r, ok := ty.Fields[field]
 	assert.True(t, ok)

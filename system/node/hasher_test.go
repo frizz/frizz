@@ -15,12 +15,12 @@ func TestNodeHasher_Hash(t *testing.T) {
 		String:  "a",
 		Number:  2.0,
 		Bool:    true,
-		Map:     map[string]uint64{"b": 1},
+		Map:     []MapItem{{Key: "b", Hash: 1}},
 		Array:   []uint64{1, 2},
 	}
 	hash, err := h.Hash(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0x566b54beeb09a9da), hash)
+	assert.Equal(t, uint64(0x678307ecafd3a89d), hash)
 
 	// run with no forced version to get complete code coverage, but ignore
 	// value because it will change
@@ -42,7 +42,8 @@ func TestNode_Hash(t *testing.T) {
 		Map:         map[string]*Node{"a": n1},
 		Array:       []*Node{n1},
 	}
-	hash, err := n2.Hash(ctx)
+	err := n2.RecomputeHash(ctx, true)
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0x8c85083b1815ef45), hash)
+	hash := n2.Hash()
+	assert.Equal(t, uint64(0x61e2ccdb839475f1), hash)
 }

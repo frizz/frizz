@@ -16,6 +16,113 @@ import (
 	"kego.io/tests/data"
 )
 
+func TestNode_NativeValue(t *testing.T) {
+	_, n := data.Setup(t)
+
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+
+		require.Equal(t, "js1", n.Map["js"].NativeValue())
+		require.Equal(t, "ss1", n.Map["ss"].NativeValue())
+
+		require.Equal(t, true, n.Map["jb"].NativeValue())
+		require.Equal(t, false, n.Map["sb"].NativeValue())
+
+		require.Equal(t, 1.1, n.Map["jn"].NativeValue())
+		require.Equal(t, 1.2, n.Map["sn"].NativeValue())
+
+		require.Equal(t, nil, n.Map["ajs"].NativeValue())
+		require.Equal(t, nil, n.Map["mjs"].NativeValue())
+	}
+
+	data.Run(t, n, n.Value.(*data.Multi), test)
+}
+
+func TestNode_Backup(t *testing.T) {
+
+	cb, n := data.Setup(t)
+
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+		var err error
+		b := n.Backup()
+		err = n.RecomputeHash(cb.Ctx(), true)
+		require.NoError(t, err)
+		err = b.RecomputeHash(cb.Ctx(), true)
+		require.NoError(t, err)
+		require.Equal(t, b.Hash(), n.Hash())
+		require.Equal(t, b.Value, n.Value)
+
+		r := &node.Node{}
+		r.Restore(cb.Ctx(), b)
+		err = r.RecomputeHash(cb.Ctx(), true)
+		require.NoError(t, err)
+		require.Equal(t, r.Hash(), n.Hash())
+		require.Equal(t, r.Value, n.Value)
+
+	}
+
+	data.Run(t, n, n.Value.(*data.Multi), test)
+
+}
+
+func TestNode_SetValue(t *testing.T) {
+	cb, n := data.Setup(t)
+
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+		n.Map["js"].SetValue(cb.Ctx(), "aa")
+		assert.Equal(t, "aa", m.Js)
+
+		n.Map["js"].SetValue(cb.Ctx(), "aa")
+		assert.Equal(t, "aa", m.Js)
+
+		n.Map["ss"].SetValue(cb.Ctx(), "bb")
+		assert.Equal(t, "bb", m.Ss.Value())
+
+		n.Map["ss"].SetValue(cb.Ctx(), "bb")
+		assert.Equal(t, "bb", m.Ss.Value())
+
+		n.Map["jb"].SetValue(cb.Ctx(), false)
+		assert.Equal(t, false, m.Jb)
+
+		n.Map["jb"].SetValue(cb.Ctx(), false)
+		assert.Equal(t, false, m.Jb)
+
+		n.Map["sb"].SetValue(cb.Ctx(), true)
+		assert.Equal(t, true, m.Sb.Value())
+
+		n.Map["sb"].SetValue(cb.Ctx(), true)
+		assert.Equal(t, true, m.Sb.Value())
+
+		n.Map["jn"].SetValue(cb.Ctx(), 2.5)
+		assert.Equal(t, 2.5, m.Jn)
+
+		n.Map["jn"].SetValue(cb.Ctx(), 2.5)
+		assert.Equal(t, 2.5, m.Jn)
+
+		n.Map["sn"].SetValue(cb.Ctx(), 2.6)
+		assert.Equal(t, 2.6, m.Sn.Value())
+
+		n.Map["sn"].SetValue(cb.Ctx(), 2.6)
+		assert.Equal(t, 2.6, m.Sn.Value())
+	}
+
+	data.Run(t, n, n.Value.(*data.Multi), test)
+}
+
+func TestNode_Print(t *testing.T) {
+
+	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+
+	s := `{
+	"type": "simple",
+	"js": "a"
+}`
+
+	n, err := node.Unmarshal(cb.Ctx(), []byte(s))
+	require.NoError(t, err)
+	require.Equal(t, "{\"type\":\"simple\",\"js\":\"a\"}", n.Print(cb.Ctx()))
+
+}
+
 func TestUnmarshal(t *testing.T) {
 
 	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)

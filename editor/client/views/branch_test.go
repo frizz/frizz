@@ -23,9 +23,20 @@ import (
 	"kego.io/system"
 )
 
+var branchViewWatchNotifs = []interface{}{
+	stores.BranchOpening,
+	stores.BranchOpened,
+	stores.BranchClose,
+	stores.BranchLoaded,
+	stores.BranchSelecting,
+	stores.BranchChildAdded,
+	stores.BranchChildDeleted,
+	stores.BranchChildrenReordered,
+}
+
 func TestBranchRender1(t *testing.T) {
 
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, true, false)
 	defer cb.Finish()
 
 	b := NewBranchView(cb.Ctx(), nil)
@@ -38,7 +49,7 @@ func TestBranchRender1(t *testing.T) {
 
 func TestBranchRender2(t *testing.T) {
 
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, true, false)
 	defer cb.Finish()
 
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
@@ -51,29 +62,10 @@ func TestBranchRender2(t *testing.T) {
 	)
 	equal(t, expected, b.Render().(*vecty.Element))
 
-	b.model.Open = false
-	b.model.Append(models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "b"}))
-	// Extra child but HTML doesn't change because branch is closed.
-	equal(t, expected, b.Render().(*vecty.Element))
-
-	b.model.Open = true
-
-	expected = elem.Div(
-		prop.Class("node"),
-		NewBranchControlView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), nil)),
-		elem.Div(
-			prop.Class("children"),
-			NewBranchView(cb.Ctx(), nil),
-		),
-	)
-	equal(t, expected, b.Render().(*vecty.Element))
-
-	cb.AssertAppSuccess()
-
 }
 
 func TestBranchNotifyOpen(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
@@ -89,7 +81,7 @@ func TestBranchNotifyOpen(t *testing.T) {
 }
 
 func TestBranchNotifyOpenSource(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	setupForSuccessfulSourceLoad(t, cb)
@@ -110,7 +102,7 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 }
 
 func TestBranchNotifyOpenSourceError(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	setupForFailedSourceLoad(cb)
@@ -131,7 +123,7 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 }
 
 func TestBranchNotifySelect(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
@@ -152,7 +144,7 @@ func TestBranchNotifySelect(t *testing.T) {
 }
 
 func TestBranchNotifySelectSource(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	setupForSuccessfulSourceLoad(t, cb)
@@ -177,7 +169,7 @@ func TestBranchNotifySelectSource(t *testing.T) {
 }
 
 func TestBranchNotifySelectSourceClick(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	setupForSuccessfulSourceLoad(t, cb)
@@ -210,7 +202,7 @@ func TestBranchReconcile(t *testing.T) {
 }
 
 func testBranchReconcile(t *testing.T, notif flux.Notif) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
@@ -226,7 +218,7 @@ func testBranchReconcile(t *testing.T, notif flux.Notif) {
 }
 
 func TestBranchView_Unmount(t *testing.T) {
-	cb := ctests.New(t).SetApp()
+	cb := ctests.New(t).SetApp(true, true, false)
 	defer cb.Finish()
 
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))

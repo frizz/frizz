@@ -7,6 +7,8 @@ import (
 
 	"reflect"
 
+	"sort"
+
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/json"
@@ -794,7 +796,7 @@ func (n *Node) Hash() uint64 {
 }
 
 func (n *Node) RecomputeHash(ctx context.Context, children bool) error {
-	h := NodeHasher{Map: map[string]uint64{}}
+	h := NodeHasher{}
 	h.String = n.ValueString
 	h.Number = n.ValueNumber
 	h.Bool = n.ValueBool
@@ -808,14 +810,23 @@ func (n *Node) RecomputeHash(ctx context.Context, children bool) error {
 		}
 		h.Array = append(h.Array, c.hash)
 	}
-	for k, c := range n.Map {
+
+	// Map must be in order, so order keys
+	var keys []string
+	for k, _ := range n.Map {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		c := n.Map[k]
 		if children {
 			if err := c.RecomputeHash(ctx, true); err != nil {
 				return kerr.Wrap("QDVRLABPYN", err)
 			}
 		}
-		h.Map[k] = c.hash
+		h.Map = append(h.Map, MapItem{Key: k, Hash: c.hash})
 	}
+
 	hash, err := h.Hash(ctx)
 	if err != nil {
 		return kerr.Wrap("GJNHTFFNAM", err)
@@ -845,7 +856,7 @@ func (n *Node) Backup() *Node {
 	}
 }
 
-func (n *Node) Restore(ctx context.Context, b *Node) error {
+func (n *Node) Restore(ctx context.Context, b *Node) {
 	n.Parent = b.Parent
 	n.Array = b.Array
 	n.Map = b.Map
@@ -862,8 +873,6 @@ func (n *Node) Restore(ctx context.Context, b *Node) error {
 	n.Rule = b.Rule
 	n.Type = b.Type
 	n.JsonType = b.JsonType
-	return nil
-
 }
 
 func (n *Node) NativeValue() interface{} {
@@ -881,6 +890,7 @@ func (n *Node) NativeValue() interface{} {
 func (n *Node) Print(ctx context.Context) string {
 	b, err := ke.MarshalContext(ctx, n.Value)
 	if err != nil {
+		// ke: {"block": {"notest": true}}
 		return err.Error()
 	}
 	return string(b)
