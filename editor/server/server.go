@@ -4,16 +4,11 @@ import (
 	"bytes"
 	"net"
 	"net/http"
-	"os"
 
 	"golang.org/x/net/websocket"
 
 	"github.com/davelondon/gopackages"
 	"github.com/davelondon/kerr"
-
-	"github.com/gopherjs/gopherjs/compiler"
-	"github.com/neelance/sourcemap"
-	"github.com/pkg/browser"
 
 	"fmt"
 
@@ -26,7 +21,9 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 
-	"github.com/gopherjs/gopherjs/build"
+	"time"
+
+	"github.com/pkg/browser"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
@@ -42,6 +39,8 @@ import (
 	"kego.io/system"
 )
 
+const writeTimeout = time.Second * 2
+
 func Start(ctx context.Context, cancel context.CancelFunc) error {
 
 	wgctx.Add(ctx, "Start")
@@ -54,21 +53,20 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 	cmd.Println("Starting editor server... ")
 
 	// This contains the source map that will be persisted between requests
-	var mapping []byte
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if strings.HasSuffix(req.URL.Path, "/favicon.ico") {
 			w.WriteHeader(404)
 			return
 		}
 		if strings.HasSuffix(req.URL.Path, "/script.js") {
-			if err := script(ctx, w, req, false, &mapping); err != nil {
+			if err := script(ctx, w, req, false); err != nil {
 				fail <- kerr.Wrap("XPVTVKDWHJ", err)
 				return
 			}
 			return
 		}
 		if strings.HasSuffix(req.URL.Path, "/script.js.map") {
-			if err := script(ctx, w, req, true, &mapping); err != nil {
+			if err := script(ctx, w, req, true); err != nil {
 				fail <- kerr.Wrap("JAIBRHULSI", err)
 				return
 			}
@@ -80,7 +78,9 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 		}
 	})
 
-	rpc.Register(&Server{ctx: ctx})
+	if err := rpc.Register(&Server{ctx: ctx}); err != nil {
+		return kerr.Wrap("RESBVVGRMH", err)
+	}
 
 	http.Handle("/_rpc", websocket.Handler(func(ws *websocket.Conn) {
 		ws.PayloadType = websocket.BinaryFrame
@@ -149,7 +149,7 @@ func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse
 	return nil
 }
 
-func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mapper bool, mapping *[]byte) error {
+func script(ctx context.Context, w http.ResponseWriter, req *http.Request, sourceMap bool) error {
 
 	wgctx.Add(ctx, "script")
 	defer wgctx.Done(ctx, "script")
@@ -163,93 +163,58 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, mappe
 
 	env, err := parser.ScanForEnv(ctx, path)
 
-	// This is the client code for the editor which we will compile to Javascript using GopherJs
-	// below. GopherJs doesn't make it easy to compile directly from a string, so we write the
-	// source file to a temporary location and delete after we have compiled it to Javascript.
+	// This is the client code for the editor which we will compile to
+	// Javascript using GopherJs below.
 	source, err := generate.Editor(ctx, env)
 	if err != nil {
 		return kerr.Wrap("UWPDBQXURR", err)
 	}
 
-	editorPath, namespaceDir, err := CreateTemporaryPackage(ctx, "kego.temporary", "a", map[string]string{"a.go": string(source)})
+	var out []byte
+	doWithCancel(ctx, func() {
+		out, err = Compile(ctx, source, sourceMap)
+	})
 	if err != nil {
-		return kerr.Wrap("RDRIUFUOFY", err)
+		return kerr.Wrap("LSUXHJMSSX", err)
 	}
-	defer os.RemoveAll(namespaceDir)
 
-	options := &build.Options{CreateMapFile: true}
-	s := build.NewSession(options)
-
-	buildPkg, err := build.Import(editorPath, 0, s.InstallSuffix(), options.BuildTags)
+	doWithCancel(ctx, func() {
+		err = writeWithTimeout(w, out)
+	})
 	if err != nil {
-		return kerr.Wrap("DNQVYTHSPT", err)
-	}
-	if buildPkg.Name != "main" {
-		return kerr.New("ADHPBPSKYV", "Package name %s should be main", buildPkg.Name)
+		return kerr.Wrap("GAOWWBAIAL", err)
 	}
 
-	if mapper && mapping != nil {
-		if _, err := w.Write(*mapping); err != nil {
-			return kerr.Wrap("WFVDCWDVWL", err)
-		}
-		return nil
-	}
-
-	buf := bytes.NewBuffer(nil)
-	pkg := &build.PackageData{Package: buildPkg.Package}
-
-	type ret struct {
-		archive *compiler.Archive
-		err     error
-	}
-
-	c := make(chan ret, 1)
-	go func() {
-		a, err := s.BuildPackage(pkg)
-		c <- ret{a, err}
-	}()
-
-	var r ret
-	select {
-	case r = <-c:
-		if r.err != nil {
-			return kerr.Wrap("TXUYQOUNQS", r.err)
-		}
-	case <-ctx.Done():
-		return nil
-	}
-
-	filter := &compiler.SourceMapFilter{Writer: buf}
-	smap := &sourcemap.Map{File: "script.js"}
-	filter.MappingCallback = build.NewMappingCallback(smap, options.GOROOT, options.GOPATH)
-
-	deps, err := compiler.ImportDependencies(r.archive, s.BuildImportPath)
-	if err != nil {
-		return kerr.Wrap("OVDUPSTRNR", err)
-	}
-	if err := compiler.WriteProgramCode(deps, filter); err != nil {
-		return kerr.Wrap("YVHQEJXQGP", err)
-	}
-
-	mapBuf := bytes.NewBuffer(nil)
-	if err := smap.WriteTo(mapBuf); err != nil {
-		return kerr.Wrap("VYQGYAAADG", err)
-	}
-	*mapping = mapBuf.Bytes()
-
-	if mapper {
-		if _, err := w.Write(*mapping); err != nil {
-			return kerr.Wrap("WKAMMWFXAN", err)
-		}
-		return nil
-	}
-
-	buf.WriteString("//# sourceMappingURL=script.js.map\n")
-
-	if _, err := w.Write(buf.Bytes()); err != nil {
-		return kerr.Wrap("SSUPQDWLIV", err)
-	}
 	return nil
+}
+
+func doWithCancel(ctx context.Context, op func()) {
+	c := make(chan struct{}, 1)
+	go func() {
+		op()
+		close(c)
+	}()
+	select {
+	case <-c:
+	case <-ctx.Done():
+	}
+}
+
+func writeWithTimeout(w http.ResponseWriter, b []byte) error {
+	c := make(chan error, 1)
+	go func() {
+		_, err := w.Write(b)
+		c <- err
+	}()
+	select {
+	case err := <-c:
+		if err != nil {
+			return kerr.Wrap("MJDFBJLCIT", err)
+		}
+		return nil
+	case <-time.After(writeTimeout):
+		return kerr.New("RTEATWMHDT", "Timeout")
+	}
 }
 
 func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
@@ -261,7 +226,9 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		if strings.HasSuffix(req.URL.Path, ".css") {
 			w.Header().Set("Content-Type", "text/css")
 		}
-		w.Write(b)
+		if err := writeWithTimeout(w, b); err != nil {
+			return kerr.Wrap("PVPCXBIUJT", err)
+		}
 		return nil
 	}
 
@@ -270,18 +237,19 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		path = path[0 : len(path)-1]
 	}
 
-	// use a new context with a blank sysctx for the duration of this function to prevent caching
+	// use a new context with a blank sysctx for the duration of this function
+	// to prevent caching
 	ctx = sysctx.NewContext(ctx)
 
 	scache := sysctx.FromContext(ctx)
 
 	env, err := parser.ScanForEnv(ctx, path)
 	if err != nil {
-		if _, ok := kerr.Source(err).(gopackages.NotFoundError); !ok {
-			return kerr.Wrap("ALINBMKDRP", err)
+		if _, ok := kerr.Source(err).(gopackages.NotFoundError); ok {
+			w.WriteHeader(404)
+			return nil
 		}
-		w.WriteHeader(404)
-		return nil
+		return kerr.Wrap("ALINBMKDRP", err)
 	}
 
 	pcache, err := parser.Parse(ctx, path)
@@ -386,7 +354,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 			<script src="/` + env.Path + `/script.js"></script>
 		</html>`)
 
-	if _, err := w.Write(source); err != nil {
+	if err := writeWithTimeout(w, source); err != nil {
 		return kerr.Wrap("ICJSAIMDRF", err)
 	}
 
@@ -416,25 +384,19 @@ func serve(ctx context.Context) error {
 
 	url := fmt.Sprintf("http://localhost:%d/%s/", address.Port, env.Path)
 
-	// We open the default browser and navigate to the address we're serving from.
+	cmd.Printf("Server now running on %s\n", url)
+
+	// We open the default browser and navigate to the address we're serving
+	// from.
 	if err := browser.OpenURL(url); err != nil {
 		return kerr.Wrap("AEJLAXGVVA", err)
 	}
 
-	cmd.Printf("Server now running on %s\n", url)
-
-	c := make(chan error, 1)
-	go func() {
-		c <- http.Serve(listner, nil)
-	}()
-
-	select {
-	case err := <-c:
-		if err != nil {
-			return kerr.Wrap("TUCBTWMRNN", err)
-		}
-	case <-ctx.Done():
-		// continue
+	doWithCancel(ctx, func() {
+		err = http.Serve(listner, nil)
+	})
+	if err != nil {
+		return kerr.Wrap("TUCBTWMRNN", err)
 	}
 
 	if cmd.Debug {
