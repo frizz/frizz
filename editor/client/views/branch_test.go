@@ -281,7 +281,7 @@ func setupForFailedSourceLoad(cb *ctests.ClientContextBuilder) {
 	done := make(chan *rpc.Call, 1)
 
 	reply := &rpc.Call{
-		ServiceMethod: "Server.Data",
+		ServiceMethod: shared.Data,
 		Args:          nil,
 		Reply:         "a",
 		Error:         nil,
@@ -290,7 +290,7 @@ func setupForFailedSourceLoad(cb *ctests.ClientContextBuilder) {
 
 	done <- reply
 
-	cb.GetConnection().EXPECT().Go("Server.Data", gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(reply)
+	cb.GetConnection().EXPECT().Go(shared.Data, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(reply)
 
 }
 
@@ -307,7 +307,7 @@ func setupForSuccessfulSourceLoad(t *testing.T, cb *ctests.ClientContextBuilder)
 	done := make(chan *rpc.Call, 1)
 
 	reply := &rpc.Call{
-		ServiceMethod: "Server.Data",
+		ServiceMethod: shared.Data,
 		Args:          nil,
 		Reply:         &shared.DataResponse{Data: bytes},
 		Error:         nil,
@@ -316,6 +316,6 @@ func setupForSuccessfulSourceLoad(t *testing.T, cb *ctests.ClientContextBuilder)
 
 	done <- reply
 
-	cb.GetConnection().EXPECT().Go("Server.Data", gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(reply)
+	cb.GetConnection().EXPECT().Go(shared.Data, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(reply)
 
 }

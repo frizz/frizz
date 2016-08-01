@@ -23,6 +23,8 @@ import (
 
 	"time"
 
+	"io"
+
 	"github.com/pkg/browser"
 	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
@@ -114,12 +116,15 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 			}
 		}
 	}
-
-	return nil
 }
 
 type Server struct {
 	ctx context.Context
+}
+
+func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse) error {
+	fmt.Println("Save", request.File, len(request.Bytes))
+	return nil
 }
 
 func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse) error {
@@ -171,14 +176,14 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, sourc
 	}
 
 	var out []byte
-	doWithCancel(ctx, func() {
+	withCancel(ctx, func() {
 		out, err = Compile(ctx, source, sourceMap)
 	})
 	if err != nil {
 		return kerr.Wrap("LSUXHJMSSX", err)
 	}
 
-	doWithCancel(ctx, func() {
+	withCancel(ctx, func() {
 		err = writeWithTimeout(w, out)
 	})
 	if err != nil {
@@ -188,7 +193,7 @@ func script(ctx context.Context, w http.ResponseWriter, req *http.Request, sourc
 	return nil
 }
 
-func doWithCancel(ctx context.Context, op func()) {
+func withCancel(ctx context.Context, op func()) {
 	c := make(chan struct{}, 1)
 	go func() {
 		op()
@@ -200,7 +205,7 @@ func doWithCancel(ctx context.Context, op func()) {
 	}
 }
 
-func writeWithTimeout(w http.ResponseWriter, b []byte) error {
+func writeWithTimeout(w io.Writer, b []byte) error {
 	c := make(chan error, 1)
 	go func() {
 		_, err := w.Write(b)
@@ -392,7 +397,7 @@ func serve(ctx context.Context) error {
 		return kerr.Wrap("AEJLAXGVVA", err)
 	}
 
-	doWithCancel(ctx, func() {
+	withCancel(ctx, func() {
 		err = http.Serve(listner, nil)
 	})
 	if err != nil {

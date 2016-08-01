@@ -6,10 +6,11 @@ import (
 
 	"github.com/davelondon/kerr"
 	"kego.io/editor/client/common"
+	"kego.io/editor/shared"
 )
 
 type Interface interface {
-	Go(serviceMethod string, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call
+	Go(method shared.Method, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call
 	Close()
 }
 
@@ -23,11 +24,11 @@ func New(client *rpc.Client) *Conn {
 	}
 }
 
-func (c *Conn) Go(serviceMethod string, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call {
-	rpcCall := c.client.Go(serviceMethod, args, reply, make(chan *rpc.Call, 1))
+func (c *Conn) Go(method shared.Method, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call {
+	rpcCall := c.client.Go(string(method), args, reply, make(chan *rpc.Call, 1))
 
 	call := &rpc.Call{
-		ServiceMethod: serviceMethod,
+		ServiceMethod: string(method),
 		Args:          args,
 		Reply:         reply,
 		Error:         rpcCall.Error,

@@ -27,6 +27,21 @@ type TypeInfo struct {
 	Bytes []byte
 }
 
+type Method string
+
+const Save Method = "Server.Save"
+
+type SaveRequest struct {
+	File  string
+	Bytes []byte
+}
+
+type SaveResponse struct {
+	Error error
+}
+
+const Data Method = "Server.Data"
+
 type DataRequest struct {
 	File    string
 	Name    string

@@ -89,20 +89,14 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 			Name:    c.Name,
 			Package: envctx.FromContext(ctx).Path,
 		}
-		data := shared.DataResponse{}
+		response := shared.DataResponse{}
 		done := make(chan *rpc.Call, 1)
-		call := app.Conn.Go("Server.Data", request, &data, done, app.Fail)
+		call := app.Conn.Go(shared.Data, request, &response, done, app.Fail)
 		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSent{Branch: b}))
 
 		<-call.Done
 
-		gr, ok := call.Reply.(*shared.DataResponse)
-		if !ok {
-			app.Fail <- kerr.New("OCVFGLPIQG", "%T is not a *shared.DataResponse", call.Reply)
-			return
-		}
-
-		n, err := node.Unmarshal(ctx, gr.Data)
+		n, err := node.Unmarshal(ctx, response.Data)
 		if err != nil {
 			app.Fail <- kerr.Wrap("IOOQWKIEGC", err)
 			return
