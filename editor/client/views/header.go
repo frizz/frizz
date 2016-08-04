@@ -5,19 +5,15 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/context/envctx"
 )
 
 type Header struct {
 	*View
-
-	Environment *envctx.Env
 }
 
-func NewHeader(ctx context.Context, env *envctx.Env) *Header {
+func NewHeader(ctx context.Context) *Header {
 	v := &Header{}
 	v.View = New(ctx, v)
-	v.Environment = env
 	return v
 }
 
@@ -57,7 +53,7 @@ func (v *Header) Render() vecty.Component {
 				elem.Anchor(
 					prop.Class("navbar-brand"),
 					prop.Href("#"),
-					vecty.Text(v.Environment.Path),
+					vecty.Text(v.App.Env.Path()),
 				),
 			),
 			elem.Div(

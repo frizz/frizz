@@ -1,7 +1,6 @@
 package views
 
 import (
-	"net/rpc"
 	"testing"
 
 	"reflect"
@@ -11,6 +10,7 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/mock_vecty"
 	"github.com/davelondon/vecty/prop"
+	"github.com/go-errors/errors"
 	"github.com/golang/mock/gomock"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/ctests"
@@ -70,7 +70,7 @@ func TestBranchNotifyOpen(t *testing.T) {
 
 	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.RootContents{Name: "a"}))
 
-	cb.GetConnection().EXPECT().Go(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
+	cb.GetConnection().EXPECT().Go(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
 	cb.ExpectDispatched(&actions.BranchOpened{Branch: b.model, Loaded: false})
 
@@ -118,7 +118,7 @@ func TestBranchNotifyOpenSourceError(t *testing.T) {
 	done := cb.GetApp().Notifier.Notify(b.model, stores.BranchOpening)
 	<-done
 
-	cb.AssertAppFail("OCVFGLPIQG")
+	cb.AssertAppFail("XQQEKDDQSL")
 
 }
 
@@ -278,19 +278,10 @@ func setupForFailedSourceLoad(cb *ctests.ClientContextBuilder) {
 	// We have to unmarshal the received object, so we'll have to load some types.
 	cb.Base.Path("")
 
-	done := make(chan *rpc.Call, 1)
+	done := make(chan error, 1)
+	done <- errors.New("error")
 
-	reply := &rpc.Call{
-		ServiceMethod: shared.Data,
-		Args:          nil,
-		Reply:         "a",
-		Error:         nil,
-		Done:          done,
-	}
-
-	done <- reply
-
-	cb.GetConnection().EXPECT().Go(shared.Data, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(reply)
+	cb.GetConnection().EXPECT().Go(shared.Data, gomock.Any(), gomock.Any(), gomock.Any()).Return(done)
 
 }
 
@@ -299,23 +290,18 @@ func setupForSuccessfulSourceLoad(t *testing.T, cb *ctests.ClientContextBuilder)
 	// We have to unmarshal the received object, so we'll have to load some types.
 	cb.Base.Path("").Jauto().Sauto(parser.Parse)
 
-	// Create a simple ke object and marshal it to a []byte
-	var bytes []byte
-	bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
-	assert.NoError(t, err)
+	done := make(chan error, 1)
 
-	done := make(chan *rpc.Call, 1)
-
-	reply := &rpc.Call{
-		ServiceMethod: shared.Data,
-		Args:          nil,
-		Reply:         &shared.DataResponse{Data: bytes},
-		Error:         nil,
-		Done:          done,
+	do := func(method shared.Method, args interface{}, reply interface{}, fail chan error) chan error {
+		// Create a simple ke object and marshal it to a []byte
+		var bytes []byte
+		bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
+		assert.NoError(t, err)
+		reply.(*shared.DataResponse).Found = true
+		reply.(*shared.DataResponse).Data = bytes
+		close(done)
+		return done
 	}
 
-	done <- reply
-
-	cb.GetConnection().EXPECT().Go(shared.Data, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(reply)
-
+	cb.GetConnection().EXPECT().Go(shared.Data, gomock.Any(), gomock.Any(), gomock.Any()).Do(do).Return(done)
 }

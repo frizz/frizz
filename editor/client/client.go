@@ -45,10 +45,6 @@ func Start() error {
 		return kerr.Wrap("MGLVIQIDDY", err)
 	}
 
-	env := &envctx.Env{
-		Path:    info.Path,
-		Aliases: info.Aliases,
-	}
 	app := &stores.App{
 		Conn: connection.New(rpc.NewClient(ws)),
 		Fail: make(chan error),
@@ -56,7 +52,7 @@ func Start() error {
 
 	var ctx context.Context
 	ctx = context.Background()
-	ctx = envctx.NewContext(ctx, env)
+	ctx = envctx.NewContext(ctx, &envctx.Env{Path: info.Path, Aliases: info.Aliases})
 	ctx = sysctx.NewContext(ctx)
 	ctx = jsonctx.AutoContext(ctx)
 	ctx = stores.NewContext(ctx, app)
@@ -69,7 +65,7 @@ func Start() error {
 
 	app.Init(ctx)
 
-	pcache, err := registerTypes(ctx, env.Path, info.Imports)
+	pcache, err := registerTypes(ctx, info.Path, info.Imports)
 	if err != nil {
 		return kerr.Wrap("MMJDDOBAUK", err)
 	}
@@ -81,7 +77,7 @@ func Start() error {
 		}
 	}
 
-	p := views.NewPage(ctx, env)
+	p := views.NewPage(ctx)
 	vecty.RenderAsBody(p)
 
 	// TODO: work out why I can't seem to call this without using eval

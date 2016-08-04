@@ -7,7 +7,6 @@ import (
 
 	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
-	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/common"
 	"kego.io/editor/client/editable"
@@ -216,7 +215,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Nodes)
 		payload.Notify(s.selected, BranchSelected)
 	case *actions.InitialState:
-		payload.Wait(s.app.Package, s.app.Types, s.app.Data)
+		payload.Wait(s.app.Package, s.app.Types, s.app.Data, s.app.Env)
 
 		pkgNode := s.app.Package.Node()
 		pkgBranch := s.NewNodeBranchModel(s.ctx, pkgNode, "package")
@@ -240,7 +239,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			}))
 		}
 
-		path := envctx.FromContext(s.ctx).Path
+		path := s.app.Env.Path()
 		name := path[strings.LastIndex(path, "/")+1:]
 
 		s.root = models.NewBranchModel(s.ctx, &models.RootContents{

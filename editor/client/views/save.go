@@ -1,10 +1,9 @@
 package views
 
 import (
-	"net/rpc"
-
 	"fmt"
 
+	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
@@ -38,19 +37,28 @@ func (v *SaveView) Render() vecty.Component {
 			"disabled": !v.App.Files.Changed(),
 		},
 		elem.Anchor(
-
 			event.Click(func(e *vecty.Event) {
 				request := &shared.SaveRequest{
-					File:  "foo",
-					Bytes: []byte("bar"),
+					Request: shared.Request{
+						Path: v.App.Env.Path(),
+						Hash: v.App.Env.Hash(),
+					},
+					Files: []shared.SaveRequestFile{
+						{
+							File:  "foo",
+							Bytes: []byte("bar"),
+						},
+					},
 				}
-				response := shared.SaveResponse{}
-				done := make(chan *rpc.Call, 1)
-				call := v.App.Conn.Go(shared.Save, request, &response, done, v.App.Fail)
+				response := &shared.SaveResponse{}
+				done := v.App.Conn.Go(shared.Save, request, response, v.App.Fail)
 				//v.App.Dispatcher.Dispatch(&actions.SaveSourceSent{Branch: b}))
 
 				go func() {
-					<-call.Done
+					if err := <-done; err != nil {
+						v.App.Fail <- kerr.Wrap("PVLCRRYIUD", err)
+						return
+					}
 					fmt.Println("Save", response.Error)
 				}()
 

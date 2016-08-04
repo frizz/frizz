@@ -3,17 +3,13 @@ package shared // import "kego.io/editor/shared"
 // ke: {"package": {"jstest": true}}
 
 type Info struct {
-	// Package path
-	Path string
-	// Map of alias:path
-	Aliases map[string]string
-	// Map of data names and relative file names
-	Data map[string]string
-	// Package object
-	Package         []byte
-	PackageFilename string
-	// Flattened list of all imports
-	Imports map[string]ImportInfo
+	Path            string                // Package path
+	Aliases         map[string]string     // Map of alias:path
+	Data            map[string]string     // Map of data names and relative file names
+	Package         []byte                // Package object
+	PackageFilename string                // Filename of the package object
+	Imports         map[string]ImportInfo // Flattened list of all imports
+	Hash            []byte                // Auth hash that is transmitted on every request
 }
 
 type ImportInfo struct {
@@ -29,9 +25,21 @@ type TypeInfo struct {
 
 type Method string
 
+// Request should be embeddedin all requests, and contains some common data and
+// very simple auth that prevents the server being abused.
+type Request struct {
+	Path string // Package path
+	Hash []byte // Hash round-tripped to the server to authenticate requests
+}
+
 const Save Method = "Server.Save"
 
 type SaveRequest struct {
+	Request
+	Files []SaveRequestFile
+}
+
+type SaveRequestFile struct {
 	File  string
 	Bytes []byte
 }
@@ -43,6 +51,7 @@ type SaveResponse struct {
 const Data Method = "Server.Data"
 
 type DataRequest struct {
+	Request
 	File    string
 	Name    string
 	Package string

@@ -31,6 +31,7 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
 	"kego.io/context/wgctx"
+	"kego.io/editor/server/auther"
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
 	"kego.io/ke"
@@ -47,6 +48,8 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 
 	wgctx.Add(ctx, "Start")
 	defer wgctx.Done(ctx, "Start")
+
+	auth := auther.New()
 
 	cmd := cmdctx.FromContext(ctx)
 
@@ -74,13 +77,13 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 			}
 			return
 		}
-		if err := root(ctx, w, req); err != nil {
+		if err := root(ctx, w, req, auth); err != nil {
 			fail <- kerr.Wrap("QOMJGNOCQF", err)
 			return
 		}
 	})
 
-	if err := rpc.Register(&Server{ctx: ctx}); err != nil {
+	if err := rpc.Register(&Server{ctx: ctx, auth: auth}); err != nil {
 		return kerr.Wrap("RESBVVGRMH", err)
 	}
 
@@ -119,16 +122,24 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 }
 
 type Server struct {
-	ctx context.Context
+	ctx  context.Context
+	auth auther.Auther
 }
 
 func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse) error {
-	fmt.Println("Save", request.File, len(request.Bytes))
+	if !s.auth.Auth([]byte(request.Path), request.Hash) {
+		return kerr.New("GIONMMGOWA", "Auth failed")
+	}
+	for _, file := range request.Files {
+		fmt.Println("Save", file.File, len(file.Bytes))
+	}
 	return nil
 }
 
 func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse) error {
-
+	if !s.auth.Auth([]byte(request.Path), request.Hash) {
+		return kerr.New("SYEKLIUMVY", "Auth failed")
+	}
 	env, err := parser.ScanForEnv(s.ctx, request.Package)
 	if err != nil {
 		return kerr.Wrap("PNAGGKHDYL", err)
@@ -222,7 +233,7 @@ func writeWithTimeout(w io.Writer, b []byte) error {
 	}
 }
 
-func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
+func root(ctx context.Context, w http.ResponseWriter, req *http.Request, auth auther.Auther) error {
 
 	wgctx.Add(ctx, "root")
 	defer wgctx.Done(ctx, "root")
@@ -331,6 +342,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		Package:         pkgBytes,
 		PackageFilename: pkgFilename,
 		Imports:         imports,
+		Hash:            auth.Sign([]byte(env.Path)),
 	}
 	buf := bytes.NewBuffer([]byte{})
 	err = gob.NewEncoder(buf).Encode(info)

@@ -10,7 +10,7 @@ import (
 )
 
 type Interface interface {
-	Go(method shared.Method, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call
+	Go(method shared.Method, args interface{}, reply interface{}, fail chan error) chan error
 	Close()
 }
 
@@ -24,27 +24,24 @@ func New(client *rpc.Client) *Conn {
 	}
 }
 
-func (c *Conn) Go(method shared.Method, args interface{}, reply interface{}, done chan *rpc.Call, fail chan error) *rpc.Call {
-	rpcCall := c.client.Go(string(method), args, reply, make(chan *rpc.Call, 1))
-
-	call := &rpc.Call{
-		ServiceMethod: string(method),
-		Args:          args,
-		Reply:         reply,
-		Error:         rpcCall.Error,
-		Done:          done,
-	}
+func (c *Conn) Go(method shared.Method, args interface{}, reply interface{}, fail chan error) chan error {
+	done := make(chan error, 1)
+	call := c.client.Go(string(method), args, reply, make(chan *rpc.Call, 1))
 
 	go func() {
 		select {
-		case <-rpcCall.Done:
-			done <- call
+		case <-call.Done:
+			if call.Error != nil {
+				done <- call.Error
+			} else {
+				close(done)
+			}
 		case <-time.After(common.ClientConnectionTimeout):
 			fail <- kerr.New("CWOTFNPITL", "Timeout")
 		}
 	}()
 
-	return call
+	return done
 
 }
 

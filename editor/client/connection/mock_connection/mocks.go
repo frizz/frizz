@@ -4,9 +4,8 @@
 package mock_connection
 
 import (
-	rpc "net/rpc"
-
 	gomock "github.com/golang/mock/gomock"
+	shared "kego.io/editor/shared"
 )
 
 // Mock of Interface interface
@@ -38,12 +37,12 @@ func (_mr *_MockInterfaceRecorder) Close() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Close")
 }
 
-func (_m *MockInterface) Go(_param0 string, _param1 interface{}, _param2 interface{}, _param3 chan *rpc.Call, _param4 chan error) *rpc.Call {
-	ret := _m.ctrl.Call(_m, "Go", _param0, _param1, _param2, _param3, _param4)
-	ret0, _ := ret[0].(*rpc.Call)
+func (_m *MockInterface) Go(_param0 shared.Method, _param1 interface{}, _param2 interface{}, _param3 chan error) chan error {
+	ret := _m.ctrl.Call(_m, "Go", _param0, _param1, _param2, _param3)
+	ret0, _ := ret[0].(chan error)
 	return ret0
 }
 
-func (_mr *_MockInterfaceRecorder) Go(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Go", arg0, arg1, arg2, arg3, arg4)
+func (_mr *_MockInterfaceRecorder) Go(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Go", arg0, arg1, arg2, arg3)
 }

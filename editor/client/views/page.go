@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
-	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
@@ -14,14 +13,11 @@ import (
 
 type PageView struct {
 	*View
-
-	Environment *envctx.Env
 }
 
-func NewPage(ctx context.Context, env *envctx.Env) *PageView {
+func NewPage(ctx context.Context) *PageView {
 	v := &PageView{}
 	v.View = New(ctx, v)
-	v.Environment = env
 	v.addKeyboardEvents()
 	return v
 }
@@ -120,7 +116,7 @@ func (v *PageView) KeyPress(code int) {
 func (v *PageView) Render() vecty.Component {
 	return elem.Div(
 		prop.ID("wrapper"),
-		NewHeader(v.Ctx, v.Environment),
+		NewHeader(v.Ctx),
 		elem.Div(
 			prop.Class("wrapper"),
 			elem.Div(

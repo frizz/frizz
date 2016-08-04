@@ -1,14 +1,11 @@
 package views
 
 import (
-	"net/rpc"
-
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
-	"kego.io/context/envctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -85,16 +82,29 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 	loaded := false
 	c.Once.Do(func() {
 		request := &shared.DataRequest{
+			Request: shared.Request{
+				Path: app.Env.Path(),
+				Hash: app.Env.Hash(),
+			},
 			File:    c.Filename,
 			Name:    c.Name,
-			Package: envctx.FromContext(ctx).Path,
+			Package: app.Env.Path(),
 		}
 		response := shared.DataResponse{}
-		done := make(chan *rpc.Call, 1)
-		call := app.Conn.Go(shared.Data, request, &response, done, app.Fail)
+		done := app.Conn.Go(shared.Data, request, &response, app.Fail)
 		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSent{Branch: b}))
 
-		<-call.Done
+		err := <-done
+
+		if err != nil {
+			app.Fail <- kerr.Wrap("XQQEKDDQSL", err)
+			return
+		}
+
+		if !response.Found {
+			app.Fail <- kerr.New("EOXNRWVWBL", "File %s not found", c.Filename)
+			return
+		}
 
 		n, err := node.Unmarshal(ctx, response.Data)
 		if err != nil {
