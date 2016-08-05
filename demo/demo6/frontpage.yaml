@@ -1,11 +1,11 @@
-type: page
 id: frontpage
 title:
-    -
-        type: foo
-        tags: [a]
-        foo: bar
-    -
-        type: foo
-        tags: [b]
-        foo: baz
+- foo: bar
+  tags:
+  - foo
+  type: foo
+- foo: baz
+  tags:
+  - b
+  type: foo
+type: page

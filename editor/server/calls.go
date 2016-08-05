@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 
 	"github.com/davelondon/kerr"
+	"github.com/ghodss/yaml"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/server/auther"
@@ -62,9 +63,21 @@ func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse
 		if _, hasType := dataMap["type"]; !hasType {
 			return kerr.New("HXYNWQQMFS", "Data in %s has no type field", f)
 		}
-		if err := ioutil.WriteFile(fullfilepath, file.Bytes, fs.Mode()); err != nil {
+		var output []byte
+		if strings.HasSuffix(fullfilepath, ".json") {
+			output = file.Bytes
+		} else if strings.HasSuffix(fullfilepath, ".yml") || strings.HasSuffix(fullfilepath, ".yaml") {
+			var err error
+			if output, err = yaml.JSONToYAML(file.Bytes); err != nil {
+				return kerr.Wrap("EAMEWSCAGB", err)
+			}
+		} else {
+			return kerr.New("SHGMNTGCNG", "File %s has invalid extension", f)
+		}
+		if err := ioutil.WriteFile(fullfilepath, output, fs.Mode()); err != nil {
 			return kerr.Wrap("KPDYGCYOYQ", err)
 		}
+
 		response.Files = append(response.Files, shared.SaveResponseFile{
 			File: file.File,
 			Hash: file.Hash,
