@@ -1,6 +1,7 @@
 package stores
 
 import (
+	"github.com/davelondon/kerr"
 	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
@@ -35,6 +36,19 @@ func NewFileStore(ctx context.Context) *FileStore {
 	return s
 }
 
+func (s *FileStore) All() map[*node.Node]*models.FileModel {
+	return s.files
+}
+
+func (s *FileStore) fileByName(filename string) *models.FileModel {
+	for _, file := range s.files {
+		if filename == file.Filename {
+			return file
+		}
+	}
+	return nil
+}
+
 func (s *FileStore) Changed() bool {
 	for _, fi := range s.files {
 		if fi.Changed() {
@@ -46,6 +60,15 @@ func (s *FileStore) Changed() bool {
 
 func (s *FileStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
+	case *actions.SaveSourceSuccess:
+		for _, file := range action.Response.Files {
+			f := s.fileByName(file.File)
+			if f == nil {
+				s.app.Fail <- kerr.New("FPXNHFJNOR", "File %s not found", file.File)
+			}
+			f.SaveHash = file.Hash
+		}
+		payload.Notify(nil, FileChangedStateChange)
 	case *actions.InitialState:
 		payload.Wait(s.app.Nodes)
 		n := s.app.Package.Node()

@@ -1,16 +1,16 @@
 package views
 
 import (
-	"fmt"
-
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/stores"
 	"kego.io/editor/shared"
+	"kego.io/ke"
 )
 
 type SaveView struct {
@@ -43,23 +43,29 @@ func (v *SaveView) Render() vecty.Component {
 						Path: v.App.Env.Path(),
 						Hash: v.App.Env.Hash(),
 					},
-					Files: []shared.SaveRequestFile{
-						{
-							File:  "foo",
-							Bytes: []byte("bar"),
-						},
-					},
+				}
+				for n, f := range v.App.Files.All() {
+					if f.Changed() {
+						b, err := ke.MarshalIndentContext(v.Ctx, n.Value, "", "\t")
+						if err != nil {
+							v.App.Fail <- kerr.Wrap("MKHONBVODK", err)
+						}
+						request.Files = append(request.Files, shared.SaveRequestFile{
+							File:  f.Filename,
+							Bytes: b,
+							Hash:  f.Hash,
+						})
+					}
 				}
 				response := &shared.SaveResponse{}
 				done := v.App.Conn.Go(shared.Save, request, response, v.App.Fail)
-				//v.App.Dispatcher.Dispatch(&actions.SaveSourceSent{Branch: b}))
 
 				go func() {
 					if err := <-done; err != nil {
 						v.App.Fail <- kerr.Wrap("PVLCRRYIUD", err)
 						return
 					}
-					fmt.Println("Save", response.Error)
+					v.App.Dispatcher.Dispatch(&actions.SaveSourceSuccess{Response: response})
 				}()
 
 			}).PreventDefault(),

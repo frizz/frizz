@@ -134,19 +134,29 @@ import (
 // an infinite recursion.
 //
 func Marshal(v interface{}) ([]byte, error) {
-	return marshal(envctx.Empty, v, true)
+	return marshal(envctx.Empty, v, true, "", "")
 }
 
 func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
-	return marshal(ctx, v, true)
+	return marshal(ctx, v, true, "", "")
 }
 
 // MarshalPlain marshals plain (non-kego) values into json
 func MarshalPlain(v interface{}) ([]byte, error) {
-	return marshal(envctx.Empty, v, false)
+	return marshal(envctx.Empty, v, false, "", "")
 }
 
-func marshal(ctx context.Context, v interface{}, typed bool) ([]byte, error) {
+// MarshalIndent is like Marshal but applies Indent to format the output.
+func MarshalPlainIndent(v interface{}, prefix, indent string) ([]byte, error) {
+	return marshal(envctx.Empty, v, false, prefix, indent)
+}
+
+// MarshalIndentContext is like MarshalContext but applies Indent to format the output.
+func MarshalIndentContext(ctx context.Context, v interface{}, prefix, indent string) ([]byte, error) {
+	return marshal(ctx, v, true, prefix, indent)
+}
+
+func marshal(ctx context.Context, v interface{}, typed bool, prefix, indent string) ([]byte, error) {
 	e := &encodeState{}
 	e.typed = typed
 	e.ctx = ctx
@@ -154,23 +164,16 @@ func marshal(ctx context.Context, v interface{}, typed bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if prefix != "" || indent != "" {
+		var buf bytes.Buffer
+		err = Indent(&buf, e.Bytes(), prefix, indent)
+		if err != nil {
+			// ke: {"block": {"notest": true}}
+			return nil, err
+		}
+		return buf.Bytes(), nil
+	}
 	return e.Bytes(), nil
-}
-
-// MarshalIndent is like Marshal but applies Indent to format the output.
-func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
-	b, err := MarshalPlain(v)
-	if err != nil {
-		// ke: {"block": {"notest": true}}
-		return nil, err
-	}
-	var buf bytes.Buffer
-	err = Indent(&buf, b, prefix, indent)
-	if err != nil {
-		// ke: {"block": {"notest": true}}
-		return nil, err
-	}
-	return buf.Bytes(), nil
 }
 
 // HTMLEscape appends to dst the JSON-encoded src with <, >, &, U+2028 and U+2029

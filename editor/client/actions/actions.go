@@ -149,3 +149,7 @@ type CloseAddPopup struct{}
 type EditorFocus struct {
 	Editor *models.EditorModel
 }
+
+type SaveSourceSuccess struct {
+	Response *shared.SaveResponse
+}

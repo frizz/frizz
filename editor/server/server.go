@@ -14,8 +14,6 @@ import (
 
 	"strings"
 
-	"path/filepath"
-
 	"net/rpc"
 
 	"encoding/base64"
@@ -38,7 +36,6 @@ import (
 	"kego.io/process"
 	"kego.io/process/generate"
 	"kego.io/process/parser"
-	"kego.io/process/scanner"
 	"kego.io/system"
 )
 
@@ -119,50 +116,6 @@ func Start(ctx context.Context, cancel context.CancelFunc) error {
 			}
 		}
 	}
-}
-
-type Server struct {
-	ctx  context.Context
-	auth auther.Auther
-}
-
-func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse) error {
-	if !s.auth.Auth([]byte(request.Path), request.Hash) {
-		return kerr.New("GIONMMGOWA", "Auth failed")
-	}
-	for _, file := range request.Files {
-		fmt.Println("Save", file.File, len(file.Bytes))
-	}
-	return nil
-}
-
-func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse) error {
-	if !s.auth.Auth([]byte(request.Path), request.Hash) {
-		return kerr.New("SYEKLIUMVY", "Auth failed")
-	}
-	env, err := parser.ScanForEnv(s.ctx, request.Package)
-	if err != nil {
-		return kerr.Wrap("PNAGGKHDYL", err)
-	}
-
-	file := filepath.Join(env.Dir, request.File)
-
-	bytes, err := scanner.ProcessFile(file)
-
-	localContext := envctx.NewContext(s.ctx, env)
-	o := &system.Object{}
-	if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
-		return kerr.Wrap("SVINFEMKBG", err)
-	}
-	if o.Id.Name != request.Name {
-		return kerr.New("TNJSLMPMLB", "Id does not match")
-	}
-
-	response.Package = request.Package
-	response.Name = request.Name
-	response.Found = true
-	response.Data = bytes
-	return nil
 }
 
 func script(ctx context.Context, w http.ResponseWriter, req *http.Request, sourceMap bool) error {

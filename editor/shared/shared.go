@@ -42,10 +42,16 @@ type SaveRequest struct {
 type SaveRequestFile struct {
 	File  string
 	Bytes []byte
+	Hash  uint64
 }
 
 type SaveResponse struct {
-	Error error
+	Files []SaveResponseFile
+}
+
+type SaveResponseFile struct {
+	File string
+	Hash uint64
 }
 
 const Data Method = "Server.Data"

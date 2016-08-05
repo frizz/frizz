@@ -87,7 +87,7 @@ func TestOmitEmpty(t *testing.T) {
 	o.Mr = map[string]interface{}{}
 	o.Mo = map[string]interface{}{}
 
-	got, err := MarshalIndent(&o, "", " ")
+	got, err := MarshalPlainIndent(&o, "", " ")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +113,7 @@ func TestStringTag(t *testing.T) {
 	s.BoolStr = true
 	s.IntStr = 42
 	s.StrStr = "xzbit"
-	got, err := MarshalIndent(&s, "", " ")
+	got, err := MarshalPlainIndent(&s, "", " ")
 	if err != nil {
 		t.Fatal(err)
 	}

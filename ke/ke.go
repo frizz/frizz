@@ -46,6 +46,9 @@ func Marshal(v interface{}) ([]byte, error) {
 func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
 	return json.MarshalContext(ctx, v)
 }
+func MarshalIndentContext(ctx context.Context, v interface{}, prefix, indent string) ([]byte, error) {
+	return json.MarshalIndentContext(ctx, v, prefix, indent)
+}
 
 func NewContext(ctx context.Context, path string, aliases map[string]string) context.Context {
 	ctx = envctx.NewContext(ctx, &envctx.Env{Path: path, Aliases: aliases})
