@@ -3,21 +3,18 @@ package server
 import (
 	"path/filepath"
 
-	"strings"
+	"io/ioutil"
 
 	"os"
-
-	"io/ioutil"
 
 	"github.com/davelondon/kerr"
 	"github.com/ghodss/yaml"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/server/auther"
+	"kego.io/editor/server/pkghelp"
 	"kego.io/editor/shared"
-	"kego.io/json"
 	"kego.io/ke"
-	"kego.io/process/packages"
 	"kego.io/process/parser"
 	"kego.io/process/scanner"
 	"kego.io/system"
@@ -32,67 +29,74 @@ func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse
 	if !s.auth.Auth([]byte(request.Path), request.Hash) {
 		return kerr.New("GIONMMGOWA", "Auth failed")
 	}
-	root, err := packages.GetDirFromPackage(s.ctx, request.Path)
+	pkg, err := pkghelp.Scan(s.ctx, request.Path)
 	if err != nil {
 		return kerr.Wrap("YKYVDSDGNV", err)
 	}
-	root = filepath.Clean(root)
-	for _, file := range request.Files {
-		// Check the filename is ok
-		f := filepath.Clean(file.File)
-		if err := checkFilename(root, f); err != nil {
-			return kerr.Wrap("VVYOJAVPWC", err)
+	localContext := envctx.NewContext(s.ctx, pkg.Env)
+	for _, info := range request.Files {
+
+		// Check we only have yml, yaml or json extension.
+		ext := filepath.Ext(info.File)
+		if ext != ".json" && ext != ".yml" && ext != ".yaml" {
+			return kerr.New("NDTPTCDOET", "Unsupported extension %s in %s", ext, info.File)
 		}
-		fullfilepath := filepath.Join(root, f)
-		fs, err := os.Stat(fullfilepath)
-		if err != nil {
-			return kerr.New("KJKEVETWEY", "File %s not found", f)
-		}
-		if fs.IsDir() {
-			return kerr.New("BALIAIMCMO", "File %s is a dir", f)
-		}
+
 		// Check the bytes are well formed json...
-		var data interface{}
-		if err := json.UnmarshalPlain(file.Bytes, &data); err != nil {
-			return kerr.Wrap("IHFFPTCQPR", err)
+		o := &struct {
+			Id   *system.Reference `json:"id"`
+			Type *system.Reference `json:"type"`
+		}{}
+		if err := ke.UnmarshalUntyped(localContext, info.Bytes, o); err != nil {
+			return kerr.Wrap("QISVPOXTCJ", err)
 		}
-		dataMap, ok := data.(map[string]interface{})
-		if !ok {
-			return kerr.New("AMJFJHFWVP", "Data in %s is not a json map", f)
+		// Check type field exists
+		if o.Type == nil {
+			return kerr.New("PHINYFTGEC", "%s has no type", info.File)
 		}
-		if _, hasType := dataMap["type"]; !hasType {
-			return kerr.New("HXYNWQQMFS", "Data in %s has no type field", f)
+		// Check id field exists apart from system:package type.
+		if o.Id == nil && *o.Type != *system.NewReference("kego.io/system", "package") {
+			return kerr.New("NNOEQPRQXS", "%s has no id", info.File)
 		}
-		var output []byte
-		if strings.HasSuffix(fullfilepath, ".json") {
-			output = file.Bytes
-		} else if strings.HasSuffix(fullfilepath, ".yml") || strings.HasSuffix(fullfilepath, ".yaml") {
+		// Convert output to YAML if needed.
+		output := info.Bytes
+		if ext == ".yaml" || ext == ".yml" {
 			var err error
-			if output, err = yaml.JSONToYAML(file.Bytes); err != nil {
+			if output, err = yaml.JSONToYAML(output); err != nil {
 				return kerr.Wrap("EAMEWSCAGB", err)
 			}
-		} else {
-			return kerr.New("SHGMNTGCNG", "File %s has invalid extension", f)
 		}
-		if err := ioutil.WriteFile(fullfilepath, output, fs.Mode()); err != nil {
+
+		var mode os.FileMode
+		var full string
+
+		file := pkg.File(info.File)
+		if file != nil {
+			// The file already exists, so we should use the existing filemode
+			full = file.AbsoluteFilepath
+			fs, err := os.Stat(full)
+			if err != nil {
+				return kerr.Wrap("VLIJSSVSXU", err)
+			}
+			mode = fs.Mode()
+		} else {
+			if full, err = pkghelp.Check(pkg.Env.Dir, info.File, pkg.Env.Recursive); err != nil {
+				return kerr.Wrap("YSQEHPFIVF", err)
+			}
+			mode = 0644
+			if _, err := os.Stat(full); err == nil || !os.IsNotExist(err) {
+				return kerr.New("XOEPAUNCXB", "Can't overwrite %s - existing file is not a valid ke data file", info.File)
+			}
+		}
+
+		if err := ioutil.WriteFile(full, output, mode); err != nil {
 			return kerr.Wrap("KPDYGCYOYQ", err)
 		}
 
 		response.Files = append(response.Files, shared.SaveResponseFile{
-			File: file.File,
-			Hash: file.Hash,
+			File: info.File,
+			Hash: info.Hash,
 		})
-	}
-	return nil
-}
-
-func checkFilename(root string, file string) error {
-	root = filepath.Clean(root)
-	file = filepath.Clean(file)
-	full := filepath.Join(root, file)
-	rel, err := filepath.Rel(root, full)
-	if err != nil || strings.HasPrefix(rel, "..") {
-		return kerr.New("CNMFTLYQFG", "Error in filename %s", file)
 	}
 	return nil
 }
@@ -101,22 +105,34 @@ func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse
 	if !s.auth.Auth([]byte(request.Path), request.Hash) {
 		return kerr.New("SYEKLIUMVY", "Auth failed")
 	}
+
 	env, err := parser.ScanForEnv(s.ctx, request.Package)
 	if err != nil {
 		return kerr.Wrap("PNAGGKHDYL", err)
 	}
 
-	file := filepath.Join(env.Dir, request.File)
+	full, err := pkghelp.Check(env.Dir, request.File, env.Recursive)
+	if err != nil {
+		return kerr.Wrap("JEYTFWKMYF", err)
+	}
 
-	bytes, err := scanner.ProcessFile(file)
+	bytes, err := scanner.ProcessFile(full)
+	if err != nil {
+		return kerr.Wrap("HQXMIMWXFY", err)
+	}
+	if bytes == nil {
+		return kerr.New("HIUINHIAPY", "Error reading %s", request.File)
+	}
 
 	localContext := envctx.NewContext(s.ctx, env)
-	o := &system.Object{}
+	o := &struct {
+		Id *system.Reference `json:"id"`
+	}{}
 	if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
 		return kerr.Wrap("SVINFEMKBG", err)
 	}
 	if o.Id.Name != request.Name {
-		return kerr.New("TNJSLMPMLB", "Id does not match")
+		return kerr.New("TNJSLMPMLB", "Id %s in %s does not match request %s", o.Id.Name, request.File, request.Name)
 	}
 
 	response.Package = request.Package

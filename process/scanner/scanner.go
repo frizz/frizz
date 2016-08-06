@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ghodss/yaml"
 
@@ -110,8 +109,9 @@ func ScanFilesToBytes(ctx context.Context, in chan File) chan Content {
 
 func ProcessFile(file string) ([]byte, error) {
 
-	isYaml := strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml")
-	isJson := strings.HasSuffix(file, ".json")
+	ext := filepath.Ext(file)
+	isYaml := ext == ".yaml" || ext == ".yml"
+	isJson := ext == ".json"
 
 	if !isYaml && !isJson {
 		return nil, nil
