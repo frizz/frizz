@@ -81,6 +81,13 @@ func (v *PageView) KeyPress(code int) {
 			v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpKeyboard})
 			return
 		}
+		if selected.CanOpen() && !selected.Open {
+			// if the branch at the end of the list is closed, down arrow
+			// should open it
+			loadBranch(v.Ctx, v.App, selected, &flux.Waiter{})
+			v.App.Dispatcher.Dispatch(&actions.BranchOpening{Branch: selected})
+			return
+		}
 	case 37: // left
 		if selected == nil {
 			return

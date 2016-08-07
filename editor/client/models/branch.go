@@ -27,9 +27,6 @@ const (
 )
 
 func (b *BranchModel) CanOpen() bool {
-	if b.Root {
-		return true
-	}
 	if async, ok := b.Contents.(AsyncInterface); ok && !async.Loaded() {
 		return true
 	}
