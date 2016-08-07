@@ -34,6 +34,10 @@ func (b *BranchStore) Selected() *models.BranchModel {
 	return b.selected
 }
 
+func (b *BranchStore) View() models.Views {
+	return b.view
+}
+
 func (b *BranchStore) Root() *models.BranchModel {
 	switch b.view {
 	case models.Data:

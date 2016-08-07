@@ -4,10 +4,7 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
-	"github.com/gopherjs/vecty/event"
 	"golang.org/x/net/context"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
 )
 
 type Header struct {
@@ -53,87 +50,18 @@ func (v *Header) Render() vecty.Component {
 						prop.Class("icon-bar"),
 					),
 				),
-				elem.Anchor(
+				/* elem.Anchor(
 					prop.Class("navbar-brand"),
 					prop.Href("#"),
-					vecty.Text(v.App.Env.Path()),
-				),
+					vecty.Text("Ke"),
+				), */
 			),
 			elem.Div(
 				prop.ID("navbar"),
 				prop.Class("navbar-collapse collapse"),
 				elem.UnorderedList(
 					prop.Class("nav navbar-nav"),
-					elem.ListItem(
-						prop.Class("active"),
-						elem.Anchor(
-							prop.Href("#"),
-							vecty.Text("Home"),
-						),
-					),
-					elem.ListItem(
-						elem.Anchor(
-							prop.Href("#"),
-							vecty.Text("About"),
-						),
-					),
-					elem.ListItem(
-						prop.Class("dropdown"),
-						elem.Anchor(
-							prop.Href("#"),
-							prop.Class("dropdown-toggle"),
-							vecty.Data("toggle", "dropdown"),
-							vecty.Text("View"),
-							elem.Span(
-								prop.Class("caret"),
-							),
-						),
-						elem.UnorderedList(
-							prop.Class("dropdown-menu"),
-							elem.ListItem(
-								elem.Anchor(
-									event.Click(func(ev *vecty.Event) {
-										v.App.Dispatch(&actions.ChangeView{View: models.Data})
-									}).PreventDefault(),
-									prop.Href("#"),
-									vecty.Text("Data"),
-								),
-							),
-							elem.ListItem(
-								elem.Anchor(
-									event.Click(func(ev *vecty.Event) {
-										v.App.Dispatch(&actions.ChangeView{View: models.Types})
-									}).PreventDefault(),
-									prop.Href("#"),
-									vecty.Text("Types"),
-								),
-							),
-							elem.ListItem(
-								elem.Anchor(
-									event.Click(func(ev *vecty.Event) {
-										v.App.Dispatch(&actions.ChangeView{View: models.Package})
-									}).PreventDefault(),
-									prop.Href("#"),
-									vecty.Text("Package"),
-								),
-							),
-							/*
-								elem.ListItem(
-									prop.Class("divider"),
-								),
-								elem.ListItem(
-									prop.Class("dropdown-header"),
-									vecty.Text("Nav header"),
-								),
-								elem.ListItem(
-									elem.Anchor(
-										prop.Href("#"),
-										vecty.Text("Separated"),
-									),
-								),
-							*/
-						),
-					),
+					NewViewMenuView(v.Ctx),
 					NewUndoView(v.Ctx, true),
 					NewUndoView(v.Ctx, false),
 					NewSaveView(v.Ctx),
