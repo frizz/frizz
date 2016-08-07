@@ -175,6 +175,12 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			payload.Notify(c, NodeDescendantChanged)
 			c = c.Parent
 		}
+	case *actions.ChangeView:
+		if action.View == models.Package {
+			s.selected = s.app.Branches.Package().Contents.(models.NodeContentsInterface).GetNode()
+		} else {
+			s.selected = nil
+		}
 	case *actions.BranchSelecting:
 		if ni, ok := action.Branch.Contents.(models.NodeContentsInterface); ok {
 			s.selected = ni.GetNode()

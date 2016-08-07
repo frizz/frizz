@@ -22,6 +22,7 @@ func NewTreeView(ctx context.Context) *TreeView {
 	v.View = New(ctx, v)
 	v.Watch(v.App.Branches.Root(),
 		stores.BranchInitialStateLoaded,
+		stores.ViewChanged,
 	)
 	return v
 }

@@ -24,6 +24,8 @@ func NewPanelView(ctx context.Context) *PanelView {
 	v.View = New(ctx, v)
 	v.Watch(nil,
 		stores.BranchSelected,
+		stores.ViewChanged,
+		stores.BranchInitialStateLoaded,
 	)
 	return v
 }

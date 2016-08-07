@@ -1,8 +1,6 @@
 package stores
 
 import (
-	"strings"
-
 	"time"
 
 	"github.com/davelondon/kerr"
@@ -20,8 +18,8 @@ type BranchStore struct {
 	ctx context.Context
 	app *App
 
+	view         models.Views
 	selected     *models.BranchModel
-	root         *models.BranchModel
 	pkg          *models.BranchModel
 	types        *models.BranchModel
 	data         *models.BranchModel
@@ -37,7 +35,15 @@ func (b *BranchStore) Selected() *models.BranchModel {
 }
 
 func (b *BranchStore) Root() *models.BranchModel {
-	return b.root
+	switch b.view {
+	case models.Data:
+		return b.data
+	case models.Types:
+		return b.types
+	case models.Package:
+		return b.pkg
+	}
+	panic("unknown view")
 }
 
 func (b *BranchStore) Package() *models.BranchModel {
@@ -69,6 +75,7 @@ const (
 	BranchChildrenReordered  branchNotif = "BranchChildrenReordered"
 	BranchSelectControl      branchNotif = "BranchSelectControl"
 	BranchUnselectControl    branchNotif = "BranchUnselectControl"
+	ViewChanged              branchNotif = "ViewChanged"
 )
 
 // BranchDescendantSelect is passed as the notif data when the specified descendant should be
@@ -89,6 +96,7 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 		ctx:          ctx,
 		app:          FromContext(ctx),
 		nodeBranches: map[*node.Node]*models.BranchModel{},
+		view:         models.Data,
 	}
 	s.Init(s)
 	return s
@@ -97,6 +105,11 @@ func NewBranchStore(ctx context.Context) *BranchStore {
 func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	previous := s.selected
 	switch action := payload.Action.(type) {
+	case *actions.ChangeView:
+		payload.Wait(s.app.Nodes)
+		s.view = action.View
+		s.selected = s.Root()
+		payload.Notify(nil, ViewChanged)
 	case *actions.Add:
 		payload.Wait(s.app.Nodes)
 		switch action.Direction() {
@@ -218,16 +231,20 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data, s.app.Env)
 
 		pkgNode := s.app.Package.Node()
-		pkgBranch := s.NewNodeBranchModel(s.ctx, pkgNode, "package")
-		s.pkg = pkgBranch
+		s.pkg = s.NewNodeBranchModel(s.ctx, pkgNode, "package")
+		s.pkg.Root = true
+		s.pkg.Open = true
 
 		s.types = models.NewBranchModel(s.ctx, &models.TypesContents{})
+		s.types.Root = true
+		s.types.Open = true
 		for _, name := range s.app.Types.Names() {
 			typeBranch := s.NewNodeBranchModel(s.ctx, s.app.Types.Get(name).Node, name)
 			s.types.Append(typeBranch)
 		}
 
 		s.data = models.NewBranchModel(s.ctx, &models.DataContents{})
+		s.data.Root = true
 		s.data.Open = true
 
 		for _, name := range s.app.Data.Names() {
@@ -239,16 +256,17 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			}))
 		}
 
-		path := s.app.Env.Path()
-		name := path[strings.LastIndex(path, "/")+1:]
+		s.selected = s.data
+		//path := s.app.Env.Path()
+		//name := path[strings.LastIndex(path, "/")+1:]
 
-		s.root = models.NewBranchModel(s.ctx, &models.RootContents{
-			Name: name,
-		})
-		s.root.Root = true
-		s.root.Open = true
+		//s.root = models.NewBranchModel(s.ctx, &models.RootContents{
+		//	Name: name,
+		//})
+		//s.root.Root = true
+		//s.root.Open = true
 
-		s.root.Append(s.pkg, s.types, s.data)
+		//s.root.Append(s.pkg, s.types, s.data)
 		payload.Notify(nil, BranchInitialStateLoaded)
 	case *actions.LoadSourceSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)

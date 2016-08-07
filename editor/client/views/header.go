@@ -4,7 +4,10 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
+	"github.com/gopherjs/vecty/event"
 	"golang.org/x/net/context"
+	"kego.io/editor/client/actions"
+	"kego.io/editor/client/models"
 )
 
 type Header struct {
@@ -80,41 +83,54 @@ func (v *Header) Render() vecty.Component {
 							prop.Href("#"),
 							prop.Class("dropdown-toggle"),
 							vecty.Data("toggle", "dropdown"),
-							vecty.Text("Undo"),
+							vecty.Text("View"),
 							elem.Span(
 								prop.Class("caret"),
 							),
 						),
 						elem.UnorderedList(
 							prop.Class("dropdown-menu"),
-
+							elem.ListItem(
+								elem.Anchor(
+									event.Click(func(ev *vecty.Event) {
+										v.App.Dispatch(&actions.ChangeView{View: models.Data})
+									}).PreventDefault(),
+									prop.Href("#"),
+									vecty.Text("Data"),
+								),
+							),
+							elem.ListItem(
+								elem.Anchor(
+									event.Click(func(ev *vecty.Event) {
+										v.App.Dispatch(&actions.ChangeView{View: models.Types})
+									}).PreventDefault(),
+									prop.Href("#"),
+									vecty.Text("Types"),
+								),
+							),
+							elem.ListItem(
+								elem.Anchor(
+									event.Click(func(ev *vecty.Event) {
+										v.App.Dispatch(&actions.ChangeView{View: models.Package})
+									}).PreventDefault(),
+									prop.Href("#"),
+									vecty.Text("Package"),
+								),
+							),
 							/*
 								elem.ListItem(
-									elem.Anchor(
-										prop.Href("#"),
-										vecty.Text("Action"),
-									),
+									prop.Class("divider"),
+								),
+								elem.ListItem(
+									prop.Class("dropdown-header"),
+									vecty.Text("Nav header"),
 								),
 								elem.ListItem(
 									elem.Anchor(
 										prop.Href("#"),
-										vecty.Text("Another action"),
+										vecty.Text("Separated"),
 									),
 								),
-
-									elem.ListItem(
-										prop.Class("divider"),
-									),
-									elem.ListItem(
-										prop.Class("dropdown-header"),
-										vecty.Text("Nav header"),
-									),
-									elem.ListItem(
-										elem.Anchor(
-											prop.Href("#"),
-											vecty.Text("Separated"),
-										),
-									),
 							*/
 						),
 					),

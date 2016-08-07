@@ -7,6 +7,10 @@ import (
 	"kego.io/system/node"
 )
 
+type ChangeView struct {
+	View models.Views
+}
+
 type NewMessage struct {
 	Message string
 }
