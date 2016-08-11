@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/site","Hash":9036454148110269811}
+// info:{"Path":"kego.io/demo/site","Hash":8948214122825420463}
 package site
 
 // ke: {"file": {"notest": true}}
@@ -9,160 +9,95 @@ import (
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
 	"kego.io/demo/common/images"
-	"kego.io/demo/common/units"
-	"kego.io/demo/common/words"
 	"kego.io/system"
 )
 
-// Automatically created basic rule for gallery1
-type Gallery1Rule struct {
+// Automatically created basic rule for body
+type BodyRule struct {
 	*system.Object
 	*system.Rule
 }
 
-// Automatically created basic rule for gallery1a
-type Gallery1aRule struct {
+// Automatically created basic rule for columns
+type ColumnsRule struct {
 	*system.Object
 	*system.Rule
 }
 
-// Automatically created basic rule for gallery2
-type Gallery2Rule struct {
+// Automatically created basic rule for hero
+type HeroRule struct {
 	*system.Object
 	*system.Rule
 }
 
-// Automatically created basic rule for gallery2a
-type Gallery2aRule struct {
+// Automatically created basic rule for page
+type PageRule struct {
 	*system.Object
 	*system.Rule
 }
 
-// Automatically created basic rule for gallery2b
-type Gallery2bRule struct {
+// Automatically created basic rule for section
+type SectionRule struct {
 	*system.Object
 	*system.Rule
 }
-
-// Automatically created basic rule for gallery3
-type Gallery3Rule struct {
+type Body struct {
 	*system.Object
-	*system.Rule
-}
-
-// Automatically created basic rule for gallery3a
-type Gallery3aRule struct {
-	*system.Object
-	*system.Rule
-}
-
-// This represents a gallery - it just has a title.
-type Gallery1 struct {
-	*system.Object
-	Bar   system.RuleInterface   `json:"bar"`
-	Foo   system.IntInterface    `json:"foo"`
+	Align *system.String         `json:"align"`
+	Copy  system.StringInterface `json:"copy"`
 	Title system.StringInterface `json:"title"`
 }
-type Gallery1Interface interface {
-	GetGallery1(ctx context.Context) *Gallery1
+type BodyInterface interface {
+	GetBody(ctx context.Context) *Body
 }
 
-func (o *Gallery1) GetGallery1(ctx context.Context) *Gallery1 {
+func (o *Body) GetBody(ctx context.Context) *Body {
 	return o
 }
 
-// This represents a gallery - it has a title and an image
-type Gallery1a struct {
+type Columns struct {
 	*system.Object
-	Body  *system.String   `json:"body"`
-	Image *images.Icon     `json:"image"`
-	Size  *units.Rectangle `json:"size"`
-	Title *system.String   `json:"title"`
+	Columns []Section `json:"columns"`
 }
-type Gallery1aInterface interface {
-	GetGallery1a(ctx context.Context) *Gallery1a
+type ColumnsInterface interface {
+	GetColumns(ctx context.Context) *Columns
 }
 
-func (o *Gallery1a) GetGallery1a(ctx context.Context) *Gallery1a {
+func (o *Columns) GetColumns(ctx context.Context) *Columns {
 	return o
 }
 
-// This represents a gallery - it has a title and a map of photos
-type Gallery2 struct {
+type Hero struct {
 	*system.Object
-	Images map[string]*images.Photo `json:"images"`
-	Title  *system.String           `json:"title"`
+	Head    system.StringInterface `json:"head"`
+	Image   images.Image           `json:"image"`
+	Subhead system.StringInterface `json:"subhead"`
 }
-type Gallery2Interface interface {
-	GetGallery2(ctx context.Context) *Gallery2
+type HeroInterface interface {
+	GetHero(ctx context.Context) *Hero
 }
 
-func (o *Gallery2) GetGallery2(ctx context.Context) *Gallery2 {
+func (o *Hero) GetHero(ctx context.Context) *Hero {
 	return o
 }
 
-// This represents a gallery - it has a title and a map of images with a restriction rule
-type Gallery2a struct {
+type Page struct {
 	*system.Object
-	Images map[string]*images.Photo `json:"images"`
-	Title  *system.String           `json:"title"`
+	Sections []Section              `json:"sections"`
+	Title    system.StringInterface `json:"title"`
 }
-type Gallery2aInterface interface {
-	GetGallery2a(ctx context.Context) *Gallery2a
-}
-
-func (o *Gallery2a) GetGallery2a(ctx context.Context) *Gallery2a {
-	return o
+type PageInterface interface {
+	GetPage(ctx context.Context) *Page
 }
 
-// This represents a gallery - it has a title and a list of images with a restriction rule
-type Gallery2b struct {
-	*system.Object
-	Images map[string]*images.Photo `json:"images"`
-	Title  *system.String           `json:"title"`
-}
-type Gallery2bInterface interface {
-	GetGallery2b(ctx context.Context) *Gallery2b
-}
-
-func (o *Gallery2b) GetGallery2b(ctx context.Context) *Gallery2b {
-	return o
-}
-
-// This represents a gallery - it has a localizer title and a map of images
-type Gallery3 struct {
-	*system.Object
-	Images map[string]images.Image `json:"images"`
-	Title  words.Localizer         `json:"title"`
-}
-type Gallery3Interface interface {
-	GetGallery3(ctx context.Context) *Gallery3
-}
-
-func (o *Gallery3) GetGallery3(ctx context.Context) *Gallery3 {
-	return o
-}
-
-// This represents a gallery - it has a localizer title and a map of images with a custom rule
-type Gallery3a struct {
-	*system.Object
-	Images []images.Image  `json:"images"`
-	Title  words.Localizer `json:"title"`
-}
-type Gallery3aInterface interface {
-	GetGallery3a(ctx context.Context) *Gallery3a
-}
-
-func (o *Gallery3a) GetGallery3a(ctx context.Context) *Gallery3a {
+func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/site", 9036454148110269811)
-	pkg.InitType("gallery1", reflect.TypeOf((*Gallery1)(nil)), reflect.TypeOf((*Gallery1Rule)(nil)), reflect.TypeOf((*Gallery1Interface)(nil)).Elem())
-	pkg.InitType("gallery1a", reflect.TypeOf((*Gallery1a)(nil)), reflect.TypeOf((*Gallery1aRule)(nil)), reflect.TypeOf((*Gallery1aInterface)(nil)).Elem())
-	pkg.InitType("gallery2", reflect.TypeOf((*Gallery2)(nil)), reflect.TypeOf((*Gallery2Rule)(nil)), reflect.TypeOf((*Gallery2Interface)(nil)).Elem())
-	pkg.InitType("gallery2a", reflect.TypeOf((*Gallery2a)(nil)), reflect.TypeOf((*Gallery2aRule)(nil)), reflect.TypeOf((*Gallery2aInterface)(nil)).Elem())
-	pkg.InitType("gallery2b", reflect.TypeOf((*Gallery2b)(nil)), reflect.TypeOf((*Gallery2bRule)(nil)), reflect.TypeOf((*Gallery2bInterface)(nil)).Elem())
-	pkg.InitType("gallery3", reflect.TypeOf((*Gallery3)(nil)), reflect.TypeOf((*Gallery3Rule)(nil)), reflect.TypeOf((*Gallery3Interface)(nil)).Elem())
-	pkg.InitType("gallery3a", reflect.TypeOf((*Gallery3a)(nil)), reflect.TypeOf((*Gallery3aRule)(nil)), reflect.TypeOf((*Gallery3aInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/demo/site", 8948214122825420463)
+	pkg.InitType("body", reflect.TypeOf((*Body)(nil)), reflect.TypeOf((*BodyRule)(nil)), reflect.TypeOf((*BodyInterface)(nil)).Elem())
+	pkg.InitType("columns", reflect.TypeOf((*Columns)(nil)), reflect.TypeOf((*ColumnsRule)(nil)), reflect.TypeOf((*ColumnsInterface)(nil)).Elem())
+	pkg.InitType("hero", reflect.TypeOf((*Hero)(nil)), reflect.TypeOf((*HeroRule)(nil)), reflect.TypeOf((*HeroInterface)(nil)).Elem())
+	pkg.InitType("page", reflect.TypeOf((*Page)(nil)), reflect.TypeOf((*PageRule)(nil)), reflect.TypeOf((*PageInterface)(nil)).Elem())
+	pkg.InitType("section", reflect.TypeOf((*Section)(nil)).Elem(), reflect.TypeOf((*SectionRule)(nil)), nil)
 }

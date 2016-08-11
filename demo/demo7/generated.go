@@ -1,5 +1,5 @@
-// info:{"Path":"kego.io/demo/demo1","Hash":10713598547770441995}
-package demo1
+// info:{"Path":"kego.io/demo/demo7","Hash":16224128938049598805}
+package demo7
 
 // ke: {"file": {"notest": true}}
 
@@ -8,6 +8,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/jsonctx"
+	"kego.io/demo/demo7/images"
 	"kego.io/system"
 )
 
@@ -18,8 +19,7 @@ type PageRule struct {
 }
 type Page struct {
 	*system.Object
-	Body  *system.String `json:"body"`
-	Title *system.String `json:"title"`
+	Hero *images.Photo `json:"hero"`
 }
 type PageInterface interface {
 	GetPage(ctx context.Context) *Page
@@ -29,6 +29,6 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo1", 10713598547770441995)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo7", 16224128938049598805)
 	pkg.InitType("page", reflect.TypeOf((*Page)(nil)), reflect.TypeOf((*PageRule)(nil)), reflect.TypeOf((*PageInterface)(nil)).Elem())
 }

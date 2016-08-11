@@ -1,0 +1,13 @@
+type: system:type
+id: body
+fields:
+  title:
+    type: system:@string
+    interface: true
+  copy:
+    type: system:@string
+    interface: true
+    long: true
+  align:
+    type: system:@string
+    enum: ["left", "right"]

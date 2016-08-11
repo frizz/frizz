@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/common/words","Hash":16875846678777258623}
+// info:{"Path":"kego.io/demo/common/words","Hash":15839668451341961644}
 package words
 
 // ke: {"file": {"notest": true}}
@@ -44,7 +44,7 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 type Translation struct {
 	*system.Object
 	// The original English string
-	English *system.String `kego:"{\"default\":{\"value\":\"http\"}}" json:"english"`
+	English *system.String `json:"english"`
 	// The translated strings
 	Translations map[string]*system.String `json:"translations"`
 }
@@ -56,7 +56,7 @@ func (o *Translation) GetTranslation(ctx context.Context) *Translation {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/common/words", 16875846678777258623)
+	pkg := jsonctx.InitPackage("kego.io/demo/common/words", 15839668451341961644)
 	pkg.InitType("localizer", reflect.TypeOf((*Localizer)(nil)).Elem(), reflect.TypeOf((*LocalizerRule)(nil)), nil)
 	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
 	pkg.InitType("translation", reflect.TypeOf((*Translation)(nil)), reflect.TypeOf((*TranslationRule)(nil)), reflect.TypeOf((*TranslationInterface)(nil)).Elem())

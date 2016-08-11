@@ -1,0 +1,11 @@
+type: system:type
+id: hero
+fields:
+  image:
+    type: images:@image
+  head:
+    type: system:@string
+    interface: true
+  subhead:
+    type: system:@string
+    interface: true

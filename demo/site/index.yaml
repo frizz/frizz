@@ -1,0 +1,8 @@
+id: index
+sections:
+- copy:
+    english: My website
+    type: words:translation
+  type: body
+title: Foo
+type: page
