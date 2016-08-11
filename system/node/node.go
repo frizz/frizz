@@ -636,13 +636,13 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 	}
 
 	if rule != nil && rule.Parent != nil && !parentInterface && !ruleInterface {
-		// If we have a rule with the parent, and it's not an interface, then we just return the
-		// parent type of the rule.
+		// If we have a rule with the parent, and it's not an interface, then
+		// we just return the parent type of the rule.
 		return rule.Parent, nil
 	}
 
-	// if the rule is nil (e.g. unpacking into an unknown type) or the type is an interface, we
-	// ensure the input is a map
+	// if the rule is nil (e.g. unpacking into an unknown type) or the type is
+	// an interface, we ensure the input is a map
 	if rule == nil || parentInterface {
 		if in == nil {
 			return nil, nil
@@ -670,8 +670,8 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 		case json.J_MAP:
 			break
 		case json.J_STRING, json.J_NUMBER, json.J_BOOL:
-			// if the input value is a native value, we will be unpacking into the parent
-			// type of the rule
+			// if the input value is a native value, we will be unpacking into
+			// the parent type of the rule
 			return rule.Parent, nil
 		default:
 			return nil, kerr.New("SNYLGBJYTM", "Input %s should be J_MAP, J_STRING, J_NUMBER or J_BOOL if rule is interface rule", in.Type())

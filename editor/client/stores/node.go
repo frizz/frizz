@@ -157,7 +157,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			s.app.Fail <- kerr.Wrap("VIMXVIHPFY", err)
 			break
 		}
-
 		model := s.app.Nodes.Get(n)
 		changed, err := model.Validate(s.ctx, s.app.Rule.Get(n.Root(), n))
 		if err != nil {
