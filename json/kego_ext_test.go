@@ -12,6 +12,7 @@ import (
 
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	. "kego.io/json"
 	"kego.io/json/systests"
 	"kego.io/ke"
@@ -23,38 +24,40 @@ import (
 func TestUnpack2(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{})
 	dir, err := packages.GetDirFromPackage(ctx, "kego.io/json/systests")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	b, err := ioutil.ReadFile(filepath.Join(dir, "b.json"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	var i map[string]interface{}
 	err = UnmarshalPlain(b, &i)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	var out interface{}
 	p := Pack(i)
 	err = Unpack(ctx, p, &out)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	a, ok := out.(*systests.A)
-	assert.True(t, ok)
+	require.True(t, ok)
 	assert.Equal(t, "foo", a.A.GetString(ctx).Value())
 	assert.Equal(t, 2.0, a.B.GetNumber(ctx).Value())
 	assert.Equal(t, true, a.C.GetBool(ctx).Value())
+	assert.Equal(t, "3", a.D.GetString(ctx).Value())
 }
 
 func TestUnpack1(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{})
 	dir, err := packages.GetDirFromPackage(ctx, "kego.io/json/systests")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	value, err := ke.Open(ctx, filepath.Join(dir, "b.json"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	a, ok := value.(*systests.A)
-	assert.True(t, ok)
+	require.True(t, ok)
 	assert.Equal(t, "foo", a.A.GetString(ctx).Value())
 	assert.Equal(t, 2.0, a.B.GetNumber(ctx).Value())
 	assert.Equal(t, true, a.C.GetBool(ctx).Value())
+	assert.Equal(t, "3", a.D.GetString(ctx).Value())
 }
 
 func TestDecodeSimple(t *testing.T) {

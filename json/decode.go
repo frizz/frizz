@@ -495,13 +495,13 @@ func indirect(v reflect.Value, decodingNull bool, unmarshalers bool, unpackers b
 				if u, ok := v.Interface().(Unmarshaler); ok {
 					return u, nil, nil, reflect.Value{}
 				}
-				if u, ok := v.Interface().(encoding.TextUnmarshaler); ok {
-					return nil, u, nil, reflect.Value{}
+				if ut, ok := v.Interface().(encoding.TextUnmarshaler); ok {
+					return nil, ut, nil, reflect.Value{}
 				}
 			}
 			if unpackers {
-				if u, ok := v.Interface().(Unpacker); ok {
-					return nil, nil, u, reflect.Value{}
+				if up, ok := v.Interface().(Unpacker); ok {
+					return nil, nil, up, reflect.Value{}
 				}
 			}
 		}
@@ -638,17 +638,19 @@ func (d *decodeState) array(v reflect.Value) {
 var nullLiteral = []byte("null")
 
 func (d *decodeState) scanForType(v reflect.Value) {
-	if typeName := d.scanForAttribute("type", v); typeName != "" {
+	if typeName, _, found := d.scanForAttribute("type", true); found {
 		d.setType(typeName, v)
 	} else {
 		d.unknownType = "(no type attribute)"
 	}
 }
 
-func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string {
+func (d *decodeState) scanForAttribute(attribute string, decodeString bool) (string, []byte, bool) {
 	// We should scan forwards to find the "type" field, then reset the scanner.
 	stateBackup := d.backup()
-	value := ""
+	var valueString string
+	var valueBytes []byte
+	var found bool
 	for {
 		// Read opening " of string key or closing }.
 		op := d.scanWhile(scanSkipSpace)
@@ -661,7 +663,6 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 			// ke: {"block": {"notest": true}}
 			d.error(errPhase)
 		}
-
 		// Read key.
 		start := d.off - 1
 		op = d.scanWhile(scanContinue)
@@ -684,10 +685,15 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 
 		if string(key) == attribute {
 			// Read value.
-			var str string
-			strv := reflect.ValueOf(&str).Elem()
-			d.value(strv)
-			value = str
+			if decodeString {
+				var str string
+				strv := reflect.ValueOf(&str).Elem()
+				d.value(strv)
+				valueString = str
+			} else {
+				valueBytes = d.next()
+			}
+			found = true
 			break
 		} else {
 			// skip value
@@ -708,7 +714,7 @@ func (d *decodeState) scanForAttribute(attribute string, v reflect.Value) string
 	}
 	// Rewind and restore the state of the decoder
 	d.restore(stateBackup)
-	return value
+	return valueString, valueBytes, found
 }
 
 func (d *decodeState) setType(typeName string, v reflect.Value) {
@@ -869,15 +875,6 @@ func (d *decodeState) object(v reflect.Value) {
 	}
 
 	u, ut, up, pv := indirect(v, false, true, true)
-	if u != nil {
-		d.off--
-		err := u.UnmarshalJSON(d.ctx, d.next())
-		if err != nil {
-			// ke: {"block": {"notest": true}}
-			d.error(err)
-		}
-		return
-	}
 	if ut != nil {
 		// ke: {"block": {"notest": true}}
 		d.saveError(&UnmarshalTypeError{"object", v.Type()})
@@ -885,20 +882,46 @@ func (d *decodeState) object(v reflect.Value) {
 		d.next() // skip over { } in input
 		return
 	}
-	if up != nil {
-		d.off--
-		var i interface{}
-		if err := UnmarshalUntyped(d.ctx, d.next(), &i); err != nil {
-			// ke: {"block": {"notest": true}}
-			d.error(err)
+	if u != nil || up != nil {
+
+		var value []byte
+		var _, _, _, pv = indirect(v, false, false, false)
+		if v.Kind() == reflect.Interface && pv.Kind() != reflect.Struct {
+			var found bool
+			if _, value, found = d.scanForAttribute("value", false); !found {
+				d.error(kerr.New("HNKBOLXUWU", "Can't find value field"))
+				return
+			} else {
+				d.off--
+				d.next()
+			}
+		} else {
+			d.off--
+			value = d.next()
+		}
+
+		if u != nil {
+			if err := u.UnmarshalJSON(d.ctx, value); err != nil {
+				// ke: {"block": {"notest": true}}
+				d.error(err)
+			}
 			return
 		}
-		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
-			// ke: {"block": {"notest": true}}
-			d.error(err)
+
+		if up != nil {
+			var i interface{}
+			if err := UnmarshalUntyped(d.ctx, value, &i); err != nil {
+				// ke: {"block": {"notest": true}}
+				d.error(err)
+				return
+			}
+			if err := up.Unpack(d.ctx, Pack(i)); err != nil {
+				// ke: {"block": {"notest": true}}
+				d.error(err)
+				return
+			}
 			return
 		}
-		return
 	}
 	v = pv
 

@@ -306,11 +306,12 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 
 	_, _, _, val := indirect(v, false, false, false)
 
-	// If the type we're unmarshaling into is an interface, we should scan for a "type"
-	// attribute and initialise the correct type.
+	// If the type we're unmarshaling into is an interface, we should scan for
+	// a "type" attribute and initialise the correct type.
 	switch val.Kind() {
 	case reflect.Interface:
-		// This sets the value of v to the correct type based on the "type" attribute.
+		// This sets the value of v to the correct type based on the "type"
+		// attribute.
 		typ, err := us.getTypeFromField(ctx, in, v)
 		if err != nil {
 			return kerr.Wrap("BGJEIXFQHL", err)
@@ -321,9 +322,9 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 			}
 		}
 	case reflect.Struct:
-		// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
-		// attribute, so we should add it back in if it's missing so the system:base object is
-		// correct.
+		// If we're unmarshaling into a concrete type, we want to be able to
+		// omit the "type" attribute, so we should add it back in if it's
+		// missing so the system:object is correct.
 		path, name, ok := jsonctx.FromContext(ctx).GetTypeByReflectType(val.Type())
 		if ok {
 			hasConcreteType = true
@@ -334,6 +335,10 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 
 	_, _, up, rv := indirect(v, false, false, true)
 	if up != nil {
+		_, _, _, rv = indirect(v, false, false, false)
+		if v.Kind() == reflect.Interface && rv.Kind() != reflect.Struct {
+			in = in.Map()["value"]
+		}
 		if err := up.Unpack(ctx, in); err != nil {
 			return kerr.Wrap("NPDUYUXVVK", err)
 		}
