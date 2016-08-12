@@ -60,6 +60,19 @@ func TestUnpack1(t *testing.T) {
 	assert.Equal(t, "3", a.D.GetString(ctx).Value())
 }
 
+func TestUnpackError(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{})
+	var value interface{}
+	err := ke.Unmarshal(ctx, []byte(`{
+    "type": "a",
+    "id": "c",
+    "d": {
+        "type": "system:int"
+    }
+}`), &value)
+	require.HasError(t, err, "HNKBOLXUWU")
+}
+
 func TestDecodeSimple(t *testing.T) {
 	testDecodeSimple(t, unpacker.Unmarshal)
 	testDecodeSimple(t, unpacker.Unpack)

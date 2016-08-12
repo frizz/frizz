@@ -66,4 +66,8 @@ func TestKego(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "\"type\"", string(b3))
 
+	b4, err := ke.MarshalIndentContext(ctx, &system.Package{Recursive: true}, "", " ")
+	assert.NoError(t, err)
+	assert.Equal(t, "{\n \"recursive\": true\n}", string(b4))
+
 }

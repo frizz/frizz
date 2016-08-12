@@ -12,6 +12,7 @@ import (
 	"unicode"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/tests"
@@ -21,13 +22,27 @@ func TestMarshalContext(t *testing.T) {
 	a := A{}
 	cb := tests.New().Path("p")
 
-	b, err := MarshalContext(cb.Ctx(), &a)
-	assert.NoError(t, err)
-	assert.Equal(t, `"cp"`, string(b))
+	v, err := MarshalContext(cb.Ctx(), &a)
+	require.NoError(t, err)
+	assert.Equal(t, `"cp"`, string(v))
 
-	b, err = Marshal(&a)
-	assert.NoError(t, err)
-	assert.Equal(t, `"b"`, string(b))
+	v, err = Marshal(&a)
+	require.NoError(t, err)
+	assert.Equal(t, `"b"`, string(v))
+
+	b := B{
+		C: map[string]*A{
+			"a": {},
+		},
+	}
+	v, err = MarshalIndentContext(cb.Ctx(), &b, "", " ")
+	require.NoError(t, err)
+	assert.Equal(t, "{\n \"C\": {\n  \"a\": \"cp\"\n }\n}", string(v))
+
+}
+
+type B struct {
+	C map[string]*A
 }
 
 type A struct{}
