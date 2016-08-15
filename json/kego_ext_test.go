@@ -94,6 +94,20 @@ func TestUnpack1(t *testing.T) {
 	assert.Equal(t, "3", a.D.GetString(ctx).Value())
 }
 
+func TestUnmarshalCache(t *testing.T) {
+	// This test has two identical types, so it hits the cache code in
+	// encodeState.typeName
+	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{})
+	input := `{"id":"c","type":"a","a":{"type":"system:int","value":2},"d":{"type":"system:int","value":3}}`
+	var value interface{}
+	err := ke.Unmarshal(ctx, []byte(input), &value)
+	require.NoError(t, err)
+	b, err := ke.MarshalContext(ctx, value)
+	require.NoError(t, err)
+	require.Equal(t, input, string(b))
+
+}
+
 func TestUnpackError(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{})
 	var value interface{}
