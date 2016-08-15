@@ -55,13 +55,11 @@ func (us *unpackStruct) unpackFragment(ctx context.Context, in Packed, out *inte
 	}
 
 	err := us.unpack(ctx, in, p)
-
 	if err == nil || us.unknownPackage != "" || us.unknownType != "" {
 		// Sometimes we want to tolerate UnknownPackageError, so we should still set v
 		v := reflect.ValueOf(out)
 		v.Elem().Set(p)
 	}
-
 	if us.unknownPackage != "" {
 		return UnknownPackageError{
 			Struct:         kerr.New("WLKNMHPWJN", "Unknown package %s", us.unknownPackage),
@@ -304,12 +302,13 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 	concreteTypePath := ""
 	concreteTypeName := ""
 
-	_, _, _, val := indirect(v, false, false, false)
-
+	v1 := v
+	for v1.Kind() == reflect.Interface || v1.Kind() == reflect.Ptr {
+		v1 = v1.Elem()
+	}
 	// If the type we're unmarshaling into is an interface, we should scan for
 	// a "type" attribute and initialise the correct type.
-	switch val.Kind() {
-	case reflect.Interface:
+	if v.Kind() == reflect.Interface {
 		// This sets the value of v to the correct type based on the "type"
 		// attribute.
 		typ, err := us.getTypeFromField(ctx, in, v)
@@ -320,8 +319,22 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 			if err := setType(v, typ); err != nil {
 				return kerr.Wrap("KBWJCMHWYF", err)
 			}
+			typ1 := typ
+			for typ1.Kind() == reflect.Ptr {
+				typ1 = typ1.Elem()
+			}
+			if isKeNative(typ1.Kind()) {
+				in = in.Map()["value"]
+				if err := us.unpackLiteral(ctx, in, v); err != nil {
+					return kerr.Wrap("QPLDNFDRXY", err)
+				}
+				return nil
+			}
 		}
-	case reflect.Struct:
+	}
+
+	_, _, _, val := indirect(v, false, false, false)
+	if val.Kind() == reflect.Struct {
 		// If we're unmarshaling into a concrete type, we want to be able to
 		// omit the "type" attribute, so we should add it back in if it's
 		// missing so the system:object is correct.
@@ -335,10 +348,6 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 
 	_, _, up, rv := indirect(v, false, false, true)
 	if up != nil {
-		_, _, _, rv = indirect(v, false, false, false)
-		if v.Kind() == reflect.Interface && rv.Kind() != reflect.Struct {
-			in = in.Map()["value"]
-		}
 		if err := up.Unpack(ctx, in); err != nil {
 			return kerr.Wrap("NPDUYUXVVK", err)
 		}
@@ -432,6 +441,14 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 		return kerr.Wrap("XWHQSWVNLF", err)
 	}
 	return nil
+}
+
+func isKeNative(k reflect.Kind) bool {
+	switch k {
+	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.String:
+		return true
+	}
+	return false
 }
 
 func (us *unpackStruct) getTypeFromField(ctx context.Context, in Packed, iface reflect.Value) (reflect.Type, error) {

@@ -26,6 +26,7 @@ import (
 
 	"golang.org/x/net/context"
 	"kego.io/context/envctx"
+	"kego.io/context/jsonctx"
 )
 
 // Marshal returns the JSON encoding of v.
@@ -158,6 +159,10 @@ func MarshalIndentContext(ctx context.Context, v interface{}, prefix, indent str
 
 func marshal(ctx context.Context, v interface{}, typed bool, prefix, indent string) ([]byte, error) {
 	e := &encodeState{}
+	e.typeCache = struct {
+		sync.RWMutex
+		m map[reflect.Type]string
+	}{m: map[reflect.Type]string{}}
 	e.typed = typed
 	e.ctx = ctx
 	err := e.marshal(v)
@@ -271,6 +276,60 @@ type encodeState struct {
 	scratch      [64]byte
 	typed        bool
 	ctx          context.Context
+	env          *envctx.Env
+	jcache       *jsonctx.JsonCache
+	typeCache    struct {
+		sync.RWMutex
+		m map[reflect.Type]string
+	}
+}
+
+func (e *encodeState) typeName(t reflect.Type) string {
+
+	e.typeCache.RLock()
+	ts, ok := e.typeCache.m[t]
+	e.typeCache.RUnlock()
+	if ok {
+		return ts
+	}
+
+	if e.env == nil {
+		e.env = envctx.FromContext(e.ctx)
+	}
+	if e.env.Path == "" {
+		// ke: {"block": {"notest": true}}
+		// non context marshaling
+		return ""
+	}
+
+	if e.jcache == nil {
+		e.jcache = jsonctx.FromContext(e.ctx)
+	}
+
+	var value string
+	path, name, found := e.jcache.GetTypeByReflectType(t)
+	if found {
+		if path == e.env.Path {
+			value = name
+		} else if path == "kego.io/system" {
+			value = "system:" + name
+		} else if path == "kego.io/json" {
+			// ke: {"block": {"notest": true}}
+			// basic json types shouldn't be implementing interfaces...
+			value = "json:" + name
+		} else {
+			for alias, p := range e.env.Aliases {
+				if p == path {
+					value = alias + ":" + name
+					break
+				}
+			}
+		}
+	}
+	e.typeCache.Lock()
+	e.typeCache.m[t] = value
+	e.typeCache.Unlock()
+	return value
 }
 
 var encodeStatePool sync.Pool
@@ -386,7 +445,6 @@ var (
 // newTypeEncoder constructs an encoderFunc for a type.
 // The returned encoder only checks CanAddr when allowAddr is true.
 func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
-
 	if t.Implements(marshalerType) {
 		return marshalerEncoder
 	}
@@ -602,11 +660,42 @@ func stringEncoder(e *encodeState, v reflect.Value, quoted bool) {
 }
 
 func interfaceEncoder(e *encodeState, v reflect.Value, quoted bool) {
+
+	var native bool
+	var ketype string
+	if e.typed {
+		// The value of v may be something like a FooInterface containing a
+		// *Bar. Here we want to indirect all the way down to Bar:
+		v1 := v
+		for v1.Kind() == reflect.Interface || v1.Kind() == reflect.Ptr {
+			v1 = v1.Elem()
+		}
+		if isKeNative(v1.Kind()) {
+			// Here we want to stop at *Bar:
+			v2 := v
+			for v2.Kind() == reflect.Interface {
+				v2 = v2.Elem()
+			}
+			ketype = e.typeName(v2.Type())
+			native = ketype != ""
+		}
+	}
+
+	if native {
+		e.WriteString(`{"type":`)
+		e.WriteString(strconv.Quote(ketype))
+		e.WriteString(`,"value":`)
+	}
+
 	if v.IsNil() {
 		e.WriteString("null")
-		return
+	} else {
+		e.reflectValue(v.Elem())
 	}
-	e.reflectValue(v.Elem())
+
+	if native {
+		e.WriteByte('}')
+	}
 }
 
 func unsupportedTypeEncoder(e *encodeState, v reflect.Value, quoted bool) {

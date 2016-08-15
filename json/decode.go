@@ -886,7 +886,7 @@ func (d *decodeState) object(v reflect.Value) {
 
 		var value []byte
 		var _, _, _, pv = indirect(v, false, false, false)
-		if v.Kind() == reflect.Interface && pv.Kind() != reflect.Struct {
+		if v.Kind() == reflect.Interface && isKeNative(pv.Kind()) {
 			var found bool
 			if _, value, found = d.scanForAttribute("value", false); !found {
 				d.error(kerr.New("HNKBOLXUWU", "Can't find value field"))

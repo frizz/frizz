@@ -17,6 +17,7 @@ import (
 	"kego.io/json/systests"
 	"kego.io/ke"
 	"kego.io/process/packages"
+	"kego.io/system"
 	"kego.io/tests"
 	"kego.io/tests/unpacker"
 )
@@ -44,6 +45,39 @@ func TestUnpack2(t *testing.T) {
 	assert.Equal(t, 2.0, a.B.GetNumber(ctx).Value())
 	assert.Equal(t, true, a.C.GetBool(ctx).Value())
 	assert.Equal(t, "3", a.D.GetString(ctx).Value())
+}
+
+func TestPack(t *testing.T) {
+
+	cb := tests.New().Path("kego.io/json/systests").Jauto()
+
+	z := Z(0.0)
+	cb.Jtype("z", reflect.TypeOf(&z))
+
+	var i map[string]interface{}
+	err := UnmarshalPlain([]byte(`{"type":"a","id":"a","a":{"type":"system:int","value":2},"d":{"type":"z","value":3}}`), &i)
+	require.NoError(t, err)
+
+	var out interface{}
+	p := Pack(i)
+	err = Unpack(cb.Ctx(), p, &out)
+	require.NoError(t, err)
+
+	a, ok := out.(*systests.A)
+	require.True(t, ok)
+	require.Equal(t, "2", a.A.GetString(cb.Ctx()).Value())
+	require.Equal(t, "3", a.D.GetString(cb.Ctx()).Value())
+
+	by, err := ke.MarshalContext(cb.Ctx(), a)
+	require.NoError(t, err)
+	assert.Equal(t, "{\"id\":\"a\",\"type\":\"a\",\"a\":{\"type\":\"system:int\",\"value\":2},\"d\":{\"type\":\"z\",\"value\":3}}", string(by))
+
+}
+
+type Z float64
+
+func (a *Z) GetString(ctx context.Context) *system.String {
+	return system.NewString(fmt.Sprintf("%v", float64(*a)))
 }
 
 func TestUnpack1(t *testing.T) {
