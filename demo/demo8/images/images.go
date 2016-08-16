@@ -2,7 +2,7 @@ package images
 
 // ke: {"package": {"notest": true}}
 
-import "golang.org/x/net/context"
+import "context"
 
 func (rule *PhotoRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 

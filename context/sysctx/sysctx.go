@@ -7,8 +7,9 @@ import (
 
 	"sort"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 )
 

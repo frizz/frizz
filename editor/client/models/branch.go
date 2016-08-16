@@ -1,6 +1,6 @@
 package models
 
-import "golang.org/x/net/context"
+import "context"
 
 type BranchModel struct {
 	ctx      context.Context

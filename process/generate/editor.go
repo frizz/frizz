@@ -1,8 +1,9 @@
 package generate
 
 import (
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/process/generate/builder"
 )

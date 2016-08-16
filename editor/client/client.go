@@ -12,11 +12,12 @@ import (
 
 	"encoding/base64"
 
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
-	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"

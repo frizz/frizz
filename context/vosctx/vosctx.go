@@ -5,7 +5,7 @@ package vosctx // import "kego.io/context/vosctx"
 import (
 	"os"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 type Vos interface {

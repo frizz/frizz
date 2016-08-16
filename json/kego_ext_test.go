@@ -1,12 +1,11 @@
 package json_test
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"reflect"
 	"testing"
-
-	"golang.org/x/net/context"
 
 	"io/ioutil"
 

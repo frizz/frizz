@@ -3,8 +3,9 @@ package envctx // import "kego.io/context/envctx"
 // ke: {"package": {"notest": true}}
 
 import (
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 )
 
 // Env is the type of value stored in the Contexts.

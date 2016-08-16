@@ -3,11 +3,12 @@ package ctests
 import (
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/mock_vecty"
 	"github.com/golang/mock/gomock"
-	"golang.org/x/net/context"
 	"kego.io/editor/client/connection/mock_connection"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"

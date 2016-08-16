@@ -7,9 +7,10 @@ import (
 
 	"os"
 
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/ghodss/yaml"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/editor/server/auther"
 	"kego.io/editor/server/pkghelp"

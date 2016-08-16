@@ -5,7 +5,8 @@ import (
 
 	"fmt"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
 )

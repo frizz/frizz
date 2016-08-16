@@ -5,9 +5,10 @@ import (
 	"strings"
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
-	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/parser"
 	. "kego.io/process/validate/selectors"

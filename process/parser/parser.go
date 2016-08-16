@@ -11,9 +11,10 @@ import (
 
 	"path/filepath"
 
+	"context"
+
 	"github.com/davelondon/gopackages"
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"

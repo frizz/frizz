@@ -6,7 +6,8 @@ package demo7
 import (
 	"reflect"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/context/jsonctx"
 	"kego.io/demo/demo7/images"
 	"kego.io/system"

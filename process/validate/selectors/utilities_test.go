@@ -3,7 +3,7 @@ package selectors
 import (
 	"testing"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/go-errors/errors"

@@ -1,7 +1,8 @@
 package models
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/editable"
 	"kego.io/system/node"

@@ -97,7 +97,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
-	assert.Contains(t, imp, "\t\"golang.org/x/net/context\"\n")
+	assert.Contains(t, imp, "\t\"context\"\n")
 	assert.Contains(t, imp, "\t\"kego.io/context/jsonctx\"\n")
 	assert.Contains(t, imp, "\t\"kego.io/system\"\n")
 	assert.Contains(t, imp, "\t\"reflect\"\n")

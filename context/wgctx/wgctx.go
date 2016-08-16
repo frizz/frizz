@@ -10,8 +10,9 @@ import (
 
 	"sync"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 )
 
 // key is an unexported type for keys defined in this package.

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"

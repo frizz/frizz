@@ -1,10 +1,11 @@
 package views // import "kego.io/editor/client/views"
 
 import (
+	"context"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
-	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"

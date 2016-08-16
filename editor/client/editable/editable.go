@@ -1,8 +1,9 @@
 package editable
 
 import (
+	"context"
+
 	"github.com/davelondon/vecty"
-	"golang.org/x/net/context"
 	"kego.io/system"
 	"kego.io/system/node"
 )

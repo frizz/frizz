@@ -7,11 +7,12 @@ import (
 
 	"time"
 
+	"context"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
-	"golang.org/x/net/context"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/common"
 	"kego.io/editor/client/editable"

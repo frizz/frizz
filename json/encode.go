@@ -24,7 +24,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 )

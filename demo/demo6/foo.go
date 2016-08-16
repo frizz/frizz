@@ -1,6 +1,6 @@
 package demo6
 
-import "golang.org/x/net/context"
+import "context"
 
 func (f *Foo) Label(ctx context.Context) string {
 	if f == nil || f.Foo == nil {

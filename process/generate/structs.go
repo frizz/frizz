@@ -6,8 +6,9 @@ import (
 
 	"sort"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
 	"kego.io/json"
@@ -80,7 +81,7 @@ func printInterfaceDefinition(env *envctx.Env, g *builder.Builder, typ *system.T
 		g.Println("Get",
 			system.GoName(typ.Id.Name),
 			"(ctx ",
-			builder.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
+			builder.Reference("context", "Context", env.Path, g.Imports.Add),
 			") *",
 			system.GoName(typ.Id.Name))
 	}
@@ -93,7 +94,7 @@ func printInterfaceImplementation(env *envctx.Env, g *builder.Builder, typ *syst
 		") Get",
 		system.GoName(typ.Id.Name),
 		"(ctx ",
-		builder.Reference("golang.org/x/net/context", "Context", env.Path, g.Imports.Add),
+		builder.Reference("context", "Context", env.Path, g.Imports.Add),
 		") *",
 		system.GoName(typ.Id.Name),
 		" {")

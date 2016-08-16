@@ -11,9 +11,10 @@ import (
 	"testing"
 	"unicode"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/tests"
 )

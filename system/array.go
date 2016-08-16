@@ -5,8 +5,9 @@ import (
 
 	"fmt"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 )
 
 func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {

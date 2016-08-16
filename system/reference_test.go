@@ -5,9 +5,10 @@ import (
 	"sort"
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/tests"

@@ -5,8 +5,9 @@ package ke // import "kego.io/ke"
 import (
 	"io"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 	"kego.io/json"

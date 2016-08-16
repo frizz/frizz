@@ -1,7 +1,8 @@
 package system
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/json"
 )
 

@@ -3,11 +3,12 @@ package views
 import (
 	"fmt"
 
+	"context"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"github.com/davelondon/vecty/style"
-	"golang.org/x/net/context"
 	"kego.io/editor/client/models"
 	"kego.io/system/node"
 )

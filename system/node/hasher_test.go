@@ -3,8 +3,9 @@ package node
 import (
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
-	"golang.org/x/net/context"
 )
 
 func TestNodeHasher_Hash(t *testing.T) {

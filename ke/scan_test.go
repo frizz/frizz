@@ -13,11 +13,12 @@ import (
 
 	"strconv"
 
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/kerr/ksrc"
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/packages"
 )

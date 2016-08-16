@@ -21,7 +21,7 @@ import (
 	"unicode/utf16"
 	"unicode/utf8"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/davelondon/kerr"
 	"kego.io/json"

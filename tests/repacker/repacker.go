@@ -3,8 +3,9 @@ package repacker // import "kego.io/tests/repacker"
 // ke: {"package": {"notest": true}}
 
 import (
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/system/node"
 )

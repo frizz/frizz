@@ -3,9 +3,10 @@ package server
 import (
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"golang.org/x/net/context"
 )
 
 func TestServer_Data(t *testing.T) {

@@ -1,8 +1,9 @@
 package flux
 
 import (
+	"context"
+
 	"github.com/davelondon/vecty"
-	"golang.org/x/net/context"
 )
 
 type ViewInterface interface {

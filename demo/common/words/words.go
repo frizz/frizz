@@ -4,7 +4,8 @@ package words
 // ke: {"package": {"notest": true}}
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/system"
 )
 

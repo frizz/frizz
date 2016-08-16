@@ -5,9 +5,10 @@ import (
 
 	"reflect"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/process/parser"
 	"kego.io/system"

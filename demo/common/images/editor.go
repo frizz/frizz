@@ -3,11 +3,12 @@ package images
 // ke: {"package": {"notest": true}}
 
 import (
+	"context"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
 	"github.com/davelondon/vecty/style"
-	"golang.org/x/net/context"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/editors"
 	"kego.io/editor/client/models"

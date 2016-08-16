@@ -3,8 +3,9 @@ package clientctx
 import (
 	"sync"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/editor/client/editable"
 )
 

@@ -1,8 +1,9 @@
 package models
 
 import (
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/process/validate"
 	"kego.io/system"
 	"kego.io/system/node"

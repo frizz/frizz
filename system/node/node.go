@@ -9,8 +9,9 @@ import (
 
 	"sort"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/json"
 	"kego.io/ke"
 	"kego.io/system"

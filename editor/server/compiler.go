@@ -8,11 +8,12 @@ import (
 
 	"go/ast"
 
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/gopherjs/gopherjs/build"
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"
-	"golang.org/x/net/context"
 	"kego.io/context/vosctx"
 )
 

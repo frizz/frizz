@@ -3,11 +3,12 @@ package flux_test
 import (
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/ktest/require"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/golang/mock/gomock"
-	"golang.org/x/net/context"
 	"kego.io/flux"
 	"kego.io/flux/mock_flux"
 )

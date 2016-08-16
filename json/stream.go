@@ -9,7 +9,8 @@ import (
 	"errors"
 	"io"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/context/envctx"
 )
 

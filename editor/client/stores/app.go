@@ -1,7 +1,8 @@
 package stores // import "kego.io/editor/client/stores"
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/editor/client/connection"
 	"kego.io/flux"
 )

@@ -6,8 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/process"
 	"kego.io/tests"

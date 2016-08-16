@@ -10,8 +10,9 @@ import (
 
 	"fmt"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"

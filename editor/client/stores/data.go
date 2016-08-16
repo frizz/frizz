@@ -3,7 +3,8 @@ package stores
 import (
 	"sort"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"

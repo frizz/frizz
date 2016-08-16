@@ -4,7 +4,8 @@ package tests // import "kego.io/process/validate/tests"
 // ke: {"package": {"notest": true}}
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/system"
 )
 

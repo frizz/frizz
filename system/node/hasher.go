@@ -1,9 +1,10 @@
 package node
 
 import (
+	"context"
+
 	"github.com/davelondon/kerr"
 	"github.com/surge/cityhash"
-	"golang.org/x/net/context"
 	"kego.io/json"
 )
 

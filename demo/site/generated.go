@@ -6,7 +6,8 @@ package site
 import (
 	"reflect"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/context/jsonctx"
 	"kego.io/demo/common/images"
 	"kego.io/system"

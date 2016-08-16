@@ -1,7 +1,7 @@
 //go:generate ke
 package site
 
-import "golang.org/x/net/context"
+import "context"
 
 // ke: {"package": {"notest": true}}
 

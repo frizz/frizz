@@ -23,8 +23,9 @@ import (
 
 	"io"
 
+	"context"
+
 	"github.com/pkg/browser"
-	"golang.org/x/net/context"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"

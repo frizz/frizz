@@ -5,8 +5,9 @@ package cmdctx // import "kego.io/context/cmdctx"
 import (
 	"fmt"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 )
 
 // Env is the type of value stored in the Contexts.

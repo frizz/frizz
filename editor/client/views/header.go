@@ -1,10 +1,11 @@
 package views
 
 import (
+	"context"
+
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
-	"golang.org/x/net/context"
 )
 
 type Header struct {

@@ -3,9 +3,10 @@ package system_test
 import (
 	"testing"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"golang.org/x/net/context"
 	"kego.io/context/sysctx"
 	"kego.io/process"
 	"kego.io/process/parser"

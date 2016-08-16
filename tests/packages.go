@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/process/packages"
 )
 

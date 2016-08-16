@@ -8,8 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"

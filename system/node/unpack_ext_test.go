@@ -3,7 +3,7 @@ package node_test
 import (
 	"testing"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"

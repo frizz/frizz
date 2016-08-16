@@ -3,8 +3,9 @@ package packages // import "kego.io/process/packages"
 // ke: {"package": {"complete": true}}
 
 import (
+	"context"
+
 	"github.com/davelondon/gopackages"
-	"golang.org/x/net/context"
 	"kego.io/context/vosctx"
 )
 

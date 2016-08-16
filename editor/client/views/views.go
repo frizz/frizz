@@ -1,7 +1,8 @@
 package views
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
 )

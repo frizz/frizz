@@ -3,7 +3,7 @@ package pkghelp
 import (
 	"path/filepath"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"strings"
 

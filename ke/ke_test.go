@@ -9,8 +9,9 @@ import (
 
 	"bytes"
 
+	"context"
+
 	"github.com/davelondon/ktest/assert"
-	"golang.org/x/net/context"
 	"kego.io/ke"
 	"kego.io/process/packages"
 	"kego.io/system"

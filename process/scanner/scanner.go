@@ -9,8 +9,9 @@ import (
 
 	"github.com/ghodss/yaml"
 
+	"context"
+
 	"github.com/davelondon/kerr"
-	"golang.org/x/net/context"
 )
 
 type File struct {

@@ -6,7 +6,8 @@ package tests
 import (
 	"reflect"
 
-	"golang.org/x/net/context"
+	"context"
+
 	"kego.io/context/jsonctx"
 	"kego.io/system"
 )
