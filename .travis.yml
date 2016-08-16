@@ -1,6 +1,6 @@
 language: go
 go:
-    - 1.6
+    - 1.7
 go_import_path: kego.io/
 notificaitons:
   email:
@@ -12,6 +12,14 @@ addons:
       - nodejs
 install:
   # - go get -u github.com/gopherjs/gopherjs
+
+  # temporary fix for gopherjs / go1.7 incompatibility:
+  - go get -u github.com/gopherjs/gopherjs/... || true
+  - cd $GOPATH/src/github.com/gopherjs/gopherjs
+  - git checkout go1.7
+  - cd $GOPATH/src/kego.io
+  - go get -u github.com/gopherjs/gopherjs/...
+
   - go get -u github.com/davelondon/kerr/kcov
   - go get -t -v ./...
 script:
