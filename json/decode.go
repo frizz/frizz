@@ -791,12 +791,13 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 	env := envctx.FromContext(ctx)
 
 	if strings.Contains(typeString, "/") {
-		// If the type name contains a slash, I'm assuming it's a fully qualified type name of
-		// the form "kego.io/system:type".
+		// If the type name contains a slash, I'm assuming it's a fully
+		// qualified type name of the form "kego.io/system:type".
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
 
-		// We hard-code system and json to prevent them having to always be specified in the aliases
+		// We hard-code system and json to prevent them having to always be
+		// specified in the aliases
 		if parts[0] == "kego.io/system" {
 			return "kego.io/system", parts[1], nil
 		} else if parts[0] == "kego.io/json" {
@@ -812,12 +813,14 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 		}
 		return parts[0], parts[1], nil
 	} else if strings.Contains(typeString, ":") {
-		// If the type name contains a colon, I'm assuming it's an abreviated qualified type name of
-		// the form "system:type". We should look the package name up in the aliases map.
+		// If the type name contains a colon, I'm assuming it's an abreviated
+		// qualified type name of the form "system:type". We should look the
+		// package name up in the aliases map.
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
 
-		// We hard-code system and json to prevent them having to always be specified in the aliases
+		// We hard-code system and json to prevent them having to always be
+		// specified in the aliases
 		if parts[0] == "system" {
 			return "kego.io/system", parts[1], nil
 		} else if parts[0] == "json" {
@@ -855,12 +858,29 @@ func (d *decodeState) object(v reflect.Value) {
 	if d.typed {
 		_, _, _, val := indirect(v, false, false, false)
 
-		// If the type we're unmarshaling into is an interface, we should scan for a "type"
-		// attribute and initialise the correct type.
+		// If the type we're unmarshaling into is an interface, we should scan
+		// for a "type" attribute and initialise the correct type.
 		switch val.Kind() {
 		case reflect.Interface:
-			// If needed, this sets the value of v to the correct type based on the "type" attribute.
+			// If needed, this sets the value of v to the correct type based on
+			// the "type" attribute.
 			d.scanForType(v)
+			val1 := val
+			for val1.Kind() == reflect.Ptr || val1.Kind() == reflect.Interface {
+				val1 = val1.Elem()
+			}
+			if isKeNative(val1.Kind()) {
+				var found bool
+				var data []byte
+				if _, data, found = d.scanForAttribute("value", false); !found {
+					d.error(kerr.New("HNKBOLXUWU", "Can't find value field"))
+					return
+				}
+				d.off--
+				d.next()
+				d.literalStore(data, v, false)
+				return
+			}
 		case reflect.Struct:
 			// If we're unmarshaling into a concrete type, we want to be able to omit the "type"
 			// attribute, so we should add it back in if it's missing so the system:base object is
@@ -882,46 +902,28 @@ func (d *decodeState) object(v reflect.Value) {
 		d.next() // skip over { } in input
 		return
 	}
-	if u != nil || up != nil {
-
-		var value []byte
-		var _, _, _, pv = indirect(v, false, false, false)
-		if v.Kind() == reflect.Interface && isKeNative(pv.Kind()) {
-			var found bool
-			if _, value, found = d.scanForAttribute("value", false); !found {
-				d.error(kerr.New("HNKBOLXUWU", "Can't find value field"))
-				return
-			} else {
-				d.off--
-				d.next()
-			}
-		} else {
-			d.off--
-			value = d.next()
+	if u != nil {
+		d.off--
+		if err := u.UnmarshalJSON(d.ctx, d.next()); err != nil {
+			// ke: {"block": {"notest": true}}
+			d.error(err)
 		}
-
-		if u != nil {
-			if err := u.UnmarshalJSON(d.ctx, value); err != nil {
-				// ke: {"block": {"notest": true}}
-				d.error(err)
-			}
+		return
+	}
+	if up != nil {
+		d.off--
+		var i interface{}
+		if err := UnmarshalUntyped(d.ctx, d.next(), &i); err != nil {
+			// ke: {"block": {"notest": true}}
+			d.error(err)
 			return
 		}
-
-		if up != nil {
-			var i interface{}
-			if err := UnmarshalUntyped(d.ctx, value, &i); err != nil {
-				// ke: {"block": {"notest": true}}
-				d.error(err)
-				return
-			}
-			if err := up.Unpack(d.ctx, Pack(i)); err != nil {
-				// ke: {"block": {"notest": true}}
-				d.error(err)
-				return
-			}
+		if err := up.Unpack(d.ctx, Pack(i)); err != nil {
+			// ke: {"block": {"notest": true}}
+			d.error(err)
 			return
 		}
+		return
 	}
 	v = pv
 

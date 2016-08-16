@@ -310,15 +310,16 @@ func (e *encodeState) typeName(t reflect.Type) string {
 	var value string
 	path, name, found := e.jcache.GetTypeByReflectType(t)
 	if found {
-		if path == e.env.Path {
+		switch path {
+		case e.env.Path:
 			value = name
-		} else if path == "kego.io/system" {
+		case "kego.io/system":
 			value = "system:" + name
-		} else if path == "kego.io/json" {
-			// ke: {"block": {"notest": true}}
+		case "kego.io/json":
 			// basic json types shouldn't be implementing interfaces...
+			// ke: {"block": {"notest": true}}
 			value = "json:" + name
-		} else {
+		default:
 			for alias, p := range e.env.Aliases {
 				if p == path {
 					value = alias + ":" + name

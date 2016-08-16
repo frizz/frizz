@@ -14,6 +14,7 @@ import (
 	"github.com/davelondon/ktest/require"
 	. "kego.io/json"
 	"kego.io/json/systests"
+	_ "kego.io/json/systests/sub"
 	"kego.io/ke"
 	"kego.io/process/packages"
 	"kego.io/system"
@@ -104,7 +105,20 @@ func TestUnmarshalCache(t *testing.T) {
 	b, err := ke.MarshalContext(ctx, value)
 	require.NoError(t, err)
 	require.Equal(t, input, string(b))
+}
 
+func TestUnmarshalString(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/json/systests", map[string]string{"sub": "kego.io/json/systests/sub"})
+	input := `{"id":"c","type":"a","a":{"type":"sub:a","value":2}}`
+	var value interface{}
+	err := ke.Unmarshal(ctx, []byte(input), &value)
+	require.NoError(t, err)
+	require.NotNil(t, value)
+	require.NotNil(t, value.(*systests.A))
+	require.Equal(t, "2", value.(*systests.A).A.GetString(ctx).Value())
+	b, err := ke.MarshalContext(ctx, value)
+	require.NoError(t, err)
+	require.Equal(t, input, string(b))
 }
 
 func TestUnpackError(t *testing.T) {
