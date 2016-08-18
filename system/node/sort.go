@@ -1,31 +1,25 @@
 package node
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/davelondon/sorter"
+)
 
 func SortNodeMap(nodes map[string]*Node) []NamedNode {
-	sortable := SortableNamedNodes{}
+	var s []NamedNode
 	for name, node := range nodes {
-		sortable = append(sortable, NamedNode{name, node})
+		s = append(s, NamedNode{Name: name, Node: node})
 	}
-	sort.Sort(sortable)
-	return []NamedNode(sortable)
+	sort.Sort(sorter.New(
+		len(s),
+		func(i, j int) { s[i], s[j] = s[j], s[i] },
+		func(i, j int) bool { return s[i].Name < s[j].Name },
+	))
+	return s
 }
 
 type NamedNode struct {
 	Name string
 	Node *Node
 }
-
-type SortableNamedNodes []NamedNode
-
-func (s SortableNamedNodes) Len() int {
-	return len(s)
-}
-func (s SortableNamedNodes) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s SortableNamedNodes) Less(i, j int) bool {
-	return s[i].Name < s[j].Name
-}
-
-var _ sort.Interface = (*SortableNamedNodes)(nil)
