@@ -105,32 +105,39 @@ func (v *StructFragmentView) Render() vecty.Component {
 }
 
 func nullEditor(ctx context.Context, n *node.Node, app *stores.App) *EditorView {
-	return NewEditorView(ctx, n).Label(
+	add := func(e *vecty.Event) {
+		types := n.Rule.PermittedTypes()
+		if len(types) == 1 {
+			// if only one type is compatible, don't show the
+			// popup, just add it.
+			app.Dispatch(&actions.Add{
+				Undoer: &actions.Undoer{},
+				Parent: n.Parent,
+				Node:   n,
+				Key:    n.Key,
+				Type:   types[0],
+			})
+			return
+		}
+		app.Dispatch(&actions.OpenAddPopup{
+			Parent: n.Parent,
+			Node:   n,
+			Types:  types,
+		})
+	}
+	return NewEditorView(ctx, n).Icons(
 		elem.Anchor(
 			prop.Href("#"),
-			event.Click(func(e *vecty.Event) {
-				types := n.Rule.PermittedTypes()
-				if len(types) == 1 {
-					// if only one type is compatible, don't show the
-					// popup, just add it.
-					app.Dispatch(&actions.Add{
-						Undoer: &actions.Undoer{},
-						Parent: n.Parent,
-						Node:   n,
-						Key:    n.Key,
-						Type:   types[0],
-					})
-					return
-				}
-				app.Dispatch(&actions.OpenAddPopup{
-					Parent: n.Parent,
-					Node:   n,
-					Types:  types,
-				})
-			}).PreventDefault(),
+			event.Click(add).PreventDefault(),
 			elem.Italic(
-				prop.Class("editor-icon glyphicon glyphicon-plus-sign"),
+				prop.Class("editor-icon editor-icon-after glyphicon glyphicon-plus-sign"),
 			),
 		),
-	)
+	).Dropdown(elem.ListItem(
+		elem.Anchor(
+			prop.Href("#"),
+			vecty.Text("Add"),
+			event.Click(add).PreventDefault(),
+		),
+	))
 }

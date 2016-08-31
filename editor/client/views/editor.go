@@ -23,7 +23,7 @@ type EditorView struct {
 	node     *models.NodeModel
 	focus    *js.Object
 	controls vecty.List
-	label    vecty.List
+	icons    vecty.List
 	dropdown vecty.List
 }
 
@@ -44,8 +44,8 @@ func (v *EditorView) Dropdown(markup ...vecty.Markup) *EditorView {
 	return v
 }
 
-func (v *EditorView) Label(markup ...vecty.Markup) *EditorView {
-	v.label = markup
+func (v *EditorView) Icons(markup ...vecty.Markup) *EditorView {
+	v.icons = markup
 	return v
 }
 
@@ -105,7 +105,7 @@ func (v *EditorView) Render() vecty.Component {
 				vecty.Property("aria-haspopup", "true"),
 				vecty.Property("aria-expanded", "true"),
 				elem.Italic(
-					prop.Class("editor-icon glyphicon glyphicon-collapse-down"),
+					prop.Class("editor-icon editor-icon-before glyphicon glyphicon-collapse-down"),
 				),
 			),
 			elem.UnorderedList(
@@ -115,29 +115,31 @@ func (v *EditorView) Render() vecty.Component {
 		)
 	}
 
-	var label vecty.List
+	var handle vecty.List
 	if v.model.Node.Index != -1 {
-		label = append(label, elem.Italic(
+		handle = append(handle, elem.Italic(
 			prop.Class("handle"),
 			elem.Span(
 				prop.Class("glyphicon glyphicon-option-vertical"),
 			),
 		))
 	}
-	label = append(label, vecty.Text(
-		v.model.Node.Label(v.Ctx),
-	))
+
+	label := elem.Label(
+		vecty.Text(
+			v.model.Node.Label(v.Ctx),
+		),
+	)
 
 	group := elem.Div(
 		vecty.ClassMap{
 			"form-group": true,
 			"has-error":  v.node.Invalid,
 		},
-		elem.Label(
-			label,
-		),
+		handle,
 		dropdown,
-		v.label,
+		label,
+		v.icons,
 		v.controls,
 	)
 

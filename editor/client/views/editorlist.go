@@ -123,14 +123,14 @@ func (v *EditorListView) Render() vecty.Component {
 		}
 		if f == editable.Branch {
 			b := v.App.Branches.Get(n)
-			children = append(children, NewEditorView(v.Ctx, n).Label(
+			children = append(children, NewEditorView(v.Ctx, n).Icons(
 				elem.Anchor(
 					prop.Href("#"),
 					event.Click(func(e *vecty.Event) {
 						v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpClickEditorLink})
 					}).PreventDefault(),
 					elem.Italic(
-						prop.Class("editor-icon glyphicon glyphicon-share-alt"),
+						prop.Class("editor-icon editor-icon-after glyphicon glyphicon-share-alt"),
 					),
 				),
 			))
