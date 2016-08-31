@@ -1,5 +1,0 @@
-type: system:type
-id: foo
-fields:
-    foo:
-        type: system:@string

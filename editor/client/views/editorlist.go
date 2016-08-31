@@ -5,9 +5,15 @@ import (
 
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/event"
+	"github.com/davelondon/vecty/prop"
+	"github.com/gopherjs/gopherjs/js"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
+	"kego.io/json"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -15,8 +21,15 @@ import (
 type EditorListView struct {
 	*View
 
-	model  *models.EditorModel
-	filter *system.Reference
+	model     *models.EditorModel
+	filter    *system.Reference
+	container *vecty.Element
+	sort      bool
+	items     int
+}
+
+func (v *EditorListView) Items() int {
+	return v.items
 }
 
 func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *system.Reference) *EditorListView {
@@ -24,6 +37,7 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	v.View = New(ctx, v)
 	v.model = model
 	v.filter = filter
+	v.sort = model.Node.JsonType == json.J_ARRAY
 	v.Watch(v.model.Node,
 		stores.NodeArrayReorder,
 		stores.NodeChildAdded,
@@ -37,6 +51,51 @@ func (v *EditorListView) Reconcile(old vecty.Component) {
 		v.Body = old.Body
 	}
 	v.ReconcileBody()
+	if v.sort {
+		v.sortable()
+	}
+}
+
+func (v *EditorListView) Receive(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	if v.sort && notif.Type == stores.NodeArrayReorder {
+		js.Global.Call("$", v.container.Node()).Call("sortable", "cancel")
+	}
+	v.ReconcileBody()
+	if v.sort {
+		v.sortable()
+	}
+}
+
+func (v *EditorListView) sortable() {
+	if v.container == nil {
+		return
+	}
+	js.Global.Call("$", v.container.Node()).Call("sortable", js.M{
+		"handle":               ".handle",
+		"axis":                 "y",
+		"forcePlaceholderSize": true,
+		"placeholder":          "drag-placeholder",
+		"start": func(event *js.Object, ui *js.Object) {
+			ui.Get("item").Call("data", "start_pos", ui.Get("item").Call("index"))
+		},
+		"beforeStop": func(event *js.Object, ui *js.Object) {
+			ui.Get("item").Call("data", "end_pos", ui.Get("placeholder").Call("index"))
+		},
+		"update": func(event *js.Object, ui *js.Object) {
+			oldIndex := ui.Get("item").Call("data", "start_pos").Int()
+			newIndex := ui.Get("item").Call("data", "end_pos").Int() - 1
+			if oldIndex == newIndex {
+				return
+			}
+			v.App.Dispatch(&actions.Reorder{
+				Undoer: &actions.Undoer{},
+				Model:  v.model,
+				Before: oldIndex,
+				After:  newIndex,
+			})
+		},
+	})
 }
 
 func (v *EditorListView) Render() vecty.Component {
@@ -48,17 +107,41 @@ func (v *EditorListView) Render() vecty.Component {
 	children := vecty.List{}
 
 	add := func(n *node.Node) {
-		e := models.GetEditable(v.Ctx, n)
-		f := e.Format(n.Rule)
-		if f == editable.Block || f == editable.Inline {
-			children = append(children, e.EditorView(v.Ctx, n, editable.Block))
+
+		if n.Null || n.Missing {
+			children = append(children, nullEditor(v.Ctx, n, v.App))
+			return
+		}
+
+		f := editable.Branch
+		if e := models.GetEditable(v.Ctx, n); e != nil {
+			f = e.Format(n.Rule)
+			if f == editable.Block || f == editable.Inline {
+				children = append(children, e.EditorView(v.Ctx, n, editable.Block))
+				return
+			}
+		}
+		if f == editable.Branch {
+			b := v.App.Branches.Get(n)
+			children = append(children, NewEditorView(v.Ctx, n).Label(
+				elem.Anchor(
+					prop.Href("#"),
+					event.Click(func(e *vecty.Event) {
+						v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpClickEditorLink})
+					}).PreventDefault(),
+					elem.Italic(
+						prop.Class("editor-icon glyphicon glyphicon-share-alt"),
+					),
+				),
+			))
 		}
 	}
 
 	for _, n := range v.model.Node.Map {
-		if n.Missing || n.Null {
-			continue
-		}
+		// TODO: hide optional fields
+		//if n.Missing || n.Null {
+		//	continue
+		//}
 		if v.filter != nil && *n.Origin != *v.filter {
 			continue
 		}
@@ -69,12 +152,16 @@ func (v *EditorListView) Render() vecty.Component {
 		add(n)
 	}
 
+	v.items = len(children)
+
 	if len(children) == 0 {
-		return elem.Div()
-	}
-	return elem.Div(
-		elem.Form(
+		v.container = elem.Div()
+	} else {
+		v.container = elem.Form(
+			event.Submit(func(*vecty.Event) {}).PreventDefault(),
 			children,
-		),
-	)
+		)
+	}
+
+	return v.container
 }

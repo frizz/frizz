@@ -80,22 +80,10 @@ func (v *StringEditorView) Focus() {
 }
 
 func (v *StringEditorView) Render() vecty.Component {
-	id := randomId()
 
-	sr, ok := v.model.Node.Rule.Interface.(*system.StringRule)
-
-	if ok && sr.Long {
-		v.input = elem.TextArea()
-	} else {
-		v.input = elem.Input(
-			prop.Type(prop.TypeText),
-		)
-	}
-
-	vecty.List{
+	contents := vecty.List{
 		prop.Value(v.model.Node.ValueString),
 		prop.Class("form-control"),
-		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
 			getVal := func() interface{} {
 				return e.Target.Get("value").String()
@@ -118,25 +106,20 @@ func (v *StringEditorView) Render() vecty.Component {
 				})
 			}()
 		}),
-	}.Apply(v.input)
-
-	group := elem.Div(
-		vecty.ClassMap{
-			"form-group": true,
-			"has-error":  v.node.Invalid,
-		},
-		elem.Label(
-			prop.For(id),
-			vecty.Text(v.model.Node.Label(v.Ctx)),
-		),
-		v.input,
-	)
-
-	if v.format == editable.Inline {
-		return group
 	}
 
-	helpBlock(v.Ctx, v.model.Node).Apply(group)
-	errorBlock(v.Ctx, v.node).Apply(group)
-	return group
+	if sr, ok := v.model.Node.Rule.Interface.(*system.StringRule); ok && sr.Long {
+		v.input = elem.TextArea(
+			contents,
+		)
+	} else {
+		v.input = elem.Input(
+			prop.Type(prop.TypeText),
+			contents,
+		)
+	}
+
+	return views.NewEditorView(v.Ctx, v.model.Node).Controls(
+		v.input,
+	)
 }

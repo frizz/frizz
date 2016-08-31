@@ -86,11 +86,7 @@ func (v *BoolEditorView) Render() vecty.Component {
 		}),
 	)
 
-	group := elem.Div(
-		vecty.ClassMap{
-			"form-group": true,
-			"has-error":  v.node.Invalid,
-		},
+	return views.NewEditorView(v.Ctx, v.model.Node).Controls(
 		elem.Div(
 			prop.Class("checkbox"),
 			elem.Label(
@@ -99,11 +95,4 @@ func (v *BoolEditorView) Render() vecty.Component {
 			),
 		),
 	)
-
-	if v.format == editable.Inline {
-		return group
-	}
-
-	helpBlock(v.Ctx, v.model.Node).Apply(group)
-	return group
 }

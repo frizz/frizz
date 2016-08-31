@@ -1,11 +1,17 @@
+description: This is the front page of the site.
+heading: Front page
 id: frontpage
-title:
-- foo: bar
-  tags:
-  - foo
-  type: foo
-- foo: baz
-  tags:
-  - b
-  type: foo
+people:
+- age: 72
+  name: Roy
+  type: person
+- age: 38
+  name: Dave
+  type: person
+- age: 36
+  name: John
+  type: person
+- age: 34
+  name: Peter
+  type: person
 type: page

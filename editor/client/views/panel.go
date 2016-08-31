@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/prop"
-	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
@@ -49,24 +48,20 @@ func (v *PanelView) Receive(notif flux.NotifPayload) {
 }
 
 func (v *PanelView) Render() vecty.Component {
-	var editor, breadcrumbs vecty.Component
-	if v.branch != nil {
-		breadcrumbs = NewBreadcrumbsView(v.Ctx, v.branch)
-	}
+	var editor vecty.Component
 	if v.node != nil {
-		if ed, ok := v.node.Value.(editable.Editable); ok {
-			editor = ed.EditorView(v.Ctx, v.node, editable.Branch)
-		} else if v.node.Type.IsNativeMap() {
+		if v.node.Type.IsNativeMap() {
 			editor = NewMapView(v.Ctx, v.node)
 		} else if v.node.Type.IsNativeArray() {
 			editor = NewArrayView(v.Ctx, v.node)
 		} else {
-			editor = NewObjectView(v.Ctx, v.node)
+			editor = NewStructView(v.Ctx, v.node)
 		}
+	} else if v.branch != nil {
+		editor = NewPanelNavView(v.Ctx, v.branch)
 	}
 	return elem.Div(
-		prop.Class("content panel"),
-		breadcrumbs,
+		prop.Class("content content-panel"),
 		editor,
 	)
 }

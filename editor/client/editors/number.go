@@ -79,13 +79,11 @@ func (v *NumberEditorView) Focus() {
 }
 
 func (v *NumberEditorView) Render() vecty.Component {
-	id := randomId()
 
 	v.input = elem.Input(
 		prop.Type(prop.TypeNumber),
 		prop.Value(fmt.Sprintf("%v", v.model.Node.ValueNumber)),
 		prop.Class("form-control"),
-		prop.ID(id),
 		event.KeyUp(func(e *vecty.Event) {
 			getVal := func() interface{} {
 				val, err := strconv.ParseFloat(e.Target.Get("value").String(), 64)
@@ -115,22 +113,7 @@ func (v *NumberEditorView) Render() vecty.Component {
 		}),
 	)
 
-	group := elem.Div(
-		vecty.ClassMap{
-			"form-group": true,
-			"has-error":  v.node.Invalid,
-		},
-		elem.Label(
-			prop.For(id),
-			vecty.Text(v.model.Node.Label(v.Ctx)),
-		),
+	return views.NewEditorView(v.Ctx, v.model.Node).Controls(
 		v.input,
 	)
-
-	if v.format == editable.Inline {
-		return group
-	}
-
-	helpBlock(v.Ctx, v.model.Node).Apply(group)
-	return group
 }

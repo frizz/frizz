@@ -48,27 +48,32 @@ func (v *BreadcrumbsView) Render() vecty.Component {
 
 	for b != nil {
 
-		// copy value of b into new var because it will be used in the click handler
+		// copy value of b into new var because it will be used in the click
+		// handler
 		current := b
 
 		if v.branch.Parent != nil && current.Parent == nil {
 			break
 		}
 
-		var content vecty.Markup
+		var content vecty.List
 		if current == v.branch {
-			content = vecty.Text(
-				current.Contents.Label(v.Ctx),
-			)
-		} else {
-			content = elem.Anchor(
-				prop.Href("#"),
+			content = append(content,
 				vecty.Text(
 					current.Contents.Label(v.Ctx),
 				),
-				event.Click(func(ev *vecty.Event) {
-					v.App.Dispatch(&actions.BranchSelecting{Branch: current, Op: models.BranchOpClickBreadcrumb})
-				}).PreventDefault(),
+			)
+		} else {
+			content = append(content,
+				elem.Anchor(
+					prop.Href("#"),
+					vecty.Text(
+						current.Contents.Label(v.Ctx),
+					),
+					event.Click(func(ev *vecty.Event) {
+						v.App.Dispatch(&actions.BranchSelecting{Branch: current, Op: models.BranchOpClickBreadcrumb})
+					}).PreventDefault(),
+				),
 			)
 		}
 

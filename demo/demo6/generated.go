@@ -1,61 +1,31 @@
-// info:{"Path":"kego.io/demo/demo6","Hash":17175781683404867758}
+// info:{"Path":"kego.io/demo/demo6","Hash":160157362774859227}
 package demo6
 
 // ke: {"file": {"notest": true}}
 
 import (
-	"reflect"
-
 	"context"
+	"reflect"
 
 	"kego.io/context/jsonctx"
 	"kego.io/system"
 )
-
-// Automatically created basic rule for bar
-type BarRule struct {
-	*system.Object
-	*system.Rule
-}
-
-// Automatically created basic rule for foo
-type FooRule struct {
-	*system.Object
-	*system.Rule
-}
 
 // Automatically created basic rule for page
 type PageRule struct {
 	*system.Object
 	*system.Rule
 }
-type Bar struct {
+
+// Automatically created basic rule for person
+type PersonRule struct {
 	*system.Object
-	Foo *Foo `json:"foo"`
+	*system.Rule
 }
-type BarInterface interface {
-	GetBar(ctx context.Context) *Bar
-}
-
-func (o *Bar) GetBar(ctx context.Context) *Bar {
-	return o
-}
-
-type Foo struct {
-	*system.Object
-	Foo *system.String `json:"foo"`
-}
-type FooInterface interface {
-	GetFoo(ctx context.Context) *Foo
-}
-
-func (o *Foo) GetFoo(ctx context.Context) *Foo {
-	return o
-}
-
 type Page struct {
 	*system.Object
-	Title []*Foo `json:"title"`
+	Heading system.StringInterface `json:"heading"`
+	People  []*Person              `json:"people"`
 }
 type PageInterface interface {
 	GetPage(ctx context.Context) *Page
@@ -64,9 +34,21 @@ type PageInterface interface {
 func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
+
+type Person struct {
+	*system.Object
+	Age  *system.Int    `json:"age"`
+	Name *system.String `json:"name"`
+}
+type PersonInterface interface {
+	GetPerson(ctx context.Context) *Person
+}
+
+func (o *Person) GetPerson(ctx context.Context) *Person {
+	return o
+}
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo6", 17175781683404867758)
-	pkg.InitType("bar", reflect.TypeOf((*Bar)(nil)), reflect.TypeOf((*BarRule)(nil)), reflect.TypeOf((*BarInterface)(nil)).Elem())
-	pkg.InitType("foo", reflect.TypeOf((*Foo)(nil)), reflect.TypeOf((*FooRule)(nil)), reflect.TypeOf((*FooInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/demo/demo6", 160157362774859227)
 	pkg.InitType("page", reflect.TypeOf((*Page)(nil)), reflect.TypeOf((*PageRule)(nil)), reflect.TypeOf((*PageInterface)(nil)).Elem())
+	pkg.InitType("person", reflect.TypeOf((*Person)(nil)), reflect.TypeOf((*PersonRule)(nil)), reflect.TypeOf((*PersonInterface)(nil)).Elem())
 }

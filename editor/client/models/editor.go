@@ -3,8 +3,13 @@ package models
 import (
 	"context"
 
+	"reflect"
+
+	"github.com/davelondon/kerr"
+	"kego.io/context/jsonctx"
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/editable"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -17,21 +22,68 @@ func NewEditor(n *node.Node) *EditorModel {
 	return &EditorModel{Node: n}
 }
 
-func GetEditable(ctx context.Context, node *node.Node) editable.Editable {
+func GetEmbedEditable(ctx context.Context, node *node.Node, embed *system.Reference) (editable.Editable, error) {
 
-	if node != nil {
-		// This is the recommended method of presenting an custom editor.
-		if ed, ok := node.Value.(editable.Editable); ok {
-			return ed
+	if node == nil || node.Null || node.Missing {
+		return nil, nil
+	}
+
+	if *node.Type.Id == *embed {
+		return GetEditable(ctx, node), nil
+	}
+
+	jcache := jsonctx.FromContext(ctx)
+	t, ok := jcache.GetType(embed.Package, embed.Name)
+	if !ok {
+		return nil, kerr.New("DGWDERFPVV", "Can't find %s in jsonctx", embed.String())
+	}
+
+	v := node.Val
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+		v = v.Elem()
+	}
+
+	var field reflect.Value
+	for i := 0; i < v.Type().NumField(); i++ {
+		f := v.Type().Field(i)
+		if f.Anonymous && f.Type == t {
+			field = v.Field(i)
+			break
 		}
+	}
+	if field == (reflect.Value{}) {
+		return nil, kerr.New("UDBOWYUBER", "Can't find %s field in struct", t)
+	}
+
+	// This is the recommended method of presenting an custom editor.
+	if ed, ok := field.Interface().(editable.Editable); ok {
+		return ed, nil
 	}
 
 	editors := clientctx.FromContext(ctx)
 
-	if node == nil {
-		e, _ := editors.Get("")
-		return e
+	// Don't do this. Implement the Editable interface instead. We can't do this
+	// for system types so we use this method instead.
+	if e, ok := editors.Get(embed.String()); ok {
+		return e, nil
 	}
+
+	return nil, nil
+
+}
+
+func GetEditable(ctx context.Context, node *node.Node) editable.Editable {
+
+	if node == nil || node.Null || node.Missing {
+		return nil
+	}
+
+	// This is the recommended method of presenting an custom editor.
+	if ed, ok := node.Value.(editable.Editable); ok {
+		return ed
+	}
+
+	editors := clientctx.FromContext(ctx)
 
 	// Don't do this. Implement the Editable interface instead. We can't do this
 	// for system types so we use this method instead.
@@ -45,7 +97,5 @@ func GetEditable(ctx context.Context, node *node.Node) editable.Editable {
 		}
 	}
 
-	// DefaultEditor
-	e, _ := editors.Get("")
-	return e
+	return nil
 }

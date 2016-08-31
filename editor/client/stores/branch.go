@@ -364,8 +364,7 @@ func (s *BranchStore) InsertNodeBranchModelChild(b *models.BranchModel, n *node.
 		return
 	}
 	e := models.GetEditable(s.ctx, n)
-	f := e.Format(n.Rule)
-	if f == editable.Branch {
+	if e == nil || e.Format(n.Rule) == editable.Branch {
 		b.Insert(index, s.NewNodeBranchModel(s.ctx, n, ""))
 	}
 }

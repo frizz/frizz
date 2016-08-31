@@ -59,7 +59,6 @@ func Start() error {
 	ctx = stores.NewContext(ctx, app)
 	ctx = clientctx.NewContext(ctx)
 
-	views.RegisterDefaultEditor(ctx)
 	// Don't do this. Implement the Editable interface instead. We can't do
 	// this for system types so we use this method instead.
 	editors.Register(ctx)

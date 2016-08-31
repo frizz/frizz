@@ -1,0 +1,7 @@
+type: system:type
+id: person
+fields:
+  name:
+    type: system:@string
+  age:
+    type: system:@int

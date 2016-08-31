@@ -20,3 +20,22 @@
 .ui-sortable-helper {
     display: table;
 }
+nav.navbar ol.breadcrumb {
+    margin: 7px 10px 7px 0;
+    background-color: transparent;
+}
+@media (min-width: 768px) {
+    nav.navbar ol.breadcrumb {
+        float: left;
+        padding-left: 0;
+    }
+}
+nav.navbar.nagative-margin {
+    margin-top: -15px;
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+.editor-icon {
+    margin-left: 5px;
+}

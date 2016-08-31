@@ -1,14 +1,11 @@
-type: system:type
-id: page
 fields:
-#    bar:
-#        type: "@bar"
-    title:
-        type: system:@array
-        items:
-            type: "@foo"
-            rules:
-                -
-                    selector: ':has(.tags:has(:val("a")))>.foo'
-                    type: system:@string
-                    pattern: "foo"
+  heading:
+    interface: true
+    type: system:@string
+  people:
+    items:
+      type: '@person'
+    type: system:@array
+id: page
+native: object
+type: system:type

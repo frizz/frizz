@@ -22,6 +22,7 @@ const (
 	BranchOpKeyboard        BranchOps = "BranchOpKeyboard"
 	BranchOpClickLabel      BranchOps = "BranchOpClickLabel"
 	BranchOpClickSummaryRow BranchOps = "BranchOpClickSummaryRow"
+	BranchOpClickEditorLink BranchOps = "BranchOpClickEditorLink"
 	BranchOpClickBreadcrumb BranchOps = "BranchOpClickBreadcrumb"
 	BranchOpClickToggle     BranchOps = "BranchOpClickToggle"
 )

@@ -16,8 +16,8 @@ import (
 )
 
 func Register(ctx context.Context) {
-	// Don't do this. Implement the Editable interface instead. We can't do this for system types
-	// so we use this method instead.
+	// Don't do this. Implement the Editable interface instead. We can't do this
+	// for system types so we use this method instead.
 	editors := clientctx.FromContext(ctx)
 
 	editors.Set("string", new(StringEditor))
@@ -32,6 +32,8 @@ func Register(ctx context.Context) {
 	editors.Set("bool", new(BoolEditor))
 	editors.Set("kego.io/json:bool", new(BoolEditor))
 	editors.Set("kego.io/system:bool", new(BoolEditor))
+
+	editors.Set("kego.io/system:object", new(ObjectEditor))
 }
 
 func helpBlock(ctx context.Context, n *node.Node) vecty.Markup {

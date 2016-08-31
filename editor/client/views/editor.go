@@ -5,43 +5,68 @@ import (
 
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
-	"kego.io/editor/client/clientctx"
-	"kego.io/editor/client/editable"
+	"github.com/davelondon/vecty/event"
+	"github.com/davelondon/vecty/prop"
+	"github.com/gopherjs/gopherjs/js"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
 )
 
-func RegisterDefaultEditor(ctx context.Context) {
-	editors := clientctx.FromContext(ctx)
-	editors.Set("", new(DefaultEditor))
-}
-
-type DefaultEditor struct{}
-
-func (s *DefaultEditor) Format(rule *system.RuleWrapper) editable.Format {
-	return editable.Branch
-}
-
-func (s *DefaultEditor) EditorView(ctx context.Context, node *node.Node, format editable.Format) vecty.Component {
-	return NewEditorView(ctx, node, format)
-}
-
 type EditorView struct {
 	*View
 
-	model *models.EditorModel
+	model    *models.EditorModel
+	node     *models.NodeModel
+	focus    *js.Object
+	controls vecty.List
+	label    vecty.List
+	dropdown vecty.List
 }
 
-func NewEditorView(ctx context.Context, node *node.Node, format editable.Format) *EditorView {
+func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 	v := &EditorView{}
 	v.View = New(ctx, v)
 	v.model = v.App.Editors.Get(node)
+	v.node = v.App.Nodes.Get(node)
 	v.Watch(v.model.Node,
 		stores.NodeValueChanged,
 	)
 	return v
+
+}
+
+func (v *EditorView) Dropdown(markup ...vecty.Markup) *EditorView {
+	v.dropdown = markup
+	return v
+}
+
+func (v *EditorView) Label(markup ...vecty.Markup) *EditorView {
+	v.label = markup
+	return v
+}
+
+func (v *EditorView) Controls(markup ...vecty.Markup) *EditorView {
+	v.controls = markup
+	return v
+}
+
+func (v *EditorView) FocusElement(o *js.Object) *EditorView {
+	v.Watch(v.model.Node,
+		stores.NodeFocus,
+	)
+	return v
+}
+
+func (v *EditorView) Receive(notif flux.NotifPayload) {
+	defer close(notif.Done)
+	v.ReconcileBody()
+	if v.focus != nil && notif.Type == stores.NodeFocus {
+		v.focus.Call("focus")
+	}
 }
 
 func (v *EditorView) Reconcile(old vecty.Component) {
@@ -52,5 +77,101 @@ func (v *EditorView) Reconcile(old vecty.Component) {
 }
 
 func (v *EditorView) Render() vecty.Component {
-	return elem.Div(vecty.Text("default editor"))
+
+	if !v.model.Node.Missing && !v.model.Node.Null {
+		v.dropdown = append(v.dropdown, elem.ListItem(
+			elem.Anchor(
+				prop.Href("#"),
+				vecty.Text("Delete"),
+				event.Click(func(e *vecty.Event) {
+					v.App.Dispatch(&actions.Delete{
+						Undoer: &actions.Undoer{},
+						Node:   v.model.Node,
+						Parent: v.model.Node.Parent,
+					})
+				}).PreventDefault(),
+			),
+		))
+	}
+
+	var dropdown vecty.Markup
+	if v.dropdown != nil {
+		dropdown = elem.Span(
+			prop.Class("dropdown"),
+			elem.Anchor(
+				prop.Href("#"),
+				prop.Class("dropdown-toggle"),
+				vecty.Data("toggle", "dropdown"),
+				vecty.Property("aria-haspopup", "true"),
+				vecty.Property("aria-expanded", "true"),
+				elem.Italic(
+					prop.Class("editor-icon glyphicon glyphicon-collapse-down"),
+				),
+			),
+			elem.UnorderedList(
+				prop.Class("dropdown-menu"),
+				v.dropdown,
+			),
+		)
+	}
+
+	var label vecty.List
+	if v.model.Node.Index != -1 {
+		label = append(label, elem.Italic(
+			prop.Class("handle"),
+			elem.Span(
+				prop.Class("glyphicon glyphicon-option-vertical"),
+			),
+		))
+	}
+	label = append(label, vecty.Text(
+		v.model.Node.Label(v.Ctx),
+	))
+
+	group := elem.Div(
+		vecty.ClassMap{
+			"form-group": true,
+			"has-error":  v.node.Invalid,
+		},
+		elem.Label(
+			label,
+		),
+		dropdown,
+		v.label,
+		v.controls,
+	)
+
+	v.helpBlock().Apply(group)
+	v.errorBlock().Apply(group)
+
+	return group
+}
+
+func (v *EditorView) helpBlock() vecty.Markup {
+	if v.model.Node.Rule == nil || v.model.Node.Rule.Interface == nil {
+		return vecty.List{}
+	}
+	description := v.model.Node.Rule.Interface.(system.ObjectInterface).GetObject(v.Ctx).Description
+	if description == "" {
+		return vecty.List{}
+	}
+	return elem.Paragraph(
+		prop.Class("help-block"),
+		vecty.Text(description),
+	)
+}
+
+func (v *EditorView) errorBlock() vecty.Markup {
+	if !v.node.Invalid {
+		return vecty.List{}
+	}
+
+	errors := vecty.List{}
+	for _, e := range v.node.Errors {
+		errors = append(errors, elem.ListItem(vecty.Text(e.Description)))
+	}
+	return elem.Paragraph(
+		prop.Class("help-block text-danger"),
+		elem.UnorderedList(errors),
+	)
 }

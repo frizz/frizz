@@ -46,7 +46,7 @@ func (v *TreeView) Render() vecty.Component {
 		return elem.Div()
 	}
 	return elem.Div(
-		prop.Class("content tree"),
+		prop.Class("content content-tree"),
 		NewBranchView(v.Ctx, v.Root),
 	)
 }

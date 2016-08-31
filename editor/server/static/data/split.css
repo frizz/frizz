@@ -20,13 +20,12 @@
   .content {
     background-color: #fff;
     height: 100%;
-
   }
-  .content.tree {
-    padding: 10px 0 15px 15px;
+  .content.content-tree {
+    padding: 15px 0 15px 15px;
   }
-  .content.panel {
-    padding: 10px;
+  .content.content-panel {
+    padding: 15px;
   }
 
   .gutter {
