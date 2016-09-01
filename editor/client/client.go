@@ -35,20 +35,24 @@ import (
 
 func Start() error {
 
-	ws, err := websocket.Dial(fmt.Sprintf("ws://%s:%s/_rpc", dom.GetWindow().Location().Hostname, dom.GetWindow().Location().Port))
+	ws, err := websocket.Dial(
+		fmt.Sprintf(
+			"ws://%s:%s/_rpc",
+			dom.GetWindow().Location().Hostname,
+			dom.GetWindow().Location().Port))
 	if err != nil {
 		return kerr.Wrap("HNQFLPFAJD", err)
+	}
+
+	app := &stores.App{
+		Conn: connection.New(rpc.NewClient(ws)),
+		Fail: make(chan error),
 	}
 
 	// We parse the json info attribute from the body tag
 	info, err := getInfo(getRawInfo())
 	if err != nil {
 		return kerr.Wrap("MGLVIQIDDY", err)
-	}
-
-	app := &stores.App{
-		Conn: connection.New(rpc.NewClient(ws)),
-		Fail: make(chan error),
 	}
 
 	var ctx context.Context
@@ -59,22 +63,14 @@ func Start() error {
 	ctx = stores.NewContext(ctx, app)
 	ctx = clientctx.NewContext(ctx)
 
+	app.Init(ctx)
+
 	// Don't do this. Implement the Editable interface instead. We can't do
 	// this for system types so we use this method instead.
 	editors.Register(ctx)
 
-	app.Init(ctx)
-
-	pcache, err := registerTypes(ctx, info.Path, info.Imports)
-	if err != nil {
+	if _, err := registerTypes(ctx, info.Path, info.Imports); err != nil {
 		return kerr.Wrap("MMJDDOBAUK", err)
-	}
-
-	types := map[string][]byte{}
-	for _, name := range pcache.Files.Keys() {
-		if b, ok := pcache.Files.Get(name); ok {
-			types[name] = b.Bytes
-		}
 	}
 
 	p := views.NewPage(ctx)
