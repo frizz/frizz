@@ -24,10 +24,6 @@ func (i *Int) Set(in int) {
 	*i = Int(in)
 }
 
-func (i *Int) GetString(ctx context.Context) *String {
-	return NewString(i.String())
-}
-
 func (i *Int) Value() int {
 	return int(*i)
 }
