@@ -1,6 +1,5 @@
 fields:
   heading:
-    interface: true
     type: system:@string
   people:
     items:
