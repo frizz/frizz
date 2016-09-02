@@ -63,8 +63,7 @@ func (v *Header) Render() vecty.Component {
 				elem.UnorderedList(
 					prop.Class("nav navbar-nav"),
 					NewViewMenuView(v.Ctx),
-					NewUndoView(v.Ctx, true),
-					NewUndoView(v.Ctx, false),
+					NewEditMenuView(v.Ctx),
 					NewSaveView(v.Ctx),
 				),
 				elem.Form(

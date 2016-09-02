@@ -14,10 +14,15 @@ type MiscStore struct {
 	app *App
 
 	addPopup *models.AddPopupModel
+	info     bool
 }
 
 func (s *MiscStore) AddPopup() *models.AddPopupModel {
 	return s.addPopup
+}
+
+func (s *MiscStore) Info() bool {
+	return s.info
 }
 
 type miscNotif string
@@ -25,7 +30,8 @@ type miscNotif string
 func (b miscNotif) IsNotif() {}
 
 const (
-	AddPopupChange miscNotif = "AddPopupChange"
+	AddPopupChange  miscNotif = "AddPopupChange"
+	InfoStateChange miscNotif = "InfoStateChange"
 )
 
 func NewMiscStore(ctx context.Context) *MiscStore {
@@ -40,6 +46,9 @@ func NewMiscStore(ctx context.Context) *MiscStore {
 
 func (s *MiscStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
+	case *actions.ToggleInfoState:
+		s.info = !s.info
+		payload.Notify(nil, InfoStateChange)
 	case *actions.OpenAddPopup:
 		s.addPopup = &models.AddPopupModel{
 			Visible: true,

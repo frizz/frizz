@@ -48,6 +48,7 @@ func NewObjectEditorView(ctx context.Context, node *node.Node) *ObjectEditorView
 	v.Watch(v.model.Node,
 		stores.NodeValueChanged,
 		stores.NodeErrorsChanged,
+		stores.InfoStateChange,
 	)
 	return v
 }
@@ -60,12 +61,6 @@ func (v *ObjectEditorView) Reconcile(old vecty.Component) {
 }
 
 func (v *ObjectEditorView) Render() vecty.Component {
-
-	dt, err := v.node.Node.DisplayType(v.Ctx)
-	if err != nil {
-		v.App.Fail <- kerr.Wrap("KFKGCGFULR", err)
-		return nil
-	}
 
 	sections := vecty.List{}
 	sections = append(sections,
@@ -88,12 +83,6 @@ func (v *ObjectEditorView) Render() vecty.Component {
 					),
 					elem.UnorderedList(
 						prop.Class("dropdown-menu"),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Type: "+dt),
-							),
-						),
 						elem.ListItem(
 							prop.Class("divider"),
 							vecty.Property("role", "separator"),
@@ -144,6 +133,21 @@ func (v *ObjectEditorView) Render() vecty.Component {
 			elem.Paragraph(
 				prop.Class("lead"),
 				vecty.Text(v.object.Description),
+			),
+		)
+	}
+
+	if v.App.Misc.Info() {
+
+		dt, err := v.node.Node.DisplayType(v.Ctx)
+		if err != nil {
+			v.App.Fail <- kerr.Wrap("KFKGCGFULR", err)
+			return nil
+		}
+		sections = append(sections,
+			elem.Paragraph(
+				prop.Class("lead"),
+				vecty.Text("type: "+dt),
 			),
 		)
 	}

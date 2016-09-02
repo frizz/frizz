@@ -7,6 +7,8 @@ import (
 	"kego.io/system/node"
 )
 
+type ToggleInfoState struct{}
+
 type ChangeView struct {
 	View models.Views
 }
@@ -83,6 +85,7 @@ type Undoable interface {
 	Direction() Directions
 	SetUndo()
 	SetRedo()
+	Description() string
 }
 
 type Undoer struct {
@@ -105,6 +108,10 @@ type Add struct {
 	BranchFile string
 }
 
+func (a *Add) Description() string {
+	return "add"
+}
+
 func (a *Add) CommonAncestor() *node.Node {
 	return a.Parent
 }
@@ -119,6 +126,10 @@ type Delete struct {
 	BranchFile  string
 }
 
+func (a *Delete) Description() string {
+	return "delete"
+}
+
 func (a *Delete) CommonAncestor() *node.Node {
 	return a.Parent
 }
@@ -128,6 +139,10 @@ type Reorder struct {
 	Model  *models.EditorModel
 	Before int
 	After  int
+}
+
+func (a *Reorder) Description() string {
+	return "reorder"
 }
 
 func (a *Reorder) CommonAncestor() *node.Node {
@@ -141,6 +156,10 @@ type Modify struct {
 	Before    interface{}
 	Changed   func() bool
 	Immediate bool
+}
+
+func (a *Modify) Description() string {
+	return "modify"
 }
 
 func (a *Modify) CommonAncestor() *node.Node {

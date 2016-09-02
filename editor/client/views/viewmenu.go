@@ -19,7 +19,10 @@ type ViewMenuView struct {
 func NewViewMenuView(ctx context.Context) *ViewMenuView {
 	v := &ViewMenuView{}
 	v.View = New(ctx, v)
-	v.Watch(nil, stores.ViewChanged)
+	v.Watch(nil,
+		stores.ViewChanged,
+		stores.InfoStateChange,
+	)
 	return v
 }
 
@@ -78,6 +81,27 @@ func (v *ViewMenuView) Render() vecty.Component {
 					}).PreventDefault(),
 					prop.Href("#"),
 					vecty.Text("Package"),
+				),
+			),
+			elem.ListItem(
+				prop.Class("divider"),
+				vecty.Property("role", "separator"),
+			),
+			elem.ListItem(
+				elem.Anchor(
+					prop.Href("#"),
+					event.Click(func(ev *vecty.Event) {
+						v.App.Dispatch(&actions.ToggleInfoState{})
+					}).PreventDefault().StopPropagation(),
+					elem.Italic(
+						vecty.ClassMap{
+							"dropdown-icon":       true,
+							"glyphicon":           true,
+							"glyphicon-check":     v.App.Misc.Info(),
+							"glyphicon-unchecked": !v.App.Misc.Info(),
+						},
+					),
+					vecty.Text("Show info"),
 				),
 			),
 		),

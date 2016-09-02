@@ -51,6 +51,13 @@ func (s *ActionStore) Redo() actions.Undoable {
 	return a
 }
 
+func (s *ActionStore) RedoPeek() actions.Undoable {
+	if s.index >= len(s.actions) {
+		return nil
+	}
+	return s.actions[s.index]
+}
+
 func (s *ActionStore) Undo() actions.Undoable {
 	if s.index <= 0 {
 		return nil
@@ -58,6 +65,13 @@ func (s *ActionStore) Undo() actions.Undoable {
 	a := s.actions[s.index-1]
 	a.SetUndo()
 	return a
+}
+
+func (s *ActionStore) UndoPeek() actions.Undoable {
+	if s.index <= 0 {
+		return nil
+	}
+	return s.actions[s.index-1]
 }
 
 func (s *ActionStore) Handle(payload *flux.Payload) bool {
