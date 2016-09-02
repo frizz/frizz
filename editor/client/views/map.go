@@ -75,7 +75,7 @@ func (v *MapView) Render() vecty.Component {
 						vecty.Property("role", "button"),
 						vecty.Property("aria-haspopup", "true"),
 						vecty.Property("aria-expanded", "false"),
-						vecty.Text("Info"),
+						vecty.Text("Options"),
 						elem.Span(
 							prop.Class("caret"),
 						),

@@ -111,7 +111,22 @@ func addNewFile(ctx context.Context, app *stores.App, all bool) {
 	var types []*system.Type
 	if all {
 		rt := reflect.TypeOf((*system.ObjectInterface)(nil)).Elem()
-		types = system.GetAllTypesThatImplementReflectInterface(ctx, rt)
+		typesAll := system.GetAllTypesThatImplementReflectInterface(ctx, rt)
+
+		// TODO: Work out a more elegant way of doing this!
+		rule := reflect.TypeOf((*system.RuleInterface)(nil)).Elem()
+		for _, t := range typesAll {
+			if t.Id.Package == "kego.io/system" {
+				// none of the system types should be added as a global
+				continue
+			}
+			if t.Implements(ctx, rule) {
+				// rules should never be added as a global
+				continue
+			}
+			types = append(types, t)
+		}
+
 	} else {
 		syscache := sysctx.FromContext(ctx)
 		t, ok := syscache.GetType("kego.io/system", "type")
