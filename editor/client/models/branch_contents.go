@@ -12,18 +12,18 @@ type BranchContentsInterface interface {
 	Label(ctx context.Context) string
 }
 
-type AsyncInterface interface {
-	Loaded() bool
-}
-
 type NodeContentsInterface interface {
 	GetNode() *node.Node
 	GetName() string
 }
 
-type SourceContentsInterface interface {
+type FileContentsInterface interface {
 	NodeContentsInterface
 	GetFilename() string
+}
+
+type AsyncContentsInterface interface {
+	Loaded() bool
 }
 
 type RootContents struct {
@@ -63,23 +63,26 @@ func (c NodeContents) Label(ctx context.Context) string {
 	if c.Name != "" {
 		return c.Name
 	}
-	return c.Node.Label(ctx)
+	if c.Node != nil {
+		return c.Node.Label(ctx)
+	}
+	return ""
 }
 
-type SourceContents struct {
+type FileContents struct {
 	NodeContents
-	Once     sync.Once
 	Filename string
 }
 
-func (c SourceContents) Label(ctx context.Context) string {
-	return c.Name
-}
-
-func (c SourceContents) Loaded() bool {
-	return c.Node != nil
-}
-
-func (c SourceContents) GetFilename() string {
+func (c FileContents) GetFilename() string {
 	return c.Filename
+}
+
+type AsyncContents struct {
+	FileContents
+	Once sync.Once
+}
+
+func (c AsyncContents) Loaded() bool {
+	return c.Node != nil
 }

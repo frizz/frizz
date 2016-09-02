@@ -13,7 +13,6 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
-	"kego.io/json"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -48,7 +47,7 @@ func (v *AddPopupView) Receive(notif flux.NotifPayload) {
 	v.ReconcileBody()
 	if v.model.Visible {
 		js.Global.Call("$", "#add-modal").Call("modal", "show")
-		if v.model.Parent.JsonType == json.J_MAP {
+		if v.model.HasName() {
 			js.Global.Call("$", "#add-modal-name").Call("focus")
 		} else {
 			js.Global.Call("$", "#add-modal-type").Call("focus")
@@ -67,7 +66,7 @@ func (v *AddPopupView) Render() vecty.Component {
 	v.typeSelect = nil
 
 	var nameControl, typeControl vecty.Markup
-	if v.model.Parent.JsonType == json.J_MAP {
+	if v.model.HasName() {
 		v.nameInput = elem.Input(
 			prop.Class("form-control"),
 			prop.ID("add-modal-name"),
@@ -220,13 +219,14 @@ func (v *AddPopupView) save() {
 		t = ty
 	}
 
-	if v.model.Parent.Type.IsNativeMap() {
-		name := v.nameInput.Node().Get("value").String()
-		if name == "" {
+	switch {
+	case v.model.IsMap():
+		key := v.nameInput.Node().Get("value").String()
+		if key == "" {
 			// TODO: show an error
 			return
 		}
-		if _, duplicate := v.model.Parent.Map[name]; duplicate {
+		if _, duplicate := v.model.Parent.Map[key]; duplicate {
 			// TODO: show an error
 			return
 		}
@@ -234,10 +234,10 @@ func (v *AddPopupView) save() {
 			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
 			Parent: v.model.Parent,
-			Key:    name,
+			Key:    key,
 			Type:   t,
 		})
-	} else if v.model.Parent.Type.IsNativeArray() {
+	case v.model.IsArray():
 		v.App.Dispatch(&actions.Add{
 			Undoer: &actions.Undoer{},
 			Node:   node.NewNode(),
@@ -245,13 +245,27 @@ func (v *AddPopupView) save() {
 			Index:  len(v.model.Parent.Array),
 			Type:   t,
 		})
-	} else {
+	case v.model.IsField():
 		v.App.Dispatch(&actions.Add{
 			Undoer: &actions.Undoer{},
 			Parent: v.model.Parent,
 			Node:   v.model.Node,
 			Key:    v.model.Node.Key,
 			Type:   t,
+		})
+	case v.model.IsFile():
+		name := v.nameInput.Node().Get("value").String()
+		if name == "" {
+			// TODO: show an error
+			return
+		}
+		// TODO: show an error if a duplicate file exists
+		v.App.Dispatch(&actions.Add{
+			Undoer:     &actions.Undoer{},
+			Node:       node.NewNode(),
+			Type:       t,
+			BranchName: name,
+			BranchFile: name + ".json", // TODO: choose filename based on package
 		})
 	}
 

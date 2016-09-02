@@ -189,7 +189,7 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 		}
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "type"):
-			if err := ProcessTypeSourceBytes(ctx, env, relativeFile, b.Bytes, cache, hash); err != nil {
+			if err := ProcessTypeFileBytes(ctx, env, relativeFile, b.Bytes, cache, hash); err != nil {
 				return kerr.Wrap("IVEFDDSKHE", err)
 			}
 		case *system.NewReference("kego.io/system", "package"):
@@ -204,7 +204,7 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 	return nil
 }
 
-func ProcessTypeSourceBytes(ctx context.Context, env *envctx.Env, filename string, bytes []byte, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
+func ProcessTypeFileBytes(ctx context.Context, env *envctx.Env, filename string, bytes []byte, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 	var object interface{}
 	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
 	if err != nil {

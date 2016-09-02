@@ -76,7 +76,7 @@ func (v *BranchView) Receive(notif flux.NotifPayload) {
 }
 
 func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wait *flux.Waiter) bool {
-	c, ok := b.Contents.(*models.SourceContents)
+	c, ok := b.Contents.(*models.AsyncContents)
 	if !ok {
 		return false
 	}
@@ -93,7 +93,7 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 		}
 		response := shared.DataResponse{}
 		done := app.Conn.Go(shared.Data, request, &response, app.Fail)
-		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSent{Branch: b}))
+		wait.Add(app.Dispatcher.Dispatch(&actions.LoadFileSent{Branch: b}))
 
 		err := <-done
 
@@ -115,13 +115,13 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 
 		c.Node = n
 
-		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceSuccess{Branch: b}))
+		wait.Add(app.Dispatcher.Dispatch(&actions.LoadFileSuccess{Branch: b}))
 
 		loaded = true
 	})
 
 	if !loaded {
-		wait.Add(app.Dispatcher.Dispatch(&actions.LoadSourceCancelled{Branch: b}))
+		wait.Add(app.Dispatcher.Dispatch(&actions.LoadFileCancelled{Branch: b}))
 	}
 	return loaded
 

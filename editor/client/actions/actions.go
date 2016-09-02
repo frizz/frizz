@@ -45,7 +45,7 @@ type BranchClose struct {
 	Branch *models.BranchModel
 }
 
-type LoadSource struct {
+type LoadFile struct {
 	Contents models.BranchContentsInterface
 	Signal   chan struct{}
 }
@@ -54,16 +54,16 @@ type KeyboardEvent struct {
 	KeyCode int
 }
 
-type LoadSourceSent struct {
+type LoadFileSent struct {
 	Branch *models.BranchModel
 }
-type LoadSourceCancelled struct {
+type LoadFileCancelled struct {
 	Branch *models.BranchModel
 }
-type LoadSourceSuccess struct {
+type LoadFileSuccess struct {
 	Branch *models.BranchModel
 }
-type LoadSourceError struct {
+type LoadFileError struct {
 	Branch *models.BranchModel
 }
 
@@ -95,12 +95,14 @@ func (u *Undoer) SetRedo()              { u.direction = Redo }
 
 type Add struct {
 	*Undoer
-	Node   *node.Node
-	Parent *node.Node
-	Backup *node.Node
-	Key    string
-	Index  int
-	Type   *system.Type
+	Node       *node.Node
+	Parent     *node.Node
+	Backup     *node.Node
+	Key        string
+	Index      int
+	Type       *system.Type
+	BranchName string
+	BranchFile string
 }
 
 func (a *Add) CommonAncestor() *node.Node {
@@ -113,6 +115,8 @@ type Delete struct {
 	Parent      *node.Node
 	Backup      *node.Node
 	BranchIndex int
+	BranchName  string
+	BranchFile  string
 }
 
 func (a *Delete) CommonAncestor() *node.Node {
@@ -154,6 +158,6 @@ type EditorFocus struct {
 	Editor *models.EditorModel
 }
 
-type SaveSourceSuccess struct {
+type SaveFileSuccess struct {
 	Response *shared.SaveResponse
 }

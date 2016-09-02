@@ -565,6 +565,17 @@ func (n *Node) setCorrectTypeField(ctx context.Context) error {
 	return nil
 }
 
+func (n *Node) SetIdField(ctx context.Context, id string) error {
+	idField, ok := n.Map["id"]
+	if !ok {
+		return kerr.New("QVLAEAEWEB", "id field not found")
+	}
+	if err := idField.SetValueString(ctx, id); err != nil {
+		return kerr.Wrap("GYMSSRFPMO", err)
+	}
+	return nil
+}
+
 func (n *Node) setVal(rv reflect.Value) {
 	if n.Parent == nil {
 		n.Val = rv

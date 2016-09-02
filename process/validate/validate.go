@@ -74,7 +74,7 @@ func buildRulesObject(ctx context.Context, n *node.Node, cache map[*node.Node][]
 		return nil
 	}
 
-	if n.Rule.Interface != nil {
+	if n.Rule != nil && n.Rule.Interface != nil {
 		cache[n] = append(cache[n], n.Rule.Interface)
 	}
 

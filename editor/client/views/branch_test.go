@@ -80,17 +80,17 @@ func TestBranchNotifyOpen(t *testing.T) {
 	cb.AssertAppSuccess()
 }
 
-func TestBranchNotifyOpenSource(t *testing.T) {
+func TestBranchNotifyOpenFile(t *testing.T) {
 	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
-	setupForSuccessfulSourceLoad(t, cb)
+	setupForSuccessfulFileLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
 
 	cb.ExpectDispatched(
-		&actions.LoadSourceSent{Branch: b.model},
-		&actions.LoadSourceSuccess{Branch: b.model},
+		&actions.LoadFileSent{Branch: b.model},
+		&actions.LoadFileSuccess{Branch: b.model},
 		&actions.BranchOpened{Branch: b.model, Loaded: true},
 	)
 
@@ -101,17 +101,17 @@ func TestBranchNotifyOpenSource(t *testing.T) {
 
 }
 
-func TestBranchNotifyOpenSourceError(t *testing.T) {
+func TestBranchNotifyOpenFileError(t *testing.T) {
 	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
-	setupForFailedSourceLoad(cb)
+	setupForFailedFileLoad(cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
 
 	cb.ExpectDispatched(
-		&actions.LoadSourceSent{Branch: b.model},
-		&actions.LoadSourceCancelled{Branch: b.model},
+		&actions.LoadFileSent{Branch: b.model},
+		&actions.LoadFileCancelled{Branch: b.model},
 		&actions.BranchOpened{Branch: b.model, Loaded: false},
 	)
 
@@ -143,17 +143,17 @@ func TestBranchNotifySelect(t *testing.T) {
 
 }
 
-func TestBranchNotifySelectSource(t *testing.T) {
+func TestBranchNotifySelectFile(t *testing.T) {
 	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
-	setupForSuccessfulSourceLoad(t, cb)
+	setupForSuccessfulFileLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
 
 	cb.ExpectDispatched(
-		&actions.LoadSourceSent{Branch: b.model},
-		&actions.LoadSourceSuccess{Branch: b.model},
+		&actions.LoadFileSent{Branch: b.model},
+		&actions.LoadFileSuccess{Branch: b.model},
 		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
 
@@ -168,18 +168,18 @@ func TestBranchNotifySelectSource(t *testing.T) {
 
 }
 
-func TestBranchNotifySelectSourceClick(t *testing.T) {
+func TestBranchNotifySelectFileClick(t *testing.T) {
 	cb := ctests.New(t).SetApp(true, false, false)
 	defer cb.Finish()
 
-	setupForSuccessfulSourceLoad(t, cb)
+	setupForSuccessfulFileLoad(t, cb)
 
-	m := models.NewBranchModel(cb.Ctx(), &models.SourceContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"})
+	m := models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"})
 	b := NewBranchView(cb.Ctx(), m)
 
 	cb.ExpectDispatched(
-		&actions.LoadSourceSent{Branch: b.model},
-		&actions.LoadSourceSuccess{Branch: b.model},
+		&actions.LoadFileSent{Branch: b.model},
+		&actions.LoadFileSuccess{Branch: b.model},
 		&actions.BranchOpening{Branch: b.model},
 		&actions.BranchSelected{Branch: b.model, Loaded: true},
 	)
@@ -273,7 +273,7 @@ func equal(t *testing.T, expected, actual *vecty.Element) {
 	}
 }
 
-func setupForFailedSourceLoad(cb *ctests.ClientContextBuilder) {
+func setupForFailedFileLoad(cb *ctests.ClientContextBuilder) {
 
 	// We have to unmarshal the received object, so we'll have to load some types.
 	cb.Base.Path("")
@@ -285,7 +285,7 @@ func setupForFailedSourceLoad(cb *ctests.ClientContextBuilder) {
 
 }
 
-func setupForSuccessfulSourceLoad(t *testing.T, cb *ctests.ClientContextBuilder) {
+func setupForSuccessfulFileLoad(t *testing.T, cb *ctests.ClientContextBuilder) {
 
 	// We have to unmarshal the received object, so we'll have to load some types.
 	cb.Base.Path("").Jauto().Sauto(parser.Parse)

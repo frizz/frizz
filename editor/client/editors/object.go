@@ -6,7 +6,9 @@ import (
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
+	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
@@ -79,7 +81,7 @@ func (v *ObjectEditorView) Render() vecty.Component {
 						vecty.Property("role", "button"),
 						vecty.Property("aria-haspopup", "true"),
 						vecty.Property("aria-expanded", "false"),
-						vecty.Text("Info"),
+						vecty.Text("Options"),
 						elem.Span(
 							prop.Class("caret"),
 						),
@@ -92,50 +94,43 @@ func (v *ObjectEditorView) Render() vecty.Component {
 								vecty.Text("Type: "+dt),
 							),
 						),
-						/*elem.ListItem(
+						elem.ListItem(
+							prop.Class("divider"),
+							vecty.Property("role", "separator"),
+						),
+						elem.ListItem(
+							elem.Anchor(
+								prop.Href("#"),
+								vecty.Text("Description..."),
+							),
+						),
+						elem.ListItem(
 							elem.Anchor(
 								prop.Href("#"),
 								vecty.Text("Tags..."),
 							),
-						),*/
-					),
-				),
-				elem.ListItem(
-					prop.Class("dropdown"),
-					elem.Anchor(
-						prop.Href("#"),
-						prop.Class("dropdown-toggle"),
-						vecty.Data("toggle", "dropdown"),
-						vecty.Property("role", "button"),
-						vecty.Property("aria-haspopup", "true"),
-						vecty.Property("aria-expanded", "false"),
-						vecty.Text("Options"),
-						elem.Span(
-							prop.Class("caret"),
-						),
-					),
-					elem.UnorderedList(
-						prop.Class("dropdown-menu"),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Add description"),
-							),
 						),
 						elem.ListItem(
 							elem.Anchor(
 								prop.Href("#"),
-								vecty.Text("Add tags"),
+								vecty.Text("Rules..."),
 							),
 						),
-						/*elem.ListItem(
+						elem.ListItem(
 							prop.Class("divider"),
 							vecty.Property("role", "separator"),
-						),*/
+						),
 						elem.ListItem(
 							elem.Anchor(
 								prop.Href("#"),
-								vecty.Text("Add rules"),
+								vecty.Text("Delete"),
+								event.Click(func(e *vecty.Event) {
+									v.App.Dispatch(&actions.Delete{
+										Undoer: &actions.Undoer{},
+										Node:   v.model.Node,
+										Parent: v.model.Node.Parent,
+									})
+								}).PreventDefault(),
 							),
 						),
 					),

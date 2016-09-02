@@ -19,13 +19,19 @@ type NodeStore struct {
 	ctx context.Context
 	app *App
 
-	selected *node.Node
-	m        *sync.Mutex
-	models   map[*node.Node]*models.NodeModel
+	m      *sync.Mutex
+	models map[*node.Node]*models.NodeModel
 }
 
 func (s *NodeStore) Selected() *node.Node {
-	return s.selected
+	b := s.app.Branches.Selected()
+	if b == nil {
+		return nil
+	}
+	if nci, ok := b.Contents.(models.NodeContentsInterface); ok {
+		return nci.GetNode()
+	}
+	return nil
 }
 
 func (s *NodeStore) Get(n *node.Node) *models.NodeModel {
@@ -73,12 +79,15 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Actions)
 		switch action.Direction() {
 		case actions.New:
-			if err := mutateAddNode(s.ctx, action.Node, action.Parent, action.Key, action.Index, action.Type); err != nil {
+			if err := mutateAddNode(s.ctx, action.Node, action.Parent, action.Key, action.Index, action.Type, action.BranchName); err != nil {
 				s.app.Fail <- kerr.Wrap("HUOGBUQCAO", err)
 				break
 			}
 			payload.Notify(action.Node, NodeInitialised)
-			payload.Notify(action.Parent, NodeChildAdded)
+			if action.Parent != nil {
+				payload.Notify(action.Parent, NodeChildAdded)
+			}
+			payload.Notify(action.Node, NodeFocus)
 		case actions.Undo:
 			action.Backup = node.NewNode()
 			if err := mutateDeleteNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
@@ -86,7 +95,9 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				break
 			}
 			payload.Notify(action.Node, NodeDeleted)
-			payload.Notify(action.Parent, NodeChildDeleted)
+			if action.Parent != nil {
+				payload.Notify(action.Parent, NodeChildDeleted)
+			}
 		case actions.Redo:
 			if err := mutateRestoreNode(s.ctx, action.Node, action.Parent, action.Backup); err != nil {
 				s.app.Fail <- kerr.Wrap("MHUTMXOGBP", err)
@@ -94,6 +105,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			}
 			payload.Notify(action.Node, NodeInitialised)
 			payload.Notify(action.Parent, NodeChildAdded)
+			payload.Notify(action.Node, NodeFocus)
 		}
 		c := action.Parent
 		for c != nil {
@@ -118,6 +130,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			}
 			payload.Notify(action.Node, NodeInitialised)
 			payload.Notify(action.Parent, NodeChildAdded)
+			payload.Notify(action.Node, NodeFocus)
 		}
 		c := action.Parent
 		for c != nil {
@@ -175,24 +188,6 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			payload.Notify(c, NodeDescendantChanged)
 			c = c.Parent
 		}
-	case *actions.ChangeView:
-		if action.View == models.Package {
-			s.selected = s.app.Branches.Package().Contents.(models.NodeContentsInterface).GetNode()
-		} else {
-			s.selected = nil
-		}
-	case *actions.BranchSelecting:
-		if ni, ok := action.Branch.Contents.(models.NodeContentsInterface); ok {
-			s.selected = ni.GetNode()
-		} else {
-			s.selected = nil
-		}
-	case *actions.BranchSelected:
-		if ni, ok := action.Branch.Contents.(models.NodeContentsInterface); ok {
-			s.selected = ni.GetNode()
-		} else {
-			s.selected = nil
-		}
 	case *actions.EditorFocus:
 		payload.Notify(action.Editor.Node, NodeFocus)
 	case *actions.InitialState:
@@ -206,7 +201,7 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 				s.app.Fail <- kerr.Wrap("YLRDBXIYJH", err)
 			}
 		}
-	case *actions.LoadSourceSuccess:
+	case *actions.LoadFileSuccess:
 		nci, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
 			break
@@ -235,6 +230,9 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 
 func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
 	*b = *n.Backup()
+	if p == nil {
+		return nil
+	}
 	switch p.Type.NativeJsonType() {
 	case json.J_MAP:
 		if err := p.DeleteMapChild(n.Key); err != nil {
@@ -254,6 +252,9 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 
 func mutateRestoreNode(ctx context.Context, n *node.Node, p *node.Node, b *node.Node) error {
 	n.Restore(ctx, b)
+	if p == nil {
+		return nil
+	}
 	switch p.Type.NativeJsonType() {
 	case json.J_MAP:
 		// don't have to call n.InitialiseMapItem because the node is already
@@ -277,16 +278,18 @@ func mutateRestoreNode(ctx context.Context, n *node.Node, p *node.Node, b *node.
 	return nil
 }
 
-func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, index int, t *system.Type) error {
-	switch p.Type.NativeJsonType() {
-	case json.J_ARRAY:
+func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, index int, t *system.Type, name string) error {
+	switch {
+	case p == nil:
+		n.InitialiseRoot()
+	case p.Type.NativeJsonType() == json.J_ARRAY:
 		if err := n.InitialiseArrayItem(ctx, p, index); err != nil {
 			return kerr.Wrap("QLBGMSQENC", err)
 		}
 		if err := n.AddToArray(ctx, p, index, true); err != nil {
 			return kerr.Wrap("PLEJOTCSGH", err)
 		}
-	case json.J_MAP:
+	case p.Type.NativeJsonType() == json.J_MAP:
 		if err := n.InitialiseMapItem(ctx, p, key); err != nil {
 			return kerr.Wrap("KRTGPFYWIH", err)
 		}
@@ -296,6 +299,12 @@ func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, 
 	}
 	if err := n.SetValueZero(ctx, false, t); err != nil {
 		return kerr.Wrap("NLSRNQGLLW", err)
+	}
+	if p == nil {
+		// for root nodes, id field must be set.
+		if err := n.SetIdField(ctx, name); err != nil {
+			return kerr.Wrap("VDPFOWLHIL", err)
+		}
 	}
 	return nil
 }

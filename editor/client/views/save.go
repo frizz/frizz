@@ -66,7 +66,7 @@ func (v *SaveView) Render() vecty.Component {
 						v.App.Fail <- kerr.Wrap("PVLCRRYIUD", err)
 						return
 					}
-					v.App.Dispatcher.Dispatch(&actions.SaveSourceSuccess{Response: response})
+					v.App.Dispatcher.Dispatch(&actions.SaveFileSuccess{Response: response})
 				}()
 
 			}).PreventDefault(),

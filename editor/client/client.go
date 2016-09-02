@@ -35,11 +35,9 @@ import (
 
 func Start() error {
 
-	ws, err := websocket.Dial(
-		fmt.Sprintf(
-			"ws://%s:%s/_rpc",
-			dom.GetWindow().Location().Hostname,
-			dom.GetWindow().Location().Port))
+	loc := dom.GetWindow().Location()
+	addr := fmt.Sprintf("ws://%s:%s/_rpc", loc.Hostname, loc.Port)
+	ws, err := websocket.Dial(addr)
 	if err != nil {
 		return kerr.Wrap("HNQFLPFAJD", err)
 	}
@@ -49,7 +47,7 @@ func Start() error {
 		Fail: make(chan error),
 	}
 
-	// We parse the json info attribute from the body tag
+	// We parse the info attribute from the body tag
 	info, err := getInfo(getRawInfo())
 	if err != nil {
 		return kerr.Wrap("MGLVIQIDDY", err)
@@ -105,7 +103,7 @@ func registerTypes(ctx context.Context, path string, imports map[string]shared.I
 		env := &envctx.Env{Path: info.Path, Aliases: info.Aliases}
 		pcache := scache.SetEnv(env)
 		for _, ti := range info.Types {
-			if err := parser.ProcessTypeSourceBytes(ctx, env, ti.File, ti.Bytes, pcache, nil); err != nil {
+			if err := parser.ProcessTypeFileBytes(ctx, env, ti.File, ti.Bytes, pcache, nil); err != nil {
 				return nil, kerr.Wrap("UJLXYWCVUC", err)
 			}
 		}

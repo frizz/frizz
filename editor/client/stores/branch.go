@@ -11,6 +11,7 @@ import (
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -111,7 +112,6 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	previous := s.selected
 	switch action := payload.Action.(type) {
 	case *actions.ChangeView:
-		payload.Wait(s.app.Nodes)
 		s.view = action.View
 		s.selected = s.Root()
 		payload.Notify(nil, ViewChanged)
@@ -119,10 +119,22 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		payload.Wait(s.app.Nodes)
 		switch action.Direction() {
 		case actions.New, actions.Redo:
-			parent, err := mutateAppendBranch(s, action.Parent, action.Node)
+			child, parent, err := mutateAppendBranch(s, action.Parent, action.Node, action.BranchName, action.BranchFile)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("LDBMBRHWHB", err)
 				break
+			}
+			if child != nil {
+				if ancestor := child.EnsureVisible(); ancestor != nil {
+					payload.NotifyWithData(ancestor, BranchOpened, &BranchDescendantSelectData{
+						Branch: child,
+						Op:     models.BranchOpChildAdded,
+					})
+				}
+				s.selected = child
+				payload.Notify(previous, BranchUnselectControl)
+				payload.Notify(s.selected, BranchSelectControl)
+				payload.Notify(s.selected, BranchSelected)
 			}
 			if parent != nil {
 				payload.Notify(parent, BranchChildAdded)
@@ -135,6 +147,10 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			}
 			if parent != nil {
 				payload.Notify(parent, BranchChildDeleted)
+				s.selected = parent
+				payload.Notify(previous, BranchUnselectControl)
+				payload.Notify(s.selected, BranchSelectControl)
+				payload.Notify(s.selected, BranchSelected)
 			}
 		}
 	case *actions.Delete:
@@ -148,15 +164,37 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 			}
 			if branch != nil {
 				action.BranchIndex = branch.Index
+				if nci, ok := branch.Contents.(models.NodeContentsInterface); ok {
+					action.BranchName = nci.GetName()
+				}
+				if fci, ok := branch.Contents.(models.FileContentsInterface); ok {
+					action.BranchFile = fci.GetFilename()
+				}
 			}
 			if parent != nil {
 				payload.Notify(parent, BranchChildDeleted)
+				s.selected = parent
+				payload.Notify(previous, BranchUnselectControl)
+				payload.Notify(s.selected, BranchSelectControl)
+				payload.Notify(s.selected, BranchSelected)
 			}
 		case actions.Undo:
-			parent, err := mutateInsertBranch(s, action.Parent, action.Node, action.BranchIndex)
+			child, parent, err := mutateInsertBranch(s, action.Parent, action.Node, action.BranchIndex, action.BranchName, action.BranchFile)
 			if err != nil {
 				s.app.Fail <- kerr.Wrap("OOGOEWKPIL", err)
 				break
+			}
+			if child != nil {
+				if ancestor := child.EnsureVisible(); ancestor != nil {
+					payload.NotifyWithData(ancestor, BranchOpened, &BranchDescendantSelectData{
+						Branch: child,
+						Op:     models.BranchOpChildAdded,
+					})
+				}
+				s.selected = child
+				payload.Notify(previous, BranchUnselectControl)
+				payload.Notify(s.selected, BranchSelectControl)
+				payload.Notify(s.selected, BranchSelected)
 			}
 			if parent != nil {
 				payload.Notify(parent, BranchChildAdded)
@@ -235,8 +273,7 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	case *actions.InitialState:
 		payload.Wait(s.app.Package, s.app.Types, s.app.Data, s.app.Env)
 
-		pkgNode := s.app.Package.Node()
-		s.pkg = s.NewNodeBranchModel(s.ctx, pkgNode, "package")
+		s.pkg = s.NewFileBranchModel(s.ctx, s.app.Package.Node(), "package", s.app.Package.Filename())
 		s.pkg.Root = true
 		s.pkg.Open = true
 
@@ -244,7 +281,8 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.types.Root = true
 		s.types.Open = true
 		for _, name := range s.app.Types.Names() {
-			typeBranch := s.NewNodeBranchModel(s.ctx, s.app.Types.Get(name).Node, name)
+			t := s.app.Types.Get(name)
+			typeBranch := s.NewFileBranchModel(s.ctx, t.Node, name, t.File)
 			s.types.Append(typeBranch)
 		}
 
@@ -253,27 +291,18 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 		s.data.Open = true
 
 		for _, name := range s.app.Data.Names() {
-			s.data.Append(models.NewBranchModel(s.ctx, &models.SourceContents{
-				NodeContents: models.NodeContents{
-					Name: name,
+			s.data.Append(models.NewBranchModel(s.ctx, &models.AsyncContents{
+				FileContents: models.FileContents{
+					NodeContents: models.NodeContents{
+						Name: name,
+					},
+					Filename: s.app.Data.Get(name).File,
 				},
-				Filename: s.app.Data.Get(name).File,
 			}))
 		}
-
 		s.selected = s.data
-		//path := s.app.Env.Path()
-		//name := path[strings.LastIndex(path, "/")+1:]
-
-		//s.root = models.NewBranchModel(s.ctx, &models.RootContents{
-		//	Name: name,
-		//})
-		//s.root.Root = true
-		//s.root.Open = true
-
-		//s.root.Append(s.pkg, s.types, s.data)
 		payload.Notify(nil, BranchInitialStateLoaded)
-	case *actions.LoadSourceSuccess:
+	case *actions.LoadFileSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
 			break
@@ -286,43 +315,49 @@ func (s *BranchStore) Handle(payload *flux.Payload) bool {
 	return true
 }
 
-func mutateDeleteBranch(s *BranchStore, n *node.Node) (branch *models.BranchModel, parent *models.BranchModel, err error) {
-	branch, ok := s.nodeBranches[n]
+func mutateDeleteBranch(s *BranchStore, n *node.Node) (child *models.BranchModel, parent *models.BranchModel, err error) {
+	childBranch, ok := s.nodeBranches[n]
 	if !ok {
 		return nil, nil, nil
 	}
 	delete(s.nodeBranches, n)
-	for i, c := range branch.Parent.Children {
-		if c == branch {
-			branch.Parent.DeleteChild(i)
+	for i, c := range childBranch.Parent.Children {
+		if c == childBranch {
+			childBranch.Parent.DeleteChild(i)
 			break
 		}
 	}
-	return branch, branch.Parent, nil
+	return childBranch, childBranch.Parent, nil
 }
 
-func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int) (parent *models.BranchModel, err error) {
+func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int, name string, filename string) (child *models.BranchModel, parent *models.BranchModel, err error) {
 	if p == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 	parentBranch, ok := s.nodeBranches[p]
 	if !ok {
-		return nil, nil
+		return nil, nil, nil
 	}
-	s.InsertNodeBranchModelChild(parentBranch, n, i)
-	return parentBranch, nil
+	childBranch := s.InsertNodeBranchModelChild(parentBranch, n, i, name, filename)
+	return childBranch, parentBranch, nil
 }
 
-func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node) (parent *models.BranchModel, err error) {
+func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node, name string, filename string) (child *models.BranchModel, parent *models.BranchModel, err error) {
+	var parentBranch *models.BranchModel
 	if p == nil {
-		return nil, nil
+		if *n.Type.Id == *system.NewReference("kego.io/system", "type") {
+			parentBranch = s.types
+		} else {
+			parentBranch = s.data
+		}
+	} else {
+		var ok bool
+		if parentBranch, ok = s.nodeBranches[p]; !ok {
+			return nil, nil, nil
+		}
 	}
-	parentBranch, ok := s.nodeBranches[p]
-	if !ok {
-		return nil, nil
-	}
-	s.AppendNodeBranchModelChild(parentBranch, n)
-	return parentBranch, nil
+	childBranch := s.AppendNodeBranchModelChild(parentBranch, n, name, filename)
+	return childBranch, parentBranch, nil
 }
 
 func mutateReorderBranch(s *BranchStore, p *node.Node) (parent *models.BranchModel, err error) {
@@ -340,6 +375,19 @@ func mutateReorderBranch(s *BranchStore, p *node.Node) (parent *models.BranchMod
 	return parentBranch, nil
 }
 
+func (s *BranchStore) NewFileBranchModel(ctx context.Context, n *node.Node, name string, filename string) *models.BranchModel {
+	b := models.NewBranchModel(ctx, &models.FileContents{
+		NodeContents: models.NodeContents{
+			Node: n,
+			Name: name,
+		},
+		Filename: filename,
+	})
+	s.AppendNodeBranchModelChildren(b, n)
+	s.nodeBranches[n] = b
+	return b
+}
+
 func (s *BranchStore) NewNodeBranchModel(ctx context.Context, n *node.Node, name string) *models.BranchModel {
 	b := models.NewBranchModel(ctx, &models.NodeContents{
 		Node: n,
@@ -352,23 +400,31 @@ func (s *BranchStore) NewNodeBranchModel(ctx context.Context, n *node.Node, name
 
 func (s *BranchStore) AppendNodeBranchModelChildren(b *models.BranchModel, n *node.Node) {
 	for _, c := range n.Array {
-		s.AppendNodeBranchModelChild(b, c)
+		s.AppendNodeBranchModelChild(b, c, "", "")
 	}
 	for _, c := range n.Map {
-		s.AppendNodeBranchModelChild(b, c)
+		s.AppendNodeBranchModelChild(b, c, "", "")
 	}
 }
 
-func (s *BranchStore) InsertNodeBranchModelChild(b *models.BranchModel, n *node.Node, index int) {
+func (s *BranchStore) InsertNodeBranchModelChild(b *models.BranchModel, n *node.Node, index int, name string, filename string) *models.BranchModel {
 	if n.Missing || n.Null {
-		return
+		return nil
 	}
 	e := models.GetEditable(s.ctx, n)
 	if e == nil || e.Format(n.Rule) == editable.Branch {
-		b.Insert(index, s.NewNodeBranchModel(s.ctx, n, ""))
+		var child *models.BranchModel
+		if filename == "" {
+			child = s.NewNodeBranchModel(s.ctx, n, name)
+		} else {
+			child = s.NewFileBranchModel(s.ctx, n, name, filename)
+		}
+		b.Insert(index, child)
+		return child
 	}
+	return nil
 }
 
-func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node) {
-	s.InsertNodeBranchModelChild(b, n, len(b.Children))
+func (s *BranchStore) AppendNodeBranchModelChild(b *models.BranchModel, n *node.Node, name string, filename string) *models.BranchModel {
+	return s.InsertNodeBranchModelChild(b, n, len(b.Children), name, filename)
 }

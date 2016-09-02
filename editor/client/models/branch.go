@@ -25,10 +25,11 @@ const (
 	BranchOpClickEditorLink BranchOps = "BranchOpClickEditorLink"
 	BranchOpClickBreadcrumb BranchOps = "BranchOpClickBreadcrumb"
 	BranchOpClickToggle     BranchOps = "BranchOpClickToggle"
+	BranchOpChildAdded      BranchOps = "BranchOpAddNewNode"
 )
 
 func (b *BranchModel) CanOpen() bool {
-	if async, ok := b.Contents.(AsyncInterface); ok && !async.Loaded() {
+	if async, ok := b.Contents.(AsyncContentsInterface); ok && !async.Loaded() {
 		return true
 	}
 	if len(b.Children) == 0 {
@@ -50,7 +51,7 @@ func (b *BranchModel) Icon() string {
 	if !b.CanOpen() {
 		return "empty"
 	}
-	if async, ok := b.Contents.(AsyncInterface); ok && !async.Loaded() {
+	if async, ok := b.Contents.(AsyncContentsInterface); ok && !async.Loaded() {
 		return "unknown"
 	}
 	if b.Open {
@@ -102,8 +103,8 @@ func (b *BranchModel) IsVisible() bool {
 	return true
 }
 
-// EnsureVisible ensures that all ancestors are open. If any are open, we return the oldest closed
-// ancestor. If all are open we return nil.
+// EnsureVisible ensures that all ancestors are open. If any are open, we return
+// the oldest closed ancestor. If all are open we return nil.
 func (b *BranchModel) EnsureVisible() *BranchModel {
 	current := b.Parent
 	var closed *BranchModel

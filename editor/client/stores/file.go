@@ -7,6 +7,7 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -61,7 +62,29 @@ func (s *FileStore) Changed() bool {
 
 func (s *FileStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
-	case *actions.SaveSourceSuccess:
+	case *actions.Add:
+		payload.Wait(s.app.Nodes)
+		if action.Parent != nil {
+			// only root nodes are files
+			break
+		}
+		switch action.Direction() {
+		case actions.New, actions.Redo:
+			n := action.Node
+			n.RecomputeHash(s.ctx, true)
+			fm := &models.FileModel{
+				Package:  false,
+				Type:     *action.Type.Id == *system.NewReference("kego.io/system", "type"),
+				Filename: action.BranchFile,
+				Node:     n,
+				Hash:     n.Hash(),
+			}
+			s.files[n] = fm
+		case actions.Undo:
+			delete(s.files, action.Node)
+		}
+		payload.Notify(nil, FileChangedStateChange)
+	case *actions.SaveFileSuccess:
 		for _, file := range action.Response.Files {
 			f := s.fileByName(file.File)
 			if f == nil {
@@ -95,8 +118,8 @@ func (s *FileStore) Handle(payload *flux.Payload) bool {
 			}
 			s.files[n] = fm
 		}
-	case *actions.LoadSourceSuccess:
-		sci, ok := action.Branch.Contents.(models.SourceContentsInterface)
+	case *actions.LoadFileSuccess:
+		sci, ok := action.Branch.Contents.(models.FileContentsInterface)
 		if !ok {
 			break
 		}

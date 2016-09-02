@@ -5,12 +5,12 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"strings"
 	"os"
+	"time"
+	"io/ioutil"
 	"path"
 	"path/filepath"
-	"strings"
-	"time"
 )
 
 func bindata_read(data []byte, name string) ([]byte, error) {
@@ -36,9 +36,9 @@ type asset struct {
 }
 
 type bindata_file_info struct {
-	name    string
-	size    int64
-	mode    os.FileMode
+	name string
+	size int64
+	mode os.FileMode
 	modTime time.Time
 }
 
@@ -77,7 +77,7 @@ func bootstrap_css_bootstrap_theme_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap-theme.css", size: 26132, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -97,7 +97,7 @@ func bootstrap_css_bootstrap_theme_css_map() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap-theme.css.map", size: 47706, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -117,7 +117,7 @@ func bootstrap_css_bootstrap_theme_min_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap-theme.min.css", size: 23409, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -137,7 +137,7 @@ func bootstrap_css_bootstrap_theme_min_css_map() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap-theme.min.css.map", size: 5532, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -157,7 +157,7 @@ func bootstrap_css_bootstrap_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap.css", size: 146082, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -177,7 +177,7 @@ func bootstrap_css_bootstrap_css_map() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap.css.map", size: 389227, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -197,7 +197,7 @@ func bootstrap_css_bootstrap_min_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap.min.css", size: 121260, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -217,7 +217,7 @@ func bootstrap_css_bootstrap_min_css_map() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/css/bootstrap.min.css.map", size: 54416, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -237,7 +237,7 @@ func bootstrap_fonts_glyphicons_halflings_regular_eot() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/fonts/glyphicons-halflings-regular.eot", size: 20127, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -257,7 +257,7 @@ func bootstrap_fonts_glyphicons_halflings_regular_svg() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/fonts/glyphicons-halflings-regular.svg", size: 108738, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -277,7 +277,7 @@ func bootstrap_fonts_glyphicons_halflings_regular_ttf() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/fonts/glyphicons-halflings-regular.ttf", size: 45404, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -297,7 +297,7 @@ func bootstrap_fonts_glyphicons_halflings_regular_woff() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/fonts/glyphicons-halflings-regular.woff", size: 23424, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -317,7 +317,7 @@ func bootstrap_fonts_glyphicons_halflings_regular_woff2() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/fonts/glyphicons-halflings-regular.woff2", size: 18028, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -337,7 +337,7 @@ func bootstrap_js_bootstrap_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/js/bootstrap.js", size: 68954, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -357,7 +357,7 @@ func bootstrap_js_bootstrap_min_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/js/bootstrap.min.js", size: 36868, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -377,7 +377,7 @@ func bootstrap_js_npm_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "bootstrap/js/npm.js", size: 484, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -397,7 +397,7 @@ func editors_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "editors.css", size: 742, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -417,7 +417,7 @@ func horizontal_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "horizontal.png", size: 2753, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -437,7 +437,7 @@ func jquery_2_2_4_min_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-2.2.4.min.js", size: 85578, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -457,7 +457,7 @@ func jquery_ui_external_jquery_jquery_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/external/jquery/jquery.js", size: 273199, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -477,7 +477,7 @@ func jquery_ui_images_ui_icons_444444_256x240_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/images/ui-icons_444444_256x240.png", size: 6992, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -497,7 +497,7 @@ func jquery_ui_images_ui_icons_555555_256x240_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/images/ui-icons_555555_256x240.png", size: 6988, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -517,7 +517,7 @@ func jquery_ui_images_ui_icons_777620_256x240_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/images/ui-icons_777620_256x240.png", size: 4549, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -537,7 +537,7 @@ func jquery_ui_images_ui_icons_777777_256x240_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/images/ui-icons_777777_256x240.png", size: 6999, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -557,7 +557,7 @@ func jquery_ui_images_ui_icons_cc0000_256x240_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/images/ui-icons_cc0000_256x240.png", size: 4549, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -577,7 +577,7 @@ func jquery_ui_images_ui_icons_ffffff_256x240_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/images/ui-icons_ffffff_256x240.png", size: 6299, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -597,7 +597,7 @@ func jquery_ui_index_html() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/index.html", size: 24248, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -617,7 +617,7 @@ func jquery_ui_jquery_ui_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.css", size: 19076, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -637,7 +637,7 @@ func jquery_ui_jquery_ui_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.js", size: 168857, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -657,7 +657,7 @@ func jquery_ui_jquery_ui_min_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.min.css", size: 16346, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -677,7 +677,7 @@ func jquery_ui_jquery_ui_min_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.min.js", size: 90613, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -697,7 +697,7 @@ func jquery_ui_jquery_ui_structure_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.structure.css", size: 2797, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -717,7 +717,7 @@ func jquery_ui_jquery_ui_structure_min_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.structure.min.css", size: 2001, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -737,7 +737,7 @@ func jquery_ui_jquery_ui_theme_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.theme.css", size: 16531, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -757,7 +757,7 @@ func jquery_ui_jquery_ui_theme_min_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "jquery-ui/jquery-ui.theme.min.css", size: 13217, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -777,7 +777,7 @@ func logo_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "logo.png", size: 8181, mode: os.FileMode(384), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -797,7 +797,7 @@ func split_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "split.css", size: 880, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -817,7 +817,7 @@ func split_min_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "split.min.js", size: 4778, mode: os.FileMode(493), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -837,7 +837,7 @@ func tree_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "tree.css", size: 3794, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -857,7 +857,7 @@ func vertical_png() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "vertical.png", size: 91, mode: os.FileMode(420), modTime: time.Unix(1111111111, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -880,7 +880,7 @@ func Asset(name string) ([]byte, error) {
 // It simplifies safe initialization of global variables.
 func MustAsset(name string) []byte {
 	a, err := Asset(name)
-	if err != nil {
+	if (err != nil) {
 		panic("asset: Asset(" + name + "): " + err.Error())
 	}
 
@@ -913,46 +913,46 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"bootstrap/css/bootstrap-theme.css":                  bootstrap_css_bootstrap_theme_css,
-	"bootstrap/css/bootstrap-theme.css.map":              bootstrap_css_bootstrap_theme_css_map,
-	"bootstrap/css/bootstrap-theme.min.css":              bootstrap_css_bootstrap_theme_min_css,
-	"bootstrap/css/bootstrap-theme.min.css.map":          bootstrap_css_bootstrap_theme_min_css_map,
-	"bootstrap/css/bootstrap.css":                        bootstrap_css_bootstrap_css,
-	"bootstrap/css/bootstrap.css.map":                    bootstrap_css_bootstrap_css_map,
-	"bootstrap/css/bootstrap.min.css":                    bootstrap_css_bootstrap_min_css,
-	"bootstrap/css/bootstrap.min.css.map":                bootstrap_css_bootstrap_min_css_map,
-	"bootstrap/fonts/glyphicons-halflings-regular.eot":   bootstrap_fonts_glyphicons_halflings_regular_eot,
-	"bootstrap/fonts/glyphicons-halflings-regular.svg":   bootstrap_fonts_glyphicons_halflings_regular_svg,
-	"bootstrap/fonts/glyphicons-halflings-regular.ttf":   bootstrap_fonts_glyphicons_halflings_regular_ttf,
-	"bootstrap/fonts/glyphicons-halflings-regular.woff":  bootstrap_fonts_glyphicons_halflings_regular_woff,
+	"bootstrap/css/bootstrap-theme.css": bootstrap_css_bootstrap_theme_css,
+	"bootstrap/css/bootstrap-theme.css.map": bootstrap_css_bootstrap_theme_css_map,
+	"bootstrap/css/bootstrap-theme.min.css": bootstrap_css_bootstrap_theme_min_css,
+	"bootstrap/css/bootstrap-theme.min.css.map": bootstrap_css_bootstrap_theme_min_css_map,
+	"bootstrap/css/bootstrap.css": bootstrap_css_bootstrap_css,
+	"bootstrap/css/bootstrap.css.map": bootstrap_css_bootstrap_css_map,
+	"bootstrap/css/bootstrap.min.css": bootstrap_css_bootstrap_min_css,
+	"bootstrap/css/bootstrap.min.css.map": bootstrap_css_bootstrap_min_css_map,
+	"bootstrap/fonts/glyphicons-halflings-regular.eot": bootstrap_fonts_glyphicons_halflings_regular_eot,
+	"bootstrap/fonts/glyphicons-halflings-regular.svg": bootstrap_fonts_glyphicons_halflings_regular_svg,
+	"bootstrap/fonts/glyphicons-halflings-regular.ttf": bootstrap_fonts_glyphicons_halflings_regular_ttf,
+	"bootstrap/fonts/glyphicons-halflings-regular.woff": bootstrap_fonts_glyphicons_halflings_regular_woff,
 	"bootstrap/fonts/glyphicons-halflings-regular.woff2": bootstrap_fonts_glyphicons_halflings_regular_woff2,
-	"bootstrap/js/bootstrap.js":                          bootstrap_js_bootstrap_js,
-	"bootstrap/js/bootstrap.min.js":                      bootstrap_js_bootstrap_min_js,
-	"bootstrap/js/npm.js":                                bootstrap_js_npm_js,
-	"editors.css":                                        editors_css,
-	"horizontal.png":                                     horizontal_png,
-	"jquery-2.2.4.min.js":                                jquery_2_2_4_min_js,
-	"jquery-ui/external/jquery/jquery.js":                jquery_ui_external_jquery_jquery_js,
-	"jquery-ui/images/ui-icons_444444_256x240.png":       jquery_ui_images_ui_icons_444444_256x240_png,
-	"jquery-ui/images/ui-icons_555555_256x240.png":       jquery_ui_images_ui_icons_555555_256x240_png,
-	"jquery-ui/images/ui-icons_777620_256x240.png":       jquery_ui_images_ui_icons_777620_256x240_png,
-	"jquery-ui/images/ui-icons_777777_256x240.png":       jquery_ui_images_ui_icons_777777_256x240_png,
-	"jquery-ui/images/ui-icons_cc0000_256x240.png":       jquery_ui_images_ui_icons_cc0000_256x240_png,
-	"jquery-ui/images/ui-icons_ffffff_256x240.png":       jquery_ui_images_ui_icons_ffffff_256x240_png,
-	"jquery-ui/index.html":                               jquery_ui_index_html,
-	"jquery-ui/jquery-ui.css":                            jquery_ui_jquery_ui_css,
-	"jquery-ui/jquery-ui.js":                             jquery_ui_jquery_ui_js,
-	"jquery-ui/jquery-ui.min.css":                        jquery_ui_jquery_ui_min_css,
-	"jquery-ui/jquery-ui.min.js":                         jquery_ui_jquery_ui_min_js,
-	"jquery-ui/jquery-ui.structure.css":                  jquery_ui_jquery_ui_structure_css,
-	"jquery-ui/jquery-ui.structure.min.css":              jquery_ui_jquery_ui_structure_min_css,
-	"jquery-ui/jquery-ui.theme.css":                      jquery_ui_jquery_ui_theme_css,
-	"jquery-ui/jquery-ui.theme.min.css":                  jquery_ui_jquery_ui_theme_min_css,
-	"logo.png":                                           logo_png,
-	"split.css":                                          split_css,
-	"split.min.js":                                       split_min_js,
-	"tree.css":                                           tree_css,
-	"vertical.png":                                       vertical_png,
+	"bootstrap/js/bootstrap.js": bootstrap_js_bootstrap_js,
+	"bootstrap/js/bootstrap.min.js": bootstrap_js_bootstrap_min_js,
+	"bootstrap/js/npm.js": bootstrap_js_npm_js,
+	"editors.css": editors_css,
+	"horizontal.png": horizontal_png,
+	"jquery-2.2.4.min.js": jquery_2_2_4_min_js,
+	"jquery-ui/external/jquery/jquery.js": jquery_ui_external_jquery_jquery_js,
+	"jquery-ui/images/ui-icons_444444_256x240.png": jquery_ui_images_ui_icons_444444_256x240_png,
+	"jquery-ui/images/ui-icons_555555_256x240.png": jquery_ui_images_ui_icons_555555_256x240_png,
+	"jquery-ui/images/ui-icons_777620_256x240.png": jquery_ui_images_ui_icons_777620_256x240_png,
+	"jquery-ui/images/ui-icons_777777_256x240.png": jquery_ui_images_ui_icons_777777_256x240_png,
+	"jquery-ui/images/ui-icons_cc0000_256x240.png": jquery_ui_images_ui_icons_cc0000_256x240_png,
+	"jquery-ui/images/ui-icons_ffffff_256x240.png": jquery_ui_images_ui_icons_ffffff_256x240_png,
+	"jquery-ui/index.html": jquery_ui_index_html,
+	"jquery-ui/jquery-ui.css": jquery_ui_jquery_ui_css,
+	"jquery-ui/jquery-ui.js": jquery_ui_jquery_ui_js,
+	"jquery-ui/jquery-ui.min.css": jquery_ui_jquery_ui_min_css,
+	"jquery-ui/jquery-ui.min.js": jquery_ui_jquery_ui_min_js,
+	"jquery-ui/jquery-ui.structure.css": jquery_ui_jquery_ui_structure_css,
+	"jquery-ui/jquery-ui.structure.min.css": jquery_ui_jquery_ui_structure_min_css,
+	"jquery-ui/jquery-ui.theme.css": jquery_ui_jquery_ui_theme_css,
+	"jquery-ui/jquery-ui.theme.min.css": jquery_ui_jquery_ui_theme_min_css,
+	"logo.png": logo_png,
+	"split.css": split_css,
+	"split.min.js": split_min_js,
+	"tree.css": tree_css,
+	"vertical.png": vertical_png,
 }
 
 // AssetDir returns the file names below a certain
@@ -991,111 +991,151 @@ func AssetDir(name string) ([]string, error) {
 }
 
 type _bintree_t struct {
-	Func     func() (*asset, error)
+	Func func() (*asset, error)
 	Children map[string]*_bintree_t
 }
-
 var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"bootstrap": &_bintree_t{nil, map[string]*_bintree_t{
 		"css": &_bintree_t{nil, map[string]*_bintree_t{
-			"bootstrap-theme.css":         &_bintree_t{bootstrap_css_bootstrap_theme_css, map[string]*_bintree_t{}},
-			"bootstrap-theme.css.map":     &_bintree_t{bootstrap_css_bootstrap_theme_css_map, map[string]*_bintree_t{}},
-			"bootstrap-theme.min.css":     &_bintree_t{bootstrap_css_bootstrap_theme_min_css, map[string]*_bintree_t{}},
-			"bootstrap-theme.min.css.map": &_bintree_t{bootstrap_css_bootstrap_theme_min_css_map, map[string]*_bintree_t{}},
-			"bootstrap.css":               &_bintree_t{bootstrap_css_bootstrap_css, map[string]*_bintree_t{}},
-			"bootstrap.css.map":           &_bintree_t{bootstrap_css_bootstrap_css_map, map[string]*_bintree_t{}},
-			"bootstrap.min.css":           &_bintree_t{bootstrap_css_bootstrap_min_css, map[string]*_bintree_t{}},
-			"bootstrap.min.css.map":       &_bintree_t{bootstrap_css_bootstrap_min_css_map, map[string]*_bintree_t{}},
+			"bootstrap-theme.css": &_bintree_t{bootstrap_css_bootstrap_theme_css, map[string]*_bintree_t{
+			}},
+			"bootstrap-theme.css.map": &_bintree_t{bootstrap_css_bootstrap_theme_css_map, map[string]*_bintree_t{
+			}},
+			"bootstrap-theme.min.css": &_bintree_t{bootstrap_css_bootstrap_theme_min_css, map[string]*_bintree_t{
+			}},
+			"bootstrap-theme.min.css.map": &_bintree_t{bootstrap_css_bootstrap_theme_min_css_map, map[string]*_bintree_t{
+			}},
+			"bootstrap.css": &_bintree_t{bootstrap_css_bootstrap_css, map[string]*_bintree_t{
+			}},
+			"bootstrap.css.map": &_bintree_t{bootstrap_css_bootstrap_css_map, map[string]*_bintree_t{
+			}},
+			"bootstrap.min.css": &_bintree_t{bootstrap_css_bootstrap_min_css, map[string]*_bintree_t{
+			}},
+			"bootstrap.min.css.map": &_bintree_t{bootstrap_css_bootstrap_min_css_map, map[string]*_bintree_t{
+			}},
 		}},
 		"fonts": &_bintree_t{nil, map[string]*_bintree_t{
-			"glyphicons-halflings-regular.eot":   &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_eot, map[string]*_bintree_t{}},
-			"glyphicons-halflings-regular.svg":   &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_svg, map[string]*_bintree_t{}},
-			"glyphicons-halflings-regular.ttf":   &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_ttf, map[string]*_bintree_t{}},
-			"glyphicons-halflings-regular.woff":  &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_woff, map[string]*_bintree_t{}},
-			"glyphicons-halflings-regular.woff2": &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_woff2, map[string]*_bintree_t{}},
+			"glyphicons-halflings-regular.eot": &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_eot, map[string]*_bintree_t{
+			}},
+			"glyphicons-halflings-regular.svg": &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_svg, map[string]*_bintree_t{
+			}},
+			"glyphicons-halflings-regular.ttf": &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_ttf, map[string]*_bintree_t{
+			}},
+			"glyphicons-halflings-regular.woff": &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_woff, map[string]*_bintree_t{
+			}},
+			"glyphicons-halflings-regular.woff2": &_bintree_t{bootstrap_fonts_glyphicons_halflings_regular_woff2, map[string]*_bintree_t{
+			}},
 		}},
 		"js": &_bintree_t{nil, map[string]*_bintree_t{
-			"bootstrap.js":     &_bintree_t{bootstrap_js_bootstrap_js, map[string]*_bintree_t{}},
-			"bootstrap.min.js": &_bintree_t{bootstrap_js_bootstrap_min_js, map[string]*_bintree_t{}},
-			"npm.js":           &_bintree_t{bootstrap_js_npm_js, map[string]*_bintree_t{}},
+			"bootstrap.js": &_bintree_t{bootstrap_js_bootstrap_js, map[string]*_bintree_t{
+			}},
+			"bootstrap.min.js": &_bintree_t{bootstrap_js_bootstrap_min_js, map[string]*_bintree_t{
+			}},
+			"npm.js": &_bintree_t{bootstrap_js_npm_js, map[string]*_bintree_t{
+			}},
 		}},
 	}},
-	"editors.css":         &_bintree_t{editors_css, map[string]*_bintree_t{}},
-	"horizontal.png":      &_bintree_t{horizontal_png, map[string]*_bintree_t{}},
-	"jquery-2.2.4.min.js": &_bintree_t{jquery_2_2_4_min_js, map[string]*_bintree_t{}},
+	"editors.css": &_bintree_t{editors_css, map[string]*_bintree_t{
+	}},
+	"horizontal.png": &_bintree_t{horizontal_png, map[string]*_bintree_t{
+	}},
+	"jquery-2.2.4.min.js": &_bintree_t{jquery_2_2_4_min_js, map[string]*_bintree_t{
+	}},
 	"jquery-ui": &_bintree_t{nil, map[string]*_bintree_t{
 		"external": &_bintree_t{nil, map[string]*_bintree_t{
 			"jquery": &_bintree_t{nil, map[string]*_bintree_t{
-				"jquery.js": &_bintree_t{jquery_ui_external_jquery_jquery_js, map[string]*_bintree_t{}},
+				"jquery.js": &_bintree_t{jquery_ui_external_jquery_jquery_js, map[string]*_bintree_t{
+				}},
 			}},
 		}},
 		"images": &_bintree_t{nil, map[string]*_bintree_t{
-			"ui-icons_444444_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_444444_256x240_png, map[string]*_bintree_t{}},
-			"ui-icons_555555_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_555555_256x240_png, map[string]*_bintree_t{}},
-			"ui-icons_777620_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_777620_256x240_png, map[string]*_bintree_t{}},
-			"ui-icons_777777_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_777777_256x240_png, map[string]*_bintree_t{}},
-			"ui-icons_cc0000_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_cc0000_256x240_png, map[string]*_bintree_t{}},
-			"ui-icons_ffffff_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_ffffff_256x240_png, map[string]*_bintree_t{}},
+			"ui-icons_444444_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_444444_256x240_png, map[string]*_bintree_t{
+			}},
+			"ui-icons_555555_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_555555_256x240_png, map[string]*_bintree_t{
+			}},
+			"ui-icons_777620_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_777620_256x240_png, map[string]*_bintree_t{
+			}},
+			"ui-icons_777777_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_777777_256x240_png, map[string]*_bintree_t{
+			}},
+			"ui-icons_cc0000_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_cc0000_256x240_png, map[string]*_bintree_t{
+			}},
+			"ui-icons_ffffff_256x240.png": &_bintree_t{jquery_ui_images_ui_icons_ffffff_256x240_png, map[string]*_bintree_t{
+			}},
 		}},
-		"index.html":                  &_bintree_t{jquery_ui_index_html, map[string]*_bintree_t{}},
-		"jquery-ui.css":               &_bintree_t{jquery_ui_jquery_ui_css, map[string]*_bintree_t{}},
-		"jquery-ui.js":                &_bintree_t{jquery_ui_jquery_ui_js, map[string]*_bintree_t{}},
-		"jquery-ui.min.css":           &_bintree_t{jquery_ui_jquery_ui_min_css, map[string]*_bintree_t{}},
-		"jquery-ui.min.js":            &_bintree_t{jquery_ui_jquery_ui_min_js, map[string]*_bintree_t{}},
-		"jquery-ui.structure.css":     &_bintree_t{jquery_ui_jquery_ui_structure_css, map[string]*_bintree_t{}},
-		"jquery-ui.structure.min.css": &_bintree_t{jquery_ui_jquery_ui_structure_min_css, map[string]*_bintree_t{}},
-		"jquery-ui.theme.css":         &_bintree_t{jquery_ui_jquery_ui_theme_css, map[string]*_bintree_t{}},
-		"jquery-ui.theme.min.css":     &_bintree_t{jquery_ui_jquery_ui_theme_min_css, map[string]*_bintree_t{}},
+		"index.html": &_bintree_t{jquery_ui_index_html, map[string]*_bintree_t{
+		}},
+		"jquery-ui.css": &_bintree_t{jquery_ui_jquery_ui_css, map[string]*_bintree_t{
+		}},
+		"jquery-ui.js": &_bintree_t{jquery_ui_jquery_ui_js, map[string]*_bintree_t{
+		}},
+		"jquery-ui.min.css": &_bintree_t{jquery_ui_jquery_ui_min_css, map[string]*_bintree_t{
+		}},
+		"jquery-ui.min.js": &_bintree_t{jquery_ui_jquery_ui_min_js, map[string]*_bintree_t{
+		}},
+		"jquery-ui.structure.css": &_bintree_t{jquery_ui_jquery_ui_structure_css, map[string]*_bintree_t{
+		}},
+		"jquery-ui.structure.min.css": &_bintree_t{jquery_ui_jquery_ui_structure_min_css, map[string]*_bintree_t{
+		}},
+		"jquery-ui.theme.css": &_bintree_t{jquery_ui_jquery_ui_theme_css, map[string]*_bintree_t{
+		}},
+		"jquery-ui.theme.min.css": &_bintree_t{jquery_ui_jquery_ui_theme_min_css, map[string]*_bintree_t{
+		}},
 	}},
-	"logo.png":     &_bintree_t{logo_png, map[string]*_bintree_t{}},
-	"split.css":    &_bintree_t{split_css, map[string]*_bintree_t{}},
-	"split.min.js": &_bintree_t{split_min_js, map[string]*_bintree_t{}},
-	"tree.css":     &_bintree_t{tree_css, map[string]*_bintree_t{}},
-	"vertical.png": &_bintree_t{vertical_png, map[string]*_bintree_t{}},
+	"logo.png": &_bintree_t{logo_png, map[string]*_bintree_t{
+	}},
+	"split.css": &_bintree_t{split_css, map[string]*_bintree_t{
+	}},
+	"split.min.js": &_bintree_t{split_min_js, map[string]*_bintree_t{
+	}},
+	"tree.css": &_bintree_t{tree_css, map[string]*_bintree_t{
+	}},
+	"vertical.png": &_bintree_t{vertical_png, map[string]*_bintree_t{
+	}},
 }}
 
 // Restore an asset under the given directory
 func RestoreAsset(dir, name string) error {
-	data, err := Asset(name)
-	if err != nil {
-		return err
-	}
-	info, err := AssetInfo(name)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(_filePath(dir, path.Dir(name)), os.FileMode(0755))
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
-	if err != nil {
-		return err
-	}
-	err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
-	if err != nil {
-		return err
-	}
-	return nil
+        data, err := Asset(name)
+        if err != nil {
+                return err
+        }
+        info, err := AssetInfo(name)
+        if err != nil {
+                return err
+        }
+        err = os.MkdirAll(_filePath(dir, path.Dir(name)), os.FileMode(0755))
+        if err != nil {
+                return err
+        }
+        err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
+        if err != nil {
+                return err
+        }
+        err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
+        if err != nil {
+                return err
+        }
+        return nil
 }
 
 // Restore assets under the given directory recursively
 func RestoreAssets(dir, name string) error {
-	children, err := AssetDir(name)
-	if err != nil { // File
-		return RestoreAsset(dir, name)
-	} else { // Dir
-		for _, child := range children {
-			err = RestoreAssets(dir, path.Join(name, child))
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+        children, err := AssetDir(name)
+        if err != nil { // File
+                return RestoreAsset(dir, name)
+        } else { // Dir
+                for _, child := range children {
+                        err = RestoreAssets(dir, path.Join(name, child))
+                        if err != nil {
+                                return err
+                        }
+                }
+        }
+        return nil
 }
 
 func _filePath(dir, name string) string {
-	cannonicalName := strings.Replace(name, "\\", "/", -1)
-	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
+        cannonicalName := strings.Replace(name, "\\", "/", -1)
+        return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
+

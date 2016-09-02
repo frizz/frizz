@@ -68,7 +68,7 @@ func (s *EditorStore) Handle(payload *flux.Payload) bool {
 		for _, ti := range s.app.Types.All() {
 			s.AddEditorsRecursively(ti.Node)
 		}
-	case *actions.LoadSourceSuccess:
+	case *actions.LoadFileSuccess:
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {
 			break
@@ -100,7 +100,7 @@ func mutateAddEditor(s *EditorStore, n *node.Node, p *node.Node) {
 }
 
 func mutateDeleteEditor(s *EditorStore, n *node.Node, p *node.Node) {
-	if e, ok := s.editors[n]; ok && p.Type.IsNativeCollection() {
+	if e, ok := s.editors[n]; ok && p != nil && p.Type.IsNativeCollection() {
 		e.Deleted = true
 	}
 }

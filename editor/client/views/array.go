@@ -8,6 +8,7 @@ import (
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/event"
 	"github.com/davelondon/vecty/prop"
+	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/system/node"
 )
@@ -57,6 +58,15 @@ func (v *ArrayView) Render() vecty.Component {
 			elem.UnorderedList(
 				prop.Class("nav navbar-nav navbar-right"),
 				elem.ListItem(
+					elem.Anchor(
+						vecty.Text("Add"),
+						prop.Href("#"),
+						event.Click(func(ev *vecty.Event) {
+							addCollectionItem(v.App, v.model.Node)
+						}).PreventDefault(),
+					),
+				),
+				elem.ListItem(
 					prop.Class("dropdown"),
 					elem.Anchor(
 						prop.Href("#"),
@@ -65,7 +75,7 @@ func (v *ArrayView) Render() vecty.Component {
 						vecty.Property("role", "button"),
 						vecty.Property("aria-haspopup", "true"),
 						vecty.Property("aria-expanded", "false"),
-						vecty.Text("Info"),
+						vecty.Text("Options"),
 						elem.Span(
 							prop.Class("caret"),
 						),
@@ -84,15 +94,23 @@ func (v *ArrayView) Render() vecty.Component {
 								vecty.Text("Items: "+dt),
 							),
 						),
-					),
-				),
-				elem.ListItem(
-					elem.Anchor(
-						vecty.Text("Add"),
-						prop.Href("#"),
-						event.Click(func(ev *vecty.Event) {
-							addCollectionItem(v.App, v.model.Node)
-						}).PreventDefault(),
+						elem.ListItem(
+							prop.Class("divider"),
+							vecty.Property("role", "separator"),
+						),
+						elem.ListItem(
+							elem.Anchor(
+								prop.Href("#"),
+								vecty.Text("Delete"),
+								event.Click(func(e *vecty.Event) {
+									v.App.Dispatch(&actions.Delete{
+										Undoer: &actions.Undoer{},
+										Node:   v.model.Node,
+										Parent: v.model.Node.Parent,
+									})
+								}).PreventDefault(),
+							),
+						),
 					),
 				),
 			),

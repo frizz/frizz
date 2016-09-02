@@ -68,7 +68,7 @@ func (s *RuleStore) Handle(payload *flux.Payload) bool {
 		for _, t := range s.app.Types.All() {
 			s.validateNodes(payload, s.build(t.Node))
 		}
-	case *actions.LoadSourceSuccess:
+	case *actions.LoadFileSuccess:
 		payload.Wait(s.app.Branches)
 		ni, ok := action.Branch.Contents.(models.NodeContentsInterface)
 		if !ok {

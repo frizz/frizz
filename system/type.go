@@ -13,10 +13,6 @@ import (
 )
 
 func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
-	scache := sysctx.FromContext(ctx)
-
-	out := []*Type{}
-
 	var reflectType reflect.Type
 	if typ.Interface {
 		// The type provided is an interface type
@@ -33,6 +29,19 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 		}
 		reflectType = rt
 	}
+
+	return GetAllTypesThatImplementReflectInterface(ctx, reflectType)
+}
+
+func GetAllTypesThatImplementReflectInterface(ctx context.Context, reflectType reflect.Type) []*Type {
+
+	if reflectType.Kind() != reflect.Interface {
+		panic(kerr.New("JUCCMVNDLR", "%v is not an interface", reflectType).Error())
+	}
+
+	scache := sysctx.FromContext(ctx)
+
+	out := []*Type{}
 
 	for _, pkgName := range scache.Keys() {
 		pkgInfo, ok := scache.Get(pkgName)
