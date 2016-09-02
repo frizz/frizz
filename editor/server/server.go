@@ -246,6 +246,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request, auth au
 			return kerr.Wrap("OUBOTYGPKU", err)
 		}
 		pkgBytes = b
+		pkgFilename = "package.ke.json"
 	}
 
 	imports := map[string]shared.ImportInfo{}
