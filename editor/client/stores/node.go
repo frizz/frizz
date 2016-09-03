@@ -59,6 +59,7 @@ const (
 	NodeArrayReorder      nodeNotif = "NodeArrayReorder"
 	NodeChildAdded        nodeNotif = "NodeChildAdded"
 	NodeChildDeleted      nodeNotif = "NodeChildDeleted"
+	NodeSystemControls    nodeNotif = "NodeSystemControls"
 )
 
 func NewNodeStore(ctx context.Context) *NodeStore {
@@ -75,6 +76,10 @@ func NewNodeStore(ctx context.Context) *NodeStore {
 
 func (s *NodeStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
+	case *actions.ToggleSystemControls:
+		m := s.Get(action.Node)
+		m.ShowSystemControls = !m.ShowSystemControls
+		payload.Notify(action.Node, NodeSystemControls)
 	case *actions.Add:
 		payload.Wait(s.app.Actions)
 		switch action.Direction() {

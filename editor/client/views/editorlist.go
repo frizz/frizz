@@ -26,17 +26,19 @@ type EditorListView struct {
 	container *vecty.Element
 	sort      bool
 	items     int
+	exclude   []string
 }
 
 func (v *EditorListView) Items() int {
 	return v.items
 }
 
-func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *system.Reference) *EditorListView {
+func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *system.Reference, exclude []string) *EditorListView {
 	v := &EditorListView{}
 	v.View = New(ctx, v)
 	v.model = model
 	v.filter = filter
+	v.exclude = exclude
 	v.sort = model.Node.JsonType == json.J_ARRAY
 	v.Watch(v.model.Node,
 		stores.NodeArrayReorder,
@@ -107,6 +109,12 @@ func (v *EditorListView) Render() vecty.Component {
 	children := vecty.List{}
 
 	add := func(n *node.Node) {
+
+		for _, v := range v.exclude {
+			if n.Key == v {
+				return
+			}
+		}
 
 		if n.Null || n.Missing {
 			children = append(children, nullEditor(v.Ctx, n, v.App))

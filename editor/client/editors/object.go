@@ -49,6 +49,7 @@ func NewObjectEditorView(ctx context.Context, node *node.Node) *ObjectEditorView
 		stores.NodeValueChanged,
 		stores.NodeErrorsChanged,
 		stores.InfoStateChange,
+		stores.NodeSystemControls,
 	)
 	return v
 }
@@ -84,25 +85,22 @@ func (v *ObjectEditorView) Render() vecty.Component {
 					elem.UnorderedList(
 						prop.Class("dropdown-menu"),
 						elem.ListItem(
-							prop.Class("divider"),
-							vecty.Property("role", "separator"),
-						),
-						elem.ListItem(
 							elem.Anchor(
 								prop.Href("#"),
-								vecty.Text("Description..."),
-							),
-						),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Tags..."),
-							),
-						),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Rules..."),
+								event.Click(func(ev *vecty.Event) {
+									v.App.Dispatch(&actions.ToggleSystemControls{
+										Node: v.model.Node,
+									})
+								}).PreventDefault(),
+								elem.Italic(
+									vecty.ClassMap{
+										"dropdown-icon":       true,
+										"glyphicon":           true,
+										"glyphicon-check":     v.node.ShowSystemControls,
+										"glyphicon-unchecked": !v.node.ShowSystemControls,
+									},
+								),
+								vecty.Text("System controls"),
 							),
 						),
 						elem.ListItem(
@@ -128,14 +126,7 @@ func (v *ObjectEditorView) Render() vecty.Component {
 		),
 	)
 
-	if v.object.Description != "" {
-		sections = append(sections,
-			elem.Paragraph(
-				prop.Class("lead"),
-				vecty.Text(v.object.Description),
-			),
-		)
-	}
+	sections = append(sections, NewObjectDescriptionView(v.Ctx, v.model.Node.Map["description"]))
 
 	if v.App.Misc.Info() {
 
@@ -148,6 +139,15 @@ func (v *ObjectEditorView) Render() vecty.Component {
 			elem.Paragraph(
 				prop.Class("lead"),
 				vecty.Text("type: "+dt),
+			),
+		)
+	}
+
+	if v.node.ShowSystemControls {
+		sections = append(sections,
+			elem.Div(
+				prop.Class("well"),
+				views.NewEditorListView(v.Ctx, v.model, system.NewReference("kego.io/system", "object"), []string{"id", "type"}),
 			),
 		)
 	}

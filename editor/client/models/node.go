@@ -10,9 +10,10 @@ import (
 )
 
 type NodeModel struct {
-	Node    *node.Node
-	Invalid bool
-	Errors  []validate.ValidationError
+	Node               *node.Node
+	Invalid            bool
+	Errors             []validate.ValidationError
+	ShowSystemControls bool
 }
 
 func (n *NodeModel) Validate(ctx context.Context, rules []system.RuleInterface) (changed bool, err error) {

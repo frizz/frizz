@@ -95,7 +95,7 @@ func (v *StructFragmentView) Render() vecty.Component {
 	if mainEditor != nil {
 		out = append(out, mainEditor.EditorView(v.Ctx, v.model.Node, editable.Block))
 	} else {
-		out = append(out, NewEditorListView(v.Ctx, v.model, v.origin))
+		out = append(out, NewEditorListView(v.Ctx, v.model, v.origin, nil))
 	}
 
 	return elem.Div(

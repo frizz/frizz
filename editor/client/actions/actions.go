@@ -7,6 +7,10 @@ import (
 	"kego.io/system/node"
 )
 
+type ToggleSystemControls struct {
+	Node *node.Node
+}
+
 type ToggleInfoState struct{}
 
 type ChangeView struct {

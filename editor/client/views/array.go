@@ -10,6 +10,7 @@ import (
 	"github.com/davelondon/vecty/prop"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
+	"kego.io/editor/client/stores"
 	"kego.io/system/node"
 )
 
@@ -27,6 +28,9 @@ func NewArrayView(ctx context.Context, node *node.Node) *ArrayView {
 	v.model = v.App.Editors.Get(node)
 	v.branch = v.App.Branches.Get(node)
 	v.node = v.App.Nodes.Get(node)
+	v.Watch(nil,
+		stores.InfoStateChange,
+	)
 	return v
 }
 
@@ -42,15 +46,24 @@ func (v *ArrayView) Render() vecty.Component {
 		return elem.Div(vecty.Text("Array (nil)"))
 	}
 
-	ir, err := v.node.Node.Rule.ItemsRule()
-	if err != nil {
-		v.App.Fail <- kerr.Wrap("WTLDRIWHQL", err)
-		return nil
-	}
-	dt, err := ir.DisplayType()
-	if err != nil {
-		v.App.Fail <- kerr.Wrap("XJVBKRSABX", err)
-		return nil
+	var info vecty.List
+	if v.App.Misc.Info() {
+		ir, err := v.node.Node.Rule.ItemsRule()
+		if err != nil {
+			v.App.Fail <- kerr.Wrap("WTLDRIWHQL", err)
+			return nil
+		}
+		dt, err := ir.DisplayType()
+		if err != nil {
+			v.App.Fail <- kerr.Wrap("XJVBKRSABX", err)
+			return nil
+		}
+		info = append(info,
+			elem.Paragraph(
+				prop.Class("lead"),
+				vecty.Text("type: array of "+dt),
+			),
+		)
 	}
 
 	return elem.Div(
@@ -85,22 +98,6 @@ func (v *ArrayView) Render() vecty.Component {
 						elem.ListItem(
 							elem.Anchor(
 								prop.Href("#"),
-								vecty.Text("Type: system:array"),
-							),
-						),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Items: "+dt),
-							),
-						),
-						elem.ListItem(
-							prop.Class("divider"),
-							vecty.Property("role", "separator"),
-						),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
 								vecty.Text("Delete"),
 								event.Click(func(e *vecty.Event) {
 									v.App.Dispatch(&actions.Delete{
@@ -115,7 +112,8 @@ func (v *ArrayView) Render() vecty.Component {
 				),
 			),
 		),
-		NewEditorListView(v.Ctx, v.model, nil),
+		info,
+		NewEditorListView(v.Ctx, v.model, nil, nil),
 	)
 
 }
