@@ -51,6 +51,11 @@ func NewObjectEditorView(ctx context.Context, node *node.Node) *ObjectEditorView
 		stores.InfoStateChange,
 		stores.NodeSystemControls,
 	)
+	v.Watch(v.model.Node.Map["description"],
+		stores.NodeValueChanged,
+		stores.NodeDeleted,
+		stores.NodeInitialised,
+	)
 	return v
 }
 
@@ -126,10 +131,15 @@ func (v *ObjectEditorView) Render() vecty.Component {
 		),
 	)
 
-	sections = append(sections, NewObjectDescriptionView(v.Ctx, v.model.Node.Map["description"]))
+	d := v.model.Node.Map["description"]
+	if !d.Null && !d.Missing && d.ValueString != "" {
+		sections = append(sections, elem.Paragraph(
+			prop.Class("lead"),
+			vecty.Text(d.ValueString),
+		))
+	}
 
 	if v.App.Misc.Info() {
-
 		dt, err := v.node.Node.DisplayType(v.Ctx)
 		if err != nil {
 			v.App.Fail <- kerr.Wrap("KFKGCGFULR", err)
@@ -146,7 +156,7 @@ func (v *ObjectEditorView) Render() vecty.Component {
 	if v.node.ShowSystemControls {
 		sections = append(sections,
 			elem.Div(
-				prop.Class("well"),
+				prop.Class("well object-editor"),
 				views.NewEditorListView(v.Ctx, v.model, system.NewReference("kego.io/system", "object"), []string{"id", "type"}),
 			),
 		)

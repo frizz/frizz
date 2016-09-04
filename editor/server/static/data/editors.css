@@ -49,3 +49,7 @@ nav.navbar.nagative-margin {
 .dropdown-icon {
     margin-right: 5px;
 }
+
+.well.object-editor {
+    padding-bottom: 0;
+}
