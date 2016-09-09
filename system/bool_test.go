@@ -62,17 +62,27 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 	assert.IsError(t, err, "FXCQGNYKIJ")
 
 	b = NewBool(false)
-
 	err = b.Unpack(envctx.Empty, json.Pack(true))
 	assert.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.True(t, b.Value())
 
+	b = NewBool(false)
+	err = b.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+		"type":  "system:bool",
+		"value": true,
+	}))
+	assert.NoError(t, err)
+	assert.NotNil(t, b)
+	assert.True(t, b.Value())
+
+	b = NewBool(true)
 	err = b.Unpack(envctx.Empty, json.Pack(false))
 	assert.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.False(t, b.Value())
 
+	b = NewBool(false)
 	err = b.Unpack(envctx.Empty, json.Pack("foo"))
 	assert.IsError(t, err, "GXQGNEPJYS")
 

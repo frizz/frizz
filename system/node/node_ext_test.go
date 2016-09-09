@@ -184,6 +184,46 @@ func TestNode_Unpack3(t *testing.T) {
 
 }
 
+func TestNode_Unpack4(t *testing.T) {
+
+	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+
+	s := `{
+	"type": "multi",
+	"ss": {"type":"system:string", "value": "b"},
+	"sn": {"type":"system:number", "value": 2},
+	"sb": {"type":"system:bool", "value": true}
+}`
+
+	n := node.NewNode()
+	err := n.Unpack(cb.Ctx(), json.PackString(s))
+	require.NoError(t, err)
+	assert.Equal(t, "b", n.Value.(*data.Multi).Ss.Value())
+	assert.Equal(t, 2.0, n.Value.(*data.Multi).Sn.Value())
+	assert.Equal(t, true, n.Value.(*data.Multi).Sb.Value())
+
+}
+
+func TestNode_Unpack5(t *testing.T) {
+
+	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+
+	s := `{
+	"type": "multi",
+	"sri": {"type":"system:string", "value": "b"},
+	"nri": {"type":"system:number", "value": 2},
+	"bri": {"type":"system:bool", "value": true}
+}`
+
+	n := node.NewNode()
+	err := n.Unpack(cb.Ctx(), json.PackString(s))
+	require.NoError(t, err)
+	assert.Equal(t, "b", n.Value.(*data.Multi).Sri.GetString(cb.Ctx()).Value())
+	assert.Equal(t, 2.0, n.Value.(*data.Multi).Nri.GetNumber(cb.Ctx()).Value())
+	assert.Equal(t, true, n.Value.(*data.Multi).Bri.GetBool(cb.Ctx()).Value())
+
+}
+
 func TestNode_Unpack2(t *testing.T) {
 
 	cb, n := data.Setup(t)
@@ -615,9 +655,10 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.NoError(t, n.Map["i"].SetValueZero(cb.Ctx(), true, faceb))
 		assert.Nil(t, m.I)
 		assert.IsType(t, &data.Faceb{}, m.I)
-		assert.NoError(t, n.Map["nri"].SetValueZero(cb.Ctx(), false, facea))
-		assert.NotNil(t, m.Nri)
-		assert.IsType(t, &data.Facea{}, m.Nri)
+
+		assert.NoError(t, n.Map["sri"].SetValueZero(cb.Ctx(), false, facea))
+		assert.NotNil(t, m.Sri)
+		assert.IsType(t, &data.Facea{}, m.Sri)
 
 		c3 := node.NewNode()
 		assert.NoError(t, c3.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 4))

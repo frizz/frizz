@@ -140,20 +140,31 @@ func TestIntUnmarshalJSON(t *testing.T) {
 	assert.IsError(t, err, "JEJANRWFMH")
 
 	i = NewInt(0)
-
 	err = i.Unpack(envctx.Empty, json.Pack(2.0))
 	assert.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, 2, i.Value())
 
+	i = NewInt(0)
+	err = i.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+		"type":  "system:int",
+		"value": 2.0,
+	}))
+	assert.NoError(t, err)
+	assert.NotNil(t, i)
+	assert.Equal(t, 2, i.Value())
+
+	i = NewInt(0)
 	err = i.Unpack(envctx.Empty, json.Pack(-12.0))
 	assert.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, -12, i.Value())
 
+	i = NewInt(0)
 	err = i.Unpack(envctx.Empty, json.Pack("foo"))
 	assert.IsError(t, err, "UJUBDGVYGF")
 
+	i = NewInt(0)
 	err = i.Unpack(envctx.Empty, json.Pack(1.2))
 	assert.HasError(t, err, "KVEOETSIJY")
 

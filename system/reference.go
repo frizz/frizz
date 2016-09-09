@@ -131,6 +131,9 @@ func (out *Reference) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("MOQVSKJXRB", "Called Reference.Unpack with nil value")
 	}
+	if in.Type() == json.J_MAP {
+		in = in.Map()["value"]
+	}
 	if in.Type() != json.J_STRING {
 		return kerr.New("RFLQSBPMYM", "Can't unpack %s into *system.Reference", in.Type())
 	}

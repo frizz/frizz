@@ -185,6 +185,17 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
+	err = r.Unpack(ctx, json.Pack(map[string]interface{}{
+		"type":  "system:reference",
+		"value": "a.b/c:d",
+	}))
+	require.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, "a.b/c", r.Package)
+	assert.Equal(t, "d", r.Name)
+	assert.Equal(t, "a.b/c:d", r.Value())
+
+	r = reset()
 	err = r.Unpack(ctx, json.Pack("a.b/c:@d"))
 	require.NoError(t, err)
 	assert.NotNil(t, r)

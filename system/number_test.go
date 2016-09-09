@@ -145,12 +145,21 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 	assert.IsError(t, err, "WHREWCCODC")
 
 	n = NewNumber(0.0)
-
 	err = n.Unpack(envctx.Empty, json.Pack(1.2))
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 	assert.Equal(t, 1.2, n.Value())
 
+	n = NewNumber(0.0)
+	err = n.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+		"type":  "system:number",
+		"value": 1.2,
+	}))
+	assert.NoError(t, err)
+	assert.NotNil(t, n)
+	assert.Equal(t, 1.2, n.Value())
+
+	n = NewNumber(0.0)
 	err = n.Unpack(envctx.Empty, json.Pack("foo"))
 	assert.IsError(t, err, "YHXBFTONCW")
 

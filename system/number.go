@@ -106,6 +106,9 @@ func (out *Number) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("WHREWCCODC", "Called Number.Unpack with nil value")
 	}
+	if in.Type() == json.J_MAP {
+		in = in.Map()["value"]
+	}
 	if in.Type() != json.J_NUMBER {
 		return kerr.New("YHXBFTONCW", "Can't unpack %s into system.Number", in.Type())
 	}

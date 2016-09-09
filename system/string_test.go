@@ -193,12 +193,21 @@ func TestStringUnmarshalJSON(t *testing.T) {
 	assert.IsError(t, err, "PWTAHLCCWR")
 
 	s = NewString("")
-
 	err = s.Unpack(envctx.Empty, json.Pack(`foo "bar"`))
 	require.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
+	s = NewString("")
+	err = s.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+		"type":  "system:string",
+		"value": `foo "bar"`,
+	}))
+	require.NoError(t, err)
+	assert.NotNil(t, s)
+	assert.Equal(t, `foo "bar"`, s.Value())
+
+	s = NewString("")
 	err = s.Unpack(envctx.Empty, json.Pack(1.0))
 	assert.IsError(t, err, "IXASCXOPMG")
 

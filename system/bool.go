@@ -22,6 +22,9 @@ func (out *Bool) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("FXCQGNYKIJ", "Called Bool.Unpack with nil value")
 	}
+	if in.Type() == json.J_MAP {
+		in = in.Map()["value"]
+	}
 	if in.Type() != json.J_BOOL {
 		return kerr.New("GXQGNEPJYS", "Can't unpack %s into *system.Bool", in.Type())
 	}

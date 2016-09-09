@@ -425,11 +425,23 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 
 	switch n.Type.NativeJsonType() {
 	case json.J_STRING:
-		n.ValueString = in.String()
+		if in.Type() == json.J_MAP {
+			n.ValueString = in.Map()["value"].String()
+		} else {
+			n.ValueString = in.String()
+		}
 	case json.J_NUMBER:
-		n.ValueNumber = in.Number()
+		if in.Type() == json.J_MAP {
+			n.ValueNumber = in.Map()["value"].Number()
+		} else {
+			n.ValueNumber = in.Number()
+		}
 	case json.J_BOOL:
-		n.ValueBool = in.Bool()
+		if in.Type() == json.J_MAP {
+			n.ValueBool = in.Map()["value"].Bool()
+		} else {
+			n.ValueBool = in.Bool()
+		}
 	case json.J_ARRAY:
 		children := in.Array()
 		for i, child := range children {

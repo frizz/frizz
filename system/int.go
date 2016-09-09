@@ -87,6 +87,9 @@ func (out *Int) Unpack(ctx context.Context, in json.Packed) error {
 	if in == nil || in.Type() == json.J_NULL {
 		return kerr.New("JEJANRWFMH", "Called Int.Unpack with nil value")
 	}
+	if in.Type() == json.J_MAP {
+		in = in.Map()["value"]
+	}
 	if in.Type() != json.J_NUMBER {
 		return kerr.New("UJUBDGVYGF", "Can't unpack %s into *system.Int", in.Type())
 	}

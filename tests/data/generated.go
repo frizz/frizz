@@ -1,12 +1,11 @@
-// info:{"Path":"kego.io/tests/data","Hash":1099647111195420677}
+// info:{"Path":"kego.io/tests/data","Hash":748389013432374446}
 package data
 
 // ke: {"file": {"notest": true}}
 
 import (
-	"reflect"
-
 	"context"
+	"reflect"
 
 	"kego.io/context/jsonctx"
 	"kego.io/system"
@@ -80,6 +79,7 @@ type Multi struct {
 	Asp  []*system.Package                 `json:"asp"`
 	Asr  []*system.Reference               `json:"asr"`
 	Ass  []*system.String                  `json:"ass"`
+	Bri  system.BoolInterface              `json:"bri"`
 	I    Face                              `json:"i"`
 	Jb   bool                              `json:"jb"`
 	Jn   float64                           `json:"jn"`
@@ -98,13 +98,14 @@ type Multi struct {
 	Msp  map[string]*system.Package        `json:"msp"`
 	Msr  map[string]*system.Reference      `json:"msr"`
 	Mss  map[string]*system.String         `json:"mss"`
-	Nri  system.StringInterface            `json:"nri"`
+	Nri  system.NumberInterface            `json:"nri"`
 	Ri   system.RuleInterface              `json:"ri"`
 	Sb   *system.Bool                      `json:"sb"`
 	Si   *system.Int                       `json:"si"`
 	Sn   *system.Number                    `json:"sn"`
 	Sp   *system.Package                   `json:"sp"`
 	Sr   *system.Reference                 `json:"sr"`
+	Sri  system.StringInterface            `json:"sri"`
 	Ss   *system.String                    `json:"ss"`
 }
 type MultiInterface interface {
@@ -127,7 +128,7 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/tests/data", 1099647111195420677)
+	pkg := jsonctx.InitPackage("kego.io/tests/data", 748389013432374446)
 	pkg.InitType("face", reflect.TypeOf((*Face)(nil)).Elem(), reflect.TypeOf((*FaceRule)(nil)), nil)
 	pkg.InitType("facea", reflect.TypeOf((*Facea)(nil)), reflect.TypeOf((*FaceaRule)(nil)), reflect.TypeOf((*FaceaInterface)(nil)).Elem())
 	pkg.InitType("faceb", reflect.TypeOf((*Faceb)(nil)), reflect.TypeOf((*FacebRule)(nil)), reflect.TypeOf((*FacebInterface)(nil)).Elem())
