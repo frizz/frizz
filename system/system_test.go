@@ -12,11 +12,15 @@ import (
 func TestGoName(t *testing.T) {
 	assert.Equal(t, "", GoName(""))
 	assert.Equal(t, "Abc", GoName("abc"))
+	assert.Equal(t, "AbcDef", GoName("abc-def"))
 	assert.Equal(t, "AbcRule", GoName("@abc"))
+	assert.Equal(t, "AbcDefRule", GoName("@abc-def"))
 
 	assert.Equal(t, "", GoInterfaceName(""))
 	assert.Equal(t, "AbcInterface", GoInterfaceName("abc"))
+	assert.Equal(t, "AbcDefInterface", GoInterfaceName("abc-def"))
 	assert.Equal(t, "AbcInterface", GoInterfaceName("@abc"))
+	assert.Equal(t, "AbcDefInterface", GoInterfaceName("@abc-def"))
 }
 
 func TestNoType(t *testing.T) {

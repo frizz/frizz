@@ -126,6 +126,7 @@ func (v *EditorView) Render() vecty.Component {
 	}
 
 	label := elem.Label(
+		prop.Class("control-label"),
 		vecty.Text(
 			v.model.Node.Label(v.Ctx),
 		),

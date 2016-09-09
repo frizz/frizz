@@ -5,4 +5,4 @@ fields:
     type: system:@array
     items:
       type: "@section"
-    maxItems: 4
+    max-items: 4

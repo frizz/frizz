@@ -143,7 +143,7 @@ func TestSelector(t *testing.T) {
 					protocol: http`,
 	})
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Equal: value must equal 'https'")
+	assert.Contains(t, err.Error(), "Equal: value \"http\" must equal 'https'")
 
 }
 
@@ -189,7 +189,7 @@ func TestRules(t *testing.T) {
 			str: bar`,
 	})
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "Equal: value must equal 'foo'")
+	assert.Contains(t, err.Error(), "Equal: value \"bar\" must equal 'foo'")
 
 }
 

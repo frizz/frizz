@@ -13,17 +13,22 @@
 				"type": "@rule",
 				"interface": true
 			},
-			"minItems": {
+			"min-items": {
 				"description": "This is the minimum number of items alowed in the array",
 				"type": "@int",
 				"minimum": 0,
 				"optional": true
 			},
-			"maxItems": {
+			"max-items": {
 				"description": "This is the maximum number of items alowed in the array",
 				"type": "@int",
 				"minimum": 0,
 				"optional": true
+			},
+			"keys": {
+				"description": "Add a system:@string here to provide a restriction for the map keys",
+				"type": "@rule",
+				"interface": true
 			}
 		}
 	}

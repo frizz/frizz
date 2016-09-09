@@ -13,19 +13,19 @@
 				"type": "@rule",
 				"interface": true
 			},
-			"minItems": {
+			"min-items": {
 				"description": "This is the minimum number of items allowed in the array",
 				"type": "@int",
 				"minimum": 0,
 				"optional": true
 			},
-			"maxItems": {
+			"max-items": {
 				"description": "This is the maximum number of items allowed in the array",
 				"type": "@int",
 				"minimum": 0,
 				"optional": true
 			},
-			"uniqueItems": {
+			"unique-items": {
 				"description": "If this is true, each item must be unique",
 				"type": "json:@bool",
 				"optional": true

@@ -282,7 +282,12 @@ func TestStringRule_Enforce(t *testing.T) {
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("b"))
 	assert.NoError(t, err)
-	assert.Equal(t, "Equal: value must equal 'a'", messages[0])
+	assert.Equal(t, "Equal: value \"b\" must equal 'a'", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("123456789012345678901234567890"))
+	assert.NoError(t, err)
+	assert.Equal(t, "Equal: value \"12345678901234567...\" must equal 'a'", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, "a")
@@ -291,7 +296,7 @@ func TestStringRule_Enforce(t *testing.T) {
 	r = StringRule{Rule: &Rule{Optional: false}, MaxLength: NewInt(1)}
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("ab"))
 	assert.NoError(t, err)
-	assert.Equal(t, "MaxLength: length must not be greater than 1", messages[0])
+	assert.Equal(t, "MaxLength: length of \"ab\" must not be greater than 1", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
@@ -306,7 +311,7 @@ func TestStringRule_Enforce(t *testing.T) {
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("abcd"))
 	assert.NoError(t, err)
-	assert.Equal(t, "MinLength: length must not be less than 5", messages[0])
+	assert.Equal(t, "MinLength: length of \"abcd\" must not be less than 5", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
@@ -327,7 +332,7 @@ func TestStringRule_Enforce(t *testing.T) {
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("c"))
 	assert.NoError(t, err)
-	assert.Equal(t, "Enum: value must be one of: [a b]", messages[0])
+	assert.Equal(t, "Enum: value \"c\" must be one of: [a b]", messages[0])
 	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
@@ -344,7 +349,7 @@ func TestStringRule_Enforce(t *testing.T) {
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("a"))
 	assert.NoError(t, err)
-	assert.Equal(t, "Pattern: value must match ^foo\\d", messages[0])
+	assert.Equal(t, "Pattern: value \"a\" must match ^foo\\d", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("foo1"))

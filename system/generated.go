@@ -1,12 +1,11 @@
-// info:{"Path":"kego.io/system","Hash":6587440654785274708}
+// info:{"Path":"kego.io/system","Hash":7563913859779259846}
 package system
 
 // ke: {"file": {"notest": true}}
 
 import (
-	"reflect"
-
 	"context"
+	"reflect"
 
 	"kego.io/context/jsonctx"
 )
@@ -18,11 +17,11 @@ type ArrayRule struct {
 	// This is a rule object, defining the type and restrictions on the value of the items
 	Items RuleInterface `json:"items"`
 	// This is the maximum number of items allowed in the array
-	MaxItems *Int `json:"maxItems"`
+	MaxItems *Int `json:"max-items"`
 	// This is the minimum number of items allowed in the array
-	MinItems *Int `json:"minItems"`
+	MinItems *Int `json:"min-items"`
 	// If this is true, each item must be unique
-	UniqueItems bool `json:"uniqueItems"`
+	UniqueItems bool `json:"unique-items"`
 }
 
 // Restriction rules for bools
@@ -44,7 +43,7 @@ type IntRule struct {
 	// This provides a lower bound for the restriction
 	Minimum *Int `json:"minimum"`
 	// This restricts the number to be a multiple of the given number
-	MultipleOf *Int `json:"multipleOf"`
+	MultipleOf *Int `json:"multiple-of"`
 }
 
 // Restriction rules for maps
@@ -53,10 +52,12 @@ type MapRule struct {
 	*Rule
 	// This is a rule object, defining the type and restrictions on the value of the items.
 	Items RuleInterface `json:"items"`
+	// Add a system:@string here to provide a restriction for the map keys
+	Keys RuleInterface `json:"keys"`
 	// This is the maximum number of items alowed in the array
-	MaxItems *Int `json:"maxItems"`
+	MaxItems *Int `json:"max-items"`
 	// This is the minimum number of items alowed in the array
-	MinItems *Int `json:"minItems"`
+	MinItems *Int `json:"min-items"`
 }
 
 // Restriction rules for numbers
@@ -66,15 +67,15 @@ type NumberRule struct {
 	// Default value if this property is omitted
 	Default *Number `json:"default"`
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
-	ExclusiveMaximum bool `json:"exclusiveMaximum"`
+	ExclusiveMaximum bool `json:"exclusive-maximum"`
 	// If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.
-	ExclusiveMinimum bool `json:"exclusiveMinimum"`
+	ExclusiveMinimum bool `json:"exclusive-minimum"`
 	// This provides an upper bound for the restriction
 	Maximum *Number `json:"maximum"`
 	// This provides a lower bound for the restriction
 	Minimum *Number `json:"minimum"`
 	// This restricts the number to be a multiple of the given number
-	MultipleOf *Number `json:"multipleOf"`
+	MultipleOf *Number `json:"multiple-of"`
 }
 
 // Automatically created basic rule for object
@@ -95,6 +96,8 @@ type ReferenceRule struct {
 	*Rule
 	// Default value of this is missing or null
 	Default *Reference `json:"default"`
+	// This is a regex to match the value to
+	Pattern *String `json:"pattern"`
 }
 
 // Automatically created basic rule for rule
@@ -118,9 +121,9 @@ type StringRule struct {
 	// The editor should render as a multi-line textbox
 	Long bool `json:"long"`
 	// The value must be shorter or equal to the provided maximum length
-	MaxLength *Int `json:"maxLength"`
+	MaxLength *Int `json:"max-length"`
 	// The value must be longer or equal to the provided minimum length
-	MinLength *Int `json:"minLength"`
+	MinLength *Int `json:"min-length"`
 	// This is a regex to match the value to
 	Pattern *String `json:"pattern"`
 }
@@ -248,7 +251,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 6587440654785274708)
+	pkg := jsonctx.InitPackage("kego.io/system", 7563913859779259846)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())

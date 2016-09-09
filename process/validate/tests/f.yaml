@@ -8,7 +8,7 @@ fields:
             -
                 selector: ".b"
                 type: system:@string
-                minLength: 5
+                min-length: 5
     b:
         type: system:@array
         items:
@@ -17,7 +17,7 @@ fields:
                 -
                     selector: ".b"
                     type: system:@string
-                    minLength: 5
+                    min-length: 5
     c:
         type: system:@map
         items:
@@ -26,10 +26,10 @@ fields:
                 -
                     selector: ".b"
                     type: system:@string
-                    minLength: 5
+                    min-length: 5
     d:
         type: system:@string
         rules:
             -
                 type: system:@string
-                minLength: 7
+                min-length: 7

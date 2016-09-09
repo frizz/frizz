@@ -15,32 +15,39 @@ func GoName(id string) string {
 		return ""
 	}
 
-	switch id[0:1] {
-	case jsonctx.RULE_PREFIX:
-		return capitalise(id, true) + "Rule"
-	default:
-		return capitalise(id, false)
+	rule := id[0:1] == jsonctx.RULE_PREFIX
+
+	if rule {
+		id = id[1:]
 	}
+
+	words := strings.Split(id, "-")
+	var name string
+	for _, word := range words {
+		name = name + strings.Title(word)
+	}
+	if rule {
+		name = name + "Rule"
+	}
+	return name
 }
 
-func GoInterfaceName(typeOrRuleName string) string {
+func GoInterfaceName(id string) string {
 
-	if len(typeOrRuleName) == 0 {
+	if len(id) == 0 {
 		return ""
 	}
 
-	switch typeOrRuleName[0:1] {
-	case jsonctx.RULE_PREFIX:
-		return capitalise(typeOrRuleName, true) + "Interface"
-	default:
-		return capitalise(typeOrRuleName, false) + "Interface"
-	}
-}
+	rule := id[0:1] == jsonctx.RULE_PREFIX
 
-func capitalise(s string, skipFirstCharacter bool) string {
-	if skipFirstCharacter {
-		return strings.ToUpper(s[1:2]) + s[2:]
-	} else {
-		return strings.ToUpper(s[0:1]) + s[1:]
+	if rule {
+		id = id[1:]
 	}
+
+	words := strings.Split(id, "-")
+	var name string
+	for _, word := range words {
+		name = name + strings.Title(word)
+	}
+	return name + "Interface"
 }

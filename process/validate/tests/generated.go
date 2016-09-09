@@ -1,12 +1,11 @@
-// info:{"Path":"kego.io/process/validate/tests","Hash":2799810396823773418}
+// info:{"Path":"kego.io/process/validate/tests","Hash":17573435268142783549}
 package tests
 
 // ke: {"file": {"notest": true}}
 
 import (
-	"reflect"
-
 	"context"
+	"reflect"
 
 	"kego.io/context/jsonctx"
 	"kego.io/system"
@@ -116,7 +115,7 @@ func (o *F) GetF(ctx context.Context) *F {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/tests", 2799810396823773418)
+	pkg := jsonctx.InitPackage("kego.io/process/validate/tests", 17573435268142783549)
 	pkg.InitType("a", reflect.TypeOf((*A)(nil)), reflect.TypeOf((*ARule)(nil)), reflect.TypeOf((*AInterface)(nil)).Elem())
 	pkg.InitType("b", reflect.TypeOf((*B)(nil)), reflect.TypeOf((*BRule)(nil)), reflect.TypeOf((*BInterface)(nil)).Elem())
 	pkg.InitType("c", reflect.TypeOf((*C)(nil)).Elem(), reflect.TypeOf((*CRule)(nil)), nil)

@@ -11,7 +11,7 @@ import (
 
 func (r *MapRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 
-	if r.MaxItems == nil && r.MinItems == nil {
+	if r.MaxItems == nil && r.MinItems == nil && r.Keys == nil {
 		// We should return early here in order to prevent needless reflection
 		return
 	}
@@ -37,6 +37,24 @@ func (r *MapRule) Enforce(ctx context.Context, data interface{}) (fail bool, mes
 		if val.Len() < r.MinItems.Value() {
 			fail = true
 			messages = append(messages, fmt.Sprintf("MinItems: length %d should not be less than %d", val.Len(), r.MinItems.Value()))
+		}
+	}
+
+	if r.Keys != nil {
+		sr, ok := r.Keys.(*StringRule)
+		if !ok {
+			return true, nil, kerr.New("WDKAXPCRJB", "system:@map keys field %T should be system:@string", r.Keys)
+		}
+		for _, key := range val.MapKeys() {
+			s := NewString(key.Interface().(string))
+			f, m, err := sr.Enforce(ctx, s)
+			if err != nil {
+				return true, nil, kerr.Wrap("DQWQYAPUUU", err)
+			}
+			if f {
+				fail = true
+				messages = append(messages, m...)
+			}
 		}
 	}
 

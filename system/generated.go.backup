@@ -1,12 +1,12 @@
-// info:{"Path":"kego.io/system","Hash":14940600384170678354}
+// info:{"Path":"kego.io/system","Hash":11585360991942012526}
 package system
 
 // ke: {"file": {"notest": true}}
 
 import (
+	"context"
 	"reflect"
 
-	"context"
 	"kego.io/context/jsonctx"
 )
 
@@ -52,6 +52,8 @@ type MapRule struct {
 	*Rule
 	// This is a rule object, defining the type and restrictions on the value of the items.
 	Items RuleInterface `json:"items"`
+	// Add a system:@string here to provide a restriction for the map keys
+	Keys RuleInterface `json:"keys"`
 	// This is the maximum number of items alowed in the array
 	MaxItems *Int `json:"maxItems"`
 	// This is the minimum number of items alowed in the array
@@ -94,6 +96,8 @@ type ReferenceRule struct {
 	*Rule
 	// Default value of this is missing or null
 	Default *Reference `json:"default"`
+	// This is a regex to match the value to
+	Pattern *String `json:"pattern"`
 }
 
 // Automatically created basic rule for rule
@@ -200,8 +204,6 @@ func (o *Reference) GetReference(ctx context.Context) *Reference {
 
 // All rules will have this embedded in them.
 type Rule struct {
-	// Special field that should be excluded when marshaling - e.g. package.global
-	Exclude bool `json:"exclude"`
 	// Use the single method getter interface for this type
 	Interface bool `json:"interface"`
 	// If this rule is a field, this specifies that the field is optional
@@ -249,7 +251,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 14940600384170678354)
+	pkg := jsonctx.InitPackage("kego.io/system", 11585360991942012526)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())

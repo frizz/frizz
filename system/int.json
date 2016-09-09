@@ -13,7 +13,7 @@
 				"type": "@int",
 				"optional": true
 			},
-			"multipleOf": {
+			"multiple-of": {
 				"description": "This restricts the number to be a multiple of the given number",
 				"type": "@int",
 				"optional": true

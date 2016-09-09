@@ -28,7 +28,7 @@ func TestRun(t *testing.T) {
 			fields:
 				b:
 					type: system:@string
-					maxLength: 5`,
+					max-length: 5`,
 		"d.go": `package d`,
 	})
 

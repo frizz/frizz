@@ -1,12 +1,11 @@
-// info:{"Path":"kego.io/demo/site","Hash":8948214122825420463}
+// info:{"Path":"kego.io/demo/site","Hash":3726678967244446909}
 package site
 
 // ke: {"file": {"notest": true}}
 
 import (
-	"reflect"
-
 	"context"
+	"reflect"
 
 	"kego.io/context/jsonctx"
 	"kego.io/demo/common/images"
@@ -95,7 +94,7 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/site", 8948214122825420463)
+	pkg := jsonctx.InitPackage("kego.io/demo/site", 3726678967244446909)
 	pkg.InitType("body", reflect.TypeOf((*Body)(nil)), reflect.TypeOf((*BodyRule)(nil)), reflect.TypeOf((*BodyInterface)(nil)).Elem())
 	pkg.InitType("columns", reflect.TypeOf((*Columns)(nil)), reflect.TypeOf((*ColumnsRule)(nil)), reflect.TypeOf((*ColumnsInterface)(nil)).Elem())
 	pkg.InitType("hero", reflect.TypeOf((*Hero)(nil)), reflect.TypeOf((*HeroRule)(nil)), reflect.TypeOf((*HeroInterface)(nil)).Elem())

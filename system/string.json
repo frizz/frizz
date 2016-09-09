@@ -26,12 +26,12 @@
 				},
 				"optional": true
 			},
-			"minLength": {
+			"min-length": {
 				"description": "The value must be longer or equal to the provided minimum length",
 				"type": "@int",
 				"optional": true
 			},
-			"maxLength": {
+			"max-length": {
 				"description": "The value must be shorter or equal to the provided maximum length",
 				"type": "@int",
 				"optional": true

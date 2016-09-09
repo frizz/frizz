@@ -10,6 +10,8 @@ import (
 
 	"context"
 
+	"regexp"
+
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
@@ -61,6 +63,46 @@ func (r Reference) ValueContext(ctx context.Context) (string, error) {
 	}
 	return "", kerr.New("WGCDQQCFAD", "Package %s not found in aliases", r.Package)
 }
+
+func (r *ReferenceRule) Validate(ctx context.Context) (fail bool, messages []string, err error) {
+	if r.Pattern != nil {
+		if _, err := regexp.Compile(r.Pattern.Value()); err != nil {
+			fail = true
+			messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
+		}
+	}
+	return
+}
+
+var _ Validator = (*ReferenceRule)(nil)
+
+func (r *ReferenceRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
+
+	if i, ok := data.(ReferenceInterface); ok && i != nil {
+		data = i.GetReference(ctx)
+	}
+
+	v, ok := data.(*Reference)
+	if !ok && data != nil {
+		return true, nil, kerr.New("BYDVGGETWW", "Reference rule: value %T should be *system.Reference", data)
+	}
+
+	// Pattern restriction should be the same as StringRule
+	var s *String
+	if v != nil {
+		s = NewString(v.Name)
+	}
+	sr := StringRule{
+		Rule:    &Rule{Optional: r.Optional},
+		Pattern: r.Pattern,
+	}
+	if fail, messages, err = sr.Enforce(ctx, s); err != nil {
+		return true, nil, kerr.Wrap("KYYJLYOSHT", err)
+	}
+	return
+}
+
+var _ Enforcer = (*ReferenceRule)(nil)
 
 func NewReference(packagePath string, typeName string) *Reference {
 	r := &Reference{}

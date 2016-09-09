@@ -59,8 +59,8 @@ func TestValidateMain(t *testing.T) {
 		TempFile("a.yaml", `
 			type: "@string"
 			id: a
-			maxLength: 1
-			minLength: 2`).
+			max-length: 1
+			min-length: 2`).
 		Sauto(parser.Parse)
 
 	exitStatus = validateMain(cb.Ctx(), cancel, log, interrupt)

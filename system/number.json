@@ -13,7 +13,7 @@
 				"type": "@number",
 				"optional": true
 			},
-			"multipleOf": {
+			"multiple-of": {
 				"description": "This restricts the number to be a multiple of the given number",
 				"type": "@number",
 				"optional": true
@@ -23,7 +23,7 @@
 				"type": "@number",
 				"optional": true
 			},
-			"exclusiveMinimum": {
+			"exclusive-minimum": {
 				"description": "If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.",
 				"type": "json:@bool",
 				"optional": true
@@ -33,7 +33,7 @@
 				"type": "@number",
 				"optional": true
 			},
-			"exclusiveMaximum": {
+			"exclusive-maximum": {
 				"description": "If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.",
 				"type": "json:@bool",
 				"optional": true

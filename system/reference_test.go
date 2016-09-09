@@ -9,11 +9,55 @@ import (
 
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/tests"
 	"kego.io/tests/unpacker"
 )
+
+func TestReferenceRule_Validate(t *testing.T) {
+	r := &ReferenceRule{}
+	fail, messages, err := r.Validate(envctx.Empty)
+	require.NoError(t, err)
+	assert.False(t, fail)
+	assert.Equal(t, 0, len(messages))
+
+	r = &ReferenceRule{Pattern: NewString("[")}
+	fail, messages, err = r.Validate(envctx.Empty)
+	require.NoError(t, err)
+	assert.True(t, fail)
+	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
+}
+
+func TestReferenceRule_Enforce(t *testing.T) {
+
+	r := ReferenceRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
+	fail, messages, err := r.Enforce(envctx.Empty, NewReference("", ""))
+	require.NoError(t, err)
+	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, "")
+	require.IsError(t, err, "BYDVGGETWW")
+
+	r = ReferenceRule{Rule: &Rule{Optional: false}, Pattern: NewString(`^foo\d`)}
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "Pattern: value must exist", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewReference("", "a"))
+	require.NoError(t, err)
+	assert.Equal(t, "Pattern: value \"a\" must match ^foo\\d", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewReference("", "foo1"))
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
+
+}
 
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {
 	testUnpackDefaultNativeTypeReference(t, unpacker.Unmarshal)
@@ -36,7 +80,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -44,7 +88,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 	assert.Equal(t, NewReference("c.d/e", "f"), a.B.GetReference(nil))
 
 	b, err := json.Marshal(a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c.d/e:f"}`, string(b))
 
 }
@@ -106,7 +150,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 
 	r = reset()
 	err = r.Unpack(ctx, json.Pack("a.b/c:d"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
 	assert.Equal(t, "d", r.Name)
@@ -114,7 +158,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 
 	r = reset()
 	err = r.Unpack(ctx, json.Pack("a.b/c:@d"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
 	assert.Equal(t, "@d", r.Name)
@@ -130,12 +174,12 @@ func TestReferenceUnmarshal(t *testing.T) {
 
 	r = reset()
 	err = r.UnmarshalInterface(envctx.Empty, 1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, *NewReference("", ""), *r)
 
 	r = reset()
 	err = r.UnmarshalInterface(envctx.Empty, "")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, *NewReference("", ""), *r)
 
 	r = reset()
@@ -144,7 +188,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 
 	r = reset()
 	err = r.UnmarshalInterface(tests.Context("a.b/c").Ctx(), "a.b/c:d")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, *NewReference("a.b/c", "d"), *r)
 }
 
@@ -152,12 +196,12 @@ func TestReferenceMarshalJson(t *testing.T) {
 
 	var r *Reference
 	b, err := r.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "null", string(b))
 
 	r = NewReference("a.b/c", "d")
 	b, err = r.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "\"a.b/c:d\"", string(b))
 
 }
@@ -197,33 +241,33 @@ func TestReferenceValue(t *testing.T) {
 	assert.Equal(t, "", r.NativeString())
 
 	v, err := r.ValueContext(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "", v)
 
 	cb := tests.Context("a.b/c")
 	v, err = r.ValueContext(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "", v)
 
 	r = NewReference("a.b/c", "d")
 	v, err = r.ValueContext(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "d", v)
 
 	r = NewReference("kego.io/json", "a")
 	v, err = r.ValueContext(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "json:a", v)
 
 	r = NewReference("kego.io/system", "a")
 	v, err = r.ValueContext(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "system:a", v)
 
 	cb.Alias("g", "d.e/f")
 	r = NewReference("d.e/f", "h")
 	v, err = r.ValueContext(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "g:h", v)
 
 	r = NewReference("i.j/k", "l")
@@ -235,7 +279,7 @@ func TestReferenceValue(t *testing.T) {
 func TestNewReferenceFromString(t *testing.T) {
 	cb := tests.Context("a.b/c")
 	r, err := NewReferenceFromString(cb.Ctx(), "d")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, NewReference("a.b/c", "d"), r)
 
 	r, err = NewReferenceFromString(cb.Ctx(), "e:f")

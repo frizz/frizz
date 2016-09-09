@@ -91,7 +91,7 @@ func TestRuleHasExtraRules(t *testing.T) {
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
 	assert.IsError(t, errors[0], "HLKQWDCMRN")
-	assert.Equal(t, "MinLength: length must not be less than 7", errors[0].Description)
+	assert.Equal(t, "MinLength: length of \"foo\" must not be less than 7", errors[0].Description)
 }
 
 func TestFieldExtraRulesObject(t *testing.T) {
@@ -174,7 +174,7 @@ func TestValidateCollection(t *testing.T) {
 				-
 					selector: ".a>{system:string}"
 					type: system:@string
-					minLength: 5
+					min-length: 5
 			a:
 				- abcabc
 				- bcdbcd
@@ -194,7 +194,7 @@ func TestValidateCollection(t *testing.T) {
 				-
 					selector: ".a>{system:string}"
 					type: system:@string
-					minLength: 5
+					min-length: 5
 			a:
 				- abcabc
 				- abc
@@ -213,7 +213,7 @@ func TestValidateCollection(t *testing.T) {
 				-
 					selector: ".b>{system:string}"
 					type: system:@string
-					minLength: 5
+					min-length: 5
 			b:
 				a: abcabc
 				b: bcdbcd
@@ -230,7 +230,7 @@ func TestValidateCollection(t *testing.T) {
 				-
 					selector: ".b>{system:string}"
 					type: system:@string
-					minLength: 5
+					min-length: 5
 			b:
 				a: abcabc
 				b: bcd
@@ -313,7 +313,7 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 			rules:
 				-   selector: ".b"
 					type: "system:@string"
-					maxLength: 5
+					max-length: 5
 		`,
 	})
 
@@ -377,8 +377,8 @@ func TestValidate_error1(t *testing.T) {
 			"fields": {
 				"b": {
 					"type": "system:@string",
-					"minLength": 10,
-					"maxLength": 5
+					"min-length": 10,
+					"max-length": 5
 				}
 			}
 		}`,

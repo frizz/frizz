@@ -31,6 +31,9 @@ func NewMapView(ctx context.Context, node *node.Node) *MapView {
 	v.Watch(nil,
 		stores.InfoStateChange,
 	)
+	v.Watch(node,
+		stores.NodeErrorsChanged,
+	)
 	return v
 }
 
@@ -114,6 +117,25 @@ func (v *MapView) Render() vecty.Component {
 		),
 		info,
 		NewEditorListView(v.Ctx, v.model, nil, nil),
+		v.errorBlock(),
 	)
 
+}
+
+func (v *MapView) errorBlock() vecty.Markup {
+	if !v.node.Invalid {
+		return vecty.List{}
+	}
+
+	errors := vecty.List{}
+	for _, e := range v.node.Errors {
+		errors = append(errors, elem.ListItem(vecty.Text(e.Description)))
+	}
+	return elem.Div(
+		prop.Class("has-error"),
+		elem.Paragraph(
+			prop.Class("help-block text-danger"),
+			elem.UnorderedList(errors),
+		),
+	)
 }

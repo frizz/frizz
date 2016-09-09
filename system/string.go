@@ -7,6 +7,8 @@ import (
 
 	"context"
 
+	"bytes"
+
 	"github.com/davelondon/kerr"
 	"kego.io/json"
 )
@@ -75,7 +77,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 				messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
 			} else if !reg.Match([]byte(s.Value())) {
 				fail = true
-				messages = append(messages, fmt.Sprintf("Pattern: value must match %s", r.Pattern.Value()))
+				messages = append(messages, fmt.Sprintf("Pattern: value %s must match %s", strconv.Quote(truncate(s.Value(), 20)), r.Pattern.Value()))
 			}
 		}
 	}
@@ -89,7 +91,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 		}
 		if s != nil && *s != *r.Equal {
 			fail = true
-			messages = append(messages, fmt.Sprintf("Equal: value must equal '%s'", r.Equal.Value()))
+			messages = append(messages, fmt.Sprintf("Equal: value %s must equal '%s'", strconv.Quote(truncate(s.Value(), 20)), r.Equal.Value()))
 		}
 	}
 
@@ -102,7 +104,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 		}
 		if s != nil && len(s.Value()) < r.MinLength.Value() {
 			fail = true
-			messages = append(messages, fmt.Sprintf("MinLength: length must not be less than %d", r.MinLength.Value()))
+			messages = append(messages, fmt.Sprintf("MinLength: length of %s must not be less than %d", strconv.Quote(truncate(s.Value(), 20)), r.MinLength.Value()))
 		}
 	}
 
@@ -115,7 +117,7 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 		}
 		if s != nil && len(s.Value()) > r.MaxLength.Value() {
 			fail = true
-			messages = append(messages, fmt.Sprintf("MaxLength: length must not be greater than %d", r.MaxLength.Value()))
+			messages = append(messages, fmt.Sprintf("MaxLength: length of %s must not be greater than %d", strconv.Quote(truncate(s.Value(), 20)), r.MaxLength.Value()))
 		}
 	}
 
@@ -135,12 +137,20 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 			}
 			if !found {
 				fail = true
-				messages = append(messages, fmt.Sprintf("Enum: value must be one of: %v", r.Enum))
+				messages = append(messages, fmt.Sprintf("Enum: value %s must be one of: %v", strconv.Quote(truncate(s.Value(), 20)), r.Enum))
 			}
 		}
 	}
 
 	return
+}
+
+func truncate(s string, length int) string {
+	runes := bytes.Runes([]byte(s))
+	if len(runes) > length {
+		return string(runes[:length-3]) + "..."
+	}
+	return string(runes)
 }
 
 var _ Enforcer = (*StringRule)(nil)
