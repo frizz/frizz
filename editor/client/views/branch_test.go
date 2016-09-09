@@ -86,7 +86,7 @@ func TestBranchNotifyOpenFile(t *testing.T) {
 
 	setupForSuccessfulFileLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{FileContents: models.FileContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}}))
 
 	cb.ExpectDispatched(
 		&actions.LoadFileSent{Branch: b.model},
@@ -107,7 +107,7 @@ func TestBranchNotifyOpenFileError(t *testing.T) {
 
 	setupForFailedFileLoad(cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{FileContents: models.FileContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}}))
 
 	cb.ExpectDispatched(
 		&actions.LoadFileSent{Branch: b.model},
@@ -149,7 +149,7 @@ func TestBranchNotifySelectFile(t *testing.T) {
 
 	setupForSuccessfulFileLoad(t, cb)
 
-	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}))
+	b := NewBranchView(cb.Ctx(), models.NewBranchModel(cb.Ctx(), &models.AsyncContents{FileContents: models.FileContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}}))
 
 	cb.ExpectDispatched(
 		&actions.LoadFileSent{Branch: b.model},
@@ -174,7 +174,7 @@ func TestBranchNotifySelectFileClick(t *testing.T) {
 
 	setupForSuccessfulFileLoad(t, cb)
 
-	m := models.NewBranchModel(cb.Ctx(), &models.AsyncContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"})
+	m := models.NewBranchModel(cb.Ctx(), &models.AsyncContents{FileContents: models.FileContents{NodeContents: models.NodeContents{Name: "a"}, Filename: "b"}})
 	b := NewBranchView(cb.Ctx(), m)
 
 	cb.ExpectDispatched(

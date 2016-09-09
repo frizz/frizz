@@ -393,8 +393,8 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 	}
 
 	if in.Type() == json.J_MAP && n.Type.IsNativeObject() {
-		// for objects and maps, Type() from the json.Packed is always J_MAP, so we correct it
-		// for object types here.
+		// for objects and maps, Type() from the json.Packed is always J_MAP, so
+		// we correct it for object types here.
 		n.JsonType = json.J_OBJECT
 	} else {
 		n.JsonType = in.Type()
@@ -402,9 +402,9 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 	n.Null = in.Type() == json.J_NULL
 
 	// validate json type
-	if !n.Null && n.Type.NativeJsonType() != n.JsonType {
-		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
-	}
+	//	if !n.Null && n.Type.NativeJsonType() != n.JsonType {
+	//		return kerr.New("VEPLUIJXSN", "json type is %s but object type is %s", n.JsonType, n.Type.NativeJsonType())
+	//	}
 
 	if unpack {
 		if n.Rule.Struct == nil {

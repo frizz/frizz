@@ -17,6 +17,17 @@ import (
 	"kego.io/tests/data"
 )
 
+func TestNode_SetIdField(t *testing.T) {
+	cb, n := data.Setup(t)
+	test := func(t *testing.T, n *node.Node, m *data.Multi) {
+		require.HasError(t, n.Map["js"].SetIdField(cb.Ctx(), "a"), "QVLAEAEWEB")
+		require.NoError(t, n.Map["m"].SetIdField(cb.Ctx(), "a"))
+		require.Equal(t, "a", n.Map["m"].Value.(*data.Multi).Id.Name)
+	}
+
+	data.Run(t, n, n.Value.(*data.Multi), test)
+}
+
 func TestNode_NativeValue(t *testing.T) {
 	_, n := data.Setup(t)
 
@@ -733,11 +744,11 @@ func TestNode_SetValueZero3(t *testing.T) {
 	assert.HasError(t, err, "VHOSYBMDQL")
 }
 
-func TestNode_SetValueUnpack(t *testing.T) {
-	cb, n := data.Empty(t)
-	err := n.SetValueUnpack(cb.Ctx(), json.PackString(`"a"`))
-	assert.HasError(t, err, "VEPLUIJXSN")
-}
+//func TestNode_SetValueUnpack(t *testing.T) {
+//	cb, n := data.Empty(t)
+//	err := n.SetValueUnpack(cb.Ctx(), json.PackString(`"a"`))
+//	assert.HasError(t, err, "VEPLUIJXSN")
+//}
 
 type lab struct{}
 

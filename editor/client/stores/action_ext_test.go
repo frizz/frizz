@@ -11,6 +11,16 @@ import (
 	"kego.io/tests/data"
 )
 
+func TestAddMutationRoot(t *testing.T) {
+	cb, _ := data.Setup(t)
+	var a *node.Node
+	a = node.NewNode()
+	ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
+	require.True(t, ok)
+	require.NoError(t, mutateAddNode(cb.Ctx(), a, nil, "", 2, ty, "z"))
+	require.Equal(t, "z", a.Value.(*data.Multi).Id.Name)
+}
+
 func TestAddMutationRedo(t *testing.T) {
 	cb, n := data.Setup(t)
 
@@ -22,13 +32,13 @@ func TestAddMutationRedo(t *testing.T) {
 		b = node.NewNode()
 		ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
 		require.True(t, ok)
-		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty, ""))
 		require.Equal(t, `[{"type":"multi","js":"amjs0"},{"type":"multi","js":"amjs1"},{"type":"multi"}]`, p.Print(cb.Ctx()))
 
 		a1 = n.Map["am"].Array[2].Map["m"]
 		p1 = n.Map["am"].Array[2]
 		b1 = node.NewNode()
-		require.NoError(t, mutateAddNode(cb.Ctx(), a1, p1, "m", -1, ty))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a1, p1, "m", -1, ty, ""))
 		require.Equal(t, 3, len(n.Map["am"].Array))
 		require.Equal(t, 3, len(m.Am))
 		require.False(t, n.Map["am"].Array[2].Map["m"].Missing)
@@ -59,7 +69,7 @@ func TestAddMutation(t *testing.T) {
 		a = node.NewNode()
 		p = n.Map["ajs"]
 		b = node.NewNode()
-		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil, ""))
 		assert.Equal(t, 5, len(n.Map["ajs"].Array))
 		assert.Equal(t, 5, len(m.Ajs))
 
@@ -70,7 +80,7 @@ func TestAddMutation(t *testing.T) {
 		a = node.NewNode()
 		p = n.Map["ass"]
 		b = node.NewNode()
-		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil, ""))
 		assert.Equal(t, 5, len(n.Map["ass"].Array))
 		assert.Equal(t, 5, len(m.Ass))
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
@@ -80,7 +90,7 @@ func TestAddMutation(t *testing.T) {
 		a = node.NewNode()
 		p = n.Map["am"]
 		b = node.NewNode()
-		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil, ""))
 		assert.Equal(t, 3, len(n.Map["am"].Array))
 		assert.Equal(t, 3, len(n.Map["am"].Value.([]*data.Multi)))
 		assert.Equal(t, 3, len(m.Am))
@@ -100,7 +110,7 @@ func TestAddMutation2(t *testing.T) {
 		a = node.NewNode()
 		p = n.Map["am"]
 		b = node.NewNode()
-		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil))
+		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 0, nil, ""))
 		assert.Equal(t, 3, len(n.Map["am"].Array))
 		assert.Equal(t, 3, len(n.Map["am"].Value.([]*data.Multi)))
 		assert.Equal(t, 3, len(m.Am))
