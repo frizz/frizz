@@ -41,6 +41,12 @@ func (r *StringRule) Validate(ctx context.Context) (fail bool, messages []string
 			messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
 		}
 	}
+	if r.PatternNot != nil {
+		if _, err := regexp.Compile(r.PatternNot.Value()); err != nil {
+			fail = true
+			messages = append(messages, fmt.Sprintf("PatternNot: regex does not compile: %s", r.PatternNot.Value()))
+		}
+	}
 	return
 }
 
@@ -78,6 +84,25 @@ func (r *StringRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 			} else if !reg.Match([]byte(s.Value())) {
 				fail = true
 				messages = append(messages, fmt.Sprintf("Pattern: value %s must match %s", strconv.Quote(truncate(s.Value(), 20)), r.Pattern.Value()))
+			}
+		}
+	}
+
+	// This is a regex to match the value to
+	// Pattern String
+	if r.PatternNot != nil {
+		if s == nil && !r.Optional {
+			fail = true
+			messages = append(messages, "PatternNot: value must exist")
+		}
+		if s != nil {
+			reg, err := regexp.Compile(r.PatternNot.Value())
+			if err != nil {
+				fail = true
+				messages = append(messages, fmt.Sprintf("PatternNot: regex does not compile: %s", r.PatternNot.Value()))
+			} else if reg.Match([]byte(s.Value())) {
+				fail = true
+				messages = append(messages, fmt.Sprintf("PatternNot: value %s must not match %s", strconv.Quote(truncate(s.Value(), 20)), r.PatternNot.Value()))
 			}
 		}
 	}

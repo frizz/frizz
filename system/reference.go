@@ -71,6 +71,12 @@ func (r *ReferenceRule) Validate(ctx context.Context) (fail bool, messages []str
 			messages = append(messages, fmt.Sprintf("Pattern: regex does not compile: %s", r.Pattern.Value()))
 		}
 	}
+	if r.PatternNot != nil {
+		if _, err := regexp.Compile(r.PatternNot.Value()); err != nil {
+			fail = true
+			messages = append(messages, fmt.Sprintf("PatternNot: regex does not compile: %s", r.PatternNot.Value()))
+		}
+	}
 	return
 }
 
@@ -93,8 +99,9 @@ func (r *ReferenceRule) Enforce(ctx context.Context, data interface{}) (fail boo
 		s = NewString(v.Name)
 	}
 	sr := StringRule{
-		Rule:    &Rule{Optional: r.Optional},
-		Pattern: r.Pattern,
+		Rule:       &Rule{Optional: r.Optional},
+		Pattern:    r.Pattern,
+		PatternNot: r.PatternNot,
 	}
 	if fail, messages, err = sr.Enforce(ctx, s); err != nil {
 		return true, nil, kerr.Wrap("KYYJLYOSHT", err)

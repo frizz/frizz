@@ -12,7 +12,8 @@
 			"description": "All global objects should have an id.",
 			"type": "@reference",
 			"optional": true,
-			"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+			"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+			"pattern-not": "-rule$|-interface$"
 		},
 		"tags": {
 			"description": "Tags for general use",

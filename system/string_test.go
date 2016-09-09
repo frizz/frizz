@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
 	"kego.io/json"
 	"kego.io/tests"
@@ -46,7 +47,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
@@ -54,7 +55,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 	assert.Equal(t, "c", a.B.GetString(nil).Value())
 
 	b, err := json.Marshal(a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
 }
@@ -80,14 +81,14 @@ func testMarshal(t *testing.T, up unpacker.Interface) {
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
 	assert.Equal(t, "c", a.B.Value())
 
 	b, err := json.Marshal(a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
 }
@@ -109,7 +110,7 @@ func TestMarshal1(t *testing.T) {
 		B: NewString("d"),
 	}
 	b, err := json.Marshal(a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"d"}`, string(b))
 
 }
@@ -130,17 +131,17 @@ func TestMarshal2(t *testing.T) {
 		B: NewString("c"),
 	}
 	b, err := json.Marshal(a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
 	b, err = json.MarshalContext(ctx, a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
 	ctx1 := tests.Context("d.e/f").JtypePath("kego.io/system", "a", reflect.TypeOf(&A{})).Ctx()
 
 	b, err = json.MarshalContext(ctx1, a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
 
 }
@@ -159,11 +160,11 @@ func TestMarshal3(t *testing.T) {
 		B: NewString("c"),
 	}
 	b, err := json.Marshal(a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
 
 	b, err = json.MarshalContext(tests.Context("c.d/e").Jtype("a", reflect.TypeOf(&A{})).Ctx(), a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
 	b, err = json.MarshalContext(tests.Context("f.g/h").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
@@ -172,7 +173,7 @@ func TestMarshal3(t *testing.T) {
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
 	b, err = json.MarshalContext(tests.Context("f.g/h").Alias("i", "c.d/e").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 
 }
@@ -194,7 +195,7 @@ func TestStringUnmarshalJSON(t *testing.T) {
 	s = NewString("")
 
 	err = s.Unpack(envctx.Empty, json.Pack(`foo "bar"`))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
@@ -208,12 +209,12 @@ func TestStringMarshalJSON(t *testing.T) {
 	var s *String
 
 	ba, err := s.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "null", string(ba))
 
 	s = NewString(`foo "bar"`)
 	ba, err = s.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `"foo \"bar\""`, string(ba))
 
 }
@@ -233,37 +234,43 @@ func TestStringString(t *testing.T) {
 func TestStringRule_Validate(t *testing.T) {
 	r := &StringRule{}
 	fail, messages, err := r.Validate(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, fail)
 	assert.Equal(t, 0, len(messages))
 
+	r = &StringRule{PatternNot: NewString("[")}
+	fail, messages, err = r.Validate(envctx.Empty)
+	require.NoError(t, err)
+	assert.True(t, fail)
+	assert.Equal(t, "PatternNot: regex does not compile: [", messages[0])
+
 	r = &StringRule{Pattern: NewString("[")}
 	fail, messages, err = r.Validate(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, fail)
 	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
 
 	r = &StringRule{MaxLength: NewInt(10)}
 	fail, messages, err = r.Validate(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, fail)
 	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{MaxLength: NewInt(10), MinLength: NewInt(5)}
 	fail, messages, err = r.Validate(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, fail)
 	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{MaxLength: NewInt(5), MinLength: NewInt(5)}
 	fail, messages, err = r.Validate(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, fail)
 	assert.Equal(t, 0, len(messages))
 
 	r = &StringRule{MaxLength: NewInt(4), MinLength: NewInt(5)}
 	fail, messages, err = r.Validate(envctx.Empty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, fail)
 	assert.Equal(t, "MaxLength 4 must not be less than MinLength 5", messages[0])
 }
@@ -271,22 +278,22 @@ func TestStringRule_Validate(t *testing.T) {
 func TestStringRule_Enforce(t *testing.T) {
 	r := StringRule{Rule: &Rule{Optional: false}, Equal: NewString("a"), MaxLength: NewInt(1)}
 	fail, messages, err := r.Enforce(envctx.Empty, NewString("a"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Equal: value must exist", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("b"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Equal: value \"b\" must equal 'a'", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("123456789012345678901234567890"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Equal: value \"12345678901234567...\" must equal 'a'", messages[0])
 	assert.True(t, fail)
 
@@ -295,65 +302,88 @@ func TestStringRule_Enforce(t *testing.T) {
 
 	r = StringRule{Rule: &Rule{Optional: false}, MaxLength: NewInt(1)}
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("ab"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "MaxLength: length of \"ab\" must not be greater than 1", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "MaxLength: value must exist", messages[0])
 	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, MinLength: NewInt(5)}
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("abcde"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("abcd"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "MinLength: length of \"abcd\" must not be less than 5", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "MinLength: value must exist", messages[0])
 	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Enum: []string{"a", "b"}}
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Enum: value must exist", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("a"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("c"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Enum: value \"c\" must be one of: [a b]", messages[0])
 	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
 	fail, messages, err = r.Enforce(envctx.Empty, NewString(""))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
+	assert.True(t, fail)
+
+	r = StringRule{Rule: &Rule{Optional: false}, PatternNot: NewString(`[`)}
+	fail, messages, err = r.Enforce(envctx.Empty, NewString(""))
+	require.NoError(t, err)
+	assert.Equal(t, "PatternNot: regex does not compile: [", messages[0])
 	assert.True(t, fail)
 
 	r = StringRule{Rule: &Rule{Optional: false}, Pattern: NewString(`^foo\d`)}
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Pattern: value must exist", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("a"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Pattern: value \"a\" must match ^foo\\d", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewString("foo1"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
+
+	r = StringRule{Rule: &Rule{Optional: false}, PatternNot: NewString(`^foo\d`)}
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "PatternNot: value must exist", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("foo1"))
+	require.NoError(t, err)
+	require.Equal(t, 1, len(messages))
+	assert.Equal(t, "PatternNot: value \"foo1\" must not match ^foo\\d", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewString("a"))
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 

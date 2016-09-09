@@ -42,7 +42,12 @@
 				"optional": true
 			},
 			"pattern": {
-				"description": "This is a regex to match the value to",
+				"description": "The value must match this regex",
+				"type": "@string",
+				"optional": true
+			},
+			"pattern-not": {
+				"description": "The value must not match this regex",
 				"type": "@string",
 				"optional": true
 			},

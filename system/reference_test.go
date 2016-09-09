@@ -28,12 +28,24 @@ func TestReferenceRule_Validate(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, fail)
 	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
+
+	r = &ReferenceRule{PatternNot: NewString("[")}
+	fail, messages, err = r.Validate(envctx.Empty)
+	require.NoError(t, err)
+	assert.True(t, fail)
+	assert.Equal(t, "PatternNot: regex does not compile: [", messages[0])
 }
 
 func TestReferenceRule_Enforce(t *testing.T) {
 
-	r := ReferenceRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
+	r := ReferenceRule{Rule: &Rule{Optional: false}, PatternNot: NewString(`[`)}
 	fail, messages, err := r.Enforce(envctx.Empty, NewReference("", ""))
+	require.NoError(t, err)
+	assert.Equal(t, "PatternNot: regex does not compile: [", messages[0])
+	assert.True(t, fail)
+
+	r = ReferenceRule{Rule: &Rule{Optional: false}, Pattern: NewString(`[`)}
+	fail, messages, err = r.Enforce(envctx.Empty, NewReference("", ""))
 	require.NoError(t, err)
 	assert.Equal(t, "Pattern: regex does not compile: [", messages[0])
 	assert.True(t, fail)
@@ -53,6 +65,22 @@ func TestReferenceRule_Enforce(t *testing.T) {
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewReference("", "foo1"))
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(messages))
+	assert.False(t, fail)
+
+	r = ReferenceRule{Rule: &Rule{Optional: false}, PatternNot: NewString(`^foo\d`)}
+	fail, messages, err = r.Enforce(envctx.Empty, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "PatternNot: value must exist", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewReference("", "foo1"))
+	require.NoError(t, err)
+	assert.Equal(t, "PatternNot: value \"foo1\" must not match ^foo\\d", messages[0])
+	assert.True(t, fail)
+
+	fail, messages, err = r.Enforce(envctx.Empty, NewReference("", "a"))
 	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)

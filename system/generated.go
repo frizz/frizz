@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":7563913859779259846}
+// info:{"Path":"kego.io/system","Hash":6835056712181385552}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -96,8 +96,10 @@ type ReferenceRule struct {
 	*Rule
 	// Default value of this is missing or null
 	Default *Reference `json:"default"`
-	// This is a regex to match the value to
+	// The value must match this regex
 	Pattern *String `json:"pattern"`
+	// The value must not match this regex
+	PatternNot *String `json:"pattern-not"`
 }
 
 // Automatically created basic rule for rule
@@ -124,8 +126,10 @@ type StringRule struct {
 	MaxLength *Int `json:"max-length"`
 	// The value must be longer or equal to the provided minimum length
 	MinLength *Int `json:"min-length"`
-	// This is a regex to match the value to
+	// The value must match this regex
 	Pattern *String `json:"pattern"`
+	// The value must not match this regex
+	PatternNot *String `json:"pattern-not"`
 }
 
 // Automatically created basic rule for type
@@ -251,7 +255,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 7563913859779259846)
+	pkg := jsonctx.InitPackage("kego.io/system", 6835056712181385552)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
