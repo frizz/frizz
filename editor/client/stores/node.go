@@ -113,14 +113,16 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			payload.Notify(action.Node, NodeFocus)
 		}
 
-		model := s.app.Nodes.Get(action.Parent)
-		changed, err := model.Validate(s.ctx, s.app.Rule.Get(action.Parent.Root(), action.Parent))
-		if err != nil {
-			s.app.Fail <- kerr.Wrap("AKIUPRWGLV", err)
-			break
-		}
-		if changed {
-			payload.Notify(action.Parent, NodeErrorsChanged)
+		if action.Parent != nil {
+			model := s.app.Nodes.Get(action.Parent)
+			changed, err := model.Validate(s.ctx, s.app.Rule.Get(action.Parent.Root(), action.Parent))
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("AKIUPRWGLV", err)
+				break
+			}
+			if changed {
+				payload.Notify(action.Parent, NodeErrorsChanged)
+			}
 		}
 
 		c := action.Parent
@@ -149,14 +151,16 @@ func (s *NodeStore) Handle(payload *flux.Payload) bool {
 			payload.Notify(action.Node, NodeFocus)
 		}
 
-		model := s.app.Nodes.Get(action.Parent)
-		changed, err := model.Validate(s.ctx, s.app.Rule.Get(action.Parent.Root(), action.Parent))
-		if err != nil {
-			s.app.Fail <- kerr.Wrap("IOFCSITVXB", err)
-			break
-		}
-		if changed {
-			payload.Notify(action.Parent, NodeErrorsChanged)
+		if action.Parent != nil {
+			model := s.app.Nodes.Get(action.Parent)
+			changed, err := model.Validate(s.ctx, s.app.Rule.Get(action.Parent.Root(), action.Parent))
+			if err != nil {
+				s.app.Fail <- kerr.Wrap("IOFCSITVXB", err)
+				break
+			}
+			if changed {
+				payload.Notify(action.Parent, NodeErrorsChanged)
+			}
 		}
 
 		c := action.Parent
