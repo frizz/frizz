@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":6835056712181385552}
+// info:{"Path":"kego.io/system","Hash":10967192916392524561}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -132,11 +132,32 @@ type StringRule struct {
 	PatternNot *String `json:"pattern-not"`
 }
 
+// Automatically created basic rule for tags
+type TagsRule struct {
+	*Object
+	*Rule
+}
+
 // Automatically created basic rule for type
 type TypeRule struct {
 	*Object
 	*Rule
 }
+
+// This is the native json array data type
+type Array struct {
+	*Object
+}
+type ArrayInterface interface {
+	GetArray(ctx context.Context) *Array
+}
+
+func (o *Array) GetArray(ctx context.Context) *Array {
+	return o
+}
+
+// This is the native json bool data type
+type Bool bool
 type BoolInterface interface {
 	GetBool(ctx context.Context) *Bool
 }
@@ -153,6 +174,20 @@ func (o *Int) GetInt(ctx context.Context) *Int {
 	return o
 }
 
+// This is the native json object data type.
+type Map struct {
+	*Object
+}
+type MapInterface interface {
+	GetMap(ctx context.Context) *Map
+}
+
+func (o *Map) GetMap(ctx context.Context) *Map {
+	return o
+}
+
+// This is the native json number data type
+type Number float64
 type NumberInterface interface {
 	GetNumber(ctx context.Context) *Number
 }
@@ -223,6 +258,8 @@ func (o *Rule) GetRule(ctx context.Context) *Rule {
 	return o
 }
 
+// This is the native json string data type
+type String string
 type StringInterface interface {
 	GetString(ctx context.Context) *String
 }
@@ -231,11 +268,25 @@ func (o *String) GetString(ctx context.Context) *String {
 	return o
 }
 
+// Tag cloud.
+type Tags []string
+type TagsInterface interface {
+	GetTags(ctx context.Context) *Tags
+}
+
+func (o *Tags) GetTags(ctx context.Context) *Tags {
+	return o
+}
+
 // This is the most basic type.
 type Type struct {
 	*Object
+	// If this type is an alias of another type, specify the underlying type here
+	Alias RuleInterface `json:"alias"`
 	// Basic types don't have system:object added by default to the embedded types.
 	Basic bool `json:"basic"`
+	// Custom types are not emitted into the generated source
+	Custom bool `json:"custom"`
 	// Types which this should embed - system:object is always added unless basic = true.
 	Embed []*Reference `json:"embed"`
 	// Each field is listed with it's type
@@ -255,7 +306,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 6835056712181385552)
+	pkg := jsonctx.InitPackage("kego.io/system", 10967192916392524561)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
@@ -266,5 +317,6 @@ func init() {
 	pkg.InitType("reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceRule)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem())
 	pkg.InitType("rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
 	pkg.InitType("string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
+	pkg.InitType("tags", reflect.TypeOf((*Tags)(nil)), reflect.TypeOf((*TagsRule)(nil)), reflect.TypeOf((*TagsInterface)(nil)).Elem())
 	pkg.InitType("type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
 }

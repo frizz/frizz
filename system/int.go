@@ -19,11 +19,6 @@ func NewInt(i int) *Int {
 	return &out
 }
 
-// Set sets the value
-func (i *Int) Set(in int) {
-	*i = Int(in)
-}
-
 func (i *Int) GetString(ctx context.Context) *String {
 	return NewString(i.String())
 }

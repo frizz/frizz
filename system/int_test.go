@@ -11,12 +11,6 @@ import (
 	"kego.io/tests/unpacker"
 )
 
-func TestIntSet(t *testing.T) {
-	i := NewInt(2)
-	i.Set(5)
-	assert.Equal(t, 5, i.Value())
-}
-
 func TestUnpackDefaultNativeTypeInt(t *testing.T) {
 	testUnpackDefaultNativeTypeInt(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeInt(t, unpacker.Unpack)

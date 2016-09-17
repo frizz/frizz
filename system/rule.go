@@ -76,18 +76,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		return typ, nil
 	}
 
-	switch r.Parent.Native.Value() {
-	case "object", "number", "bool", "string":
-		typ, ok := r.Parent.Id.GetReflectType(r.Ctx)
-		if !ok {
-			return nil, kerr.New("DLAJJPJDPL", "Type %s not found", r.Parent.Id.Value())
-		}
-		return typ, nil
-	case "array", "map":
-		c, ok := r.Interface.(CollectionRule)
-		if !ok {
-			return nil, kerr.New("GSYSHQOWNH", "Collection types must have rule that implements CollectionRule")
-		}
+	if c, ok := r.Interface.(CollectionRule); ok {
 		itemsRule := c.GetItemsRule()
 		items, err := WrapRule(r.Ctx, itemsRule)
 		if err != nil {
@@ -101,9 +90,14 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil
-	default:
-		return nil, kerr.New("VDEORSSUWA", "Unknown native %s", r.Parent.Native.Value())
 	}
+
+	typ, ok := r.Parent.Id.GetReflectType(r.Ctx)
+	if !ok {
+		return nil, kerr.New("DLAJJPJDPL", "Type %s not found", r.Parent.Id.Value())
+	}
+	return typ, nil
+
 }
 
 func WrapEmptyRule(ctx context.Context, t *Type) *RuleWrapper {
@@ -126,11 +120,31 @@ func WrapRule(ctx context.Context, r RuleInterface) (*RuleWrapper, error) {
 	return &RuleWrapper{Ctx: ctx, Interface: r, Parent: t, Struct: r.GetRule(nil)}, nil
 }
 
+func (r *RuleWrapper) IsCollection() bool {
+	return r.Parent.IsNativeCollection()
+}
+
 // ItemsRule returns Items rule for a collection Rule.
 func (r *RuleWrapper) ItemsRule() (*RuleWrapper, error) {
-	if !r.Parent.IsNativeCollection() {
+	if !r.IsCollection() {
 		return nil, kerr.New("VPAGXSTQHM", "%s is not a collection", r.Parent.Id.Value())
 	}
+	// I don't think this should be here:
+	/*
+		if r.Parent.Alias != nil {
+			aw, err := WrapRule(r.Ctx, r.Parent.Alias)
+			if err != nil {
+				return nil, kerr.Wrap("PVCNTDVGWA", err)
+			}
+			if aw.IsCollection() {
+				ir, err := aw.ItemsRule()
+				if err != nil {
+					return nil, kerr.Wrap("UIGQFXJLJE", err)
+				}
+				return ir, nil
+			}
+		}
+	*/
 	c, ok := r.Interface.(CollectionRule)
 	if !ok {
 		return nil, kerr.New("TNRVQVJIFH", "%T is not a CollectionRule", r.Interface)

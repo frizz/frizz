@@ -50,13 +50,19 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 		isRule := typ.Id.IsRule()
 
-		if typ.IsNativeCollection() {
-			continue
-		}
-
-		if !typ.Interface && !typ.IsNativeValue() {
-			if err := printStructDefinition(ctx, env, g, typ); err != nil {
-				return nil, kerr.Wrap("XKRYMXUIJD", err)
+		if !typ.Interface && !typ.Custom {
+			if typ.Alias != nil {
+				if err := printAliasDefinition(ctx, env, g, typ); err != nil {
+					return nil, kerr.Wrap("TRERIECOEP", err)
+				}
+			} else if typ.IsNativeValue() {
+				if err := printNativeDefinition(ctx, env, g, typ); err != nil {
+					return nil, kerr.Wrap("LGNVUCNYSE", err)
+				}
+			} else {
+				if err := printStructDefinition(ctx, env, g, typ); err != nil {
+					return nil, kerr.Wrap("XKRYMXUIJD", err)
+				}
 			}
 		}
 
@@ -102,6 +108,30 @@ func printInterfaceImplementation(env *envctx.Env, g *builder.Builder, typ *syst
 		g.Println("return o")
 	}
 	g.Println("}")
+}
+
+func printNativeDefinition(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
+	if typ.Description != "" {
+		g.Println("// ", typ.Description)
+	}
+	nativeType, err := typ.NativeValueGolangType()
+	if err != nil {
+		return kerr.Wrap("CMOYPEUFCY", err)
+	}
+	g.Println("type ", system.GoName(typ.Id.Name), " ", nativeType)
+	return nil
+}
+
+func printAliasDefinition(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
+	if typ.Description != "" {
+		g.Println("// ", typ.Description)
+	}
+	aliasType, err := builder.Type(ctx, "", typ.Alias, env.Path, g.Imports.Add)
+	if err != nil {
+		return kerr.Wrap("FWOLIESYUA", err)
+	}
+	g.Println("type ", system.GoName(typ.Id.Name), " ", aliasType)
+	return nil
 }
 
 func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
@@ -192,7 +222,7 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTyp
 				) + ".Elem()"
 			}
 
-			if typ.IsNativeCollection() {
+			if typ.Alias == nil && typ.IsNativeCollection() {
 				g.PrintMethodCall(
 					"pkg",
 					"InitType",

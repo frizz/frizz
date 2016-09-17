@@ -3,6 +3,7 @@
 	"type": "type",
 	"id": "reference",
 	"native": "string",
+	"custom": true,
 	"rule": {
 		"description": "Restriction rules for references",
 		"type": "type",

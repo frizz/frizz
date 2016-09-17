@@ -21,9 +21,9 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 		return "", kerr.Wrap("TFXFBIRXHN", err)
 	}
 
-	// if the rule is a complex collection, with possibly several maps and arrays, this
-	// iterates over the rule and returns the go collection prefix - e.g. []map[string]
-	// for an array of maps. It also returns the inner rule.
+	// if the rule is a complex collection, with possibly several maps and
+	// arrays, this iterates over the rule and returns the go collection prefix
+	// - e.g. []map[string] for an array of maps. It also returns the inner rule.
 	prefix, inner, err := collectionPrefixInnerRule("", outer)
 	if err != nil {
 		return "", kerr.Wrap("SOGEFOPJHB", err)
@@ -31,13 +31,13 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 
 	var name, pointer string
 	if inner.Struct.Interface {
-		// if this is an interface rule, we print the interface name of the inner type,
-		// which never has a pointer asterisk.
+		// if this is an interface rule, we print the interface name of the
+		// inner type, which never has a pointer asterisk.
 		pointer = ""
 		name = Reference(inner.Parent.Id.Package, system.GoInterfaceName(inner.Parent.Id.Name), path, getAlias)
 	} else {
-		// this returns a "*" if the type should be prefixed by it. Native and interface types
-		// don't have a *.
+		// this returns a "*" if the type should be prefixed by it. Native and
+		// interface types don't have a *.
 		pointer = getPointer(inner.Parent)
 		name = Reference(inner.Parent.Id.Package, system.GoName(inner.Parent.Id.Name), path, getAlias)
 	}
@@ -59,21 +59,27 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 // the full collection prefix (e.g. any number of appended [] and map[string]'s)
 // and the inner (non collection) rule.
 func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
-	p := outer.Parent
-	if p.IsNativeCollection() {
-		if p.Native.Value() == "array" {
-			prefix += "[]"
-		} else if p.Native.Value() == "map" {
-			prefix += "map[string]"
-		}
-		items, err := outer.ItemsRule()
-		if err != nil {
-			return "", nil, kerr.Wrap("SUTYJEGBKW", err)
-		}
-		return collectionPrefixInnerRule(prefix, items)
-	} else {
+
+	if _, ok := outer.Interface.(system.CollectionRule); !ok {
 		return prefix, outer, nil
 	}
+	if !outer.IsCollection() {
+		// DummyRule is a system.CollectionRule but may not actually be a
+		// collection
+		return prefix, outer, nil
+	}
+
+	switch outer.Parent.Native.Value() {
+	case "array":
+		prefix += "[]"
+	case "map":
+		prefix += "map[string]"
+	}
+	items, err := outer.ItemsRule()
+	if err != nil {
+		return "", nil, kerr.Wrap("SUTYJEGBKW", err)
+	}
+	return collectionPrefixInnerRule(prefix, items)
 }
 
 func getPointer(t *system.Type) string {
@@ -125,6 +131,9 @@ func formatTag(ctx context.Context, fieldName string, defaultBytes []byte, r *sy
 	tag = addSubTag(tag, "kego", kegoTag)
 	tag = addSubTag(tag, "json", fieldName)
 
+	if tag == "" {
+		return "", nil
+	}
 	if strconv.CanBackquote(tag) {
 		return "`" + tag + "`", nil
 	}

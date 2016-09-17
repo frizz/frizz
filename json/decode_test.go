@@ -153,7 +153,7 @@ func TestUnmarshalNoTypeAttribute(t *testing.T) {
 	s := `{"foo":"bar"}`
 	var v interface{}
 	err := Unmarshal(context.Background(), []byte(s), &v)
-	assert.IsError(t, err, "YEOQSWVFVH")
+	assert.HasError(t, err, "YEOQSWVFVH")
 }
 
 func TestUnmarshalFieldErroressage(t *testing.T) {
@@ -687,7 +687,7 @@ func TestUnmarshal(t *testing.T) {
 		if tt.useNumber {
 			dec.UseNumber()
 		}
-		if err := dec.DecodeUntyped(v.Interface()); !reflect.DeepEqual(err, tt.err) {
+		if err := dec.DecodeUntyped(v.Interface()); !reflect.DeepEqual(kerr.Source(err), tt.err) {
 			t.Errorf("#%d: %v, want %v", i, err, tt.err)
 			continue
 		} else if err != nil {
@@ -855,7 +855,7 @@ func TestErrorMessageFromMisusedString(t *testing.T) {
 	for n, tt := range wrongStringTests {
 		r := strings.NewReader(tt.in)
 		var s WrongString
-		err := NewDecoder(envctx.Empty, r).DecodeUntyped(&s)
+		err := kerr.Source(NewDecoder(envctx.Empty, r).DecodeUntyped(&s))
 		got := fmt.Sprintf("%v", err)
 		if got != tt.err {
 			t.Errorf("%d. got err = %q, want %q", n, got, tt.err)
@@ -1549,6 +1549,7 @@ func TestInvalidUnmarshal(t *testing.T) {
 			t.Errorf("UnmarshalPlain expecting error, got nil")
 			continue
 		}
+		err = kerr.Source(err)
 		if got := err.Error(); got != tt.want {
 			t.Errorf("UnmarshalPlain = %q; want %q", got, tt.want)
 		}

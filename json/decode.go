@@ -93,10 +93,14 @@ func UnmarshalUntyped(ctx context.Context, data []byte, v interface{}) error {
 	err := checkValid(data, &d.scan)
 	if err != nil {
 		// ke: {"block": {"notest": true}}
-		return err
+		return kerr.Wrap("BACKEQJSYF", err)
 	}
 	d.init(ctx, data, false)
-	return d.unmarshal(v)
+	err = d.unmarshal(v)
+	if err != nil {
+		return kerr.Wrap("YFLBEQIIUY", err)
+	}
+	return nil
 }
 
 type UnknownPackageError struct {
@@ -118,12 +122,18 @@ func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
 	err = d.getError(err)
 	if err != nil {
 		// ke: {"block": {"notest": true}}
-		return err
+		if err != nil {
+			return kerr.Wrap("EBQHWRCBXE", err)
+		}
 	}
 
 	d.init(ctx, data, true)
 	err = d.unmarshalTyped(v)
-	return d.getError(err)
+	err = d.getError(err)
+	if err != nil {
+		return kerr.Wrap("GMSJBIQRQT", err)
+	}
+	return nil
 }
 
 // Unmarshaler is the interface implemented by objects
@@ -180,9 +190,12 @@ func (e *InvalidUnmarshalError) Error() string {
 	return "json: Unmarshal(nil " + e.Type.String() + ")"
 }
 
-func (d *decodeState) unmarshal(v interface{}) (err error) {
+func (d *decodeState) unmarshal(v interface{}) error {
 	rv := reflect.ValueOf(v)
-	return d.unmarshalValue(rv)
+	if err := d.unmarshalValue(rv); err != nil {
+		return kerr.Wrap("BRLGHLJAKV", err)
+	}
+	return nil
 }
 
 func (d *decodeState) unmarshalTyped(v *interface{}) (err error) {
@@ -198,6 +211,9 @@ func (d *decodeState) unmarshalValue(rv reflect.Value) (err error) {
 				panic(r)
 			}
 			err = r.(error)
+			if err != nil {
+				err = kerr.Wrap("RXTXRDOLVG", err)
+			}
 		}
 	}()
 

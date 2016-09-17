@@ -687,7 +687,7 @@ func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 		assert.IsError(t, err, "LJBTNGPVSY")
 		assert.HasError(t, err, "VUEFNKSTLG")
 	} else {
-		assert.IsError(t, err, "YEOQSWVFVH")
+		assert.HasError(t, err, "YEOQSWVFVH")
 	}
 	ut, ok := kerr.Source(err).(UnknownTypeError)
 	assert.True(t, ok)
@@ -706,7 +706,7 @@ func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 		assert.IsError(t, err, "LJBTNGPVSY")
 		assert.HasError(t, err, "WLKNMHPWJN")
 	} else {
-		assert.IsError(t, err, "TBNIEVUCPL")
+		assert.HasError(t, err, "TBNIEVUCPL")
 	}
 	upe, ok := kerr.Source(err).(UnknownPackageError)
 	assert.True(t, ok)
@@ -724,7 +724,7 @@ func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 		assert.IsError(t, err, "LJBTNGPVSY")
 		assert.HasError(t, err, "WLKNMHPWJN")
 	} else {
-		assert.IsError(t, err, "TBNIEVUCPL")
+		assert.HasError(t, err, "TBNIEVUCPL")
 	}
 	upe, ok = kerr.Source(err).(UnknownPackageError)
 	assert.True(t, ok)
@@ -735,7 +735,7 @@ func testDummyInterfaceNotFound(t *testing.T, up unpacker.Interface) {
 		assert.IsError(t, err, "LJBTNGPVSY")
 		assert.HasError(t, err, "VUEFNKSTLG")
 	} else {
-		assert.IsError(t, err, "YEOQSWVFVH")
+		assert.HasError(t, err, "YEOQSWVFVH")
 	}
 	ut, ok = kerr.Source(err).(UnknownTypeError)
 	assert.True(t, ok)

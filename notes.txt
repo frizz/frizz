@@ -1,20 +1,12 @@
 Type.Native - the json type
     object
     map
-
-
     struct
     native
     native-struct (json native, go struct - e.g. system:reference)
 
 Type.GoKind
     underlying - system:rule-interface
-
-ke names:
-    in JS: [a-z][a-z0-9]*(-[a-z0-9]+)*
-    translated to go: foo-bar-baz -> FooBarBaz
-    must not end in "-rule"
-    must not end in "-interface"
 
 @int
 int-rule

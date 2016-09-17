@@ -13,8 +13,6 @@ import (
 	"kego.io/json"
 )
 
-type Number float64
-
 func NewNumber(n float64) *Number {
 	out := Number(n)
 	return &out

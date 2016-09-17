@@ -60,6 +60,10 @@ func TestFormatTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "`json:\"n\"`", s)
 
+	s, err = formatTag(ctx, "", nil, nil)
+	assert.NoError(t, err)
+	assert.Equal(t, "", s)
+
 	s, err = formatTag(ctx, "`", []byte("null"), r)
 	assert.NoError(t, err)
 	assert.Equal(t, "\"json:\\\"`\\\"\"", s)
@@ -416,6 +420,16 @@ func TestGoTypeDescriptor(t *testing.T) {
 	cb.Path("b.c/d")
 
 	s, err = Type(cb.Ctx(), "n", pa, "b.c/d", i.Add)
+	assert.NoError(t, err)
+	assert.Equal(t, "*A `json:\"n\"`", s)
+
+	dr := &system.DummyRule{
+		Object: &system.Object{
+			Type: system.NewReference("b.c/d", "@a"),
+		},
+		Rule: &system.Rule{},
+	}
+	s, err = Type(cb.Ctx(), "n", dr, "b.c/d", i.Add)
 	assert.NoError(t, err)
 	assert.Equal(t, "*A `json:\"n\"`", s)
 

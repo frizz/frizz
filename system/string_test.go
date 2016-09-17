@@ -20,12 +20,6 @@ func TestStringGetDefault(t *testing.T) {
 	assert.Equal(t, "a", s.Value())
 }
 
-func TestStringSet(t *testing.T) {
-	a := NewString("a")
-	a.Set("b")
-	assert.Equal(t, "b", a.Value())
-}
-
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
 	testUnpackDefaultNativeTypeString(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeString(t, unpacker.Unpack)

@@ -7,8 +7,6 @@ import (
 	"kego.io/json"
 )
 
-type Bool bool
-
 func NewBool(b bool) *Bool {
 	out := Bool(b)
 	return &out

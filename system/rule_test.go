@@ -182,11 +182,6 @@ func TestRuleGetReflectType(t *testing.T) {
 
 	cb.Jtype("foo", fooStructReflect)
 
-	// Rule isn't a collection rule, so we error
-	fooType.Native = NewString("map")
-	rt, err = foo.GetReflectType()
-	assert.IsError(t, err, "GSYSHQOWNH")
-
 	// Native types return the reflect.Type of the parent type
 	fooType.Native = NewString("string")
 	rt, err = foo.GetReflectType()
@@ -229,10 +224,6 @@ func TestRuleGetReflectType(t *testing.T) {
 	rt, err = bar.GetReflectType()
 	assert.NoError(t, err)
 	assert.Equal(t, reflect.TypeOf(map[string]fooStruct{}), rt)
-
-	barType.Native = NewString("a")
-	rt, err = bar.GetReflectType()
-	assert.IsError(t, err, "VDEORSSUWA")
 
 }
 

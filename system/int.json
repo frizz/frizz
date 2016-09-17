@@ -3,6 +3,7 @@
 	"type": "type",
 	"id": "int",
 	"native": "number",
+	"custom": true,
 	"rule": {
 		"description": "Restriction rules for integers",
 		"type": "type",

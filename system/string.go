@@ -13,8 +13,6 @@ import (
 	"kego.io/json"
 )
 
-type String string
-
 func NewString(s string) *String {
 	out := String(s)
 	return &out
@@ -22,10 +20,6 @@ func NewString(s string) *String {
 
 func (s *String) Value() string {
 	return string(*s)
-}
-
-func (s *String) Set(in string) {
-	*s = String(in)
 }
 
 func (r *StringRule) Validate(ctx context.Context) (fail bool, messages []string, err error) {

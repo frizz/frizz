@@ -356,17 +356,19 @@ func (n *Node) resetAllValues() {
 }
 
 func (n *Node) initialiseValFromParent() {
+
+	v := n.Parent.Val
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+		v = v.Elem()
+	}
+
 	switch n.Parent.JsonType {
 	case json.J_OBJECT:
-		v := n.Parent.Val
-		for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
-			v = v.Elem()
-		}
 		n.Val = v.FieldByName(system.GoName(n.Key))
 	case json.J_MAP:
-		n.Val = n.Parent.Val.MapIndex(reflect.ValueOf(n.Key))
+		n.Val = v.MapIndex(reflect.ValueOf(n.Key))
 	case json.J_ARRAY:
-		n.Val = n.Parent.Val.Index(n.Index)
+		n.Val = v.Index(n.Index)
 	}
 	n.Value = n.Val.Interface()
 }

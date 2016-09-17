@@ -1,0 +1,12 @@
+{
+	"description": "Tag cloud.",
+	"type": "type",
+	"id": "tags",
+	"native": "array",
+	"alias": {
+		"type": "system:@array",
+		"items": {
+			"type": "json:@string"
+		}
+	}
+}

@@ -27,10 +27,16 @@ func Open(ctx context.Context, filename string) (value interface{}, err error) {
 }
 
 func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
-	return json.Unmarshal(ctx, data, v)
+	if err := json.Unmarshal(ctx, data, v); err != nil {
+		return kerr.Wrap("SVXYHJWMOC", err)
+	}
+	return nil
 }
 func UnmarshalUntyped(ctx context.Context, data []byte, i interface{}) error {
-	return json.UnmarshalUntyped(ctx, data, i)
+	if err := json.UnmarshalUntyped(ctx, data, i); err != nil {
+		return kerr.Wrap("HOPCKQEJFM", err)
+	}
+	return nil
 }
 
 func NewDecoder(ctx context.Context, r io.Reader) *json.Decoder {
@@ -42,10 +48,18 @@ func NewEncoder(w io.Writer) *json.Encoder {
 }
 
 func Marshal(v interface{}) ([]byte, error) {
-	return json.Marshal(v)
+	b, err := json.Marshal(v)
+	if err != nil {
+		return nil, kerr.Wrap("LXDTUOBQPD", err)
+	}
+	return b, nil
 }
 func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
-	return json.MarshalContext(ctx, v)
+	b, err := json.MarshalContext(ctx, v)
+	if err != nil {
+		return nil, kerr.Wrap("XMHXROGFXM", err)
+	}
+	return b, nil
 }
 func MarshalIndentContext(ctx context.Context, v interface{}, prefix, indent string) ([]byte, error) {
 	return json.MarshalIndentContext(ctx, v, prefix, indent)

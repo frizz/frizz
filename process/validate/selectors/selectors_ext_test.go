@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/json"
 	"kego.io/process/parser"
 	. "kego.io/process/validate/selectors"
@@ -48,7 +48,8 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				continue
 			}
 			n, err := node.Unmarshal(cb.Ctx(), json_document)
-			assert.NoError(t, err, name)
+			require.NoError(t, err, name)
+			require.NotNil(t, n)
 
 			testDocuments[name[0:len(name)-len(".json")]] = n
 		} else if strings.HasSuffix(name, ".output") {

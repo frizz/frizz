@@ -23,6 +23,17 @@
 			"default": "object",
 			"optional": true
 		},
+		"custom": {
+			"description": "Custom types are not emitted into the generated source",
+			"type": "json:@bool",
+			"optional": true
+		},
+		"alias": {
+			"description": "If this type is an alias of another type, specify the underlying type here",
+			"type": "@rule",
+			"interface": true,
+			"optional": true
+		},
 		"interface": {
 			"description": "Is this type an interface?",
 			"type": "json:@bool",
