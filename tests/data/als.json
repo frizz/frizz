@@ -1,0 +1,7 @@
+{
+  "type": "system:type",
+  "id": "als",
+  "alias": {
+    "type": "@simple"
+  }
+}

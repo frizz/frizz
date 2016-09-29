@@ -1,0 +1,10 @@
+{
+  "type": "system:type",
+  "id": "alass",
+  "alias": {
+    "type": "system:@array",
+    "items": {
+      "type": "system:@string"
+    }
+  }
+}

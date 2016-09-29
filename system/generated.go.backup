@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":13795700858587685492}
+// info:{"Path":"kego.io/system","Hash":15289234838605045624}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -205,7 +205,7 @@ type Object struct {
 	// Extra validation rules for this object or descendants
 	Rules []RuleInterface `json:"rules"`
 	// Tags for general use
-	Tags *Tags `json:"tags"`
+	Tags []string `json:"tags"`
 	// Type of the object.
 	Type *Reference `json:"type"`
 }
@@ -287,6 +287,8 @@ type Type struct {
 	Basic bool `json:"basic"`
 	// Custom types are not emitted into the generated source
 	Custom bool `json:"custom"`
+	// The kind of the type if custom is specified - must be value, struct, collection or interface
+	CustomKind *String `json:"custom-kind"`
 	// Types which this should embed - system:object is always added unless basic = true.
 	Embed []*Reference `json:"embed"`
 	// Each field is listed with it's type
@@ -306,7 +308,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 13795700858587685492)
+	pkg := jsonctx.InitPackage("kego.io/system", 15289234838605045624)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())

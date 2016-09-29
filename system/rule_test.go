@@ -5,9 +5,53 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
 	"kego.io/tests/unpacker"
 )
+
+func TestRuleWrapper_Kind(t *testing.T) {
+	cb := tests.Context("a.b/c").Jempty()
+	at := &Type{
+		Object: &Object{Id: NewReference("a.b/c", "foo")},
+		Native: NewString("object"),
+	}
+	ar := &fooRuleStruct{Rule: &Rule{}}
+	aw := RuleWrapper{
+		Ctx:       cb.Ctx(),
+		Interface: ar,
+		Struct:    ar.Rule,
+		Parent:    at,
+	}
+	kind, alias, err := aw.Kind(cb.Ctx())
+	require.NoError(t, err)
+	assert.False(t, alias)
+	assert.Equal(t, KindStruct, kind)
+
+	aw.Struct.Interface = true
+	kind, alias, err = aw.Kind(cb.Ctx())
+	require.NoError(t, err)
+	assert.False(t, alias)
+	assert.Equal(t, KindInterface, kind)
+
+	cr := &MapRule{Rule: &Rule{}, Items: &StringRule{Rule: &Rule{}}}
+	aw.Interface = cr
+	aw.Struct = cr.Rule
+	kind, alias, err = aw.Kind(cb.Ctx())
+	require.NoError(t, err)
+	assert.False(t, alias)
+	assert.Equal(t, KindCollection, kind)
+
+	// DummyRule always implements CollectionRule, but we don't want to return
+	// KindCollection unless GetItemsRule returns something.
+	dr := &DummyRule{Rule: &Rule{}}
+	aw.Interface = dr
+	aw.Struct = dr.Rule
+	kind, alias, err = aw.Kind(cb.Ctx())
+	require.NoError(t, err)
+	assert.False(t, alias)
+	assert.Equal(t, KindStruct, kind)
+}
 
 func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 	cb := tests.Context("a.b/c").Jempty()

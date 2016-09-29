@@ -14,11 +14,25 @@ import (
 
 // Type returns the Go source for the definition of the type of this property
 // [collection prefix][optional pointer][type name]
-func Type(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+func Type(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string, aliasType bool) (string, error) {
 
 	outer, err := system.WrapRule(ctx, field)
 	if err != nil {
 		return "", kerr.Wrap("TFXFBIRXHN", err)
+	}
+
+	outerPointer := ""
+	kind, alias, err := outer.Kind(ctx)
+	if err != nil {
+		return "", kerr.Wrap("WKOVHCHDJE", err)
+	}
+	switch kind {
+	case system.KindStruct:
+		outerPointer = "*"
+	case system.KindValue:
+		if alias {
+			outerPointer = "*"
+		}
 	}
 
 	// if the rule is a complex collection, with possibly several maps and
@@ -29,16 +43,27 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 		return "", kerr.Wrap("SOGEFOPJHB", err)
 	}
 
-	var name, pointer string
+	innerPointer := ""
+	// if we have a prefix we should also work out the innerPointer
+	if prefix != "" {
+		kind, alias, err := inner.Kind(ctx)
+		if err != nil {
+			return "", kerr.Wrap("QPFYQXFTQB", err)
+		}
+		switch kind {
+		case system.KindStruct:
+			innerPointer = "*"
+		case system.KindValue:
+			if alias {
+				innerPointer = "*"
+			}
+		}
+	}
+
+	var name string
 	if inner.Struct.Interface {
-		// if this is an interface rule, we print the interface name of the
-		// inner type, which never has a pointer asterisk.
-		pointer = ""
 		name = Reference(inner.Parent.Id.Package, system.GoInterfaceName(inner.Parent.Id.Name), path, getAlias)
 	} else {
-		// this returns a "*" if the type should be prefixed by it. Native and
-		// interface types don't have a *.
-		pointer = getPointer(inner.Parent)
 		name = Reference(inner.Parent.Id.Package, system.GoName(inner.Parent.Id.Name), path, getAlias)
 	}
 
@@ -51,7 +76,18 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 		tag = " " + tag
 	}
 
-	return fmt.Sprint(prefix, pointer, name, tag), nil
+	if aliasType {
+		// Alias types are never pointers (at the top level). The items in an
+		// alias to a collection can however be pointers. e.g.:
+		// type Foo []*system.String
+		// type Bar system.String
+		outerPointer = ""
+		if prefix == "" {
+			innerPointer = ""
+		}
+	}
+
+	return fmt.Sprint(outerPointer, prefix, innerPointer, name, tag), nil
 }
 
 // collectionPrefix recursively digs down through collection rules, recursively
@@ -80,15 +116,6 @@ func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPr
 		return "", nil, kerr.Wrap("SUTYJEGBKW", err)
 	}
 	return collectionPrefixInnerRule(prefix, items)
-}
-
-func getPointer(t *system.Type) string {
-	isJson := t.IsJsonValue()
-	isInterface := t.Interface
-	if !isJson && !isInterface {
-		return "*"
-	}
-	return ""
 }
 
 func formatTag(ctx context.Context, fieldName string, defaultBytes []byte, r *system.RuleWrapper) (string, error) {

@@ -3,6 +3,9 @@
 	"type": "type",
 	"id": "number",
 	"native": "number",
+	"alias": {
+		"type": "json:@number"
+	},
 	"rule": {
 		"description": "Restriction rules for numbers",
 		"type": "type",

@@ -4,6 +4,7 @@
 	"id": "reference",
 	"native": "string",
 	"custom": true,
+	"custom-kind": "struct",
 	"rule": {
 		"description": "Restriction rules for references",
 		"type": "type",

@@ -12,6 +12,42 @@ import (
 	"kego.io/json"
 )
 
+type Kind string
+
+const (
+	KindValue      Kind = "value"      // float64, string, bool
+	KindCollection Kind = "collection" // []T, map[string]T
+	KindStruct     Kind = "struct"     // struct{...}
+	KindInterface  Kind = "interface"  // interface{...}
+)
+
+func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool, err error) {
+	if t.Id.Package == "kego.io/json" {
+		return KindValue, false, nil
+	}
+	if len(t.Fields) > 0 {
+		return KindStruct, false, nil
+	}
+	if t.Alias != nil {
+		rw, err := WrapRule(ctx, t.Alias)
+		if err != nil {
+			return "", false, kerr.Wrap("NSNPJPJSAP", err)
+		}
+		k, _, err := rw.Kind(ctx)
+		if err != nil {
+			return "", false, kerr.Wrap("GPVGUBPBFK", err)
+		}
+		return k, true, nil
+	}
+	if t.Interface {
+		return KindInterface, false, nil
+	}
+	if t.CustomKind != nil {
+		return Kind(t.CustomKind.Value()), true, nil
+	}
+	return KindStruct, false, nil
+}
+
 func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 	var reflectType reflect.Type
 	if typ.Interface {

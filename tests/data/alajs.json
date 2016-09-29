@@ -1,0 +1,10 @@
+{
+  "type": "system:type",
+  "id": "alajs",
+  "alias": {
+    "type": "system:@array",
+    "items": {
+      "type": "json:@string"
+    }
+  }
+}

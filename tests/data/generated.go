@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data","Hash":748389013432374446}
+// info:{"Path":"kego.io/tests/data","Hash":676305480317037281}
 package data
 
 // ke: {"file": {"notest": true}}
@@ -10,6 +10,72 @@ import (
 	"kego.io/context/jsonctx"
 	"kego.io/system"
 )
+
+// Automatically created basic rule for alajs
+type AlajsRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for alas
+type AlasRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for alass
+type AlassRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for aljb
+type AljbRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for aljn
+type AljnRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for aljs
+type AljsRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for almjs
+type AlmjsRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for alms
+type AlmsRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for almss
+type AlmssRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for als
+type AlsRule struct {
+	*system.Object
+	*system.Rule
+}
+
+// Automatically created basic rule for alss
+type AlssRule struct {
+	*system.Object
+	*system.Rule
+}
 
 // Automatically created basic rule for face
 type FaceRule struct {
@@ -40,6 +106,105 @@ type SimpleRule struct {
 	*system.Object
 	*system.Rule
 }
+type Alajs []string
+type AlajsInterface interface {
+	GetAlajs(ctx context.Context) *Alajs
+}
+
+func (o Alajs) GetAlajs(ctx context.Context) Alajs {
+	return o
+}
+
+type Alas []*Simple
+type AlasInterface interface {
+	GetAlas(ctx context.Context) *Alas
+}
+
+func (o Alas) GetAlas(ctx context.Context) Alas {
+	return o
+}
+
+type Alass []*system.String
+type AlassInterface interface {
+	GetAlass(ctx context.Context) *Alass
+}
+
+func (o Alass) GetAlass(ctx context.Context) Alass {
+	return o
+}
+
+type Aljb bool
+type AljbInterface interface {
+	GetAljb(ctx context.Context) *Aljb
+}
+
+func (o *Aljb) GetAljb(ctx context.Context) *Aljb {
+	return o
+}
+
+type Aljn float64
+type AljnInterface interface {
+	GetAljn(ctx context.Context) *Aljn
+}
+
+func (o *Aljn) GetAljn(ctx context.Context) *Aljn {
+	return o
+}
+
+type Aljs string
+type AljsInterface interface {
+	GetAljs(ctx context.Context) *Aljs
+}
+
+func (o *Aljs) GetAljs(ctx context.Context) *Aljs {
+	return o
+}
+
+type Almjs map[string]string
+type AlmjsInterface interface {
+	GetAlmjs(ctx context.Context) *Almjs
+}
+
+func (o Almjs) GetAlmjs(ctx context.Context) Almjs {
+	return o
+}
+
+type Alms map[string]*Simple
+type AlmsInterface interface {
+	GetAlms(ctx context.Context) *Alms
+}
+
+func (o Alms) GetAlms(ctx context.Context) Alms {
+	return o
+}
+
+type Almss map[string]*system.String
+type AlmssInterface interface {
+	GetAlmss(ctx context.Context) *Almss
+}
+
+func (o Almss) GetAlmss(ctx context.Context) Almss {
+	return o
+}
+
+type Als Simple
+type AlsInterface interface {
+	GetAls(ctx context.Context) *Als
+}
+
+func (o *Als) GetAls(ctx context.Context) *Als {
+	return o
+}
+
+type Alss system.String
+type AlssInterface interface {
+	GetAlss(ctx context.Context) *Alss
+}
+
+func (o *Alss) GetAlss(ctx context.Context) *Alss {
+	return o
+}
+
 type Facea struct {
 	*system.Object
 	A *system.String `json:"a"`
@@ -64,6 +229,7 @@ func (o *Faceb) GetFaceb(ctx context.Context) *Faceb {
 	return o
 }
 
+// v2
 type Multi struct {
 	*system.Object
 	Ai   []Face                            `json:"ai"`
@@ -128,7 +294,18 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/tests/data", 748389013432374446)
+	pkg := jsonctx.InitPackage("kego.io/tests/data", 676305480317037281)
+	pkg.InitType("alajs", reflect.TypeOf((*Alajs)(nil)), reflect.TypeOf((*AlajsRule)(nil)), reflect.TypeOf((*AlajsInterface)(nil)).Elem())
+	pkg.InitType("alas", reflect.TypeOf((*Alas)(nil)), reflect.TypeOf((*AlasRule)(nil)), reflect.TypeOf((*AlasInterface)(nil)).Elem())
+	pkg.InitType("alass", reflect.TypeOf((*Alass)(nil)), reflect.TypeOf((*AlassRule)(nil)), reflect.TypeOf((*AlassInterface)(nil)).Elem())
+	pkg.InitType("aljb", reflect.TypeOf((*Aljb)(nil)), reflect.TypeOf((*AljbRule)(nil)), reflect.TypeOf((*AljbInterface)(nil)).Elem())
+	pkg.InitType("aljn", reflect.TypeOf((*Aljn)(nil)), reflect.TypeOf((*AljnRule)(nil)), reflect.TypeOf((*AljnInterface)(nil)).Elem())
+	pkg.InitType("aljs", reflect.TypeOf((*Aljs)(nil)), reflect.TypeOf((*AljsRule)(nil)), reflect.TypeOf((*AljsInterface)(nil)).Elem())
+	pkg.InitType("almjs", reflect.TypeOf((*Almjs)(nil)), reflect.TypeOf((*AlmjsRule)(nil)), reflect.TypeOf((*AlmjsInterface)(nil)).Elem())
+	pkg.InitType("alms", reflect.TypeOf((*Alms)(nil)), reflect.TypeOf((*AlmsRule)(nil)), reflect.TypeOf((*AlmsInterface)(nil)).Elem())
+	pkg.InitType("almss", reflect.TypeOf((*Almss)(nil)), reflect.TypeOf((*AlmssRule)(nil)), reflect.TypeOf((*AlmssInterface)(nil)).Elem())
+	pkg.InitType("als", reflect.TypeOf((*Als)(nil)), reflect.TypeOf((*AlsRule)(nil)), reflect.TypeOf((*AlsInterface)(nil)).Elem())
+	pkg.InitType("alss", reflect.TypeOf((*Alss)(nil)), reflect.TypeOf((*AlssRule)(nil)), reflect.TypeOf((*AlssInterface)(nil)).Elem())
 	pkg.InitType("face", reflect.TypeOf((*Face)(nil)).Elem(), reflect.TypeOf((*FaceRule)(nil)), nil)
 	pkg.InitType("facea", reflect.TypeOf((*Facea)(nil)), reflect.TypeOf((*FaceaRule)(nil)), reflect.TypeOf((*FaceaInterface)(nil)).Elem())
 	pkg.InitType("faceb", reflect.TypeOf((*Faceb)(nil)), reflect.TypeOf((*FacebRule)(nil)), reflect.TypeOf((*FacebInterface)(nil)).Elem())

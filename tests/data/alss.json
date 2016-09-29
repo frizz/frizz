@@ -1,0 +1,7 @@
+{
+  "type": "system:type",
+  "id": "alss",
+  "alias": {
+    "type": "system:@string"
+  }
+}

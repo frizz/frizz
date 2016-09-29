@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/sysctx"
 	"kego.io/process/generate/builder"
 	"kego.io/process/parser"
@@ -46,7 +47,7 @@ func TestGenerateSourceErr2(t *testing.T) {
 func TestGenerateSourceNoTypes(t *testing.T) {
 	cb := tests.Context("a.b/c").Spkg("a.b/c")
 	_, err := Structs(cb.Ctx(), cb.Env())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 func TestGenerateSource(t *testing.T) {
 
@@ -94,7 +95,7 @@ func TestGenerateSource(t *testing.T) {
 	cb.Alias("e", "f.g/h")
 
 	source, err := Structs(cb.Ctx(), cb.Env())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
 	assert.Contains(t, imp, "\t\"context\"\n")
@@ -111,7 +112,7 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, string(source), "pkg.InitType(\"ai\", reflect.TypeOf((*Ai)(nil)).Elem(), reflect.TypeOf((*AiRule)(nil)), nil)\n")
 
 	// Type "An" should not be a struct because it's a bool native. However, it should be registered.
-	assert.NotContains(t, string(source), "type An struct")
+	assert.Contains(t, string(source), "type An bool")
 	assert.Contains(t, string(source), "pkg.InitType(\"an\", reflect.TypeOf((*An)(nil)), reflect.TypeOf((*AnRule)(nil)), reflect.TypeOf((*AnInterface)(nil)).Elem())\n")
 
 }
@@ -140,10 +141,10 @@ func TestPrintStructDefinition(t *testing.T) {
 	b := builder.New("b.c/d")
 
 	err := printStructDefinition(cb.Ctx(), cb.Env(), b, ty)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	source, err := b.Build()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(source), `package d
 
 import (
@@ -219,7 +220,7 @@ func TestPrintInitFunction(t *testing.T) {
 	printInitFunction(cb.Env(), b, pi.Types)
 
 	source, err := b.Build()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(source), `package d
 
 import (

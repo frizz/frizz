@@ -55,10 +55,6 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 				if err := printAliasDefinition(ctx, env, g, typ); err != nil {
 					return nil, kerr.Wrap("TRERIECOEP", err)
 				}
-			} else if typ.IsNativeValue() {
-				if err := printNativeDefinition(ctx, env, g, typ); err != nil {
-					return nil, kerr.Wrap("LGNVUCNYSE", err)
-				}
 			} else {
 				if err := printStructDefinition(ctx, env, g, typ); err != nil {
 					return nil, kerr.Wrap("XKRYMXUIJD", err)
@@ -68,7 +64,9 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 		if !typ.Interface && !isRule {
 			printInterfaceDefinition(env, g, typ)
-			printInterfaceImplementation(env, g, typ)
+			if err := printInterfaceImplementation(ctx, env, g, typ); err != nil {
+				return nil, kerr.Wrap("YYGWAXKPUK", err)
+			}
 		}
 
 	}
@@ -94,31 +92,33 @@ func printInterfaceDefinition(env *envctx.Env, g *builder.Builder, typ *system.T
 	g.Println("}")
 }
 
-func printInterfaceImplementation(env *envctx.Env, g *builder.Builder, typ *system.Type) {
-	g.Println("func (o *",
+func printInterfaceImplementation(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
+
+	var pointer string
+	kind, _, err := typ.Kind(ctx)
+	if err != nil {
+		return kerr.Wrap("CNYGOTWKSO", err)
+	}
+	switch kind {
+	case system.KindStruct, system.KindValue:
+		pointer = "*"
+	}
+
+	g.Println("func (o ",
+		pointer,
 		system.GoName(typ.Id.Name),
 		") Get",
 		system.GoName(typ.Id.Name),
 		"(ctx ",
 		builder.Reference("context", "Context", env.Path, g.Imports.Add),
-		") *",
+		") ",
+		pointer,
 		system.GoName(typ.Id.Name),
 		" {")
 	{
 		g.Println("return o")
 	}
 	g.Println("}")
-}
-
-func printNativeDefinition(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
-	if typ.Description != "" {
-		g.Println("// ", typ.Description)
-	}
-	nativeType, err := typ.NativeValueGolangType()
-	if err != nil {
-		return kerr.Wrap("CMOYPEUFCY", err)
-	}
-	g.Println("type ", system.GoName(typ.Id.Name), " ", nativeType)
 	return nil
 }
 
@@ -126,7 +126,7 @@ func printAliasDefinition(ctx context.Context, env *envctx.Env, g *builder.Build
 	if typ.Description != "" {
 		g.Println("// ", typ.Description)
 	}
-	aliasType, err := builder.Type(ctx, "", typ.Alias, env.Path, g.Imports.Add)
+	aliasType, err := builder.Type(ctx, "", typ.Alias, env.Path, g.Imports.Add, true)
 	if err != nil {
 		return kerr.Wrap("FWOLIESYUA", err)
 	}
@@ -156,7 +156,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Buil
 			if b.Description != "" {
 				g.Println("// ", b.Description)
 			}
-			descriptor, err := builder.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add)
+			descriptor, err := builder.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add, false)
 			if err != nil {
 				return kerr.Wrap("GDSKJDEKQD", err)
 			}

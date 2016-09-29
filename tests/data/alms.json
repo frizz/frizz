@@ -1,0 +1,10 @@
+{
+  "type": "system:type",
+  "id": "alms",
+  "alias": {
+    "type": "system:@map",
+    "items": {
+      "type": "@simple"
+    }
+  }
+}

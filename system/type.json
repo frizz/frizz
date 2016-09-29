@@ -28,6 +28,12 @@
 			"type": "json:@bool",
 			"optional": true
 		},
+		"custom-kind": {
+			"description": "The kind of the type if custom is specified - must be value, struct, collection or interface",
+			"type": "system:@string",
+			"enum": ["value", "struct", "collection", "interface"],
+			"optional": true
+		},
 		"alias": {
 			"description": "If this type is an alias of another type, specify the underlying type here",
 			"type": "@rule",

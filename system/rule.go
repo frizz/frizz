@@ -51,6 +51,28 @@ type RuleWrapper struct {
 	Parent    *Type
 }
 
+func (r *RuleWrapper) Kind(ctx context.Context) (kind Kind, alias bool, err error) {
+
+	if cr, ok := r.Interface.(CollectionRule); ok {
+		// DummyRule always implements CollectionRule but sometimes the actual
+		// type doesn't support it.
+		ir := cr.GetItemsRule()
+		if ir != nil {
+			return KindCollection, false, nil
+		}
+	}
+
+	if r.Struct.Interface {
+		return KindInterface, false, nil
+	}
+
+	k, a, err := r.Parent.Kind(ctx)
+	if err != nil {
+		return "", false, kerr.Wrap("XWDVSSYDWV", err)
+	}
+	return k, a, nil
+}
+
 func (r *RuleWrapper) PermittedTypes() []*Type {
 	if !r.Parent.Interface && !r.Struct.Interface {
 		return []*Type{r.Parent}

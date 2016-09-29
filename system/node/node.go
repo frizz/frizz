@@ -362,12 +362,12 @@ func (n *Node) initialiseValFromParent() {
 		v = v.Elem()
 	}
 
-	switch n.Parent.JsonType {
-	case json.J_OBJECT:
+	switch v.Kind() {
+	case reflect.Struct:
 		n.Val = v.FieldByName(system.GoName(n.Key))
-	case json.J_MAP:
+	case reflect.Map:
 		n.Val = v.MapIndex(reflect.ValueOf(n.Key))
-	case json.J_ARRAY:
+	case reflect.Slice:
 		n.Val = v.Index(n.Index)
 	}
 	n.Value = n.Val.Interface()

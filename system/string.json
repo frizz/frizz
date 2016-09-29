@@ -3,6 +3,9 @@
 	"type": "type",
 	"id": "string",
 	"native": "string",
+	"alias": {
+		"type": "json:@string"
+	},
 	"rule": {
 		"description": "Restriction rules for strings",
 		"type": "type",
