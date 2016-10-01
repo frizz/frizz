@@ -56,7 +56,7 @@ func Compile(ctx context.Context, source []byte, mapping bool) ([]byte, error) {
 	if mapping {
 		bufMap := bytes.NewBuffer(nil)
 		smap := &sourcemap.Map{File: "script.js"}
-		filter.MappingCallback = build.NewMappingCallback(smap, options.GOROOT, options.GOPATH)
+		filter.MappingCallback = build.NewMappingCallback(smap, options.GOROOT, options.GOPATH, false)
 		if err := compiler.WriteProgramCode(allPkgs, filter); err != nil {
 			return nil, kerr.Wrap("YKQEKRKBPL", err)
 		}
