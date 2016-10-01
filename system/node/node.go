@@ -22,20 +22,22 @@ type Node struct {
 	Array  []*Node
 	Map    map[string]*Node
 
-	Key         string            // in an object or a map, this is the key
-	Index       int               // in an array, this is the index
-	Origin      *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
-	ValueString string
-	ValueNumber float64
-	ValueBool   bool
-	Value       interface{} // unmarshalled value
-	Val         reflect.Value
-	Null        bool // null is true if the json is null or the field is missing
-	Missing     bool // missing is only true if the field is missing
-	Rule        *system.RuleWrapper
-	Type        *system.Type
-	JsonType    json.Type
-	hash        uint64
+	Key                 string            // in an object or a map, this is the key
+	Index               int               // in an array, this is the index
+	Origin              *system.Reference // in an object, this is the type that the field originated from - e.g. perhaps an embedded type
+	ValueString         string
+	ValueNumber         float64
+	ValueBool           bool
+	Value               interface{} // unmarshalled value
+	Val                 reflect.Value
+	Null                bool // null is true if the json is null or the field is missing
+	Missing             bool // missing is only true if the field is missing
+	Rule                *system.RuleWrapper
+	Type                *system.Type
+	UnderlyingRule      *system.RuleWrapper
+	UnderlyingInnerType *system.Type
+	JsonType            json.Type
+	hash                uint64
 }
 
 func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
@@ -220,7 +222,13 @@ func (n *Node) initialiseCollectionItem(ctx context.Context, parent *Node, key s
 	n.Key = key
 	n.Missing = false
 
-	rule, err := parent.Rule.ItemsRule()
+	var collectionRule *system.RuleWrapper
+	if n.Parent.Type.Alias != nil {
+		collectionRule = system.WrapRule(ctx, n.Parent.Type.Alias)
+	} else {
+		collectionRule = parent.Rule
+	}
+	rule, err := collectionRule.ItemsRule()
 	if err != nil {
 		return kerr.Wrap("SBJVMGUOOA", err)
 	}
@@ -230,7 +238,10 @@ func (n *Node) initialiseCollectionItem(ctx context.Context, parent *Node, key s
 	if err != nil {
 		return kerr.Wrap("EQNRHQWXFJ", err)
 	}
-	n.Type = t
+
+	if err := n.setType(ctx, t); err != nil {
+		return kerr.Wrap("UPAQMUGDNH", err)
+	}
 
 	return nil
 }
@@ -304,7 +315,10 @@ func (n *Node) initialiseObjectField(ctx context.Context, parent *Node, rule *sy
 	if err != nil {
 		return kerr.Wrap("RBDBRRUVMM", err)
 	}
-	n.Type = t
+
+	if err := n.setType(ctx, t); err != nil {
+		return kerr.Wrap("UOCRQYMGHR", err)
+	}
 
 	return nil
 
@@ -353,6 +367,8 @@ func (n *Node) resetAllValues() {
 	n.Rule = nil
 	n.Type = nil
 	n.JsonType = json.J_NULL
+	n.UnderlyingRule = nil
+	n.UnderlyingInnerType = nil
 }
 
 func (n *Node) initialiseValFromParent() {
@@ -388,15 +404,17 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 	if err != nil {
 		return kerr.Wrap("MKMNOOYQJY", err)
 	}
-	n.Type = objectType
+	if err := n.setType(ctx, objectType); err != nil {
+		return kerr.Wrap("BCMOTEMUJE", err)
+	}
 
 	if n.Rule == nil && objectType != nil {
 		n.Rule = system.WrapEmptyRule(ctx, objectType)
 	}
 
 	if in.Type() == json.J_MAP && n.Type.IsNativeObject() {
-		// for objects and maps, Type() from the json.Packed is always J_MAP, so
-		// we correct it for object types here.
+		// for objects and maps, Type() from the json.Packed is always J_MAP,
+		// so we correct it for object types here.
 		n.JsonType = json.J_OBJECT
 	} else {
 		n.JsonType = in.Type()
@@ -484,7 +502,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 
 func (n *Node) SetValueZero(ctx context.Context, null bool, t *system.Type) error {
 	if t != nil {
-		if err := n.setType(t); err != nil {
+		if err := n.setType(ctx, t); err != nil {
 			return kerr.Wrap("TGPRRSUSMQ", err)
 		}
 	}
@@ -494,12 +512,34 @@ func (n *Node) SetValueZero(ctx context.Context, null bool, t *system.Type) erro
 	return nil
 }
 
-func (n *Node) setType(t *system.Type) error {
+func (n *Node) setType(ctx context.Context, t *system.Type) error {
+	if t == nil {
+		n.Type = nil
+		n.JsonType = json.J_NULL
+		n.UnderlyingRule = nil
+		n.UnderlyingInnerType = nil
+		return nil
+	}
 	if t.Interface {
 		return kerr.New("VHOSYBMDQL", "Can't set type to an interface - must be concrete type.")
 	}
 	n.Type = t
 	n.JsonType = t.NativeJsonType()
+
+	if t.Alias != nil {
+		rw := system.WrapRule(ctx, t.Alias)
+		n.UnderlyingRule = rw
+
+		uit := rw.InnerType(ctx)
+		for uit.Alias != nil {
+			uit = system.WrapRule(ctx, uit.Alias).InnerType(ctx)
+		}
+		n.UnderlyingInnerType = uit
+	} else {
+		n.UnderlyingRule = system.WrapEmptyRule(ctx, t)
+		n.UnderlyingInnerType = t
+	}
+
 	return nil
 }
 
@@ -623,10 +663,7 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal b
 	}
 
 	for name, typeField := range typeFields {
-		rule, err := system.WrapRule(ctx, typeField.Rule)
-		if err != nil {
-			return kerr.Wrap("YWFSOLOBXH", err)
-		}
+		rule := system.WrapRule(ctx, typeField.Rule)
 		valueField, valueExists := valueFields[name]
 		childNode := NewNode()
 		if err := childNode.initialiseObjectField(ctx, n, rule, name, typeField.Origin); err != nil {
@@ -645,7 +682,7 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal b
 	for name, _ := range valueFields {
 		_, ok := typeFields[name]
 		if !ok {
-			return kerr.New("SRANLETJRS", "Extra field %s", name)
+			return kerr.New("SRANLETJRS", "Extra field %s, %s", name, n.Path())
 		}
 	}
 
@@ -717,11 +754,13 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 	if !ok {
 		return nil, kerr.New("IJFMJJWVCA", "Could not find type %s", r.Value())
 	}
-
 	return t, nil
 }
 
 func extractFields(ctx context.Context, fields map[string]*system.Field, t *system.Type) error {
+	for t.Alias != nil {
+		t = system.WrapRule(ctx, t.Alias).Parent
+	}
 	if !t.Basic && !t.Interface {
 		// All types apart from Basic types embed system:object
 		ob, ok := system.GetTypeFromCache(ctx, "kego.io/system", "object")
@@ -863,22 +902,24 @@ func (n *Node) RecomputeHash(ctx context.Context, children bool) error {
 
 func (n *Node) Backup() *Node {
 	return &Node{
-		Parent:      n.Parent,
-		Array:       n.Array,
-		Map:         n.Map,
-		Key:         n.Key,
-		Index:       n.Index,
-		Origin:      n.Origin,
-		ValueString: n.ValueString,
-		ValueNumber: n.ValueNumber,
-		ValueBool:   n.ValueBool,
-		Value:       n.Value,
-		Val:         reflect.ValueOf(n.Value),
-		Null:        n.Null,
-		Missing:     n.Missing,
-		Rule:        n.Rule,
-		Type:        n.Type,
-		JsonType:    n.JsonType,
+		Parent:              n.Parent,
+		Array:               n.Array,
+		Map:                 n.Map,
+		Key:                 n.Key,
+		Index:               n.Index,
+		Origin:              n.Origin,
+		ValueString:         n.ValueString,
+		ValueNumber:         n.ValueNumber,
+		ValueBool:           n.ValueBool,
+		Value:               n.Value,
+		Val:                 reflect.ValueOf(n.Value),
+		Null:                n.Null,
+		Missing:             n.Missing,
+		Rule:                n.Rule,
+		Type:                n.Type,
+		JsonType:            n.JsonType,
+		UnderlyingRule:      n.UnderlyingRule,
+		UnderlyingInnerType: n.UnderlyingInnerType,
 	}
 }
 
@@ -899,6 +940,8 @@ func (n *Node) Restore(ctx context.Context, b *Node) {
 	n.Rule = b.Rule
 	n.Type = b.Type
 	n.JsonType = b.JsonType
+	n.UnderlyingRule = b.UnderlyingRule
+	n.UnderlyingInnerType = b.UnderlyingInnerType
 }
 
 func (n *Node) NativeValue() interface{} {

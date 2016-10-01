@@ -41,6 +41,9 @@ func testBool(t *testing.T, up unpacker.Interface) {
 		"type": "type",
 		"id": "bool",
 		"native": "bool",
+		"alias": {
+			"type": "json:@bool"
+		},
 		"rule": {
 			"description": "Restriction rules for bools",
 			"type": "type",

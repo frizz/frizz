@@ -1,0 +1,9 @@
+{
+  "type": "system:type",
+  "id": "main",
+  "fields": {
+    "a": {
+      "type": "@alms"
+    }
+  }
+}

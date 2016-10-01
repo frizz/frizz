@@ -1,6 +1,7 @@
 {
   "type": "system:type",
   "id": "aljb",
+  "native": "bool",
   "alias": {
     "type": "json:@bool"
   }

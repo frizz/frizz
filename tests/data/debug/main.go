@@ -1,4 +1,4 @@
-package data_test
+package main
 
 import (
 	"testing"
@@ -8,11 +8,12 @@ import (
 	"kego.io/tests/data"
 )
 
-func TestData(t *testing.T) {
+func main() {
+	t := &testing.T{}
 	_, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		require.Equal(t, "almsa", m.Alms["a"].Js)
+		require.Equal(t, "aljs", *m.Aljs)
 	}
 
 	data.Run(t, n, n.Value.(*data.Multi), test)

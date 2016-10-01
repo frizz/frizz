@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":15289234838605045624}
+// info:{"Path":"kego.io/system","Hash":2237998992933749138}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -152,7 +152,7 @@ type ArrayInterface interface {
 	GetArray(ctx context.Context) *Array
 }
 
-func (o *Array) GetArray(ctx context.Context) *Array {
+func (o Array) GetArray(ctx context.Context) Array {
 	return o
 }
 
@@ -182,7 +182,7 @@ type MapInterface interface {
 	GetMap(ctx context.Context) *Map
 }
 
-func (o *Map) GetMap(ctx context.Context) *Map {
+func (o Map) GetMap(ctx context.Context) Map {
 	return o
 }
 
@@ -274,7 +274,7 @@ type TagsInterface interface {
 	GetTags(ctx context.Context) *Tags
 }
 
-func (o *Tags) GetTags(ctx context.Context) *Tags {
+func (o Tags) GetTags(ctx context.Context) Tags {
 	return o
 }
 
@@ -308,7 +308,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 15289234838605045624)
+	pkg := jsonctx.InitPackage("kego.io/system", 2237998992933749138)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())

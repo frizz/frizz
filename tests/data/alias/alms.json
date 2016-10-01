@@ -1,7 +1,6 @@
 {
   "type": "system:type",
   "id": "alms",
-  "native": "map",
   "alias": {
     "type": "system:@map",
     "items": {

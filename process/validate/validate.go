@@ -123,7 +123,7 @@ func buildRulesObjectChildren(ctx context.Context, n *node.Node, cache map[*node
 		rules = ob.Rules
 	}
 
-	for name, fieldRule := range n.Type.Fields {
+	for name, fieldRule := range n.UnderlyingInnerType.Fields {
 		child := n.Map[name]
 		fieldRules := rules
 		fieldOb := fieldRule.(system.ObjectInterface).GetObject(nil)

@@ -14,9 +14,9 @@ import (
 	"kego.io/tests"
 )
 
-func TestRuleWrapper_ZeroValue(t *testing.T) {
+func TestRuleWrapper_InnerType(t *testing.T) {
 	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
-	r, err := system.WrapRule(cb.Ctx(), &system.MapRule{
+	r := system.WrapRule(cb.Ctx(), &system.MapRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/system", "@map")},
 		Rule:   &system.Rule{},
 		Items: &system.StringRule{
@@ -24,7 +24,72 @@ func TestRuleWrapper_ZeroValue(t *testing.T) {
 			Rule:   &system.Rule{},
 		},
 	})
-	require.NoError(t, err)
+	inner := r.InnerType(cb.Ctx())
+	assert.Equal(t, "kego.io/system:string", inner.Id.String())
+
+	kind, alias := r.Kind(cb.Ctx())
+	assert.False(t, alias)
+	assert.Equal(t, kind, system.KindMap)
+
+	assert.False(t, r.Pointer(cb.Ctx()))
+
+	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@int")},
+		Rule:   &system.Rule{},
+	})
+	assert.Equal(t, "kego.io/system:int", r.InnerType(cb.Ctx()).Id.String())
+
+	kind, alias = r.Kind(cb.Ctx())
+	assert.True(t, alias)
+	assert.Equal(t, kind, system.KindValue)
+
+	assert.True(t, r.Pointer(cb.Ctx()))
+
+	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@int")},
+		Rule: &system.Rule{
+			Interface: true,
+		},
+	})
+	assert.Equal(t, "kego.io/system:int", r.InnerType(cb.Ctx()).Id.String())
+
+	kind, alias = r.Kind(cb.Ctx())
+	assert.False(t, alias)
+	assert.Equal(t, kind, system.KindInterface)
+
+	assert.False(t, r.Pointer(cb.Ctx()))
+
+	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/json", "@string")},
+		Rule:   &system.Rule{},
+	})
+	assert.Equal(t, "kego.io/json:string", r.InnerType(cb.Ctx()).Id.String())
+
+	assert.False(t, r.Pointer(cb.Ctx()))
+
+	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@package")},
+		Rule:   &system.Rule{},
+	})
+	assert.Equal(t, "kego.io/system:package", r.InnerType(cb.Ctx()).Id.String())
+
+	kind, alias = r.Kind(cb.Ctx())
+	assert.False(t, alias)
+	assert.Equal(t, kind, system.KindStruct)
+
+	assert.True(t, r.Pointer(cb.Ctx()))
+}
+
+func TestRuleWrapper_ZeroValue(t *testing.T) {
+	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
+	r := system.WrapRule(cb.Ctx(), &system.MapRule{
+		Object: &system.Object{Type: system.NewReference("kego.io/system", "@map")},
+		Rule:   &system.Rule{},
+		Items: &system.StringRule{
+			Object: &system.Object{Type: system.NewReference("kego.io/system", "@string")},
+			Rule:   &system.Rule{},
+		},
+	})
 
 	v, err := r.ZeroValue(true)
 	require.NoError(t, err)
@@ -38,7 +103,7 @@ func TestRuleWrapper_ZeroValue(t *testing.T) {
 	vv := v.Interface().(map[string]*system.String)
 	vv["a"] = system.NewString("")
 
-	r, err = system.WrapRule(cb.Ctx(), &system.MapRule{
+	r = system.WrapRule(cb.Ctx(), &system.MapRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/system", "@array")},
 		Rule:   &system.Rule{},
 		Items: &system.StringRule{
@@ -46,7 +111,6 @@ func TestRuleWrapper_ZeroValue(t *testing.T) {
 			Rule:   &system.Rule{},
 		},
 	})
-	require.NoError(t, err)
 
 	v, err = r.ZeroValue(true)
 	require.NoError(t, err)
@@ -82,8 +146,7 @@ func checkReflectType(ctx context.Context, t *testing.T, path string, name strin
 	assert.True(t, ok)
 	r, ok := ty.Fields[field]
 	assert.True(t, ok)
-	rh, err := system.WrapRule(ctx, r)
-	assert.NoError(t, err)
+	rh := system.WrapRule(ctx, r)
 	rt, err := rh.GetReflectType()
 	assert.NoError(t, err)
 	assert.Equal(t, output, rt.String())

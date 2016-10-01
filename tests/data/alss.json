@@ -1,6 +1,7 @@
 {
   "type": "system:type",
   "id": "alss",
+  "native": "string",
   "alias": {
     "type": "system:@string"
   }

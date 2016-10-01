@@ -1,6 +1,7 @@
 {
   "type": "system:type",
   "id": "alajs",
+  "native": "array",
   "alias": {
     "type": "system:@array",
     "items": {

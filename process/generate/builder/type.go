@@ -12,60 +12,64 @@ import (
 	"kego.io/system"
 )
 
-// Type returns the Go source for the definition of the type of this property
-// [collection prefix][optional pointer][type name]
-func Type(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string, aliasType bool) (string, error) {
+// AliasTypeDefinition returns the Go source for the definition of the type
+// of this alias type [collection prefix][optional pointer][type name]
+func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface, path string, getAlias func(string) string) (string, error) {
 
-	outer, err := system.WrapRule(ctx, field)
+	outer := system.WrapRule(ctx, alias)
+
+	// if the rule is a complex collection, with possibly several maps and
+	// arrays, this iterates over the rule and returns the go collection prefix
+	// - e.g. []map[string] for an array of maps. It also returns the inner
+	// rule.
+	prefix, inner, err := collectionPrefixInnerRule(ctx, "", outer)
 	if err != nil {
-		return "", kerr.Wrap("TFXFBIRXHN", err)
+		return "", kerr.Wrap("BSWTXBHVTH", err)
 	}
+
+	pointer := ""
+	// if we have a prefix we should also work out the innerPointer
+	if prefix != "" && inner.Pointer(ctx) {
+		pointer = "*"
+	}
+
+	name := Reference(inner.Parent.Id.Package, system.GoName(inner.Parent.Id.Name), path, getAlias)
+
+	return fmt.Sprint(prefix, pointer, name), nil
+}
+
+// FieldTypeDefinition returns the Go source for the definition of the type
+// of this field [optional pointer][collection prefix][optional pointer][type
+// name]
+func FieldTypeDefinition(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+	outer := system.WrapRule(ctx, field)
 
 	outerPointer := ""
-	kind, alias, err := outer.Kind(ctx)
-	if err != nil {
-		return "", kerr.Wrap("WKOVHCHDJE", err)
-	}
-	switch kind {
-	case system.KindStruct:
+	if outer.Pointer(ctx) {
 		outerPointer = "*"
-	case system.KindValue:
-		if alias {
-			outerPointer = "*"
-		}
 	}
 
 	// if the rule is a complex collection, with possibly several maps and
 	// arrays, this iterates over the rule and returns the go collection prefix
 	// - e.g. []map[string] for an array of maps. It also returns the inner rule.
-	prefix, inner, err := collectionPrefixInnerRule("", outer)
+	prefix, inner, err := collectionPrefixInnerRule(ctx, "", outer)
 	if err != nil {
 		return "", kerr.Wrap("SOGEFOPJHB", err)
 	}
 
 	innerPointer := ""
 	// if we have a prefix we should also work out the innerPointer
-	if prefix != "" {
-		kind, alias, err := inner.Kind(ctx)
-		if err != nil {
-			return "", kerr.Wrap("QPFYQXFTQB", err)
-		}
-		switch kind {
-		case system.KindStruct:
-			innerPointer = "*"
-		case system.KindValue:
-			if alias {
-				innerPointer = "*"
-			}
-		}
+	if prefix != "" && inner.Pointer(ctx) {
+		innerPointer = "*"
 	}
 
-	var name string
+	var n string
 	if inner.Struct.Interface {
-		name = Reference(inner.Parent.Id.Package, system.GoInterfaceName(inner.Parent.Id.Name), path, getAlias)
+		n = system.GoInterfaceName(inner.Parent.Id.Name)
 	} else {
-		name = Reference(inner.Parent.Id.Package, system.GoName(inner.Parent.Id.Name), path, getAlias)
+		n = system.GoName(inner.Parent.Id.Name)
 	}
+	name := Reference(inner.Parent.Id.Package, n, path, getAlias)
 
 	// TODO: Why aren't we giving getTag the correct path and aliases?!?
 	tag, err := getTag(envctx.Empty, fieldName, inner)
@@ -76,17 +80,6 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 		tag = " " + tag
 	}
 
-	if aliasType {
-		// Alias types are never pointers (at the top level). The items in an
-		// alias to a collection can however be pointers. e.g.:
-		// type Foo []*system.String
-		// type Bar system.String
-		outerPointer = ""
-		if prefix == "" {
-			innerPointer = ""
-		}
-	}
-
 	return fmt.Sprint(outerPointer, prefix, innerPointer, name, tag), nil
 }
 
@@ -94,28 +87,28 @@ func Type(ctx context.Context, fieldName string, field system.RuleInterface, pat
 // calling itself as long as it finds a collection rule (map or array). It returns
 // the full collection prefix (e.g. any number of appended [] and map[string]'s)
 // and the inner (non collection) rule.
-func collectionPrefixInnerRule(prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
+func collectionPrefixInnerRule(ctx context.Context, prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
 
-	if _, ok := outer.Interface.(system.CollectionRule); !ok {
+	kind, alias := outer.Kind(ctx)
+	if alias {
 		return prefix, outer, nil
 	}
-	if !outer.IsCollection() {
-		// DummyRule is a system.CollectionRule but may not actually be a
-		// collection
+	switch kind {
+	case system.KindValue, system.KindStruct, system.KindInterface:
 		return prefix, outer, nil
-	}
-
-	switch outer.Parent.Native.Value() {
-	case "array":
+	case system.KindArray:
 		prefix += "[]"
-	case "map":
+	case system.KindMap:
 		prefix += "map[string]"
+	default:
+		panic("unknown kind")
 	}
+
 	items, err := outer.ItemsRule()
 	if err != nil {
 		return "", nil, kerr.Wrap("SUTYJEGBKW", err)
 	}
-	return collectionPrefixInnerRule(prefix, items)
+	return collectionPrefixInnerRule(ctx, prefix, items)
 }
 
 func formatTag(ctx context.Context, fieldName string, defaultBytes []byte, r *system.RuleWrapper) (string, error) {

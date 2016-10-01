@@ -15,6 +15,7 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
+	"kego.io/json"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -57,11 +58,12 @@ func (v *PanelView) Receive(notif flux.NotifPayload) {
 func (v *PanelView) Render() vecty.Component {
 	var editor vecty.Component
 	if v.node != nil {
-		if v.node.Type.IsNativeMap() {
+		switch v.node.Type.NativeJsonType() {
+		case json.J_MAP:
 			editor = NewMapView(v.Ctx, v.node)
-		} else if v.node.Type.IsNativeArray() {
+		case json.J_ARRAY:
 			editor = NewArrayView(v.Ctx, v.node)
-		} else {
+		default:
 			editor = NewStructView(v.Ctx, v.node)
 		}
 	} else if v.branch != nil {

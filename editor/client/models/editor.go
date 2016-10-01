@@ -85,8 +85,8 @@ func GetEditable(ctx context.Context, node *node.Node) editable.Editable {
 
 	editors := clientctx.FromContext(ctx)
 
-	// Don't do this. Implement the Editable interface instead. We can't do this
-	// for system types so we use this method instead.
+	// Don't do this. Implement the Editable interface instead. We can't do
+	// this for system types so we use this method instead.
 	if e, ok := editors.Get(node.Type.Id.String()); ok {
 		return e
 	}

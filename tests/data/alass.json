@@ -1,6 +1,7 @@
 {
   "type": "system:type",
   "id": "alass",
+  "native": "array",
   "alias": {
     "type": "system:@array",
     "items": {

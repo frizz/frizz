@@ -46,7 +46,7 @@ func (v *PageView) addKeyboardEvents() {
 			switch k.KeyCode {
 			case 65:
 				// "a"
-				addCollectionItem(v.App, v.App.Nodes.Selected())
+				addCollectionItem(v.Ctx, v.App, v.App.Nodes.Selected())
 			case 37, 38, 39, 40:
 				// up, down, left, right
 				k.PreventDefault()

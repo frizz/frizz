@@ -64,13 +64,11 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 		if !typ.Interface && !isRule {
 			printInterfaceDefinition(env, g, typ)
-			if err := printInterfaceImplementation(ctx, env, g, typ); err != nil {
-				return nil, kerr.Wrap("YYGWAXKPUK", err)
-			}
+			printInterfaceImplementation(ctx, env, g, typ)
 		}
 
 	}
-	printInitFunction(env, g, types)
+	printInitFunction(ctx, env, g, types)
 
 	b, err := g.Build()
 	if err != nil {
@@ -92,13 +90,10 @@ func printInterfaceDefinition(env *envctx.Env, g *builder.Builder, typ *system.T
 	g.Println("}")
 }
 
-func printInterfaceImplementation(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
+func printInterfaceImplementation(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) {
 
 	var pointer string
-	kind, _, err := typ.Kind(ctx)
-	if err != nil {
-		return kerr.Wrap("CNYGOTWKSO", err)
-	}
+	kind, _ := typ.Kind(ctx)
 	switch kind {
 	case system.KindStruct, system.KindValue:
 		pointer = "*"
@@ -119,14 +114,13 @@ func printInterfaceImplementation(ctx context.Context, env *envctx.Env, g *build
 		g.Println("return o")
 	}
 	g.Println("}")
-	return nil
 }
 
 func printAliasDefinition(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
 	if typ.Description != "" {
 		g.Println("// ", typ.Description)
 	}
-	aliasType, err := builder.Type(ctx, "", typ.Alias, env.Path, g.Imports.Add, true)
+	aliasType, err := builder.AliasTypeDefinition(ctx, typ.Alias, env.Path, g.Imports.Add)
 	if err != nil {
 		return kerr.Wrap("FWOLIESYUA", err)
 	}
@@ -156,7 +150,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Buil
 			if b.Description != "" {
 				g.Println("// ", b.Description)
 			}
-			descriptor, err := builder.Type(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add, false)
+			descriptor, err := builder.FieldTypeDefinition(ctx, nf.Name, nf.Rule, env.Path, g.Imports.Add)
 			if err != nil {
 				return kerr.Wrap("GDSKJDEKQD", err)
 			}
@@ -167,7 +161,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Buil
 	return nil
 }
 
-func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTypes) {
+func printInitFunction(ctx context.Context, env *envctx.Env, g *builder.Builder, types *sysctx.SysTypes) {
 	g.Println("func init() {")
 	{
 		g.Print("pkg := ")
@@ -200,11 +194,26 @@ func printInitFunction(env *envctx.Env, g *builder.Builder, types *sysctx.SysTyp
 					fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.Name)),
 				) + ".Elem()"
 			} else {
-				typeOf1 = g.SprintFunctionCall(
-					"reflect",
-					"TypeOf",
-					fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.Name)),
-				)
+				aliasCollection := false
+				if typ.Alias != nil {
+					k, _ := system.WrapRule(ctx, typ.Alias).Kind(ctx)
+					if k == system.KindMap || k == system.KindArray {
+						aliasCollection = true
+					}
+				}
+				if aliasCollection {
+					typeOf1 = g.SprintFunctionCall(
+						"reflect",
+						"TypeOf",
+						fmt.Sprintf("(%s)(nil)", system.GoName(typ.Id.Name)),
+					)
+				} else {
+					typeOf1 = g.SprintFunctionCall(
+						"reflect",
+						"TypeOf",
+						fmt.Sprintf("(*%s)(nil)", system.GoName(typ.Id.Name)),
+					)
+				}
 			}
 
 			typeOf2 := g.SprintFunctionCall(

@@ -78,7 +78,7 @@ func (v *ArrayView) Render() vecty.Component {
 						vecty.Text("Add"),
 						prop.Href("#"),
 						event.Click(func(ev *vecty.Event) {
-							addCollectionItem(v.App, v.model.Node)
+							addCollectionItem(v.Ctx, v.App, v.model.Node)
 						}).PreventDefault(),
 					),
 				),

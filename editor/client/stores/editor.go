@@ -100,7 +100,14 @@ func mutateAddEditor(s *EditorStore, n *node.Node, p *node.Node) {
 }
 
 func mutateDeleteEditor(s *EditorStore, n *node.Node, p *node.Node) {
-	if e, ok := s.editors[n]; ok && p != nil && p.Type.IsNativeCollection() {
+	e, ok := s.editors[n]
+	if !ok {
+		return
+	}
+	if p == nil {
+		return
+	}
+	if p.Type.IsNativeCollection() {
 		e.Deleted = true
 	}
 }

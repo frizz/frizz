@@ -31,7 +31,7 @@
 		"custom-kind": {
 			"description": "The kind of the type if custom is specified - must be value, struct, collection or interface",
 			"type": "system:@string",
-			"enum": ["value", "struct", "collection", "interface"],
+			"enum": ["value", "struct", "array", "map", "interface"],
 			"optional": true
 		},
 		"alias": {

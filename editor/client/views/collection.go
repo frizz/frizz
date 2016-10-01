@@ -1,6 +1,8 @@
 package views
 
 import (
+	"context"
+
 	"github.com/davelondon/kerr"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
@@ -24,7 +26,7 @@ func clickSummaryRow(app *stores.App, n *node.Node) {
 	}
 }
 
-func addCollectionItem(app *stores.App, parent *node.Node) {
+func addCollectionItem(ctx context.Context, app *stores.App, parent *node.Node) {
 
 	if parent == nil {
 		return

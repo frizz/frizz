@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
 	"kego.io/tests/unpacker"
 )
@@ -23,32 +22,38 @@ func TestRuleWrapper_Kind(t *testing.T) {
 		Struct:    ar.Rule,
 		Parent:    at,
 	}
-	kind, alias, err := aw.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias := aw.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
 	aw.Struct.Interface = true
-	kind, alias, err = aw.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias = aw.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindInterface, kind)
 
 	cr := &MapRule{Rule: &Rule{}, Items: &StringRule{Rule: &Rule{}}}
 	aw.Interface = cr
 	aw.Struct = cr.Rule
-	kind, alias, err = aw.Kind(cb.Ctx())
-	require.NoError(t, err)
+	aw.Parent.CustomKind = NewString(string(KindMap))
+	kind, alias = aw.Kind(cb.Ctx())
 	assert.False(t, alias)
-	assert.Equal(t, KindCollection, kind)
+	assert.Equal(t, KindMap, kind)
+
+	arr := &ArrayRule{Rule: &Rule{}, Items: &StringRule{Rule: &Rule{}}}
+	aw.Interface = arr
+	aw.Struct = arr.Rule
+	aw.Parent.CustomKind = NewString(string(KindArray))
+	kind, alias = aw.Kind(cb.Ctx())
+	assert.False(t, alias)
+	assert.Equal(t, KindArray, kind)
 
 	// DummyRule always implements CollectionRule, but we don't want to return
-	// KindCollection unless GetItemsRule returns something.
+	// KindMap/KindArray unless GetItemsRule returns something.
 	dr := &DummyRule{Rule: &Rule{}}
 	aw.Interface = dr
 	aw.Struct = dr.Rule
-	kind, alias, err = aw.Kind(cb.Ctx())
-	require.NoError(t, err)
+	aw.Parent.CustomKind = nil
+	kind, alias = aw.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 }
@@ -153,19 +158,6 @@ func TestRuleWrapperItemsRule1(t *testing.T) {
 	_, err = bar.ItemsRule()
 	assert.IsError(t, err, "SUJLYBXPYS")
 
-	itemsRule := &fooRuleStruct{Rule: &Rule{}, Object: &Object{Type: NewReference("a.b/c", "@foo")}}
-
-	// Foo system type is not registered, so WrapRule will fail
-	bar.Ctx = cb.Sempty().Ctx()
-	barRule.Items = itemsRule
-	_, err = bar.ItemsRule()
-	assert.IsError(t, err, "SDSMCXSWOF")
-
-	bar.Ctx = cb.Stype("foo", fooType).Ctx()
-	rw, err := bar.ItemsRule()
-	assert.NoError(t, err)
-	assert.Equal(t, rw.Interface, itemsRule)
-
 }
 
 type fooRuleStruct struct {
@@ -253,10 +245,6 @@ func TestRuleGetReflectType(t *testing.T) {
 		Parent:    barType,
 	}
 
-	// WrapRule can't find a.b/c:foo
-	rt, err = bar.GetReflectType()
-	assert.IsError(t, err, "EDEMPPVUNW")
-
 	// To get WrapRule to work, but GetReflectType to fail, we create a new contect without the foo
 	// reflect types
 	bar.Ctx = tests.Context("a.b/c").Jempty().Stype("foo", fooType).Ctx()
@@ -303,21 +291,8 @@ func TestWrapRule(t *testing.T) {
 	r := &ruleStruct{
 		Object: &Object{Type: NewReference("a.b/c", "@a")},
 	}
-	w, err := WrapRule(ctx, r)
-	assert.NoError(t, err)
+	w := WrapRule(ctx, r)
 	assert.Equal(t, "a", w.Parent.Id.Name)
-
-	r1 := nonObjectStruct{}
-	w, err = WrapRule(ctx, r1)
-	// A non Object rule will cause an error
-	assert.IsError(t, err, "VKFNPJDNVB")
-
-	r = &ruleStruct{
-		Object: &Object{Type: NewReference("a.b/c", "unregistered")},
-	}
-	w, err = WrapRule(ctx, r)
-	// An unregistered type will cause WrapRule to return an error
-	assert.IsError(t, err, "KYCTDXKFYR")
 
 }
 

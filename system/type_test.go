@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
 	"kego.io/json"
 	"kego.io/tests"
 )
@@ -19,20 +18,17 @@ func TestType_Kind(t *testing.T) {
 		Object: &Object{Id: NewReference("a.b/c", "foo")},
 		Native: NewString("object"),
 	}
-	kind, alias, err := ty.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias := ty.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
 	ty.CustomKind = NewString(string(KindValue))
-	kind, alias, err = ty.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias = ty.Kind(cb.Ctx())
 	assert.True(t, alias)
 	assert.Equal(t, KindValue, kind)
 
 	ty.Interface = true
-	kind, alias, err = ty.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias = ty.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindInterface, kind)
 
@@ -42,21 +38,18 @@ func TestType_Kind(t *testing.T) {
 		CustomKind: NewString("value"),
 	})
 	ty.Alias = JsonStringRule{Rule: &Rule{}, Object: &Object{Type: NewReference("kego.io/json", "@string")}}
-	kind, alias, err = ty.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias = ty.Kind(cb.Ctx())
 	assert.True(t, alias)
 	assert.Equal(t, KindValue, kind)
 
 	ty.Fields = map[string]RuleInterface{}
 	ty.Fields["a"] = &JsonStringRule{}
-	kind, alias, err = ty.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias = ty.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
 	ty.Id.Package = "kego.io/json"
-	kind, alias, err = ty.Kind(cb.Ctx())
-	require.NoError(t, err)
+	kind, alias = ty.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindValue, kind)
 }

@@ -1,6 +1,7 @@
 {
   "type": "system:type",
   "id": "aljs",
+  "native": "string",
   "alias": {
     "type": "json:@string"
   }

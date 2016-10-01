@@ -52,39 +52,6 @@
     "m": {
       "type": "@multi"
     },
-    "alajs": {
-      "type": "@alajs"
-    },
-    "alas": {
-      "type": "@alas"
-    },
-    "alass": {
-      "type": "@alass"
-    },
-    "aljb": {
-      "type": "@aljb"
-    },
-    "aljn": {
-      "type": "@aljn"
-    },
-    "aljs": {
-      "type": "@aljs"
-    },
-    "almjs": {
-      "type": "@almjs"
-    },
-    "alms": {
-      "type": "@alms"
-    },
-    "almss": {
-      "type": "@almss"
-    },
-    "alss": {
-      "type": "@alss"
-    },
-    "als": {
-      "type": "@als"
-    },
     "ajs": {
       "type": "system:@array",
       "items": {
@@ -165,72 +132,6 @@
         "type": "@multi"
       }
     },
-    "aalajs": {
-      "type": "system:@array",
-      "items": {
-        "type": "@alajs"
-      }
-    },
-    "aalas": {
-      "type": "system:@array",
-      "items": {
-        "type": "@alas"
-      }
-    },
-    "aalass": {
-      "type": "system:@array",
-      "items": {
-        "type": "@alass"
-      }
-    },
-    "aaljb": {
-      "type": "system:@array",
-      "items": {
-        "type": "@aljb"
-      }
-    },
-    "aaljn": {
-      "type": "system:@array",
-      "items": {
-        "type": "@aljn"
-      }
-    },
-    "aaljs": {
-      "type": "system:@array",
-      "items": {
-        "type": "@aljs"
-      }
-    },
-    "aalmjs": {
-      "type": "system:@array",
-      "items": {
-        "type": "@almjs"
-      }
-    },
-    "aalms": {
-      "type": "system:@array",
-      "items": {
-        "type": "@alms"
-      }
-    },
-    "aalmss": {
-      "type": "system:@array",
-      "items": {
-        "type": "@almss"
-      }
-    },
-    "aalss": {
-      "type": "system:@array",
-      "items": {
-        "type": "@alss"
-      }
-    },
-    "aals": {
-      "type": "system:@array",
-      "items": {
-        "type": "@als"
-      }
-    },
     "mjs": {
       "type": "system:@map",
       "items": {
@@ -309,72 +210,6 @@
       "type": "system:@map",
       "items": {
         "type": "@multi"
-      }
-    },
-    "malajs": {
-      "type": "system:@map",
-      "items": {
-        "type": "@alajs"
-      }
-    },
-    "malas": {
-      "type": "system:@map",
-      "items": {
-        "type": "@alas"
-      }
-    },
-    "malass": {
-      "type": "system:@map",
-      "items": {
-        "type": "@alass"
-      }
-    },
-    "maljb": {
-      "type": "system:@map",
-      "items": {
-        "type": "@aljb"
-      }
-    },
-    "maljn": {
-      "type": "system:@map",
-      "items": {
-        "type": "@aljn"
-      }
-    },
-    "maljs": {
-      "type": "system:@map",
-      "items": {
-        "type": "@aljs"
-      }
-    },
-    "malmjs": {
-      "type": "system:@map",
-      "items": {
-        "type": "@almjs"
-      }
-    },
-    "malms": {
-      "type": "system:@map",
-      "items": {
-        "type": "@alms"
-      }
-    },
-    "malmss": {
-      "type": "system:@map",
-      "items": {
-        "type": "@almss"
-      }
-    },
-    "malss": {
-      "type": "system:@map",
-      "items": {
-        "type": "@alss"
-      }
-    },
-    "mals": {
-      "type": "system:@map",
-      "items": {
-        "type": "@als"
       }
     }
   }

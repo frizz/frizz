@@ -17,7 +17,6 @@ func TestStructs(t *testing.T) {
 	defer cb.Cleanup()
 
 	testAlias(t, cb)
-	testGenerateSourceErr2(t, cb)
 	testGenerateSource(t, cb)
 
 }
@@ -29,14 +28,14 @@ func testGenerateSource(t *testing.T, cb *tests.ContextBuilder) {
 			"type": "system:type",
 			"id": "amap",
 			"native": "map",
-			"custom-kind": "collection"
+			"custom-kind": "map"
 		}`,
 		"aarr.json": `
 		{
 			"type": "system:type",
 			"id": "aarr",
 			"native": "array",
-			"custom-kind": "collection"
+			"custom-kind": "array"
 		}`,
 		"a.json": `
 		{
@@ -94,25 +93,6 @@ func testGenerateSource(t *testing.T, cb *tests.ContextBuilder) {
 	// Type "An" should not be a struct because it's a bool native. However, it should be registered.
 	assert.Contains(t, source, "type An bool")
 	assert.Contains(t, source, "pkg.InitType(\"an\", reflect.TypeOf((*An)(nil)), reflect.TypeOf((*AnRule)(nil)), reflect.TypeOf((*AnInterface)(nil)).Elem())\n")
-}
-
-func testGenerateSourceErr2(t *testing.T, cb *tests.ContextBuilder) {
-	_, err := ext.InitialiseAndGenerate(t, cb, "b", map[string]string{
-		"a.json": `
-		{
-			"type": "system:type",
-			"id": "a",
-			"fields": {
-				"c": {
-					"type": "system:@foo"
-				}
-			}
-		}
-		`,
-	})
-	assert.IsError(t, err, "XKRYMXUIJD")
-	assert.HasError(t, err, "TFXFBIRXHN")
-	assert.HasError(t, err, "KYCTDXKFYR")
 }
 
 func testAlias(t *testing.T, cb *tests.ContextBuilder) {
@@ -204,7 +184,7 @@ func testAlias(t *testing.T, cb *tests.ContextBuilder) {
 				"type": "system:type",
 				"id": "type-alias-custom-collection",
 				"custom": true,
-				"custom-kind": "collection"
+				"custom-kind": "map"
 			}
 		`,
 		"type-alias-custom-struct.json": `

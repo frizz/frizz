@@ -41,7 +41,6 @@ func TestGenerateSourceErr2(t *testing.T) {
 
 	_, err := Structs(cb.Ctx(), cb.Env())
 	assert.IsError(t, err, "XKRYMXUIJD")
-	assert.HasError(t, err, "TFXFBIRXHN")
 	assert.HasError(t, err, "KYCTDXKFYR") // type system:foo not found
 }
 func TestGenerateSourceNoTypes(t *testing.T) {

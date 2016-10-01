@@ -1,6 +1,7 @@
 {
   "type": "system:type",
   "id": "almss",
+  "native": "map",
   "alias": {
     "type": "system:@map",
     "items": {

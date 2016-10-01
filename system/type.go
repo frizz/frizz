@@ -15,37 +15,31 @@ import (
 type Kind string
 
 const (
-	KindValue      Kind = "value"      // float64, string, bool
-	KindCollection Kind = "collection" // []T, map[string]T
-	KindStruct     Kind = "struct"     // struct{...}
-	KindInterface  Kind = "interface"  // interface{...}
+	KindValue     Kind = "value"     // float64, string, bool
+	KindStruct    Kind = "struct"    // struct{...}
+	KindInterface Kind = "interface" // interface{...}
+	KindMap       Kind = "map"       // map[string]T
+	KindArray     Kind = "array"     // []T
 )
 
-func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool, err error) {
+func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
 	if t.Id.Package == "kego.io/json" {
-		return KindValue, false, nil
+		return KindValue, false
 	}
 	if len(t.Fields) > 0 {
-		return KindStruct, false, nil
+		return KindStruct, false
 	}
 	if t.Alias != nil {
-		rw, err := WrapRule(ctx, t.Alias)
-		if err != nil {
-			return "", false, kerr.Wrap("NSNPJPJSAP", err)
-		}
-		k, _, err := rw.Kind(ctx)
-		if err != nil {
-			return "", false, kerr.Wrap("GPVGUBPBFK", err)
-		}
-		return k, true, nil
+		k, _ := WrapRule(ctx, t.Alias).Kind(ctx)
+		return k, true
 	}
 	if t.Interface {
-		return KindInterface, false, nil
+		return KindInterface, false
 	}
 	if t.CustomKind != nil {
-		return Kind(t.CustomKind.Value()), true, nil
+		return Kind(t.CustomKind.Value()), true
 	}
-	return KindStruct, false, nil
+	return KindStruct, false
 }
 
 func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
