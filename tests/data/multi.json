@@ -70,6 +70,18 @@
     "aljs": {
       "type": "@aljs"
     },
+    "aljbi": {
+      "type": "@aljb",
+      "interface": true
+    },
+    "aljni": {
+      "type": "@aljn",
+      "interface": true
+    },
+    "aljsi": {
+      "type": "@aljs",
+      "interface": true
+    },
     "almjs": {
       "type": "@almjs"
     },

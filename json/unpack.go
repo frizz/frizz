@@ -91,6 +91,32 @@ func (us *unpackStruct) unpack(ctx context.Context, in Packed, v reflect.Value) 
 		typ = in.Type()
 	}
 
+	// if we're unpacking a map, and we're not unpacking into a map, check
+	// for type/value attributes.
+	if typ == J_MAP {
+		if v.Type().Kind() == reflect.Interface {
+			// This sets the value of v to the correct type based on the "type"
+			// attribute.
+			t, err := us.getTypeFromField(ctx, in, v)
+			if err != nil {
+				return kerr.Wrap("BGJEIXFQHL", err)
+			}
+			if t != nil {
+				if err := setType(v, t); err != nil {
+					return kerr.Wrap("KBWJCMHWYF", err)
+				}
+				tInner := t
+				for tInner.Kind() == reflect.Interface || tInner.Kind() == reflect.Ptr {
+					tInner = tInner.Elem()
+				}
+				if tInner.Kind() != reflect.Struct {
+					in = in.Map()["value"]
+					typ = in.Type()
+				}
+			}
+		}
+	}
+
 	switch typ {
 	case J_MAP:
 		if err := us.unpackObject(ctx, in, v); err != nil {
@@ -302,37 +328,6 @@ func (us *unpackStruct) unpackObject(ctx context.Context, in Packed, v reflect.V
 	hasConcreteType := false
 	concreteTypePath := ""
 	concreteTypeName := ""
-
-	v1 := v
-	for v1.Kind() == reflect.Interface || v1.Kind() == reflect.Ptr {
-		v1 = v1.Elem()
-	}
-	// If the type we're unmarshaling into is an interface, we should scan for
-	// a "type" attribute and initialise the correct type.
-	if v.Kind() == reflect.Interface {
-		// This sets the value of v to the correct type based on the "type"
-		// attribute.
-		typ, err := us.getTypeFromField(ctx, in, v)
-		if err != nil {
-			return kerr.Wrap("BGJEIXFQHL", err)
-		}
-		if typ != nil {
-			if err := setType(v, typ); err != nil {
-				return kerr.Wrap("KBWJCMHWYF", err)
-			}
-			typ1 := typ
-			for typ1.Kind() == reflect.Ptr {
-				typ1 = typ1.Elem()
-			}
-			if isKeNative(typ1.Kind()) {
-				in = in.Map()["value"]
-				if err := us.unpackLiteral(ctx, in, v); err != nil {
-					return kerr.Wrap("QPLDNFDRXY", err)
-				}
-				return nil
-			}
-		}
-	}
 
 	_, _, _, val := indirect(v, false, false, false)
 	if val.Kind() == reflect.Struct {

@@ -98,7 +98,9 @@ func (r *RuleWrapper) Kind(ctx context.Context) (kind Kind, alias bool) {
 }
 
 func (r *RuleWrapper) PermittedTypes() []*Type {
-	if !r.Parent.Interface && !r.Struct.Interface {
+	typeInterface := r.Parent != nil && r.Parent.Interface
+	ruleInteface := r.Struct != nil && r.Struct.Interface
+	if !typeInterface && !ruleInteface {
 		return []*Type{r.Parent}
 	}
 	return GetAllTypesThatImplementInterface(r.Ctx, r.Parent)

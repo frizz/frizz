@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":2237998992933749138}
+// info:{"Path":"kego.io/system","Hash":1695196676969006037}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -308,7 +308,7 @@ func (o *Type) GetType(ctx context.Context) *Type {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/system", 2237998992933749138)
+	pkg := jsonctx.InitPackage("kego.io/system", 1695196676969006037)
 	pkg.InitType("array", nil, reflect.TypeOf((*ArrayRule)(nil)), nil)
 	pkg.InitType("bool", reflect.TypeOf((*Bool)(nil)), reflect.TypeOf((*BoolRule)(nil)), reflect.TypeOf((*BoolInterface)(nil)).Elem())
 	pkg.InitType("int", reflect.TypeOf((*Int)(nil)), reflect.TypeOf((*IntRule)(nil)), reflect.TypeOf((*IntInterface)(nil)).Elem())
@@ -319,6 +319,6 @@ func init() {
 	pkg.InitType("reference", reflect.TypeOf((*Reference)(nil)), reflect.TypeOf((*ReferenceRule)(nil)), reflect.TypeOf((*ReferenceInterface)(nil)).Elem())
 	pkg.InitType("rule", reflect.TypeOf((*Rule)(nil)), reflect.TypeOf((*RuleRule)(nil)), reflect.TypeOf((*RuleInterface)(nil)).Elem())
 	pkg.InitType("string", reflect.TypeOf((*String)(nil)), reflect.TypeOf((*StringRule)(nil)), reflect.TypeOf((*StringInterface)(nil)).Elem())
-	pkg.InitType("tags", reflect.TypeOf((*Tags)(nil)), reflect.TypeOf((*TagsRule)(nil)), reflect.TypeOf((*TagsInterface)(nil)).Elem())
+	pkg.InitType("tags", reflect.TypeOf((Tags)(nil)), reflect.TypeOf((*TagsRule)(nil)), reflect.TypeOf((*TagsInterface)(nil)).Elem())
 	pkg.InitType("type", reflect.TypeOf((*Type)(nil)), reflect.TypeOf((*TypeRule)(nil)), reflect.TypeOf((*TypeInterface)(nil)).Elem())
 }

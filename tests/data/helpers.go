@@ -13,28 +13,7 @@ import (
 func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 
 	simple := false
-	if simple {
-		cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
-
-		m := `"type": "multi",
-		"alms": {"a": {"type": "simple", "js": "almsa"}, "b": {"type": "simple", "js": "almsb"}}
-			`
-		mm := m + `,
-			"m": { "type": "multi" },
-			"am": [ { "type": "multi", "js": "amjs0" }, { "type": "multi", "js": "amjs1" } ],
-			"mm": { "a": { "type": "multi", "js": "mmjsa" }, "b": { "type": "multi", "js": "mmjsb" } }`
-
-		s := `{
-		` + m + `,
-		"m": {` + mm + `},
-		"am": [ {` + mm + `}, {` + mm + `} ],
-		"mm": { "a": {` + mm + `}, "b": {` + mm + `} }
-	}`
-		n := node.NewNode()
-		require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
-		return cb, n
-	} else {
-
+	if !simple {
 		cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
 		m := `"type": "multi",
 			"js": "js1",
@@ -85,7 +64,29 @@ func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 		n := node.NewNode()
 		require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
 		return cb, n
+
+	} else {
+		cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+
+		m := `"type": "multi",
+		"alms": {"a": {"type": "simple", "js": "almsa"}, "b": {"type": "simple", "js": "almsb"}}
+			`
+		mm := m + `,
+			"m": { "type": "multi" },
+			"am": [ { "type": "multi", "js": "amjs0" }, { "type": "multi", "js": "amjs1" } ],
+			"mm": { "a": { "type": "multi", "js": "mmjsa" }, "b": { "type": "multi", "js": "mmjsb" } }`
+
+		s := `{
+		` + m + `,
+		"m": {` + mm + `},
+		"am": [ {` + mm + `}, {` + mm + `} ],
+		"mm": { "a": {` + mm + `}, "b": {` + mm + `} }
+	}`
+		n := node.NewNode()
+		require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
+		return cb, n
 	}
+
 }
 
 func Empty(t *testing.T) (*tests.ContextBuilder, *node.Node) {

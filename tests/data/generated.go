@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data","Hash":8827054844486181288}
+// info:{"Path":"kego.io/tests/data","Hash":6167257871666940584}
 package data
 
 // ke: {"file": {"notest": true}}
@@ -251,8 +251,11 @@ type Multi struct {
 	Alas   Alas                              `json:"alas"`
 	Alass  Alass                             `json:"alass"`
 	Aljb   *Aljb                             `json:"aljb"`
+	Aljbi  AljbInterface                     `json:"aljbi"`
 	Aljn   *Aljn                             `json:"aljn"`
+	Aljni  AljnInterface                     `json:"aljni"`
 	Aljs   *Aljs                             `json:"aljs"`
+	Aljsi  AljsInterface                     `json:"aljsi"`
 	Almjs  Almjs                             `json:"almjs"`
 	Alms   Alms                              `json:"alms"`
 	Almss  Almss                             `json:"almss"`
@@ -327,7 +330,7 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/tests/data", 8827054844486181288)
+	pkg := jsonctx.InitPackage("kego.io/tests/data", 6167257871666940584)
 	pkg.InitType("alajs", reflect.TypeOf((Alajs)(nil)), reflect.TypeOf((*AlajsRule)(nil)), reflect.TypeOf((*AlajsInterface)(nil)).Elem())
 	pkg.InitType("alas", reflect.TypeOf((Alas)(nil)), reflect.TypeOf((*AlasRule)(nil)), reflect.TypeOf((*AlasInterface)(nil)).Elem())
 	pkg.InitType("alass", reflect.TypeOf((Alass)(nil)), reflect.TypeOf((*AlassRule)(nil)), reflect.TypeOf((*AlassInterface)(nil)).Elem())

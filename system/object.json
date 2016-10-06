@@ -15,6 +15,11 @@
 			"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
 			"pattern-not": "-rule$|-interface$"
 		},
+		"tags-new": {
+			"description": "Tags for general use",
+			"type": "@tags",
+			"optional": true
+		},
 		"tags": {
 			"description": "Tags for general use",
 			"type": "@array",

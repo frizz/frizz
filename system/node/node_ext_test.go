@@ -44,6 +44,11 @@ func TestNode_NativeValue(t *testing.T) {
 
 		require.Equal(t, nil, n.Map["ajs"].NativeValue())
 		require.Equal(t, nil, n.Map["mjs"].NativeValue())
+
+		require.Equal(t, true, n.Map["aljb"].NativeValue())
+		require.Equal(t, 2.0, n.Map["aljn"].NativeValue())
+		require.Equal(t, "aljs", n.Map["aljs"].NativeValue())
+
 	}
 
 	data.Run(t, n, n.Value.(*data.Multi), test)
@@ -115,6 +120,16 @@ func TestNode_SetValue(t *testing.T) {
 
 		n.Map["sn"].SetValue(cb.Ctx(), 2.6)
 		assert.Equal(t, 2.6, m.Sn.Value())
+
+		n.Map["aljb"].SetValue(cb.Ctx(), false)
+		assert.Equal(t, data.Aljb(false), *m.Aljb)
+
+		n.Map["aljn"].SetValue(cb.Ctx(), 2.1)
+		assert.Equal(t, data.Aljn(2.1), *m.Aljn)
+
+		n.Map["aljs"].SetValue(cb.Ctx(), "aljs1")
+		assert.Equal(t, data.Aljs("aljs1"), *m.Aljs)
+
 	}
 
 	data.Run(t, n, n.Value.(*data.Multi), test)
@@ -184,26 +199,6 @@ func TestNode_Unpack3(t *testing.T) {
 
 }
 
-func TestNode_Unpack4(t *testing.T) {
-
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
-
-	s := `{
-	"type": "multi",
-	"ss": {"type":"system:string", "value": "b"},
-	"sn": {"type":"system:number", "value": 2},
-	"sb": {"type":"system:bool", "value": true}
-}`
-
-	n := node.NewNode()
-	err := n.Unpack(cb.Ctx(), json.PackString(s))
-	require.NoError(t, err)
-	assert.Equal(t, "b", n.Value.(*data.Multi).Ss.Value())
-	assert.Equal(t, 2.0, n.Value.(*data.Multi).Sn.Value())
-	assert.Equal(t, true, n.Value.(*data.Multi).Sb.Value())
-
-}
-
 func TestNode_Unpack5(t *testing.T) {
 
 	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
@@ -212,7 +207,10 @@ func TestNode_Unpack5(t *testing.T) {
 	"type": "multi",
 	"sri": {"type":"system:string", "value": "b"},
 	"nri": {"type":"system:number", "value": 2},
-	"bri": {"type":"system:bool", "value": true}
+	"bri": {"type":"system:bool", "value": true},
+	"aljbi": {"type":"aljb", "value": true},
+	"aljni": {"type":"aljn", "value": 3.0},
+	"aljsi": {"type":"aljs", "value": "aljs2"}
 }`
 
 	n := node.NewNode()
@@ -221,6 +219,10 @@ func TestNode_Unpack5(t *testing.T) {
 	assert.Equal(t, "b", n.Value.(*data.Multi).Sri.GetString(cb.Ctx()).Value())
 	assert.Equal(t, 2.0, n.Value.(*data.Multi).Nri.GetNumber(cb.Ctx()).Value())
 	assert.Equal(t, true, n.Value.(*data.Multi).Bri.GetBool(cb.Ctx()).Value())
+
+	assert.Equal(t, data.Aljb(true), *n.Value.(*data.Multi).Aljbi.GetAljb(cb.Ctx()))
+	assert.Equal(t, data.Aljn(3.0), *n.Value.(*data.Multi).Aljni.GetAljn(cb.Ctx()))
+	assert.Equal(t, data.Aljs("aljs2"), *n.Value.(*data.Multi).Aljsi.GetAljs(cb.Ctx()))
 
 }
 
