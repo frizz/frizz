@@ -10,7 +10,7 @@ import (
 	"bytes"
 
 	"github.com/davelondon/kerr"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 func NewString(s string) *String {
@@ -174,31 +174,14 @@ func truncate(s string, length int) string {
 
 var _ Enforcer = (*StringRule)(nil)
 
-func (out *String) Unpack(ctx context.Context, in json.Packed) error {
-	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("PWTAHLCCWR", "Called String.Unpack with nil value")
-	}
-	if in.Type() == json.J_MAP {
-		in = in.Map()["value"]
-	}
-	if in.Type() != json.J_STRING {
-		return kerr.New("IXASCXOPMG", "Can't unpack %s into *system.String", in.Type())
-	}
-	s := NewString(in.String())
-	*out = *s
-	return nil
-}
-
-var _ json.Unpacker = (*String)(nil)
-
-func (s *String) MarshalJSON(ctx context.Context) ([]byte, error) {
+func (s *String) Repack(ctx context.Context) (interface{}, error) {
 	if s == nil {
-		return []byte("null"), nil
+		return nil, nil
 	}
-	return []byte(strconv.Quote(s.Value())), nil
+	return strconv.Quote(s.Value()), nil
 }
 
-var _ json.Marshaler = (*String)(nil)
+var _ packer.Repacker = (*String)(nil)
 
 func (s *String) String() string {
 	if s == nil {

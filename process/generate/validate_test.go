@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
 )
 
@@ -12,7 +13,7 @@ func TestValidate(t *testing.T) {
 	cb := tests.Context("a.b/c").Alias("f", "d.e/f")
 
 	b, err := ValidateCommand(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, `package main
 
 import (

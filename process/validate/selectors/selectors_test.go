@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/process/parser"
 	"kego.io/system/node"
 	"kego.io/tests"
@@ -14,12 +15,12 @@ func TestUniversalProduction(t *testing.T) {
 
 	f := p.universalProduction("a")
 	out, err := f(&node.Node{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, out)
 
 	f = p.universalProduction("*")
 	out, err = f(&node.Node{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, out)
 }
 
@@ -28,7 +29,7 @@ func TestKegoProduction(t *testing.T) {
 	f := p.kegoProduction(nil)
 	b, err := f(&node.Node{Null: true})
 	assert.False(t, b)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 }
 func TestMatch(t *testing.T) {
@@ -40,14 +41,14 @@ func TestMatch(t *testing.T) {
 func TestGetValue(t *testing.T) {
 	p := getParser(t)
 	out, err := p.GetValues(":root")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 1, len(out))
 }
 func TestGetNodes(t *testing.T) {
 	p := getParser(t)
 
 	out, err := p.GetNodes(":root")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 1, len(out))
 
 	// The lexer extracts a S_WORD token, which has no selector
@@ -73,8 +74,8 @@ func getParser(t *testing.T) *Parser {
 		"id": "foo"
 	}`
 	n, err := node.Unmarshal(cb.Ctx(), []byte(data))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	p, err := CreateParser(cb.Ctx(), n)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	return p
 }

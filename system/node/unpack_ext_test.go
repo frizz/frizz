@@ -3,9 +3,10 @@ package node_test
 import (
 	"testing"
 
+	"github.com/davelondon/ktest/require"
+
 	"context"
 
-	"github.com/davelondon/ktest/assert"
 	"kego.io/context/envctx"
 	_ "kego.io/demo/common/images"
 	_ "kego.io/demo/common/units"
@@ -24,7 +25,7 @@ func testUnpack(t *testing.T, path string) {
 	ctx, _, err := process.Initialise(context.Background(), &process.Options{
 		Path: path,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	env := envctx.FromContext(ctx)
 
@@ -32,7 +33,7 @@ func testUnpack(t *testing.T, path string) {
 	bytes := scanner.ScanFilesToBytes(ctx, files)
 	for b := range bytes {
 		_, err := node.Unmarshal(ctx, b.Bytes)
-		assert.NoError(t, err, b.File)
+		require.NoError(t, err, b.File)
 	}
 }
 
@@ -41,11 +42,11 @@ func TestNodeUnpack(t *testing.T) {
 	ctx, _, err := process.Initialise(context.Background(), &process.Options{
 		Path: "kego.io/demo/site",
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	j := `{"type":"system:package","aliases":{"images":"kego.io/demo/common/images","units":"kego.io/demo/common/units","words":"kego.io/demo/common/words"}}`
 
 	_, err = node.Unmarshal(ctx, []byte(j))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 }

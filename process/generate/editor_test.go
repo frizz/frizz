@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
 )
 
 func TestEditor(t *testing.T) {
 	cb := tests.Context("a.b/c").Alias("g", "d.e/f")
 	b, err := Editor(cb.Ctx(), cb.Env())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), `package main
 
 import (

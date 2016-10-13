@@ -15,11 +15,12 @@ import (
 
 	"context"
 
+	"encoding/json"
+
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/kerr/ksrc"
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"kego.io/json"
 	"kego.io/process/packages"
 )
 
@@ -28,7 +29,7 @@ var all = map[string]*errDef{}
 
 func TestAll(t *testing.T) {
 	dir, err := packages.GetDirFromPackage(context.Background(), "kego.io")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// walk each file in the working directory
 	walker := func(path string, file os.FileInfo, err error) error {
@@ -169,8 +170,8 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 			for _, c := range cg.List {
 				if strings.HasPrefix(c.Text, "// ke: ") {
 					val := struct{ Package struct{ Notest bool } }{}
-					err := json.UnmarshalPlain([]byte(c.Text[7:]), &val)
-					assert.NoError(v.t, err)
+					err := json.Unmarshal([]byte(c.Text[7:]), &val)
+					require.NoError(v.t, err)
 					if val.Package.Notest {
 						def := getPkgDef(v.pkg)
 						def.notest = true
@@ -227,7 +228,7 @@ func getErrData(t *testing.T, args []ast.Expr, arg int, file string, pos token.P
 	}
 	require.Equal(t, b.Kind, token.STRING, "kind should be token.STRING (%s:%d)", file, pos.Line)
 	id, err := strconv.Unquote(b.Value)
-	assert.NoError(t, err, "Error unquoting arg (%s:%d)", file, pos.Line)
+	require.NoError(t, err, "Error unquoting arg (%s:%d)", file, pos.Line)
 	assert.True(t, ksrc.IsId(id), "Invalid kerr ID %s (%s:%d)", id, file, pos.Line)
 	def, ok := all[id]
 	if ok {

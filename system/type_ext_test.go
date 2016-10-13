@@ -27,9 +27,7 @@ func initialise() context.Context {
 }
 
 func TestBoolExt(t *testing.T) {
-	testBool(t, unpacker.Unmarshal)
 	testBool(t, unpacker.Unpack)
-	testBool(t, unpacker.Decode)
 	testBool(t, repacker.Repack)
 }
 func testBool(t *testing.T, up unpacker.Interface) {
@@ -60,7 +58,7 @@ func testBool(t *testing.T, up unpacker.Interface) {
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	f, ok := i.(*system.Type)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
@@ -70,9 +68,7 @@ func testBool(t *testing.T, up unpacker.Interface) {
 }
 
 func TestTypeExt(t *testing.T) {
-	testType(t, unpacker.Unmarshal)
 	testType(t, unpacker.Unpack)
-	testType(t, unpacker.Decode)
 	testType(t, repacker.Repack)
 }
 func testType(t *testing.T, up unpacker.Interface) {

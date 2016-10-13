@@ -127,7 +127,7 @@ func TestRuleWrapper_ZeroValue(t *testing.T) {
 
 func TestReflectType(t *testing.T) {
 	ctx, _, err := process.Initialise(context.Background(), process.Options{Path: "kego.io/system"})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	checkReflectType(ctx, t, "kego.io/system", "type", "basic", "bool")
 	checkReflectType(ctx, t, "kego.io/system", "type", "embed", "[]*system.Reference")
 	checkReflectType(ctx, t, "kego.io/system", "type", "native", "*system.String")
@@ -148,6 +148,6 @@ func checkReflectType(ctx context.Context, t *testing.T, path string, name strin
 	assert.True(t, ok)
 	rh := system.WrapRule(ctx, r)
 	rt, err := rh.GetReflectType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, output, rt.String())
 }

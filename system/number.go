@@ -10,7 +10,7 @@ import (
 	"math"
 
 	"github.com/davelondon/kerr"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 func NewNumber(n float64) *Number {
@@ -100,30 +100,16 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 
 var _ Enforcer = (*NumberRule)(nil)
 
-func (out *Number) Unpack(ctx context.Context, in json.Packed) error {
-	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("WHREWCCODC", "Called Number.Unpack with nil value")
-	}
-	if in.Type() == json.J_MAP {
-		in = in.Map()["value"]
-	}
-	if in.Type() != json.J_NUMBER {
-		return kerr.New("YHXBFTONCW", "Can't unpack %s into system.Number", in.Type())
-	}
-	*out = Number(in.Number())
-	return nil
-}
+var _ packer.Unpacker = (*Number)(nil)
 
-var _ json.Unpacker = (*Number)(nil)
-
-func (n *Number) MarshalJSON(ctx context.Context) ([]byte, error) {
+func (n *Number) Repack(ctx context.Context) (interface{}, error) {
 	if n == nil {
-		return []byte("null"), nil
+		return nil, nil
 	}
-	return []byte(formatFloat(n)), nil
+	return formatFloat(n), nil
 }
 
-var _ json.Marshaler = (*Number)(nil)
+var _ packer.Repacker = (*Number)(nil)
 
 func (n *Number) String() string {
 	if n == nil {

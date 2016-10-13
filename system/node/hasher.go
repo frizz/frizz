@@ -2,10 +2,10 @@ package node
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/davelondon/kerr"
 	"github.com/surge/cityhash"
-	"kego.io/json"
 )
 
 const currentNodeHasherVersion = 1
@@ -37,7 +37,7 @@ func (p *NodeHasher) Hash(ctx context.Context) (uint64, error) {
 		p.Version = currentNodeHasherVersion
 	}
 
-	bytes, err := json.MarshalPlain(p)
+	bytes, err := json.Marshal(p)
 	if err != nil {
 		return 0, kerr.Wrap("QYEXVJIEOS", err)
 	}

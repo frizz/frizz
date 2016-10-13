@@ -7,7 +7,7 @@ import (
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/process/scanner"
 	"kego.io/process/validate/selectors"
 	"kego.io/system"
@@ -101,11 +101,11 @@ func buildRulesObject(ctx context.Context, n *node.Node, cache map[*node.Node][]
 
 	// Validate the children
 	switch n.Type.NativeJsonType() {
-	case json.J_OBJECT:
+	case packer.J_OBJECT:
 		if err := buildRulesObjectChildren(ctx, n, cache); err != nil {
 			return kerr.Wrap("WLGMAVXNQN", err)
 		}
-	case json.J_ARRAY, json.J_MAP:
+	case packer.J_ARRAY, packer.J_MAP:
 		if err := buildRulesCollectionChildren(ctx, n, cache); err != nil {
 			return kerr.Wrap("WIDHJGYYMT", err)
 		}

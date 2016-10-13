@@ -3,7 +3,7 @@ package system
 import (
 	"context"
 
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 type Labelled interface {
@@ -24,16 +24,17 @@ func RulesApplyToObjects(object interface{}) bool {
 	return !isRule && !isType && isObject
 }
 
-var _ json.InitializableType = (*Object)(nil)
+var _ packer.InitializableType = (*Object)(nil)
 
-// InitializeType implements the json.InitializableType interface. If we are unpacking an object
-// into a concrete type defined by the schema, we should set the type using this. This enables us
-// to allow the type to be omitted from the json.
+// InitializeType implements the packer.InitializableType interface. If we are
+// unpacking an object into a concrete type defined by the schema, we should
+// set the type using this. This enables us to allow the type to be omitted
+// from the packer.
 func (b *Object) InitializeType(path string, name string) error {
 	if b.Type != nil {
 		// We should return an error if we're trying to set the type to a different type
 		if path != b.Type.Package || name != b.Type.Name {
-			return json.InitializableTypeError{
+			return packer.InitializableTypeError{
 				UnmarshalledPath: b.Type.Package,
 				UnmarshalledName: b.Type.Name,
 				IntoPath:         path,

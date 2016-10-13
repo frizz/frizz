@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
 )
 
@@ -33,7 +34,7 @@ func TestScanFilesToBytes(t *testing.T) {
 	}()
 	out := []Content{}
 	for c := range ch {
-		assert.NoError(t, c.Err)
+		require.NoError(t, c.Err)
 		out = append(out, c)
 	}
 	assert.Equal(t, 1, len(out))
@@ -53,7 +54,7 @@ func TestScanFilesToBytes(t *testing.T) {
 	}()
 	out = []Content{}
 	for c := range ch {
-		assert.NoError(t, c.Err)
+		require.NoError(t, c.Err)
 		out = append(out, c)
 	}
 	assert.Equal(t, 3, len(out))
@@ -91,15 +92,15 @@ func TestScanDirToFiles(t *testing.T) {
 		"b.json": "c",
 	})
 	// make a dir so we hit the IsRegular block
-	assert.NoError(t, os.Mkdir(filepath.Join(dir, "d"), 0777))
+	require.NoError(t, os.Mkdir(filepath.Join(dir, "d"), 0777))
 
 	// put another file in it
-	assert.NoError(t, ioutil.WriteFile(filepath.Join(dir, "d", "e.json"), []byte("f"), 0777))
+	require.NoError(t, ioutil.WriteFile(filepath.Join(dir, "d", "e.json"), []byte("f"), 0777))
 
 	ch := ScanDirToFiles(cb.Ctx(), dir, false)
 	out := []File{}
 	for f := range ch {
-		assert.NoError(t, f.Err)
+		require.NoError(t, f.Err)
 		out = append(out, f)
 	}
 	assert.Equal(t, 1, len(out))
@@ -108,7 +109,7 @@ func TestScanDirToFiles(t *testing.T) {
 	ch = ScanDirToFiles(cb.Ctx(), dir, true)
 	out = []File{}
 	for f := range ch {
-		assert.NoError(t, f.Err)
+		require.NoError(t, f.Err)
 		out = append(out, f)
 	}
 	assert.Equal(t, 2, len(out))

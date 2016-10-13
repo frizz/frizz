@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
 	"kego.io/tests"
 )
@@ -53,7 +54,7 @@ func TestInitialise(t *testing.T) {
 	cb.OsWd(dirA)
 
 	ctx, _, err := Initialise(cb.Ctx(), nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	env := envctx.FromContext(ctx)
 	assert.Equal(t, dirA, env.Dir)
 	assert.Equal(t, pathA, env.Path)
@@ -64,7 +65,7 @@ func TestInitialise(t *testing.T) {
 		Path: pathB,
 	})
 	env = envctx.FromContext(ctx)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, dirB, env.Dir)
 	assert.Equal(t, pathB, env.Path)
 

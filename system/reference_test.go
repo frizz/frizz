@@ -11,9 +11,8 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/tests"
-	"kego.io/tests/unpacker"
 )
 
 func TestReferenceRule_Validate(t *testing.T) {
@@ -87,10 +86,9 @@ func TestReferenceRule_Enforce(t *testing.T) {
 
 }
 
+/*
 func TestUnpackDefaultNativeTypeReference(t *testing.T) {
-	testUnpackDefaultNativeTypeReference(t, unpacker.Unmarshal)
 	testUnpackDefaultNativeTypeReference(t, unpacker.Unpack)
-	testUnpackDefaultNativeTypeReference(t, unpacker.Decode)
 }
 func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 
@@ -115,11 +113,12 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 	assert.NotNil(t, a)
 	assert.Equal(t, NewReference("c.d/e", "f"), a.B.GetReference(nil))
 
-	b, err := json.Marshal(a)
+	b, err := packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c.d/e:f"}`, string(b))
 
 }
+*/
 
 func TestReferenceRuleChangeTo(t *testing.T) {
 
@@ -159,25 +158,25 @@ func TestReferenceUnmarshal(t *testing.T) {
 	}
 
 	r := reset()
-	err := r.Unpack(envctx.Empty, json.Pack(nil))
+	err := r.Unpack(envctx.Empty, packer.Pack(nil), false)
 	assert.IsError(t, err, "MOQVSKJXRB")
 
 	r = reset()
-	err = r.Unpack(envctx.Empty, json.Pack(1.0))
+	err = r.Unpack(envctx.Empty, packer.Pack(1.0), false)
 	assert.IsError(t, err, "RFLQSBPMYM")
 
 	r = reset()
-	err = r.Unpack(envctx.Empty, json.Pack("a.b/c:d"))
+	err = r.Unpack(envctx.Empty, packer.Pack("a.b/c:d"), false)
 	assert.IsError(t, err, "MSXBLEIGVJ")
 	assert.HasError(t, err, "KJSOXDESFD")
-	p, ok := kerr.Source(err).(json.UnknownPackageError)
+	p, ok := kerr.Source(err).(packer.UnknownPackageError)
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c", p.UnknownPackage)
 
 	ctx := tests.Context("").Alias("c", "a.b/c").Ctx()
 
 	r = reset()
-	err = r.Unpack(ctx, json.Pack("a.b/c:d"))
+	err = r.Unpack(ctx, packer.Pack("a.b/c:d"), false)
 	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -185,10 +184,10 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(ctx, json.Pack(map[string]interface{}{
+	err = r.Unpack(ctx, packer.Pack(map[string]interface{}{
 		"type":  "system:reference",
 		"value": "a.b/c:d",
-	}))
+	}), false)
 	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -196,7 +195,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(ctx, json.Pack("a.b/c:@d"))
+	err = r.Unpack(ctx, packer.Pack("a.b/c:@d"), false)
 	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -204,10 +203,10 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
-	err = r.Unpack(envctx.Empty, json.Pack("a:b"))
+	err = r.Unpack(envctx.Empty, packer.Pack("a:b"), false)
 	assert.IsError(t, err, "MSXBLEIGVJ")
 	assert.HasError(t, err, "DKKFLKDKYI")
-	p, ok = kerr.Source(err).(json.UnknownPackageError)
+	p, ok = kerr.Source(err).(packer.UnknownPackageError)
 	assert.True(t, ok)
 	assert.Equal(t, "a", p.UnknownPackage)
 
@@ -234,14 +233,14 @@ func TestReferenceUnmarshal(t *testing.T) {
 func TestReferenceMarshalJson(t *testing.T) {
 
 	var r *Reference
-	b, err := r.MarshalJSON(envctx.Empty)
+	b, err := r.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, "null", string(b))
+	assert.Equal(t, nil, b)
 
 	r = NewReference("a.b/c", "d")
-	b, err = r.MarshalJSON(envctx.Empty)
+	b, err = r.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, "\"a.b/c:d\"", string(b))
+	assert.Equal(t, "\"a.b/c:d\"", b)
 
 }
 

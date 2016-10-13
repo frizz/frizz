@@ -1,9 +1,10 @@
 package parser
 
 import (
+	"encoding/json"
+
 	"github.com/davelondon/kerr"
 	"github.com/surge/cityhash"
-	"kego.io/json"
 )
 
 type PackageHasher struct {
@@ -17,7 +18,7 @@ func (p *PackageHasher) Hash() (uint64, error) {
 
 	p.Version = 5
 
-	bytes, err := json.MarshalPlain(p)
+	bytes, err := json.Marshal(p)
 	if err != nil {
 		return 0, kerr.Wrap("TGAEJVECIF", err)
 	}

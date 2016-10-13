@@ -19,8 +19,7 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
 	"kego.io/context/vosctx"
-	"kego.io/json"
-	"kego.io/ke"
+	"kego.io/packer"
 	"kego.io/process/packages"
 	"kego.io/process/scanner"
 	"kego.io/system"
@@ -159,6 +158,32 @@ type objectStub struct {
 	Type *system.Reference `json:"type"`
 }
 
+func (v *objectStub) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+
+	if field, ok := in.Map()["id"]; ok {
+		if v.Id == nil {
+			v.Id = system.New_Reference(ctx).(*system.Reference)
+		}
+		if err := v.Id.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+	}
+
+	if field, ok := in.Map()["type"]; ok {
+		if v.Type == nil {
+			v.Type = system.New_Reference(ctx).(*system.Reference)
+		}
+		if err := v.Type.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 
 	// While we're scanning for types, we should use a custom unpacking env, because the env from
@@ -173,7 +198,7 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 		}
 
 		o := &objectStub{}
-		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
+		if err := system.Unmarshal(localContext, b.Bytes, o); err != nil {
 			return kerr.Wrap("HCYGNBDFFA", err)
 		}
 		if o.Type == nil {
@@ -205,14 +230,9 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 }
 
 func ProcessTypeFileBytes(ctx context.Context, env *envctx.Env, filename string, bytes []byte, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
-	var object interface{}
-	err := json.Unmarshal(envctx.NewContext(ctx, env), bytes, &object)
-	if err != nil {
+	t := new(system.Type)
+	if err := system.Unmarshal(envctx.NewContext(ctx, env), bytes, t); err != nil {
 		return kerr.Wrap("NLRRVIDVWM", err)
-	}
-	t, ok := object.(*system.Type)
-	if !ok {
-		return kerr.New("IVIFIOFGVK", "Should be *system.Type")
 	}
 	if hash != nil {
 		hash.Types[t.Id.Name] = cityhash.CityHash64(bytes, uint32(len(bytes)))
@@ -266,9 +286,9 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 			return nil, kerr.Wrap("GATNNQKNHY", b.Err, b.File)
 		}
 		o := &objectStub{}
-		if err := ke.UnmarshalUntyped(localContext, b.Bytes, o); err != nil {
+		if err := system.Unmarshal(localContext, b.Bytes, o); err != nil {
 			switch kerr.Source(err).(type) {
-			case json.UnknownPackageError, json.UnknownTypeError:
+			case packer.UnknownPackageError, packer.UnknownTypeError:
 				// don't return error
 			default:
 				return nil, kerr.Wrap("MTDCXBYBEJ", err, b.File)
@@ -280,10 +300,10 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "package"):
 			var i interface{}
-			err := json.Unmarshal(localContext, b.Bytes, &i)
+			err := system.Unmarshal(localContext, b.Bytes, &i)
 			if err != nil {
 				switch kerr.Source(err).(type) {
-				case json.UnknownPackageError, json.UnknownTypeError:
+				case packer.UnknownPackageError, packer.UnknownTypeError:
 					// don't return error
 				default:
 					return nil, kerr.Wrap("XTEQCAYQJP", err)

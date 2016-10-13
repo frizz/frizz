@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/mock_vecty"
 	"github.com/golang/mock/gomock"
@@ -87,7 +88,7 @@ func (cb *ClientContextBuilder) AssertAppFail(errorId string) *ClientContextBuil
 }
 
 func (cb *ClientContextBuilder) AssertAppSuccess() *ClientContextBuilder {
-	assert.NoError(cb.t, readErrorOrNil(cb.GetApp().Fail))
+	require.NoError(cb.t, readErrorOrNil(cb.GetApp().Fail))
 	return cb
 }
 

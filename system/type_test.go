@@ -8,7 +8,8 @@ import (
 	"context"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/json"
+	"github.com/davelondon/ktest/require"
+	"kego.io/packer"
 	"kego.io/tests"
 )
 
@@ -97,7 +98,7 @@ func TestNativeValueGolangType(t *testing.T) {
 	test := func(expected string, in string) {
 		ty := &Type{Native: NewString(in)}
 		v, err := ty.NativeValueGolangType()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, expected, v)
 	}
 	test("float64", "number")
@@ -197,31 +198,31 @@ func TestIsNativeValue(t *testing.T) {
 }
 
 func TestIsJsonValue(t *testing.T) {
-	test := func(expected bool, in *Reference, na json.Type) {
+	test := func(expected bool, in *Reference, na packer.Type) {
 		ty := &Type{Object: &Object{Id: in}, Native: NewString(string(na))}
 		assert.Equal(t, expected, ty.IsJsonValue())
 	}
-	test(false, NewReference("a.b/c", "d"), json.J_STRING)
-	test(false, NewReference("kego.io/json", "a"), json.J_OBJECT)
-	test(false, NewReference("kego.io/json", "a"), json.J_NULL)
-	test(false, NewReference("kego.io/json", "a"), json.J_MAP)
-	test(true, NewReference("kego.io/json", "a"), json.J_STRING)
+	test(false, NewReference("a.b/c", "d"), packer.J_STRING)
+	test(false, NewReference("kego.io/json", "a"), packer.J_OBJECT)
+	test(false, NewReference("kego.io/json", "a"), packer.J_NULL)
+	test(false, NewReference("kego.io/json", "a"), packer.J_MAP)
+	test(true, NewReference("kego.io/json", "a"), packer.J_STRING)
 }
 
 func TestNativeJsonType(t *testing.T) {
-	test := func(expected json.Type, in string) {
+	test := func(expected packer.Type, in string) {
 		ty := &Type{Native: NewString(in)}
 		assert.Equal(t, expected, ty.NativeJsonType(), in)
 	}
-	test(json.J_NUMBER, "number")
-	test(json.J_STRING, "string")
-	test(json.J_BOOL, "bool")
-	test(json.J_MAP, "map")
-	test(json.J_OBJECT, "object")
-	test(json.J_ARRAY, "array")
-	test(json.J_NULL, "null")
-	test(json.J_NULL, "")
-	test(json.J_NULL, "foo")
+	test(packer.J_NUMBER, "number")
+	test(packer.J_STRING, "string")
+	test(packer.J_BOOL, "bool")
+	test(packer.J_MAP, "map")
+	test(packer.J_OBJECT, "object")
+	test(packer.J_ARRAY, "array")
+	test(packer.J_NULL, "null")
+	test(packer.J_NULL, "")
+	test(packer.J_NULL, "foo")
 }
 
 func TestGetTypeFromCache(t *testing.T) {
@@ -318,13 +319,13 @@ func TestZeroValue(t *testing.T) {
 		Jtype("tfoo", reflect.TypeOf(&tFoo{})).Stype("tfoo", tfoo)
 
 	i, err := tfoo.ZeroValue(cb.Ctx(), true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tfn, ok := i.Interface().(*tFoo)
 	assert.True(t, ok)
 	assert.Nil(t, tfn)
 
 	i, err = tfoo.ZeroValue(cb.Ctx(), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tf, ok := i.Interface().(*tFoo)
 	assert.True(t, ok)
 	assert.NotNil(t, tf)
@@ -338,13 +339,13 @@ func TestZeroValue(t *testing.T) {
 	cb.Jtype("tint", reflect.TypeOf((*tInt)(nil))).Stype("tint", tint)
 
 	i, err = tint.ZeroValue(cb.Ctx(), true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tin, ok := i.Interface().(*tInt)
 	assert.True(t, ok)
 	assert.Nil(t, tin)
 
 	i, err = tint.ZeroValue(cb.Ctx(), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	ti, ok := i.Interface().(*tInt)
 	assert.True(t, ok)
 	assert.Equal(t, tInt(0), *ti)
@@ -353,13 +354,13 @@ func TestZeroValue(t *testing.T) {
 	cb.Jtype("tjstr", reflect.TypeOf("")).Stype("tjstr", tjstr)
 
 	i, err = tjstr.ZeroValue(cb.Ctx(), true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tjs, ok := i.Interface().(string)
 	assert.True(t, ok)
 	assert.Equal(t, "", tjs)
 
 	i, err = tjstr.ZeroValue(cb.Ctx(), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	tjs, ok = i.Interface().(string)
 	assert.True(t, ok)
 	assert.Equal(t, "", tjs)
@@ -380,15 +381,15 @@ func TestTypeImplements(t *testing.T) {
 
 func TestNativeGoType(t *testing.T) {
 	n, err := nativeGoType("string")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "string", n)
 
 	n, err = nativeGoType("number")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "float64", n)
 
 	n, err = nativeGoType("bool")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "bool", n)
 
 	_, err = nativeGoType("a")
@@ -417,7 +418,7 @@ func TestTypeIsNativeType(t *testing.T) {
 func TestTypeNativeValueGolangType(t *testing.T) {
 	y := &Type{Native: NewString("bool")}
 	n, err := y.NativeValueGolangType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "bool", n)
 }
 

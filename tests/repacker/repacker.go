@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/json"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -19,5 +19,5 @@ func (*Repacker) Process(ctx context.Context, data []byte, i *interface{}) error
 	if err != nil {
 		return kerr.Wrap("RXAARYNHLP", err)
 	}
-	return json.Unpack(ctx, node.Pack(n), i)
+	return system.Unpack(ctx, node.Pack(n), i)
 }

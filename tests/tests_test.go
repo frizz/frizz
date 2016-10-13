@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
 	"kego.io/process"
 	"kego.io/tests"
@@ -32,7 +33,7 @@ func TestDefaultInterfaceNativeType(t *testing.T) {
 			id: bar
 			baz: qux`,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 }
 func TestNeedsDummyRule(t *testing.T) {
@@ -54,7 +55,7 @@ func TestNeedsDummyRule(t *testing.T) {
 					default:
 						type: "@foo"`,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 }
 
@@ -169,7 +170,7 @@ func TestRules(t *testing.T) {
 			id: faces
 			str: foo`,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = runKe(cb, "b", map[string]string{
 		"gallery.yaml": `
@@ -198,7 +199,7 @@ func TestRules(t *testing.T) {
 func TestImport(t *testing.T) {
 
 	namespaceDir, err := tests.CreateTemporaryNamespace()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(namespaceDir)
 
 	path, err := runKego(namespaceDir, "elements", map[string]string{
@@ -215,7 +216,7 @@ func TestImport(t *testing.T) {
 				title:
 					type: "@title"`,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = runKego(namespaceDir, "site", map[string]string{
 		"site.yaml": `
@@ -238,7 +239,7 @@ func TestImport(t *testing.T) {
 				assert.Equal(t, "Heading", Site.Title.Text.Value())
 			}`,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }*/
 
 func runKe(cb *tests.ContextBuilder, name string, files map[string]string) (string, error) {

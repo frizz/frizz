@@ -13,7 +13,7 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -39,7 +39,7 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	v.model = model
 	v.filter = filter
 	v.exclude = exclude
-	v.sort = model.Node.JsonType == json.J_ARRAY
+	v.sort = model.Node.JsonType == packer.J_ARRAY
 	v.Watch(v.model.Node,
 		stores.NodeArrayReorder,
 		stores.NodeChildAdded,

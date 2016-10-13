@@ -273,7 +273,7 @@ func (o *String) GetString(ctx context.Context) *String {
 // Tag cloud.
 type Tags []string
 type TagsInterface interface {
-	GetTags(ctx context.Context) *Tags
+	GetTags(ctx context.Context) Tags
 }
 
 func (o Tags) GetTags(ctx context.Context) Tags {

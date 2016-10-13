@@ -1,15 +1,12 @@
 package system
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/json"
-	"kego.io/tests"
-	"kego.io/tests/unpacker"
+	"kego.io/packer"
 )
 
 func TestStringGetDefault(t *testing.T) {
@@ -20,12 +17,8 @@ func TestStringGetDefault(t *testing.T) {
 	assert.Equal(t, "a", s.Value())
 }
 
+/*
 func TestUnpackDefaultNativeTypeString(t *testing.T) {
-	testUnpackDefaultNativeTypeString(t, unpacker.Unmarshal)
-	testUnpackDefaultNativeTypeString(t, unpacker.Unpack)
-	testUnpackDefaultNativeTypeString(t, unpacker.Decode)
-}
-func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -40,7 +33,7 @@ func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := up.Process(ctx, []byte(data), &i)
+	err := Unmarshal(ctx, []byte(data), &i)
 	require.NoError(t, err)
 
 	a, ok := i.(*A)
@@ -48,18 +41,15 @@ func testUnpackDefaultNativeTypeString(t *testing.T, up unpacker.Interface) {
 	assert.NotNil(t, a)
 	assert.Equal(t, "c", a.B.GetString(nil).Value())
 
-	b, err := json.Marshal(a)
+	b, err := packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
 }
+*/
 
+/*
 func TestMarshal(t *testing.T) {
-	testMarshal(t, unpacker.Unmarshal)
-	testMarshal(t, unpacker.Unpack)
-	testMarshal(t, unpacker.Decode)
-}
-func testMarshal(t *testing.T, up unpacker.Interface) {
 
 	data := `{
 		"type": "a",
@@ -74,19 +64,21 @@ func testMarshal(t *testing.T, up unpacker.Interface) {
 	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
-	err := up.Process(ctx, []byte(data), &i)
+	err := Unmarshal(ctx, []byte(data), &i)
 	require.NoError(t, err)
 	a, ok := i.(*A)
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, a)
 	assert.Equal(t, "c", a.B.Value())
 
-	b, err := json.Marshal(a)
+	b, err := packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
 }
+*/
 
+/*
 func TestMarshal1(t *testing.T) {
 
 	type A struct {
@@ -95,7 +87,7 @@ func TestMarshal1(t *testing.T) {
 		C *String `json:"c"`
 	}
 
-	//ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	a := A{
 		Object: &Object{
@@ -103,12 +95,14 @@ func TestMarshal1(t *testing.T) {
 		},
 		B: NewString("d"),
 	}
-	b, err := json.Marshal(a)
+	b, err := packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"d"}`, string(b))
 
 }
+*/
 
+/*
 func TestMarshal2(t *testing.T) {
 
 	type A struct {
@@ -124,53 +118,56 @@ func TestMarshal2(t *testing.T) {
 		},
 		B: NewString("c"),
 	}
-	b, err := json.Marshal(a)
+	b, err := packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(ctx, a)
+	b, err = packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
 	ctx1 := tests.Context("d.e/f").JtypePath("kego.io/system", "a", reflect.TypeOf(&A{})).Ctx()
 
-	b, err = json.MarshalContext(ctx1, a)
+	b, err = packer.Marshal(ctx1, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
 
 }
+*/
 
+/*
 func TestMarshal3(t *testing.T) {
 
 	type A struct {
 		*Object
 		B *String `json:"b"`
 	}
-
+	ctx := tests.Context("c.d/e").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 	a := A{
 		Object: &Object{
 			Type: NewReference("c.d/e", "a"),
 		},
 		B: NewString("c"),
 	}
-	b, err := json.Marshal(a)
+	b, err := packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(tests.Context("c.d/e").Jtype("a", reflect.TypeOf(&A{})).Ctx(), a)
+	b, err = packer.Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = json.MarshalContext(tests.Context("f.g/h").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
+	b, err = packer.Marshal(tests.Context("f.g/h").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	// The json package doesn't use kerr throughout, so we can't use HasError
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
-	b, err = json.MarshalContext(tests.Context("f.g/h").Alias("i", "c.d/e").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
+	b, err = packer.Marshal(tests.Context("f.g/h").Alias("i", "c.d/e").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 
 }
+*/
 
 func TestNewString(t *testing.T) {
 	s := NewString("a")
@@ -183,27 +180,28 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	var s *String
 
-	err := s.Unpack(envctx.Empty, json.Pack(nil))
-	assert.IsError(t, err, "PWTAHLCCWR")
+	err := s.Unpack(envctx.Empty, packer.Pack(nil), false)
+	require.NoError(t, err)
+	assert.Nil(t, s)
 
 	s = NewString("")
-	err = s.Unpack(envctx.Empty, json.Pack(`foo "bar"`))
+	err = s.Unpack(envctx.Empty, packer.Pack(`foo "bar"`), false)
 	require.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
 	s = NewString("")
-	err = s.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+	err = s.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
 		"type":  "system:string",
 		"value": `foo "bar"`,
-	}))
+	}), false)
 	require.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
 	s = NewString("")
-	err = s.Unpack(envctx.Empty, json.Pack(1.0))
-	assert.IsError(t, err, "IXASCXOPMG")
+	err = s.Unpack(envctx.Empty, packer.Pack(1.0), false)
+	assert.IsError(t, err, "LXNBXXRGLS")
 
 }
 
@@ -211,14 +209,14 @@ func TestStringMarshalJSON(t *testing.T) {
 
 	var s *String
 
-	ba, err := s.MarshalJSON(envctx.Empty)
+	ba, err := s.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, "null", string(ba))
+	assert.Equal(t, nil, ba)
 
 	s = NewString(`foo "bar"`)
-	ba, err = s.MarshalJSON(envctx.Empty)
+	ba, err = s.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, `"foo \"bar\""`, string(ba))
+	assert.Equal(t, `"foo \"bar\""`, ba)
 
 }
 

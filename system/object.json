@@ -13,7 +13,7 @@
 			"type": "@reference",
 			"optional": true,
 			"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
-			"pattern-not": "-rule$|-interface$"
+			"pattern-not": "^new-|-rule$|-interface$"
 		},
 		"tags-new": {
 			"description": "Tags for general use",

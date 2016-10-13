@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 )
 
 func TestNew(t *testing.T) {
@@ -23,13 +24,13 @@ func TestNewWithName(t *testing.T) {
 func TestBuilder(t *testing.T) {
 	g := New("a.b/c")
 	b, err := g.Build()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "package c\n", string(b))
 	g.buffer.Reset()
 
 	g.Imports.Anonymous("e.f/g")
 	b, err = g.Build()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n)\n", string(b))
 	g.buffer.Reset()
 
@@ -37,7 +38,7 @@ func TestBuilder(t *testing.T) {
 	assert.Equal(t, "j", alias)
 
 	b, err = g.Build()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "package c\n\nimport (\n\t_ \"e.f/g\"\n\t\"h.i/j\"\n)\n", string(b))
 	g.buffer.Reset()
 
@@ -53,7 +54,7 @@ func TestBuilder(t *testing.T) {
 	g.PrintMethodCall("a", "b", "c", "d")
 	g.Println("}")
 	b, err = g.Build()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), `// comment
 package c
 

@@ -9,7 +9,7 @@ import (
 	"math"
 
 	"github.com/davelondon/kerr"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 type Int int
@@ -78,34 +78,41 @@ func (r *IntRule) Enforce(ctx context.Context, data interface{}) (fail bool, mes
 
 var _ Enforcer = (*IntRule)(nil)
 
-func (out *Int) Unpack(ctx context.Context, in json.Packed) error {
-	if in == nil || in.Type() == json.J_NULL {
-		return kerr.New("JEJANRWFMH", "Called Int.Unpack with nil value")
+func (v *Int) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
 	}
-	if in.Type() == json.J_MAP {
+
+	if in.Type() == packer.J_MAP {
 		in = in.Map()["value"]
 	}
-	if in.Type() != json.J_NUMBER {
-		return kerr.New("UJUBDGVYGF", "Can't unpack %s into *system.Int", in.Type())
+
+	if in.Type() != packer.J_NUMBER {
+		return kerr.New("UJUBDGVYGF", "Int.Unpack: %s must by J_NUMBER", in.Type())
 	}
+
 	i := math.Floor(in.Number())
+
 	if i != in.Number() {
 		return kerr.New("KVEOETSIJY", "%v is not an integer", in.Number())
 	}
-	*out = Int(int(i))
+
+	*v = Int(int(i))
+
 	return nil
 }
 
-var _ json.Unpacker = (*Int)(nil)
+var _ packer.Unpacker = (*Int)(nil)
 
-func (n *Int) MarshalJSON(ctx context.Context) ([]byte, error) {
+func (n *Int) Repack(ctx context.Context) (interface{}, error) {
 	if n == nil {
-		return []byte("null"), nil
+		return nil, nil
 	}
-	return []byte(formatInt(n)), nil
+	return formatInt(n), nil
 }
 
-var _ json.Marshaler = (*Int)(nil)
+var _ packer.Repacker = (*Int)(nil)
 
 func (n *Int) String() string {
 	if n == nil {

@@ -7,8 +7,6 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/context/envctx"
-	"kego.io/json"
 	"kego.io/system"
 )
 
@@ -71,11 +69,7 @@ func FieldTypeDefinition(ctx context.Context, fieldName string, field system.Rul
 	}
 	name := Reference(inner.Parent.Id.Package, n, path, getAlias)
 
-	// TODO: Why aren't we giving getTag the correct path and aliases?!?
-	tag, err := getTag(envctx.Empty, fieldName, inner)
-	if err != nil {
-		return "", kerr.Wrap("CSJHNCMHRU", err)
-	}
+	tag := getTag(fieldName)
 	if tag != "" {
 		tag = " " + tag
 	}
@@ -111,53 +105,18 @@ func collectionPrefixInnerRule(ctx context.Context, prefix string, outer *system
 	return collectionPrefixInnerRule(ctx, prefix, items)
 }
 
-func formatTag(ctx context.Context, fieldName string, defaultBytes []byte, r *system.RuleWrapper) (string, error) {
-
-	env := envctx.FromContext(ctx)
-
-	kegoTag := ""
-	if defaultBytes != nil && string(defaultBytes) != "null" {
-		defaultRaw := json.RawMessage(defaultBytes)
-		t := r.Parent.Id.Value()
-		var tag json.KegoTag
-		if t == "kego.io/system:string" || t == "kego.io/system:number" || t == "kego.io/system:bool" {
-			// If our default is one of the basic system native types, we know we can unmarshal it
-			// without the extra context, so we omit type, path and aliases. This makes the
-			// generated code easier to understand.
-			tag = json.KegoTag{
-				Default: &json.KegoDefault{
-					Value: &defaultRaw,
-				},
-			}
-		} else {
-			tag = json.KegoTag{
-				Default: &json.KegoDefault{
-					Value:   &defaultRaw,
-					Path:    env.Path,
-					Aliases: env.Aliases,
-					Type:    t,
-				},
-			}
-		}
-
-		jsonBytes, err := json.MarshalPlain(tag)
-		if err != nil {
-			return "", kerr.Wrap("LKBWJTMJCF", err)
-		}
-		kegoTag = string(jsonBytes)
-	}
+func formatTag(fieldName string) string {
 
 	tag := ""
-	tag = addSubTag(tag, "kego", kegoTag)
 	tag = addSubTag(tag, "json", fieldName)
 
 	if tag == "" {
-		return "", nil
+		return ""
 	}
 	if strconv.CanBackquote(tag) {
-		return "`" + tag + "`", nil
+		return "`" + tag + "`"
 	}
-	return strconv.Quote(tag), nil
+	return strconv.Quote(tag)
 }
 
 func addSubTag(tag string, name string, content string) string {
@@ -170,32 +129,40 @@ func addSubTag(tag string, name string, content string) string {
 	return fmt.Sprintf("%s%s:%s", tag, name, strconv.Quote(content))
 }
 
-func getTag(ctx context.Context, fieldName string, r *system.RuleWrapper) (string, error) {
+func getTag(fieldName string) string {
 
-	dr, ok := r.Interface.(system.DefaultRule)
-	if !ok {
-		// Doesn't have a default field
-		return formatTag(ctx, fieldName, nil, r)
-	}
+	return formatTag(fieldName)
 
-	d := dr.GetDefault()
-	if d == nil {
-		return formatTag(ctx, fieldName, nil, r)
-	}
-
-	// If we have a marshaler, we have to call it manually
-	if m, ok := d.(json.Marshaler); ok {
-		defaultBytes, err := m.MarshalJSON(ctx)
-		if err != nil {
-			return "", kerr.Wrap("YIEMHYFVCD", err)
+	/*
+		dr, ok := r.Interface.(system.DefaultRule)
+		if !ok {
+			// Doesn't have a default field
+			return formatTag(ctx, fieldName)
 		}
+
+		d := dr.GetDefault()
+		if d == nil {
+			return formatTag(ctx, fieldName)
+		}
+
+		// If we have a marshaler, we have to call it manually
+		if rp, ok := d.(packer.Repacker); ok {
+			i, err := rp.Repack(ctx)
+			if err != nil {
+				return "", kerr.Wrap("YIEMHYFVCD", err)
+			}
+			defaultBytes, err := json.Marshal(i)
+			if err != nil {
+				return "", kerr.Wrap("OFWRBEMHAL", err)
+			}
+			return formatTag(ctx, fieldName, defaultBytes, r)
+		}
+
+		defaultBytes, err := json.Marshal(d)
+		if err != nil {
+			return "", kerr.Wrap("QQDOLAJKLU", err)
+		}
+
 		return formatTag(ctx, fieldName, defaultBytes, r)
-	}
-
-	defaultBytes, err := json.MarshalPlain(d)
-	if err != nil {
-		return "", kerr.Wrap("QQDOLAJKLU", err)
-	}
-
-	return formatTag(ctx, fieldName, defaultBytes, r)
+	*/
 }

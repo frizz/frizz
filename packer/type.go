@@ -1,4 +1,4 @@
-package json
+package packer
 
 type Type string
 

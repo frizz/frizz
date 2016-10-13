@@ -1,6 +1,7 @@
 package selectors_test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -9,7 +10,7 @@ import (
 
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/require"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/process/parser"
 	. "kego.io/process/validate/selectors"
 	_ "kego.io/process/validate/selectors/tests"
@@ -133,7 +134,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 				expectedEncoded := expectedOutput[idx]
 
 				var expectedJson interface{}
-				err := json.UnmarshalPlain([]byte(expectedEncoded), &expectedJson)
+				err := json.Unmarshal([]byte(expectedEncoded), &expectedJson)
 				if err != nil {
 					t.Error(
 						"Test ", testName, " failed due to a JSON decoding error while decoding expectation: ", err,
@@ -183,13 +184,13 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 
 func comparison(actual *node.Node, expected interface{}) (bool, error) {
 	switch actual.JsonType {
-	case json.J_NULL:
+	case packer.J_NULL:
 		// If we're expecting null, return true
 		if expected == nil {
 			return true, nil
 		}
 		return false, kerr.New("IKMQTDAKSM", "ns.NativeString returned false")
-	case json.J_STRING:
+	case packer.J_STRING:
 		actualString := actual.ValueString
 		expectedString, ok := expected.(string)
 		if !ok {
@@ -197,7 +198,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 		return expectedString == actualString, nil
 		break
-	case json.J_NUMBER:
+	case packer.J_NUMBER:
 		actualNumber := actual.ValueNumber
 		expectedNumber, ok := expected.(float64)
 		if !ok {
@@ -205,7 +206,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 		return expectedNumber == actualNumber, nil
 		break
-	case json.J_BOOL:
+	case packer.J_BOOL:
 		actualBool := actual.ValueBool
 		expectedBool, ok := expected.(bool)
 		if !ok {
@@ -213,7 +214,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 		return expectedBool == actualBool, nil
 		break
-	case json.J_ARRAY:
+	case packer.J_ARRAY:
 		expectedArray, ok := expected.([]interface{})
 		if !ok {
 			return false, kerr.New("AIHXLBFOQA", "expected %T is not []interface{}", expected)
@@ -235,7 +236,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			}
 		}
 		break
-	case json.J_MAP:
+	case packer.J_MAP:
 		expectedMap, ok := expected.(map[string]interface{})
 		if !ok {
 			return false, kerr.New("CCIRAQFFSR", "expected %T is not map[string]interface{} (map)", expected)

@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
-	"kego.io/tests/unpacker"
 )
 
 func TestRuleWrapper_Kind(t *testing.T) {
@@ -78,18 +78,18 @@ func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 
 	fooType.Id.Package = "a.b/c"
 	val, err := foo.DisplayType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "foo", val)
 
 	fooRule.Interface = true
 	val, err = foo.DisplayType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "foo*", val)
 
 	fooRule.Interface = false
 	fooType.Interface = true
 	val, err = foo.DisplayType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "foo*", val)
 
 	bazType := &Type{
@@ -112,12 +112,12 @@ func TestRuleWrapperHoldsDisplayType(t *testing.T) {
 		Parent:    barType,
 	}
 	val, err = bar.DisplayType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "[]baz", val)
 
 	barType.Native = NewString("map")
 	val, err = bar.DisplayType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "map[]baz", val)
 
 }
@@ -210,7 +210,7 @@ func TestRuleGetReflectType(t *testing.T) {
 	// Add the interface and it works.
 	cb.Jiface("foo", fooIfaceReflect)
 	rt, err = foo.GetReflectType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, rt, fooIfaceReflect)
 
 	// Reset interface to false
@@ -221,12 +221,12 @@ func TestRuleGetReflectType(t *testing.T) {
 	// Native types return the reflect.Type of the parent type
 	fooType.Native = NewString("string")
 	rt, err = foo.GetReflectType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, rt, fooStructReflect)
 
 	fooType.Native = NewString("object")
 	rt, err = foo.GetReflectType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, rt, fooStructReflect)
 
 	barType := &Type{Object: &Object{Id: NewReference("a.b/c", "bar")}, Native: NewString("map")}
@@ -254,7 +254,7 @@ func TestRuleGetReflectType(t *testing.T) {
 	// Finally we get this to work.
 	bar.Ctx = cb.Stype("foo", fooType).Ctx()
 	rt, err = bar.GetReflectType()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, reflect.TypeOf(map[string]fooStruct{}), rt)
 
 }
@@ -296,12 +296,8 @@ func TestWrapRule(t *testing.T) {
 
 }
 
+/*
 func TestInitialiseAnonymousFields(t *testing.T) {
-	testInitialiseAnonymousFields(t, unpacker.Unmarshal)
-	testInitialiseAnonymousFields(t, unpacker.Unpack)
-	testInitialiseAnonymousFields(t, unpacker.Decode)
-}
-func testInitialiseAnonymousFields(t *testing.T, up unpacker.Interface) {
 
 	type ruleStruct struct {
 		*Object
@@ -314,11 +310,12 @@ func testInitialiseAnonymousFields(t *testing.T, up unpacker.Interface) {
 		"type": "@b"
 	}`
 	var i interface{}
-	err := up.Process(ctx, []byte(j), &i)
-	assert.NoError(t, err)
+	err := Unmarshal(ctx, []byte(j), &i)
+	require.NoError(t, err)
 	rs, ok := i.(*ruleStruct)
 	assert.True(t, ok)
 	assert.NotNil(t, rs.Object)
 	assert.NotNil(t, rs.Rule)
 
 }
+*/

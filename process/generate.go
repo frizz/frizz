@@ -10,12 +10,13 @@ import (
 
 	"context"
 
+	"encoding/json"
+
 	"github.com/davelondon/kerr"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
 	"kego.io/context/wgctx"
-	"kego.io/json"
 	"kego.io/process/generate"
 )
 
@@ -88,7 +89,7 @@ func getInfo(ctx context.Context, dir string) (info *generate.InfoStruct, found 
 	data := []byte(scanner.Text()[8:])
 
 	var i generate.InfoStruct
-	if err := json.UnmarshalPlain(data, &i); err != nil {
+	if err := json.Unmarshal(data, &i); err != nil {
 		return nil, false, kerr.Wrap("UJXKJVLXHG", err)
 	}
 	return &i, true, nil

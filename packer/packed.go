@@ -1,12 +1,13 @@
-package json
+package packer
 
 import (
-	"encoding/json"
 	"fmt"
+
+	"encoding/json"
 )
 
 type Packed interface {
-	Type() Type // json.packed will never be J_OBJECT, only J_MAP
+	Type() Type // packer.packed will never be J_OBJECT, only J_MAP
 	Number() float64
 	String() string
 	Bool() bool

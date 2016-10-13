@@ -9,7 +9,7 @@ import (
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/sysctx"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 type Kind string
@@ -190,22 +190,22 @@ func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
 	}
 }
 
-func (t *Type) NativeJsonType() json.Type {
+func (t *Type) NativeJsonType() packer.Type {
 	switch t.Native.Value() {
 	case "number":
-		return json.J_NUMBER
+		return packer.J_NUMBER
 	case "string":
-		return json.J_STRING
+		return packer.J_STRING
 	case "bool":
-		return json.J_BOOL
+		return packer.J_BOOL
 	case "map":
-		return json.J_MAP
+		return packer.J_MAP
 	case "object":
-		return json.J_OBJECT
+		return packer.J_OBJECT
 	case "array":
-		return json.J_ARRAY
+		return packer.J_ARRAY
 	default:
-		return json.J_NULL
+		return packer.J_NULL
 	}
 }
 

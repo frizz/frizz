@@ -47,7 +47,7 @@ func (v *SaveView) Render() vecty.Component {
 				}
 				for n, f := range v.App.Files.All() {
 					if f.Changed() {
-						b, err := ke.MarshalIndentContext(v.Ctx, n.Value, "", "\t")
+						b, err := ke.MarshalIndent(v.Ctx, n.Value, "", "\t")
 						if err != nil {
 							v.App.Fail <- kerr.Wrap("MKHONBVODK", err)
 						}

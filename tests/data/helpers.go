@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/require"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/process/parser"
 	"kego.io/system/node"
 	"kego.io/tests"
@@ -62,7 +62,7 @@ func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 				"mm": { "a": {` + mm + `}, "b": {` + mm + `} }
 			}`
 		n := node.NewNode()
-		require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
+		require.NoError(t, n.Unpack(cb.Ctx(), packer.PackString(s), false))
 		return cb, n
 
 	} else {
@@ -83,7 +83,7 @@ func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 		"mm": { "a": {` + mm + `}, "b": {` + mm + `} }
 	}`
 		n := node.NewNode()
-		require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
+		require.NoError(t, n.Unpack(cb.Ctx(), packer.PackString(s), false))
 		return cb, n
 	}
 
@@ -100,7 +100,7 @@ func Empty(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 	"mm": { "a": { "type": "multi" }, "b": { "type": "multi" } }
 }`
 	n := node.NewNode()
-	require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
+	require.NoError(t, n.Unpack(cb.Ctx(), packer.PackString(s), false))
 	return cb, n
 }
 

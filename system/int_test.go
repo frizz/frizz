@@ -1,117 +1,80 @@
 package system
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/json"
-	"kego.io/tests"
-	"kego.io/tests/unpacker"
+	"kego.io/packer"
 )
-
-func TestUnpackDefaultNativeTypeInt(t *testing.T) {
-	testUnpackDefaultNativeTypeInt(t, unpacker.Unmarshal)
-	testUnpackDefaultNativeTypeInt(t, unpacker.Unpack)
-	testUnpackDefaultNativeTypeInt(t, unpacker.Decode)
-}
-func testUnpackDefaultNativeTypeInt(t *testing.T, up unpacker.Interface) {
-
-	data := `{
-		"type": "a",
-		"b": 2
-	}`
-
-	type A struct {
-		*Object
-		B IntInterface `json:"b"`
-	}
-
-	var i interface{}
-
-	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
-
-	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
-
-	a, ok := i.(*A)
-	assert.True(t, ok, "Type %T not correct", i)
-	assert.NotNil(t, a)
-	assert.Equal(t, 2, a.B.GetInt(nil).Value())
-
-	b, err := json.Marshal(a)
-	assert.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":2}`, string(b))
-
-}
 
 func TestIntRule_Enforce(t *testing.T) {
 	r := IntRule{Rule: &Rule{Optional: false}, Minimum: NewInt(2)}
 	fail, messages, err := r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Minimum: value must exist", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(3))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(2))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(1))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Minimum: value 1 must not be less than 2", messages[0])
 	assert.True(t, fail)
 
 	r = IntRule{Rule: &Rule{Optional: false}, Maximum: NewInt(2)}
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Maximum: value must exist", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(1))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(2))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(3))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Maximum: value 3 must not be greater than 2", messages[0])
 	assert.True(t, fail)
 
 	r = IntRule{Rule: &Rule{Optional: false}, MultipleOf: NewInt(3)}
 	fail, messages, err = r.Enforce(envctx.Empty, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value must exist", messages[0])
 	assert.True(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(0))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(3))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(6))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(messages))
 	assert.False(t, fail)
 
 	fail, messages, err = r.Enforce(envctx.Empty, NewInt(4))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "MultipleOf: value 4 must be a multiple of 3", messages[0])
 	assert.True(t, fail)
 
@@ -130,56 +93,57 @@ func TestIntUnmarshalJSON(t *testing.T) {
 
 	var i *Int
 
-	err := i.Unpack(envctx.Empty, json.Pack(nil))
-	assert.IsError(t, err, "JEJANRWFMH")
+	err := i.Unpack(envctx.Empty, packer.Pack(nil), false)
+	require.NoError(t, err)
+	assert.Nil(t, i)
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, json.Pack(2.0))
-	assert.NoError(t, err)
+	err = i.Unpack(envctx.Empty, packer.Pack(2.0), false)
+	require.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, 2, i.Value())
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+	err = i.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
 		"type":  "system:int",
 		"value": 2.0,
-	}))
-	assert.NoError(t, err)
+	}), false)
+	require.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, 2, i.Value())
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, json.Pack(-12.0))
-	assert.NoError(t, err)
+	err = i.Unpack(envctx.Empty, packer.Pack(-12.0), false)
+	require.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, -12, i.Value())
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, json.Pack("foo"))
+	err = i.Unpack(envctx.Empty, packer.Pack("foo"), false)
 	assert.IsError(t, err, "UJUBDGVYGF")
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, json.Pack(1.2))
+	err = i.Unpack(envctx.Empty, packer.Pack(1.2), false)
 	assert.HasError(t, err, "KVEOETSIJY")
 
 }
 
-func TestIntMarshalJSON(t *testing.T) {
+func TestIntRepack(t *testing.T) {
 
 	var i *Int
-	ba, err := i.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
-	assert.Equal(t, "null", string(ba))
+	ba, err := i.Repack(envctx.Empty)
+	require.NoError(t, err)
+	assert.Equal(t, nil, ba)
 
 	i = NewInt(12)
-	ba, err = i.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
-	assert.Equal(t, "12", string(ba))
+	ba, err = i.Repack(envctx.Empty)
+	require.NoError(t, err)
+	assert.Equal(t, "12", ba)
 
 	i = NewInt(-101)
-	ba, err = i.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
-	assert.Equal(t, "-101", string(ba))
+	ba, err = i.Repack(envctx.Empty)
+	require.NoError(t, err)
+	assert.Equal(t, "-101", ba)
 
 }
 

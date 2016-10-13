@@ -264,7 +264,7 @@ func TestRulesEnforcer(t *testing.T) {
 	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 0, len(errors))
 }
 

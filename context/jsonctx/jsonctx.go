@@ -48,6 +48,36 @@ func (c *JsonCache) GetType(path string, name string) (reflect.Type, bool) {
 	}
 }
 
+func (c *JsonCache) GetNewFunc(path string, name string) (func(context.Context) interface{}, bool) {
+	rule := false
+	if strings.HasPrefix(name, RULE_PREFIX) {
+		rule = true
+		name = name[1:]
+	}
+
+	p, ok := c.Packages.Get(path)
+	if !ok {
+		return nil, false
+	}
+
+	t, ok := p.Types.Get(name)
+	if !ok {
+		return nil, false
+	}
+
+	if rule {
+		if t.RuleFunc == nil {
+			return nil, false
+		}
+		return t.RuleFunc, true
+	} else {
+		if t.NewFunc == nil {
+			return nil, false
+		}
+		return t.NewFunc, true
+	}
+}
+
 func (c *JsonCache) GetInterface(path string, name string) (reflect.Type, bool) {
 	if strings.HasPrefix(name, RULE_PREFIX) {
 		name = name[1:]
@@ -129,10 +159,12 @@ type JsonDummies struct {
 }
 
 type JsonTypeInfo struct {
-	Name  string
-	Type  reflect.Type
-	Rule  reflect.Type
-	Iface reflect.Type
+	Name     string
+	Type     reflect.Type
+	Rule     reflect.Type
+	Iface    reflect.Type
+	NewFunc  func(context.Context) interface{}
+	RuleFunc func(context.Context) interface{}
 }
 
 func (c *JsonPackages) Len() int {
@@ -271,10 +303,12 @@ func (pc *JsonPackages) imp(path string, pkg *packageInfo) {
 	p := pc.Set(path, pkg.hash)
 	for name, typ := range pkg.types {
 		p.Types.Set(name, &JsonTypeInfo{
-			Name:  name,
-			Type:  typ.typ,
-			Rule:  typ.rule,
-			Iface: typ.iface,
+			Name:     name,
+			Type:     typ.typ,
+			Rule:     typ.rule,
+			Iface:    typ.iface,
+			NewFunc:  typ.newFunc,
+			RuleFunc: typ.ruleFunc,
 		})
 	}
 }

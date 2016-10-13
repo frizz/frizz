@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 )
 
 func TestNodeHasher_Hash(t *testing.T) {
@@ -20,13 +21,13 @@ func TestNodeHasher_Hash(t *testing.T) {
 		Array:   []uint64{1, 2},
 	}
 	hash, err := h.Hash(ctx)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, uint64(0x678307ecafd3a89d), hash)
 
 	// run with no forced version to get complete code coverage, but ignore
 	// value because it will change
 	_, err = h.Hash(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestNode_Hash(t *testing.T) {
@@ -44,7 +45,7 @@ func TestNode_Hash(t *testing.T) {
 		Array:       []*Node{n1},
 	}
 	err := n2.RecomputeHash(ctx, true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	hash := n2.Hash()
 	assert.Equal(t, uint64(0x61e2ccdb839475f1), hash)
 }

@@ -3,15 +3,16 @@ package ke // import "kego.io/ke"
 // ke: {"package": {"complete": true}}
 
 import (
-	"io"
-
 	"context"
+
+	"encoding/json"
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/process/scanner"
+	"kego.io/system"
 )
 
 func Open(ctx context.Context, filename string) (value interface{}, err error) {
@@ -19,50 +20,42 @@ func Open(ctx context.Context, filename string) (value interface{}, err error) {
 	if err != nil {
 		return nil, kerr.Wrap("HPWXWFTKWA", err)
 	}
-	err = json.Unmarshal(ctx, bytes, &value)
+	err = system.Unmarshal(ctx, bytes, &value)
 	if err != nil {
 		return nil, kerr.Wrap("CXIULJCEBE", err)
 	}
 	return
 }
 
-func Unmarshal(ctx context.Context, data []byte, v *interface{}) error {
-	if err := json.Unmarshal(ctx, data, v); err != nil {
+func Unmarshal(ctx context.Context, data []byte, v interface{}) error {
+	if err := system.Unmarshal(ctx, data, v); err != nil {
 		return kerr.Wrap("SVXYHJWMOC", err)
 	}
 	return nil
 }
-func UnmarshalUntyped(ctx context.Context, data []byte, i interface{}) error {
-	if err := json.UnmarshalUntyped(ctx, data, i); err != nil {
-		return kerr.Wrap("HOPCKQEJFM", err)
+
+func Marshal(ctx context.Context, v interface{}) ([]byte, error) {
+	i, err := packer.Repack(ctx, v)
+	if err != nil {
+		return nil, kerr.Wrap("JVGOWMVMXN", err)
 	}
-	return nil
-}
-
-func NewDecoder(ctx context.Context, r io.Reader) *json.Decoder {
-	return json.NewDecoder(ctx, r)
-}
-
-func NewEncoder(w io.Writer) *json.Encoder {
-	return json.NewEncoder(w)
-}
-
-func Marshal(v interface{}) ([]byte, error) {
-	b, err := json.Marshal(v)
+	b, err := json.Marshal(i)
 	if err != nil {
 		return nil, kerr.Wrap("LXDTUOBQPD", err)
 	}
 	return b, nil
 }
-func MarshalContext(ctx context.Context, v interface{}) ([]byte, error) {
-	b, err := json.MarshalContext(ctx, v)
+
+func MarshalIndent(ctx context.Context, v interface{}, prefix, indent string) ([]byte, error) {
+	i, err := packer.Repack(ctx, v)
 	if err != nil {
-		return nil, kerr.Wrap("XMHXROGFXM", err)
+		return nil, kerr.Wrap("QNHVVOBKFO", err)
+	}
+	b, err := json.MarshalIndent(i, prefix, indent)
+	if err != nil {
+		return nil, kerr.Wrap("QXXEBOMOFG", err)
 	}
 	return b, nil
-}
-func MarshalIndentContext(ctx context.Context, v interface{}, prefix, indent string) ([]byte, error) {
-	return json.MarshalIndentContext(ctx, v, prefix, indent)
 }
 
 func NewContext(ctx context.Context, path string, aliases map[string]string) context.Context {

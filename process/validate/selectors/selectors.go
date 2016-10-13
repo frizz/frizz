@@ -11,7 +11,7 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -318,7 +318,7 @@ func (p *Parser) keyProduction(value interface{}) func(*node.Node) (bool, error)
 
 func nodeExists(n *node.Node) bool {
 	switch n.JsonType {
-	case json.J_NULL:
+	case packer.J_NULL:
 		return false
 	}
 	return n.Value != nil
@@ -365,8 +365,8 @@ func (p *Parser) pclassProduction(value interface{}) func(*node.Node) (bool, err
 		}
 	} else if pclass == "empty" {
 		return func(n *node.Node) (bool, error) {
-			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", json.J_ARRAY, " AND ", len(n.Array), " < 1")
-			return n.JsonType == json.J_ARRAY && len(n.Array) < 1, nil
+			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", packer.J_ARRAY, " AND ", len(n.Array), " < 1")
+			return n.JsonType == packer.J_ARRAY && len(n.Array) < 1, nil
 		}
 	}
 	logger.Print("Error: Unknown pclass: ", pclass)
@@ -534,8 +534,8 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		logme(lexString, args)
 
 		return func(node *node.Node) (bool, error) {
-			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", json.J_STRING, " AND ", strings.Count(node.ValueString, args[0].val.(string)), " > 0")
-			return node.JsonType == json.J_STRING && strings.Count(node.ValueString, args[0].val.(string)) > 0, nil
+			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", packer.J_STRING, " AND ", strings.Count(node.ValueString, args[0].val.(string)), " > 0")
+			return node.JsonType == packer.J_STRING && strings.Count(node.ValueString, args[0].val.(string)) > 0, nil
 		}, tokens
 
 	case "val":

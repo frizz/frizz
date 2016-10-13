@@ -4,18 +4,18 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 func TestPackedType(t *testing.T) {
 	var p *packed
-	assert.Equal(t, json.J_NULL, p.Type())
+	assert.Equal(t, packer.J_NULL, p.Type())
 	p = &packed{n: nil}
-	assert.Equal(t, json.J_NULL, p.Type())
-	p = &packed{n: &Node{JsonType: json.J_OBJECT}}
-	assert.Equal(t, json.J_MAP, p.Type())
-	p = &packed{n: &Node{JsonType: json.J_STRING}}
-	assert.Equal(t, json.J_STRING, p.Type())
+	assert.Equal(t, packer.J_NULL, p.Type())
+	p = &packed{n: &Node{JsonType: packer.J_OBJECT}}
+	assert.Equal(t, packer.J_MAP, p.Type())
+	p = &packed{n: &Node{JsonType: packer.J_STRING}}
+	assert.Equal(t, packer.J_STRING, p.Type())
 }
 
 func TestPackedString(t *testing.T) {

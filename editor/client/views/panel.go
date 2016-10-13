@@ -15,7 +15,7 @@ import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
 	"kego.io/flux"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -59,9 +59,9 @@ func (v *PanelView) Render() vecty.Component {
 	var editor vecty.Component
 	if v.node != nil {
 		switch v.node.Type.NativeJsonType() {
-		case json.J_MAP:
+		case packer.J_MAP:
 			editor = NewMapView(v.Ctx, v.node)
-		case json.J_ARRAY:
+		case packer.J_ARRAY:
 			editor = NewArrayView(v.Ctx, v.node)
 		default:
 			editor = NewStructView(v.Ctx, v.node)

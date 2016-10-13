@@ -9,7 +9,7 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"kego.io/json"
+	"kego.io/packer"
 	"kego.io/process/parser"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -177,7 +177,7 @@ func TestNode_Unpack(t *testing.T) {
 }`
 
 	n := node.NewNode()
-	require.NoError(t, n.Unpack(cb.Ctx(), json.PackString(s)))
+	require.NoError(t, n.Unpack(cb.Ctx(), packer.PackString(s), false))
 	m, ok := n.Value.(*data.Multi)
 	require.True(t, ok)
 	assert.Equal(t, "a", m.Js)
@@ -194,7 +194,7 @@ func TestNode_Unpack3(t *testing.T) {
 }`
 
 	n := node.NewNode()
-	err := n.Unpack(cb.Ctx(), json.PackString(s))
+	err := n.Unpack(cb.Ctx(), packer.PackString(s), false)
 	assert.HasError(t, err, "SRANLETJRS")
 
 }
@@ -214,7 +214,7 @@ func TestNode_Unpack5(t *testing.T) {
 }`
 
 	n := node.NewNode()
-	err := n.Unpack(cb.Ctx(), json.PackString(s))
+	err := n.Unpack(cb.Ctx(), packer.PackString(s), false)
 	require.NoError(t, err)
 	assert.Equal(t, "b", n.Value.(*data.Multi).Sri.GetString(cb.Ctx()).Value())
 	assert.Equal(t, 2.0, n.Value.(*data.Multi).Nri.GetNumber(cb.Ctx()).Value())
@@ -367,26 +367,26 @@ func TestNode_DeleteObjectChild(t *testing.T) {
 	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "js"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "js"))
 		assert.True(t, n.Map["js"].Missing)
 		assert.Equal(t, "", m.Js)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "ss"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "ss"))
 		assert.Nil(t, m.Ss)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "sr"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "sr"))
 		assert.Nil(t, m.Sr)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "jn"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "jn"))
 		assert.Equal(t, 0.0, m.Jn)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "sn"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "sn"))
 		assert.Nil(t, m.Sn)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "jb"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "jb"))
 		assert.Equal(t, false, m.Jb)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "sb"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "sb"))
 		assert.Nil(t, m.Sb)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "i"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "i"))
 		assert.Nil(t, m.I)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "ajs"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "ajs"))
 		assert.Nil(t, m.Ajs)
-		assert.NoError(t, n.DeleteObjectChild(cb.Ctx(), "mjs"))
+		require.NoError(t, n.DeleteObjectChild(cb.Ctx(), "mjs"))
 		assert.Nil(t, m.Mjs)
 
 	}
@@ -404,13 +404,13 @@ func TestNode_DeleteObjectChild2(t *testing.T) {
 func TestNode_DeleteMapChild(t *testing.T) {
 	_, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		assert.NoError(t, n.Map["mjs"].DeleteMapChild("a"))
+		require.NoError(t, n.Map["mjs"].DeleteMapChild("a"))
 		assert.Equal(t, 1, len(n.Map["mjs"].Map))
 		assert.Equal(t, 1, len(m.Mjs))
-		assert.NoError(t, n.Map["mjs"].DeleteMapChild("b"))
+		require.NoError(t, n.Map["mjs"].DeleteMapChild("b"))
 		assert.Equal(t, 0, len(n.Map["mjs"].Map))
 		assert.Equal(t, 0, len(m.Mjs))
-		assert.NoError(t, n.Map["mm"].DeleteMapChild("b"))
+		require.NoError(t, n.Map["mm"].DeleteMapChild("b"))
 		assert.Equal(t, 1, len(n.Map["mm"].Map))
 		assert.Equal(t, 1, len(m.Mm))
 	}
@@ -428,25 +428,25 @@ func TestNode_DeleteMapChild2(t *testing.T) {
 func TestNode_DeleteArrayChild(t *testing.T) {
 	_, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		assert.NoError(t, n.Map["ajs"].DeleteArrayChild(1))
+		require.NoError(t, n.Map["ajs"].DeleteArrayChild(1))
 		assert.Equal(t, 3, len(n.Map["ajs"].Array))
 		assert.Equal(t, 0, n.Map["ajs"].Array[0].Index)
 		assert.Equal(t, 1, n.Map["ajs"].Array[1].Index)
 		assert.Equal(t, 2, n.Map["ajs"].Array[2].Index)
 		assert.Equal(t, []string{"ajs0", "ajs2", "ajs3"}, m.Ajs)
 
-		assert.NoError(t, n.Map["ajs"].DeleteArrayChild(2))
+		require.NoError(t, n.Map["ajs"].DeleteArrayChild(2))
 		assert.Equal(t, 2, len(n.Map["ajs"].Array))
 		assert.Equal(t, 0, n.Map["ajs"].Array[0].Index)
 		assert.Equal(t, 1, n.Map["ajs"].Array[1].Index)
 		assert.Equal(t, []string{"ajs0", "ajs2"}, m.Ajs)
 
-		assert.NoError(t, n.Map["ajs"].DeleteArrayChild(0))
+		require.NoError(t, n.Map["ajs"].DeleteArrayChild(0))
 		assert.Equal(t, 1, len(n.Map["ajs"].Array))
 		assert.Equal(t, 0, n.Map["ajs"].Array[0].Index)
 		assert.Equal(t, []string{"ajs2"}, m.Ajs)
 
-		assert.NoError(t, n.Map["ajs"].DeleteArrayChild(0))
+		require.NoError(t, n.Map["ajs"].DeleteArrayChild(0))
 		assert.Equal(t, 0, len(n.Map["ajs"].Array))
 		assert.Equal(t, []string{}, m.Ajs)
 	}
@@ -464,7 +464,7 @@ func TestNode_DeleteArrayChild2(t *testing.T) {
 func TestNode_ReorderArrayChild(t *testing.T) {
 	_, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		assert.NoError(t, n.Map["ajs"].ReorderArrayChild(0, 1))
+		require.NoError(t, n.Map["ajs"].ReorderArrayChild(0, 1))
 		assert.Equal(t, 4, len(n.Map["ajs"].Array))
 		assert.Equal(t, 0, n.Map["ajs"].Array[0].Index)
 		assert.Equal(t, 1, n.Map["ajs"].Array[1].Index)
@@ -504,7 +504,7 @@ func newNonEmptyNode() *node.Node {
 	n.Missing = false
 	n.Rule = &system.RuleWrapper{}
 	n.Type = &system.Type{}
-	n.JsonType = json.J_OBJECT
+	n.JsonType = packer.J_OBJECT
 	return n
 }
 
@@ -526,15 +526,15 @@ func TestNode_InitialiseRoot(t *testing.T) {
 	assert.True(t, n.Missing)
 	assert.Nil(t, n.Rule)
 	assert.Nil(t, n.Type)
-	assert.Equal(t, json.J_NULL, n.JsonType)
+	assert.Equal(t, packer.J_NULL, n.JsonType)
 }
 
 func TestNode_InitialiseArrayChild(t *testing.T) {
 	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 		c := node.NewNode()
-		assert.NoError(t, c.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 4))
-		assert.NoError(t, c.AddToArray(cb.Ctx(), n.Map["ajs"], 4, true))
+		require.NoError(t, c.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 4))
+		require.NoError(t, c.AddToArray(cb.Ctx(), n.Map["ajs"], 4, true))
 		assert.Equal(t, 5, len(n.Map["ajs"].Array))
 		assert.True(t, n.Map["ajs"].Array[4].Null)
 		assert.False(t, n.Map["ajs"].Array[4].Missing)
@@ -542,26 +542,26 @@ func TestNode_InitialiseArrayChild(t *testing.T) {
 		assert.Equal(t, []string{"ajs0", "ajs1", "ajs2", "ajs3", ""}, m.Ajs)
 
 		c1 := node.NewNode()
-		assert.NoError(t, c1.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 4))
-		assert.NoError(t, c1.AddToArray(cb.Ctx(), n.Map["ass"], 4, true))
+		require.NoError(t, c1.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 4))
+		require.NoError(t, c1.AddToArray(cb.Ctx(), n.Map["ass"], 4, true))
 		assert.Equal(t, 5, len(m.Ass))
 		assert.Nil(t, m.Ass[4])
 
 		c2 := node.NewNode()
-		assert.NoError(t, c2.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 0))
-		assert.NoError(t, c2.AddToArray(cb.Ctx(), n.Map["ajs"], 0, true))
+		require.NoError(t, c2.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 0))
+		require.NoError(t, c2.AddToArray(cb.Ctx(), n.Map["ajs"], 0, true))
 		assert.Equal(t, 6, len(n.Map["ajs"].Array))
 		assert.Equal(t, []string{"", "ajs0", "ajs1", "ajs2", "ajs3", ""}, m.Ajs)
 
 		c3 := node.NewNode()
-		assert.NoError(t, c3.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 0))
-		assert.NoError(t, c3.AddToArray(cb.Ctx(), n.Map["ass"], 0, true))
+		require.NoError(t, c3.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 0))
+		require.NoError(t, c3.AddToArray(cb.Ctx(), n.Map["ass"], 0, true))
 		assert.Equal(t, 6, len(m.Ass))
 		assert.Nil(t, m.Ass[0])
 
 		c4 := node.NewNode()
-		assert.NoError(t, c4.InitialiseArrayItem(cb.Ctx(), n.Map["am"], 2))
-		assert.NoError(t, c4.AddToArray(cb.Ctx(), n.Map["am"], 2, true))
+		require.NoError(t, c4.InitialiseArrayItem(cb.Ctx(), n.Map["am"], 2))
+		require.NoError(t, c4.AddToArray(cb.Ctx(), n.Map["am"], 2, true))
 		assert.Equal(t, 3, len(m.Am))
 		assert.Nil(t, m.Am[2])
 	}
@@ -572,13 +572,13 @@ func TestNode_InitialiseArrayChild(t *testing.T) {
 func TestNode_InitialiseArrayChild2(t *testing.T) {
 	cb, n := data.Setup(t)
 	c := node.NewNode()
-	assert.NoError(t, c.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 5))
+	require.NoError(t, c.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 5))
 	err := c.AddToArray(cb.Ctx(), n.Map["ajs"], 5, true)
 	assert.IsError(t, err, "GHJIDXABLL")
 
 	// kludge the Val to be empty
 	n.Map["ajs"].Val.Set(reflect.ValueOf([]string{}))
-	assert.NoError(t, c.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 1))
+	require.NoError(t, c.InitialiseArrayItem(cb.Ctx(), n.Map["ajs"], 1))
 	err = c.AddToArray(cb.Ctx(), n.Map["ajs"], 1, true)
 	assert.IsError(t, err, "YFKMXFUPHY")
 
@@ -589,8 +589,8 @@ func TestNode_InitialiseMapChild(t *testing.T) {
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 
 		c := node.NewNode()
-		assert.NoError(t, c.InitialiseMapItem(cb.Ctx(), n.Map["mjs"], "c"))
-		assert.NoError(t, c.AddToMap(cb.Ctx(), n.Map["mjs"], "c", true))
+		require.NoError(t, c.InitialiseMapItem(cb.Ctx(), n.Map["mjs"], "c"))
+		require.NoError(t, c.AddToMap(cb.Ctx(), n.Map["mjs"], "c", true))
 		assert.Equal(t, 3, len(n.Map["mjs"].Map))
 		assert.True(t, n.Map["mjs"].Map["c"].Null)
 		assert.False(t, n.Map["mjs"].Map["c"].Missing)
@@ -598,14 +598,14 @@ func TestNode_InitialiseMapChild(t *testing.T) {
 		assert.Equal(t, "", m.Mjs["c"])
 
 		c1 := node.NewNode()
-		assert.NoError(t, c1.InitialiseMapItem(cb.Ctx(), n.Map["mss"], "c"))
-		assert.NoError(t, c1.AddToMap(cb.Ctx(), n.Map["mss"], "c", true))
+		require.NoError(t, c1.InitialiseMapItem(cb.Ctx(), n.Map["mss"], "c"))
+		require.NoError(t, c1.AddToMap(cb.Ctx(), n.Map["mss"], "c", true))
 		assert.Equal(t, 3, len(n.Map["mss"].Map))
 		assert.Nil(t, m.Mss["c"])
 
 		c2 := node.NewNode()
-		assert.NoError(t, c2.InitialiseMapItem(cb.Ctx(), n.Map["mm"], "c"))
-		assert.NoError(t, c2.AddToMap(cb.Ctx(), n.Map["mm"], "c", true))
+		require.NoError(t, c2.InitialiseMapItem(cb.Ctx(), n.Map["mm"], "c"))
+		require.NoError(t, c2.AddToMap(cb.Ctx(), n.Map["mm"], "c", true))
 		assert.Equal(t, 3, len(m.Mm))
 		assert.Nil(t, m.Mm["c"])
 	}
@@ -625,120 +625,120 @@ func TestNode_SetValueZero(t *testing.T) {
 		assert.True(t, ok)
 
 		c1 := node.NewNode()
-		assert.NoError(t, c1.InitialiseMapItem(cb.Ctx(), n.Map["mss"], "c"))
-		assert.NoError(t, c1.AddToMap(cb.Ctx(), n.Map["mss"], "c", true))
-		assert.NoError(t, c1.SetValueZero(cb.Ctx(), true, nil))
+		require.NoError(t, c1.InitialiseMapItem(cb.Ctx(), n.Map["mss"], "c"))
+		require.NoError(t, c1.AddToMap(cb.Ctx(), n.Map["mss"], "c", true))
+		require.NoError(t, c1.SetValueZero(cb.Ctx(), true, nil))
 		assert.False(t, n.Map["mss"].Map["c"].Missing)
 		assert.True(t, n.Map["mss"].Map["c"].Null)
 		assert.Nil(t, m.Mss["c"])
 
 		c1a := node.NewNode()
-		assert.NoError(t, c1a.InitialiseMapItem(cb.Ctx(), n.Map["mss"], "d"))
-		assert.NoError(t, c1a.AddToMap(cb.Ctx(), n.Map["mss"], "d", true))
-		assert.NoError(t, c1a.SetValueZero(cb.Ctx(), false, nil))
+		require.NoError(t, c1a.InitialiseMapItem(cb.Ctx(), n.Map["mss"], "d"))
+		require.NoError(t, c1a.AddToMap(cb.Ctx(), n.Map["mss"], "d", true))
+		require.NoError(t, c1a.SetValueZero(cb.Ctx(), false, nil))
 		assert.False(t, n.Map["mss"].Map["d"].Missing)
 		assert.False(t, n.Map["mss"].Map["d"].Null)
 		assert.NotNil(t, m.Mss["d"])
 		assert.Equal(t, "", m.Mss["d"].Value())
 
 		c2 := node.NewNode()
-		assert.NoError(t, c2.InitialiseMapItem(cb.Ctx(), n.Map["mm"], "c"))
-		assert.NoError(t, c2.AddToMap(cb.Ctx(), n.Map["mm"], "c", true))
-		assert.NoError(t, c2.SetValueZero(cb.Ctx(), true, nil))
+		require.NoError(t, c2.InitialiseMapItem(cb.Ctx(), n.Map["mm"], "c"))
+		require.NoError(t, c2.AddToMap(cb.Ctx(), n.Map["mm"], "c", true))
+		require.NoError(t, c2.SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Mm["c"])
 
 		c2a := node.NewNode()
-		assert.NoError(t, c2a.InitialiseMapItem(cb.Ctx(), n.Map["mm"], "d"))
-		assert.NoError(t, c2a.AddToMap(cb.Ctx(), n.Map["mm"], "d", true))
-		assert.NoError(t, c2a.SetValueZero(cb.Ctx(), false, nil))
+		require.NoError(t, c2a.InitialiseMapItem(cb.Ctx(), n.Map["mm"], "d"))
+		require.NoError(t, c2a.AddToMap(cb.Ctx(), n.Map["mm"], "d", true))
+		require.NoError(t, c2a.SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Mm["d"])
 		assert.Equal(t, "", m.Mm["d"].Js)
 
-		assert.NoError(t, n.Map["i"].SetValueZero(cb.Ctx(), true, faceb))
+		require.NoError(t, n.Map["i"].SetValueZero(cb.Ctx(), true, faceb))
 		assert.Nil(t, m.I)
 		assert.IsType(t, &data.Faceb{}, m.I)
 
-		assert.NoError(t, n.Map["sri"].SetValueZero(cb.Ctx(), false, facea))
+		require.NoError(t, n.Map["sri"].SetValueZero(cb.Ctx(), false, facea))
 		assert.NotNil(t, m.Sri)
 		assert.IsType(t, &data.Facea{}, m.Sri)
 
 		c3 := node.NewNode()
-		assert.NoError(t, c3.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 4))
-		assert.NoError(t, c3.AddToArray(cb.Ctx(), n.Map["ass"], 4, true))
-		assert.NoError(t, c3.SetValueZero(cb.Ctx(), true, nil))
+		require.NoError(t, c3.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 4))
+		require.NoError(t, c3.AddToArray(cb.Ctx(), n.Map["ass"], 4, true))
+		require.NoError(t, c3.SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Ass[4])
 
 		c3a := node.NewNode()
-		assert.NoError(t, c3a.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 5))
-		assert.NoError(t, c3a.AddToArray(cb.Ctx(), n.Map["ass"], 5, true))
-		assert.NoError(t, c3a.SetValueZero(cb.Ctx(), false, nil))
+		require.NoError(t, c3a.InitialiseArrayItem(cb.Ctx(), n.Map["ass"], 5))
+		require.NoError(t, c3a.AddToArray(cb.Ctx(), n.Map["ass"], 5, true))
+		require.NoError(t, c3a.SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Ass[5])
 
 		c4 := node.NewNode()
-		assert.NoError(t, c4.InitialiseArrayItem(cb.Ctx(), n.Map["am"], 2))
-		assert.NoError(t, c4.AddToArray(cb.Ctx(), n.Map["am"], 2, true))
-		assert.NoError(t, c4.SetValueZero(cb.Ctx(), true, nil))
+		require.NoError(t, c4.InitialiseArrayItem(cb.Ctx(), n.Map["am"], 2))
+		require.NoError(t, c4.AddToArray(cb.Ctx(), n.Map["am"], 2, true))
+		require.NoError(t, c4.SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Am[2])
 
 		c4a := node.NewNode()
-		assert.NoError(t, c4a.InitialiseArrayItem(cb.Ctx(), n.Map["am"], 3))
-		assert.NoError(t, c4a.AddToArray(cb.Ctx(), n.Map["am"], 3, true))
-		assert.NoError(t, c4a.SetValueZero(cb.Ctx(), false, nil))
+		require.NoError(t, c4a.InitialiseArrayItem(cb.Ctx(), n.Map["am"], 3))
+		require.NoError(t, c4a.AddToArray(cb.Ctx(), n.Map["am"], 3, true))
+		require.NoError(t, c4a.SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Am[3])
 
 		c5 := node.NewNode()
-		assert.NoError(t, c5.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 3))
-		assert.NoError(t, c5.AddToArray(cb.Ctx(), n.Map["anri"], 3, true))
-		assert.NoError(t, c5.SetValueZero(cb.Ctx(), true, sstring))
+		require.NoError(t, c5.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 3))
+		require.NoError(t, c5.AddToArray(cb.Ctx(), n.Map["anri"], 3, true))
+		require.NoError(t, c5.SetValueZero(cb.Ctx(), true, sstring))
 		assert.Nil(t, m.Anri[3])
 		assert.IsType(t, system.NewString(""), m.Anri[3])
 
 		c5a := node.NewNode()
-		assert.NoError(t, c5a.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 4))
-		assert.NoError(t, c5a.AddToArray(cb.Ctx(), n.Map["anri"], 4, true))
-		assert.NoError(t, c5a.SetValueZero(cb.Ctx(), false, sstring))
+		require.NoError(t, c5a.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 4))
+		require.NoError(t, c5a.AddToArray(cb.Ctx(), n.Map["anri"], 4, true))
+		require.NoError(t, c5a.SetValueZero(cb.Ctx(), false, sstring))
 		assert.NotNil(t, m.Anri[4])
 		assert.IsType(t, system.NewString(""), m.Anri[4])
 
 		c6 := node.NewNode()
-		assert.NoError(t, c6.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 5))
-		assert.NoError(t, c6.AddToArray(cb.Ctx(), n.Map["anri"], 5, true))
-		assert.NoError(t, c6.SetValueZero(cb.Ctx(), true, facea))
+		require.NoError(t, c6.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 5))
+		require.NoError(t, c6.AddToArray(cb.Ctx(), n.Map["anri"], 5, true))
+		require.NoError(t, c6.SetValueZero(cb.Ctx(), true, facea))
 		assert.Nil(t, m.Anri[5])
 		assert.IsType(t, &data.Facea{}, m.Anri[5])
 
 		c6a := node.NewNode()
-		assert.NoError(t, c6a.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 6))
-		assert.NoError(t, c6a.AddToArray(cb.Ctx(), n.Map["anri"], 6, true))
-		assert.NoError(t, c6a.SetValueZero(cb.Ctx(), false, facea))
+		require.NoError(t, c6a.InitialiseArrayItem(cb.Ctx(), n.Map["anri"], 6))
+		require.NoError(t, c6a.AddToArray(cb.Ctx(), n.Map["anri"], 6, true))
+		require.NoError(t, c6a.SetValueZero(cb.Ctx(), false, facea))
 		assert.NotNil(t, m.Anri[6])
 		assert.IsType(t, &data.Facea{}, m.Anri[6])
 
 		c7 := node.NewNode()
-		assert.NoError(t, c7.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "d"))
-		assert.NoError(t, c7.AddToMap(cb.Ctx(), n.Map["mnri"], "d", true))
-		assert.NoError(t, c7.SetValueZero(cb.Ctx(), true, sstring))
+		require.NoError(t, c7.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "d"))
+		require.NoError(t, c7.AddToMap(cb.Ctx(), n.Map["mnri"], "d", true))
+		require.NoError(t, c7.SetValueZero(cb.Ctx(), true, sstring))
 		assert.Nil(t, m.Mnri["d"])
 		assert.IsType(t, system.NewString(""), m.Mnri["d"])
 
 		c7a := node.NewNode()
-		assert.NoError(t, c7a.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "e"))
-		assert.NoError(t, c7a.AddToMap(cb.Ctx(), n.Map["mnri"], "e", true))
-		assert.NoError(t, c7a.SetValueZero(cb.Ctx(), false, sstring))
+		require.NoError(t, c7a.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "e"))
+		require.NoError(t, c7a.AddToMap(cb.Ctx(), n.Map["mnri"], "e", true))
+		require.NoError(t, c7a.SetValueZero(cb.Ctx(), false, sstring))
 		assert.NotNil(t, m.Mnri["e"])
 		assert.IsType(t, system.NewString(""), m.Mnri["e"])
 
 		c8 := node.NewNode()
-		assert.NoError(t, c8.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "f"))
-		assert.NoError(t, c8.AddToMap(cb.Ctx(), n.Map["mnri"], "f", true))
-		assert.NoError(t, c8.SetValueZero(cb.Ctx(), true, facea))
+		require.NoError(t, c8.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "f"))
+		require.NoError(t, c8.AddToMap(cb.Ctx(), n.Map["mnri"], "f", true))
+		require.NoError(t, c8.SetValueZero(cb.Ctx(), true, facea))
 		assert.Nil(t, m.Mnri["f"])
 		assert.IsType(t, &data.Facea{}, m.Mnri["f"])
 
 		c8a := node.NewNode()
-		assert.NoError(t, c8a.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "g"))
-		assert.NoError(t, c8a.AddToMap(cb.Ctx(), n.Map["mnri"], "g", true))
-		assert.NoError(t, c8a.SetValueZero(cb.Ctx(), false, facea))
+		require.NoError(t, c8a.InitialiseMapItem(cb.Ctx(), n.Map["mnri"], "g"))
+		require.NoError(t, c8a.AddToMap(cb.Ctx(), n.Map["mnri"], "g", true))
+		require.NoError(t, c8a.SetValueZero(cb.Ctx(), false, facea))
 		assert.NotNil(t, m.Mnri["g"])
 		assert.IsType(t, &data.Facea{}, m.Mnri["g"])
 	}
@@ -754,23 +754,23 @@ func TestNode_SetValueZero2(t *testing.T) {
 		snumber, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/system", "number")
 		assert.True(t, ok)
 
-		assert.NoError(t, n.Map["ss"].SetValueZero(cb.Ctx(), true, sstring))
+		require.NoError(t, n.Map["ss"].SetValueZero(cb.Ctx(), true, sstring))
 		assert.Nil(t, m.Ss)
 
-		assert.NoError(t, n.Map["sn"].SetValueZero(cb.Ctx(), false, snumber))
+		require.NoError(t, n.Map["sn"].SetValueZero(cb.Ctx(), false, snumber))
 		assert.NotNil(t, m.Sn)
 
-		assert.NoError(t, n.Map["mnri"].SetValueZero(cb.Ctx(), true, nil))
+		require.NoError(t, n.Map["mnri"].SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Mnri)
 
-		assert.NoError(t, n.Map["mi"].SetValueZero(cb.Ctx(), false, nil))
+		require.NoError(t, n.Map["mi"].SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Mi)
 		assert.Equal(t, 0, len(m.Mi))
 
-		assert.NoError(t, n.Map["anri"].SetValueZero(cb.Ctx(), true, nil))
+		require.NoError(t, n.Map["anri"].SetValueZero(cb.Ctx(), true, nil))
 		assert.Nil(t, m.Anri)
 
-		assert.NoError(t, n.Map["ai"].SetValueZero(cb.Ctx(), false, nil))
+		require.NoError(t, n.Map["ai"].SetValueZero(cb.Ctx(), false, nil))
 		assert.NotNil(t, m.Ai)
 		assert.Equal(t, 0, len(m.Ai))
 
@@ -789,7 +789,7 @@ func TestNode_SetValueZero3(t *testing.T) {
 
 //func TestNode_SetValueUnpack(t *testing.T) {
 //	cb, n := data.Empty(t)
-//	err := n.SetValueUnpack(cb.Ctx(), json.PackString(`"a"`))
+//	err := n.SetValueUnpack(cb.Ctx(), packer.PackString(`"a"`))
 //	assert.HasError(t, err, "VEPLUIJXSN")
 //}
 
@@ -856,14 +856,14 @@ func TestNode_DisplayType(t *testing.T) {
 	cb, n := data.Setup(t)
 
 	dt, err := n.DisplayType(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "multi", dt)
 
 	dt, err = n.Map["ai"].DisplayType(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "null", dt)
 
 	dt, err = n.Map["ajs"].DisplayType(cb.Ctx())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "[]json:string", dt)
 }

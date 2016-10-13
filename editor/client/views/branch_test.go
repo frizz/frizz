@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"github.com/davelondon/vecty"
 	"github.com/davelondon/vecty/elem"
 	"github.com/davelondon/vecty/mock_vecty"
@@ -296,7 +297,7 @@ func setupForSuccessfulFileLoad(t *testing.T, cb *ctests.ClientContextBuilder) {
 		// Create a simple ke object and marshal it to a []byte
 		var bytes []byte
 		bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		reply.(*shared.DataResponse).Found = true
 		reply.(*shared.DataResponse).Data = bytes
 		close(done)

@@ -15,7 +15,7 @@ import (
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 type Reference struct {
@@ -120,37 +120,40 @@ func NewReference(packagePath string, typeName string) *Reference {
 
 func NewReferenceFromString(ctx context.Context, in string) (*Reference, error) {
 	r := &Reference{}
-	err := r.Unpack(ctx, json.Pack(in))
+	err := r.Unpack(ctx, packer.Pack(in), false)
 	if err != nil {
 		return nil, kerr.Wrap("VXRGOQHWNB", err)
 	}
 	return r, nil
 }
 
-func (out *Reference) Unpack(ctx context.Context, in json.Packed) error {
-	if in == nil || in.Type() == json.J_NULL {
+func (v *Reference) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
 		return kerr.New("MOQVSKJXRB", "Called Reference.Unpack with nil value")
 	}
-	if in.Type() == json.J_MAP {
+	if v == nil {
+		v = New_Reference(ctx).(*Reference)
+	}
+	if in.Type() == packer.J_MAP {
 		in = in.Map()["value"]
 	}
-	if in.Type() != json.J_STRING {
+	if in.Type() != packer.J_STRING {
 		return kerr.New("RFLQSBPMYM", "Can't unpack %s into *system.Reference", in.Type())
 	}
-	path, name, err := json.GetReferencePartsFromTypeString(ctx, in.String())
+	path, name, err := packer.GetReferencePartsFromTypeString(ctx, in.String())
 	if err != nil {
 		// We need to clear the reference, because when we're scanning for
 		// aliases we need to tolerate unknown import errors here
-		out.Name = ""
-		out.Package = ""
+		v.Name = ""
+		v.Package = ""
 		return kerr.Wrap("MSXBLEIGVJ", err)
 	}
-	out.Package = path
-	out.Name = name
+	v.Package = path
+	v.Name = name
 	return nil
 }
 
-var _ json.Unpacker = (*Reference)(nil)
+var _ packer.Unpacker = (*Reference)(nil)
 
 func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) error {
 	s, ok := in.(string)
@@ -158,7 +161,7 @@ func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) er
 		out.Name = ""
 		out.Package = ""
 	} else {
-		path, name, err := json.GetReferencePartsFromTypeString(ctx, s)
+		path, name, err := packer.GetReferencePartsFromTypeString(ctx, s)
 		if err != nil {
 			// We need to clear the reference, because when we're scanning for
 			// aliases we need to tolerate unknown import errors here
@@ -172,17 +175,17 @@ func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) er
 	return nil
 }
 
-var _ json.Marshaler = (*Reference)(nil)
+var _ packer.Repacker = (*Reference)(nil)
 
-func (r *Reference) MarshalJSON(ctx context.Context) ([]byte, error) {
+func (r *Reference) Repack(ctx context.Context) (interface{}, error) {
 	if r == nil {
-		return []byte("null"), nil
+		return nil, nil
 	}
 	val, err := r.ValueContext(ctx)
 	if err != nil {
 		return nil, kerr.Wrap("VQCYFSTPQD", err)
 	}
-	return []byte(strconv.Quote(val)), nil
+	return strconv.Quote(val), nil
 }
 
 func (r Reference) String() string {

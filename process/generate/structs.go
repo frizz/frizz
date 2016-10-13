@@ -8,10 +8,11 @@ import (
 
 	"context"
 
+	"encoding/json"
+
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
-	"kego.io/json"
 	"kego.io/process/generate/builder"
 	"kego.io/system"
 )
@@ -28,7 +29,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	g := builder.New(env.Path)
 
-	infoBytes, _ := json.MarshalPlain(InfoStruct{Path: env.Path, Hash: env.Hash})
+	infoBytes, _ := json.Marshal(InfoStruct{Path: env.Path, Hash: env.Hash})
 
 	g.SetPackageComment("info:" + string(infoBytes))
 	g.SetIntroComment(`ke: {"file": {"notest": true}}`)

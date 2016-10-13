@@ -1,50 +1,13 @@
 package system
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/json"
-	"kego.io/tests"
-	"kego.io/tests/unpacker"
+	"kego.io/packer"
 )
-
-func TestUnpackDefaultNativeTypeBool(t *testing.T) {
-	testUnpackDefaultNativeTypeBool(t, unpacker.Unmarshal)
-	testUnpackDefaultNativeTypeBool(t, unpacker.Unpack)
-	testUnpackDefaultNativeTypeBool(t, unpacker.Decode)
-}
-func testUnpackDefaultNativeTypeBool(t *testing.T, up unpacker.Interface) {
-
-	data := `{
-		"type": "a",
-		"b": true
-	}`
-
-	type A struct {
-		*Object
-		B BoolInterface `json:"b"`
-	}
-
-	var i interface{}
-
-	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
-
-	err := up.Process(ctx, []byte(data), &i)
-	assert.NoError(t, err)
-
-	a, ok := i.(*A)
-	assert.True(t, ok, "Type %T not correct", i)
-	assert.NotNil(t, a)
-	assert.Equal(t, true, a.B.GetBool(nil).Value())
-
-	b, err := json.Marshal(a)
-	assert.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":true}`, string(b))
-
-}
 
 func TestNewBool(t *testing.T) {
 	b := NewBool(true)
@@ -58,53 +21,55 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 
 	var b *Bool
 
-	err := b.Unpack(envctx.Empty, json.Pack(nil))
-	assert.IsError(t, err, "FXCQGNYKIJ")
+	err := b.Unpack(envctx.Empty, packer.Pack(nil), false)
+	require.NoError(t, err)
+	assert.Nil(t, b)
 
 	b = NewBool(false)
-	err = b.Unpack(envctx.Empty, json.Pack(true))
-	assert.NoError(t, err)
+	err = b.Unpack(envctx.Empty, packer.Pack(true), false)
+	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.True(t, b.Value())
 
 	b = NewBool(false)
-	err = b.Unpack(envctx.Empty, json.Pack(map[string]interface{}{
+	err = b.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
 		"type":  "system:bool",
 		"value": true,
-	}))
-	assert.NoError(t, err)
+	}), false)
+	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.True(t, b.Value())
 
 	b = NewBool(true)
-	err = b.Unpack(envctx.Empty, json.Pack(false))
-	assert.NoError(t, err)
+	err = b.Unpack(envctx.Empty, packer.Pack(false), false)
+	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.False(t, b.Value())
 
 	b = NewBool(false)
-	err = b.Unpack(envctx.Empty, json.Pack("foo"))
-	assert.IsError(t, err, "GXQGNEPJYS")
+	err = b.Unpack(envctx.Empty, packer.Pack("foo"), false)
+	assert.Error(t, err)
 
 }
-func TestBoolMarshalJSON(t *testing.T) {
+func TestBoolRepack(t *testing.T) {
 
 	var b *Bool
-	ba, err := b.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
-	assert.Equal(t, "null", string(ba))
+	ba, err := b.Repack(envctx.Empty)
+	require.NoError(t, err)
+	assert.Equal(t, nil, ba)
 
 	b = NewBool(false)
-	ba, err = b.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
-	assert.Equal(t, "false", string(ba))
+	ba, err = b.Repack(envctx.Empty)
+	require.NoError(t, err)
+	assert.Equal(t, "false", ba)
 
 	b = NewBool(true)
-	ba, err = b.MarshalJSON(envctx.Empty)
-	assert.NoError(t, err)
-	assert.Equal(t, "true", string(ba))
+	ba, err = b.Repack(envctx.Empty)
+	require.NoError(t, err)
+	assert.Equal(t, "true", ba)
 
 }
+
 func TestBoolString(t *testing.T) {
 
 	var b *Bool

@@ -12,8 +12,8 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/json"
 	"kego.io/ke"
+	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -36,13 +36,13 @@ type Node struct {
 	Type                *system.Type
 	UnderlyingRule      *system.RuleWrapper
 	UnderlyingInnerType *system.Type
-	JsonType            json.Type
+	JsonType            packer.Type
 	hash                uint64
 }
 
 func Unmarshal(ctx context.Context, data []byte) (*Node, error) {
 	n := NewNode()
-	if err := ke.UnmarshalUntyped(ctx, data, n); err != nil {
+	if err := system.Unmarshal(ctx, data, n); err != nil {
 		return nil, kerr.Wrap("QDWFKJOJPQ", err)
 	}
 	return n, nil
@@ -53,8 +53,8 @@ func NewNode() *Node {
 	return n
 }
 
-// Unpack unpacks a node from an unpackable
-func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
+// Unpack unpacks a node from a Packed
+func (n *Node) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	n.InitialiseRoot()
 	if err := n.SetValueUnpack(ctx, in); err != nil {
 		return kerr.Wrap("WVFVMGWPQJ", err)
@@ -62,11 +62,11 @@ func (n *Node) Unpack(ctx context.Context, in json.Packed) error {
 	return nil
 }
 
-var _ json.Unpacker = (*Node)(nil)
+var _ packer.Unpacker = (*Node)(nil)
 
 func (n *Node) SetValue(ctx context.Context, value interface{}) error {
 	switch n.JsonType {
-	case json.J_STRING:
+	case packer.J_STRING:
 		val := value.(string)
 		if n.ValueString == val {
 			// ignore the change if there's no change to the value
@@ -75,7 +75,7 @@ func (n *Node) SetValue(ctx context.Context, value interface{}) error {
 		if err := n.SetValueString(ctx, val); err != nil {
 			return kerr.Wrap("NCIMXDORED", err)
 		}
-	case json.J_BOOL:
+	case packer.J_BOOL:
 		val := value.(bool)
 		if n.ValueBool == val {
 			// ignore the change if there's no change to the value
@@ -84,7 +84,7 @@ func (n *Node) SetValue(ctx context.Context, value interface{}) error {
 		if err := n.SetValueBool(ctx, val); err != nil {
 			return kerr.Wrap("HKFEEMFRHR", err)
 		}
-	case json.J_NUMBER:
+	case packer.J_NUMBER:
 		val := value.(float64)
 		if n.ValueNumber == val {
 			// ignore the change if there's no change to the value
@@ -98,28 +98,28 @@ func (n *Node) SetValue(ctx context.Context, value interface{}) error {
 }
 
 func (n *Node) SetValueString(ctx context.Context, value string) error {
-	if err := n.SetValueUnpack(ctx, json.Pack(value)); err != nil {
+	if err := n.SetValueUnpack(ctx, packer.Pack(value)); err != nil {
 		return kerr.Wrap("GAMJNECRUW", err)
 	}
 	return nil
 }
 
 func (n *Node) SetValueNumber(ctx context.Context, value float64) error {
-	if err := n.SetValueUnpack(ctx, json.Pack(value)); err != nil {
+	if err := n.SetValueUnpack(ctx, packer.Pack(value)); err != nil {
 		return kerr.Wrap("SOJGUGHXSX", err)
 	}
 	return nil
 }
 
 func (n *Node) SetValueBool(ctx context.Context, value bool) error {
-	if err := n.SetValueUnpack(ctx, json.Pack(value)); err != nil {
+	if err := n.SetValueUnpack(ctx, packer.Pack(value)); err != nil {
 		return kerr.Wrap("AWRMEACQWR", err)
 	}
 	return nil
 }
 
 func (n *Node) DeleteObjectChild(ctx context.Context, field string) error {
-	if n.JsonType != json.J_OBJECT {
+	if n.JsonType != packer.J_OBJECT {
 		return kerr.New("BMUSITINTC", "Must be J_OBJECT")
 	}
 	child := n.Map[field]
@@ -130,7 +130,7 @@ func (n *Node) DeleteObjectChild(ctx context.Context, field string) error {
 }
 
 func (n *Node) DeleteMapChild(key string) error {
-	if n.JsonType != json.J_MAP {
+	if n.JsonType != packer.J_MAP {
 		return kerr.New("ACRGPCPPFK", "Must be J_MAP")
 	}
 	delete(n.Map, key)
@@ -139,7 +139,7 @@ func (n *Node) DeleteMapChild(key string) error {
 }
 
 func (n *Node) DeleteArrayChild(index int) error {
-	if n.JsonType != json.J_ARRAY {
+	if n.JsonType != packer.J_ARRAY {
 		return kerr.New("NFVEWWCSMV", "Must be J_ARRAY")
 	}
 	n.Array = append(n.Array[:index], n.Array[index+1:]...)
@@ -153,7 +153,7 @@ func (n *Node) DeleteArrayChild(index int) error {
 
 func (n *Node) ReorderArrayChild(from, to int) error {
 
-	if n.JsonType != json.J_ARRAY {
+	if n.JsonType != packer.J_ARRAY {
 		return kerr.New("MHEXGBUQOL", "Must be J_ARRAY")
 	}
 
@@ -234,7 +234,7 @@ func (n *Node) initialiseCollectionItem(ctx context.Context, parent *Node, key s
 	}
 	n.Rule = rule
 
-	t, err := extractType(ctx, json.Pack(nil), rule)
+	t, err := extractType(ctx, packer.Pack(nil), rule)
 	if err != nil {
 		return kerr.Wrap("EQNRHQWXFJ", err)
 	}
@@ -311,7 +311,7 @@ func (n *Node) initialiseObjectField(ctx context.Context, parent *Node, rule *sy
 	n.Key = key
 	n.Origin = origin
 
-	t, err := extractType(ctx, json.Pack(nil), rule)
+	t, err := extractType(ctx, packer.Pack(nil), rule)
 	if err != nil {
 		return kerr.Wrap("RBDBRRUVMM", err)
 	}
@@ -366,7 +366,7 @@ func (n *Node) resetAllValues() {
 	n.Missing = true
 	n.Rule = nil
 	n.Type = nil
-	n.JsonType = json.J_NULL
+	n.JsonType = packer.J_NULL
 	n.UnderlyingRule = nil
 	n.UnderlyingInnerType = nil
 }
@@ -389,14 +389,14 @@ func (n *Node) initialiseValFromParent() {
 	n.Value = n.Val.Interface()
 }
 
-func (n *Node) SetValueUnpack(ctx context.Context, in json.Packed) error {
+func (n *Node) SetValueUnpack(ctx context.Context, in packer.Packed) error {
 	if err := n.setValue(ctx, in, true); err != nil {
 		return kerr.Wrap("FAVEHOUYHB", err)
 	}
 	return nil
 }
 
-func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error {
+func (n *Node) setValue(ctx context.Context, in packer.Packed, unpack bool) error {
 
 	n.Missing = false
 
@@ -412,14 +412,14 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 		n.Rule = system.WrapEmptyRule(ctx, objectType)
 	}
 
-	if in.Type() == json.J_MAP && n.Type.IsNativeObject() {
-		// for objects and maps, Type() from the json.Packed is always J_MAP,
+	if in.Type() == packer.J_MAP && n.Type.IsNativeObject() {
+		// for objects and maps, Type() from the packer.Packed is always J_MAP,
 		// so we correct it for object types here.
-		n.JsonType = json.J_OBJECT
+		n.JsonType = packer.J_OBJECT
 	} else {
 		n.JsonType = in.Type()
 	}
-	n.Null = in.Type() == json.J_NULL
+	n.Null = in.Type() == packer.J_NULL
 
 	// validate json type
 	//	if !n.Null && n.Type.NativeJsonType() != n.JsonType {
@@ -428,7 +428,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 
 	if unpack {
 		if n.Rule.Struct == nil {
-			if err := json.Unpack(ctx, in, &n.Value); err != nil {
+			if err := system.Unpack(ctx, in, &n.Value); err != nil {
 				return kerr.Wrap("CQMWGPLYIJ", err)
 			}
 		} else {
@@ -436,7 +436,11 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 			if err != nil {
 				return kerr.Wrap("DQJDYPIANO", err)
 			}
-			if err := json.UnpackFragment(ctx, in, &n.Value, t); err != nil {
+
+			val := reflect.New(t).Elem()
+			n.Value = val.Interface()
+
+			if err := system.Unpack(ctx, in, n.Value); err != nil {
 				return kerr.Wrap("PEVKGFFHLL", err)
 			}
 		}
@@ -444,25 +448,25 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 	}
 
 	switch n.Type.NativeJsonType() {
-	case json.J_STRING:
-		if in.Type() == json.J_MAP {
+	case packer.J_STRING:
+		if in.Type() == packer.J_MAP {
 			n.ValueString = in.Map()["value"].String()
 		} else {
 			n.ValueString = in.String()
 		}
-	case json.J_NUMBER:
-		if in.Type() == json.J_MAP {
+	case packer.J_NUMBER:
+		if in.Type() == packer.J_MAP {
 			n.ValueNumber = in.Map()["value"].Number()
 		} else {
 			n.ValueNumber = in.Number()
 		}
-	case json.J_BOOL:
-		if in.Type() == json.J_MAP {
+	case packer.J_BOOL:
+		if in.Type() == packer.J_MAP {
 			n.ValueBool = in.Map()["value"].Bool()
 		} else {
 			n.ValueBool = in.Bool()
 		}
-	case json.J_ARRAY:
+	case packer.J_ARRAY:
 		children := in.Array()
 		for i, child := range children {
 			childNode := NewNode()
@@ -476,7 +480,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 				return kerr.Wrap("KUCBPFFJNT", err)
 			}
 		}
-	case json.J_MAP:
+	case packer.J_MAP:
 		n.Map = map[string]*Node{}
 		children := in.Map()
 		for name, child := range children {
@@ -491,7 +495,7 @@ func (n *Node) setValue(ctx context.Context, in json.Packed, unpack bool) error 
 				return kerr.Wrap("LWCSAHSBDF", err)
 			}
 		}
-	case json.J_OBJECT:
+	case packer.J_OBJECT:
 		if err := n.initialiseFields(ctx, in, false); err != nil {
 			return kerr.Wrap("XCRYJWKPKP", err)
 		}
@@ -515,7 +519,7 @@ func (n *Node) SetValueZero(ctx context.Context, null bool, t *system.Type) erro
 func (n *Node) setType(ctx context.Context, t *system.Type) error {
 	if t == nil {
 		n.Type = nil
-		n.JsonType = json.J_NULL
+		n.JsonType = packer.J_NULL
 		n.UnderlyingRule = nil
 		n.UnderlyingInnerType = nil
 		return nil
@@ -549,7 +553,7 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 		return kerr.New("NYQULBBBHO", "If missing, must also be null")
 	}
 
-	if missing && (n.Parent == nil || n.Parent.JsonType != json.J_OBJECT) {
+	if missing && (n.Parent == nil || n.Parent.JsonType != packer.J_OBJECT) {
 		return kerr.New("XRYLQWRNPH", "Parent must be J_OBJECT")
 	}
 
@@ -570,7 +574,7 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 	n.Map = map[string]*Node{}
 
 	if null {
-		n.JsonType = json.J_NULL
+		n.JsonType = packer.J_NULL
 	} else {
 		// if this node was previously null, we must reset the json type
 		n.JsonType = n.Type.NativeJsonType()
@@ -650,10 +654,10 @@ func (n *Node) setVal(rv reflect.Value) {
 	}
 }
 
-func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal bool) error {
+func (n *Node) initialiseFields(ctx context.Context, in packer.Packed, updateVal bool) error {
 
-	valueFields := map[string]json.Packed{}
-	if in != nil && in.Type() != json.J_NULL {
+	valueFields := map[string]packer.Packed{}
+	if in != nil && in.Type() != packer.J_NULL {
 		valueFields = in.Map()
 	}
 
@@ -689,7 +693,7 @@ func (n *Node) initialiseFields(ctx context.Context, in json.Packed, updateVal b
 	return nil
 }
 
-func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) (*system.Type, error) {
+func extractType(ctx context.Context, in packer.Packed, rule *system.RuleWrapper) (*system.Type, error) {
 
 	parentInterface := rule != nil && rule.Parent != nil && rule.Parent.Interface
 	ruleInterface := rule != nil && rule.Struct != nil && rule.Struct.Interface
@@ -711,10 +715,10 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 			return nil, nil
 		}
 		switch in.Type() {
-		case json.J_NULL:
+		case packer.J_NULL:
 			// item is nil, so we don't know the concrete type yet.
 			return nil, nil
-		case json.J_MAP:
+		case packer.J_MAP:
 			break
 		default:
 			return nil, kerr.New("DLSQRFLINL", "Input %s should be J_MAP if rule is nil or an interface type", in.Type())
@@ -727,12 +731,12 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 			return nil, nil
 		}
 		switch in.Type() {
-		case json.J_NULL:
+		case packer.J_NULL:
 			// item is nil, so we don't know the concrete type yet.
 			return nil, nil
-		case json.J_MAP:
+		case packer.J_MAP:
 			break
-		case json.J_STRING, json.J_NUMBER, json.J_BOOL:
+		case packer.J_STRING, packer.J_NUMBER, packer.J_BOOL:
 			// if the input value is a native value, we will be unpacking into
 			// the parent type of the rule
 			return rule.Parent, nil
@@ -747,7 +751,7 @@ func extractType(ctx context.Context, in json.Packed, rule *system.RuleWrapper) 
 		return nil, kerr.New("HBJVDKAKBJ", "Input must have type field if rule is nil or an interface type")
 	}
 	var r system.Reference
-	if err := r.Unpack(ctx, typeField); err != nil {
+	if err := r.Unpack(ctx, typeField, false); err != nil {
 		return nil, kerr.Wrap("YXHGIBXCOC", err)
 	}
 	t, ok := r.GetType(ctx)
@@ -946,18 +950,18 @@ func (n *Node) Restore(ctx context.Context, b *Node) {
 
 func (n *Node) NativeValue() interface{} {
 	switch n.JsonType {
-	case json.J_STRING:
+	case packer.J_STRING:
 		return n.ValueString
-	case json.J_NUMBER:
+	case packer.J_NUMBER:
 		return n.ValueNumber
-	case json.J_BOOL:
+	case packer.J_BOOL:
 		return n.ValueBool
 	}
 	return nil
 }
 
 func (n *Node) Print(ctx context.Context) string {
-	b, err := ke.MarshalContext(ctx, n.Value)
+	b, err := ke.Marshal(ctx, n.Value)
 	if err != nil {
 		// ke: {"block": {"notest": true}}
 		return err.Error()

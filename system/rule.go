@@ -7,7 +7,7 @@ import (
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/jsonctx"
-	"kego.io/json"
+	"kego.io/packer"
 )
 
 // Enforcer is a rule with properties that need to be enforced against data.
@@ -131,7 +131,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		if err != nil {
 			return nil, kerr.Wrap("LMKEHHWHKL", err)
 		}
-		if r.Parent.NativeJsonType() == json.J_MAP {
+		if r.Parent.NativeJsonType() == packer.J_MAP {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil

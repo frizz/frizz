@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/sysctx"
 	"kego.io/process/parser"
 	_ "kego.io/process/validate/tests"
@@ -92,14 +93,14 @@ func TestComparePackageHash(t *testing.T) {
 
 	// path not found in jcache
 	changes, err = comparePackageHash(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, changes)
 
 	cb.Jsystem().Jpkg(path, 999).Sauto(parser.Parse)
 
 	// hash changed
 	changes, err = comparePackageHash(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, changes)
 
 	scache := sysctx.FromContext(cb.Ctx())
@@ -108,7 +109,7 @@ func TestComparePackageHash(t *testing.T) {
 
 	// hash correct
 	changes, err = comparePackageHash(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, changes)
 
 	pi.Aliases["c"] = "a.b/c"
@@ -120,20 +121,20 @@ func TestComparePackageHash(t *testing.T) {
 	pi1 := scache.Set("a.b/c")
 
 	changes, err = comparePackageHash(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, changes)
 
 	cb.Jpkg("a.b/c", 1)
 	pi1.Hash = 2
 
 	changes, err = comparePackageHash(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, changes)
 
 	pi1.Hash = 1
 
 	changes, err = comparePackageHash(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, changes)
 
 }

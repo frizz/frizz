@@ -65,7 +65,7 @@ func TestTypesUnknownType(t *testing.T) {
 	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
 	_, err := Parse(cb.Ctx(), pathA)
 	// unknown types are tolerated when scanning types
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	cb.TempFile("b.json", `{
 			"type": "system:package",
@@ -77,7 +77,7 @@ func TestTypesUnknownType(t *testing.T) {
 		}`)
 	_, err = Parse(cb.Ctx(), pathA)
 	// b.json is not a type so unknown packages and types are permitted
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	cb.TempFile("c.json", `{
 			"type": "system:type",
@@ -144,7 +144,7 @@ func TestGoGet(t *testing.T) {
 		}`,
 	})
 	err := GoGet(cb.Ctx(), pathA)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	cb.CmdUpdate(true)
 	err = GoGet(cb.Ctx(), pathA)
@@ -182,7 +182,7 @@ func TestImport(t *testing.T) {
 	cb.Path(pathB).Dir(dirB).Cmd().Sempty().Jsystem()
 
 	_, err := Parse(cb.Ctx(), pathB)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 }
 
@@ -316,7 +316,7 @@ func TestParseRule(t *testing.T) {
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
 	_, err := Parse(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
 	i, ok := scache.GetType(path, "b")
@@ -348,7 +348,7 @@ func TestParse1(t *testing.T) {
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
 	_, err := Parse(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	scache := sysctx.FromContext(cb.Ctx())
 	i, ok := scache.GetType(path, "b")
@@ -400,9 +400,9 @@ func TestParse(t *testing.T) {
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 
 	pi, err := Parse(cb.Ctx(), path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = generate.Structs(cb.Ctx(), pi.Env)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 }

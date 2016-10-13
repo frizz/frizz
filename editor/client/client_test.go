@@ -8,6 +8,7 @@ import (
 	"encoding/gob"
 
 	"github.com/davelondon/ktest/assert"
+	"github.com/davelondon/ktest/require"
 	"kego.io/context/sysctx"
 	"kego.io/editor/shared"
 	"kego.io/system"
@@ -32,7 +33,7 @@ func TestRegisterTypes(t *testing.T) {
 		},
 	}
 	pi, err := registerTypes(cb.Ctx(), "b", imports)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	ti, ok := pi.Types.Get("d")
 	assert.True(t, ok)
@@ -86,11 +87,11 @@ func TestGetInfo(t *testing.T) {
 	}
 	buf := bytes.NewBuffer([]byte{})
 	err = gob.NewEncoder(buf).Encode(info)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	val := base64.StdEncoding.EncodeToString(buf.Bytes())
 
 	i, err := getInfo(val)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, info, i)
 
 }
