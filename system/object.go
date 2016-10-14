@@ -45,3 +45,34 @@ func (b *Object) InitializeType(path string, name string) error {
 	b.Type = NewReference(path, name)
 	return nil
 }
+
+type ObjectStub struct {
+	Id   *Reference `json:"id"`
+	Type *Reference `json:"type"`
+}
+
+func (v *ObjectStub) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+
+	if field, ok := in.Map()["id"]; ok {
+		if v.Id == nil {
+			v.Id = New_Reference(ctx).(*Reference)
+		}
+		if err := v.Id.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+	}
+
+	if field, ok := in.Map()["type"]; ok {
+		if v.Type == nil {
+			v.Type = New_Reference(ctx).(*Reference)
+		}
+		if err := v.Type.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+	}
+	return nil
+}

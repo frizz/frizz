@@ -15,7 +15,6 @@ import (
 	"kego.io/editor/server/auther"
 	"kego.io/editor/server/pkghelp"
 	"kego.io/editor/shared"
-	"kego.io/ke"
 	"kego.io/process/parser"
 	"kego.io/process/scanner"
 	"kego.io/system"
@@ -44,11 +43,8 @@ func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse
 		}
 
 		// Check the bytes are well formed json...
-		o := &struct {
-			Id   *system.Reference `json:"id"`
-			Type *system.Reference `json:"type"`
-		}{}
-		if err := ke.UnmarshalUntyped(localContext, info.Bytes, o); err != nil {
+		o := &system.ObjectStub{}
+		if err := system.Unmarshal(localContext, info.Bytes, o); err != nil {
 			return kerr.Wrap("QISVPOXTCJ", err)
 		}
 		// Check type field exists
@@ -126,10 +122,8 @@ func (s *Server) Data(request *shared.DataRequest, response *shared.DataResponse
 	}
 
 	localContext := envctx.NewContext(s.ctx, env)
-	o := &struct {
-		Id *system.Reference `json:"id"`
-	}{}
-	if err := ke.UnmarshalUntyped(localContext, bytes, o); err != nil {
+	o := &system.ObjectStub{}
+	if err := system.Unmarshal(localContext, bytes, o); err != nil {
 		return kerr.Wrap("SVINFEMKBG", err)
 	}
 	if o.Id.Name != request.Name {

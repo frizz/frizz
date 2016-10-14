@@ -30,6 +30,9 @@ type DummyRule struct {
 }
 
 func (d *DummyRule) GetDefault() interface{} {
+	if d.Default == nil {
+		return nil
+	}
 	return d.Default
 }
 
@@ -66,7 +69,7 @@ func (r *RuleWrapper) InnerType(ctx context.Context) *Type {
 	}
 }
 
-func (r *RuleWrapper) Pointer(ctx context.Context) bool {
+func (r *RuleWrapper) PassedAsPointer(ctx context.Context) bool {
 	kind, alias := r.Kind(ctx)
 	switch kind {
 	case KindStruct:
@@ -79,6 +82,12 @@ func (r *RuleWrapper) Pointer(ctx context.Context) bool {
 	return false
 }
 
+func (r *RuleWrapper) PassedAsPointerString(ctx context.Context) string {
+	if r.PassedAsPointer(ctx) {
+		return "*"
+	}
+	return ""
+}
 func (r *RuleWrapper) Kind(ctx context.Context) (kind Kind, alias bool) {
 
 	if cr, ok := r.Interface.(CollectionRule); ok {
@@ -131,7 +140,7 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 		if err != nil {
 			return nil, kerr.Wrap("LMKEHHWHKL", err)
 		}
-		if r.Parent.NativeJsonType() == packer.J_MAP {
+		if r.Parent.NativeJsonType(r.Ctx) == packer.J_MAP {
 			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 		}
 		return reflect.SliceOf(itemsType), nil

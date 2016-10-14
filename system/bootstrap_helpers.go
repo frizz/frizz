@@ -79,35 +79,14 @@ func GetNewFromTypeField(ctx context.Context, in packer.Packed) (interface{}, er
 	if !ok {
 		return nil, kerr.New("BQIJMVGJDT", "NewFunc %s not found.", tr.String())
 	}
-	return nf(ctx), nil
+	return nf(), nil
 }
 
 func init() {
 	jpkg := jsonctx.InitPackage("kego.io/json", 0)
-	jpkg.InitNew("string", nil, New_JsonStringRule)
-	jpkg.InitNew("number", nil, New_JsonNumberRule)
-	jpkg.InitNew("bool", nil, New_JsonBoolRule)
-}
-
-func New_JsonStringRule(ctx context.Context) interface{} {
-	v := new(JsonStringRule)
-	v.Object = New_Object(ctx).(*Object)
-	v.Rule = New_Rule(ctx).(*Rule)
-	return v
-}
-
-func New_JsonNumberRule(ctx context.Context) interface{} {
-	v := new(JsonNumberRule)
-	v.Object = New_Object(ctx).(*Object)
-	v.Rule = New_Rule(ctx).(*Rule)
-	return v
-}
-
-func New_JsonBoolRule(ctx context.Context) interface{} {
-	v := new(JsonBoolRule)
-	v.Object = New_Object(ctx).(*Object)
-	v.Rule = New_Rule(ctx).(*Rule)
-	return v
+	jpkg.InitNew("string", nil, func() interface{} { return new(JsonStringRule) })
+	jpkg.InitNew("number", nil, func() interface{} { return new(JsonNumberRule) })
+	jpkg.InitNew("bool", nil, func() interface{} { return new(JsonBoolRule) })
 }
 
 func (v *JsonStringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
@@ -117,14 +96,14 @@ func (v *JsonStringRule) Unpack(ctx context.Context, in packer.Packed, iface boo
 	}
 
 	if v.Object == nil {
-		v.Object = New_Object(ctx).(*Object)
+		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return kerr.Wrap("BEIWFULUTD", err)
 	}
 
 	if v.Rule == nil {
-		v.Rule = New_Rule(ctx).(*Rule)
+		v.Rule = new(Rule)
 	}
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return kerr.Wrap("KRTUNQFXHA", err)
@@ -141,14 +120,14 @@ func (v *JsonNumberRule) Unpack(ctx context.Context, in packer.Packed, iface boo
 	}
 
 	if v.Object == nil {
-		v.Object = New_Object(ctx).(*Object)
+		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return kerr.Wrap("WXAFWTOKHU", err)
 	}
 
 	if v.Rule == nil {
-		v.Rule = New_Rule(ctx).(*Rule)
+		v.Rule = new(Rule)
 	}
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return kerr.Wrap("PSSXFMIYLS", err)
@@ -165,14 +144,14 @@ func (v *JsonBoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool)
 	}
 
 	if v.Object == nil {
-		v.Object = New_Object(ctx).(*Object)
+		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return kerr.Wrap("UQUKPBNRVJ", err)
 	}
 
 	if v.Rule == nil {
-		v.Rule = New_Rule(ctx).(*Rule)
+		v.Rule = new(Rule)
 	}
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return kerr.Wrap("RSAVQRLPML", err)
@@ -180,4 +159,34 @@ func (v *JsonBoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool)
 
 	return nil
 
+}
+
+func UnpackBool(ctx context.Context, in packer.Packed) (bool, error) {
+	if in == nil || in.Type() == packer.J_NULL {
+		return false, nil
+	}
+	if in.Type() != packer.J_BOOL {
+		return false, kerr.New("ITLWMRUKKD", "UnpackBool: %s must by J_BOOL", in.Type())
+	}
+	return in.Bool(), nil
+}
+
+func UnpackString(ctx context.Context, in packer.Packed) (string, error) {
+	if in == nil || in.Type() == packer.J_NULL {
+		return "", nil
+	}
+	if in.Type() != packer.J_STRING {
+		return "", kerr.New("CIECONONEF", "UnpackString: %s must by J_STRING", in.Type())
+	}
+	return in.String(), nil
+}
+
+func UnpackNumber(ctx context.Context, in packer.Packed) (float64, error) {
+	if in == nil || in.Type() == packer.J_NULL {
+		return 0.0, nil
+	}
+	if in.Type() != packer.J_NUMBER {
+		return 0.0, kerr.New("PFHJQLAIFP", "UnpackNumber: %s must by J_NUMBER", in.Type())
+	}
+	return in.Number(), nil
 }

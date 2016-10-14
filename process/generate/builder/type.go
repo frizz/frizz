@@ -27,7 +27,7 @@ func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface, path s
 
 	pointer := ""
 	// if we have a prefix we should also work out the innerPointer
-	if prefix != "" && inner.Pointer(ctx) {
+	if prefix != "" && inner.PassedAsPointer(ctx) {
 		pointer = "*"
 	}
 
@@ -40,12 +40,26 @@ func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface, path s
 // of this field [optional pointer][collection prefix][optional pointer][type
 // name]
 func FieldTypeDefinition(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+
+	typeDef, err := TypeDefinition(ctx, field, path, getAlias)
+	if err != nil {
+		return "", kerr.Wrap("BAJJNKKUWI", err)
+	}
+
+	tag := getTag(fieldName)
+	if tag != "" {
+		tag = " " + tag
+	}
+
+	return fmt.Sprint(typeDef, tag), nil
+}
+
+// TypeDefinition returns the Go source for the definition of the type
+// [optional pointer][collection prefix][optional pointer][type name]
+func TypeDefinition(ctx context.Context, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
 	outer := system.WrapRule(ctx, field)
 
-	outerPointer := ""
-	if outer.Pointer(ctx) {
-		outerPointer = "*"
-	}
+	outerPointer := outer.PassedAsPointerString(ctx)
 
 	// if the rule is a complex collection, with possibly several maps and
 	// arrays, this iterates over the rule and returns the go collection prefix
@@ -57,7 +71,7 @@ func FieldTypeDefinition(ctx context.Context, fieldName string, field system.Rul
 
 	innerPointer := ""
 	// if we have a prefix we should also work out the innerPointer
-	if prefix != "" && inner.Pointer(ctx) {
+	if prefix != "" && inner.PassedAsPointer(ctx) {
 		innerPointer = "*"
 	}
 
@@ -69,12 +83,7 @@ func FieldTypeDefinition(ctx context.Context, fieldName string, field system.Rul
 	}
 	name := Reference(inner.Parent.Id.Package, n, path, getAlias)
 
-	tag := getTag(fieldName)
-	if tag != "" {
-		tag = " " + tag
-	}
-
-	return fmt.Sprint(outerPointer, prefix, innerPointer, name, tag), nil
+	return fmt.Sprint(outerPointer, prefix, innerPointer, name), nil
 }
 
 // collectionPrefix recursively digs down through collection rules, recursively

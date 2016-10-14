@@ -153,37 +153,6 @@ func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {
 	return env, nil
 }
 
-type objectStub struct {
-	Id   *system.Reference `json:"id"`
-	Type *system.Reference `json:"type"`
-}
-
-func (v *objectStub) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-
-	if in == nil || in.Type() == packer.J_NULL {
-		return nil
-	}
-
-	if field, ok := in.Map()["id"]; ok {
-		if v.Id == nil {
-			v.Id = system.New_Reference(ctx).(*system.Reference)
-		}
-		if err := v.Id.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-	}
-
-	if field, ok := in.Map()["type"]; ok {
-		if v.Type == nil {
-			v.Type = system.New_Reference(ctx).(*system.Reference)
-		}
-		if err := v.Type.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 
 	// While we're scanning for types, we should use a custom unpacking env, because the env from
@@ -197,7 +166,7 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 			return kerr.Wrap("JACKALTIGG", b.Err)
 		}
 
-		o := &objectStub{}
+		o := &system.ObjectStub{}
 		if err := system.Unmarshal(localContext, b.Bytes, o); err != nil {
 			return kerr.Wrap("HCYGNBDFFA", err)
 		}
@@ -285,7 +254,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 		if b.Err != nil {
 			return nil, kerr.Wrap("GATNNQKNHY", b.Err, b.File)
 		}
-		o := &objectStub{}
+		o := &system.ObjectStub{}
 		if err := system.Unmarshal(localContext, b.Bytes, o); err != nil {
 			switch kerr.Source(err).(type) {
 			case packer.UnknownPackageError, packer.UnknownTypeError:

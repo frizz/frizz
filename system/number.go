@@ -133,6 +133,9 @@ func (n Number) NativeNumber() float64 {
 var _ NativeNumber = (*Number)(nil)
 
 func (r *NumberRule) GetDefault() interface{} {
+	if r.Default == nil {
+		return nil
+	}
 	return r.Default
 }
 

@@ -264,7 +264,7 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 	if p == nil {
 		return nil
 	}
-	switch p.Type.NativeJsonType() {
+	switch p.Type.NativeJsonType(ctx) {
 	case packer.J_MAP:
 		if err := p.DeleteMapChild(n.Key); err != nil {
 			return kerr.Wrap("BUUOWYSJNG", err)
@@ -286,7 +286,7 @@ func mutateRestoreNode(ctx context.Context, n *node.Node, p *node.Node, b *node.
 	if p == nil {
 		return nil
 	}
-	switch p.Type.NativeJsonType() {
+	switch p.Type.NativeJsonType(ctx) {
 	case packer.J_MAP:
 		// don't have to call n.InitialiseMapItem because the node is already
 		// initialized
@@ -313,14 +313,14 @@ func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, 
 	switch {
 	case p == nil:
 		n.InitialiseRoot()
-	case p.Type.NativeJsonType() == packer.J_ARRAY:
+	case p.Type.NativeJsonType(ctx) == packer.J_ARRAY:
 		if err := n.InitialiseArrayItem(ctx, p, index); err != nil {
 			return kerr.Wrap("QLBGMSQENC", err)
 		}
 		if err := n.AddToArray(ctx, p, index, true); err != nil {
 			return kerr.Wrap("PLEJOTCSGH", err)
 		}
-	case p.Type.NativeJsonType() == packer.J_MAP:
+	case p.Type.NativeJsonType(ctx) == packer.J_MAP:
 		if err := n.InitialiseMapItem(ctx, p, key); err != nil {
 			return kerr.Wrap("KRTGPFYWIH", err)
 		}

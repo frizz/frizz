@@ -31,7 +31,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	assert.False(t, alias)
 	assert.Equal(t, kind, system.KindMap)
 
-	assert.False(t, r.Pointer(cb.Ctx()))
+	assert.False(t, r.PassedAsPointer(cb.Ctx()))
 
 	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/system", "@int")},
@@ -43,7 +43,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	assert.True(t, alias)
 	assert.Equal(t, kind, system.KindValue)
 
-	assert.True(t, r.Pointer(cb.Ctx()))
+	assert.True(t, r.PassedAsPointer(cb.Ctx()))
 
 	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/system", "@int")},
@@ -57,7 +57,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	assert.False(t, alias)
 	assert.Equal(t, kind, system.KindInterface)
 
-	assert.False(t, r.Pointer(cb.Ctx()))
+	assert.False(t, r.PassedAsPointer(cb.Ctx()))
 
 	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/json", "@string")},
@@ -65,7 +65,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	})
 	assert.Equal(t, "kego.io/json:string", r.InnerType(cb.Ctx()).Id.String())
 
-	assert.False(t, r.Pointer(cb.Ctx()))
+	assert.False(t, r.PassedAsPointer(cb.Ctx()))
 
 	r = system.WrapRule(cb.Ctx(), &system.DummyRule{
 		Object: &system.Object{Type: system.NewReference("kego.io/system", "@package")},
@@ -77,7 +77,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	assert.False(t, alias)
 	assert.Equal(t, kind, system.KindStruct)
 
-	assert.True(t, r.Pointer(cb.Ctx()))
+	assert.True(t, r.PassedAsPointer(cb.Ctx()))
 }
 
 func TestRuleWrapper_ZeroValue(t *testing.T) {

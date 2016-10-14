@@ -1,7 +1,6 @@
 package jsonctx
 
 import (
-	"context"
 	"reflect"
 	"sync"
 )
@@ -22,8 +21,8 @@ type typeInfo struct {
 	typ      reflect.Type
 	rule     reflect.Type
 	iface    reflect.Type
-	newFunc  func(context.Context) interface{}
-	ruleFunc func(context.Context) interface{}
+	newFunc  func() interface{}
+	ruleFunc func() interface{}
 }
 
 func InitPackage(path string, hash uint64) *packageInfo {
@@ -51,7 +50,7 @@ func (p *packageInfo) InitType(name string, typ reflect.Type, rule reflect.Type,
 	p.types[name].rule = rule
 	p.types[name].iface = iface
 }
-func (p *packageInfo) InitNew(name string, newFunc, ruleFunc func(context.Context) interface{}) {
+func (p *packageInfo) InitNew(name string, newFunc, ruleFunc func() interface{}) {
 	if p.types[name] == nil {
 		p.types[name] = &typeInfo{}
 	}

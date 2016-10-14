@@ -210,9 +210,10 @@ func TestIsJsonValue(t *testing.T) {
 }
 
 func TestNativeJsonType(t *testing.T) {
+	cb := tests.New()
 	test := func(expected packer.Type, in string) {
 		ty := &Type{Native: NewString(in)}
-		assert.Equal(t, expected, ty.NativeJsonType(), in)
+		assert.Equal(t, expected, ty.NativeJsonType(cb.Ctx()), in)
 	}
 	test(packer.J_NUMBER, "number")
 	test(packer.J_STRING, "string")

@@ -58,7 +58,7 @@ func (v *PanelView) Receive(notif flux.NotifPayload) {
 func (v *PanelView) Render() vecty.Component {
 	var editor vecty.Component
 	if v.node != nil {
-		switch v.node.Type.NativeJsonType() {
+		switch v.node.Type.NativeJsonType(v.Ctx) {
 		case packer.J_MAP:
 			editor = NewMapView(v.Ctx, v.node)
 		case packer.J_ARRAY:

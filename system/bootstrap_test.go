@@ -11,7 +11,7 @@ import (
 
 func TestFoo(t *testing.T) {
 	cb := tests.Context("kego.io/system")
-	typ := New_Type(cb.Ctx()).(*Type)
+	typ := new(Type)
 	in := packer.Pack(map[string]interface{}{"type": "type", "id": "a"})
 	err := typ.Unpack(cb.Ctx(), in, false)
 	require.NoError(t, err)

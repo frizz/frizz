@@ -22,6 +22,8 @@ import (
 
 type SourceType string
 
+const FORCE_GENERATE = true
+
 const (
 	S_STRUCTS SourceType = "structs"
 	S_TYPES   SourceType = "types"
@@ -54,7 +56,7 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 		return kerr.Wrap("SIMBVNBWOV", err)
 	}
 
-	if !found || info.Hash != pi.Hash {
+	if FORCE_GENERATE || !found || info.Hash != pi.Hash {
 		if err := Generate(ctx, pi.Env); err != nil {
 			return kerr.Wrap("TUFKDUPWMD", err)
 		}

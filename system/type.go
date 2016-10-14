@@ -22,6 +22,26 @@ const (
 	KindArray     Kind = "array"     // []T
 )
 
+func (t *Type) PassedAsPointer(ctx context.Context) bool {
+	kind, alias := t.Kind(ctx)
+	switch kind {
+	case KindStruct:
+		return true
+	case KindValue:
+		if alias {
+			return true
+		}
+	}
+	return false
+}
+
+func (t *Type) PassedAsPointerString(ctx context.Context) string {
+	if t.PassedAsPointer(ctx) {
+		return "*"
+	}
+	return ""
+}
+
 func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
 	if t.Id.Package == "kego.io/json" {
 		return KindValue, false
@@ -190,7 +210,10 @@ func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
 	}
 }
 
-func (t *Type) NativeJsonType() packer.Type {
+func (t *Type) NativeJsonType(ctx context.Context) packer.Type {
+	if t.Alias != nil {
+		return WrapRule(ctx, t.Alias).Parent.NativeJsonType(ctx)
+	}
 	switch t.Native.Value() {
 	case "number":
 		return packer.J_NUMBER
@@ -242,6 +265,14 @@ func (t *Type) IsNativeObject() bool {
 }
 func (t *Type) NativeValueGolangType() (string, error) {
 	return nativeGoType(t.Native.Value())
+}
+
+func (t *Type) AllEmbeds() []*Reference {
+	var out []*Reference
+	if !t.Basic {
+		out = append(out, NewReference("kego.io/system", "object"))
+	}
+	return append(out, t.Embed...)
 }
 
 func (t *Type) FieldOrigins() []*Reference {

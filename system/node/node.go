@@ -447,7 +447,7 @@ func (n *Node) setValue(ctx context.Context, in packer.Packed, unpack bool) erro
 		n.setVal(reflect.ValueOf(n.Value))
 	}
 
-	switch n.Type.NativeJsonType() {
+	switch n.Type.NativeJsonType(ctx) {
 	case packer.J_STRING:
 		if in.Type() == packer.J_MAP {
 			n.ValueString = in.Map()["value"].String()
@@ -528,7 +528,7 @@ func (n *Node) setType(ctx context.Context, t *system.Type) error {
 		return kerr.New("VHOSYBMDQL", "Can't set type to an interface - must be concrete type.")
 	}
 	n.Type = t
-	n.JsonType = t.NativeJsonType()
+	n.JsonType = t.NativeJsonType(ctx)
 
 	if t.Alias != nil {
 		rw := system.WrapRule(ctx, t.Alias)
@@ -577,7 +577,7 @@ func (n *Node) setZero(ctx context.Context, null bool, missing bool) error {
 		n.JsonType = packer.J_NULL
 	} else {
 		// if this node was previously null, we must reset the json type
-		n.JsonType = n.Type.NativeJsonType()
+		n.JsonType = n.Type.NativeJsonType(ctx)
 	}
 
 	var rv reflect.Value

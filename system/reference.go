@@ -23,6 +23,11 @@ type Reference struct {
 	Name    string
 }
 
+func New_Reference(ctx context.Context) interface{} {
+	v := new(Reference)
+	return v
+}
+
 func (r *Reference) Label(ctx context.Context) string {
 	if r == nil {
 		return ""
@@ -255,6 +260,9 @@ func (s SortableReferences) Less(i, j int) bool {
 }
 
 func (r *ReferenceRule) GetDefault() interface{} {
+	if r.Default == nil {
+		return nil
+	}
 	return r.Default
 }
 

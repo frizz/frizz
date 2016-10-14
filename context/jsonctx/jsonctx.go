@@ -48,7 +48,7 @@ func (c *JsonCache) GetType(path string, name string) (reflect.Type, bool) {
 	}
 }
 
-func (c *JsonCache) GetNewFunc(path string, name string) (func(context.Context) interface{}, bool) {
+func (c *JsonCache) GetNewFunc(path string, name string) (func() interface{}, bool) {
 	rule := false
 	if strings.HasPrefix(name, RULE_PREFIX) {
 		rule = true
@@ -163,8 +163,8 @@ type JsonTypeInfo struct {
 	Type     reflect.Type
 	Rule     reflect.Type
 	Iface    reflect.Type
-	NewFunc  func(context.Context) interface{}
-	RuleFunc func(context.Context) interface{}
+	NewFunc  func() interface{}
+	RuleFunc func() interface{}
 }
 
 func (c *JsonPackages) Len() int {

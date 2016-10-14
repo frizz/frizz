@@ -10,7 +10,6 @@ import (
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
-	"kego.io/packer"
 	"kego.io/process/parser"
 	"kego.io/process/scanner"
 	"kego.io/system"
@@ -52,11 +51,8 @@ func Scan(ctx context.Context, path string) (*Package, error) {
 		if b.Err != nil {
 			return nil, kerr.Wrap("IPUHPBBWEA", b.Err)
 		}
-		o := &struct {
-			Id   *system.Reference `json:"id"`
-			Type *system.Reference `json:"type"`
-		}{}
-		if err := packer.Unmarshal(localContext, b.Bytes, o); err != nil {
+		o := &system.ObjectStub{}
+		if err := system.Unmarshal(localContext, b.Bytes, o); err != nil {
 			return nil, kerr.Wrap("DCAGIDLXRT", err)
 		}
 		if o.Type == nil {

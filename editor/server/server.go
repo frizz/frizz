@@ -33,7 +33,7 @@ import (
 	"kego.io/editor/server/auther"
 	"kego.io/editor/server/static"
 	"kego.io/editor/shared"
-	"kego.io/ke"
+	"kego.io/packer"
 	"kego.io/process"
 	"kego.io/process/generate"
 	"kego.io/process/parser"
@@ -241,7 +241,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request, auth au
 	pkgBytes := pcache.PackageBytes
 	pkgFilename := pcache.PackageFilename
 	if pkgBytes == nil {
-		b, err := ke.MarshalContext(ctx, system.EmptyPackage())
+		b, err := packer.Marshal(ctx, system.EmptyPackage())
 		if err != nil {
 			return kerr.Wrap("OUBOTYGPKU", err)
 		}

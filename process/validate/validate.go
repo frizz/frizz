@@ -100,7 +100,7 @@ func buildRulesObject(ctx context.Context, n *node.Node, cache map[*node.Node][]
 	}
 
 	// Validate the children
-	switch n.Type.NativeJsonType() {
+	switch n.Type.NativeJsonType(ctx) {
 	case packer.J_OBJECT:
 		if err := buildRulesObjectChildren(ctx, n, cache); err != nil {
 			return kerr.Wrap("WLGMAVXNQN", err)

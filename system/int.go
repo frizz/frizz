@@ -14,6 +14,11 @@ import (
 
 type Int int
 
+func New_Int(ctx context.Context) interface{} {
+	v := new(Int)
+	return v
+}
+
 func NewInt(i int) *Int {
 	out := Int(i)
 	return &out
@@ -132,6 +137,9 @@ func (i Int) NativeNumber() float64 {
 var _ NativeNumber = (*Int)(nil)
 
 func (r *IntRule) GetDefault() interface{} {
+	if r.Default == nil {
+		return nil
+	}
 	return r.Default
 }
 

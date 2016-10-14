@@ -201,6 +201,9 @@ func (s String) NativeString() string {
 var _ NativeString = (*String)(nil)
 
 func (r *StringRule) GetDefault() interface{} {
+	if r.Default == nil {
+		return nil
+	}
 	return r.Default
 }
 

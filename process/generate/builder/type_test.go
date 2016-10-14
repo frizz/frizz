@@ -1,21 +1,18 @@
 package builder
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
 	"kego.io/process/parser"
 
-	"context"
-
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"kego.io/context/envctx"
 	"kego.io/system"
 	"kego.io/tests"
 )
 
+/*
 func TestFormatTag(t *testing.T) {
 	type parentStruct struct {
 		*system.Object
@@ -63,6 +60,7 @@ func TestFormatTag(t *testing.T) {
 	_, err = formatTag(ctx, "n", []byte(`foo`), r)
 	assert.IsError(t, err, "LKBWJTMJCF")
 }
+
 
 type structWithCustomMarshaler struct {
 	*system.Object
@@ -217,6 +215,7 @@ func TestGetTag(t *testing.T) {
 	assert.Equal(t, "`json:\"n\"`", s)
 
 }
+*/
 
 func TestGoTypeDescriptor(t *testing.T) {
 
@@ -243,7 +242,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	s, err = FieldTypeDefinition(cb.Ctx(), "n", p, "kego.io/system", i.Add)
 	require.NoError(t, err)
-	assert.Equal(t, "packer.StringInterface `json:\"n\"`", s)
+	assert.Equal(t, "json.StringInterface `json:\"n\"`", s)
 
 	p = &system.StringRule{
 		Object: &system.Object{
@@ -321,7 +320,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	s, err = FieldTypeDefinition(cb.Ctx(), "n", p, "kego.io/system", i.Add)
 	require.NoError(t, err)
-	assert.Equal(t, "*String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
+	assert.Equal(t, "*String `json:\"n\"`", s)
 
 	pm := &system.MapRule{
 		Object: &system.Object{
@@ -398,7 +397,7 @@ func TestGoTypeDescriptor(t *testing.T) {
 	}
 	s, err = FieldTypeDefinition(cb.Ctx(), "n", pm, "kego.io/system", i.Add)
 	require.NoError(t, err)
-	assert.Equal(t, "map[string][]*String `kego:\"{\\\"default\\\":{\\\"value\\\":\\\"a\\\"}}\" json:\"n\"`", s)
+	assert.Equal(t, "map[string][]*String `json:\"n\"`", s)
 
 	cb.Path("b.c/d")
 

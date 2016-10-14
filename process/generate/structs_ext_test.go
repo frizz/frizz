@@ -9,9 +9,9 @@ import (
 	"github.com/davelondon/ktest/require"
 	"kego.io/process/generate"
 	"kego.io/tests"
-	"kego.io/tests/ext"
 )
 
+/*
 func TestStructs(t *testing.T) {
 	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
@@ -262,6 +262,7 @@ func testAlias(t *testing.T, cb *tests.ContextBuilder) {
 	assert.Regexp(t, `FieldAliasCustomStruct\s+\*TypeAliasCustomStruct`, source)
 
 }
+*/
 
 func TestGenerateSourceErr1(t *testing.T) {
 	cb := tests.Context("a.b/c").Sempty()

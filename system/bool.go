@@ -51,6 +51,9 @@ func (b Bool) NativeBool() bool {
 var _ NativeBool = (*Bool)(nil)
 
 func (r *BoolRule) GetDefault() interface{} {
+	if r.Default == nil {
+		return nil
+	}
 	return r.Default
 }
 
