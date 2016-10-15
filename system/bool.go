@@ -1,10 +1,6 @@
 package system
 
-import (
-	"context"
-
-	"kego.io/packer"
-)
+import "kego.io/packer"
 
 func NewBool(b bool) *Bool {
 	out := Bool(b)
@@ -17,14 +13,7 @@ func (b *Bool) Value() bool {
 
 var _ packer.Unpacker = (*Bool)(nil)
 
-func (b *Bool) Repack(ctx context.Context) (interface{}, error) {
-	if b == nil {
-		return nil, nil
-	}
-	return formatBool(b), nil
-}
-
-var _ packer.Repacker = (*Bool)(nil)
+//var _ packer.Repacker = (*Bool)(nil)
 
 func (b *Bool) String() string {
 	if b == nil {

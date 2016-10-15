@@ -54,19 +54,19 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 func TestBoolRepack(t *testing.T) {
 
 	var b *Bool
-	ba, err := b.Repack(envctx.Empty)
+	ba, _, _, err := b.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, nil, ba)
 
 	b = NewBool(false)
-	ba, err = b.Repack(envctx.Empty)
+	ba, _, _, err = b.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, "false", ba)
+	assert.Equal(t, false, ba)
 
 	b = NewBool(true)
-	ba, err = b.Repack(envctx.Empty)
+	ba, _, _, err = b.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, "true", ba)
+	assert.Equal(t, true, ba)
 
 }
 

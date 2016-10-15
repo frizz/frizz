@@ -110,11 +110,11 @@ func (v *Int) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
 var _ packer.Unpacker = (*Int)(nil)
 
-func (n *Int) Repack(ctx context.Context) (interface{}, error) {
+func (n *Int) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if n == nil {
-		return nil, nil
+		return nil, "kego.io/system", "int", nil
 	}
-	return formatInt(n), nil
+	return float64(*n), "kego.io/system", "int", nil
 }
 
 var _ packer.Repacker = (*Int)(nil)

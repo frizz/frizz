@@ -15,8 +15,8 @@ type Repacker interface {
 	// If iface is true, we are packing into an interface type, so map types are
 	// always specified in specific typed form: {"type": "mytype", "value":
 	// {"foo": "bar"}}
-	//Repack(ctx context.Context, iface bool) (interface{}, error)
-	Repack(ctx context.Context) (interface{}, error)
+	// Repack(ctx context.Context, iface bool) (interface{}, error)
+	Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error)
 }
 
 func Marshal(ctx context.Context, in interface{}) ([]byte, error) {

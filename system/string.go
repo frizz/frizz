@@ -10,7 +10,6 @@ import (
 	"bytes"
 
 	"github.com/davelondon/kerr"
-	"kego.io/packer"
 )
 
 func NewString(s string) *String {
@@ -174,14 +173,7 @@ func truncate(s string, length int) string {
 
 var _ Enforcer = (*StringRule)(nil)
 
-func (s *String) Repack(ctx context.Context) (interface{}, error) {
-	if s == nil {
-		return nil, nil
-	}
-	return strconv.Quote(s.Value()), nil
-}
-
-var _ packer.Repacker = (*String)(nil)
+//var _ packer.Repacker = (*String)(nil)
 
 func (s *String) String() string {
 	if s == nil {

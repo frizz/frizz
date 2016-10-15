@@ -102,14 +102,7 @@ var _ Enforcer = (*NumberRule)(nil)
 
 var _ packer.Unpacker = (*Number)(nil)
 
-func (n *Number) Repack(ctx context.Context) (interface{}, error) {
-	if n == nil {
-		return nil, nil
-	}
-	return formatFloat(n), nil
-}
-
-var _ packer.Repacker = (*Number)(nil)
+//var _ packer.Repacker = (*Number)(nil)
 
 func (n *Number) String() string {
 	if n == nil {

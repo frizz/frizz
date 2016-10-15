@@ -201,7 +201,7 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	s = NewString("")
 	err = s.Unpack(envctx.Empty, packer.Pack(1.0), false)
-	assert.IsError(t, err, "LXNBXXRGLS")
+	assert.Error(t, err)
 
 }
 
@@ -209,14 +209,14 @@ func TestStringMarshalJSON(t *testing.T) {
 
 	var s *String
 
-	ba, err := s.Repack(envctx.Empty)
+	ba, _, _, err := s.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, nil, ba)
 
 	s = NewString(`foo "bar"`)
-	ba, err = s.Repack(envctx.Empty)
+	ba, _, _, err = s.Repack(envctx.Empty)
 	require.NoError(t, err)
-	assert.Equal(t, `"foo \"bar\""`, ba)
+	assert.Equal(t, `foo "bar"`, ba)
 
 }
 
