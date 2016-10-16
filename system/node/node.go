@@ -12,7 +12,6 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/ke"
 	"kego.io/packer"
 	"kego.io/system"
 )
@@ -437,12 +436,18 @@ func (n *Node) setValue(ctx context.Context, in packer.Packed, unpack bool) erro
 				return kerr.Wrap("DQJDYPIANO", err)
 			}
 
-			val := reflect.New(t).Elem()
-			n.Value = val.Interface()
+			var val reflect.Value
+			if t.Kind() == reflect.Ptr {
+				val = reflect.New(t.Elem())
+			} else {
+				val = reflect.New(t).Elem()
+			}
 
-			if err := system.Unpack(ctx, in, n.Value); err != nil {
+			if err := system.UnpackRefelctValue(ctx, in, val); err != nil {
 				return kerr.Wrap("PEVKGFFHLL", err)
 			}
+
+			n.Value = val.Interface()
 		}
 		n.setVal(reflect.ValueOf(n.Value))
 	}
@@ -961,7 +966,7 @@ func (n *Node) NativeValue() interface{} {
 }
 
 func (n *Node) Print(ctx context.Context) string {
-	b, err := ke.Marshal(ctx, n.Value)
+	b, err := system.Marshal(ctx, n.Value)
 	if err != nil {
 		// ke: {"block": {"notest": true}}
 		return err.Error()

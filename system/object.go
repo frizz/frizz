@@ -59,7 +59,7 @@ func (v *ObjectStub) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 
 	if field, ok := in.Map()["id"]; ok {
 		if v.Id == nil {
-			v.Id = New_Reference(ctx).(*Reference)
+			v.Id = new(Reference)
 		}
 		if err := v.Id.Unpack(ctx, field, false); err != nil {
 			return err
@@ -68,7 +68,7 @@ func (v *ObjectStub) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 
 	if field, ok := in.Map()["type"]; ok {
 		if v.Type == nil {
-			v.Type = New_Reference(ctx).(*Reference)
+			v.Type = new(Reference)
 		}
 		if err := v.Type.Unpack(ctx, field, false); err != nil {
 			return err

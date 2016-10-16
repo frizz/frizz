@@ -6,13 +6,10 @@ import (
 	"reflect"
 	"sync"
 
-	"strings"
-
 	"fmt"
 
 	"context"
 
-	"github.com/davelondon/kerr"
 	"kego.io/context/cmdctx"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
@@ -230,30 +227,6 @@ func (c *ContextBuilder) Jsystem() *ContextBuilder {
 	return c
 }
 
-func (c *ContextBuilder) Jtype(name string, typ reflect.Type) *ContextBuilder {
-	env := c.initEnv()
-	return c.JtypePathRule(env.Path, name, typ, nil)
-}
-func (c *ContextBuilder) JtypeIface(name string, typ reflect.Type, iface reflect.Type) *ContextBuilder {
-	env := c.initEnv()
-	return c.JtypePathRuleIface(env.Path, name, typ, nil, iface)
-}
-func (c *ContextBuilder) Jiface(name string, iface reflect.Type) *ContextBuilder {
-	env := c.initEnv()
-	return c.JtypePathRuleIface(env.Path, name, nil, nil, iface)
-}
-func (c *ContextBuilder) JtypeRule(name string, typ reflect.Type, rule reflect.Type) *ContextBuilder {
-	env := c.initEnv()
-	return c.JtypePathRule(env.Path, name, typ, rule)
-}
-func (c *ContextBuilder) JtypePath(path string, name string, typ reflect.Type) *ContextBuilder {
-	return c.JtypePathRule(path, name, typ, nil)
-}
-
-func (c *ContextBuilder) JtypePathRule(path string, name string, typ reflect.Type, rule reflect.Type) *ContextBuilder {
-	return c.JtypePathRuleIface(path, name, typ, rule, nil)
-}
-
 func (c *ContextBuilder) Jpkg(path string, hash uint64) *ContextBuilder {
 	if path == "" {
 		panic("must specify path")
@@ -266,44 +239,6 @@ func (c *ContextBuilder) Jpkg(path string, hash uint64) *ContextBuilder {
 	}
 	jcache.Packages.Set(path, hash)
 	return c
-}
-
-func (c *ContextBuilder) JtypePathRuleIface(path string, name string, typ reflect.Type, rule reflect.Type, iface reflect.Type) *ContextBuilder {
-	if path == "" {
-		panic("must specify path")
-	}
-
-	jcache := c.initJson()
-
-	p, ok := jcache.Packages.Get(path)
-	if !ok {
-		p = jcache.Packages.Set(path, 0)
-	}
-	isrule := false
-	if strings.HasPrefix(name, jsonctx.RULE_PREFIX) {
-		if rule != nil {
-			panic(kerr.New("UBFYEAGXHJ", "rule specified!").Error())
-		}
-		isrule = true
-		name = name[1:]
-	}
-	if isrule {
-		p.Types.Set(name, &jsonctx.JsonTypeInfo{
-			Name:  name,
-			Rule:  typ,
-			Iface: iface,
-		})
-	} else {
-		p.Types.Set(name, &jsonctx.JsonTypeInfo{
-			Name:  name,
-			Type:  typ,
-			Rule:  rule,
-			Iface: iface,
-		})
-	}
-
-	return c
-
 }
 
 func (c *ContextBuilder) Sempty() *ContextBuilder {
@@ -367,13 +302,6 @@ func (c *ContextBuilder) StypePath(path string, name string, typ interface{}) *C
 
 	p.Types.Set(name, "", typ)
 
-	return c
-}
-
-func (c *ContextBuilder) AllPath(path string, name string, typ reflect.Type, rule reflect.Type, typTyp interface{}, ruleTyp interface{}) *ContextBuilder {
-	c.JtypePathRule(path, name, typ, rule)
-	c.StypePath(path, name, typTyp)
-	c.StypePath(path, jsonctx.RULE_PREFIX+name, ruleTyp)
 	return c
 }
 

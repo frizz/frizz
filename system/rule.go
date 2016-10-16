@@ -5,6 +5,8 @@ import (
 
 	"context"
 
+	"fmt"
+
 	"github.com/davelondon/kerr"
 	"kego.io/context/jsonctx"
 	"kego.io/packer"
@@ -29,6 +31,52 @@ type DummyRule struct {
 	Items   RuleInterface
 }
 
+func (v *DummyRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if field, ok := in.Map()["items"]; ok && field.Type() != packer.J_NULL {
+		ob, err := UnpackRuleInterface(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Items = ob
+	}
+	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+		ob, err := UnpackInterface(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Default = ob
+	}
+	return nil
+}
+
+func UnpackInterface(ctx context.Context, in packer.Packed) (interface{}, error) {
+	switch in.Type() {
+	case packer.J_MAP:
+		i, err := UnpackUnknownType(ctx, in, true, "", "")
+		if err != nil {
+			return nil, err
+		}
+		return i, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into interface{}.", in.Type())
+	}
+}
+
 func (d *DummyRule) GetDefault() interface{} {
 	if d.Default == nil {
 		return nil
@@ -41,10 +89,14 @@ func (d *DummyRule) GetItemsRule() RuleInterface {
 }
 
 var _ DefaultRule = (*DummyRule)(nil)
+var _ packer.Unpacker = (*DummyRule)(nil)
 var _ CollectionRule = (*DummyRule)(nil)
 
 func init() {
 	jsonctx.InitDummy(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
+
+	pkg := jsonctx.InitPackage("kego.io/system")
+	pkg.Dummy("rule", func() interface{} { return new(DummyRule) })
 }
 
 type RuleWrapper struct {
@@ -135,21 +187,28 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	if c, ok := r.Interface.(CollectionRule); ok {
 		itemsRule := c.GetItemsRule()
-		items := WrapRule(r.Ctx, itemsRule)
-		itemsType, err := items.GetReflectType()
-		if err != nil {
-			return nil, kerr.Wrap("LMKEHHWHKL", err)
+		if itemsRule != nil {
+			items := WrapRule(r.Ctx, itemsRule)
+			itemsType, err := items.GetReflectType()
+			if err != nil {
+				return nil, kerr.Wrap("LMKEHHWHKL", err)
+			}
+			if r.Parent.NativeJsonType(r.Ctx) == packer.J_MAP {
+				return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
+			}
+			return reflect.SliceOf(itemsType), nil
 		}
-		if r.Parent.NativeJsonType(r.Ctx) == packer.J_MAP {
-			return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
-		}
-		return reflect.SliceOf(itemsType), nil
 	}
 
 	typ, ok := r.Parent.Id.GetReflectType(r.Ctx)
 	if !ok {
 		return nil, kerr.New("DLAJJPJDPL", "Type %s not found", r.Parent.Id.Value())
 	}
+
+	if r.Parent.Interface {
+		typ = typ.Elem()
+	}
+
 	return typ, nil
 
 }

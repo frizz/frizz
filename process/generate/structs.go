@@ -52,6 +52,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 		typ := t.Type.(*system.Type)
 
 		isRule := typ.Id.IsRule()
+		isNativeCollection := typ.IsNativeCollection() && typ.Alias == nil
 
 		if !typ.Interface && !typ.Custom {
 			if typ.Alias != nil {
@@ -65,19 +66,16 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 			}
 		}
 
-		if !typ.Interface && !isRule {
+		if !typ.Interface && !isRule && !isNativeCollection {
 			printInterfaceDefinition(ctx, env, g, typ)
 			printInterfaceImplementation(ctx, env, g, typ)
 		}
 
-		if !isRule {
+		if !isRule && !isNativeCollection {
 			printInterfaceUnpacker(ctx, env, g, typ)
 		}
 
-		isCustom := typ.Custom
-		isInterface := typ.Interface
-		isNativeCollection := typ.IsNativeCollection() && typ.Alias == nil
-		if !isCustom && !isInterface && !isNativeCollection {
+		if !typ.Custom && !typ.Interface && !isNativeCollection {
 			if err := printUnpacker(ctx, env, g, typ); err != nil {
 				return nil, kerr.Wrap("YJNWUAUKXI", err)
 			}
@@ -208,7 +206,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 			}
 			g.Println("return ob0, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
 		case system.KindMap:
-			if err := printRepackCode(ctx, env, g, "v", "ob0", 0, typ.Alias, false); err != nil {
+			if err := printRepackCode(ctx, env, g, "(*v)", "ob0", 0, typ.Alias, false); err != nil {
 				return kerr.Wrap("HBSGXLGKCD", err)
 			}
 			g.Println("return ob0, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
@@ -332,9 +330,13 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 			for n, f := range structType.Fields {
 				g.Println("if field, ok := in.Map()[", strconv.Quote(n), "]; ok && field.Type() != ", packerPkg, ".J_NULL {")
 				{
-					if err := printUnpackCode(ctx, env, g, n, f, true); err != nil {
+					in := "field"
+					out := "ob0"
+					depth := 0
+					if err := printUnpackCode(ctx, env, g, in, out, depth, f); err != nil {
 						return kerr.Wrap("QLARKEBDBJ", err)
 					}
+					g.Println("v.", system.GoName(n), " = ", out)
 				}
 				if dr, ok := f.(system.DefaultRule); ok && dr.GetDefault() != nil {
 					g.Println("} else {")
@@ -343,10 +345,13 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 						if err != nil {
 							return kerr.Wrap("DLOUEHXVJF", err)
 						}
-						g.Println("field = packer.Pack(", string(b), ")")
-						if err := printUnpackCode(ctx, env, g, n, f, true); err != nil {
+						in := "packer.Pack(" + string(b) + ")"
+						out := "ob0"
+						depth := 0
+						if err := printUnpackCode(ctx, env, g, in, out, depth, f); err != nil {
 							return kerr.Wrap("UOWRFWSTNT", err)
 						}
+						g.Println("v.", system.GoName(n), " = ", out)
 					}
 					g.Println("}")
 				} else {
@@ -397,18 +402,38 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 			}
 			g.Println("}")
 
-			g.Println("for _, field := range in.Array() {")
+			in := "in"
+			out := "ob0"
+			depth := 0
+			if err := printUnpackCode(ctx, env, g, in, out, depth, typ.Alias); err != nil {
+				return kerr.Wrap("VELYRXXGMC", err)
+			}
+			g.Println("*v = ", out)
+		case system.KindMap:
+			g.Println("if iface {")
 			{
-				items, err := system.WrapRule(ctx, typ.Alias).ItemsRule()
-				if err != nil {
-					return kerr.Wrap("HPGPXLJOIC", err)
+				g.Println("if in.Type() != ", packerPkg, ".J_MAP {")
+				{
+					g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking a map.", in.Type())`)
 				}
-				if err := printUnpackCode(ctx, env, g, "", items.Interface, false); err != nil {
-					return kerr.Wrap("VELYRXXGMC", err)
-				}
-				g.Println("*v = append(*v, ob)")
+				g.Println("}")
+				g.Println("in = in.Map()[\"value\"]")
 			}
 			g.Println("}")
+
+			g.Println("if in.Type() != ", packerPkg, ".J_MAP {")
+			{
+				g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking an array.", in.Type())`)
+			}
+			g.Println("}")
+
+			in := "in"
+			out := "ob0"
+			depth := 0
+			if err := printUnpackCode(ctx, env, g, in, out, depth, typ.Alias); err != nil {
+				return kerr.Wrap("TNEIUAFUNY", err)
+			}
+			g.Println("*v = ", out)
 		}
 	}
 	g.Println("return nil")
@@ -416,28 +441,23 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 	return nil
 }
 
-func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, n string, f system.RuleInterface, store bool) error {
+func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, in string, out string, depth int, f system.RuleInterface) error {
 	field := system.WrapRule(ctx, f)
-	fieldName := system.GoName(n)
 	fieldType := field.Parent
 	fieldTypeName := builder.Reference(fieldType.Id.Package, system.GoName(fieldType.Id.Name), env.Path, g.Imports.Add)
 	kind, alias := field.Kind(ctx)
 	switch {
 	case kind == system.KindStruct || alias:
-		ptr := ""
-		if !fieldType.PassedAsPointer(ctx) {
-			// TODO: Do we really want to pass aliased arrays as not pointers?
-			ptr = "*"
-		}
-		g.Println("ob := ", ptr, "new(", fieldTypeName, ")")
-		g.Println("if err := ob.Unpack(ctx, field, false); err != nil {")
+		ptr := fieldType.PassedAsPointerInverseString(ctx)
+		g.Println(out, " := ", ptr, "new(", fieldTypeName, ")")
+		g.Println("if err := ", out, ".Unpack(ctx, ", in, ", false); err != nil {")
 		{
 			g.Println("return err")
 		}
 		g.Println("}")
-		if store {
-			g.Println("v.", fieldName, " = ob")
-		}
+		//if store {
+		//	g.Println("v.", fieldName, " = ob")
+		//}
 	case kind == system.KindValue:
 		var funcName string
 		switch fieldType.NativeJsonType(ctx) {
@@ -451,15 +471,15 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, n
 			return kerr.New("LSGUACQGHB", "Kind == KindValue but native json type==%s", fieldType.NativeJsonType(ctx))
 		}
 		funcRef := builder.Reference("kego.io/system", funcName, env.Path, g.Imports.Add)
-		g.Println("ob, err := ", funcRef, "(ctx, field)")
+		g.Println(out, ", err := ", funcRef, "(ctx, ", in, ")")
 		g.Println("if err != nil {")
 		{
 			g.Println("return err")
 		}
 		g.Println("}")
-		if store {
-			g.Println("v.", fieldName, " = ob")
-		}
+		//if store {
+		//	g.Println("v.", fieldName, " = ob")
+		//}
 	case kind == system.KindInterface:
 		var interfaceName string
 		if fieldType.Interface {
@@ -468,62 +488,71 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, n
 			interfaceName = system.GoInterfaceName(fieldType.Id.Name)
 		}
 		unpackFuncName := builder.Reference(fieldType.Id.Package, "Unpack"+interfaceName, env.Path, g.Imports.Add)
-		g.Println("ob, err := ", unpackFuncName, "(ctx, field)")
+		g.Println(out, ", err := ", unpackFuncName, "(ctx, ", in, ")")
 		g.Println("if err != nil {")
 		{
 			g.Println("return err")
 		}
 		g.Println("}")
-		if store {
-			g.Println("v.", fieldName, " = ob")
-		}
+		//if store {
+		//	g.Println("v.", fieldName, " = ob")
+		//}
 	case kind == system.KindArray:
 		packerPkg := g.Imports.Add("kego.io/packer")
 		fmtPkg := g.Imports.Add("fmt")
-		g.Println("if field.Type() != ", packerPkg, ".J_ARRAY {")
+		g.Println("if ", in, ".Type() != ", packerPkg, ".J_ARRAY {")
 		{
-			g.Println("return ", fmtPkg, ".Errorf(\"Unsupported json type %s found while unpacking into an array.\", field.Type())")
+			g.Println("return ", fmtPkg, ".Errorf(\"Unsupported json type %s found while unpacking into an array.\", ", in, ".Type())")
 		}
 		g.Println("}")
-		g.Println("for _, field := range field.Array() {")
+		fieldType, err := builder.TypeDefinition(ctx, f, env.Path, g.Imports.Add)
+		if err != nil {
+			return kerr.Wrap("IHNYODUIKG", err)
+		}
+		g.Println(out, " := ", fieldType, "{}")
+		iVar := fmt.Sprintf("i%d", depth)
+		g.Println("for ", iVar, " := range ", in, ".Array() {")
 		{
-			items, err := field.ItemsRule()
+			childRule, err := field.ItemsRule()
 			if err != nil {
 				return kerr.Wrap("PJQBRUEHLD", err)
 			}
-			if err := printUnpackCode(ctx, env, g, n, items.Interface, false); err != nil {
+			childDepth := depth + 1
+			childIn := in + ".Array()[" + iVar + "]"
+			childOut := fmt.Sprintf("ob%d", childDepth)
+			if err := printUnpackCode(ctx, env, g, childIn, childOut, childDepth, childRule.Interface); err != nil {
 				return kerr.Wrap("XCHEJPDJDS", err)
 			}
-			g.Println("v.", fieldName, " = append(v.", fieldName, ", ob)")
+			g.Println(out, " = append(", out, ", ", childOut, ")")
 		}
 		g.Println("}")
 	case kind == system.KindMap:
 		packerPkg := g.Imports.Add("kego.io/packer")
 		fmtPkg := g.Imports.Add("fmt")
-		g.Println("if field.Type() != ", packerPkg, ".J_MAP {")
+		g.Println("if ", in, ".Type() != ", packerPkg, ".J_MAP {")
 		{
-			g.Println("return ", fmtPkg, ".Errorf(\"Unsupported json type %s found while unpacking into a map.\", field.Type())")
+			g.Println("return ", fmtPkg, ".Errorf(\"Unsupported json type %s found while unpacking into a map.\", ", in, ".Type())")
 		}
 		g.Println("}")
-		g.Println("for key, field := range field.Map() {")
+		fieldType, err := builder.TypeDefinition(ctx, f, env.Path, g.Imports.Add)
+		if err != nil {
+			return kerr.Wrap("IHNYODUIKG", err)
+		}
+		g.Println(out, " := ", fieldType, "{}")
+		kVar := fmt.Sprintf("k%d", depth)
+		g.Println("for ", kVar, " := range ", in, ".Map() {")
 		{
 			items, err := field.ItemsRule()
 			if err != nil {
 				return kerr.Wrap("FPOBYGVOPP", err)
 			}
-			if err := printUnpackCode(ctx, env, g, n, items.Interface, false); err != nil {
+			childDepth := depth + 1
+			childIn := in + ".Map()[" + kVar + "]"
+			childOut := fmt.Sprintf("ob%d", childDepth)
+			if err := printUnpackCode(ctx, env, g, childIn, childOut, childDepth, items.Interface); err != nil {
 				return kerr.Wrap("ONUJJGIKJE", err)
 			}
-			g.Println("if v.", fieldName, " == nil {")
-			{
-				typeDef, err := builder.TypeDefinition(ctx, f, env.Path, g.Imports.Add)
-				if err != nil {
-					return kerr.Wrap("OCSNHANPAC", err)
-				}
-				g.Println("v.", fieldName, " = make(", typeDef, ")")
-			}
-			g.Println("}")
-			g.Println("v.", fieldName, "[key] = ob")
+			g.Println(out, "[", kVar, "] = ", childOut)
 		}
 		g.Println("}")
 	}
@@ -549,8 +578,8 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, g *builder.Bui
 		{
 			g.Println("case ", packerPkg, ".J_MAP:")
 			{
-				unknownTypeFunc := builder.Reference("kego.io/system", "UnpackUnknownType", env.Path, g.Imports.Add)
-				g.Println("i, err := ", unknownTypeFunc, "(ctx, in, true)")
+				unknownTypeFunc := g.SprintFunctionCall("kego.io/system", "UnpackUnknownType", "ctx", "in", "true", strconv.Quote(typ.Id.Package), strconv.Quote(typ.Id.Name))
+				g.Println("i, err := ", unknownTypeFunc)
 				g.Println("if err != nil {")
 				{
 					g.Println("return nil, err")
@@ -682,10 +711,10 @@ func printInitFunction(ctx context.Context, env *envctx.Env, g *builder.Builder,
 			"kego.io/context/jsonctx",
 			"InitPackage",
 			strconv.Quote(env.Path),
-			env.Hash,
 		)
 		g.Println("")
-
+		g.PrintMethodCall("pkg", "SetHash", env.Hash)
+		g.Println("")
 		for _, name := range types.Keys() {
 			t, ok := types.Get(name)
 			if !ok {
@@ -699,26 +728,40 @@ func printInitFunction(ctx context.Context, env *envctx.Env, g *builder.Builder,
 				continue
 			}
 
-			if typ.Alias == nil && typ.IsNativeCollection() {
-				// pkg.InitNew("array", nil, New_ArrayRule)
-				// pkg.InitNew("array", nil, func() interface{} {return new(Reference)})
-				g.PrintMethodCall(
-					"pkg",
-					"InitNew",
-					strconv.Quote(typ.Id.Name),
-					"nil",
-					"func() interface{} { return new("+system.GoName(typ.Id.ChangeToRule().Name)+")}",
-				)
-			} else {
-				// pkg.InitNew("int", New_Int, New_IntRule)
-				g.PrintMethodCall(
-					"pkg",
-					"InitNew",
-					strconv.Quote(typ.Id.Name),
-					"func() interface{} { return new("+system.GoName(typ.Id.Name)+")}",
-					"func() interface{} { return new("+system.GoName(typ.Id.ChangeToRule().Name)+")}",
-				)
+			interfaceFunc := "nil"
+			isNativeCollection := typ.IsNativeCollection() && typ.Alias == nil
+			if !isNativeCollection {
+				var ifaceName string
+				if typ.Interface {
+					ifaceName = system.GoName(typ.Id.Name)
+				} else {
+					ifaceName = system.GoInterfaceName(typ.Id.Name)
+				}
+				reflectTypeof := g.SprintFunctionCall(
+					"reflect",
+					"TypeOf",
+					fmt.Sprintf("(*%s)(nil)", ifaceName),
+				) + ".Elem()"
+				reflectType := builder.Reference("reflect", "Type", env.Path, g.Imports.Add)
+				interfaceFunc = "func() " + reflectType + " { return " + reflectTypeof + " }"
 			}
+
+			newFunc := "nil"
+			if typ.Interface {
+				newFunc = "func() interface{} { return (*" + system.GoName(typ.Id.Name) + ")(nil) }"
+			} else if !typ.IsNativeCollection() || typ.Alias != nil {
+				newFunc = "func() interface{} { return " + typ.PassedAsPointerInverseString(ctx) + "new(" + system.GoName(typ.Id.Name) + ")}"
+			}
+
+			g.PrintMethodCall(
+				"pkg",
+				"Init",
+				strconv.Quote(typ.Id.Name),
+				newFunc,
+				"func() interface{} { return new("+system.GoName(typ.Id.ChangeToRule().Name)+")}",
+				interfaceFunc,
+			)
+
 			g.Println("")
 		}
 	}

@@ -1,5 +1,5 @@
-// info:{"Path":"kego.io/demo/demo1","Hash":10713598547770441995}
-package demo1
+// info:{"Path":"kego.io/demo/demo4","Hash":15041727781809772107}
+package demo4
 
 // ke: {"file": {"notest": true}}
 
@@ -39,7 +39,7 @@ func (v *PageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) err
 }
 func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo1", "@page", nil
+		return nil, "kego.io/demo/demo4", "@page", nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -60,12 +60,11 @@ func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo1", "@page", nil
+	return m, "kego.io/demo/demo4", "@page", nil
 }
 
 type Page struct {
 	*system.Object
-	Body  *system.String `json:"body"`
 	Title *system.String `json:"title"`
 }
 type PageInterface interface {
@@ -78,7 +77,7 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 func UnpackPageInterface(ctx context.Context, in packer.Packed) (PageInterface, error) {
 	switch in.Type() {
 	case packer.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo1", "page")
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo4", "page")
 		if err != nil {
 			return nil, err
 		}
@@ -101,13 +100,6 @@ func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["body"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Body = ob0
-	}
 	if field, ok := in.Map()["title"]; ok && field.Type() != packer.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -119,7 +111,7 @@ func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 }
 func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo1", "page", nil
+		return nil, "kego.io/demo/demo4", "page", nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -131,13 +123,6 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
-	if v.Body != nil {
-		ob0, _, _, err := v.Body.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["body"] = ob0
-	}
 	if v.Title != nil {
 		ob0, _, _, err := v.Title.Repack(ctx)
 		if err != nil {
@@ -145,10 +130,10 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["title"] = ob0
 	}
-	return m, "kego.io/demo/demo1", "page", nil
+	return m, "kego.io/demo/demo4", "page", nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo1")
-	pkg.SetHash(10713598547770441995)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo4")
+	pkg.SetHash(15041727781809772107)
 	pkg.Init("page", func() interface{} { return new(Page) }, func() interface{} { return new(PageRule) }, func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() })
 }

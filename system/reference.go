@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"reflect"
-
 	"context"
 
 	"regexp"
+
+	"reflect"
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
@@ -19,11 +19,6 @@ import (
 type Reference struct {
 	Package string
 	Name    string
-}
-
-func New_Reference(ctx context.Context) interface{} {
-	v := new(Reference)
-	return v
 }
 
 func (r *Reference) Label(ctx context.Context) string {
@@ -134,9 +129,6 @@ func (v *Reference) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	if in == nil || in.Type() == packer.J_NULL {
 		return kerr.New("MOQVSKJXRB", "Called Reference.Unpack with nil value")
 	}
-	if v == nil {
-		v = New_Reference(ctx).(*Reference)
-	}
 	if in.Type() == packer.J_MAP {
 		in = in.Map()["value"]
 	}
@@ -207,16 +199,27 @@ func (r Reference) GetType(ctx context.Context) (*Type, bool) {
 }
 
 func (r Reference) GetReflectType(ctx context.Context) (reflect.Type, bool) {
-	if t, ok := jsonctx.FromContext(ctx).GetType(r.Package, r.Name); ok {
-		return t, true
+	nf, ok := jsonctx.FromContext(ctx).GetNewFunc(r.Package, r.Name)
+	if !ok {
+		return nil, false
 	}
-	return nil, false
+	return reflect.TypeOf(nf()), true
 }
-func (r Reference) GetReflectInterface(ctx context.Context) (reflect.Type, bool) {
-	if t, ok := jsonctx.FromContext(ctx).GetInterface(r.Package, r.Name); ok {
-		return t, true
+
+func (r Reference) GetDummy(ctx context.Context) (interface{}, bool) {
+	df, ok := jsonctx.FromContext(ctx).GetDummyFunc(r.Package, r.Name)
+	if !ok {
+		return nil, false
 	}
-	return nil, false
+	return df(), true
+}
+
+func (r Reference) GetReflectInterface(ctx context.Context) (reflect.Type, bool) {
+	ifunc, ok := jsonctx.FromContext(ctx).GetInterfaceFunc(r.Package, r.Name)
+	if !ok {
+		return nil, false
+	}
+	return ifunc(), true
 }
 
 func (r Reference) ChangeToType() Reference {

@@ -1,7 +1,6 @@
 package system
 
 import (
-	"reflect"
 	"sort"
 	"testing"
 
@@ -325,6 +324,7 @@ func TestNewReferenceFromString(t *testing.T) {
 
 }
 
+/*
 func TestGetReflectType(t *testing.T) {
 	a := ""
 	r := reflect.TypeOf(a)
@@ -338,7 +338,9 @@ func TestGetReflectType(t *testing.T) {
 	rt, ok = ref.GetReflectType(cb.Ctx())
 	assert.False(t, ok)
 }
+*/
 
+/*
 func TestGetReflectInterface(t *testing.T) {
 	a := ""
 	r := reflect.TypeOf(a)
@@ -352,6 +354,7 @@ func TestGetReflectInterface(t *testing.T) {
 	rt, ok = ref.GetReflectInterface(cb.Ctx())
 	assert.False(t, ok)
 }
+*/
 
 func TestGetDefault(t *testing.T) {
 	rr := &ReferenceRule{Default: NewReference("a.b/c", "d")}

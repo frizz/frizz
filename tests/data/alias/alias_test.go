@@ -5,8 +5,8 @@ import (
 
 	"github.com/davelondon/ktest/require"
 
-	"kego.io/ke"
 	"kego.io/process/parser"
+	"kego.io/system"
 	"kego.io/tests"
 )
 
@@ -18,7 +18,7 @@ func Test(t *testing.T) {
   "a": {"a": {"type":"simple", "js": "a0"}, "b": {"type":"simple", "js": "b0"}}
 }`
 	var m Main
-	err := ke.UnmarshalUntyped(cb.Ctx(), []byte(s), &m)
+	err := system.Unmarshal(cb.Ctx(), []byte(s), &m)
 	require.NoError(t, err)
 	require.Equal(t, "a0", m.A["a"].Js)
 	require.Equal(t, "b0", m.A["b"].Js)

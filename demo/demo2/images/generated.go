@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/demo7/images","Hash":14109639835138036999}
+// info:{"Path":"kego.io/demo/demo2/images","Hash":17974458391396798528}
 package images
 
 // ke: {"file": {"notest": true}}
@@ -39,7 +39,7 @@ func (v *PhotoRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 }
 func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo7/images", "@photo", nil
+		return nil, "kego.io/demo/demo2/images", "@photo", nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -60,14 +60,12 @@ func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo7/images", "@photo", nil
+	return m, "kego.io/demo/demo2/images", "@photo", nil
 }
 
 type Photo struct {
 	*system.Object
-	Height *system.Int    `json:"height"`
-	Url    *system.String `json:"url"`
-	Width  *system.Int    `json:"width"`
+	Url *system.String `json:"url"`
 }
 type PhotoInterface interface {
 	GetPhoto(ctx context.Context) *Photo
@@ -79,7 +77,7 @@ func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 func UnpackPhotoInterface(ctx context.Context, in packer.Packed) (PhotoInterface, error) {
 	switch in.Type() {
 	case packer.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo7/images", "photo")
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo2/images", "photo")
 		if err != nil {
 			return nil, err
 		}
@@ -102,13 +100,6 @@ func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["height"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Height = ob0
-	}
 	if field, ok := in.Map()["url"]; ok && field.Type() != packer.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -116,18 +107,11 @@ func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error 
 		}
 		v.Url = ob0
 	}
-	if field, ok := in.Map()["width"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Width = ob0
-	}
 	return nil
 }
 func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo7/images", "photo", nil
+		return nil, "kego.io/demo/demo2/images", "photo", nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -139,13 +123,6 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 			m[key] = val
 		}
 	}
-	if v.Height != nil {
-		ob0, _, _, err := v.Height.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["height"] = ob0
-	}
 	if v.Url != nil {
 		ob0, _, _, err := v.Url.Repack(ctx)
 		if err != nil {
@@ -153,17 +130,10 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["url"] = ob0
 	}
-	if v.Width != nil {
-		ob0, _, _, err := v.Width.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["width"] = ob0
-	}
-	return m, "kego.io/demo/demo7/images", "photo", nil
+	return m, "kego.io/demo/demo2/images", "photo", nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo7/images")
-	pkg.SetHash(14109639835138036999)
+	pkg := jsonctx.InitPackage("kego.io/demo/demo2/images")
+	pkg.SetHash(17974458391396798528)
 	pkg.Init("photo", func() interface{} { return new(Photo) }, func() interface{} { return new(PhotoRule) }, func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() })
 }

@@ -1,7 +1,6 @@
 package system
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
@@ -180,6 +179,7 @@ func (r *barRuleStruct) GetItemsRule() RuleInterface {
 type barStruct struct{}
 type barIface interface{}
 
+/*
 func TestRuleGetReflectType(t *testing.T) {
 
 	cb := tests.Context("a.b/c").Jempty()
@@ -258,7 +258,7 @@ func TestRuleGetReflectType(t *testing.T) {
 	assert.Equal(t, reflect.TypeOf(map[string]fooStruct{}), rt)
 
 }
-
+*/
 func TestRuleGetDefault(t *testing.T) {
 	d := DummyRule{Default: "a"}
 	assert.Equal(t, "a", d.GetDefault())

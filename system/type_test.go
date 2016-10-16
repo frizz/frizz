@@ -267,6 +267,7 @@ func Test(t *testing.T) {
 
 }
 
+/*
 func TestGetAllTypesThatImplementInterface(t *testing.T) {
 
 	ibar := &Type{Object: &Object{Id: NewReference("a.b/c", "ibar")}, Interface: true}
@@ -305,7 +306,9 @@ func TestGetAllTypesThatImplementInterface(t *testing.T) {
 	assert.Equal(t, "tfoo", types[0].Id.Name)
 	assert.Equal(t, "tfoobar", types[1].Id.Name)
 }
+*/
 
+/*
 type tInt int
 
 func TestZeroValue(t *testing.T) {
@@ -367,7 +370,9 @@ func TestZeroValue(t *testing.T) {
 	assert.Equal(t, "", tjs)
 
 }
+*/
 
+/*
 func TestTypeImplements(t *testing.T) {
 	tfoo := &Type{Object: &Object{Id: NewReference("a.b/c", "tfoo")}, Native: NewString("object")}
 	cb := tests.
@@ -379,6 +384,7 @@ func TestTypeImplements(t *testing.T) {
 	tnil := &Type{Object: &Object{Id: NewReference("a.b/c", "tnil")}, Native: NewString("object")}
 	assert.False(t, tnil.Implements(cb.Ctx(), reflect.TypeOf((*iFoo)(nil)).Elem()))
 }
+*/
 
 func TestNativeGoType(t *testing.T) {
 	n, err := nativeGoType("string")

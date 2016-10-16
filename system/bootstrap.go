@@ -17,7 +17,7 @@ func UnpackMappyInterface(ctx context.Context, in packer.Packed) (MappyInterface
 	// Mappy is an map type, so we only accept a typed map
 	switch in.Type() {
 	case packer.J_MAP:
-		ob, err := UnpackUnknownType(ctx, in, true)
+		ob, err := UnpackUnknownType(ctx, in, true, "kego.io/system", "mappy")
 		if err != nil {
 			return nil, kerr.Wrap("QSTEIBUNWO", err)
 		}

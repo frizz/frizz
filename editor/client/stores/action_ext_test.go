@@ -13,11 +13,11 @@ import (
 
 func TestAddMutationRoot(t *testing.T) {
 	cb, _ := data.Setup(t)
-	var a *node.Node
-	a = node.NewNode()
+	a := node.NewNode()
 	ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
 	require.True(t, ok)
 	require.NoError(t, mutateAddNode(cb.Ctx(), a, nil, "", 2, ty, "z"))
+	require.NotNil(t, a.Value.(*data.Multi).Id)
 	require.Equal(t, "z", a.Value.(*data.Multi).Id.Name)
 }
 

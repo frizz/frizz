@@ -1,8 +1,6 @@
 package system
 
 import (
-	"reflect"
-
 	"fmt"
 
 	"context"
@@ -47,15 +45,6 @@ type JsonNumberInterface interface {
 }
 type JsonBoolInterface interface {
 	Bool() bool
-}
-
-func init() {
-
-	pkg := jsonctx.InitPackage("kego.io/json", 0)
-	pkg.InitType("number", reflect.TypeOf(float64(1.1)), reflect.TypeOf(&JsonNumberRule{}), reflect.TypeOf((*JsonNumberInterface)(nil)).Elem())
-	pkg.InitType("string", reflect.TypeOf(string("")), reflect.TypeOf(&JsonStringRule{}), reflect.TypeOf((*JsonStringInterface)(nil)).Elem())
-	pkg.InitType("bool", reflect.TypeOf(bool(true)), reflect.TypeOf(&JsonBoolRule{}), reflect.TypeOf((*JsonBoolInterface)(nil)).Elem())
-
 }
 
 func RegisterJsonTypes(ctx context.Context) {

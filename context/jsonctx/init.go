@@ -18,14 +18,17 @@ type packageInfo struct {
 }
 
 type typeInfo struct {
-	typ      reflect.Type
-	rule     reflect.Type
-	iface    reflect.Type
-	newFunc  func() interface{}
-	ruleFunc func() interface{}
+	newFunc       func() interface{}
+	ruleFunc      func() interface{}
+	dummyFunc     func() interface{}
+	interfaceFunc func() reflect.Type
 }
 
-func InitPackage(path string, hash uint64) *packageInfo {
+func (p *packageInfo) SetHash(hash uint64) {
+	p.hash = hash
+}
+
+func InitPackage(path string) *packageInfo {
 	packages.Lock()
 	defer packages.Unlock()
 	if packages.m == nil {
@@ -36,26 +39,26 @@ func InitPackage(path string, hash uint64) *packageInfo {
 	}
 	p := &packageInfo{
 		path:  path,
-		hash:  hash,
 		types: map[string]*typeInfo{},
 	}
 	packages.m[path] = p
 	return p
 }
-func (p *packageInfo) InitType(name string, typ reflect.Type, rule reflect.Type, iface reflect.Type) {
-	if p.types[name] == nil {
-		p.types[name] = &typeInfo{}
-	}
-	p.types[name].typ = typ
-	p.types[name].rule = rule
-	p.types[name].iface = iface
-}
-func (p *packageInfo) InitNew(name string, newFunc, ruleFunc func() interface{}) {
+
+func (p *packageInfo) Init(name string, newFunc, ruleFunc func() interface{}, interfaceFunc func() reflect.Type) {
 	if p.types[name] == nil {
 		p.types[name] = &typeInfo{}
 	}
 	p.types[name].newFunc = newFunc
 	p.types[name].ruleFunc = ruleFunc
+	p.types[name].interfaceFunc = interfaceFunc
+}
+
+func (p *packageInfo) Dummy(name string, dummyFunc func() interface{}) {
+	if p.types[name] == nil {
+		p.types[name] = &typeInfo{}
+	}
+	p.types[name].dummyFunc = dummyFunc
 }
 
 var dummies struct {

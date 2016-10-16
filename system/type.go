@@ -42,6 +42,13 @@ func (t *Type) PassedAsPointerString(ctx context.Context) string {
 	return ""
 }
 
+func (t *Type) PassedAsPointerInverseString(ctx context.Context) string {
+	if t.PassedAsPointer(ctx) {
+		return ""
+	}
+	return "*"
+}
+
 func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
 	if t.Id.Package == "kego.io/json" {
 		return KindValue, false
@@ -72,7 +79,8 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 		}
 		reflectType = rt
 	} else {
-		// The type provided is not an interface type, so we get it's automatic generated interface
+		// The type provided is not an interface type, so we get it's automatic
+		// generated interface
 		rt, ok := typ.Id.GetReflectInterface(ctx)
 		if !ok {
 			return nil

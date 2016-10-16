@@ -85,49 +85,49 @@ func TestNode_SetValue(t *testing.T) {
 	cb, n := data.Setup(t)
 
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		n.Map["js"].SetValue(cb.Ctx(), "aa")
+		require.NoError(t, n.Map["js"].SetValue(cb.Ctx(), "aa"))
 		assert.Equal(t, "aa", m.Js)
 
-		n.Map["js"].SetValue(cb.Ctx(), "aa")
+		require.NoError(t, n.Map["js"].SetValue(cb.Ctx(), "aa"))
 		assert.Equal(t, "aa", m.Js)
 
-		n.Map["ss"].SetValue(cb.Ctx(), "bb")
+		require.NoError(t, n.Map["ss"].SetValue(cb.Ctx(), "bb"))
 		assert.Equal(t, "bb", m.Ss.Value())
 
-		n.Map["ss"].SetValue(cb.Ctx(), "bb")
+		require.NoError(t, n.Map["ss"].SetValue(cb.Ctx(), "bb"))
 		assert.Equal(t, "bb", m.Ss.Value())
 
-		n.Map["jb"].SetValue(cb.Ctx(), false)
+		require.NoError(t, n.Map["jb"].SetValue(cb.Ctx(), false))
 		assert.Equal(t, false, m.Jb)
 
-		n.Map["jb"].SetValue(cb.Ctx(), false)
+		require.NoError(t, n.Map["jb"].SetValue(cb.Ctx(), false))
 		assert.Equal(t, false, m.Jb)
 
-		n.Map["sb"].SetValue(cb.Ctx(), true)
+		require.NoError(t, n.Map["sb"].SetValue(cb.Ctx(), true))
 		assert.Equal(t, true, m.Sb.Value())
 
-		n.Map["sb"].SetValue(cb.Ctx(), true)
+		require.NoError(t, n.Map["sb"].SetValue(cb.Ctx(), true))
 		assert.Equal(t, true, m.Sb.Value())
 
-		n.Map["jn"].SetValue(cb.Ctx(), 2.5)
+		require.NoError(t, n.Map["jn"].SetValue(cb.Ctx(), 2.5))
 		assert.Equal(t, 2.5, m.Jn)
 
-		n.Map["jn"].SetValue(cb.Ctx(), 2.5)
+		require.NoError(t, n.Map["jn"].SetValue(cb.Ctx(), 2.5))
 		assert.Equal(t, 2.5, m.Jn)
 
-		n.Map["sn"].SetValue(cb.Ctx(), 2.6)
+		require.NoError(t, n.Map["sn"].SetValue(cb.Ctx(), 2.6))
 		assert.Equal(t, 2.6, m.Sn.Value())
 
-		n.Map["sn"].SetValue(cb.Ctx(), 2.6)
+		require.NoError(t, n.Map["sn"].SetValue(cb.Ctx(), 2.6))
 		assert.Equal(t, 2.6, m.Sn.Value())
 
-		n.Map["aljb"].SetValue(cb.Ctx(), false)
+		require.NoError(t, n.Map["aljb"].SetValue(cb.Ctx(), false))
 		assert.Equal(t, data.Aljb(false), *m.Aljb)
 
-		n.Map["aljn"].SetValue(cb.Ctx(), 2.1)
+		require.NoError(t, n.Map["aljn"].SetValue(cb.Ctx(), 2.1))
 		assert.Equal(t, data.Aljn(2.1), *m.Aljn)
 
-		n.Map["aljs"].SetValue(cb.Ctx(), "aljs1")
+		require.NoError(t, n.Map["aljs"].SetValue(cb.Ctx(), "aljs1"))
 		assert.Equal(t, data.Aljs("aljs1"), *m.Aljs)
 
 	}
@@ -146,7 +146,7 @@ func TestNode_Print(t *testing.T) {
 
 	n, err := node.Unmarshal(cb.Ctx(), []byte(s))
 	require.NoError(t, err)
-	require.Equal(t, "{\"type\":\"simple\",\"js\":\"a\"}", n.Print(cb.Ctx()))
+	require.Equal(t, `{"js":"a","type":"simple"}`, n.Print(cb.Ctx()))
 
 }
 

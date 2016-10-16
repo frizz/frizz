@@ -1,14 +1,15 @@
-// info:{"Path":"kego.io/demo/demo5/translation","Hash":13545408849668201489}
+// info:{"Path":"kego.io/demo/demo5/translation","Hash":13251613636822643043}
 package translation
 
 // ke: {"file": {"notest": true}}
 
 import (
+	"context"
+	"fmt"
 	"reflect"
 
-	"context"
-
 	"kego.io/context/jsonctx"
+	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -18,10 +19,98 @@ type LocalizedRule struct {
 	*system.Rule
 }
 
+func (v *LocalizedRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(system.Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (v *LocalizedRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+	if v == nil {
+		return nil, "kego.io/demo/demo5/translation", "@localized", nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Rule != nil {
+		ob, _, _, err := v.Rule.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	return m, "kego.io/demo/demo5/translation", "@localized", nil
+}
+
 // Automatically created basic rule for simple
 type SimpleRule struct {
 	*system.Object
 	*system.Rule
+}
+
+func (v *SimpleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(system.Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+	if v == nil {
+		return nil, "kego.io/demo/demo5/translation", "@simple", nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Rule != nil {
+		ob, _, _, err := v.Rule.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	return m, "kego.io/demo/demo5/translation", "@simple", nil
 }
 
 // Automatically created basic rule for smartling
@@ -29,6 +118,67 @@ type SmartlingRule struct {
 	*system.Object
 	*system.Rule
 }
+
+func (v *SmartlingRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(system.Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (v *SmartlingRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+	if v == nil {
+		return nil, "kego.io/demo/demo5/translation", "@smartling", nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Rule != nil {
+		ob, _, _, err := v.Rule.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	return m, "kego.io/demo/demo5/translation", "@smartling", nil
+}
+func UnpackLocalized(ctx context.Context, in packer.Packed) (Localized, error) {
+	switch in.Type() {
+	case packer.J_MAP:
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5/translation", "localized")
+		if err != nil {
+			return nil, err
+		}
+		ob, ok := i.(Localized)
+		if !ok {
+			return nil, fmt.Errorf("%T does not implement Localized", i)
+		}
+		return ob, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into Localized.", in.Type())
+	}
+}
+
 type Simple struct {
 	*system.Object
 	Text *system.String `json:"text"`
@@ -39,6 +189,64 @@ type SimpleInterface interface {
 
 func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
+}
+func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterface, error) {
+	switch in.Type() {
+	case packer.J_MAP:
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5/translation", "simple")
+		if err != nil {
+			return nil, err
+		}
+		ob, ok := i.(SimpleInterface)
+		if !ok {
+			return nil, fmt.Errorf("%T does not implement SimpleInterface", i)
+		}
+		return ob, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into SimpleInterface.", in.Type())
+	}
+}
+func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if field, ok := in.Map()["text"]; ok && field.Type() != packer.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Text = ob0
+	}
+	return nil
+}
+func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+	if v == nil {
+		return nil, "kego.io/demo/demo5/translation", "simple", nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Text != nil {
+		ob0, _, _, err := v.Text.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		m["text"] = ob0
+	}
+	return m, "kego.io/demo/demo5/translation", "simple", nil
 }
 
 type Smartling struct {
@@ -53,9 +261,82 @@ type SmartlingInterface interface {
 func (o *Smartling) GetSmartling(ctx context.Context) *Smartling {
 	return o
 }
+func UnpackSmartlingInterface(ctx context.Context, in packer.Packed) (SmartlingInterface, error) {
+	switch in.Type() {
+	case packer.J_MAP:
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5/translation", "smartling")
+		if err != nil {
+			return nil, err
+		}
+		ob, ok := i.(SmartlingInterface)
+		if !ok {
+			return nil, fmt.Errorf("%T does not implement SmartlingInterface", i)
+		}
+		return ob, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into SmartlingInterface.", in.Type())
+	}
+}
+func (v *Smartling) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+	if in == nil || in.Type() == packer.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if field, ok := in.Map()["english"]; ok && field.Type() != packer.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.English = ob0
+	}
+	if field, ok := in.Map()["translations"]; ok && field.Type() != packer.J_NULL {
+		if field.Type() != packer.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*system.String{}
+		for k0 := range field.Map() {
+			ob1 := new(system.String)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Translations = ob0
+	}
+	return nil
+}
+func (v *Smartling) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+	if v == nil {
+		return nil, "kego.io/demo/demo5/translation", "smartling", nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.English != nil {
+		ob0, _, _, err := v.English.Repack(ctx)
+		if err != nil {
+			return nil, "", "", err
+		}
+		m["english"] = ob0
+	}
+	return m, "kego.io/demo/demo5/translation", "smartling", nil
+}
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo5/translation", 13545408849668201489)
-	pkg.InitType("localized", reflect.TypeOf((*Localized)(nil)).Elem(), reflect.TypeOf((*LocalizedRule)(nil)), nil)
-	pkg.InitType("simple", reflect.TypeOf((*Simple)(nil)), reflect.TypeOf((*SimpleRule)(nil)), reflect.TypeOf((*SimpleInterface)(nil)).Elem())
-	pkg.InitType("smartling", reflect.TypeOf((*Smartling)(nil)), reflect.TypeOf((*SmartlingRule)(nil)), reflect.TypeOf((*SmartlingInterface)(nil)).Elem())
+	pkg := jsonctx.InitPackage("kego.io/demo/demo5/translation")
+	pkg.SetHash(13251613636822643043)
+	pkg.Init("localized", func() interface{} { return new(Localized) }, func() interface{} { return new(LocalizedRule) }, func() reflect.Type { return reflect.TypeOf((*Localized)(nil)).Elem() })
+	pkg.Init("simple", func() interface{} { return new(Simple) }, func() interface{} { return new(SimpleRule) }, func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() })
+	pkg.Init("smartling", func() interface{} { return new(Smartling) }, func() interface{} { return new(SmartlingRule) }, func() reflect.Type { return reflect.TypeOf((*SmartlingInterface)(nil)).Elem() })
 }

@@ -33,10 +33,11 @@ func GetEmbedEditable(ctx context.Context, node *node.Node, embed *system.Refere
 	}
 
 	jcache := jsonctx.FromContext(ctx)
-	t, ok := jcache.GetType(embed.Package, embed.Name)
+	nf, ok := jcache.GetNewFunc(embed.Package, embed.Name)
 	if !ok {
 		return nil, kerr.New("DGWDERFPVV", "Can't find %s in jsonctx", embed.String())
 	}
+	t := reflect.TypeOf(nf())
 
 	v := node.Val
 	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {

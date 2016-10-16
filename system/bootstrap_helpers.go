@@ -4,10 +4,32 @@ import (
 	"context"
 	"encoding/json"
 
+	"reflect"
+
 	"github.com/davelondon/kerr"
 	"kego.io/context/jsonctx"
 	"kego.io/packer"
 )
+
+func Marshal(ctx context.Context, data interface{}) ([]byte, error) {
+
+	re, ok := data.(packer.Repacker)
+	if !ok {
+		return nil, kerr.New("POKFWVHEDY", "%T does not implement Repacker")
+	}
+
+	p, _, _, err := re.Repack(ctx)
+	if err != nil {
+		return nil, kerr.Wrap("ISAOPMMEYI", err)
+	}
+
+	b, err := json.Marshal(p)
+	if err != nil {
+		return nil, kerr.Wrap("YCEBRGOCGO", err)
+	}
+
+	return b, nil
+}
 
 func Unmarshal(ctx context.Context, in []byte, out interface{}) error {
 
@@ -20,6 +42,55 @@ func Unmarshal(ctx context.Context, in []byte, out interface{}) error {
 
 	if err := Unpack(ctx, p, out); err != nil {
 		return kerr.Wrap("BCTGSARAXH", err)
+	}
+
+	return nil
+}
+
+func UnpackRefelctValue(ctx context.Context, p packer.Packed, val reflect.Value) error {
+
+	if up, ok := val.Interface().(packer.Unpacker); ok {
+		if err := up.Unpack(ctx, p, false); err != nil {
+			return kerr.Wrap("YLILPEEMNJ", err)
+		}
+		return nil
+	}
+
+	if val.Type() == reflect.TypeOf("") {
+		unpacked, err := UnpackString(ctx, p)
+		if err != nil {
+			return kerr.Wrap("YNMKGNQCVM", err)
+		}
+		val.Set(reflect.ValueOf(unpacked))
+		return nil
+	}
+
+	if val.Type() == reflect.TypeOf(0.0) {
+		unpacked, err := UnpackNumber(ctx, p)
+		if err != nil {
+			return kerr.Wrap("EUCHOUXMVK", err)
+		}
+		val.Set(reflect.ValueOf(unpacked))
+		return nil
+	}
+
+	if val.Type() == reflect.TypeOf(false) {
+		unpacked, err := UnpackBool(ctx, p)
+		if err != nil {
+			return kerr.Wrap("RBILDURHWV", err)
+		}
+		val.Set(reflect.ValueOf(unpacked))
+		return nil
+	}
+
+	if val.Type().Kind() == reflect.Ptr && val.Type().Elem().Kind() == reflect.Interface {
+		i, err := UnpackUnknownType(ctx, p, true, "", "")
+		if err != nil {
+			return kerr.Wrap("RIOAIQLPIG", err)
+		}
+		val.Set(reflect.ValueOf(i))
+	} else {
+		return kerr.New("VFLOLSLCUQ", "If unmarshaling into an unknown type, must pass in a *interface{}. Found: %v", val.Type())
 	}
 
 	return nil
@@ -38,7 +109,7 @@ func Unpack(ctx context.Context, p packer.Packed, out interface{}) error {
 	if !ok {
 		return kerr.New("VFLOLSLCUQ", "If unmarshaling into an unknown type, must pass in a *interface{}. Found: %T", out)
 	}
-	i, err := UnpackUnknownType(ctx, p, true)
+	i, err := UnpackUnknownType(ctx, p, true, "", "")
 	if err != nil {
 		return kerr.Wrap("RIOAIQLPIG", err)
 	}
@@ -47,11 +118,11 @@ func Unpack(ctx context.Context, p packer.Packed, out interface{}) error {
 	return nil
 }
 
-func UnpackUnknownType(ctx context.Context, in packer.Packed, iface bool) (interface{}, error) {
+func UnpackUnknownType(ctx context.Context, in packer.Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
 	if in.Type() != packer.J_MAP {
 		return nil, kerr.New("YVFHXVKPSG", "Unpacking an unknown type, so input must be a map. Found %s", in.Type())
 	}
-	i, err := GetNewFromTypeField(ctx, in)
+	i, err := GetNewFromTypeField(ctx, in, iface, ifacePackage, ifaceName)
 	if err != nil {
 		return nil, kerr.Wrap("SJFYDULNOS", err)
 	}
@@ -65,7 +136,7 @@ func UnpackUnknownType(ctx context.Context, in packer.Packed, iface bool) (inter
 	return i, nil
 }
 
-func GetNewFromTypeField(ctx context.Context, in packer.Packed) (interface{}, error) {
+func GetNewFromTypeField(ctx context.Context, in packer.Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
 	t, ok := in.Map()["type"]
 	if !ok {
 		return nil, kerr.New("RXEPCCGFKV", "Type field not found.")
@@ -76,17 +147,24 @@ func GetNewFromTypeField(ctx context.Context, in packer.Packed) (interface{}, er
 	}
 	jctx := jsonctx.FromContext(ctx)
 	nf, ok := jctx.GetNewFunc(tr.Package, tr.Name)
-	if !ok {
-		return nil, kerr.New("BQIJMVGJDT", "NewFunc %s not found.", tr.String())
+	if ok {
+		return nf(), nil
 	}
-	return nf(), nil
+	if iface && ifacePackage != "" && ifaceName != "" {
+		r := NewReference(ifacePackage, ifaceName)
+		d, ok := r.GetDummy(ctx)
+		if ok {
+			return d, nil
+		}
+	}
+	return nil, kerr.New("BQIJMVGJDT", "NewFunc %s not found.", tr.String())
 }
 
 func init() {
-	jpkg := jsonctx.InitPackage("kego.io/json", 0)
-	jpkg.InitNew("string", nil, func() interface{} { return new(JsonStringRule) })
-	jpkg.InitNew("number", nil, func() interface{} { return new(JsonNumberRule) })
-	jpkg.InitNew("bool", nil, func() interface{} { return new(JsonBoolRule) })
+	jpkg := jsonctx.InitPackage("kego.io/json")
+	jpkg.Init("string", func() interface{} { return "" }, func() interface{} { return new(JsonStringRule) }, nil)
+	jpkg.Init("number", func() interface{} { return 0.0 }, func() interface{} { return new(JsonNumberRule) }, nil)
+	jpkg.Init("bool", func() interface{} { return false }, func() interface{} { return new(JsonBoolRule) }, nil)
 }
 
 func (v *JsonStringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
