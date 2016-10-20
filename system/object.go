@@ -1,10 +1,6 @@
 package system
 
-import (
-	"context"
-
-	"kego.io/packer"
-)
+import "context"
 
 type Labelled interface {
 	Label(ctx context.Context) string
@@ -24,17 +20,17 @@ func RulesApplyToObjects(object interface{}) bool {
 	return !isRule && !isType && isObject
 }
 
-var _ packer.InitializableType = (*Object)(nil)
+var _ InitializableType = (*Object)(nil)
 
-// InitializeType implements the packer.InitializableType interface. If we are
+// InitializeType implements the InitializableType interface. If we are
 // unpacking an object into a concrete type defined by the schema, we should
 // set the type using this. This enables us to allow the type to be omitted
-// from the packer.
+// from the system.
 func (b *Object) InitializeType(path string, name string) error {
 	if b.Type != nil {
 		// We should return an error if we're trying to set the type to a different type
 		if path != b.Type.Package || name != b.Type.Name {
-			return packer.InitializableTypeError{
+			return InitializableTypeError{
 				UnmarshalledPath: b.Type.Package,
 				UnmarshalledName: b.Type.Name,
 				IntoPath:         path,
@@ -51,9 +47,9 @@ type ObjectStub struct {
 	Type *Reference `json:"type"`
 }
 
-func (v *ObjectStub) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+func (v *ObjectStub) Unpack(ctx context.Context, in Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 

@@ -1,7 +1,5 @@
 package system
 
-import "kego.io/packer"
-
 func NewBool(b bool) *Bool {
 	out := Bool(b)
 	return &out
@@ -11,9 +9,9 @@ func (b *Bool) Value() bool {
 	return bool(*b)
 }
 
-var _ packer.Unpacker = (*Bool)(nil)
+var _ Unpacker = (*Bool)(nil)
 
-//var _ packer.Repacker = (*Bool)(nil)
+//var _ Repacker = (*Bool)(nil)
 
 func (b *Bool) String() string {
 	if b == nil {

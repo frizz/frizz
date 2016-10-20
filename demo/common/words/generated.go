@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type LocalizerRule struct {
 	*system.Rule
 }
 
-func (v *LocalizerRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *LocalizerRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -69,8 +68,8 @@ type SimpleRule struct {
 	*system.Rule
 }
 
-func (v *SimpleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -119,8 +118,8 @@ type TranslationRule struct {
 	*system.Rule
 }
 
-func (v *TranslationRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *TranslationRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -162,9 +161,9 @@ func (v *TranslationRule) Repack(ctx context.Context) (data interface{}, typePac
 	}
 	return m, "kego.io/demo/common/words", "@translation", nil
 }
-func UnpackLocalizer(ctx context.Context, in packer.Packed) (Localizer, error) {
+func UnpackLocalizer(ctx context.Context, in system.Packed) (Localizer, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/words", "localizer")
 		if err != nil {
 			return nil, err
@@ -190,9 +189,9 @@ type SimpleInterface interface {
 func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
-func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterface, error) {
+func UnpackSimpleInterface(ctx context.Context, in system.Packed) (SimpleInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/words", "simple")
 		if err != nil {
 			return nil, err
@@ -206,8 +205,8 @@ func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterfa
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into SimpleInterface.", in.Type())
 	}
 }
-func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -216,7 +215,7 @@ func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["string"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["string"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -264,9 +263,9 @@ type TranslationInterface interface {
 func (o *Translation) GetTranslation(ctx context.Context) *Translation {
 	return o
 }
-func UnpackTranslationInterface(ctx context.Context, in packer.Packed) (TranslationInterface, error) {
+func UnpackTranslationInterface(ctx context.Context, in system.Packed) (TranslationInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/words", "translation")
 		if err != nil {
 			return nil, err
@@ -280,8 +279,8 @@ func UnpackTranslationInterface(ctx context.Context, in packer.Packed) (Translat
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into TranslationInterface.", in.Type())
 	}
 }
-func (v *Translation) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Translation) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -290,15 +289,8 @@ func (v *Translation) Unpack(ctx context.Context, in packer.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["english"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.English = ob0
-	}
-	if field, ok := in.Map()["translations"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_MAP {
+	if field, ok := in.Map()["translations"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
 		}
 		ob0 := map[string]*system.String{}
@@ -310,6 +302,13 @@ func (v *Translation) Unpack(ctx context.Context, in packer.Packed, iface bool) 
 			ob0[k0] = ob1
 		}
 		v.Translations = ob0
+	}
+	if field, ok := in.Map()["english"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.English = ob0
 	}
 	return nil
 }
@@ -339,7 +338,7 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/words")
 	pkg.SetHash(15839668451341961644)
-	pkg.Init("localizer", func() interface{} { return new(Localizer) }, func() interface{} { return new(LocalizerRule) }, func() reflect.Type { return reflect.TypeOf((*Localizer)(nil)).Elem() })
+	pkg.Init("localizer", func() interface{} { return (*Localizer)(nil) }, func() interface{} { return new(LocalizerRule) }, func() reflect.Type { return reflect.TypeOf((*Localizer)(nil)).Elem() })
 	pkg.Init("simple", func() interface{} { return new(Simple) }, func() interface{} { return new(SimpleRule) }, func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() })
 	pkg.Init("translation", func() interface{} { return new(Translation) }, func() interface{} { return new(TranslationRule) }, func() reflect.Type { return reflect.TypeOf((*TranslationInterface)(nil)).Elem() })
 }

@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type PageRule struct {
 	*system.Rule
 }
 
-func (v *PageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -74,9 +73,9 @@ type PageInterface interface {
 func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
-func UnpackPageInterface(ctx context.Context, in packer.Packed) (PageInterface, error) {
+func UnpackPageInterface(ctx context.Context, in system.Packed) (PageInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo4", "page")
 		if err != nil {
 			return nil, err
@@ -90,8 +89,8 @@ func UnpackPageInterface(ctx context.Context, in packer.Packed) (PageInterface, 
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into PageInterface.", in.Type())
 	}
 }
-func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -100,7 +99,7 @@ func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["title"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["title"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err

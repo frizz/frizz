@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/packer"
 )
 
 func TestIntRule_Enforce(t *testing.T) {
@@ -93,18 +92,18 @@ func TestIntUnmarshalJSON(t *testing.T) {
 
 	var i *Int
 
-	err := i.Unpack(envctx.Empty, packer.Pack(nil), false)
+	err := i.Unpack(envctx.Empty, Pack(nil), false)
 	require.NoError(t, err)
 	assert.Nil(t, i)
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, packer.Pack(2.0), false)
+	err = i.Unpack(envctx.Empty, Pack(2.0), false)
 	require.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, 2, i.Value())
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
+	err = i.Unpack(envctx.Empty, Pack(map[string]interface{}{
 		"type":  "system:int",
 		"value": 2.0,
 	}), false)
@@ -113,17 +112,17 @@ func TestIntUnmarshalJSON(t *testing.T) {
 	assert.Equal(t, 2, i.Value())
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, packer.Pack(-12.0), false)
+	err = i.Unpack(envctx.Empty, Pack(-12.0), false)
 	require.NoError(t, err)
 	assert.NotNil(t, i)
 	assert.Equal(t, -12, i.Value())
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, packer.Pack("foo"), false)
+	err = i.Unpack(envctx.Empty, Pack("foo"), false)
 	assert.IsError(t, err, "UJUBDGVYGF")
 
 	i = NewInt(0)
-	err = i.Unpack(envctx.Empty, packer.Pack(1.2), false)
+	err = i.Unpack(envctx.Empty, Pack(1.2), false)
 	assert.HasError(t, err, "KVEOETSIJY")
 
 }

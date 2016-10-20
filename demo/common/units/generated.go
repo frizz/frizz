@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type RectangleRule struct {
 	*system.Rule
 }
 
-func (v *RectangleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -75,9 +74,9 @@ type RectangleInterface interface {
 func (o *Rectangle) GetRectangle(ctx context.Context) *Rectangle {
 	return o
 }
-func UnpackRectangleInterface(ctx context.Context, in packer.Packed) (RectangleInterface, error) {
+func UnpackRectangleInterface(ctx context.Context, in system.Packed) (RectangleInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/units", "rectangle")
 		if err != nil {
 			return nil, err
@@ -91,8 +90,8 @@ func UnpackRectangleInterface(ctx context.Context, in packer.Packed) (RectangleI
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into RectangleInterface.", in.Type())
 	}
 }
-func (v *Rectangle) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -101,19 +100,19 @@ func (v *Rectangle) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["width"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Width = ob0
-	}
-	if field, ok := in.Map()["height"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Height = ob0
+	}
+	if field, ok := in.Map()["width"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Width = ob0
 	}
 	return nil
 }

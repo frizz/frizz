@@ -33,7 +33,7 @@ func TestAddMutationRedo(t *testing.T) {
 		ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
 		require.True(t, ok)
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty, ""))
-		require.Equal(t, `[{"type":"multi","js":"amjs0"},{"type":"multi","js":"amjs1"},{"type":"multi"}]`, p.Print(cb.Ctx()))
+		require.Equal(t, `[{"js":"amjs0","type":"multi"},{"js":"amjs1","type":"multi"},{"type":"multi"}]`, p.Print(cb.Ctx()))
 
 		a1 = n.Map["am"].Array[2].Map["m"]
 		p1 = n.Map["am"].Array[2]
@@ -42,7 +42,7 @@ func TestAddMutationRedo(t *testing.T) {
 		require.Equal(t, 3, len(n.Map["am"].Array))
 		require.Equal(t, 3, len(m.Am))
 		require.False(t, n.Map["am"].Array[2].Map["m"].Missing)
-		require.Equal(t, `[{"type":"multi","js":"amjs0"},{"type":"multi","js":"amjs1"},{"type":"multi","m":{"type":"multi"}}]`, p.Print(cb.Ctx()))
+		require.Equal(t, `[{"js":"amjs0","type":"multi"},{"js":"amjs1","type":"multi"},{"m":{"type":"multi"},"type":"multi"}]`, p.Print(cb.Ctx()))
 
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), a, p, b))
 		require.NoError(t, mutateDeleteNode(cb.Ctx(), a1, p1, b1))

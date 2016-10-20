@@ -74,7 +74,13 @@ func (g *Builder) SprintFunctionCall(path string, name string, args ...interface
 	}
 	return fmt.Sprintf("%s(%s)", funcName, strings.Join(argsList, ", "))
 }
-
+func (g *Builder) PrintRef(path string, name string) *Builder {
+	g.statements = append(g.statements, g.SprintRef(path, name))
+	return g
+}
+func (g *Builder) SprintRef(path string, name string) string {
+	return Reference(path, name, g.path, g.Imports.Add)
+}
 func (g *Builder) Build() ([]byte, error) {
 	b := g.buffer
 	if len(g.comment) > 0 {
@@ -111,7 +117,6 @@ func (g *Builder) Build() ([]byte, error) {
 
 	source, err := format.Source(b.Bytes())
 	if err != nil {
-		fmt.Println(b.String())
 		return nil, kerr.Wrap("CRBYOUOHPG", err)
 	}
 	return source, nil

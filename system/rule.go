@@ -9,7 +9,6 @@ import (
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 )
 
 // Enforcer is a rule with properties that need to be enforced against data.
@@ -31,8 +30,8 @@ type DummyRule struct {
 	Items   RuleInterface
 }
 
-func (v *DummyRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *DummyRule) Unpack(ctx context.Context, in Packed, iface bool) error {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -47,14 +46,14 @@ func (v *DummyRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["items"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackRuleInterface(ctx, field)
 		if err != nil {
 			return err
 		}
 		v.Items = ob
 	}
-	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackInterface(ctx, field)
 		if err != nil {
 			return err
@@ -64,9 +63,9 @@ func (v *DummyRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	return nil
 }
 
-func UnpackInterface(ctx context.Context, in packer.Packed) (interface{}, error) {
+func UnpackInterface(ctx context.Context, in Packed) (interface{}, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case J_MAP:
 		i, err := UnpackUnknownType(ctx, in, true, "", "")
 		if err != nil {
 			return nil, err
@@ -89,7 +88,7 @@ func (d *DummyRule) GetItemsRule() RuleInterface {
 }
 
 var _ DefaultRule = (*DummyRule)(nil)
-var _ packer.Unpacker = (*DummyRule)(nil)
+var _ Unpacker = (*DummyRule)(nil)
 var _ CollectionRule = (*DummyRule)(nil)
 
 func init() {
@@ -178,7 +177,7 @@ func (r *RuleWrapper) ZeroValue(null bool) (reflect.Value, error) {
 func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 
 	if r.Struct != nil && r.Struct.Interface {
-		typ, ok := r.Parent.Id.GetReflectInterface(r.Ctx)
+		typ, ok := r.Parent.GetReflectInterface(r.Ctx)
 		if !ok {
 			return nil, kerr.New("QGUVEUTXAN", "Type interface for %s not found", r.Parent.Id.Value())
 		}
@@ -193,20 +192,16 @@ func (r *RuleWrapper) GetReflectType() (reflect.Type, error) {
 			if err != nil {
 				return nil, kerr.Wrap("LMKEHHWHKL", err)
 			}
-			if r.Parent.NativeJsonType(r.Ctx) == packer.J_MAP {
+			if r.Parent.NativeJsonType(r.Ctx) == J_MAP {
 				return reflect.MapOf(reflect.TypeOf(""), itemsType), nil
 			}
 			return reflect.SliceOf(itemsType), nil
 		}
 	}
 
-	typ, ok := r.Parent.Id.GetReflectType(r.Ctx)
+	typ, ok := r.Parent.GetReflectType(r.Ctx)
 	if !ok {
 		return nil, kerr.New("DLAJJPJDPL", "Type %s not found", r.Parent.Id.Value())
-	}
-
-	if r.Parent.Interface {
-		typ = typ.Elem()
 	}
 
 	return typ, nil

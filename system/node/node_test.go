@@ -7,7 +7,6 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"kego.io/packer"
 	"kego.io/process/parser"
 	"kego.io/system"
 	"kego.io/tests"
@@ -45,7 +44,7 @@ func TestNode_extractType(t *testing.T) {
 		Struct: &system.Rule{Interface: true},
 		Parent: &system.Type{Interface: true},
 	}
-	_, err := extractType(context.Background(), packer.Pack(nil), r)
+	_, err := extractType(context.Background(), system.Pack(nil), r)
 	assert.IsError(t, err, "TDXTPGVFAK")
 
 	ty, err := extractType(context.Background(), nil, nil)
@@ -55,7 +54,7 @@ func TestNode_extractType(t *testing.T) {
 	r = &system.RuleWrapper{
 		Parent: &system.Type{Interface: true},
 	}
-	_, err = extractType(context.Background(), packer.Pack(""), r)
+	_, err = extractType(context.Background(), system.Pack(""), r)
 	assert.IsError(t, err, "DLSQRFLINL")
 
 	r = &system.RuleWrapper{
@@ -68,20 +67,20 @@ func TestNode_extractType(t *testing.T) {
 	r = &system.RuleWrapper{
 		Struct: &system.Rule{Interface: true},
 	}
-	_, err = extractType(context.Background(), packer.PackString(`[""]`), r)
+	_, err = extractType(context.Background(), system.MustPackString(`[""]`), r)
 	assert.IsError(t, err, "SNYLGBJYTM")
 
-	_, err = extractType(context.Background(), packer.PackString(`{}`), nil)
+	_, err = extractType(context.Background(), system.MustPackString(`{}`), nil)
 	assert.IsError(t, err, "HBJVDKAKBJ")
 
 	r = &system.RuleWrapper{
 		Parent: &system.Type{Interface: true},
 	}
-	_, err = extractType(context.Background(), packer.PackString(`{}`), r)
+	_, err = extractType(context.Background(), system.MustPackString(`{}`), r)
 	assert.IsError(t, err, "HBJVDKAKBJ")
 
 	cb := tests.Context("a.b/c").Sempty()
-	_, err = extractType(cb.Ctx(), packer.PackString(`{"type": "a"}`), nil)
+	_, err = extractType(cb.Ctx(), system.MustPackString(`{"type": "a"}`), nil)
 	assert.IsError(t, err, "IJFMJJWVCA")
 
 }

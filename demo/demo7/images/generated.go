@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type PhotoRule struct {
 	*system.Rule
 }
 
-func (v *PhotoRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -76,9 +75,9 @@ type PhotoInterface interface {
 func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
-func UnpackPhotoInterface(ctx context.Context, in packer.Packed) (PhotoInterface, error) {
+func UnpackPhotoInterface(ctx context.Context, in system.Packed) (PhotoInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo7/images", "photo")
 		if err != nil {
 			return nil, err
@@ -92,8 +91,8 @@ func UnpackPhotoInterface(ctx context.Context, in packer.Packed) (PhotoInterface
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into PhotoInterface.", in.Type())
 	}
 }
-func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -102,21 +101,21 @@ func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["height"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Height = ob0
 	}
-	if field, ok := in.Map()["url"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["url"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Url = ob0
 	}
-	if field, ok := in.Map()["width"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["width"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err

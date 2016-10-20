@@ -6,14 +6,15 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 
-	"kego.io/process/generate/builder"
 	"kego.io/tests"
 	"kego.io/tests/ext"
 )
 
+/*
 func TestGoTypeDescriptorErrors(t *testing.T) {
 	builder.TypeErrors_NeedsTypes(t)
 }
+*/
 
 func TestStructs(t *testing.T) {
 	cb := tests.New().TempGopath(true)

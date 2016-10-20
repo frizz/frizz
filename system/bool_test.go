@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/packer"
 )
 
 func TestNewBool(t *testing.T) {
@@ -21,18 +20,18 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 
 	var b *Bool
 
-	err := b.Unpack(envctx.Empty, packer.Pack(nil), false)
+	err := b.Unpack(envctx.Empty, Pack(nil), false)
 	require.NoError(t, err)
 	assert.Nil(t, b)
 
 	b = NewBool(false)
-	err = b.Unpack(envctx.Empty, packer.Pack(true), false)
+	err = b.Unpack(envctx.Empty, Pack(true), false)
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.True(t, b.Value())
 
 	b = NewBool(false)
-	err = b.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
+	err = b.Unpack(envctx.Empty, Pack(map[string]interface{}{
 		"type":  "system:bool",
 		"value": true,
 	}), false)
@@ -41,13 +40,13 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 	assert.True(t, b.Value())
 
 	b = NewBool(true)
-	err = b.Unpack(envctx.Empty, packer.Pack(false), false)
+	err = b.Unpack(envctx.Empty, Pack(false), false)
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.False(t, b.Value())
 
 	b = NewBool(false)
-	err = b.Unpack(envctx.Empty, packer.Pack("foo"), false)
+	err = b.Unpack(envctx.Empty, Pack("foo"), false)
 	assert.Error(t, err)
 
 }

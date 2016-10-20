@@ -7,9 +7,11 @@ import (
 
 	"context"
 
+	"fmt"
+
 	"github.com/davelondon/kerr"
+	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
-	"kego.io/packer"
 )
 
 type Kind string
@@ -21,6 +23,23 @@ const (
 	KindMap       Kind = "map"       // map[string]T
 	KindArray     Kind = "array"     // []T
 )
+
+type InitializableType interface {
+	InitializeType(path string, name string) error
+}
+
+// if we tried to unmarshal an incompatible type, we return this from the InitializeType
+// funciton. We include the package path and name of the unmarshaled object.
+type InitializableTypeError struct {
+	UnmarshalledPath string
+	UnmarshalledName string
+	IntoPath         string
+	IntoName         string
+}
+
+func (i InitializableTypeError) Error() string {
+	return fmt.Sprintf("Tried to unmarshal %s:%s into %s:%s", i.UnmarshalledPath, i.UnmarshalledName, i.IntoPath, i.IntoName)
+}
 
 func (t *Type) PassedAsPointer(ctx context.Context) bool {
 	kind, alias := t.Kind(ctx)
@@ -69,11 +88,31 @@ func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
 	return KindStruct, false
 }
 
+func (t *Type) GetReflectType(ctx context.Context) (reflect.Type, bool) {
+	nf, ok := jsonctx.FromContext(ctx).GetNewFunc(t.Id.Package, t.Id.Name)
+	if !ok {
+		return nil, false
+	}
+	rt := reflect.TypeOf(nf())
+	if t.Interface {
+		rt = rt.Elem()
+	}
+	return rt, true
+}
+
+func (t *Type) GetReflectInterface(ctx context.Context) (reflect.Type, bool) {
+	ifunc, ok := jsonctx.FromContext(ctx).GetInterfaceFunc(t.Id.Package, t.Id.Name)
+	if !ok {
+		return nil, false
+	}
+	return ifunc(), true
+}
+
 func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 	var reflectType reflect.Type
 	if typ.Interface {
 		// The type provided is an interface type
-		rt, ok := typ.Id.GetReflectType(ctx)
+		rt, ok := typ.GetReflectType(ctx)
 		if !ok {
 			return nil
 		}
@@ -81,7 +120,7 @@ func GetAllTypesThatImplementInterface(ctx context.Context, typ *Type) []*Type {
 	} else {
 		// The type provided is not an interface type, so we get it's automatic
 		// generated interface
-		rt, ok := typ.Id.GetReflectInterface(ctx)
+		rt, ok := typ.GetReflectInterface(ctx)
 		if !ok {
 			return nil
 		}
@@ -143,7 +182,7 @@ func (t *Type) ZeroValue(ctx context.Context, null bool) (reflect.Value, error) 
 	if t.IsNativeCollection() {
 		return reflect.Value{}, kerr.New("PGUHCGBJWE", "ZeroValue must not be used with collection type")
 	}
-	rt, ok := t.Id.GetReflectType(ctx)
+	rt, ok := t.GetReflectType(ctx)
 	if !ok {
 		return reflect.Value{}, kerr.New("RSWTEOTNBD", "Type not found for %s", t.Id)
 	}
@@ -187,7 +226,7 @@ func (t *Type) Implements(ctx context.Context, i reflect.Type) bool {
 	if t.IsNativeCollection() {
 		return false
 	}
-	rt, ok := t.Id.GetReflectType(ctx)
+	rt, ok := t.GetReflectType(ctx)
 	if !ok {
 		return false
 	}
@@ -218,25 +257,25 @@ func nativeTypeClass(nativeTypeString string) nativeTypeClasses {
 	}
 }
 
-func (t *Type) NativeJsonType(ctx context.Context) packer.Type {
+func (t *Type) NativeJsonType(ctx context.Context) JsonType {
 	if t.Alias != nil {
 		return WrapRule(ctx, t.Alias).Parent.NativeJsonType(ctx)
 	}
 	switch t.Native.Value() {
 	case "number":
-		return packer.J_NUMBER
+		return J_NUMBER
 	case "string":
-		return packer.J_STRING
+		return J_STRING
 	case "bool":
-		return packer.J_BOOL
+		return J_BOOL
 	case "map":
-		return packer.J_MAP
+		return J_MAP
 	case "object":
-		return packer.J_OBJECT
+		return J_OBJECT
 	case "array":
-		return packer.J_ARRAY
+		return J_ARRAY
 	default:
-		return packer.J_NULL
+		return J_NULL
 	}
 }
 

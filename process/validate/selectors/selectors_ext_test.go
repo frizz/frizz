@@ -10,10 +10,10 @@ import (
 
 	"github.com/davelondon/kerr"
 	"github.com/davelondon/ktest/require"
-	"kego.io/packer"
 	"kego.io/process/parser"
 	. "kego.io/process/validate/selectors"
 	_ "kego.io/process/validate/selectors/tests"
+	"kego.io/system"
 	"kego.io/system/node"
 	"kego.io/tests"
 )
@@ -184,13 +184,13 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 
 func comparison(actual *node.Node, expected interface{}) (bool, error) {
 	switch actual.JsonType {
-	case packer.J_NULL:
+	case system.J_NULL:
 		// If we're expecting null, return true
 		if expected == nil {
 			return true, nil
 		}
 		return false, kerr.New("IKMQTDAKSM", "ns.NativeString returned false")
-	case packer.J_STRING:
+	case system.J_STRING:
 		actualString := actual.ValueString
 		expectedString, ok := expected.(string)
 		if !ok {
@@ -198,7 +198,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 		return expectedString == actualString, nil
 		break
-	case packer.J_NUMBER:
+	case system.J_NUMBER:
 		actualNumber := actual.ValueNumber
 		expectedNumber, ok := expected.(float64)
 		if !ok {
@@ -206,7 +206,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 		return expectedNumber == actualNumber, nil
 		break
-	case packer.J_BOOL:
+	case system.J_BOOL:
 		actualBool := actual.ValueBool
 		expectedBool, ok := expected.(bool)
 		if !ok {
@@ -214,7 +214,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 		}
 		return expectedBool == actualBool, nil
 		break
-	case packer.J_ARRAY:
+	case system.J_ARRAY:
 		expectedArray, ok := expected.([]interface{})
 		if !ok {
 			return false, kerr.New("AIHXLBFOQA", "expected %T is not []interface{}", expected)
@@ -236,7 +236,7 @@ func comparison(actual *node.Node, expected interface{}) (bool, error) {
 			}
 		}
 		break
-	case packer.J_MAP:
+	case system.J_MAP:
 		expectedMap, ok := expected.(map[string]interface{})
 		if !ok {
 			return false, kerr.New("CCIRAQFFSR", "expected %T is not map[string]interface{} (map)", expected)

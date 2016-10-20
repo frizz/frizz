@@ -173,7 +173,7 @@ func truncate(s string, length int) string {
 
 var _ Enforcer = (*StringRule)(nil)
 
-//var _ packer.Repacker = (*String)(nil)
+//var _ Repacker = (*String)(nil)
 
 func (s *String) String() string {
 	if s == nil {

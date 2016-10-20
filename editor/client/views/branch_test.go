@@ -19,7 +19,6 @@ import (
 	"kego.io/editor/client/stores"
 	"kego.io/editor/shared"
 	"kego.io/flux"
-	"kego.io/ke"
 	"kego.io/process/parser"
 	"kego.io/system"
 )
@@ -296,7 +295,7 @@ func setupForSuccessfulFileLoad(t *testing.T, cb *ctests.ClientContextBuilder) {
 	do := func(method shared.Method, args interface{}, reply interface{}, fail chan error) chan error {
 		// Create a simple ke object and marshal it to a []byte
 		var bytes []byte
-		bytes, err := ke.MarshalContext(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
+		bytes, err := system.Marshal(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
 		require.NoError(t, err)
 		reply.(*shared.DataResponse).Found = true
 		reply.(*shared.DataResponse).Data = bytes

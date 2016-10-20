@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type PageRule struct {
 	*system.Rule
 }
 
-func (v *PageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -69,8 +68,8 @@ type PersonRule struct {
 	*system.Rule
 }
 
-func (v *PersonRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -125,9 +124,9 @@ type PageInterface interface {
 func (o *Page) GetPage(ctx context.Context) *Page {
 	return o
 }
-func UnpackPageInterface(ctx context.Context, in packer.Packed) (PageInterface, error) {
+func UnpackPageInterface(ctx context.Context, in system.Packed) (PageInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo6", "page")
 		if err != nil {
 			return nil, err
@@ -141,8 +140,8 @@ func UnpackPageInterface(ctx context.Context, in packer.Packed) (PageInterface, 
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into PageInterface.", in.Type())
 	}
 }
-func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -151,8 +150,8 @@ func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["people"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_ARRAY {
+	if field, ok := in.Map()["people"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
 		}
 		ob0 := []*Person{}
@@ -165,7 +164,7 @@ func (v *Page) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		}
 		v.People = ob0
 	}
-	if field, ok := in.Map()["heading"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["heading"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -221,9 +220,9 @@ type PersonInterface interface {
 func (o *Person) GetPerson(ctx context.Context) *Person {
 	return o
 }
-func UnpackPersonInterface(ctx context.Context, in packer.Packed) (PersonInterface, error) {
+func UnpackPersonInterface(ctx context.Context, in system.Packed) (PersonInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo6", "person")
 		if err != nil {
 			return nil, err
@@ -237,8 +236,8 @@ func UnpackPersonInterface(ctx context.Context, in packer.Packed) (PersonInterfa
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into PersonInterface.", in.Type())
 	}
 }
-func (v *Person) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -247,14 +246,14 @@ func (v *Person) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["age"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Age = ob0
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err

@@ -9,7 +9,6 @@ import (
 	"math"
 
 	"github.com/davelondon/kerr"
-	"kego.io/packer"
 )
 
 type Int int
@@ -83,17 +82,17 @@ func (r *IntRule) Enforce(ctx context.Context, data interface{}) (fail bool, mes
 
 var _ Enforcer = (*IntRule)(nil)
 
-func (v *Int) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+func (v *Int) Unpack(ctx context.Context, in Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if in.Type() == packer.J_MAP {
+	if in.Type() == J_MAP {
 		in = in.Map()["value"]
 	}
 
-	if in.Type() != packer.J_NUMBER {
+	if in.Type() != J_NUMBER {
 		return kerr.New("UJUBDGVYGF", "Int.Unpack: %s must by J_NUMBER", in.Type())
 	}
 
@@ -108,7 +107,7 @@ func (v *Int) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	return nil
 }
 
-var _ packer.Unpacker = (*Int)(nil)
+var _ Unpacker = (*Int)(nil)
 
 func (n *Int) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if n == nil {
@@ -117,7 +116,7 @@ func (n *Int) Repack(ctx context.Context) (data interface{}, typePackage string,
 	return float64(*n), "kego.io/system", "int", nil
 }
 
-var _ packer.Repacker = (*Int)(nil)
+var _ Repacker = (*Int)(nil)
 
 func (n *Int) String() string {
 	if n == nil {

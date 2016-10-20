@@ -5,7 +5,6 @@ import (
 
 	"encoding/json"
 
-	"kego.io/packer"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -149,7 +148,7 @@ func getInt32(in interface{}) int32 {
 }
 
 func isNull(in exprElement) bool {
-	if in.typ == packer.J_NULL {
+	if in.typ == system.J_NULL {
 		return true
 	}
 	if in.value == nil {
@@ -200,19 +199,19 @@ func getJsonString(in interface{}) string {
 
 func exprElementIsTruthy(e exprElement) bool {
 	switch e.typ {
-	case packer.J_STRING:
+	case system.J_STRING:
 		return len(e.value.(string)) > 0
-	case packer.J_NUMBER:
+	case system.J_NUMBER:
 		return e.value.(float64) > 0
-	case packer.J_OBJECT:
+	case system.J_OBJECT:
 		return true
-	case packer.J_MAP:
+	case system.J_MAP:
 		return true
-	case packer.J_ARRAY:
+	case system.J_ARRAY:
 		return true
-	case packer.J_BOOL:
+	case system.J_BOOL:
 		return e.value.(bool)
-	case packer.J_NULL:
+	case system.J_NULL:
 		return false
 	default:
 		return false

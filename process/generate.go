@@ -22,7 +22,7 @@ import (
 
 type SourceType string
 
-const FORCE_GENERATE = true
+const FORCE_GENERATE = false
 
 const (
 	S_STRUCTS SourceType = "structs"

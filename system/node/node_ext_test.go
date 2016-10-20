@@ -9,7 +9,6 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"kego.io/packer"
 	"kego.io/process/parser"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -177,7 +176,7 @@ func TestNode_Unpack(t *testing.T) {
 }`
 
 	n := node.NewNode()
-	require.NoError(t, n.Unpack(cb.Ctx(), packer.PackString(s), false))
+	require.NoError(t, n.Unpack(cb.Ctx(), system.MustPackString(s), false))
 	m, ok := n.Value.(*data.Multi)
 	require.True(t, ok)
 	assert.Equal(t, "a", m.Js)
@@ -194,7 +193,7 @@ func TestNode_Unpack3(t *testing.T) {
 }`
 
 	n := node.NewNode()
-	err := n.Unpack(cb.Ctx(), packer.PackString(s), false)
+	err := n.Unpack(cb.Ctx(), system.MustPackString(s), false)
 	assert.HasError(t, err, "SRANLETJRS")
 
 }
@@ -214,7 +213,7 @@ func TestNode_Unpack5(t *testing.T) {
 }`
 
 	n := node.NewNode()
-	err := n.Unpack(cb.Ctx(), packer.PackString(s), false)
+	err := n.Unpack(cb.Ctx(), system.MustPackString(s), false)
 	require.NoError(t, err)
 	assert.Equal(t, "b", n.Value.(*data.Multi).Sri.GetString(cb.Ctx()).Value())
 	assert.Equal(t, 2.0, n.Value.(*data.Multi).Nri.GetNumber(cb.Ctx()).Value())
@@ -504,7 +503,7 @@ func newNonEmptyNode() *node.Node {
 	n.Missing = false
 	n.Rule = &system.RuleWrapper{}
 	n.Type = &system.Type{}
-	n.JsonType = packer.J_OBJECT
+	n.JsonType = system.J_OBJECT
 	return n
 }
 
@@ -526,7 +525,7 @@ func TestNode_InitialiseRoot(t *testing.T) {
 	assert.True(t, n.Missing)
 	assert.Nil(t, n.Rule)
 	assert.Nil(t, n.Type)
-	assert.Equal(t, packer.J_NULL, n.JsonType)
+	assert.Equal(t, system.J_NULL, n.JsonType)
 }
 
 func TestNode_InitialiseArrayChild(t *testing.T) {
@@ -789,7 +788,7 @@ func TestNode_SetValueZero3(t *testing.T) {
 
 //func TestNode_SetValueUnpack(t *testing.T) {
 //	cb, n := data.Empty(t)
-//	err := n.SetValueUnpack(cb.Ctx(), packer.PackString(`"a"`))
+//	err := n.SetValueUnpack(cb.Ctx(), system.PackString(`"a"`))
 //	assert.HasError(t, err, "VEPLUIJXSN")
 //}
 

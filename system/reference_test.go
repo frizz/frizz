@@ -10,7 +10,6 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/packer"
 	"kego.io/tests"
 )
 
@@ -112,7 +111,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 	assert.NotNil(t, a)
 	assert.Equal(t, NewReference("c.d/e", "f"), a.B.GetReference(nil))
 
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c.d/e:f"}`, string(b))
 
@@ -157,25 +156,25 @@ func TestReferenceUnmarshal(t *testing.T) {
 	}
 
 	r := reset()
-	err := r.Unpack(envctx.Empty, packer.Pack(nil), false)
+	err := r.Unpack(envctx.Empty, Pack(nil), false)
 	assert.IsError(t, err, "MOQVSKJXRB")
 
 	r = reset()
-	err = r.Unpack(envctx.Empty, packer.Pack(1.0), false)
+	err = r.Unpack(envctx.Empty, Pack(1.0), false)
 	assert.IsError(t, err, "RFLQSBPMYM")
 
 	r = reset()
-	err = r.Unpack(envctx.Empty, packer.Pack("a.b/c:d"), false)
+	err = r.Unpack(envctx.Empty, Pack("a.b/c:d"), false)
 	assert.IsError(t, err, "MSXBLEIGVJ")
 	assert.HasError(t, err, "KJSOXDESFD")
-	p, ok := kerr.Source(err).(packer.UnknownPackageError)
+	p, ok := kerr.Source(err).(UnknownPackageError)
 	assert.True(t, ok)
 	assert.Equal(t, "a.b/c", p.UnknownPackage)
 
 	ctx := tests.Context("").Alias("c", "a.b/c").Ctx()
 
 	r = reset()
-	err = r.Unpack(ctx, packer.Pack("a.b/c:d"), false)
+	err = r.Unpack(ctx, Pack("a.b/c:d"), false)
 	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -183,7 +182,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(ctx, packer.Pack(map[string]interface{}{
+	err = r.Unpack(ctx, Pack(map[string]interface{}{
 		"type":  "system:reference",
 		"value": "a.b/c:d",
 	}), false)
@@ -194,7 +193,7 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:d", r.Value())
 
 	r = reset()
-	err = r.Unpack(ctx, packer.Pack("a.b/c:@d"), false)
+	err = r.Unpack(ctx, Pack("a.b/c:@d"), false)
 	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, "a.b/c", r.Package)
@@ -202,10 +201,10 @@ func TestReferenceUnmarshal(t *testing.T) {
 	assert.Equal(t, "a.b/c:@d", r.Value())
 
 	r = reset()
-	err = r.Unpack(envctx.Empty, packer.Pack("a:b"), false)
+	err = r.Unpack(envctx.Empty, Pack("a:b"), false)
 	assert.IsError(t, err, "MSXBLEIGVJ")
 	assert.HasError(t, err, "DKKFLKDKYI")
-	p, ok = kerr.Source(err).(packer.UnknownPackageError)
+	p, ok = kerr.Source(err).(UnknownPackageError)
 	assert.True(t, ok)
 	assert.Equal(t, "a", p.UnknownPackage)
 

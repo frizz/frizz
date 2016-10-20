@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type LocalizedRule struct {
 	*system.Rule
 }
 
-func (v *LocalizedRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *LocalizedRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -69,8 +68,8 @@ type SimpleRule struct {
 	*system.Rule
 }
 
-func (v *SimpleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -119,8 +118,8 @@ type SmartlingRule struct {
 	*system.Rule
 }
 
-func (v *SmartlingRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *SmartlingRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -162,9 +161,9 @@ func (v *SmartlingRule) Repack(ctx context.Context) (data interface{}, typePacka
 	}
 	return m, "kego.io/demo/demo5/translation", "@smartling", nil
 }
-func UnpackLocalized(ctx context.Context, in packer.Packed) (Localized, error) {
+func UnpackLocalized(ctx context.Context, in system.Packed) (Localized, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5/translation", "localized")
 		if err != nil {
 			return nil, err
@@ -190,9 +189,9 @@ type SimpleInterface interface {
 func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
-func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterface, error) {
+func UnpackSimpleInterface(ctx context.Context, in system.Packed) (SimpleInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5/translation", "simple")
 		if err != nil {
 			return nil, err
@@ -206,8 +205,8 @@ func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterfa
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into SimpleInterface.", in.Type())
 	}
 }
-func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -216,7 +215,7 @@ func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["text"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["text"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -261,9 +260,9 @@ type SmartlingInterface interface {
 func (o *Smartling) GetSmartling(ctx context.Context) *Smartling {
 	return o
 }
-func UnpackSmartlingInterface(ctx context.Context, in packer.Packed) (SmartlingInterface, error) {
+func UnpackSmartlingInterface(ctx context.Context, in system.Packed) (SmartlingInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5/translation", "smartling")
 		if err != nil {
 			return nil, err
@@ -277,8 +276,8 @@ func UnpackSmartlingInterface(ctx context.Context, in packer.Packed) (SmartlingI
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into SmartlingInterface.", in.Type())
 	}
 }
-func (v *Smartling) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Smartling) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -287,15 +286,15 @@ func (v *Smartling) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["english"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["english"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.English = ob0
 	}
-	if field, ok := in.Map()["translations"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_MAP {
+	if field, ok := in.Map()["translations"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
 		}
 		ob0 := map[string]*system.String{}

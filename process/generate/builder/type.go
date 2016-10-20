@@ -155,7 +155,7 @@ func getTag(fieldName string) string {
 		}
 
 		// If we have a marshaler, we have to call it manually
-		if rp, ok := d.(packer.Repacker); ok {
+		if rp, ok := d.(system.Repacker); ok {
 			i, err := rp.Repack(ctx)
 			if err != nil {
 				return "", kerr.Wrap("YIEMHYFVCD", err)

@@ -10,7 +10,6 @@ import (
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/process/scanner"
 	"kego.io/system"
 )
@@ -35,7 +34,7 @@ func Unmarshal(ctx context.Context, data []byte, v interface{}) error {
 }
 
 func Marshal(ctx context.Context, v interface{}) ([]byte, error) {
-	i, err := packer.Repack(ctx, v)
+	i, err := system.Repack(ctx, v)
 	if err != nil {
 		return nil, kerr.Wrap("JVGOWMVMXN", err)
 	}
@@ -47,7 +46,7 @@ func Marshal(ctx context.Context, v interface{}) ([]byte, error) {
 }
 
 func MarshalIndent(ctx context.Context, v interface{}, prefix, indent string) ([]byte, error) {
-	i, err := packer.Repack(ctx, v)
+	i, err := system.Repack(ctx, v)
 	if err != nil {
 		return nil, kerr.Wrap("QNHVVOBKFO", err)
 	}

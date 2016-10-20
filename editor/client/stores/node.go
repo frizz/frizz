@@ -9,7 +9,6 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/flux"
-	"kego.io/packer"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -265,15 +264,15 @@ func mutateDeleteNode(ctx context.Context, n *node.Node, p *node.Node, b *node.N
 		return nil
 	}
 	switch p.Type.NativeJsonType(ctx) {
-	case packer.J_MAP:
+	case system.J_MAP:
 		if err := p.DeleteMapChild(n.Key); err != nil {
 			return kerr.Wrap("BUUOWYSJNG", err)
 		}
-	case packer.J_ARRAY:
+	case system.J_ARRAY:
 		if err := p.DeleteArrayChild(n.Index); err != nil {
 			return kerr.Wrap("RWFQSINACH", err)
 		}
-	case packer.J_OBJECT:
+	case system.J_OBJECT:
 		if err := p.DeleteObjectChild(ctx, n.Key); err != nil {
 			return kerr.Wrap("XGVEXEOBUP", err)
 		}
@@ -287,19 +286,19 @@ func mutateRestoreNode(ctx context.Context, n *node.Node, p *node.Node, b *node.
 		return nil
 	}
 	switch p.Type.NativeJsonType(ctx) {
-	case packer.J_MAP:
+	case system.J_MAP:
 		// don't have to call n.InitialiseMapItem because the node is already
 		// initialized
 		if err := n.AddToMap(ctx, p, n.Key, true); err != nil {
 			return kerr.Wrap("TOPLOONYCL", err)
 		}
-	case packer.J_ARRAY:
+	case system.J_ARRAY:
 		// don't have to call n.InitialiseArrayItem because the node is already
 		// initialized
 		if err := n.AddToArray(ctx, p, n.Index, true); err != nil {
 			return kerr.Wrap("WFXSQYOEAY", err)
 		}
-	case packer.J_OBJECT:
+	case system.J_OBJECT:
 		// don't have to call n.InitialiseObjectField because the node is
 		// already initialized
 		if err := n.AddToObject(ctx, p, n.Rule, n.Key, true); err != nil {
@@ -313,14 +312,14 @@ func mutateAddNode(ctx context.Context, n *node.Node, p *node.Node, key string, 
 	switch {
 	case p == nil:
 		n.InitialiseRoot()
-	case p.Type.NativeJsonType(ctx) == packer.J_ARRAY:
+	case p.Type.NativeJsonType(ctx) == system.J_ARRAY:
 		if err := n.InitialiseArrayItem(ctx, p, index); err != nil {
 			return kerr.Wrap("QLBGMSQENC", err)
 		}
 		if err := n.AddToArray(ctx, p, index, true); err != nil {
 			return kerr.Wrap("PLEJOTCSGH", err)
 		}
-	case p.Type.NativeJsonType(ctx) == packer.J_MAP:
+	case p.Type.NativeJsonType(ctx) == system.J_MAP:
 		if err := n.InitialiseMapItem(ctx, p, key); err != nil {
 			return kerr.Wrap("KRTGPFYWIH", err)
 		}

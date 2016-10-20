@@ -8,19 +8,13 @@ import (
 
 	"github.com/davelondon/kerr"
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 )
 
 func Marshal(ctx context.Context, data interface{}) ([]byte, error) {
 
-	re, ok := data.(packer.Repacker)
-	if !ok {
-		return nil, kerr.New("POKFWVHEDY", "%T does not implement Repacker")
-	}
-
-	p, _, _, err := re.Repack(ctx)
+	p, err := Repack(ctx, data)
 	if err != nil {
-		return nil, kerr.Wrap("ISAOPMMEYI", err)
+		return nil, kerr.Wrap("OMFSDKIBCY", err)
 	}
 
 	b, err := json.Marshal(p)
@@ -38,7 +32,7 @@ func Unmarshal(ctx context.Context, in []byte, out interface{}) error {
 		return kerr.Wrap("PDTPGAYXRX", err)
 	}
 
-	p := packer.Pack(i)
+	p := Pack(i)
 
 	if err := Unpack(ctx, p, out); err != nil {
 		return kerr.Wrap("BCTGSARAXH", err)
@@ -47,11 +41,11 @@ func Unmarshal(ctx context.Context, in []byte, out interface{}) error {
 	return nil
 }
 
-func UnpackRefelctValue(ctx context.Context, p packer.Packed, val reflect.Value) error {
+func UnpackRefelctValue(ctx context.Context, p Packed, val reflect.Value) error {
 
-	if up, ok := val.Interface().(packer.Unpacker); ok {
+	if up, ok := val.Interface().(Unpacker); ok {
 		if err := up.Unpack(ctx, p, false); err != nil {
-			return kerr.Wrap("YLILPEEMNJ", err)
+			return kerr.Wrap("FGSFQHHMNE", err)
 		}
 		return nil
 	}
@@ -59,7 +53,7 @@ func UnpackRefelctValue(ctx context.Context, p packer.Packed, val reflect.Value)
 	if val.Type() == reflect.TypeOf("") {
 		unpacked, err := UnpackString(ctx, p)
 		if err != nil {
-			return kerr.Wrap("YNMKGNQCVM", err)
+			return kerr.Wrap("XDGRKOVCHD", err)
 		}
 		val.Set(reflect.ValueOf(unpacked))
 		return nil
@@ -68,7 +62,7 @@ func UnpackRefelctValue(ctx context.Context, p packer.Packed, val reflect.Value)
 	if val.Type() == reflect.TypeOf(0.0) {
 		unpacked, err := UnpackNumber(ctx, p)
 		if err != nil {
-			return kerr.Wrap("EUCHOUXMVK", err)
+			return kerr.Wrap("IPYJYKLNBE", err)
 		}
 		val.Set(reflect.ValueOf(unpacked))
 		return nil
@@ -86,19 +80,61 @@ func UnpackRefelctValue(ctx context.Context, p packer.Packed, val reflect.Value)
 	if val.Type().Kind() == reflect.Ptr && val.Type().Elem().Kind() == reflect.Interface {
 		i, err := UnpackUnknownType(ctx, p, true, "", "")
 		if err != nil {
-			return kerr.Wrap("RIOAIQLPIG", err)
+			return kerr.Wrap("TDEFTWSBFD", err)
 		}
 		val.Set(reflect.ValueOf(i))
 	} else {
-		return kerr.New("VFLOLSLCUQ", "If unmarshaling into an unknown type, must pass in a *interface{}. Found: %v", val.Type())
+		return kerr.New("IFCTNULWUA", "If unmarshaling into an unknown type, must pass in a *interface{}. Found: %v", val.Type())
 	}
 
 	return nil
 }
 
-func Unpack(ctx context.Context, p packer.Packed, out interface{}) error {
+func Repack(ctx context.Context, data interface{}) (interface{}, error) {
 
-	if up, ok := out.(packer.Unpacker); ok {
+	if re, ok := data.(Repacker); ok {
+		p, _, _, err := re.Repack(ctx)
+		if err != nil {
+			return nil, kerr.Wrap("ISAOPMMEYI", err)
+		}
+		return p, nil
+	}
+
+	switch data.(type) {
+	case string, float64, bool:
+		return data, nil
+	}
+
+	val := reflect.ValueOf(data)
+	switch val.Kind() {
+	case reflect.Slice:
+		out := []interface{}{}
+		for i := 0; i < val.Len(); i++ {
+			c, err := Repack(ctx, val.Index(i).Interface())
+			if err != nil {
+				return nil, kerr.Wrap("KSHOKVIBRS", err)
+			}
+			out = append(out, c)
+		}
+		return out, nil
+	case reflect.Map:
+		out := map[string]interface{}{}
+		for _, key := range val.MapKeys() {
+			c, err := Repack(ctx, val.MapIndex(key).Interface())
+			if err != nil {
+				return nil, kerr.Wrap("SOLGDVLWSK", err)
+			}
+			out[key.Interface().(string)] = c
+		}
+		return out, nil
+	}
+
+	return nil, kerr.New("POKFWVHEDY", "%T does can't be repacked", data)
+}
+
+func Unpack(ctx context.Context, p Packed, out interface{}) error {
+
+	if up, ok := out.(Unpacker); ok {
 		if err := up.Unpack(ctx, p, false); err != nil {
 			return kerr.Wrap("YLILPEEMNJ", err)
 		}
@@ -118,17 +154,17 @@ func Unpack(ctx context.Context, p packer.Packed, out interface{}) error {
 	return nil
 }
 
-func UnpackUnknownType(ctx context.Context, in packer.Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
-	if in.Type() != packer.J_MAP {
+func UnpackUnknownType(ctx context.Context, in Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
+	if in.Type() != J_MAP {
 		return nil, kerr.New("YVFHXVKPSG", "Unpacking an unknown type, so input must be a map. Found %s", in.Type())
 	}
 	i, err := GetNewFromTypeField(ctx, in, iface, ifacePackage, ifaceName)
 	if err != nil {
 		return nil, kerr.Wrap("SJFYDULNOS", err)
 	}
-	un, ok := i.(packer.Unpacker)
+	un, ok := i.(Unpacker)
 	if !ok {
-		return nil, kerr.New("FOLMDMHTVL", "%T does not implement packer.Unpacker", i)
+		return nil, kerr.New("FOLMDMHTVL", "%T does not implement Unpacker", i)
 	}
 	if err := un.Unpack(ctx, in, iface); err != nil {
 		return nil, kerr.Wrap("BNHVLQPFKC", err)
@@ -136,7 +172,7 @@ func UnpackUnknownType(ctx context.Context, in packer.Packed, iface bool, ifaceP
 	return i, nil
 }
 
-func GetNewFromTypeField(ctx context.Context, in packer.Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
+func GetNewFromTypeField(ctx context.Context, in Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
 	t, ok := in.Map()["type"]
 	if !ok {
 		return nil, kerr.New("RXEPCCGFKV", "Type field not found.")
@@ -167,9 +203,9 @@ func init() {
 	jpkg.Init("bool", func() interface{} { return false }, func() interface{} { return new(JsonBoolRule) }, nil)
 }
 
-func (v *JsonStringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+func (v *JsonStringRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -191,9 +227,9 @@ func (v *JsonStringRule) Unpack(ctx context.Context, in packer.Packed, iface boo
 
 }
 
-func (v *JsonNumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+func (v *JsonNumberRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -215,9 +251,9 @@ func (v *JsonNumberRule) Unpack(ctx context.Context, in packer.Packed, iface boo
 
 }
 
-func (v *JsonBoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+func (v *JsonBoolRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -239,31 +275,31 @@ func (v *JsonBoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool)
 
 }
 
-func UnpackBool(ctx context.Context, in packer.Packed) (bool, error) {
-	if in == nil || in.Type() == packer.J_NULL {
+func UnpackBool(ctx context.Context, in Packed) (bool, error) {
+	if in == nil || in.Type() == J_NULL {
 		return false, nil
 	}
-	if in.Type() != packer.J_BOOL {
+	if in.Type() != J_BOOL {
 		return false, kerr.New("ITLWMRUKKD", "UnpackBool: %s must by J_BOOL", in.Type())
 	}
 	return in.Bool(), nil
 }
 
-func UnpackString(ctx context.Context, in packer.Packed) (string, error) {
-	if in == nil || in.Type() == packer.J_NULL {
+func UnpackString(ctx context.Context, in Packed) (string, error) {
+	if in == nil || in.Type() == J_NULL {
 		return "", nil
 	}
-	if in.Type() != packer.J_STRING {
+	if in.Type() != J_STRING {
 		return "", kerr.New("CIECONONEF", "UnpackString: %s must by J_STRING", in.Type())
 	}
 	return in.String(), nil
 }
 
-func UnpackNumber(ctx context.Context, in packer.Packed) (float64, error) {
-	if in == nil || in.Type() == packer.J_NULL {
+func UnpackNumber(ctx context.Context, in Packed) (float64, error) {
+	if in == nil || in.Type() == J_NULL {
 		return 0.0, nil
 	}
-	if in.Type() != packer.J_NUMBER {
+	if in.Type() != J_NUMBER {
 		return 0.0, kerr.New("PFHJQLAIFP", "UnpackNumber: %s must by J_NUMBER", in.Type())
 	}
 	return in.Number(), nil

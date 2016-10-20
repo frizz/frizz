@@ -10,7 +10,6 @@ import (
 	"math"
 
 	"github.com/davelondon/kerr"
-	"kego.io/packer"
 )
 
 func NewNumber(n float64) *Number {
@@ -100,9 +99,9 @@ func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (fail bool, 
 
 var _ Enforcer = (*NumberRule)(nil)
 
-var _ packer.Unpacker = (*Number)(nil)
+var _ Unpacker = (*Number)(nil)
 
-//var _ packer.Repacker = (*Number)(nil)
+//var _ Repacker = (*Number)(nil)
 
 func (n *Number) String() string {
 	if n == nil {

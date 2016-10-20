@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/davelondon/ktest/assert"
-	"kego.io/packer"
+	"kego.io/system"
 )
 
 func TestFlatten(t *testing.T) {
@@ -59,7 +59,7 @@ func TestFlatten(t *testing.T) {
 
 func getArrayNode(a ...*Node) *Node {
 	n := NewNode()
-	n.JsonType = packer.J_ARRAY
+	n.JsonType = system.J_ARRAY
 	for _, c := range a {
 		n.Array = append(n.Array, c)
 	}
@@ -68,7 +68,7 @@ func getArrayNode(a ...*Node) *Node {
 
 func getMapNode(names string, a ...*Node) *Node {
 	n := NewNode()
-	n.JsonType = packer.J_MAP
+	n.JsonType = system.J_MAP
 	n.Map = map[string]*Node{}
 	for i, c := range a {
 		n.Map[string(names[i])] = c
@@ -78,7 +78,7 @@ func getMapNode(names string, a ...*Node) *Node {
 
 func getStringNode(val string) *Node {
 	n := NewNode()
-	n.JsonType = packer.J_STRING
+	n.JsonType = system.J_STRING
 	n.ValueString = val
 	return n
 }
@@ -87,7 +87,7 @@ func flatten(n *Node) string {
 	a := n.Flatten(false)
 	out := ""
 	for _, c := range a {
-		if c.JsonType == packer.J_STRING {
+		if c.JsonType == system.J_STRING {
 			if out != "" {
 				out += ","
 			}

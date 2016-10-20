@@ -19,7 +19,6 @@ import (
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
 	"kego.io/context/vosctx"
-	"kego.io/packer"
 	"kego.io/process/packages"
 	"kego.io/process/scanner"
 	"kego.io/system"
@@ -257,7 +256,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 		o := &system.ObjectStub{}
 		if err := system.Unmarshal(localContext, b.Bytes, o); err != nil {
 			switch kerr.Source(err).(type) {
-			case packer.UnknownPackageError, packer.UnknownTypeError:
+			case system.UnknownPackageError, system.UnknownTypeError:
 				// don't return error
 			default:
 				return nil, kerr.Wrap("MTDCXBYBEJ", err, b.File)
@@ -272,7 +271,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 			err := system.Unmarshal(localContext, b.Bytes, &i)
 			if err != nil {
 				switch kerr.Source(err).(type) {
-				case packer.UnknownPackageError, packer.UnknownTypeError:
+				case system.UnknownPackageError, system.UnknownTypeError:
 					// don't return error
 				default:
 					return nil, kerr.Wrap("XTEQCAYQJP", err)

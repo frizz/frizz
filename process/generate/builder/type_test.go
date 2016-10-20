@@ -1,17 +1,5 @@
 package builder
 
-import (
-	"reflect"
-	"testing"
-
-	"kego.io/process/parser"
-
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
-	"kego.io/system"
-	"kego.io/tests"
-)
-
 /*
 func TestFormatTag(t *testing.T) {
 	type parentStruct struct {
@@ -74,7 +62,7 @@ func (s *structWithCustomMarshaler) MarshalJSON(ctx context.Context) ([]byte, er
 	return []byte(`"foo"`), nil
 }
 
-var _ packer.Marshaler = (*structWithCustomMarshaler)(nil)
+var _ system.Marshaler = (*structWithCustomMarshaler)(nil)
 
 func TestMarshaler(t *testing.T) {
 	f := structWithCustomMarshaler{}
@@ -217,6 +205,7 @@ func TestGetTag(t *testing.T) {
 }
 */
 
+/*
 func TestGoTypeDescriptor(t *testing.T) {
 
 	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
@@ -415,8 +404,9 @@ func TestGoTypeDescriptor(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "*A `json:\"n\"`", s)
 
-}
+}*/
 
+/*
 func TypeErrors_NeedsTypes(t *testing.T) {
 
 	cb := tests.Context("kego.io/system").Jauto().Sauto(parser.Parse)
@@ -445,6 +435,7 @@ func TypeErrors_NeedsTypes(t *testing.T) {
 	require.NoError(t, err)
 
 }
+*/
 
 /*
 func TestUnknownRule(t *testing.T) {

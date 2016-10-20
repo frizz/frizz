@@ -8,12 +8,9 @@ import (
 
 	"regexp"
 
-	"reflect"
-
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 )
 
 type Reference struct {
@@ -118,24 +115,96 @@ func NewReference(packagePath string, typeName string) *Reference {
 
 func NewReferenceFromString(ctx context.Context, in string) (*Reference, error) {
 	r := &Reference{}
-	err := r.Unpack(ctx, packer.Pack(in), false)
+	err := r.Unpack(ctx, Pack(in), false)
 	if err != nil {
 		return nil, kerr.Wrap("VXRGOQHWNB", err)
 	}
 	return r, nil
 }
 
-func (v *Reference) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (path string, name string, err error) {
+
+	env := envctx.FromContext(ctx)
+
+	if strings.Contains(typeString, "/") {
+		// If the type name contains a slash, I'm assuming it's a fully
+		// qualified type name of the form "kego.io/system:type".
+		// TODO: Improve this with a regex?
+		parts := strings.Split(typeString, ":")
+
+		// We hard-code system and json to prevent them having to always be
+		// specified in the aliases
+		if parts[0] == "kego.io/system" {
+			return "kego.io/system", parts[1], nil
+		} else if parts[0] == "kego.io/json" {
+			return "kego.io/json", parts[1], nil
+		}
+
+		_, found := findKey(env.Aliases, parts[0])
+		if !found && parts[0] != env.Path {
+			return "", "", UnknownPackageError{
+				Struct:         kerr.New("KJSOXDESFD", "Unknown package %s", parts[0]),
+				UnknownPackage: parts[0],
+			}
+		}
+		return parts[0], parts[1], nil
+	} else if strings.Contains(typeString, ":") {
+		// If the type name contains a colon, I'm assuming it's an abreviated
+		// qualified type name of the form "system:type". We should look the
+		// package name up in the aliases map.
+		// TODO: Improve this with a regex?
+		parts := strings.Split(typeString, ":")
+
+		// We hard-code system and json to prevent them having to always be
+		// specified in the aliases
+		if parts[0] == "system" {
+			return "kego.io/system", parts[1], nil
+		} else if parts[0] == "json" {
+			return "kego.io/json", parts[1], nil
+		}
+
+		packagePath, ok := env.Aliases[parts[0]]
+		if !ok {
+			return "", "", UnknownPackageError{
+				Struct:         kerr.New("DKKFLKDKYI", "Unknown package %s", parts[0]),
+				UnknownPackage: parts[0],
+			}
+		}
+		return packagePath, parts[1], nil
+	} else {
+		return env.Path, typeString, nil
+	}
+}
+func findKey(m map[string]string, value string) (string, bool) {
+	for k, v := range m {
+		if value == v {
+			return k, true
+		}
+	}
+	return "", false
+}
+
+type UnknownPackageError struct {
+	kerr.Struct
+	UnknownPackage string
+}
+
+type UnknownTypeError struct {
+	kerr.Struct
+	UnknownType string
+}
+
+func (v *Reference) Unpack(ctx context.Context, in Packed, iface bool) error {
+	if in == nil || in.Type() == J_NULL {
 		return kerr.New("MOQVSKJXRB", "Called Reference.Unpack with nil value")
 	}
-	if in.Type() == packer.J_MAP {
+	if in.Type() == J_MAP {
 		in = in.Map()["value"]
 	}
-	if in.Type() != packer.J_STRING {
+	if in.Type() != J_STRING {
 		return kerr.New("RFLQSBPMYM", "Can't unpack %s into *system.Reference", in.Type())
 	}
-	path, name, err := packer.GetReferencePartsFromTypeString(ctx, in.String())
+	path, name, err := GetReferencePartsFromTypeString(ctx, in.String())
 	if err != nil {
 		// We need to clear the reference, because when we're scanning for
 		// aliases we need to tolerate unknown import errors here
@@ -148,7 +217,7 @@ func (v *Reference) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	return nil
 }
 
-var _ packer.Unpacker = (*Reference)(nil)
+var _ Unpacker = (*Reference)(nil)
 
 func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) error {
 	s, ok := in.(string)
@@ -156,7 +225,7 @@ func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) er
 		out.Name = ""
 		out.Package = ""
 	} else {
-		path, name, err := packer.GetReferencePartsFromTypeString(ctx, s)
+		path, name, err := GetReferencePartsFromTypeString(ctx, s)
 		if err != nil {
 			// We need to clear the reference, because when we're scanning for
 			// aliases we need to tolerate unknown import errors here
@@ -170,7 +239,7 @@ func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) er
 	return nil
 }
 
-var _ packer.Repacker = (*Reference)(nil)
+var _ Repacker = (*Reference)(nil)
 
 func (r *Reference) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
 	if r == nil {
@@ -198,28 +267,12 @@ func (r Reference) GetType(ctx context.Context) (*Type, bool) {
 	return t, true
 }
 
-func (r Reference) GetReflectType(ctx context.Context) (reflect.Type, bool) {
-	nf, ok := jsonctx.FromContext(ctx).GetNewFunc(r.Package, r.Name)
-	if !ok {
-		return nil, false
-	}
-	return reflect.TypeOf(nf()), true
-}
-
 func (r Reference) GetDummy(ctx context.Context) (interface{}, bool) {
 	df, ok := jsonctx.FromContext(ctx).GetDummyFunc(r.Package, r.Name)
 	if !ok {
 		return nil, false
 	}
 	return df(), true
-}
-
-func (r Reference) GetReflectInterface(ctx context.Context) (reflect.Type, bool) {
-	ifunc, ok := jsonctx.FromContext(ctx).GetInterfaceFunc(r.Package, r.Name)
-	if !ok {
-		return nil, false
-	}
-	return ifunc(), true
 }
 
 func (r Reference) ChangeToType() Reference {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
-	"kego.io/packer"
 	"kego.io/tests"
 )
 
@@ -198,32 +197,32 @@ func TestIsNativeValue(t *testing.T) {
 }
 
 func TestIsJsonValue(t *testing.T) {
-	test := func(expected bool, in *Reference, na packer.Type) {
+	test := func(expected bool, in *Reference, na JsonType) {
 		ty := &Type{Object: &Object{Id: in}, Native: NewString(string(na))}
 		assert.Equal(t, expected, ty.IsJsonValue())
 	}
-	test(false, NewReference("a.b/c", "d"), packer.J_STRING)
-	test(false, NewReference("kego.io/json", "a"), packer.J_OBJECT)
-	test(false, NewReference("kego.io/json", "a"), packer.J_NULL)
-	test(false, NewReference("kego.io/json", "a"), packer.J_MAP)
-	test(true, NewReference("kego.io/json", "a"), packer.J_STRING)
+	test(false, NewReference("a.b/c", "d"), J_STRING)
+	test(false, NewReference("kego.io/json", "a"), J_OBJECT)
+	test(false, NewReference("kego.io/json", "a"), J_NULL)
+	test(false, NewReference("kego.io/json", "a"), J_MAP)
+	test(true, NewReference("kego.io/json", "a"), J_STRING)
 }
 
 func TestNativeJsonType(t *testing.T) {
 	cb := tests.New()
-	test := func(expected packer.Type, in string) {
+	test := func(expected JsonType, in string) {
 		ty := &Type{Native: NewString(in)}
 		assert.Equal(t, expected, ty.NativeJsonType(cb.Ctx()), in)
 	}
-	test(packer.J_NUMBER, "number")
-	test(packer.J_STRING, "string")
-	test(packer.J_BOOL, "bool")
-	test(packer.J_MAP, "map")
-	test(packer.J_OBJECT, "object")
-	test(packer.J_ARRAY, "array")
-	test(packer.J_NULL, "null")
-	test(packer.J_NULL, "")
-	test(packer.J_NULL, "foo")
+	test(J_NUMBER, "number")
+	test(J_STRING, "string")
+	test(J_BOOL, "bool")
+	test(J_MAP, "map")
+	test(J_OBJECT, "object")
+	test(J_ARRAY, "array")
+	test(J_NULL, "null")
+	test(J_NULL, "")
+	test(J_NULL, "foo")
 }
 
 func TestGetTypeFromCache(t *testing.T) {

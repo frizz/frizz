@@ -11,7 +11,6 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/packer"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -287,7 +286,7 @@ func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error
 		// If the specified type is an interface, we should check to see if the
 		// node implements the interface.
 		if i, ok := r.GetType(p.ctx); ok && i.Interface {
-			rt, ok := i.Id.GetReflectType(p.ctx)
+			rt, ok := i.GetReflectType(p.ctx)
 			if ok {
 				if n.Type.Implements(p.ctx, rt) {
 					return true, nil
@@ -318,7 +317,7 @@ func (p *Parser) keyProduction(value interface{}) func(*node.Node) (bool, error)
 
 func nodeExists(n *node.Node) bool {
 	switch n.JsonType {
-	case packer.J_NULL:
+	case system.J_NULL:
 		return false
 	}
 	return n.Value != nil
@@ -365,8 +364,8 @@ func (p *Parser) pclassProduction(value interface{}) func(*node.Node) (bool, err
 		}
 	} else if pclass == "empty" {
 		return func(n *node.Node) (bool, error) {
-			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", packer.J_ARRAY, " AND ", len(n.Array), " < 1")
-			return n.JsonType == packer.J_ARRAY && len(n.Array) < 1, nil
+			logger.Print("pclassProduction empty ? ", n.JsonType, " == ", system.J_ARRAY, " AND ", len(n.Array), " < 1")
+			return n.JsonType == system.J_ARRAY && len(n.Array) < 1, nil
 		}
 	}
 	logger.Print("Error: Unknown pclass: ", pclass)
@@ -534,8 +533,8 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		logme(lexString, args)
 
 		return func(node *node.Node) (bool, error) {
-			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", packer.J_STRING, " AND ", strings.Count(node.ValueString, args[0].val.(string)), " > 0")
-			return node.JsonType == packer.J_STRING && strings.Count(node.ValueString, args[0].val.(string)) > 0, nil
+			logger.Print("pclassFuncProduction contains ? ", node.JsonType, " == ", system.J_STRING, " AND ", strings.Count(node.ValueString, args[0].val.(string)), " > 0")
+			return node.JsonType == system.J_STRING && strings.Count(node.ValueString, args[0].val.(string)) > 0, nil
 		}, tokens
 
 	case "val":

@@ -9,7 +9,6 @@ import (
 	"reflect"
 
 	"kego.io/context/jsonctx"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -19,8 +18,8 @@ type AlmsRule struct {
 	*system.Rule
 }
 
-func (v *AlmsRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *AlmsRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -69,8 +68,8 @@ type MainRule struct {
 	*system.Rule
 }
 
-func (v *MainRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *MainRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -119,8 +118,8 @@ type SimpleRule struct {
 	*system.Rule
 }
 
-func (v *SimpleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -171,9 +170,9 @@ type AlmsInterface interface {
 func (o Alms) GetAlms(ctx context.Context) Alms {
 	return o
 }
-func UnpackAlmsInterface(ctx context.Context, in packer.Packed) (AlmsInterface, error) {
+func UnpackAlmsInterface(ctx context.Context, in system.Packed) (AlmsInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data/alias", "alms")
 		if err != nil {
 			return nil, err
@@ -187,20 +186,20 @@ func UnpackAlmsInterface(ctx context.Context, in packer.Packed) (AlmsInterface, 
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into AlmsInterface.", in.Type())
 	}
 }
-func (v *Alms) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Alms) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if iface {
-		if in.Type() != packer.J_MAP {
+		if in.Type() != system.J_MAP {
 			return fmt.Errorf("Invalid type %s while unpacking a map.", in.Type())
 		}
 		in = in.Map()["value"]
 	}
-	if in.Type() != packer.J_MAP {
+	if in.Type() != system.J_MAP {
 		return fmt.Errorf("Invalid type %s while unpacking an array.", in.Type())
 	}
-	if in.Type() != packer.J_MAP {
+	if in.Type() != system.J_MAP {
 		return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", in.Type())
 	}
 	ob0 := map[string]*Simple{}
@@ -240,9 +239,9 @@ type MainInterface interface {
 func (o *Main) GetMain(ctx context.Context) *Main {
 	return o
 }
-func UnpackMainInterface(ctx context.Context, in packer.Packed) (MainInterface, error) {
+func UnpackMainInterface(ctx context.Context, in system.Packed) (MainInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data/alias", "main")
 		if err != nil {
 			return nil, err
@@ -256,8 +255,8 @@ func UnpackMainInterface(ctx context.Context, in packer.Packed) (MainInterface, 
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into MainInterface.", in.Type())
 	}
 }
-func (v *Main) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Main) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -266,7 +265,7 @@ func (v *Main) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["a"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := *new(Alms)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -310,9 +309,9 @@ type SimpleInterface interface {
 func (o *Simple) GetSimple(ctx context.Context) *Simple {
 	return o
 }
-func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterface, error) {
+func UnpackSimpleInterface(ctx context.Context, in system.Packed) (SimpleInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data/alias", "simple")
 		if err != nil {
 			return nil, err
@@ -326,8 +325,8 @@ func UnpackSimpleInterface(ctx context.Context, in packer.Packed) (SimpleInterfa
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into SimpleInterface.", in.Type())
 	}
 }
-func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -336,7 +335,7 @@ func (v *Simple) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["js"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["js"]; ok && field.Type() != system.J_NULL {
 		ob0, err := system.UnpackString(ctx, field)
 		if err != nil {
 			return err

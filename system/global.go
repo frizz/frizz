@@ -9,7 +9,7 @@ func GetAllTypesThatImplementInterface(typ *Type) []Hashed {
 	var reflectType reflect.Type
 	if typ.Interface {
 		// The type provided is an interface type
-		rt, ok := typ.Id.GetReflectType()
+		rt, ok := typ.GetReflectType()
 		if !ok {
 			return nil
 		}

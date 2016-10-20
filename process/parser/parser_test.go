@@ -92,9 +92,6 @@ func TestTypesUnknownType(t *testing.T) {
 	// unknown packages are not tolerated when scanning types
 	assert.HasError(t, err, "DKKFLKDKYI")
 
-	// Types should always unpack to *system.Type
-	assert.SkipError("IVIFIOFGVK")
-
 }
 
 func TestNoIdError(t *testing.T) {

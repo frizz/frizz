@@ -10,7 +10,6 @@ import (
 
 	"kego.io/context/jsonctx"
 	"kego.io/demo/common/units"
-	"kego.io/packer"
 	"kego.io/system"
 )
 
@@ -20,8 +19,8 @@ type IconRule struct {
 	*system.Rule
 }
 
-func (v *IconRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *IconRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -71,8 +70,8 @@ type ImageRule struct {
 	Secure *system.Bool `json:"secure"`
 }
 
-func (v *ImageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -87,7 +86,7 @@ func (v *ImageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["secure"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["secure"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Bool)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -135,8 +134,8 @@ type PhotoRule struct {
 	*system.Rule
 }
 
-func (v *PhotoRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -191,9 +190,9 @@ type IconInterface interface {
 func (o *Icon) GetIcon(ctx context.Context) *Icon {
 	return o
 }
-func UnpackIconInterface(ctx context.Context, in packer.Packed) (IconInterface, error) {
+func UnpackIconInterface(ctx context.Context, in system.Packed) (IconInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/images", "icon")
 		if err != nil {
 			return nil, err
@@ -207,8 +206,8 @@ func UnpackIconInterface(ctx context.Context, in packer.Packed) (IconInterface, 
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into IconInterface.", in.Type())
 	}
 }
-func (v *Icon) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Icon) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -217,7 +216,7 @@ func (v *Icon) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["url"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["url"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -249,9 +248,9 @@ func (v *Icon) Repack(ctx context.Context) (data interface{}, typePackage string
 	}
 	return m, "kego.io/demo/common/images", "icon", nil
 }
-func UnpackImage(ctx context.Context, in packer.Packed) (Image, error) {
+func UnpackImage(ctx context.Context, in system.Packed) (Image, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/images", "image")
 		if err != nil {
 			return nil, err
@@ -284,9 +283,9 @@ type PhotoInterface interface {
 func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 	return o
 }
-func UnpackPhotoInterface(ctx context.Context, in packer.Packed) (PhotoInterface, error) {
+func UnpackPhotoInterface(ctx context.Context, in system.Packed) (PhotoInterface, error) {
 	switch in.Type() {
-	case packer.J_MAP:
+	case system.J_MAP:
 		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/images", "photo")
 		if err != nil {
 			return nil, err
@@ -300,8 +299,8 @@ func UnpackPhotoInterface(ctx context.Context, in packer.Packed) (PhotoInterface
 		return nil, fmt.Errorf("Unsupported json type %s when unpacking into PhotoInterface.", in.Type())
 	}
 }
-func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
-	if in == nil || in.Type() == packer.J_NULL {
+func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
 		return nil
 	}
 	if v.Object == nil {
@@ -310,28 +309,14 @@ func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["server"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Server = ob0
-	}
-	if field, ok := in.Map()["size"]; ok && field.Type() != packer.J_NULL {
-		ob0 := new(units.Rectangle)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Size = ob0
-	}
-	if field, ok := in.Map()["path"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["path"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Path = ob0
 	}
-	if field, ok := in.Map()["protocol"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["protocol"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
@@ -339,10 +324,24 @@ func (v *Photo) Unpack(ctx context.Context, in packer.Packed, iface bool) error 
 		v.Protocol = ob0
 	} else {
 		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, packer.Pack("http"), false); err != nil {
+		if err := ob0.Unpack(ctx, system.Pack("http"), false); err != nil {
 			return err
 		}
 		v.Protocol = ob0
+	}
+	if field, ok := in.Map()["server"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Server = ob0
+	}
+	if field, ok := in.Map()["size"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(units.Rectangle)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Size = ob0
 	}
 	return nil
 }
@@ -394,6 +393,6 @@ func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/images")
 	pkg.SetHash(7237742861799384387)
 	pkg.Init("icon", func() interface{} { return new(Icon) }, func() interface{} { return new(IconRule) }, func() reflect.Type { return reflect.TypeOf((*IconInterface)(nil)).Elem() })
-	pkg.Init("image", func() interface{} { return new(Image) }, func() interface{} { return new(ImageRule) }, func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() })
+	pkg.Init("image", func() interface{} { return (*Image)(nil) }, func() interface{} { return new(ImageRule) }, func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() })
 	pkg.Init("photo", func() interface{} { return new(Photo) }, func() interface{} { return new(PhotoRule) }, func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() })
 }

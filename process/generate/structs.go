@@ -14,7 +14,6 @@ import (
 	"github.com/davelondon/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
-	"kego.io/packer"
 	"kego.io/process/generate/builder"
 	"kego.io/system"
 )
@@ -147,11 +146,11 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 					g.Println("}")
 				case kind == system.KindValue:
 					switch fieldType.NativeJsonType(ctx) {
-					case packer.J_STRING:
+					case system.J_STRING:
 						g.Println("if v.", fieldName, " != \"\" {")
-					case packer.J_NUMBER:
+					case system.J_NUMBER:
 						g.Println("if v.", fieldName, " != 0.0 {")
-					case packer.J_BOOL:
+					case system.J_BOOL:
 						g.Println("if v.", fieldName, " != false {")
 					}
 					{
@@ -178,21 +177,21 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				typ = system.WrapRule(ctx, typ.Alias).Parent
 			}
 			switch typ.NativeJsonType(ctx) {
-			case packer.J_STRING:
+			case system.J_STRING:
 				g.Println("if v != nil {")
 				{
 					g.Println("return string(*v), ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
 				}
 				g.Println("}")
 				g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
-			case packer.J_NUMBER:
+			case system.J_NUMBER:
 				g.Println("if v != nil {")
 				{
 					g.Println("return float64(*v), ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
 				}
 				g.Println("}")
 				g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
-			case packer.J_BOOL:
+			case system.J_BOOL:
 				g.Println("if v != nil {")
 				{
 					g.Println("return bool(*v), ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
@@ -219,7 +218,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, in string, out string, depth int, f system.RuleInterface, inStruct bool) error {
 	fieldRule := system.WrapRule(ctx, f)
 	kind, alias := fieldRule.Kind(ctx)
-	repackerDef := builder.Reference("kego.io/packer", "Repacker", env.Path, g.Imports.Add)
+	repackerDef := g.SprintRef("kego.io/system", "Repacker")
 	switch {
 	case kind == system.KindInterface:
 		valueVar := out + "_value"
@@ -229,7 +228,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 			g.Println(`return nil, "", "", err`)
 		}
 		g.Println("}")
-		newReferenceDef := builder.Reference("kego.io/system", "NewReference", env.Path, g.Imports.Add)
+		newReferenceDef := g.SprintRef("kego.io/system", "NewReference")
 		g.Println("typRef := ", newReferenceDef, "(pkg, name)")
 		g.Println("typeVal, err := typRef.ValueContext(ctx)")
 		g.Println("if err != nil {")
@@ -259,10 +258,10 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 			childOut := fmt.Sprintf("ob%d", childDepth)
 			childRule, err := fieldRule.ItemsRule()
 			if err != nil {
-				return kerr.Wrap("NYDJVRENGA", err)
+				return kerr.Wrap("VUKWDVGVAT", err)
 			}
 			if err := printRepackCode(ctx, env, g, childIn, childOut, childDepth, childRule.Interface, true); err != nil {
-				return kerr.Wrap("VNWOUDMDQC", err)
+				return kerr.Wrap("GDWUQWGFUI", err)
 			}
 			g.Println(out, " = append(", out, ", ", childOut, ")")
 		}
@@ -291,12 +290,11 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 
 func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
 	name := system.GoName(typ.Id.Name)
-	contextPkg := g.Imports.Add("context")
-	packerPkg := g.Imports.Add("kego.io/packer")
 	fmtPkg := g.Imports.Add("fmt")
-	g.Println("func (v *", name, ") Unpack(ctx ", contextPkg, ".Context, in ", packerPkg, ".Packed, iface bool) error {")
+	g.Println("func (v *", name, ") Unpack(ctx ", g.SprintRef("context", "Context"), ", in ", g.SprintRef("kego.io/system", "Packed"), ", iface bool) error {")
 	{
-		g.Println("if in == nil || in.Type() == ", packerPkg, ".J_NULL {")
+
+		g.Println("if in == nil || in.Type() == ", g.SprintRef("kego.io/system", "J_NULL"), " {")
 		{
 			g.Println("return nil")
 		}
@@ -328,7 +326,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				g.Println("}")
 			}
 			for n, f := range structType.Fields {
-				g.Println("if field, ok := in.Map()[", strconv.Quote(n), "]; ok && field.Type() != ", packerPkg, ".J_NULL {")
+				g.Println("if field, ok := in.Map()[", strconv.Quote(n), "]; ok && field.Type() != ", g.SprintRef("kego.io/system", "J_NULL"), " {")
 				{
 					in := "field"
 					out := "ob0"
@@ -345,7 +343,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 						if err != nil {
 							return kerr.Wrap("DLOUEHXVJF", err)
 						}
-						in := "packer.Pack(" + string(b) + ")"
+						in := g.SprintFunctionCall("kego.io/system", "Pack", string(b))
 						out := "ob0"
 						depth := 0
 						if err := printUnpackCode(ctx, env, g, in, out, depth, f); err != nil {
@@ -359,28 +357,28 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				}
 			}
 		case system.KindValue:
-			g.Println("if in.Type() == packer.J_MAP {")
+			g.Println("if in.Type() == ", g.SprintRef("kego.io/system", "J_MAP"), " {")
 			{
 				g.Println("in = in.Map()[\"value\"]")
 			}
 			g.Println("}")
 			switch typ.NativeJsonType(ctx) {
-			case packer.J_BOOL:
-				g.Println("if in.Type() != ", packerPkg, ".J_BOOL {")
+			case system.J_BOOL:
+				g.Println("if in.Type() != ", g.SprintRef("kego.io/system", "J_BOOL"), " {")
 				{
 					g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking a bool.", in.Type())`)
 				}
 				g.Println("}")
 				g.Println("*v = ", name, "(in.Bool())")
-			case packer.J_STRING:
-				g.Println("if in.Type() != ", packerPkg, ".J_STRING {")
+			case system.J_STRING:
+				g.Println("if in.Type() != ", g.SprintRef("kego.io/system", "J_STRING"), " {")
 				{
 					g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking a string.", in.Type())`)
 				}
 				g.Println("}")
 				g.Println("*v = ", name, "(in.String())")
-			case packer.J_NUMBER:
-				g.Println("if in.Type() != ", packerPkg, ".J_NUMBER {")
+			case system.J_NUMBER:
+				g.Println("if in.Type() != ", g.SprintRef("kego.io/system", "J_NUMBER"), " {")
 				{
 					g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking a number.", in.Type())`)
 				}
@@ -390,13 +388,13 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				panic(fmt.Sprintf("invalid type kind: %s, json native: %s", kind, typ.NativeJsonType(ctx)))
 			}
 		case system.KindArray:
-			g.Println("if in.Type() == packer.J_MAP {")
+			g.Println("if in.Type() == ", g.SprintRef("kego.io/system", "J_MAP"), " {")
 			{
 				g.Println("in = in.Map()[\"value\"]")
 			}
 			g.Println("}")
 
-			g.Println("if in.Type() != ", packerPkg, ".J_ARRAY {")
+			g.Println("if in.Type() != ", g.SprintRef("kego.io/system", "J_ARRAY"), " {")
 			{
 				g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking an array.", in.Type())`)
 			}
@@ -412,7 +410,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 		case system.KindMap:
 			g.Println("if iface {")
 			{
-				g.Println("if in.Type() != ", packerPkg, ".J_MAP {")
+				g.Println("if in.Type() != ", g.SprintRef("kego.io/system", "J_MAP"), " {")
 				{
 					g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking a map.", in.Type())`)
 				}
@@ -421,7 +419,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 			}
 			g.Println("}")
 
-			g.Println("if in.Type() != ", packerPkg, ".J_MAP {")
+			g.Println("if in.Type() != ", g.SprintRef("kego.io/system", "J_MAP"), " {")
 			{
 				g.Println("return ", fmtPkg, `.Errorf("Invalid type %s while unpacking an array.", in.Type())`)
 			}
@@ -461,16 +459,16 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 	case kind == system.KindValue:
 		var funcName string
 		switch fieldType.NativeJsonType(ctx) {
-		case packer.J_STRING:
+		case system.J_STRING:
 			funcName = "UnpackString"
-		case packer.J_NUMBER:
+		case system.J_NUMBER:
 			funcName = "UnpackNumber"
-		case packer.J_BOOL:
+		case system.J_BOOL:
 			funcName = "UnpackBool"
 		default:
 			return kerr.New("LSGUACQGHB", "Kind == KindValue but native json type==%s", fieldType.NativeJsonType(ctx))
 		}
-		funcRef := builder.Reference("kego.io/system", funcName, env.Path, g.Imports.Add)
+		funcRef := g.SprintRef("kego.io/system", funcName)
 		g.Println(out, ", err := ", funcRef, "(ctx, ", in, ")")
 		g.Println("if err != nil {")
 		{
@@ -498,16 +496,15 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 		//	g.Println("v.", fieldName, " = ob")
 		//}
 	case kind == system.KindArray:
-		packerPkg := g.Imports.Add("kego.io/packer")
 		fmtPkg := g.Imports.Add("fmt")
-		g.Println("if ", in, ".Type() != ", packerPkg, ".J_ARRAY {")
+		g.Println("if ", in, ".Type() != ", g.SprintRef("kego.io/system", "J_ARRAY"), " {")
 		{
 			g.Println("return ", fmtPkg, ".Errorf(\"Unsupported json type %s found while unpacking into an array.\", ", in, ".Type())")
 		}
 		g.Println("}")
 		fieldType, err := builder.TypeDefinition(ctx, f, env.Path, g.Imports.Add)
 		if err != nil {
-			return kerr.Wrap("IHNYODUIKG", err)
+			return kerr.Wrap("UDPMSSFLTW", err)
 		}
 		g.Println(out, " := ", fieldType, "{}")
 		iVar := fmt.Sprintf("i%d", depth)
@@ -527,9 +524,8 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 		}
 		g.Println("}")
 	case kind == system.KindMap:
-		packerPkg := g.Imports.Add("kego.io/packer")
 		fmtPkg := g.Imports.Add("fmt")
-		g.Println("if ", in, ".Type() != ", packerPkg, ".J_MAP {")
+		g.Println("if ", in, ".Type() != ", g.SprintRef("kego.io/system", "J_MAP"), " {")
 		{
 			g.Println("return ", fmtPkg, ".Errorf(\"Unsupported json type %s found while unpacking into a map.\", ", in, ".Type())")
 		}
@@ -569,14 +565,12 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, g *builder.Bui
 	} else {
 		interfaceName = system.GoInterfaceName(typ.Id.Name)
 	}
-	contextPkg := g.Imports.Add("context")
-	packerPkg := g.Imports.Add("kego.io/packer")
 	fmtPkg := g.Imports.Add("fmt")
-	g.Println("func Unpack", interfaceName, "(ctx ", contextPkg, ".Context, in ", packerPkg, ".Packed) (", interfaceName, ", error) {")
+	g.Println("func Unpack", interfaceName, "(ctx ", g.SprintRef("context", "Context"), ", in ", g.SprintRef("kego.io/system", "Packed"), ") (", interfaceName, ", error) {")
 	{
 		g.Println("switch in.Type() {")
 		{
-			g.Println("case ", packerPkg, ".J_MAP:")
+			g.Println("case ", g.SprintRef("kego.io/system", "J_MAP"), ":")
 			{
 				unknownTypeFunc := g.SprintFunctionCall("kego.io/system", "UnpackUnknownType", "ctx", "in", "true", strconv.Quote(typ.Id.Package), strconv.Quote(typ.Id.Name))
 				g.Println("i, err := ", unknownTypeFunc)
@@ -595,16 +589,16 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, g *builder.Bui
 			}
 			switch typ.NativeJsonType(ctx) {
 			// We don't include J_MAP in here.
-			case packer.J_STRING, packer.J_NUMBER, packer.J_BOOL, packer.J_ARRAY:
+			case system.J_STRING, system.J_NUMBER, system.J_BOOL, system.J_ARRAY:
 				switch typ.NativeJsonType(ctx) {
-				case packer.J_STRING:
-					g.Println("case ", packerPkg, ".J_STRING:")
-				case packer.J_NUMBER:
-					g.Println("case ", packerPkg, ".J_NUMBER:")
-				case packer.J_BOOL:
-					g.Println("case ", packerPkg, ".J_BOOL:")
-				case packer.J_ARRAY:
-					g.Println("case ", packerPkg, ".J_ARRAY:")
+				case system.J_STRING:
+					g.Println("case ", g.SprintRef("kego.io/system", "J_STRING"), ":")
+				case system.J_NUMBER:
+					g.Println("case ", g.SprintRef("kego.io/system", "J_NUMBER"), ":")
+				case system.J_BOOL:
+					g.Println("case ", g.SprintRef("kego.io/system", "J_BOOL"), ":")
+				case system.J_ARRAY:
+					g.Println("case ", g.SprintRef("kego.io/system", "J_ARRAY"), ":")
 				}
 				g.Println("ob := new(", typeName, ")")
 				g.Println("if err := ob.Unpack(ctx, in, false); err != nil {")
@@ -677,7 +671,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, g *builder.Buil
 	g.Println("type ", system.GoName(typ.Id.Name), " struct {")
 	{
 		if !typ.Basic {
-			g.Println("*", builder.Reference("kego.io/system", system.GoName("object"), env.Path, g.Imports.Add))
+			g.Println("*", g.SprintRef("kego.io/system", system.GoName("object")))
 		}
 
 		embedsSortable := system.SortableReferences(typ.Embed)

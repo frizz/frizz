@@ -1,19 +1,49 @@
-package packer
+package system
 
 import (
+	"context"
 	"fmt"
 
 	"encoding/json"
 )
 
+type JsonType string
+
+const (
+	J_NULL     JsonType = "null"
+	J_STRING   JsonType = "string"
+	J_BOOL     JsonType = "bool"
+	J_NUMBER   JsonType = "number"
+	J_ARRAY    JsonType = "array"
+	J_MAP      JsonType = "map"
+	J_OBJECT   JsonType = "object"
+	J_OPERATOR JsonType = "operator" // special type user by selectors
+)
+
 type Packed interface {
-	Type() Type // packer.packed will never be J_OBJECT, only J_MAP
+	Type() JsonType // packed will never be J_OBJECT, only J_MAP
 	Number() float64
 	String() string
 	Bool() bool
 	Array() []Packed
 	Map() map[string]Packed
 	Interface() interface{}
+}
+
+// Unpacker unpacks the data from in into the object. If iface is true, we're
+// unpacking into an interface. In this situation, map types are always
+// specified in typed form: {"type": "mytype", "value": {"foo": "bar"}}.
+type Unpacker interface {
+	Unpack(ctx context.Context, in Packed, iface bool) error
+}
+
+type Repacker interface {
+	// Repack packs the object into json data ready for marshaling to a string.
+	// If iface is true, we are packing into an interface type, so map types are
+	// always specified in specific typed form: {"type": "mytype", "value":
+	// {"foo": "bar"}}
+	// Repack(ctx context.Context, iface bool) (interface{}, error)
+	Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error)
 }
 
 type packed struct {
@@ -26,7 +56,7 @@ func Pack(v interface{}) *packed {
 	return &packed{v: v}
 }
 
-func PackString(s string) *packed {
+func MustPackString(s string) *packed {
 	var v interface{}
 	if err := json.Unmarshal([]byte(s), &v); err != nil {
 		panic(err.Error())
@@ -36,7 +66,7 @@ func PackString(s string) *packed {
 
 var _ Packed = (*packed)(nil)
 
-func (j *packed) Type() Type {
+func (j *packed) Type() JsonType {
 	if j == nil {
 		return J_NULL
 	}

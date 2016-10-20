@@ -9,7 +9,7 @@ import (
 
 func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -27,7 +27,7 @@ func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 		return kerr.Wrap("UYMXFFSCLT", err)
 	}
 
-	if field, ok := in.Map()["items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["items"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackRuleInterface(ctx, field)
 		if err != nil {
 			return kerr.Wrap("TWSEEFJMCO", err)
@@ -35,7 +35,7 @@ func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 		v.Items = ob
 	}
 
-	if field, ok := in.Map()["max-items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["max-items"]; ok && field.Type() != J_NULL {
 		if v.MaxItems == nil {
 			v.MaxItems = new(Int)
 		}
@@ -44,7 +44,7 @@ func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 		}
 	}
 
-	if field, ok := in.Map()["min-items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["min-items"]; ok && field.Type() != J_NULL {
 		if v.MinItems == nil {
 			v.MinItems = new(Int)
 		}
@@ -53,7 +53,7 @@ func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 		}
 	}
 
-	if field, ok := in.Map()["unique-items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["unique-items"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("RAQIXLAFDY", err)
@@ -66,7 +66,7 @@ func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) er
 }
 func (v *MapRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -84,7 +84,7 @@ func (v *MapRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		return kerr.Wrap("XEIFXOGUMH", err)
 	}
 
-	if field, ok := in.Map()["items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["items"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackRuleInterface(ctx, field)
 		if err != nil {
 			return kerr.Wrap("TQUGWPSOXQ", err)
@@ -92,7 +92,7 @@ func (v *MapRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		v.Items = ob
 	}
 
-	if field, ok := in.Map()["keys"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["keys"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackRuleInterface(ctx, field)
 		if err != nil {
 			return kerr.Wrap("OCLRYFYHYQ", err)
@@ -100,7 +100,7 @@ func (v *MapRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		v.Keys = ob
 	}
 
-	if field, ok := in.Map()["max-items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["max-items"]; ok && field.Type() != J_NULL {
 		if v.MaxItems == nil {
 			v.MaxItems = new(Int)
 		}
@@ -109,7 +109,7 @@ func (v *MapRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		}
 	}
 
-	if field, ok := in.Map()["min-items"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["min-items"]; ok && field.Type() != J_NULL {
 		if v.MinItems == nil {
 			v.MinItems = new(Int)
 		}
@@ -123,7 +123,7 @@ func (v *MapRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 }
 func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -141,7 +141,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		return kerr.Wrap("YBREONMQCU", err)
 	}
 
-	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		if v.Default == nil {
 			v.Default = new(String)
 		}
@@ -150,8 +150,8 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["enum"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_ARRAY {
+	if field, ok := in.Map()["enum"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_ARRAY {
 			return kerr.New("BOANVNIBJI", "StringRule: enum field must be an array. Found %s", field.Type())
 		}
 		for _, value := range field.Array() {
@@ -163,7 +163,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["equal"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["equal"]; ok && field.Type() != J_NULL {
 		if v.Equal == nil {
 			v.Equal = new(String)
 		}
@@ -172,7 +172,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["format"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["format"]; ok && field.Type() != J_NULL {
 		if v.Format == nil {
 			v.Format = new(String)
 		}
@@ -181,7 +181,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["long"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["long"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("RQBUBSJYHN", err)
@@ -189,7 +189,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		v.Long = ob
 	}
 
-	if field, ok := in.Map()["max-length"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["max-length"]; ok && field.Type() != J_NULL {
 		if v.MaxLength == nil {
 			v.MaxLength = new(Int)
 		}
@@ -198,7 +198,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["min-length"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["min-length"]; ok && field.Type() != J_NULL {
 		if v.MinLength == nil {
 			v.MinLength = new(Int)
 		}
@@ -207,7 +207,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["pattern"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["pattern"]; ok && field.Type() != J_NULL {
 		if v.Pattern == nil {
 			v.Pattern = new(String)
 		}
@@ -216,7 +216,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["pattern-not"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["pattern-not"]; ok && field.Type() != J_NULL {
 		if v.PatternNot == nil {
 			v.PatternNot = new(String)
 		}
@@ -231,7 +231,7 @@ func (v *StringRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 
 func (v *IntRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -249,7 +249,7 @@ func (v *IntRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		return kerr.Wrap("VBUBGQYJET", err)
 	}
 
-	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		if v.Default == nil {
 			v.Default = new(Int)
 		}
@@ -258,7 +258,7 @@ func (v *IntRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		}
 	}
 
-	if field, ok := in.Map()["maximum"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["maximum"]; ok && field.Type() != J_NULL {
 		if v.Maximum == nil {
 			v.Maximum = new(Int)
 		}
@@ -267,7 +267,7 @@ func (v *IntRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		}
 	}
 
-	if field, ok := in.Map()["minimum"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["minimum"]; ok && field.Type() != J_NULL {
 		if v.Minimum == nil {
 			v.Minimum = new(Int)
 		}
@@ -276,7 +276,7 @@ func (v *IntRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		}
 	}
 
-	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != J_NULL {
 		if v.MultipleOf == nil {
 			v.MultipleOf = new(Int)
 		}
@@ -290,7 +290,7 @@ func (v *IntRule) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 }
 func (v *BoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -308,7 +308,7 @@ func (v *BoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool) err
 		return kerr.Wrap("WUUAPISXEE", err)
 	}
 
-	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		if v.Default == nil {
 			v.Default = new(Bool)
 		}
@@ -323,7 +323,7 @@ func (v *BoolRule) Unpack(ctx context.Context, in packer.Packed, iface bool) err
 
 func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -341,7 +341,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		return kerr.Wrap("KFNRXEFXTS", err)
 	}
 
-	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		if v.Default == nil {
 			v.Default = new(Number)
 		}
@@ -350,7 +350,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["exclusive-maximum"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["exclusive-maximum"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("VKISBSJFFD", err)
@@ -358,7 +358,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		v.ExclusiveMaximum = ob
 	}
 
-	if field, ok := in.Map()["exclusive-minimum"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["exclusive-minimum"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("QIDUBWWJAD", err)
@@ -366,7 +366,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		v.ExclusiveMinimum = ob
 	}
 
-	if field, ok := in.Map()["maximum"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["maximum"]; ok && field.Type() != J_NULL {
 		if v.Maximum == nil {
 			v.Maximum = new(Number)
 		}
@@ -375,7 +375,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["minimum"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["minimum"]; ok && field.Type() != J_NULL {
 		if v.Minimum == nil {
 			v.Minimum = new(Number)
 		}
@@ -384,7 +384,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 		}
 	}
 
-	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != J_NULL {
 		if v.MultipleOf == nil {
 			v.MultipleOf = new(Number)
 		}
@@ -399,7 +399,7 @@ func (v *NumberRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 
 func (v *ReferenceRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -417,7 +417,7 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in packer.Packed, iface bool
 		return kerr.Wrap("WNACMHDQXN", err)
 	}
 
-	if field, ok := in.Map()["default"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		if v.Default == nil {
 			v.Default = new(Reference)
 		}
@@ -426,7 +426,7 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in packer.Packed, iface bool
 		}
 	}
 
-	if field, ok := in.Map()["pattern"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["pattern"]; ok && field.Type() != J_NULL {
 		if v.Pattern == nil {
 			v.Pattern = new(String)
 		}
@@ -435,7 +435,7 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in packer.Packed, iface bool
 		}
 	}
 
-	if field, ok := in.Map()["pattern-not"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["pattern-not"]; ok && field.Type() != J_NULL {
 		if v.PatternNot == nil {
 			v.PatternNot = new(String)
 		}
@@ -450,7 +450,7 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in packer.Packed, iface bool
 
 func (v *PackageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -474,7 +474,7 @@ func (v *PackageRule) Unpack(ctx context.Context, in packer.Packed, iface bool) 
 
 func (v *RuleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -498,7 +498,7 @@ func (v *RuleRule) Unpack(ctx context.Context, in packer.Packed, iface bool) err
 
 func (v *ObjectRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -522,7 +522,7 @@ func (v *ObjectRule) Unpack(ctx context.Context, in packer.Packed, iface bool) e
 
 func (v *TagsRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -545,7 +545,7 @@ func (v *TagsRule) Unpack(ctx context.Context, in packer.Packed, iface bool) err
 }
 func (v *TypeRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -569,15 +569,15 @@ func (v *TypeRule) Unpack(ctx context.Context, in packer.Packed, iface bool) err
 
 func (v *Tags) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if in.Type() == packer.J_MAP {
+	if in.Type() == J_MAP {
 		in = in.Map()["value"]
 	}
 
-	if in.Type() != packer.J_ARRAY {
+	if in.Type() != J_ARRAY {
 		return kerr.New("JCPPNLLVRA", "Tags.Unpack: %s must by J_ARRAY", in.Type())
 	}
 
@@ -594,15 +594,15 @@ func (v *Tags) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 }
 func (v *Number) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if in.Type() == packer.J_MAP {
+	if in.Type() == J_MAP {
 		in = in.Map()["value"]
 	}
 
-	if in.Type() != packer.J_NUMBER {
+	if in.Type() != J_NUMBER {
 		return kerr.New("QCFGULWGNV", "Number.Unpack: %s must by J_NUMBER", in.Type())
 	}
 
@@ -613,15 +613,15 @@ func (v *Number) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 
 func (v *Bool) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if in.Type() == packer.J_MAP {
+	if in.Type() == J_MAP {
 		in = in.Map()["value"]
 	}
 
-	if in.Type() != packer.J_BOOL {
+	if in.Type() != J_BOOL {
 		return kerr.New("JKDSOEAHLG", "Bool.Unpack: %s must by J_BOOL", in.Type())
 	}
 
@@ -632,15 +632,15 @@ func (v *Bool) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
 func (v *String) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if in.Type() == packer.J_MAP {
+	if in.Type() == J_MAP {
 		in = in.Map()["value"]
 	}
 
-	if in.Type() != packer.J_STRING {
+	if in.Type() != J_STRING {
 		return kerr.New("LXNBXXRGLS", "String.Unpack: %s must by J_STRING", in.Type())
 	}
 
@@ -651,11 +651,11 @@ func (v *String) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 
 func (v *Rule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if field, ok := in.Map()["interface"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["interface"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return err
@@ -663,7 +663,7 @@ func (v *Rule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Interface = ob
 	}
 
-	if field, ok := in.Map()["optional"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["optional"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return err
@@ -671,7 +671,7 @@ func (v *Rule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Optional = ob
 	}
 
-	if field, ok := in.Map()["selector"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["selector"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackString(ctx, field)
 		if err != nil {
 			return err
@@ -684,11 +684,11 @@ func (v *Rule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
 func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
-	if field, ok := in.Map()["description"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["description"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackString(ctx, field)
 		if err != nil {
 			return err
@@ -696,7 +696,7 @@ func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 		v.Description = ob
 	}
 
-	if field, ok := in.Map()["id"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["id"]; ok && field.Type() != J_NULL {
 		if v.Id == nil {
 			v.Id = new(Reference)
 		}
@@ -705,8 +705,8 @@ func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 		}
 	}
 
-	if field, ok := in.Map()["rules"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_ARRAY {
+	if field, ok := in.Map()["rules"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_ARRAY {
 			return kerr.New("LOIJEOTTWE", "Object: rules field must be an array. Found %s", field.Type())
 		}
 		for _, value := range field.Array() {
@@ -718,8 +718,8 @@ func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 		}
 	}
 
-	if field, ok := in.Map()["tags"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_ARRAY {
+	if field, ok := in.Map()["tags"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_ARRAY {
 			return kerr.New("SRGRWWKETJ", "Object: tags field must be an array. Found %s", field.Type())
 		}
 		for _, value := range field.Array() {
@@ -731,7 +731,7 @@ func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 		}
 	}
 
-	if field, ok := in.Map()["tags-new"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["tags-new"]; ok && field.Type() != J_NULL {
 		if v.TagsNew == nil {
 			v.TagsNew = *new(Tags)
 		}
@@ -740,7 +740,7 @@ func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 		}
 	}
 
-	if field, ok := in.Map()["type"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["type"]; ok && field.Type() != J_NULL {
 		if v.Type == nil {
 			v.Type = new(Reference)
 		}
@@ -755,7 +755,7 @@ func (v *Object) Unpack(ctx context.Context, in packer.Packed, iface bool) error
 
 func (v *Package) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -766,8 +766,8 @@ func (v *Package) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		return kerr.Wrap("JILILQONWW", err)
 	}
 
-	if field, ok := in.Map()["aliases"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_MAP {
+	if field, ok := in.Map()["aliases"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_MAP {
 			return kerr.New("DTJLNRDEDD", "Type: aliases field must be a map. Found %s", field.Type())
 		}
 		for key, value := range field.Map() {
@@ -782,7 +782,7 @@ func (v *Package) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 		}
 	}
 
-	if field, ok := in.Map()["recursive"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["recursive"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("JTPLHHWICO", err)
@@ -796,7 +796,7 @@ func (v *Package) Unpack(ctx context.Context, in packer.Packed, iface bool) erro
 
 func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
@@ -807,7 +807,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		return kerr.Wrap("MOPEPGLSEJ", err)
 	}
 
-	if field, ok := in.Map()["alias"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["alias"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackRuleInterface(ctx, field)
 		if err != nil {
 			return kerr.Wrap("MJTTFDTSBC", err)
@@ -815,7 +815,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Alias = ob
 	}
 
-	if field, ok := in.Map()["basic"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["basic"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("MJTTFDTSBC", err)
@@ -823,7 +823,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Basic = ob
 	}
 
-	if field, ok := in.Map()["custom"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["custom"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("AAQKLHIWPC", err)
@@ -831,7 +831,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Custom = ob
 	}
 
-	if field, ok := in.Map()["custom-kind"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["custom-kind"]; ok && field.Type() != J_NULL {
 		if v.CustomKind == nil {
 			v.CustomKind = new(String)
 		}
@@ -840,8 +840,8 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		}
 	}
 
-	if field, ok := in.Map()["embed"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_ARRAY {
+	if field, ok := in.Map()["embed"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_ARRAY {
 			return kerr.New("BOANVNIBJI", "Type: embed field must be an array. Found %s", field.Type())
 		}
 		for _, value := range field.Array() {
@@ -853,8 +853,8 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		}
 	}
 
-	if field, ok := in.Map()["fields"]; ok && field.Type() != packer.J_NULL {
-		if field.Type() != packer.J_MAP {
+	if field, ok := in.Map()["fields"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_MAP {
 			return kerr.New("DTJLNRDEDD", "Type: fields field must be a map. Found %s", field.Type())
 		}
 		for key, value := range field.Map() {
@@ -869,7 +869,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		}
 	}
 
-	if field, ok := in.Map()["interface"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["interface"]; ok && field.Type() != J_NULL {
 		ob, err := UnpackBool(ctx, field)
 		if err != nil {
 			return kerr.Wrap("YKHGPVBDPM", err)
@@ -877,7 +877,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Interface = ob
 	}
 
-	if field, ok := in.Map()["native"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["native"]; ok && field.Type() != J_NULL {
 		if v.Native == nil {
 			v.Native = new(String)
 		}
@@ -894,7 +894,7 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		}
 	}
 
-	if field, ok := in.Map()["rule"]; ok && field.Type() != packer.J_NULL {
+	if field, ok := in.Map()["rule"]; ok && field.Type() != J_NULL {
 		if v.Rule == nil {
 			v.Rule = new(Type)
 		}

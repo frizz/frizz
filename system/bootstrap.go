@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/davelondon/kerr"
-	"kego.io/packer"
 )
 
 type Mappy map[string]string
@@ -13,10 +12,10 @@ type MappyInterface interface {
 	GetMappy(context.Context) error
 }
 
-func UnpackMappyInterface(ctx context.Context, in packer.Packed) (MappyInterface, error) {
+func UnpackMappyInterface(ctx context.Context, in Packed) (MappyInterface, error) {
 	// Mappy is an map type, so we only accept a typed map
 	switch in.Type() {
-	case packer.J_MAP:
+	case J_MAP:
 		ob, err := UnpackUnknownType(ctx, in, true, "kego.io/system", "mappy")
 		if err != nil {
 			return nil, kerr.Wrap("QSTEIBUNWO", err)
@@ -31,20 +30,20 @@ func UnpackMappyInterface(ctx context.Context, in packer.Packed) (MappyInterface
 	}
 }
 
-func (v *Mappy) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
+func (v *Mappy) Unpack(ctx context.Context, in Packed, iface bool) error {
 
-	if in == nil || in.Type() == packer.J_NULL {
+	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
 
 	if iface {
-		if in.Type() != packer.J_MAP {
+		if in.Type() != J_MAP {
 			return kerr.New("DTLQPHOJDT", "Mappy.Unpack: %s must by J_MAP", in.Type())
 		}
 		in = in.Map()["value"]
 	}
 
-	if in.Type() != packer.J_MAP {
+	if in.Type() != J_MAP {
 		return kerr.New("KYPSXYBLNC", "Mappy.Unpack: %s must by J_MAP", in.Type())
 	}
 

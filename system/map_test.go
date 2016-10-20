@@ -36,7 +36,7 @@ func testMapMarshal(t *testing.T, up unpacker.Interface) {
 	assert.NotNil(t, a)
 	assert.Equal(t, "d", a.B["c"].Value())
 
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","e":"f","b":{"c":"d"}}`, string(b))
 

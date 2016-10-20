@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/packer"
 )
 
 /*
@@ -36,7 +35,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, up unpacker.Interface) {
 	assert.NotNil(t, a)
 	assert.Equal(t, 1.2, a.B.GetNumber(nil).Value())
 
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":1.2}`, string(b))
 
@@ -139,18 +138,18 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 
 	var n *Number
 
-	err := n.Unpack(envctx.Empty, packer.Pack(nil), false)
+	err := n.Unpack(envctx.Empty, Pack(nil), false)
 	require.NoError(t, err)
 	assert.Nil(t, n)
 
 	n = NewNumber(0.0)
-	err = n.Unpack(envctx.Empty, packer.Pack(1.2), false)
+	err = n.Unpack(envctx.Empty, Pack(1.2), false)
 	require.NoError(t, err)
 	assert.NotNil(t, n)
 	assert.Equal(t, 1.2, n.Value())
 
 	n = NewNumber(0.0)
-	err = n.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
+	err = n.Unpack(envctx.Empty, Pack(map[string]interface{}{
 		"type":  "system:number",
 		"value": 1.2,
 	}), false)
@@ -159,7 +158,7 @@ func TestNumberUnmarshalJSON(t *testing.T) {
 	assert.Equal(t, 1.2, n.Value())
 
 	n = NewNumber(0.0)
-	err = n.Unpack(envctx.Empty, packer.Pack("foo"), false)
+	err = n.Unpack(envctx.Empty, Pack("foo"), false)
 	assert.Error(t, err)
 
 }

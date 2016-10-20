@@ -6,7 +6,6 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/context/envctx"
-	"kego.io/packer"
 )
 
 func TestStringGetDefault(t *testing.T) {
@@ -41,7 +40,7 @@ func TestUnpackDefaultNativeTypeString(t *testing.T) {
 	assert.NotNil(t, a)
 	assert.Equal(t, "c", a.B.GetString(nil).Value())
 
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
@@ -71,7 +70,7 @@ func TestMarshal(t *testing.T) {
 	assert.NotNil(t, a)
 	assert.Equal(t, "c", a.B.Value())
 
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
@@ -95,7 +94,7 @@ func TestMarshal1(t *testing.T) {
 		},
 		B: NewString("d"),
 	}
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"d"}`, string(b))
 
@@ -118,17 +117,17 @@ func TestMarshal2(t *testing.T) {
 		},
 		B: NewString("c"),
 	}
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
 
-	b, err = packer.Marshal(ctx, a)
+	b, err = Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
 	ctx1 := tests.Context("d.e/f").JtypePath("kego.io/system", "a", reflect.TypeOf(&A{})).Ctx()
 
-	b, err = packer.Marshal(ctx1, a)
+	b, err = Marshal(ctx1, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"system:a","b":"c"}`, string(b))
 
@@ -149,20 +148,20 @@ func TestMarshal3(t *testing.T) {
 		},
 		B: NewString("c"),
 	}
-	b, err := packer.Marshal(ctx, a)
+	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"c.d/e:a","b":"c"}`, string(b))
 
-	b, err = packer.Marshal(ctx, a)
+	b, err = Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	b, err = packer.Marshal(tests.Context("f.g/h").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
+	b, err = Marshal(tests.Context("f.g/h").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	// The json package doesn't use kerr throughout, so we can't use HasError
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "WGCDQQCFAD")
 
-	b, err = packer.Marshal(tests.Context("f.g/h").Alias("i", "c.d/e").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
+	b, err = Marshal(tests.Context("f.g/h").Alias("i", "c.d/e").JtypePath("c.d/e", "a", reflect.TypeOf(&A{})).Ctx(), a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"i:a","b":"c"}`, string(b))
 
@@ -180,18 +179,18 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 	var s *String
 
-	err := s.Unpack(envctx.Empty, packer.Pack(nil), false)
+	err := s.Unpack(envctx.Empty, Pack(nil), false)
 	require.NoError(t, err)
 	assert.Nil(t, s)
 
 	s = NewString("")
-	err = s.Unpack(envctx.Empty, packer.Pack(`foo "bar"`), false)
+	err = s.Unpack(envctx.Empty, Pack(`foo "bar"`), false)
 	require.NoError(t, err)
 	assert.NotNil(t, s)
 	assert.Equal(t, `foo "bar"`, s.Value())
 
 	s = NewString("")
-	err = s.Unpack(envctx.Empty, packer.Pack(map[string]interface{}{
+	err = s.Unpack(envctx.Empty, Pack(map[string]interface{}{
 		"type":  "system:string",
 		"value": `foo "bar"`,
 	}), false)
@@ -200,7 +199,7 @@ func TestStringUnmarshalJSON(t *testing.T) {
 	assert.Equal(t, `foo "bar"`, s.Value())
 
 	s = NewString("")
-	err = s.Unpack(envctx.Empty, packer.Pack(1.0), false)
+	err = s.Unpack(envctx.Empty, Pack(1.0), false)
 	assert.Error(t, err)
 
 }

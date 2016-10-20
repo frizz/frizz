@@ -8,7 +8,6 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"github.com/go-errors/errors"
-	"kego.io/packer"
 	"kego.io/process/parser"
 	"kego.io/system"
 	"kego.io/system/node"
@@ -55,12 +54,12 @@ func TestGetInt32(t *testing.T) {
 }
 
 func TestIsNull(t *testing.T) {
-	assert.True(t, isNull(exprElement{typ: packer.J_NULL, value: nil}))
-	assert.True(t, isNull(exprElement{typ: packer.J_MAP, value: nil}))
-	assert.True(t, isNull(exprElement{typ: packer.J_MAP, value: &node.Node{Null: true}}))
-	assert.True(t, isNull(exprElement{typ: packer.J_MAP, value: &node.Node{Missing: true}}))
-	assert.False(t, isNull(exprElement{typ: packer.J_MAP, value: &node.Node{}}))
-	assert.False(t, isNull(exprElement{typ: packer.J_MAP, value: 1}))
+	assert.True(t, isNull(exprElement{typ: system.J_NULL, value: nil}))
+	assert.True(t, isNull(exprElement{typ: system.J_MAP, value: nil}))
+	assert.True(t, isNull(exprElement{typ: system.J_MAP, value: &node.Node{Null: true}}))
+	assert.True(t, isNull(exprElement{typ: system.J_MAP, value: &node.Node{Missing: true}}))
+	assert.False(t, isNull(exprElement{typ: system.J_MAP, value: &node.Node{}}))
+	assert.False(t, isNull(exprElement{typ: system.J_MAP, value: 1}))
 }
 
 func TestGetBool(t *testing.T) {
@@ -75,23 +74,23 @@ func TestGetBool(t *testing.T) {
 }
 
 func TestExprElementIsTruthy(t *testing.T) {
-	assert.False(t, exprElementIsTruthy(exprElement{typ: packer.J_STRING, value: ""}))
-	assert.True(t, exprElementIsTruthy(exprElement{typ: packer.J_STRING, value: "a"}))
-	assert.False(t, exprElementIsTruthy(exprElement{typ: packer.J_NUMBER, value: 0.0}))
-	assert.True(t, exprElementIsTruthy(exprElement{typ: packer.J_NUMBER, value: 0.1}))
-	assert.True(t, exprElementIsTruthy(exprElement{typ: packer.J_OBJECT}))
-	assert.True(t, exprElementIsTruthy(exprElement{typ: packer.J_MAP}))
-	assert.True(t, exprElementIsTruthy(exprElement{typ: packer.J_ARRAY}))
-	assert.False(t, exprElementIsTruthy(exprElement{typ: packer.J_BOOL, value: false}))
-	assert.True(t, exprElementIsTruthy(exprElement{typ: packer.J_BOOL, value: true}))
-	assert.False(t, exprElementIsTruthy(exprElement{typ: packer.J_NULL}))
-	assert.False(t, exprElementIsTruthy(exprElement{typ: packer.J_OPERATOR}))
+	assert.False(t, exprElementIsTruthy(exprElement{typ: system.J_STRING, value: ""}))
+	assert.True(t, exprElementIsTruthy(exprElement{typ: system.J_STRING, value: "a"}))
+	assert.False(t, exprElementIsTruthy(exprElement{typ: system.J_NUMBER, value: 0.0}))
+	assert.True(t, exprElementIsTruthy(exprElement{typ: system.J_NUMBER, value: 0.1}))
+	assert.True(t, exprElementIsTruthy(exprElement{typ: system.J_OBJECT}))
+	assert.True(t, exprElementIsTruthy(exprElement{typ: system.J_MAP}))
+	assert.True(t, exprElementIsTruthy(exprElement{typ: system.J_ARRAY}))
+	assert.False(t, exprElementIsTruthy(exprElement{typ: system.J_BOOL, value: false}))
+	assert.True(t, exprElementIsTruthy(exprElement{typ: system.J_BOOL, value: true}))
+	assert.False(t, exprElementIsTruthy(exprElement{typ: system.J_NULL}))
+	assert.False(t, exprElementIsTruthy(exprElement{typ: system.J_OPERATOR}))
 
 }
 
 func TestGetJsonString(t *testing.T) {
 	assert.Equal(t, "", getJsonString(nil))
-	assert.Equal(t, "", getJsonString(&foo{}))
+	assert.Equal(t, "{}", getJsonString(&foo{}))
 }
 
 type foo struct{}
