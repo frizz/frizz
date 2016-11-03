@@ -221,6 +221,14 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 	repackerDef := g.SprintRef("kego.io/system", "Repacker")
 	switch {
 	case kind == system.KindInterface:
+
+		// TODO: Only use typed notation when needed
+		// Rules:
+		// value == map ALWAYS
+		// value == object NEVER
+		// value == native/array USUALLY, but not if the type is the native
+		//          type of the interface.
+
 		valueVar := out + "_value"
 		g.Println(valueVar, ", pkg, name, err := ", in, ".(", repackerDef, ").Repack(ctx)")
 		g.Println("if err != nil {")

@@ -44,7 +44,8 @@ func TestAll(t *testing.T) {
 	untested := map[string][]string{}
 	for id, def := range all {
 		if !def.thrown && (def.tested || def.skipped) {
-			// Well, if the test isn't thrown the test should fail. Let's test for it here anyway.
+			// Well, if the test isn't thrown the test should fail. Let's test
+			// for it here anyway.
 			assert.Fail(t, "Error tested but not thrown", id)
 		}
 		if def.thrown && def.new && !def.tested && !def.skipped {

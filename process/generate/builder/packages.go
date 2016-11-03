@@ -31,7 +31,7 @@ func guessPackageName(path string) string {
 	if strings.Contains(preferred, ".") {
 		// dot is commonly usually used as a version - e.g. github.com/foo/bar.v1
 		// if the package name contains a ".", use the first part
-		preferred = preferred[:strings.LastIndex(preferred, ".")]
+		preferred = preferred[:strings.Index(preferred, ".")]
 	}
 	return preferred
 }
