@@ -36,30 +36,30 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	}
 	return nil
 }
-func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "@page", nil
+		return nil, "kego.io/demo/demo6", "@page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo6", "@page", nil
+	return m, "kego.io/demo/demo6", "@page", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for person
@@ -86,30 +86,30 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	}
 	return nil
 }
-func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "@person", nil
+		return nil, "kego.io/demo/demo6", "@person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo6", "@person", nil
+	return m, "kego.io/demo/demo6", "@person", system.J_OBJECT, nil
 }
 
 type Page struct {
@@ -150,6 +150,13 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["heading"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Heading = ob0
+	}
 	if field, ok := in.Map()["people"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -164,48 +171,41 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		}
 		v.People = ob0
 	}
-	if field, ok := in.Map()["heading"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Heading = ob0
-	}
 	return nil
 }
-func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "page", nil
+		return nil, "kego.io/demo/demo6", "page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Heading != nil {
-		ob0, _, _, err := v.Heading.Repack(ctx)
+		ob0, _, _, _, err := v.Heading.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["heading"] = ob0
 	}
 	if v.People != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.People {
-			ob1, _, _, err := v.People[i0].Repack(ctx)
+			ob1, _, _, _, err := v.People[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["people"] = ob0
 	}
-	return m, "kego.io/demo/demo6", "page", nil
+	return m, "kego.io/demo/demo6", "page", system.J_OBJECT, nil
 }
 
 type Person struct {
@@ -246,13 +246,6 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Age = ob0
-	}
 	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -260,37 +253,44 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 		}
 		v.Name = ob0
 	}
+	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Age = ob0
+	}
 	return nil
 }
-func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "person", nil
+		return nil, "kego.io/demo/demo6", "person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Age != nil {
-		ob0, _, _, err := v.Age.Repack(ctx)
+		ob0, _, _, _, err := v.Age.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["age"] = ob0
 	}
 	if v.Name != nil {
-		ob0, _, _, err := v.Name.Repack(ctx)
+		ob0, _, _, _, err := v.Name.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/demo/demo6", "person", nil
+	return m, "kego.io/demo/demo6", "person", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo6")

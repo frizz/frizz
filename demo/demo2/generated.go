@@ -37,30 +37,30 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	}
 	return nil
 }
-func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo2", "@page", nil
+		return nil, "kego.io/demo/demo2", "@page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo2", "@page", nil
+	return m, "kego.io/demo/demo2", "@page", system.J_OBJECT, nil
 }
 
 type Page struct {
@@ -117,35 +117,35 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	}
 	return nil
 }
-func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo2", "page", nil
+		return nil, "kego.io/demo/demo2", "page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Hero != nil {
-		ob0, _, _, err := v.Hero.Repack(ctx)
+		ob0, _, _, _, err := v.Hero.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["hero"] = ob0
 	}
 	if v.Title != nil {
-		ob0, _, _, err := v.Title.Repack(ctx)
+		ob0, _, _, _, err := v.Title.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["title"] = ob0
 	}
-	return m, "kego.io/demo/demo2", "page", nil
+	return m, "kego.io/demo/demo2", "page", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo2")

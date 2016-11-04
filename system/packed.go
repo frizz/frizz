@@ -43,7 +43,7 @@ type Repacker interface {
 	// always specified in specific typed form: {"type": "mytype", "value":
 	// {"foo": "bar"}}
 	// Repack(ctx context.Context, iface bool) (interface{}, error)
-	Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error)
+	Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType JsonType, err error)
 }
 
 type packed struct {

@@ -47,7 +47,7 @@ func TestKego(t *testing.T) {
 
 	b3, err := ke.Marshal(ctx, system.NewReference("kego.io/system", "type"))
 	require.NoError(t, err)
-	assert.Equal(t, "\"type\"", string(b3))
+	assert.Equal(t, "{\"type\":\"reference\",\"value\":\"type\"}", string(b3))
 
 	b4, err := ke.MarshalIndent(ctx, &system.Package{Recursive: true}, "", " ")
 	require.NoError(t, err)

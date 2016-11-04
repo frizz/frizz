@@ -93,11 +93,22 @@ func UnpackRefelctValue(ctx context.Context, p Packed, val reflect.Value) error 
 func Repack(ctx context.Context, data interface{}) (interface{}, error) {
 
 	if re, ok := data.(Repacker); ok {
-		p, _, _, err := re.Repack(ctx)
+		p, pkg, name, jt, err := re.Repack(ctx)
 		if err != nil {
 			return nil, kerr.Wrap("ISAOPMMEYI", err)
 		}
-		return p, nil
+		if jt == J_OBJECT {
+			return p, nil
+		}
+		typRef := NewReference(pkg, name)
+		typeVal, err := typRef.ValueContext(ctx)
+		if err != nil {
+			return nil, kerr.Wrap("IWSCKOWIMW", err)
+		}
+		out := map[string]interface{}{}
+		out["type"] = typeVal
+		out["value"] = p
+		return out, nil
 	}
 
 	switch data.(type) {
@@ -303,4 +314,28 @@ func UnpackNumber(ctx context.Context, in Packed) (float64, error) {
 		return 0.0, kerr.New("PFHJQLAIFP", "UnpackNumber: %s must by J_NUMBER", in.Type())
 	}
 	return in.Number(), nil
+}
+
+// ShouldUseExplicitTypeNotation determines if a value should be packed
+// into an interface using the explicit typed notation:
+// {"type":"foo","value":"bar"}
+//
+// Rules:
+// value == map ALWAYS
+// value == object NEVER
+// value == native/array USUALLY, but not if the type is the native
+//          type of the interface. This will only apply to rule interfaces.
+//
+func ShouldUseExplicitTypeNotation(dataTypePackage string, dataTypeName string, dataJsonType JsonType, interfaceTypePackage string, interfaceTypeName string) bool {
+	switch dataJsonType {
+	case J_OBJECT:
+		return false
+	case J_MAP:
+		return true
+	case J_STRING, J_BOOL, J_NUMBER, J_ARRAY:
+		return dataTypePackage != interfaceTypePackage ||
+			dataTypeName != interfaceTypeName
+	default: // J_NULL
+		return true // can we get here?
+	}
 }

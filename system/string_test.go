@@ -208,12 +208,12 @@ func TestStringMarshalJSON(t *testing.T) {
 
 	var s *String
 
-	ba, _, _, err := s.Repack(envctx.Empty)
+	ba, _, _, _, err := s.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, nil, ba)
 
 	s = NewString(`foo "bar"`)
-	ba, _, _, err = s.Repack(envctx.Empty)
+	ba, _, _, _, err = s.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, `foo "bar"`, ba)
 

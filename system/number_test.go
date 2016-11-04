@@ -167,17 +167,17 @@ func TestNumberMarshalJSON(t *testing.T) {
 
 	var n *Number
 
-	ba, _, _, err := n.Repack(envctx.Empty)
+	ba, _, _, _, err := n.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, nil, ba)
 
 	n = NewNumber(1.2)
-	ba, _, _, err = n.Repack(envctx.Empty)
+	ba, _, _, _, err = n.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, 1.2, ba)
 
 	n = NewNumber(1.0)
-	ba, _, _, err = n.Repack(envctx.Empty)
+	ba, _, _, _, err = n.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, 1.0, ba)
 

@@ -43,37 +43,37 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo8/images", "@photo", nil
+		return nil, "kego.io/demo/demo8/images", "@photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Big != nil {
-		ob0, _, _, err := v.Big.Repack(ctx)
+		ob0, _, _, _, err := v.Big.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["big"] = ob0
 	}
-	return m, "kego.io/demo/demo8/images", "@photo", nil
+	return m, "kego.io/demo/demo8/images", "@photo", system.J_OBJECT, nil
 }
 
 type Photo struct {
@@ -138,42 +138,42 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	}
 	return nil
 }
-func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo8/images", "photo", nil
+		return nil, "kego.io/demo/demo8/images", "photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Url != nil {
-		ob0, _, _, err := v.Url.Repack(ctx)
+		ob0, _, _, _, err := v.Url.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["url"] = ob0
 	}
 	if v.Width != nil {
-		ob0, _, _, err := v.Width.Repack(ctx)
+		ob0, _, _, _, err := v.Width.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["width"] = ob0
 	}
 	if v.Height != nil {
-		ob0, _, _, err := v.Height.Repack(ctx)
+		ob0, _, _, _, err := v.Height.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["height"] = ob0
 	}
-	return m, "kego.io/demo/demo8/images", "photo", nil
+	return m, "kego.io/demo/demo8/images", "photo", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo8/images")

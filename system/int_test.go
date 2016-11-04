@@ -130,17 +130,17 @@ func TestIntUnmarshalJSON(t *testing.T) {
 func TestIntRepack(t *testing.T) {
 
 	var i *Int
-	ba, _, _, err := i.Repack(envctx.Empty)
+	ba, _, _, _, err := i.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, nil, ba)
 
 	i = NewInt(12)
-	ba, _, _, err = i.Repack(envctx.Empty)
+	ba, _, _, _, err = i.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, 12.0, ba)
 
 	i = NewInt(-101)
-	ba, _, _, err = i.Repack(envctx.Empty)
+	ba, _, _, _, err = i.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, -101.0, ba)
 

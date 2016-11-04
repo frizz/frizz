@@ -231,12 +231,12 @@ func TestReferenceUnmarshal(t *testing.T) {
 func TestReferenceMarshalJson(t *testing.T) {
 
 	var r *Reference
-	b, _, _, err := r.Repack(envctx.Empty)
+	b, _, _, _, err := r.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, nil, b)
 
 	r = NewReference("a.b/c", "d")
-	b, _, _, err = r.Repack(envctx.Empty)
+	b, _, _, _, err = r.Repack(envctx.Empty)
 	require.NoError(t, err)
 	assert.Equal(t, "a.b/c:d", b)
 

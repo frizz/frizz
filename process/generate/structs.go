@@ -95,14 +95,41 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
 	name := system.GoName(typ.Id.Name)
-	contextPkg := g.Imports.Add("context")
-	g.Println("func (v *", name, ") Repack(ctx ", contextPkg, ".Context) (data interface{}, typePackage string, typeName string, err error) {")
+	context_Context := g.SprintRef("context", "Context")
+	system_JsonType := g.SprintRef("kego.io/system", "JsonType")
+	ptr := typ.PassedAsPointerString(ctx)
+	v := "v"
+	if typ.PassedAsPointer(ctx) {
+		v = "(*v)"
+	}
+	g.Println("func (v ", ptr, name, ") Repack(ctx ", context_Context, ") (data interface{}, typePackage string, typeName string, jsonType ", system_JsonType, ", err error) {")
 	{
 		g.Println("if v == nil {")
 		{
-			g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+			system_J_NULL := g.SprintRef("kego.io/system", "J_NULL")
+			g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", ", system_J_NULL, ", nil")
 		}
 		g.Println("}")
+
+		jtype := typ.NativeJsonType(ctx)
+		var jsonType string
+		switch jtype {
+		case system.J_NUMBER:
+			jsonType = g.SprintRef("kego.io/system", "J_NUMBER")
+		case system.J_STRING:
+			jsonType = g.SprintRef("kego.io/system", "J_STRING")
+		case system.J_BOOL:
+			jsonType = g.SprintRef("kego.io/system", "J_BOOL")
+		case system.J_MAP:
+			jsonType = g.SprintRef("kego.io/system", "J_MAP")
+		case system.J_OBJECT:
+			jsonType = g.SprintRef("kego.io/system", "J_OBJECT")
+		case system.J_ARRAY:
+			jsonType = g.SprintRef("kego.io/system", "J_ARRAY")
+		case system.J_NULL:
+			jsonType = g.SprintRef("kego.io/system", "J_NULL")
+		}
+
 		kind, _ := typ.Kind(ctx)
 		switch kind {
 		case system.KindStruct:
@@ -115,10 +142,10 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				embedName := system.GoName(embedRef.Name)
 				g.Println("if v.", embedName, " != nil {")
 				{
-					g.Println("ob, _, _, err := v.", embedName, ".Repack(ctx)")
+					g.Println("ob, _, _, _, err := v.", embedName, ".Repack(ctx)")
 					g.Println("if err != nil {")
 					{
-						g.Println(`return nil, "", "", err`)
+						g.Println(`return nil, "", "", "", err`)
 					}
 					g.Println("}")
 					g.Println("for key, val := range ob.(map[string]interface{}) {")
@@ -160,7 +187,9 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 						g.Println("m[", strconv.Quote(n), "] = ", "ob0")
 					}
 					g.Println("}")
-				case kind == system.KindArray:
+				case kind == system.KindArray ||
+					kind == system.KindMap ||
+					kind == system.KindInterface:
 					g.Println("if v.", fieldName, " != nil {")
 					{
 						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f, true); err != nil {
@@ -171,44 +200,46 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 					g.Println("}")
 				}
 			}
-			g.Println("return m, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+			g.Println("return m, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", ", jsonType, ", nil")
 		case system.KindValue:
+			outer := typ
+			inner := typ
 			if typ.Alias != nil {
-				typ = system.WrapRule(ctx, typ.Alias).Parent
+				inner = system.WrapRule(ctx, typ.Alias).Parent
 			}
-			switch typ.NativeJsonType(ctx) {
+			switch inner.NativeJsonType(ctx) {
 			case system.J_STRING:
 				g.Println("if v != nil {")
 				{
-					g.Println("return string(*v), ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+					g.Println("return string(", ptr, "v), ", strconv.Quote(outer.Id.Package), ", ", strconv.Quote(outer.Id.Name), ", ", jsonType, ", nil")
 				}
 				g.Println("}")
-				g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+				g.Println("return nil, ", strconv.Quote(outer.Id.Package), ", ", strconv.Quote(outer.Id.Name), ", ", jsonType, ", nil")
 			case system.J_NUMBER:
 				g.Println("if v != nil {")
 				{
-					g.Println("return float64(*v), ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+					g.Println("return float64(", ptr, "v), ", strconv.Quote(outer.Id.Package), ", ", strconv.Quote(outer.Id.Name), ", ", jsonType, ", nil")
 				}
 				g.Println("}")
-				g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+				g.Println("return nil, ", strconv.Quote(outer.Id.Package), ", ", strconv.Quote(outer.Id.Name), ", ", jsonType, ", nil")
 			case system.J_BOOL:
 				g.Println("if v != nil {")
 				{
-					g.Println("return bool(*v), ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+					g.Println("return bool(", ptr, "v), ", strconv.Quote(outer.Id.Package), ", ", strconv.Quote(outer.Id.Name), ", ", jsonType, ", nil")
 				}
 				g.Println("}")
-				g.Println("return nil, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+				g.Println("return nil, ", strconv.Quote(outer.Id.Package), ", ", strconv.Quote(outer.Id.Name), ", ", jsonType, ", nil")
 			}
 		case system.KindArray:
-			if err := printRepackCode(ctx, env, g, "(*v)", "ob0", 0, typ.Alias, false); err != nil {
+			if err := printRepackCode(ctx, env, g, v, "ob0", 0, typ.Alias, false); err != nil {
 				return kerr.Wrap("SYKLQKLCEO", err)
 			}
-			g.Println("return ob0, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+			g.Println("return ob0, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", ", jsonType, ", nil")
 		case system.KindMap:
-			if err := printRepackCode(ctx, env, g, "(*v)", "ob0", 0, typ.Alias, false); err != nil {
+			if err := printRepackCode(ctx, env, g, v, "ob0", 0, typ.Alias, false); err != nil {
 				return kerr.Wrap("HBSGXLGKCD", err)
 			}
-			g.Println("return ob0, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", nil")
+			g.Println("return ob0, ", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), ", ", jsonType, ", nil")
 		}
 	}
 	g.Println("}")
@@ -216,42 +247,57 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 }
 
 func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, in string, out string, depth int, f system.RuleInterface, inStruct bool) error {
-	fieldRule := system.WrapRule(ctx, f)
-	kind, alias := fieldRule.Kind(ctx)
+	field := system.WrapRule(ctx, f)
+	kind, alias := field.Kind(ctx)
 	repackerDef := g.SprintRef("kego.io/system", "Repacker")
 	switch {
 	case kind == system.KindInterface:
-
-		// TODO: Only use typed notation when needed
-		// Rules:
-		// value == map ALWAYS
-		// value == object NEVER
-		// value == native/array USUALLY, but not if the type is the native
-		//          type of the interface.
-
 		valueVar := out + "_value"
-		g.Println(valueVar, ", pkg, name, err := ", in, ".(", repackerDef, ").Repack(ctx)")
+		g.Println("var ", out, " interface{}")
+		g.Println(valueVar, ", pkg, name, typ, err := ", in, ".(", repackerDef, ").Repack(ctx)")
 		g.Println("if err != nil {")
 		{
-			g.Println(`return nil, "", "", err`)
+			g.Println(`return nil, "", "", "", err`)
 		}
 		g.Println("}")
-		newReferenceDef := g.SprintRef("kego.io/system", "NewReference")
-		g.Println("typRef := ", newReferenceDef, "(pkg, name)")
-		g.Println("typeVal, err := typRef.ValueContext(ctx)")
-		g.Println("if err != nil {")
+
+		should := g.SprintFunctionCall(
+			"kego.io/system",
+			"ShouldUseExplicitTypeNotation",
+			"pkg",
+			"name",
+			"typ",
+			strconv.Quote(field.Parent.Id.Package),
+			strconv.Quote(field.Parent.Id.Name))
+
+		g.Println("if ", should, " {")
 		{
-			g.Println(`return nil, "", "", err`)
+			newReferenceDef := g.SprintRef("kego.io/system", "NewReference")
+			g.Println("typRef := ", newReferenceDef, "(pkg, name)")
+			g.Println("typeVal, err := typRef.ValueContext(ctx)")
+			g.Println("if err != nil {")
+			{
+				g.Println(`return nil, "", "", "", err`)
+			}
+			g.Println("}")
+			g.Println(out, " = map[string]interface{}{")
+			{
+				g.Println("\"type\": typeVal,")
+				g.Println("\"value\": ", valueVar, ",")
+			}
+			g.Println("}")
+		}
+		g.Println("} else {")
+		{
+			g.Println(out, " = ", valueVar)
 		}
 		g.Println("}")
-		g.Println(out, " := map[string]interface{}{}")
-		g.Println(out, "[\"type\"] = typeVal")
-		g.Println(out, "[\"value\"] = ", valueVar)
+
 	case kind == system.KindStruct || (alias && inStruct):
-		g.Println(out, ", _, _, err := ", in, ".Repack(ctx)")
+		g.Println(out, ", _, _, _, err := ", in, ".Repack(ctx)")
 		g.Println("if err != nil {")
 		{
-			g.Println(`return nil, "", "", err`)
+			g.Println(`return nil, "", "", "", err`)
 		}
 		g.Println("}")
 	case kind == system.KindValue:
@@ -264,7 +310,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 			childIn := in + "[" + iVar + "]"
 			childDepth := depth + 1
 			childOut := fmt.Sprintf("ob%d", childDepth)
-			childRule, err := fieldRule.ItemsRule()
+			childRule, err := field.ItemsRule()
 			if err != nil {
 				return kerr.Wrap("VUKWDVGVAT", err)
 			}
@@ -282,7 +328,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *builder.Builder, i
 			childIn := in + "[" + kVar + "]"
 			childDepth := depth + 1
 			childOut := fmt.Sprintf("ob%d", childDepth)
-			childRule, err := fieldRule.ItemsRule()
+			childRule, err := field.ItemsRule()
 			if err != nil {
 				return kerr.Wrap("NYDJVRENGA", err)
 			}

@@ -241,15 +241,15 @@ func (out *Reference) UnmarshalInterface(ctx context.Context, in interface{}) er
 
 var _ Repacker = (*Reference)(nil)
 
-func (r *Reference) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (r *Reference) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType JsonType, err error) {
 	if r == nil {
-		return nil, "kego.io/system", "reference", nil
+		return nil, "kego.io/system", "reference", J_NULL, nil
 	}
 	val, err := r.ValueContext(ctx)
 	if err != nil {
-		return nil, "", "", kerr.Wrap("VQCYFSTPQD", err)
+		return nil, "", "", "", kerr.Wrap("VQCYFSTPQD", err)
 	}
-	return val, "kego.io/system", "reference", nil
+	return val, "kego.io/system", "reference", J_STRING, nil
 }
 
 func (r Reference) String() string {

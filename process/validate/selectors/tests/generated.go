@@ -36,30 +36,30 @@ func (v *BasicRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *BasicRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *BasicRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@basic", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@basic", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@basic", nil
+	return m, "kego.io/process/validate/selectors/tests", "@basic", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for c
@@ -86,30 +86,30 @@ func (v *CRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	}
 	return nil
 }
-func (v *CRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *CRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@c", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@c", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@c", nil
+	return m, "kego.io/process/validate/selectors/tests", "@c", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for collision
@@ -136,30 +136,30 @@ func (v *CollisionRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	}
 	return nil
 }
-func (v *CollisionRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *CollisionRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@collision", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@collision", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@collision", nil
+	return m, "kego.io/process/validate/selectors/tests", "@collision", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for diagram
@@ -186,30 +186,30 @@ func (v *DiagramRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	}
 	return nil
 }
-func (v *DiagramRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *DiagramRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@diagram", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@diagram", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@diagram", nil
+	return m, "kego.io/process/validate/selectors/tests", "@diagram", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for empty
@@ -236,30 +236,30 @@ func (v *EmptyRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *EmptyRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *EmptyRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@empty", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@empty", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@empty", nil
+	return m, "kego.io/process/validate/selectors/tests", "@empty", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for emptyItem
@@ -286,30 +286,30 @@ func (v *EmptyItemRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	}
 	return nil
 }
-func (v *EmptyItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *EmptyItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@emptyItem", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@emptyItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@emptyItem", nil
+	return m, "kego.io/process/validate/selectors/tests", "@emptyItem", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for expr
@@ -336,30 +336,30 @@ func (v *ExprRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	}
 	return nil
 }
-func (v *ExprRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *ExprRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@expr", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@expr", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@expr", nil
+	return m, "kego.io/process/validate/selectors/tests", "@expr", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for gallery
@@ -386,30 +386,30 @@ func (v *GalleryRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	}
 	return nil
 }
-func (v *GalleryRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *GalleryRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@gallery", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@gallery", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@gallery", nil
+	return m, "kego.io/process/validate/selectors/tests", "@gallery", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for image
@@ -436,30 +436,30 @@ func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *ImageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *ImageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@image", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@image", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@image", nil
+	return m, "kego.io/process/validate/selectors/tests", "@image", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for instance
@@ -486,30 +486,30 @@ func (v *InstanceRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 	}
 	return nil
 }
-func (v *InstanceRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *InstanceRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@instance", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@instance", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@instance", nil
+	return m, "kego.io/process/validate/selectors/tests", "@instance", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for instanceItem
@@ -536,30 +536,30 @@ func (v *InstanceItemRule) Unpack(ctx context.Context, in system.Packed, iface b
 	}
 	return nil
 }
-func (v *InstanceItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *InstanceItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@instanceItem", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@instanceItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@instanceItem", nil
+	return m, "kego.io/process/validate/selectors/tests", "@instanceItem", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for kid
@@ -586,30 +586,30 @@ func (v *KidRule) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	}
 	return nil
 }
-func (v *KidRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *KidRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@kid", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@kid", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@kid", nil
+	return m, "kego.io/process/validate/selectors/tests", "@kid", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for people
@@ -636,30 +636,30 @@ func (v *PeopleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	}
 	return nil
 }
-func (v *PeopleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PeopleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@people", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@people", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@people", nil
+	return m, "kego.io/process/validate/selectors/tests", "@people", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for person
@@ -686,30 +686,30 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	}
 	return nil
 }
-func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@person", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@person", nil
+	return m, "kego.io/process/validate/selectors/tests", "@person", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for photo
@@ -736,30 +736,30 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@photo", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@photo", nil
+	return m, "kego.io/process/validate/selectors/tests", "@photo", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for polykids
@@ -786,30 +786,30 @@ func (v *PolykidsRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 	}
 	return nil
 }
-func (v *PolykidsRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *PolykidsRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@polykids", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@polykids", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@polykids", nil
+	return m, "kego.io/process/validate/selectors/tests", "@polykids", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rectangle
@@ -836,30 +836,30 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	}
 	return nil
 }
-func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rectangle", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@rectangle", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rectangle", nil
+	return m, "kego.io/process/validate/selectors/tests", "@rectangle", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rightscale
@@ -886,30 +886,30 @@ func (v *RightscaleRule) Unpack(ctx context.Context, in system.Packed, iface boo
 	}
 	return nil
 }
-func (v *RightscaleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *RightscaleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rightscale", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@rightscale", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rightscale", nil
+	return m, "kego.io/process/validate/selectors/tests", "@rightscale", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rightscaleLink
@@ -936,30 +936,30 @@ func (v *RightscaleLinkRule) Unpack(ctx context.Context, in system.Packed, iface
 	}
 	return nil
 }
-func (v *RightscaleLinkRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *RightscaleLinkRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rightscaleLink", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@rightscaleLink", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rightscaleLink", nil
+	return m, "kego.io/process/validate/selectors/tests", "@rightscaleLink", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rightscaleList
@@ -986,30 +986,30 @@ func (v *RightscaleListRule) Unpack(ctx context.Context, in system.Packed, iface
 	}
 	return nil
 }
-func (v *RightscaleListRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *RightscaleListRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rightscaleList", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@rightscaleList", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rightscaleList", nil
+	return m, "kego.io/process/validate/selectors/tests", "@rightscaleList", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for sibling
@@ -1036,30 +1036,30 @@ func (v *SiblingRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	}
 	return nil
 }
-func (v *SiblingRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *SiblingRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@sibling", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@sibling", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@sibling", nil
+	return m, "kego.io/process/validate/selectors/tests", "@sibling", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simple
@@ -1086,30 +1086,30 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	}
 	return nil
 }
-func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@simple", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@simple", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@simple", nil
+	return m, "kego.io/process/validate/selectors/tests", "@simple", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simpleArray
@@ -1136,30 +1136,30 @@ func (v *SimpleArrayRule) Unpack(ctx context.Context, in system.Packed, iface bo
 	}
 	return nil
 }
-func (v *SimpleArrayRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *SimpleArrayRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@simpleArray", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@simpleArray", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@simpleArray", nil
+	return m, "kego.io/process/validate/selectors/tests", "@simpleArray", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simpleItem
@@ -1186,30 +1186,30 @@ func (v *SimpleItemRule) Unpack(ctx context.Context, in system.Packed, iface boo
 	}
 	return nil
 }
-func (v *SimpleItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *SimpleItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@simpleItem", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@simpleItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@simpleItem", nil
+	return m, "kego.io/process/validate/selectors/tests", "@simpleItem", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for typed
@@ -1236,30 +1236,30 @@ func (v *TypedRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *TypedRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *TypedRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@typed", nil
+		return nil, "kego.io/process/validate/selectors/tests", "@typed", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Rule != nil {
-		ob, _, _, err := v.Rule.Repack(ctx)
+		ob, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@typed", nil
+	return m, "kego.io/process/validate/selectors/tests", "@typed", system.J_OBJECT, nil
 }
 
 type Basic struct {
@@ -1303,6 +1303,20 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
+	}
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*system.String{}
+		for k0 := range field.Map() {
+			ob1 := new(system.String)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Name = ob0
 	}
 	if field, ok := in.Map()["favoriteColor"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
@@ -1367,47 +1381,26 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		}
 		v.Weight = ob0
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*system.String{}
-		for k0 := range field.Map() {
-			ob1 := new(system.String)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.Name = ob0
-	}
 	return nil
 }
-func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "basic", nil
+		return nil, "kego.io/process/validate/selectors/tests", "basic", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Weight != nil {
-		ob0, _, _, err := v.Weight.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["weight"] = ob0
-	}
 	if v.FavoriteColor != nil {
-		ob0, _, _, err := v.FavoriteColor.Repack(ctx)
+		ob0, _, _, _, err := v.FavoriteColor.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["favoriteColor"] = ob0
 	}
@@ -1416,9 +1409,9 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 		for i0 := range v.LanguagesSpoken {
 			ob1 := map[string]interface{}{}
 			for k1 := range v.LanguagesSpoken[i0] {
-				ob2, _, _, err := v.LanguagesSpoken[i0][k1].Repack(ctx)
+				ob2, _, _, _, err := v.LanguagesSpoken[i0][k1].Repack(ctx)
 				if err != nil {
-					return nil, "", "", err
+					return nil, "", "", "", err
 				}
 				ob1[k1] = ob2
 			}
@@ -1429,9 +1422,9 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 	if v.SeatingPreference != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.SeatingPreference {
-			ob1, _, _, err := v.SeatingPreference[i0].Repack(ctx)
+			ob1, _, _, _, err := v.SeatingPreference[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
@@ -1440,15 +1433,22 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 	if v.DrinkPreference != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.DrinkPreference {
-			ob1, _, _, err := v.DrinkPreference[i0].Repack(ctx)
+			ob1, _, _, _, err := v.DrinkPreference[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["drinkPreference"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "basic", nil
+	if v.Weight != nil {
+		ob0, _, _, _, err := v.Weight.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["weight"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "basic", system.J_OBJECT, nil
 }
 
 type C struct {
@@ -1490,13 +1490,6 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Number)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.A = ob0
-	}
 	if field, ok := in.Map()["b"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -1518,37 +1511,44 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		}
 		v.C = ob0
 	}
+	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Number)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.A = ob0
+	}
 	return nil
 }
-func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "c", nil
+		return nil, "kego.io/process/validate/selectors/tests", "c", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.B != nil {
-		ob0, _, _, err := v.B.Repack(ctx)
+		ob0, _, _, _, err := v.B.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["b"] = ob0
 	}
 	if v.A != nil {
-		ob0, _, _, err := v.A.Repack(ctx)
+		ob0, _, _, _, err := v.A.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "c", nil
+	return m, "kego.io/process/validate/selectors/tests", "c", system.J_OBJECT, nil
 }
 
 type Collision struct {
@@ -1604,21 +1604,21 @@ func (v *Collision) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *Collision) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Collision) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "collision", nil
+		return nil, "kego.io/process/validate/selectors/tests", "collision", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "collision", nil
+	return m, "kego.io/process/validate/selectors/tests", "collision", system.J_OBJECT, nil
 }
 
 type Diagram struct {
@@ -1667,28 +1667,28 @@ func (v *Diagram) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	}
 	return nil
 }
-func (v *Diagram) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Diagram) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "diagram", nil
+		return nil, "kego.io/process/validate/selectors/tests", "diagram", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Url != nil {
-		ob0, _, _, err := v.Url.Repack(ctx)
+		ob0, _, _, _, err := v.Url.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["url"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "diagram", nil
+	return m, "kego.io/process/validate/selectors/tests", "diagram", system.J_OBJECT, nil
 }
 
 type Empty struct {
@@ -1744,15 +1744,15 @@ func (v *Empty) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	}
 	return nil
 }
-func (v *Empty) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Empty) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "empty", nil
+		return nil, "kego.io/process/validate/selectors/tests", "empty", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
@@ -1761,15 +1761,15 @@ func (v *Empty) Repack(ctx context.Context) (data interface{}, typePackage strin
 	if v.Items != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Items {
-			ob1, _, _, err := v.Items[i0].Repack(ctx)
+			ob1, _, _, _, err := v.Items[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["items"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "empty", nil
+	return m, "kego.io/process/validate/selectors/tests", "empty", system.J_OBJECT, nil
 }
 
 type EmptyItem struct {
@@ -1833,39 +1833,39 @@ func (v *EmptyItem) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "emptyItem", nil
+		return nil, "kego.io/process/validate/selectors/tests", "emptyItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Name != nil {
-		ob0, _, _, err := v.Name.Repack(ctx)
+		ob0, _, _, _, err := v.Name.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["name"] = ob0
 	}
 	if v.Arr != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Arr {
-			ob1, _, _, err := v.Arr[i0].Repack(ctx)
+			ob1, _, _, _, err := v.Arr[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["arr"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "emptyItem", nil
+	return m, "kego.io/process/validate/selectors/tests", "emptyItem", system.J_OBJECT, nil
 }
 
 type Expr struct {
@@ -1911,13 +1911,6 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["string"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.String = ob0
-	}
 	if field, ok := in.Map()["string2"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -1960,72 +1953,79 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		}
 		v.Float = ob0
 	}
+	if field, ok := in.Map()["string"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.String = ob0
+	}
 	return nil
 }
-func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "expr", nil
+		return nil, "kego.io/process/validate/selectors/tests", "expr", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.String2 != nil {
-		ob0, _, _, err := v.String2.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["string2"] = ob0
-	}
-	if v.Null != nil {
-		ob0, _, _, err := v.Null.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["null"] = ob0
-	}
-	if v.True != nil {
-		ob0, _, _, err := v.True.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["true"] = ob0
-	}
-	if v.False != nil {
-		ob0, _, _, err := v.False.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["false"] = ob0
-	}
 	if v.Int != nil {
-		ob0, _, _, err := v.Int.Repack(ctx)
+		ob0, _, _, _, err := v.Int.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["int"] = ob0
 	}
 	if v.Float != nil {
-		ob0, _, _, err := v.Float.Repack(ctx)
+		ob0, _, _, _, err := v.Float.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["float"] = ob0
 	}
 	if v.String != nil {
-		ob0, _, _, err := v.String.Repack(ctx)
+		ob0, _, _, _, err := v.String.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["string"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "expr", nil
+	if v.String2 != nil {
+		ob0, _, _, _, err := v.String2.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["string2"] = ob0
+	}
+	if v.Null != nil {
+		ob0, _, _, _, err := v.Null.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["null"] = ob0
+	}
+	if v.True != nil {
+		ob0, _, _, _, err := v.True.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["true"] = ob0
+	}
+	if v.False != nil {
+		ob0, _, _, _, err := v.False.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["false"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "expr", system.J_OBJECT, nil
 }
 
 // This represents a gallery - it's just a list of images
@@ -2082,21 +2082,21 @@ func (v *Gallery) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	}
 	return nil
 }
-func (v *Gallery) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Gallery) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "gallery", nil
+		return nil, "kego.io/process/validate/selectors/tests", "gallery", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "gallery", nil
+	return m, "kego.io/process/validate/selectors/tests", "gallery", system.J_OBJECT, nil
 }
 func UnpackImage(ctx context.Context, in system.Packed) (Image, error) {
 	switch in.Type() {
@@ -2156,6 +2156,27 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Name = ob0
+	}
+	if field, ok := in.Map()["cloud_type"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Cloud_type = ob0
+	}
+	if field, ok := in.Map()["display_name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Display_name = ob0
+	}
 	if field, ok := in.Map()["links"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -2184,76 +2205,55 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		}
 		v.Child = ob0
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Name = ob0
-	}
-	if field, ok := in.Map()["cloud_type"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Cloud_type = ob0
-	}
-	if field, ok := in.Map()["display_name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Display_name = ob0
-	}
 	return nil
 }
-func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "instance", nil
+		return nil, "kego.io/process/validate/selectors/tests", "instance", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Display_name != nil {
-		ob0, _, _, err := v.Display_name.Repack(ctx)
+	if v.Name != nil {
+		ob0, _, _, _, err := v.Name.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
+		}
+		m["name"] = ob0
+	}
+	if v.Cloud_type != nil {
+		ob0, _, _, _, err := v.Cloud_type.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["cloud_type"] = ob0
+	}
+	if v.Display_name != nil {
+		ob0, _, _, _, err := v.Display_name.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
 		}
 		m["display_name"] = ob0
 	}
 	if v.Links != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Links {
-			ob1, _, _, err := v.Links[i0].Repack(ctx)
+			ob1, _, _, _, err := v.Links[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["links"] = ob0
 	}
-	if v.Name != nil {
-		ob0, _, _, err := v.Name.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["name"] = ob0
-	}
-	if v.Cloud_type != nil {
-		ob0, _, _, err := v.Cloud_type.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["cloud_type"] = ob0
-	}
-	return m, "kego.io/process/validate/selectors/tests", "instance", nil
+	return m, "kego.io/process/validate/selectors/tests", "instance", system.J_OBJECT, nil
 }
 
 type InstanceItem struct {
@@ -2302,28 +2302,28 @@ func (v *InstanceItem) Unpack(ctx context.Context, in system.Packed, iface bool)
 	}
 	return nil
 }
-func (v *InstanceItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *InstanceItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "instanceItem", nil
+		return nil, "kego.io/process/validate/selectors/tests", "instanceItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Name != nil {
-		ob0, _, _, err := v.Name.Repack(ctx)
+		ob0, _, _, _, err := v.Name.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "instanceItem", nil
+	return m, "kego.io/process/validate/selectors/tests", "instanceItem", system.J_OBJECT, nil
 }
 
 type Kid struct {
@@ -2365,6 +2365,13 @@ func (v *Kid) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["language"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Language = ob0
+	}
 	if field, ok := in.Map()["level"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2379,51 +2386,44 @@ func (v *Kid) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		}
 		v.Preferred = ob0
 	}
-	if field, ok := in.Map()["language"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Language = ob0
-	}
 	return nil
 }
-func (v *Kid) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Kid) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "kid", nil
+		return nil, "kego.io/process/validate/selectors/tests", "kid", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Language != nil {
-		ob0, _, _, err := v.Language.Repack(ctx)
+		ob0, _, _, _, err := v.Language.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["language"] = ob0
 	}
 	if v.Level != nil {
-		ob0, _, _, err := v.Level.Repack(ctx)
+		ob0, _, _, _, err := v.Level.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["level"] = ob0
 	}
 	if v.Preferred != nil {
-		ob0, _, _, err := v.Preferred.Repack(ctx)
+		ob0, _, _, _, err := v.Preferred.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["preferred"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "kid", nil
+	return m, "kego.io/process/validate/selectors/tests", "kid", system.J_OBJECT, nil
 }
 
 type People struct {
@@ -2464,20 +2464,6 @@ func (v *People) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["people"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_ARRAY {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
-		}
-		ob0 := []*Person{}
-		for i0 := range field.Array() {
-			ob1 := new(Person)
-			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
-				return err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		v.People = ob0
-	}
 	if field, ok := in.Map()["others"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -2492,45 +2478,59 @@ func (v *People) Unpack(ctx context.Context, in system.Packed, iface bool) error
 		}
 		v.Others = ob0
 	}
+	if field, ok := in.Map()["people"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_ARRAY {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
+		}
+		ob0 := []*Person{}
+		for i0 := range field.Array() {
+			ob1 := new(Person)
+			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
+				return err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		v.People = ob0
+	}
 	return nil
 }
-func (v *People) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *People) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "people", nil
+		return nil, "kego.io/process/validate/selectors/tests", "people", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Others != nil {
-		ob0 := []interface{}{}
-		for i0 := range v.Others {
-			ob1, _, _, err := v.Others[i0].Repack(ctx)
-			if err != nil {
-				return nil, "", "", err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		m["others"] = ob0
-	}
 	if v.People != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.People {
-			ob1, _, _, err := v.People[i0].Repack(ctx)
+			ob1, _, _, _, err := v.People[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["people"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "people", nil
+	if v.Others != nil {
+		ob0 := []interface{}{}
+		for i0 := range v.Others {
+			ob1, _, _, _, err := v.Others[i0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		m["others"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "people", system.J_OBJECT, nil
 }
 
 type Person struct {
@@ -2573,20 +2573,6 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Age = ob0
-	}
-	if field, ok := in.Map()["colour"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Colour = ob0
-	}
 	if field, ok := in.Map()["hat"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Bool)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2601,51 +2587,65 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 		}
 		v.Name = ob0
 	}
+	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Age = ob0
+	}
+	if field, ok := in.Map()["colour"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Colour = ob0
+	}
 	return nil
 }
-func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "person", nil
+		return nil, "kego.io/process/validate/selectors/tests", "person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Colour != nil {
-		ob0, _, _, err := v.Colour.Repack(ctx)
+	if v.Age != nil {
+		ob0, _, _, _, err := v.Age.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
+		}
+		m["age"] = ob0
+	}
+	if v.Colour != nil {
+		ob0, _, _, _, err := v.Colour.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
 		}
 		m["colour"] = ob0
 	}
 	if v.Hat != nil {
-		ob0, _, _, err := v.Hat.Repack(ctx)
+		ob0, _, _, _, err := v.Hat.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["hat"] = ob0
 	}
 	if v.Name != nil {
-		ob0, _, _, err := v.Name.Repack(ctx)
+		ob0, _, _, _, err := v.Name.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["name"] = ob0
 	}
-	if v.Age != nil {
-		ob0, _, _, err := v.Age.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["age"] = ob0
-	}
-	return m, "kego.io/process/validate/selectors/tests", "person", nil
+	return m, "kego.io/process/validate/selectors/tests", "person", system.J_OBJECT, nil
 }
 
 // This represents an image, and contains path, server and protocol separately
@@ -2728,49 +2728,49 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	}
 	return nil
 }
-func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "photo", nil
+		return nil, "kego.io/process/validate/selectors/tests", "photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Protocol != nil {
-		ob0, _, _, err := v.Protocol.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["protocol"] = ob0
-	}
-	if v.Server != nil {
-		ob0, _, _, err := v.Server.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["server"] = ob0
-	}
 	if v.Path != nil {
-		ob0, _, _, err := v.Path.Repack(ctx)
+		ob0, _, _, _, err := v.Path.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["path"] = ob0
 	}
 	if v.Size != nil {
-		ob0, _, _, err := v.Size.Repack(ctx)
+		ob0, _, _, _, err := v.Size.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["size"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "photo", nil
+	if v.Protocol != nil {
+		ob0, _, _, _, err := v.Protocol.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["protocol"] = ob0
+	}
+	if v.Server != nil {
+		ob0, _, _, _, err := v.Server.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["server"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "photo", system.J_OBJECT, nil
 }
 
 type Polykids struct {
@@ -2826,15 +2826,15 @@ func (v *Polykids) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	}
 	return nil
 }
-func (v *Polykids) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Polykids) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "polykids", nil
+		return nil, "kego.io/process/validate/selectors/tests", "polykids", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
@@ -2843,15 +2843,15 @@ func (v *Polykids) Repack(ctx context.Context) (data interface{}, typePackage st
 	if v.A != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.A {
-			ob1, _, _, err := v.A[i0].Repack(ctx)
+			ob1, _, _, _, err := v.A[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "polykids", nil
+	return m, "kego.io/process/validate/selectors/tests", "polykids", system.J_OBJECT, nil
 }
 
 type Rectangle struct {
@@ -2908,35 +2908,35 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	}
 	return nil
 }
-func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rectangle", nil
+		return nil, "kego.io/process/validate/selectors/tests", "rectangle", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Height != nil {
-		ob0, _, _, err := v.Height.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["height"] = ob0
-	}
 	if v.Width != nil {
-		ob0, _, _, err := v.Width.Repack(ctx)
+		ob0, _, _, _, err := v.Width.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["width"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rectangle", nil
+	if v.Height != nil {
+		ob0, _, _, _, err := v.Height.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["height"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "rectangle", system.J_OBJECT, nil
 }
 
 type Rightscale struct {
@@ -2980,6 +2980,27 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["display_name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Display_name = ob0
+	}
+	if field, ok := in.Map()["links"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_ARRAY {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
+		}
+		ob0 := []*RightscaleLink{}
+		for i0 := range field.Array() {
+			ob1 := new(RightscaleLink)
+			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
+				return err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		v.Links = ob0
+	}
 	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3008,76 +3029,55 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		}
 		v.Cloud_type = ob0
 	}
-	if field, ok := in.Map()["display_name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Display_name = ob0
-	}
-	if field, ok := in.Map()["links"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_ARRAY {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
-		}
-		ob0 := []*RightscaleLink{}
-		for i0 := range field.Array() {
-			ob1 := new(RightscaleLink)
-			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
-				return err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		v.Links = ob0
-	}
 	return nil
 }
-func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rightscale", nil
+		return nil, "kego.io/process/validate/selectors/tests", "rightscale", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.Cloud_type != nil {
-		ob0, _, _, err := v.Cloud_type.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["cloud_type"] = ob0
-	}
-	if v.Display_name != nil {
-		ob0, _, _, err := v.Display_name.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["display_name"] = ob0
-	}
 	if v.Links != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Links {
-			ob1, _, _, err := v.Links[i0].Repack(ctx)
+			ob1, _, _, _, err := v.Links[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["links"] = ob0
 	}
 	if v.Name != nil {
-		ob0, _, _, err := v.Name.Repack(ctx)
+		ob0, _, _, _, err := v.Name.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rightscale", nil
+	if v.Cloud_type != nil {
+		ob0, _, _, _, err := v.Cloud_type.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["cloud_type"] = ob0
+	}
+	if v.Display_name != nil {
+		ob0, _, _, _, err := v.Display_name.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["display_name"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "rightscale", system.J_OBJECT, nil
 }
 
 type RightscaleLink struct {
@@ -3134,35 +3134,35 @@ func (v *RightscaleLink) Unpack(ctx context.Context, in system.Packed, iface boo
 	}
 	return nil
 }
-func (v *RightscaleLink) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *RightscaleLink) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rightscaleLink", nil
+		return nil, "kego.io/process/validate/selectors/tests", "rightscaleLink", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.Href != nil {
-		ob0, _, _, err := v.Href.Repack(ctx)
+		ob0, _, _, _, err := v.Href.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["href"] = ob0
 	}
 	if v.Rel != nil {
-		ob0, _, _, err := v.Rel.Repack(ctx)
+		ob0, _, _, _, err := v.Rel.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["rel"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rightscaleLink", nil
+	return m, "kego.io/process/validate/selectors/tests", "rightscaleLink", system.J_OBJECT, nil
 }
 
 type RightscaleList struct {
@@ -3218,15 +3218,15 @@ func (v *RightscaleList) Unpack(ctx context.Context, in system.Packed, iface boo
 	}
 	return nil
 }
-func (v *RightscaleList) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *RightscaleList) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rightscaleList", nil
+		return nil, "kego.io/process/validate/selectors/tests", "rightscaleList", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
@@ -3235,15 +3235,15 @@ func (v *RightscaleList) Repack(ctx context.Context) (data interface{}, typePack
 	if v.Foo != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Foo {
-			ob1, _, _, err := v.Foo[i0].Repack(ctx)
+			ob1, _, _, _, err := v.Foo[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["foo"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rightscaleList", nil
+	return m, "kego.io/process/validate/selectors/tests", "rightscaleList", system.J_OBJECT, nil
 }
 
 type Sibling struct {
@@ -3287,6 +3287,20 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["e"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*system.Number{}
+		for k0 := range field.Map() {
+			ob1 := new(system.Number)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.E = ob0
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3322,58 +3336,44 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 		}
 		v.D = ob0
 	}
-	if field, ok := in.Map()["e"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*system.Number{}
-		for k0 := range field.Map() {
-			ob1 := new(system.Number)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.E = ob0
-	}
 	return nil
 }
-func (v *Sibling) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Sibling) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "sibling", nil
+		return nil, "kego.io/process/validate/selectors/tests", "sibling", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.B != nil {
-		ob0, _, _, err := v.B.Repack(ctx)
+	if v.A != nil {
+		ob0, _, _, _, err := v.A.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
+		}
+		m["a"] = ob0
+	}
+	if v.B != nil {
+		ob0, _, _, _, err := v.B.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
 		}
 		m["b"] = ob0
 	}
 	if v.C != nil {
-		ob0, _, _, err := v.C.Repack(ctx)
+		ob0, _, _, _, err := v.C.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["c"] = ob0
 	}
-	if v.A != nil {
-		ob0, _, _, err := v.A.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["a"] = ob0
-	}
-	return m, "kego.io/process/validate/selectors/tests", "sibling", nil
+	return m, "kego.io/process/validate/selectors/tests", "sibling", system.J_OBJECT, nil
 }
 
 type Simple struct {
@@ -3422,28 +3422,28 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	}
 	return nil
 }
-func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "simple", nil
+		return nil, "kego.io/process/validate/selectors/tests", "simple", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.A != nil {
-		ob0, _, _, err := v.A.Repack(ctx)
+		ob0, _, _, _, err := v.A.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "simple", nil
+	return m, "kego.io/process/validate/selectors/tests", "simple", system.J_OBJECT, nil
 }
 
 type SimpleArray struct {
@@ -3499,15 +3499,15 @@ func (v *SimpleArray) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	}
 	return nil
 }
-func (v *SimpleArray) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *SimpleArray) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "simpleArray", nil
+		return nil, "kego.io/process/validate/selectors/tests", "simpleArray", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
@@ -3516,15 +3516,15 @@ func (v *SimpleArray) Repack(ctx context.Context) (data interface{}, typePackage
 	if v.A != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.A {
-			ob1, _, _, err := v.A[i0].Repack(ctx)
+			ob1, _, _, _, err := v.A[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "simpleArray", nil
+	return m, "kego.io/process/validate/selectors/tests", "simpleArray", system.J_OBJECT, nil
 }
 
 type SimpleItem struct {
@@ -3573,28 +3573,28 @@ func (v *SimpleItem) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	}
 	return nil
 }
-func (v *SimpleItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *SimpleItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "simpleItem", nil
+		return nil, "kego.io/process/validate/selectors/tests", "simpleItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
 	if v.B != nil {
-		ob0, _, _, err := v.B.Repack(ctx)
+		ob0, _, _, _, err := v.B.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["b"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "simpleItem", nil
+	return m, "kego.io/process/validate/selectors/tests", "simpleItem", system.J_OBJECT, nil
 }
 
 type Typed struct {
@@ -3639,6 +3639,27 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["kids"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*Kid{}
+		for k0 := range field.Map() {
+			ob1 := new(Kid)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Kids = ob0
+	}
+	if field, ok := in.Map()["avatar"]; ok && field.Type() != system.J_NULL {
+		ob0, err := UnpackImage(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Avatar = ob0
+	}
 	if field, ok := in.Map()["drinkPreference"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -3681,69 +3702,48 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		}
 		v.FavoriteColor = ob0
 	}
-	if field, ok := in.Map()["kids"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*Kid{}
-		for k0 := range field.Map() {
-			ob1 := new(Kid)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.Kids = ob0
-	}
-	if field, ok := in.Map()["avatar"]; ok && field.Type() != system.J_NULL {
-		ob0, err := UnpackImage(ctx, field)
-		if err != nil {
-			return err
-		}
-		v.Avatar = ob0
-	}
 	return nil
 }
-func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, err error) {
+func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "typed", nil
+		return nil, "kego.io/process/validate/selectors/tests", "typed", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
-		ob, _, _, err := v.Object.Repack(ctx)
+		ob, _, _, _, err := v.Object.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
 	}
-	if v.FavoriteColor != nil {
-		ob0, _, _, err := v.FavoriteColor.Repack(ctx)
-		if err != nil {
-			return nil, "", "", err
-		}
-		m["favoriteColor"] = ob0
-	}
 	if v.DrinkPreference != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.DrinkPreference {
-			ob1, _, _, err := v.DrinkPreference[i0].Repack(ctx)
+			ob1, _, _, _, err := v.DrinkPreference[i0].Repack(ctx)
 			if err != nil {
-				return nil, "", "", err
+				return nil, "", "", "", err
 			}
 			ob0 = append(ob0, ob1)
 		}
 		m["drinkPreference"] = ob0
 	}
 	if v.Weight != nil {
-		ob0, _, _, err := v.Weight.Repack(ctx)
+		ob0, _, _, _, err := v.Weight.Repack(ctx)
 		if err != nil {
-			return nil, "", "", err
+			return nil, "", "", "", err
 		}
 		m["weight"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "typed", nil
+	if v.FavoriteColor != nil {
+		ob0, _, _, _, err := v.FavoriteColor.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["favoriteColor"] = ob0
+	}
+	return m, "kego.io/process/validate/selectors/tests", "typed", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests")
