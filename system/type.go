@@ -43,10 +43,12 @@ func (i InitializableTypeError) Error() string {
 
 func (t *Type) PassedAsPointer(ctx context.Context) bool {
 	kind, alias := t.Kind(ctx)
+	//kind, _ := t.Kind(ctx)
 	switch kind {
 	case KindStruct:
 		return true
 	case KindValue:
+		//return false
 		if alias {
 			return true
 		}
