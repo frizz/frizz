@@ -208,6 +208,25 @@ func TestArrayAri(t *testing.T) {
 	)
 }
 
+func TestArrayAnri(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"anri": [
+				"a",
+				{"type": "system:int", "value": 1},
+				{"type": "alajs", "value": ["a", "b", "c"]}
+			]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Anri, 3)
+			assert.Equal(t, "a", v.(*data.Multi).Anri[0].GetString(ctx).Value())
+			assert.Equal(t, "1", v.(*data.Multi).Anri[1].GetString(ctx).Value())
+			assert.Equal(t, "abc", v.(*data.Multi).Anri[2].GetString(ctx).Value())
+		}),
+	)
+}
+
 func TestArrayAi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Test(t, ctx, `{
@@ -319,53 +338,121 @@ func TestArrayAaljb(t *testing.T) {
 	)
 }
 
-/*
-   "aaljb": {
-     "type": "system:@array",
-     "items": {
-       "type": "@aljb"
-     }
-   },
-   "aaljn": {
-     "type": "system:@array",
-     "items": {
-       "type": "@aljn"
-     }
-   },
-   "aaljs": {
-     "type": "system:@array",
-     "items": {
-       "type": "@aljs"
-     }
-   },
-   "aalmjs": {
-     "type": "system:@array",
-     "items": {
-       "type": "@almjs"
-     }
-   },
-   "aalms": {
-     "type": "system:@array",
-     "items": {
-       "type": "@alms"
-     }
-   },
-   "aalmss": {
-     "type": "system:@array",
-     "items": {
-       "type": "@almss"
-     }
-   },
-   "aalss": {
-     "type": "system:@array",
-     "items": {
-       "type": "@alss"
-     }
-   },
-   "aals": {
-     "type": "system:@array",
-     "items": {
-       "type": "@als"
-     }
-   }
-*/
+func TestArrayAaljn(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aaljn": [1.1, 1.2]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aaljn, 2)
+			assert.Equal(t, 1.1, v.(*data.Multi).Aaljn[0].Value())
+			assert.Equal(t, 1.2, v.(*data.Multi).Aaljn[1].Value())
+		}),
+	)
+}
+
+func TestArrayAaljs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aaljs": ["a", "b"]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aaljs, 2)
+			assert.Equal(t, "a", v.(*data.Multi).Aaljs[0].Value())
+			assert.Equal(t, "b", v.(*data.Multi).Aaljs[1].Value())
+		}),
+	)
+}
+
+func TestArrayAalmjs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aalmjs": [{"a": "b", "c": "d"}, {"e": "f", "g": "h"}]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aalmjs, 2)
+			require.Len(t, v.(*data.Multi).Aalmjs[0], 2)
+			require.Len(t, v.(*data.Multi).Aalmjs[1], 2)
+			assert.Equal(t, "b", v.(*data.Multi).Aalmjs[0]["a"])
+			assert.Equal(t, "d", v.(*data.Multi).Aalmjs[0]["c"])
+			assert.Equal(t, "f", v.(*data.Multi).Aalmjs[1]["e"])
+			assert.Equal(t, "h", v.(*data.Multi).Aalmjs[1]["g"])
+		}),
+	)
+}
+
+func TestArrayAalms(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aalms": [{
+				"a": {"type":"simple", "js": "b"},
+				"c": {"type":"simple", "js": "d"}
+			}, {
+				"e": {"type":"simple", "js": "f"},
+				"g": {"type":"simple", "js": "h"}
+			}]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aalms, 2)
+			require.Len(t, v.(*data.Multi).Aalms[0], 2)
+			require.Len(t, v.(*data.Multi).Aalms[1], 2)
+			assert.Equal(t, "b", v.(*data.Multi).Aalms[0]["a"].Js)
+			assert.Equal(t, "d", v.(*data.Multi).Aalms[0]["c"].Js)
+			assert.Equal(t, "f", v.(*data.Multi).Aalms[1]["e"].Js)
+			assert.Equal(t, "h", v.(*data.Multi).Aalms[1]["g"].Js)
+		}),
+	)
+}
+
+func TestArrayAalmss(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aalmss": [{"a": "b", "c": "d"}, {"e": "f", "g": "h"}]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aalmss, 2)
+			require.Len(t, v.(*data.Multi).Aalmss[0], 2)
+			require.Len(t, v.(*data.Multi).Aalmss[1], 2)
+			assert.Equal(t, "b", v.(*data.Multi).Aalmss[0]["a"].Value())
+			assert.Equal(t, "d", v.(*data.Multi).Aalmss[0]["c"].Value())
+			assert.Equal(t, "f", v.(*data.Multi).Aalmss[1]["e"].Value())
+			assert.Equal(t, "h", v.(*data.Multi).Aalmss[1]["g"].Value())
+		}),
+	)
+}
+
+func TestArrayAalss(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aalss": ["a", "b"]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aalss, 2)
+			assert.Equal(t, "a", v.(*data.Multi).Aalss[0].Value())
+			assert.Equal(t, "b", v.(*data.Multi).Aalss[1].Value())
+		}),
+	)
+}
+
+func TestArrayAals(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Test(t, ctx, `{
+			"type": "multi",
+			"aals": [
+				{"type": "simple", "js": "a"},
+				{"type": "simple", "js": "b"}
+			]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Aals, 2)
+			assert.Equal(t, "a", v.(*data.Multi).Aals[0].Js)
+			assert.Equal(t, "b", v.(*data.Multi).Aals[1].Js)
+		}),
+	)
+}
