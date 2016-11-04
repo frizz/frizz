@@ -17,10 +17,6 @@ func NewString(s string) *String {
 	return &out
 }
 
-func (s *String) Value() string {
-	return string(*s)
-}
-
 func (r *StringRule) Validate(ctx context.Context) (fail bool, messages []string, err error) {
 	if r.MaxLength != nil && r.MinLength != nil {
 		if r.MaxLength.Value() < r.MinLength.Value() {

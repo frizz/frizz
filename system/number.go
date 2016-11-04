@@ -17,10 +17,6 @@ func NewNumber(n float64) *Number {
 	return &out
 }
 
-func (n *Number) Value() float64 {
-	return float64(*n)
-}
-
 func (r *NumberRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {
 
 	if i, ok := data.(NumberInterface); ok {

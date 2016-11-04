@@ -62,6 +62,7 @@ func testTypeCollection(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "b",
+			"native": "string",
 			"alias": {
 				"type": "json:@string"
 			}
@@ -70,6 +71,7 @@ func testTypeCollection(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "c",
+			"native": "string",
 			"alias": {
 				"type": "system:@string"
 			}
@@ -78,6 +80,7 @@ func testTypeCollection(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "d",
+			"native": "string",
 			"alias": {
 				"type": "json:@string"
 			}
@@ -96,6 +99,7 @@ func testTypeAlias(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "a",
+			"native": "string",
 			"alias": {
 				"type": "json:@string"
 			}
@@ -104,6 +108,7 @@ func testTypeAlias(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "b",
+			"native": "string",
 			"alias": {
 				"type": "system:@string"
 			}
@@ -112,6 +117,7 @@ func testTypeAlias(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "c",
+			"native": "array",
 			"alias": {
 				"type": "system:@array",
 				"items": {
@@ -123,6 +129,7 @@ func testTypeAlias(t *testing.T, cb *tests.ContextBuilder) {
 		{
 			"type": "system:type",
 			"id": "d",
+			"native": "array",
 			"alias": {
 				"type": "system:@array",
 				"items": {

@@ -58,6 +58,11 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 				if err := printAliasDefinition(ctx, env, g, typ); err != nil {
 					return nil, kerr.Wrap("TRERIECOEP", err)
 				}
+				if kind, _ := typ.Kind(ctx); kind == system.KindValue {
+					if err := printValueMethod(ctx, env, g, typ); err != nil {
+						return nil, kerr.Wrap("PGDUJQVQGR", err)
+					}
+				}
 			} else {
 				if err := printStructDefinition(ctx, env, g, typ); err != nil {
 					return nil, kerr.Wrap("XKRYMXUIJD", err)
@@ -715,6 +720,20 @@ func printAliasDefinition(ctx context.Context, env *envctx.Env, g *builder.Build
 		return kerr.Wrap("FWOLIESYUA", err)
 	}
 	g.Println("type ", system.GoName(typ.Id.Name), " ", aliasType)
+	return nil
+}
+
+func printValueMethod(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {
+	name := system.GoName(typ.Id.Name)
+	gotype, err := typ.NativeValueGolangType()
+	if err != nil {
+		return kerr.Wrap("LUHQRVBQRT", err)
+	}
+	g.Println("func (o *", name, ") Value() ", gotype, "{")
+	{
+		g.Println("return ", gotype, "(*o)")
+	}
+	g.Println("}")
 	return nil
 }
 

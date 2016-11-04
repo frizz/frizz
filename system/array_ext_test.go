@@ -305,7 +305,6 @@ func TestArrayAalass(t *testing.T) {
 	)
 }
 
-/*
 func TestArrayAaljb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Test(t, ctx, `{
@@ -314,12 +313,12 @@ func TestArrayAaljb(t *testing.T) {
 		}`,
 		TestValue(func(t *testing.T, v interface{}) {
 			require.Len(t, v.(*data.Multi).Aaljb, 2)
-			assert.Equal(t, true, bool(v.(*data.Multi).Aaljb[0]))
-			assert.Equal(t, false, bool(v.(*data.Multi).Aaljb[1]))
+			assert.Equal(t, true, v.(*data.Multi).Aaljb[0].Value())
+			assert.Equal(t, false, v.(*data.Multi).Aaljb[1].Value())
 		}),
 	)
 }
-*/
+
 /*
    "aaljb": {
      "type": "system:@array",

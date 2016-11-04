@@ -5,10 +5,6 @@ func NewBool(b bool) *Bool {
 	return &out
 }
 
-func (b *Bool) Value() bool {
-	return bool(*b)
-}
-
 var _ Unpacker = (*Bool)(nil)
 
 //var _ Repacker = (*Bool)(nil)
