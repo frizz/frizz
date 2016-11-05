@@ -458,6 +458,27 @@ func (v *B) Repack(ctx context.Context) (data interface{}, typePackage string, t
 			m[key] = val
 		}
 	}
+	if v.C != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.C.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "string") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["c"] = ob0
+	}
 	return m, "kego.io/process/validate/tests", "b", system.J_OBJECT, nil
 }
 func UnpackC(ctx context.Context, in system.Packed) (C, error) {
@@ -537,6 +558,27 @@ func (v *D) Repack(ctx context.Context) (data interface{}, typePackage string, t
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
+	}
+	if v.A != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.A.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/process/validate/tests", "c") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["a"] = ob0
 	}
 	return m, "kego.io/process/validate/tests", "d", system.J_OBJECT, nil
 }
@@ -635,6 +677,17 @@ func (v *E) Repack(ctx context.Context) (data interface{}, typePackage string, t
 		}
 		m["a"] = ob0
 	}
+	if v.B != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.B {
+			ob1, _, _, _, err := v.B[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["b"] = ob0
+	}
 	return m, "kego.io/process/validate/tests", "e", system.J_OBJECT, nil
 }
 
@@ -679,27 +732,6 @@ func (v *F) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["c"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*A{}
-		for k0 := range field.Map() {
-			ob1 := new(A)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.C = ob0
-	}
-	if field, ok := in.Map()["d"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.D = ob0
-	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(A)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -720,6 +752,27 @@ func (v *F) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 			ob0 = append(ob0, ob1)
 		}
 		v.B = ob0
+	}
+	if field, ok := in.Map()["c"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*A{}
+		for k0 := range field.Map() {
+			ob1 := new(A)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.C = ob0
+	}
+	if field, ok := in.Map()["d"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.D = ob0
 	}
 	return nil
 }
@@ -754,6 +807,17 @@ func (v *F) Repack(ctx context.Context) (data interface{}, typePackage string, t
 			ob0 = append(ob0, ob1)
 		}
 		m["b"] = ob0
+	}
+	if v.C != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.C {
+			ob1, _, _, _, err := v.C[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["c"] = ob0
 	}
 	if v.D != nil {
 		ob0, _, _, _, err := v.D.Repack(ctx)

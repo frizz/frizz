@@ -161,19 +161,19 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				}
 				g.Println("}")
 			}
-			for n, f := range structType.Fields {
-				fieldRule := system.WrapRule(ctx, f)
-				fieldName := system.GoName(n)
+			for _, f := range structType.SortedFields() {
+				fieldRule := system.WrapRule(ctx, f.Rule)
+				fieldName := system.GoName(f.Name)
 				fieldType := fieldRule.Parent
 				kind, alias := fieldRule.Kind(ctx)
 				switch {
 				case kind == system.KindStruct || alias:
 					g.Println("if v.", fieldName, " != nil {")
 					{
-						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f, true); err != nil {
+						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f.Rule, true); err != nil {
 							return kerr.Wrap("WSARHJIFHS", err)
 						}
-						g.Println("m[", strconv.Quote(n), "] = ", "ob0")
+						g.Println("m[", strconv.Quote(f.Name), "] = ", "ob0")
 					}
 					g.Println("}")
 				case kind == system.KindValue:
@@ -186,10 +186,10 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 						g.Println("if v.", fieldName, " != false {")
 					}
 					{
-						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f, true); err != nil {
+						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f.Rule, true); err != nil {
 							return kerr.Wrap("YYDYVIMXPM", err)
 						}
-						g.Println("m[", strconv.Quote(n), "] = ", "ob0")
+						g.Println("m[", strconv.Quote(f.Name), "] = ", "ob0")
 					}
 					g.Println("}")
 				case kind == system.KindArray ||
@@ -197,10 +197,10 @@ func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 					kind == system.KindInterface:
 					g.Println("if v.", fieldName, " != nil {")
 					{
-						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f, true); err != nil {
+						if err := printRepackCode(ctx, env, g, "v."+fieldName, "ob0", 0, f.Rule, true); err != nil {
 							return kerr.Wrap("YSFPHQTBNA", err)
 						}
-						g.Println("m[", strconv.Quote(n), "] = ", "ob0")
+						g.Println("m[", strconv.Quote(f.Name), "] = ", "ob0")
 					}
 					g.Println("}")
 				}
@@ -384,18 +384,18 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 				}
 				g.Println("}")
 			}
-			for n, f := range structType.Fields {
-				g.Println("if field, ok := in.Map()[", strconv.Quote(n), "]; ok && field.Type() != ", g.SprintRef("kego.io/system", "J_NULL"), " {")
+			for _, f := range structType.SortedFields() {
+				g.Println("if field, ok := in.Map()[", strconv.Quote(f.Name), "]; ok && field.Type() != ", g.SprintRef("kego.io/system", "J_NULL"), " {")
 				{
 					in := "field"
 					out := "ob0"
 					depth := 0
-					if err := printUnpackCode(ctx, env, g, in, out, depth, f); err != nil {
+					if err := printUnpackCode(ctx, env, g, in, out, depth, f.Rule); err != nil {
 						return kerr.Wrap("QLARKEBDBJ", err)
 					}
-					g.Println("v.", system.GoName(n), " = ", out)
+					g.Println("v.", system.GoName(f.Name), " = ", out)
 				}
-				if dr, ok := f.(system.DefaultRule); ok && dr.GetDefault() != nil {
+				if dr, ok := f.Rule.(system.DefaultRule); ok && dr.GetDefault() != nil {
 					g.Println("} else {")
 					{
 						b, err := json.Marshal(dr.GetDefault())
@@ -405,10 +405,10 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 						in := g.SprintFunctionCall("kego.io/system", "Pack", string(b))
 						out := "ob0"
 						depth := 0
-						if err := printUnpackCode(ctx, env, g, in, out, depth, f); err != nil {
+						if err := printUnpackCode(ctx, env, g, in, out, depth, f.Rule); err != nil {
 							return kerr.Wrap("UOWRFWSTNT", err)
 						}
-						g.Println("v.", system.GoName(n), " = ", out)
+						g.Println("v.", system.GoName(f.Name), " = ", out)
 					}
 					g.Println("}")
 				} else {

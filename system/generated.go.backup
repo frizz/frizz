@@ -48,19 +48,19 @@ func (v *ArrayRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Items = ob0
 	}
-	if field, ok := in.Map()["min-items"]; ok && field.Type() != J_NULL {
-		ob0 := new(Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.MinItems = ob0
-	}
 	if field, ok := in.Map()["max-items"]; ok && field.Type() != J_NULL {
 		ob0 := new(Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.MaxItems = ob0
+	}
+	if field, ok := in.Map()["min-items"]; ok && field.Type() != J_NULL {
+		ob0 := new(Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.MinItems = ob0
 	}
 	if field, ok := in.Map()["unique-items"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackBool(ctx, field)
@@ -115,19 +115,19 @@ func (v *ArrayRule) Repack(ctx context.Context) (data interface{}, typePackage s
 		}
 		m["items"] = ob0
 	}
-	if v.MinItems != nil {
-		ob0, _, _, _, err := v.MinItems.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["min-items"] = ob0
-	}
 	if v.MaxItems != nil {
 		ob0, _, _, _, err := v.MaxItems.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
 		m["max-items"] = ob0
+	}
+	if v.MinItems != nil {
+		ob0, _, _, _, err := v.MinItems.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["min-items"] = ob0
 	}
 	if v.UniqueItems != false {
 		ob0 := v.UniqueItems
@@ -232,19 +232,12 @@ func (v *IntRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != J_NULL {
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		ob0 := new(Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.MultipleOf = ob0
-	}
-	if field, ok := in.Map()["minimum"]; ok && field.Type() != J_NULL {
-		ob0 := new(Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Minimum = ob0
+		v.Default = ob0
 	}
 	if field, ok := in.Map()["maximum"]; ok && field.Type() != J_NULL {
 		ob0 := new(Int)
@@ -253,12 +246,19 @@ func (v *IntRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Maximum = ob0
 	}
-	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
+	if field, ok := in.Map()["minimum"]; ok && field.Type() != J_NULL {
 		ob0 := new(Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.Default = ob0
+		v.Minimum = ob0
+	}
+	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != J_NULL {
+		ob0 := new(Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.MultipleOf = ob0
 	}
 	return nil
 }
@@ -285,12 +285,12 @@ func (v *IntRule) Repack(ctx context.Context) (data interface{}, typePackage str
 			m[key] = val
 		}
 	}
-	if v.Minimum != nil {
-		ob0, _, _, _, err := v.Minimum.Repack(ctx)
+	if v.Default != nil {
+		ob0, _, _, _, err := v.Default.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		m["minimum"] = ob0
+		m["default"] = ob0
 	}
 	if v.Maximum != nil {
 		ob0, _, _, _, err := v.Maximum.Repack(ctx)
@@ -299,12 +299,12 @@ func (v *IntRule) Repack(ctx context.Context) (data interface{}, typePackage str
 		}
 		m["maximum"] = ob0
 	}
-	if v.Default != nil {
-		ob0, _, _, _, err := v.Default.Repack(ctx)
+	if v.Minimum != nil {
+		ob0, _, _, _, err := v.Minimum.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		m["default"] = ob0
+		m["minimum"] = ob0
 	}
 	if v.MultipleOf != nil {
 		ob0, _, _, _, err := v.MultipleOf.Repack(ctx)
@@ -346,19 +346,12 @@ func (v *MapRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["min-items"]; ok && field.Type() != J_NULL {
-		ob0 := new(Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
+	if field, ok := in.Map()["items"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackRuleInterface(ctx, field)
+		if err != nil {
 			return err
 		}
-		v.MinItems = ob0
-	}
-	if field, ok := in.Map()["max-items"]; ok && field.Type() != J_NULL {
-		ob0 := new(Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.MaxItems = ob0
+		v.Items = ob0
 	}
 	if field, ok := in.Map()["keys"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackRuleInterface(ctx, field)
@@ -367,12 +360,19 @@ func (v *MapRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Keys = ob0
 	}
-	if field, ok := in.Map()["items"]; ok && field.Type() != J_NULL {
-		ob0, err := UnpackRuleInterface(ctx, field)
-		if err != nil {
+	if field, ok := in.Map()["max-items"]; ok && field.Type() != J_NULL {
+		ob0 := new(Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.Items = ob0
+		v.MaxItems = ob0
+	}
+	if field, ok := in.Map()["min-items"]; ok && field.Type() != J_NULL {
+		ob0 := new(Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.MinItems = ob0
 	}
 	return nil
 }
@@ -399,12 +399,26 @@ func (v *MapRule) Repack(ctx context.Context) (data interface{}, typePackage str
 			m[key] = val
 		}
 	}
-	if v.MaxItems != nil {
-		ob0, _, _, _, err := v.MaxItems.Repack(ctx)
+	if v.Items != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Items.(Repacker).Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		m["max-items"] = ob0
+		if ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "rule") {
+			typRef := NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["items"] = ob0
 	}
 	if v.Keys != nil {
 		var ob0 interface{}
@@ -427,26 +441,12 @@ func (v *MapRule) Repack(ctx context.Context) (data interface{}, typePackage str
 		}
 		m["keys"] = ob0
 	}
-	if v.Items != nil {
-		var ob0 interface{}
-		ob0_value, pkg, name, typ, err := v.Items.(Repacker).Repack(ctx)
+	if v.MaxItems != nil {
+		ob0, _, _, _, err := v.MaxItems.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		if ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "rule") {
-			typRef := NewReference(pkg, name)
-			typeVal, err := typRef.ValueContext(ctx)
-			if err != nil {
-				return nil, "", "", "", err
-			}
-			ob0 = map[string]interface{}{
-				"type":  typeVal,
-				"value": ob0_value,
-			}
-		} else {
-			ob0 = ob0_value
-		}
-		m["items"] = ob0
+		m["max-items"] = ob0
 	}
 	if v.MinItems != nil {
 		ob0, _, _, _, err := v.MinItems.Repack(ctx)
@@ -499,19 +499,12 @@ func (v *NumberRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Default = ob0
 	}
-	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != J_NULL {
-		ob0 := new(Number)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
+	if field, ok := in.Map()["exclusive-maximum"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackBool(ctx, field)
+		if err != nil {
 			return err
 		}
-		v.MultipleOf = ob0
-	}
-	if field, ok := in.Map()["minimum"]; ok && field.Type() != J_NULL {
-		ob0 := new(Number)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Minimum = ob0
+		v.ExclusiveMaximum = ob0
 	}
 	if field, ok := in.Map()["exclusive-minimum"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackBool(ctx, field)
@@ -527,12 +520,19 @@ func (v *NumberRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Maximum = ob0
 	}
-	if field, ok := in.Map()["exclusive-maximum"]; ok && field.Type() != J_NULL {
-		ob0, err := UnpackBool(ctx, field)
-		if err != nil {
+	if field, ok := in.Map()["minimum"]; ok && field.Type() != J_NULL {
+		ob0 := new(Number)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.ExclusiveMaximum = ob0
+		v.Minimum = ob0
+	}
+	if field, ok := in.Map()["multiple-of"]; ok && field.Type() != J_NULL {
+		ob0 := new(Number)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.MultipleOf = ob0
 	}
 	return nil
 }
@@ -559,17 +559,6 @@ func (v *NumberRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	if v.Maximum != nil {
-		ob0, _, _, _, err := v.Maximum.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["maximum"] = ob0
-	}
-	if v.ExclusiveMaximum != false {
-		ob0 := v.ExclusiveMaximum
-		m["exclusive-maximum"] = ob0
-	}
 	if v.Default != nil {
 		ob0, _, _, _, err := v.Default.Repack(ctx)
 		if err != nil {
@@ -577,12 +566,20 @@ func (v *NumberRule) Repack(ctx context.Context) (data interface{}, typePackage 
 		}
 		m["default"] = ob0
 	}
-	if v.MultipleOf != nil {
-		ob0, _, _, _, err := v.MultipleOf.Repack(ctx)
+	if v.ExclusiveMaximum != false {
+		ob0 := v.ExclusiveMaximum
+		m["exclusive-maximum"] = ob0
+	}
+	if v.ExclusiveMinimum != false {
+		ob0 := v.ExclusiveMinimum
+		m["exclusive-minimum"] = ob0
+	}
+	if v.Maximum != nil {
+		ob0, _, _, _, err := v.Maximum.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		m["multiple-of"] = ob0
+		m["maximum"] = ob0
 	}
 	if v.Minimum != nil {
 		ob0, _, _, _, err := v.Minimum.Repack(ctx)
@@ -591,9 +588,12 @@ func (v *NumberRule) Repack(ctx context.Context) (data interface{}, typePackage 
 		}
 		m["minimum"] = ob0
 	}
-	if v.ExclusiveMinimum != false {
-		ob0 := v.ExclusiveMinimum
-		m["exclusive-minimum"] = ob0
+	if v.MultipleOf != nil {
+		ob0, _, _, _, err := v.MultipleOf.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["multiple-of"] = ob0
 	}
 	return m, "kego.io/system", "@number", J_OBJECT, nil
 }
@@ -726,6 +726,13 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in Packed, iface bool) error
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
+		ob0 := new(Reference)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Default = ob0
+	}
 	if field, ok := in.Map()["pattern"]; ok && field.Type() != J_NULL {
 		ob0 := new(String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -739,13 +746,6 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in Packed, iface bool) error
 			return err
 		}
 		v.PatternNot = ob0
-	}
-	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
-		ob0 := new(Reference)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Default = ob0
 	}
 	return nil
 }
@@ -772,13 +772,6 @@ func (v *ReferenceRule) Repack(ctx context.Context) (data interface{}, typePacka
 			m[key] = val
 		}
 	}
-	if v.PatternNot != nil {
-		ob0, _, _, _, err := v.PatternNot.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["pattern-not"] = ob0
-	}
 	if v.Default != nil {
 		ob0, _, _, _, err := v.Default.Repack(ctx)
 		if err != nil {
@@ -792,6 +785,13 @@ func (v *ReferenceRule) Repack(ctx context.Context) (data interface{}, typePacka
 			return nil, "", "", "", err
 		}
 		m["pattern"] = ob0
+	}
+	if v.PatternNot != nil {
+		ob0, _, _, _, err := v.PatternNot.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["pattern-not"] = ob0
 	}
 	return m, "kego.io/system", "@reference", J_OBJECT, nil
 }
@@ -886,47 +886,12 @@ func (v *StringRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Rule.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["pattern"]; ok && field.Type() != J_NULL {
-		ob0 := new(String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Pattern = ob0
-	}
-	if field, ok := in.Map()["long"]; ok && field.Type() != J_NULL {
-		ob0, err := UnpackBool(ctx, field)
-		if err != nil {
-			return err
-		}
-		v.Long = ob0
-	}
-	if field, ok := in.Map()["max-length"]; ok && field.Type() != J_NULL {
-		ob0 := new(Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.MaxLength = ob0
-	}
-	if field, ok := in.Map()["pattern-not"]; ok && field.Type() != J_NULL {
-		ob0 := new(String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.PatternNot = ob0
-	}
 	if field, ok := in.Map()["default"]; ok && field.Type() != J_NULL {
 		ob0 := new(String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Default = ob0
-	}
-	if field, ok := in.Map()["min-length"]; ok && field.Type() != J_NULL {
-		ob0 := new(Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.MinLength = ob0
 	}
 	if field, ok := in.Map()["enum"]; ok && field.Type() != J_NULL {
 		if field.Type() != J_ARRAY {
@@ -956,6 +921,41 @@ func (v *StringRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Format = ob0
 	}
+	if field, ok := in.Map()["long"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackBool(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Long = ob0
+	}
+	if field, ok := in.Map()["max-length"]; ok && field.Type() != J_NULL {
+		ob0 := new(Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.MaxLength = ob0
+	}
+	if field, ok := in.Map()["min-length"]; ok && field.Type() != J_NULL {
+		ob0 := new(Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.MinLength = ob0
+	}
+	if field, ok := in.Map()["pattern"]; ok && field.Type() != J_NULL {
+		ob0 := new(String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Pattern = ob0
+	}
+	if field, ok := in.Map()["pattern-not"]; ok && field.Type() != J_NULL {
+		ob0 := new(String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.PatternNot = ob0
+	}
 	return nil
 }
 func (v *StringRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType JsonType, err error) {
@@ -981,44 +981,12 @@ func (v *StringRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	if v.Pattern != nil {
-		ob0, _, _, _, err := v.Pattern.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["pattern"] = ob0
-	}
-	if v.Long != false {
-		ob0 := v.Long
-		m["long"] = ob0
-	}
-	if v.MaxLength != nil {
-		ob0, _, _, _, err := v.MaxLength.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["max-length"] = ob0
-	}
-	if v.PatternNot != nil {
-		ob0, _, _, _, err := v.PatternNot.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["pattern-not"] = ob0
-	}
 	if v.Default != nil {
 		ob0, _, _, _, err := v.Default.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
 		m["default"] = ob0
-	}
-	if v.MinLength != nil {
-		ob0, _, _, _, err := v.MinLength.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["min-length"] = ob0
 	}
 	if v.Enum != nil {
 		ob0 := []interface{}{}
@@ -1041,6 +1009,38 @@ func (v *StringRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			return nil, "", "", "", err
 		}
 		m["format"] = ob0
+	}
+	if v.Long != false {
+		ob0 := v.Long
+		m["long"] = ob0
+	}
+	if v.MaxLength != nil {
+		ob0, _, _, _, err := v.MaxLength.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["max-length"] = ob0
+	}
+	if v.MinLength != nil {
+		ob0, _, _, _, err := v.MinLength.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["min-length"] = ob0
+	}
+	if v.Pattern != nil {
+		ob0, _, _, _, err := v.Pattern.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["pattern"] = ob0
+	}
+	if v.PatternNot != nil {
+		ob0, _, _, _, err := v.PatternNot.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["pattern-not"] = ob0
 	}
 	return m, "kego.io/system", "@string", J_OBJECT, nil
 }
@@ -1152,6 +1152,11 @@ type Array struct {
 
 // This is the native json bool data type
 type Bool bool
+
+func (o *Bool) Value() bool {
+	return bool(*o)
+}
+
 type BoolInterface interface {
 	GetBool(ctx context.Context) *Bool
 }
@@ -1241,6 +1246,11 @@ type Map struct {
 
 // This is the native json number data type
 type Number float64
+
+func (o *Number) Value() float64 {
+	return float64(*o)
+}
+
 type NumberInterface interface {
 	GetNumber(ctx context.Context) *Number
 }
@@ -1335,33 +1345,19 @@ func (v *Object) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
-	if field, ok := in.Map()["tags-new"]; ok && field.Type() != J_NULL {
-		ob0 := *new(Tags)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.TagsNew = ob0
-	}
-	if field, ok := in.Map()["tags"]; ok && field.Type() != J_NULL {
-		if field.Type() != J_ARRAY {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
-		}
-		ob0 := []string{}
-		for i0 := range field.Array() {
-			ob1, err := UnpackString(ctx, field.Array()[i0])
-			if err != nil {
-				return err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		v.Tags = ob0
-	}
 	if field, ok := in.Map()["description"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackString(ctx, field)
 		if err != nil {
 			return err
 		}
 		v.Description = ob0
+	}
+	if field, ok := in.Map()["id"]; ok && field.Type() != J_NULL {
+		ob0 := new(Reference)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Id = ob0
 	}
 	if field, ok := in.Map()["rules"]; ok && field.Type() != J_NULL {
 		if field.Type() != J_ARRAY {
@@ -1377,19 +1373,33 @@ func (v *Object) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Rules = ob0
 	}
+	if field, ok := in.Map()["tags"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_ARRAY {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
+		}
+		ob0 := []string{}
+		for i0 := range field.Array() {
+			ob1, err := UnpackString(ctx, field.Array()[i0])
+			if err != nil {
+				return err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		v.Tags = ob0
+	}
+	if field, ok := in.Map()["tags-new"]; ok && field.Type() != J_NULL {
+		ob0 := *new(Tags)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.TagsNew = ob0
+	}
 	if field, ok := in.Map()["type"]; ok && field.Type() != J_NULL {
 		ob0 := new(Reference)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Type = ob0
-	}
-	if field, ok := in.Map()["id"]; ok && field.Type() != J_NULL {
-		ob0 := new(Reference)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Id = ob0
 	}
 	return nil
 }
@@ -1401,6 +1411,13 @@ func (v *Object) Repack(ctx context.Context) (data interface{}, typePackage stri
 	if v.Description != "" {
 		ob0 := v.Description
 		m["description"] = ob0
+	}
+	if v.Id != nil {
+		ob0, _, _, _, err := v.Id.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["id"] = ob0
 	}
 	if v.Rules != nil {
 		ob0 := []interface{}{}
@@ -1427,19 +1444,13 @@ func (v *Object) Repack(ctx context.Context) (data interface{}, typePackage stri
 		}
 		m["rules"] = ob0
 	}
-	if v.Type != nil {
-		ob0, _, _, _, err := v.Type.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
+	if v.Tags != nil {
+		ob0 := []interface{}{}
+		for i0 := range v.Tags {
+			ob1 := v.Tags[i0]
+			ob0 = append(ob0, ob1)
 		}
-		m["type"] = ob0
-	}
-	if v.Id != nil {
-		ob0, _, _, _, err := v.Id.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["id"] = ob0
+		m["tags"] = ob0
 	}
 	if v.TagsNew != nil {
 		ob0, _, _, _, err := v.TagsNew.Repack(ctx)
@@ -1448,13 +1459,12 @@ func (v *Object) Repack(ctx context.Context) (data interface{}, typePackage stri
 		}
 		m["tags-new"] = ob0
 	}
-	if v.Tags != nil {
-		ob0 := []interface{}{}
-		for i0 := range v.Tags {
-			ob1 := v.Tags[i0]
-			ob0 = append(ob0, ob1)
+	if v.Type != nil {
+		ob0, _, _, _, err := v.Type.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
 		}
-		m["tags"] = ob0
+		m["type"] = ob0
 	}
 	return m, "kego.io/system", "object", J_OBJECT, nil
 }
@@ -1618,19 +1628,19 @@ func (v *Rule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if in == nil || in.Type() == J_NULL {
 		return nil
 	}
-	if field, ok := in.Map()["optional"]; ok && field.Type() != J_NULL {
-		ob0, err := UnpackBool(ctx, field)
-		if err != nil {
-			return err
-		}
-		v.Optional = ob0
-	}
 	if field, ok := in.Map()["interface"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackBool(ctx, field)
 		if err != nil {
 			return err
 		}
 		v.Interface = ob0
+	}
+	if field, ok := in.Map()["optional"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackBool(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Optional = ob0
 	}
 	if field, ok := in.Map()["selector"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackString(ctx, field)
@@ -1650,19 +1660,24 @@ func (v *Rule) Repack(ctx context.Context) (data interface{}, typePackage string
 		ob0 := v.Interface
 		m["interface"] = ob0
 	}
-	if v.Selector != "" {
-		ob0 := v.Selector
-		m["selector"] = ob0
-	}
 	if v.Optional != false {
 		ob0 := v.Optional
 		m["optional"] = ob0
+	}
+	if v.Selector != "" {
+		ob0 := v.Selector
+		m["selector"] = ob0
 	}
 	return m, "kego.io/system", "rule", J_OBJECT, nil
 }
 
 // This is the native json string data type
 type String string
+
+func (o *String) Value() string {
+	return string(*o)
+}
+
 type StringInterface interface {
 	GetString(ctx context.Context) *String
 }
@@ -1837,19 +1852,19 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["custom-kind"]; ok && field.Type() != J_NULL {
-		ob0 := new(String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
+	if field, ok := in.Map()["alias"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackRuleInterface(ctx, field)
+		if err != nil {
 			return err
 		}
-		v.CustomKind = ob0
+		v.Alias = ob0
 	}
-	if field, ok := in.Map()["rule"]; ok && field.Type() != J_NULL {
-		ob0 := new(Type)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
+	if field, ok := in.Map()["basic"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackBool(ctx, field)
+		if err != nil {
 			return err
 		}
-		v.Rule = ob0
+		v.Basic = ob0
 	}
 	if field, ok := in.Map()["custom"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackBool(ctx, field)
@@ -1857,6 +1872,27 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 			return err
 		}
 		v.Custom = ob0
+	}
+	if field, ok := in.Map()["custom-kind"]; ok && field.Type() != J_NULL {
+		ob0 := new(String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.CustomKind = ob0
+	}
+	if field, ok := in.Map()["embed"]; ok && field.Type() != J_NULL {
+		if field.Type() != J_ARRAY {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
+		}
+		ob0 := []*Reference{}
+		for i0 := range field.Array() {
+			ob1 := new(Reference)
+			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
+				return err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		v.Embed = ob0
 	}
 	if field, ok := in.Map()["fields"]; ok && field.Type() != J_NULL {
 		if field.Type() != J_MAP {
@@ -1872,12 +1908,12 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Fields = ob0
 	}
-	if field, ok := in.Map()["basic"]; ok && field.Type() != J_NULL {
+	if field, ok := in.Map()["interface"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackBool(ctx, field)
 		if err != nil {
 			return err
 		}
-		v.Basic = ob0
+		v.Interface = ob0
 	}
 	if field, ok := in.Map()["native"]; ok && field.Type() != J_NULL {
 		ob0 := new(String)
@@ -1892,33 +1928,12 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Native = ob0
 	}
-	if field, ok := in.Map()["alias"]; ok && field.Type() != J_NULL {
-		ob0, err := UnpackRuleInterface(ctx, field)
-		if err != nil {
+	if field, ok := in.Map()["rule"]; ok && field.Type() != J_NULL {
+		ob0 := new(Type)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.Alias = ob0
-	}
-	if field, ok := in.Map()["interface"]; ok && field.Type() != J_NULL {
-		ob0, err := UnpackBool(ctx, field)
-		if err != nil {
-			return err
-		}
-		v.Interface = ob0
-	}
-	if field, ok := in.Map()["embed"]; ok && field.Type() != J_NULL {
-		if field.Type() != J_ARRAY {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
-		}
-		ob0 := []*Reference{}
-		for i0 := range field.Array() {
-			ob1 := new(Reference)
-			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
-				return err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		v.Embed = ob0
+		v.Rule = ob0
 	}
 	return nil
 }
@@ -1936,9 +1951,34 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
+	if v.Alias != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Alias.(Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "rule") {
+			typRef := NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["alias"] = ob0
+	}
 	if v.Basic != false {
 		ob0 := v.Basic
 		m["basic"] = ob0
+	}
+	if v.Custom != false {
+		ob0 := v.Custom
+		m["custom"] = ob0
 	}
 	if v.CustomKind != nil {
 		ob0, _, _, _, err := v.CustomKind.Repack(ctx)
@@ -1947,16 +1987,16 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["custom-kind"] = ob0
 	}
-	if v.Rule != nil {
-		ob0, _, _, _, err := v.Rule.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
+	if v.Embed != nil {
+		ob0 := []interface{}{}
+		for i0 := range v.Embed {
+			ob1, _, _, _, err := v.Embed[i0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = append(ob0, ob1)
 		}
-		m["rule"] = ob0
-	}
-	if v.Custom != false {
-		ob0 := v.Custom
-		m["custom"] = ob0
+		m["embed"] = ob0
 	}
 	if v.Fields != nil {
 		ob0 := map[string]interface{}{}
@@ -1983,6 +2023,10 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["fields"] = ob0
 	}
+	if v.Interface != false {
+		ob0 := v.Interface
+		m["interface"] = ob0
+	}
 	if v.Native != nil {
 		ob0, _, _, _, err := v.Native.Repack(ctx)
 		if err != nil {
@@ -1990,41 +2034,12 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["native"] = ob0
 	}
-	if v.Alias != nil {
-		var ob0 interface{}
-		ob0_value, pkg, name, typ, err := v.Alias.(Repacker).Repack(ctx)
+	if v.Rule != nil {
+		ob0, _, _, _, err := v.Rule.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		if ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "rule") {
-			typRef := NewReference(pkg, name)
-			typeVal, err := typRef.ValueContext(ctx)
-			if err != nil {
-				return nil, "", "", "", err
-			}
-			ob0 = map[string]interface{}{
-				"type":  typeVal,
-				"value": ob0_value,
-			}
-		} else {
-			ob0 = ob0_value
-		}
-		m["alias"] = ob0
-	}
-	if v.Interface != false {
-		ob0 := v.Interface
-		m["interface"] = ob0
-	}
-	if v.Embed != nil {
-		ob0 := []interface{}{}
-		for i0 := range v.Embed {
-			ob1, _, _, _, err := v.Embed[i0].Repack(ctx)
-			if err != nil {
-				return nil, "", "", "", err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		m["embed"] = ob0
+		m["rule"] = ob0
 	}
 	return m, "kego.io/system", "type", J_OBJECT, nil
 }

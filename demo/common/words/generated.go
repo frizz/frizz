@@ -333,6 +333,17 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 		}
 		m["english"] = ob0
 	}
+	if v.Translations != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Translations {
+			ob1, _, _, _, err := v.Translations[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["translations"] = ob0
+	}
 	return m, "kego.io/demo/common/words", "translation", system.J_OBJECT, nil
 }
 func init() {

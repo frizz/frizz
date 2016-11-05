@@ -302,6 +302,13 @@ func (v *Body) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["align"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Align = ob0
+	}
 	if field, ok := in.Map()["copy"]; ok && field.Type() != system.J_NULL {
 		ob0, err := system.UnpackStringInterface(ctx, field)
 		if err != nil {
@@ -315,13 +322,6 @@ func (v *Body) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 			return err
 		}
 		v.Title = ob0
-	}
-	if field, ok := in.Map()["align"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Align = ob0
 	}
 	return nil
 }
@@ -345,6 +345,48 @@ func (v *Body) Repack(ctx context.Context) (data interface{}, typePackage string
 			return nil, "", "", "", err
 		}
 		m["align"] = ob0
+	}
+	if v.Copy != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Copy.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "string") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["copy"] = ob0
+	}
+	if v.Title != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Title.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "string") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["title"] = ob0
 	}
 	return m, "kego.io/demo/site", "body", system.J_OBJECT, nil
 }
@@ -419,18 +461,24 @@ func (v *Columns) Repack(ctx context.Context) (data interface{}, typePackage str
 	if v.Columns != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Columns {
-			ob1_value, pkg, name, _, err := v.Columns[i0].(system.Repacker).Repack(ctx)
+			var ob1 interface{}
+			ob1_value, pkg, name, typ, err := v.Columns[i0].(system.Repacker).Repack(ctx)
 			if err != nil {
 				return nil, "", "", "", err
 			}
-			typRef := system.NewReference(pkg, name)
-			typeVal, err := typRef.ValueContext(ctx)
-			if err != nil {
-				return nil, "", "", "", err
+			if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/site", "section") {
+				typRef := system.NewReference(pkg, name)
+				typeVal, err := typRef.ValueContext(ctx)
+				if err != nil {
+					return nil, "", "", "", err
+				}
+				ob1 = map[string]interface{}{
+					"type":  typeVal,
+					"value": ob1_value,
+				}
+			} else {
+				ob1 = ob1_value
 			}
-			ob1 := map[string]interface{}{}
-			ob1["type"] = typeVal
-			ob1["value"] = ob1_value
 			ob0 = append(ob0, ob1)
 		}
 		m["columns"] = ob0
@@ -514,6 +562,69 @@ func (v *Hero) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
+	if v.Head != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Head.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "string") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["head"] = ob0
+	}
+	if v.Image != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Image.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/common/images", "image") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["image"] = ob0
+	}
+	if v.Subhead != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Subhead.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "string") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["subhead"] = ob0
+	}
 	return m, "kego.io/demo/site", "hero", system.J_OBJECT, nil
 }
 
@@ -595,21 +706,48 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 	if v.Sections != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Sections {
-			ob1_value, pkg, name, _, err := v.Sections[i0].(system.Repacker).Repack(ctx)
+			var ob1 interface{}
+			ob1_value, pkg, name, typ, err := v.Sections[i0].(system.Repacker).Repack(ctx)
 			if err != nil {
 				return nil, "", "", "", err
 			}
+			if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/site", "section") {
+				typRef := system.NewReference(pkg, name)
+				typeVal, err := typRef.ValueContext(ctx)
+				if err != nil {
+					return nil, "", "", "", err
+				}
+				ob1 = map[string]interface{}{
+					"type":  typeVal,
+					"value": ob1_value,
+				}
+			} else {
+				ob1 = ob1_value
+			}
+			ob0 = append(ob0, ob1)
+		}
+		m["sections"] = ob0
+	}
+	if v.Title != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Title.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/system", "string") {
 			typRef := system.NewReference(pkg, name)
 			typeVal, err := typRef.ValueContext(ctx)
 			if err != nil {
 				return nil, "", "", "", err
 			}
-			ob1 := map[string]interface{}{}
-			ob1["type"] = typeVal
-			ob1["value"] = ob1_value
-			ob0 = append(ob0, ob1)
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
 		}
-		m["sections"] = ob0
+		m["title"] = ob0
 	}
 	return m, "kego.io/demo/site", "page", system.J_OBJECT, nil
 }

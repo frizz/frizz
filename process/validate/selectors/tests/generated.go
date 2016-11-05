@@ -1304,19 +1304,19 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+	if field, ok := in.Map()["drinkPreference"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_ARRAY {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
 		}
-		ob0 := map[string]*system.String{}
-		for k0 := range field.Map() {
+		ob0 := []*system.String{}
+		for i0 := range field.Array() {
 			ob1 := new(system.String)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
 				return err
 			}
-			ob0[k0] = ob1
+			ob0 = append(ob0, ob1)
 		}
-		v.Name = ob0
+		v.DrinkPreference = ob0
 	}
 	if field, ok := in.Map()["favoriteColor"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
@@ -1346,6 +1346,20 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		}
 		v.LanguagesSpoken = ob0
 	}
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*system.String{}
+		for k0 := range field.Map() {
+			ob1 := new(system.String)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Name = ob0
+	}
 	if field, ok := in.Map()["seatingPreference"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -1359,20 +1373,6 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 			ob0 = append(ob0, ob1)
 		}
 		v.SeatingPreference = ob0
-	}
-	if field, ok := in.Map()["drinkPreference"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_ARRAY {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
-		}
-		ob0 := []*system.String{}
-		for i0 := range field.Array() {
-			ob1 := new(system.String)
-			if err := ob1.Unpack(ctx, field.Array()[i0], false); err != nil {
-				return err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		v.DrinkPreference = ob0
 	}
 	if field, ok := in.Map()["weight"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
@@ -1397,6 +1397,17 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 			m[key] = val
 		}
 	}
+	if v.DrinkPreference != nil {
+		ob0 := []interface{}{}
+		for i0 := range v.DrinkPreference {
+			ob1, _, _, _, err := v.DrinkPreference[i0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		m["drinkPreference"] = ob0
+	}
 	if v.FavoriteColor != nil {
 		ob0, _, _, _, err := v.FavoriteColor.Repack(ctx)
 		if err != nil {
@@ -1419,6 +1430,17 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["languagesSpoken"] = ob0
 	}
+	if v.Name != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Name {
+			ob1, _, _, _, err := v.Name[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["name"] = ob0
+	}
 	if v.SeatingPreference != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.SeatingPreference {
@@ -1429,17 +1451,6 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 			ob0 = append(ob0, ob1)
 		}
 		m["seatingPreference"] = ob0
-	}
-	if v.DrinkPreference != nil {
-		ob0 := []interface{}{}
-		for i0 := range v.DrinkPreference {
-			ob1, _, _, _, err := v.DrinkPreference[i0].Repack(ctx)
-			if err != nil {
-				return nil, "", "", "", err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		m["drinkPreference"] = ob0
 	}
 	if v.Weight != nil {
 		ob0, _, _, _, err := v.Weight.Repack(ctx)
@@ -1490,6 +1501,13 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Number)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.A = ob0
+	}
 	if field, ok := in.Map()["b"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -1511,13 +1529,6 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		}
 		v.C = ob0
 	}
-	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Number)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.A = ob0
-	}
 	return nil
 }
 func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
@@ -1534,6 +1545,13 @@ func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, t
 			m[key] = val
 		}
 	}
+	if v.A != nil {
+		ob0, _, _, _, err := v.A.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["a"] = ob0
+	}
 	if v.B != nil {
 		ob0, _, _, _, err := v.B.Repack(ctx)
 		if err != nil {
@@ -1541,12 +1559,16 @@ func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, t
 		}
 		m["b"] = ob0
 	}
-	if v.A != nil {
-		ob0, _, _, _, err := v.A.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
+	if v.C != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.C {
+			ob1, _, _, _, err := v.C[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
 		}
-		m["a"] = ob0
+		m["c"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "c", system.J_OBJECT, nil
 }
@@ -1617,6 +1639,17 @@ func (v *Collision) Repack(ctx context.Context) (data interface{}, typePackage s
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
+	}
+	if v.Number != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Number {
+			ob1, _, _, _, err := v.Number[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["number"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "collision", system.J_OBJECT, nil
 }
@@ -1810,13 +1843,6 @@ func (v *EmptyItem) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Name = ob0
-	}
 	if field, ok := in.Map()["arr"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -1830,6 +1856,13 @@ func (v *EmptyItem) Unpack(ctx context.Context, in system.Packed, iface bool) er
 			ob0 = append(ob0, ob1)
 		}
 		v.Arr = ob0
+	}
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Name = ob0
 	}
 	return nil
 }
@@ -1847,13 +1880,6 @@ func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	if v.Name != nil {
-		ob0, _, _, _, err := v.Name.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["name"] = ob0
-	}
 	if v.Arr != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Arr {
@@ -1864,6 +1890,13 @@ func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage s
 			ob0 = append(ob0, ob1)
 		}
 		m["arr"] = ob0
+	}
+	if v.Name != nil {
+		ob0, _, _, _, err := v.Name.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["name"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "emptyItem", system.J_OBJECT, nil
 }
@@ -1911,40 +1944,12 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["string2"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.String2 = ob0
-	}
-	if field, ok := in.Map()["null"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Null = ob0
-	}
-	if field, ok := in.Map()["true"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Bool)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.True = ob0
-	}
 	if field, ok := in.Map()["false"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Bool)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.False = ob0
-	}
-	if field, ok := in.Map()["int"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Number)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Int = ob0
 	}
 	if field, ok := in.Map()["float"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
@@ -1953,12 +1958,40 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		}
 		v.Float = ob0
 	}
+	if field, ok := in.Map()["int"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Number)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Int = ob0
+	}
+	if field, ok := in.Map()["null"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Null = ob0
+	}
 	if field, ok := in.Map()["string"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.String = ob0
+	}
+	if field, ok := in.Map()["string2"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.String2 = ob0
+	}
+	if field, ok := in.Map()["true"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Bool)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.True = ob0
 	}
 	return nil
 }
@@ -1976,12 +2009,12 @@ func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
-	if v.Int != nil {
-		ob0, _, _, _, err := v.Int.Repack(ctx)
+	if v.False != nil {
+		ob0, _, _, _, err := v.False.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		m["int"] = ob0
+		m["false"] = ob0
 	}
 	if v.Float != nil {
 		ob0, _, _, _, err := v.Float.Repack(ctx)
@@ -1989,6 +2022,20 @@ func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string
 			return nil, "", "", "", err
 		}
 		m["float"] = ob0
+	}
+	if v.Int != nil {
+		ob0, _, _, _, err := v.Int.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["int"] = ob0
+	}
+	if v.Null != nil {
+		ob0, _, _, _, err := v.Null.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["null"] = ob0
 	}
 	if v.String != nil {
 		ob0, _, _, _, err := v.String.Repack(ctx)
@@ -2004,26 +2051,12 @@ func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["string2"] = ob0
 	}
-	if v.Null != nil {
-		ob0, _, _, _, err := v.Null.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["null"] = ob0
-	}
 	if v.True != nil {
 		ob0, _, _, _, err := v.True.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
 		m["true"] = ob0
-	}
-	if v.False != nil {
-		ob0, _, _, _, err := v.False.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["false"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "expr", system.J_OBJECT, nil
 }
@@ -2096,6 +2129,31 @@ func (v *Gallery) Repack(ctx context.Context) (data interface{}, typePackage str
 			m[key] = val
 		}
 	}
+	if v.Images != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Images {
+			var ob1 interface{}
+			ob1_value, pkg, name, typ, err := v.Images[k0].(system.Repacker).Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/process/validate/selectors/tests", "image") {
+				typRef := system.NewReference(pkg, name)
+				typeVal, err := typRef.ValueContext(ctx)
+				if err != nil {
+					return nil, "", "", "", err
+				}
+				ob1 = map[string]interface{}{
+					"type":  typeVal,
+					"value": ob1_value,
+				}
+			} else {
+				ob1 = ob1_value
+			}
+			ob0[k0] = ob1
+		}
+		m["images"] = ob0
+	}
 	return m, "kego.io/process/validate/selectors/tests", "gallery", system.J_OBJECT, nil
 }
 func UnpackImage(ctx context.Context, in system.Packed) (Image, error) {
@@ -2156,12 +2214,19 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
+	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
 		}
-		v.Name = ob0
+		ob0 := map[string]*InstanceItem{}
+		for k0 := range field.Map() {
+			ob1 := new(InstanceItem)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Child = ob0
 	}
 	if field, ok := in.Map()["cloud_type"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
@@ -2191,19 +2256,12 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		}
 		v.Links = ob0
 	}
-	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
 		}
-		ob0 := map[string]*InstanceItem{}
-		for k0 := range field.Map() {
-			ob1 := new(InstanceItem)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.Child = ob0
+		v.Name = ob0
 	}
 	return nil
 }
@@ -2221,12 +2279,16 @@ func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	if v.Name != nil {
-		ob0, _, _, _, err := v.Name.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
+	if v.Child != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Child {
+			ob1, _, _, _, err := v.Child[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
 		}
-		m["name"] = ob0
+		m["child"] = ob0
 	}
 	if v.Cloud_type != nil {
 		ob0, _, _, _, err := v.Cloud_type.Repack(ctx)
@@ -2252,6 +2314,13 @@ func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage st
 			ob0 = append(ob0, ob1)
 		}
 		m["links"] = ob0
+	}
+	if v.Name != nil {
+		ob0, _, _, _, err := v.Name.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["name"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "instance", system.J_OBJECT, nil
 }
@@ -2508,17 +2577,6 @@ func (v *People) Repack(ctx context.Context) (data interface{}, typePackage stri
 			m[key] = val
 		}
 	}
-	if v.People != nil {
-		ob0 := []interface{}{}
-		for i0 := range v.People {
-			ob1, _, _, _, err := v.People[i0].Repack(ctx)
-			if err != nil {
-				return nil, "", "", "", err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		m["people"] = ob0
-	}
 	if v.Others != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Others {
@@ -2529,6 +2587,17 @@ func (v *People) Repack(ctx context.Context) (data interface{}, typePackage stri
 			ob0 = append(ob0, ob1)
 		}
 		m["others"] = ob0
+	}
+	if v.People != nil {
+		ob0 := []interface{}{}
+		for i0 := range v.People {
+			ob1, _, _, _, err := v.People[i0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = append(ob0, ob1)
+		}
+		m["people"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "people", system.J_OBJECT, nil
 }
@@ -2573,20 +2642,6 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["hat"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Bool)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Hat = ob0
-	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Name = ob0
-	}
 	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2600,6 +2655,20 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 			return err
 		}
 		v.Colour = ob0
+	}
+	if field, ok := in.Map()["hat"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Bool)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Hat = ob0
+	}
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Name = ob0
 	}
 	return nil
 }
@@ -2692,6 +2761,13 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["path"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Path = ob0
+	}
 	if field, ok := in.Map()["protocol"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2711,13 +2787,6 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 			return err
 		}
 		v.Server = ob0
-	}
-	if field, ok := in.Map()["path"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Path = ob0
 	}
 	if field, ok := in.Map()["size"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(Rectangle)
@@ -2749,13 +2818,6 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["path"] = ob0
 	}
-	if v.Size != nil {
-		ob0, _, _, _, err := v.Size.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["size"] = ob0
-	}
 	if v.Protocol != nil {
 		ob0, _, _, _, err := v.Protocol.Repack(ctx)
 		if err != nil {
@@ -2769,6 +2831,13 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 			return nil, "", "", "", err
 		}
 		m["server"] = ob0
+	}
+	if v.Size != nil {
+		ob0, _, _, _, err := v.Size.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["size"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "photo", system.J_OBJECT, nil
 }
@@ -2892,19 +2961,19 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["width"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Width = ob0
-	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Height = ob0
+	}
+	if field, ok := in.Map()["width"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Width = ob0
 	}
 	return nil
 }
@@ -2922,19 +2991,19 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	if v.Width != nil {
-		ob0, _, _, _, err := v.Width.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["width"] = ob0
-	}
 	if v.Height != nil {
 		ob0, _, _, _, err := v.Height.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
 		m["height"] = ob0
+	}
+	if v.Width != nil {
+		ob0, _, _, _, err := v.Width.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["width"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "rectangle", system.J_OBJECT, nil
 }
@@ -2980,6 +3049,27 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*InstanceItem{}
+		for k0 := range field.Map() {
+			ob1 := new(InstanceItem)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Child = ob0
+	}
+	if field, ok := in.Map()["cloud_type"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Cloud_type = ob0
+	}
 	if field, ok := in.Map()["display_name"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3008,27 +3098,6 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		}
 		v.Name = ob0
 	}
-	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*InstanceItem{}
-		for k0 := range field.Map() {
-			ob1 := new(InstanceItem)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.Child = ob0
-	}
-	if field, ok := in.Map()["cloud_type"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Cloud_type = ob0
-	}
 	return nil
 }
 func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
@@ -3044,6 +3113,31 @@ func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage 
 		for key, val := range ob.(map[string]interface{}) {
 			m[key] = val
 		}
+	}
+	if v.Child != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Child {
+			ob1, _, _, _, err := v.Child[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["child"] = ob0
+	}
+	if v.Cloud_type != nil {
+		ob0, _, _, _, err := v.Cloud_type.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["cloud_type"] = ob0
+	}
+	if v.Display_name != nil {
+		ob0, _, _, _, err := v.Display_name.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["display_name"] = ob0
 	}
 	if v.Links != nil {
 		ob0 := []interface{}{}
@@ -3062,20 +3156,6 @@ func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage 
 			return nil, "", "", "", err
 		}
 		m["name"] = ob0
-	}
-	if v.Cloud_type != nil {
-		ob0, _, _, _, err := v.Cloud_type.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["cloud_type"] = ob0
-	}
-	if v.Display_name != nil {
-		ob0, _, _, _, err := v.Display_name.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["display_name"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "rightscale", system.J_OBJECT, nil
 }
@@ -3287,20 +3367,6 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["e"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*system.Number{}
-		for k0 := range field.Map() {
-			ob1 := new(system.Number)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.E = ob0
-	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3335,6 +3401,20 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 			ob0[k0] = ob1
 		}
 		v.D = ob0
+	}
+	if field, ok := in.Map()["e"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*system.Number{}
+		for k0 := range field.Map() {
+			ob1 := new(system.Number)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.E = ob0
 	}
 	return nil
 }
@@ -3372,6 +3452,28 @@ func (v *Sibling) Repack(ctx context.Context) (data interface{}, typePackage str
 			return nil, "", "", "", err
 		}
 		m["c"] = ob0
+	}
+	if v.D != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.D {
+			ob1, _, _, _, err := v.D[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["d"] = ob0
+	}
+	if v.E != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.E {
+			ob1, _, _, _, err := v.E[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["e"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "sibling", system.J_OBJECT, nil
 }
@@ -3639,20 +3741,6 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["kids"]; ok && field.Type() != system.J_NULL {
-		if field.Type() != system.J_MAP {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
-		}
-		ob0 := map[string]*Kid{}
-		for k0 := range field.Map() {
-			ob1 := new(Kid)
-			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
-				return err
-			}
-			ob0[k0] = ob1
-		}
-		v.Kids = ob0
-	}
 	if field, ok := in.Map()["avatar"]; ok && field.Type() != system.J_NULL {
 		ob0, err := UnpackImage(ctx, field)
 		if err != nil {
@@ -3674,12 +3762,26 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		}
 		v.DrinkPreference = ob0
 	}
-	if field, ok := in.Map()["weight"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Number)
+	if field, ok := in.Map()["favoriteColor"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.Weight = ob0
+		v.FavoriteColor = ob0
+	}
+	if field, ok := in.Map()["kids"]; ok && field.Type() != system.J_NULL {
+		if field.Type() != system.J_MAP {
+			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
+		}
+		ob0 := map[string]*Kid{}
+		for k0 := range field.Map() {
+			ob1 := new(Kid)
+			if err := ob1.Unpack(ctx, field.Map()[k0], false); err != nil {
+				return err
+			}
+			ob0[k0] = ob1
+		}
+		v.Kids = ob0
 	}
 	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_MAP {
@@ -3695,12 +3797,12 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		}
 		v.Name = ob0
 	}
-	if field, ok := in.Map()["favoriteColor"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
+	if field, ok := in.Map()["weight"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Number)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.FavoriteColor = ob0
+		v.Weight = ob0
 	}
 	return nil
 }
@@ -3718,6 +3820,27 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 			m[key] = val
 		}
 	}
+	if v.Avatar != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Avatar.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/process/validate/selectors/tests", "image") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["avatar"] = ob0
+	}
 	if v.DrinkPreference != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.DrinkPreference {
@@ -3729,19 +3852,41 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["drinkPreference"] = ob0
 	}
-	if v.Weight != nil {
-		ob0, _, _, _, err := v.Weight.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["weight"] = ob0
-	}
 	if v.FavoriteColor != nil {
 		ob0, _, _, _, err := v.FavoriteColor.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
 		m["favoriteColor"] = ob0
+	}
+	if v.Kids != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Kids {
+			ob1, _, _, _, err := v.Kids[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["kids"] = ob0
+	}
+	if v.Name != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Name {
+			ob1, _, _, _, err := v.Name[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["name"] = ob0
+	}
+	if v.Weight != nil {
+		ob0, _, _, _, err := v.Weight.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["weight"] = ob0
 	}
 	return m, "kego.io/process/validate/selectors/tests", "typed", system.J_OBJECT, nil
 }
