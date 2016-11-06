@@ -16,7 +16,7 @@ import (
 func TestUnpackInterface(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "aljb",
 			"value": true
 		}`,
@@ -25,14 +25,14 @@ func TestUnpackInterface(t *testing.T) {
 		}),
 	)
 
-	Test(t, ctx, `meh`,
+	Run(t, ctx, `meh`,
 		UnmarshalError(func(t *testing.T, err error) {
 			require.IsError(t, err, "SVXYHJWMOC")
 			require.HasError(t, err, "PDTPGAYXRX")
 		}),
 	)
 
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"sri": "a"
 		}`,
@@ -41,7 +41,7 @@ func TestUnpackInterface(t *testing.T) {
 		}),
 	)
 
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"sri": {"type": "system:string", "value": "a"}
 		}`,

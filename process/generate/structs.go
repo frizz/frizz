@@ -814,20 +814,24 @@ func printInitFunction(ctx context.Context, env *envctx.Env, g *builder.Builder,
 			}
 
 			newFunc := "nil"
+			derefFunc := "nil"
 			if typ.Interface {
 				newFunc = "func() interface{} { return (*" + system.GoName(typ.Id.Name) + ")(nil) }"
 			} else if !typ.IsNativeCollection() || typ.Alias != nil {
-				newFunc = "func() interface{} { return " + typ.PassedAsPointerInverseString(ctx) + "new(" + system.GoName(typ.Id.Name) + ")}"
+				newFunc = "func() interface{} { return new(" + system.GoName(typ.Id.Name) + ")}"
+				if !typ.PassedAsPointer(ctx) {
+					derefFunc = "func(in interface{}) interface{} {return *in.(*" + system.GoName(typ.Id.Name) + ")}"
+				}
 			}
-
-			g.PrintMethodCall(
-				"pkg",
-				"Init",
-				strconv.Quote(typ.Id.Name),
-				newFunc,
-				"func() interface{} { return new("+system.GoName(typ.Id.ChangeToRule().Name)+")}",
-				interfaceFunc,
-			)
+			g.Println("pkg.Init(")
+			{
+				g.Println(strconv.Quote(typ.Id.Name), ",")
+				g.Println(newFunc, ",")
+				g.Println(derefFunc, ",")
+				g.Println("func() interface{} { return new("+system.GoName(typ.Id.ChangeToRule().Name)+")}", ",")
+				g.Println(interfaceFunc, ",")
+			}
+			g.Println(")")
 
 			g.Println("")
 		}

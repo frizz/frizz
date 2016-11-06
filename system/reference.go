@@ -267,14 +267,6 @@ func (r Reference) GetType(ctx context.Context) (*Type, bool) {
 	return t, true
 }
 
-func (r Reference) GetDummy(ctx context.Context) (interface{}, bool) {
-	df, ok := jsonctx.FromContext(ctx).GetDummyFunc(r.Package, r.Name)
-	if !ok {
-		return nil, false
-	}
-	return df(), true
-}
-
 func (r Reference) ChangeToType() Reference {
 	return r.changeTo("")
 }

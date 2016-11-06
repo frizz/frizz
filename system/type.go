@@ -89,12 +89,12 @@ func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
 }
 
 func (t *Type) GetReflectType(ctx context.Context) (reflect.Type, bool) {
-	nf, ok := jsonctx.FromContext(ctx).GetNewFunc(t.Id.Package, t.Id.Name)
+	nf, df, ok := jsonctx.FromContext(ctx).GetNewFunc(t.Id.Package, t.Id.Name)
 	if !ok {
 		return nil, false
 	}
 	rt := reflect.TypeOf(nf())
-	if t.Interface {
+	if df != nil || t.Interface {
 		rt = rt.Elem()
 	}
 	return rt, true

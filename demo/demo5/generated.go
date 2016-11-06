@@ -101,19 +101,19 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["title"]; ok && field.Type() != system.J_NULL {
-		ob0, err := translation.UnpackLocalized(ctx, field)
-		if err != nil {
-			return err
-		}
-		v.Title = ob0
-	}
 	if field, ok := in.Map()["body"]; ok && field.Type() != system.J_NULL {
 		ob0, err := translation.UnpackLocalized(ctx, field)
 		if err != nil {
 			return err
 		}
 		v.Body = ob0
+	}
+	if field, ok := in.Map()["title"]; ok && field.Type() != system.J_NULL {
+		ob0, err := translation.UnpackLocalized(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Title = ob0
 	}
 	return nil
 }
@@ -131,10 +131,58 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
+	if v.Body != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Body.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/demo5/translation", "localized") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["body"] = ob0
+	}
+	if v.Title != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Title.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/demo5/translation", "localized") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["title"] = ob0
+	}
 	return m, "kego.io/demo/demo5", "page", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo5")
 	pkg.SetHash(14232916769361536059)
-	pkg.Init("page", func() interface{} { return new(Page) }, func() interface{} { return new(PageRule) }, func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() })
+	pkg.Init("page",
+		func() interface{} { return new(Page) },
+		nil,
+		func() interface{} { return new(PageRule) },
+		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
+	)
+
 }

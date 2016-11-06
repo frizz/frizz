@@ -392,7 +392,25 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/images")
 	pkg.SetHash(7237742861799384387)
-	pkg.Init("icon", func() interface{} { return new(Icon) }, func() interface{} { return new(IconRule) }, func() reflect.Type { return reflect.TypeOf((*IconInterface)(nil)).Elem() })
-	pkg.Init("image", func() interface{} { return (*Image)(nil) }, func() interface{} { return new(ImageRule) }, func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() })
-	pkg.Init("photo", func() interface{} { return new(Photo) }, func() interface{} { return new(PhotoRule) }, func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() })
+	pkg.Init("icon",
+		func() interface{} { return new(Icon) },
+		nil,
+		func() interface{} { return new(IconRule) },
+		func() reflect.Type { return reflect.TypeOf((*IconInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("image",
+		func() interface{} { return (*Image)(nil) },
+		nil,
+		func() interface{} { return new(ImageRule) },
+		func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() },
+	)
+
+	pkg.Init("photo",
+		func() interface{} { return new(Photo) },
+		nil,
+		func() interface{} { return new(PhotoRule) },
+		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
+	)
+
 }

@@ -15,7 +15,7 @@ type MarshalledString string
 
 type UnmarshalError func(t *testing.T, err error)
 
-func Test(t *testing.T, ctx context.Context, json string, options ...interface{}) {
+func Run(t *testing.T, ctx context.Context, json string, options ...interface{}) {
 	var v interface{}
 	var testValue TestValue
 	var unmarshalError UnmarshalError

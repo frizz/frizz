@@ -246,19 +246,19 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Name = ob0
-	}
 	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
 		v.Age = ob0
+	}
+	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Name = ob0
 	}
 	return nil
 }
@@ -295,6 +295,18 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo6")
 	pkg.SetHash(7465480149826331644)
-	pkg.Init("page", func() interface{} { return new(Page) }, func() interface{} { return new(PageRule) }, func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() })
-	pkg.Init("person", func() interface{} { return new(Person) }, func() interface{} { return new(PersonRule) }, func() reflect.Type { return reflect.TypeOf((*PersonInterface)(nil)).Elem() })
+	pkg.Init("page",
+		func() interface{} { return new(Page) },
+		nil,
+		func() interface{} { return new(PageRule) },
+		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("person",
+		func() interface{} { return new(Person) },
+		nil,
+		func() interface{} { return new(PersonRule) },
+		func() reflect.Type { return reflect.TypeOf((*PersonInterface)(nil)).Elem() },
+	)
+
 }

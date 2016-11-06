@@ -115,6 +115,13 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(system.Int)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Height = ob0
+	}
 	if field, ok := in.Map()["url"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -128,13 +135,6 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 			return err
 		}
 		v.Width = ob0
-	}
-	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
-		ob0 := new(system.Int)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.Height = ob0
 	}
 	return nil
 }
@@ -152,6 +152,13 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 			m[key] = val
 		}
 	}
+	if v.Height != nil {
+		ob0, _, _, _, err := v.Height.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["height"] = ob0
+	}
 	if v.Url != nil {
 		ob0, _, _, _, err := v.Url.Repack(ctx)
 		if err != nil {
@@ -166,17 +173,16 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["width"] = ob0
 	}
-	if v.Height != nil {
-		ob0, _, _, _, err := v.Height.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["height"] = ob0
-	}
 	return m, "kego.io/demo/demo8/images", "photo", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo8/images")
 	pkg.SetHash(3695972038873785155)
-	pkg.Init("photo", func() interface{} { return new(Photo) }, func() interface{} { return new(PhotoRule) }, func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() })
+	pkg.Init("photo",
+		func() interface{} { return new(Photo) },
+		nil,
+		func() interface{} { return new(PhotoRule) },
+		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
+	)
+
 }

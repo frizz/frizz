@@ -13,7 +13,7 @@ import (
 
 func TestMapAlmjs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"almjs": {"a": "b", "c": "d"}
 		}`,
@@ -27,7 +27,7 @@ func TestMapAlmjs(t *testing.T) {
 
 func TestMapAlms(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"alms": {
 				"a": {"type": "simple", "js": "b"},
@@ -44,7 +44,7 @@ func TestMapAlms(t *testing.T) {
 
 func TestMapAlmss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"almss": {"a": "b", "c": "d"}
 		}`,
@@ -58,7 +58,7 @@ func TestMapAlmss(t *testing.T) {
 
 func TestMapMjs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"mjs": {"a": "b", "c": "d"}
 		}`,
@@ -72,7 +72,7 @@ func TestMapMjs(t *testing.T) {
 
 func TestMapMjn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"mjn": {"a": 1.1, "b": 1.2}
 		}`,
@@ -86,7 +86,7 @@ func TestMapMjn(t *testing.T) {
 
 func TestMapMjb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"mjb": {"a": true, "b": false}
 		}`,
@@ -100,7 +100,7 @@ func TestMapMjb(t *testing.T) {
 
 func TestMapMss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"mss": {"a": "b", "c": "d"}
 		}`,
@@ -114,7 +114,7 @@ func TestMapMss(t *testing.T) {
 
 func TestMapMsn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"msn": {"a": 1.1, "b": 1.2}
 		}`,
@@ -128,7 +128,7 @@ func TestMapMsn(t *testing.T) {
 
 func TestMapMsb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"msb": {"a": true, "b": false}
 		}`,
@@ -142,7 +142,7 @@ func TestMapMsb(t *testing.T) {
 
 func TestMapMsr(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"msr": {"a": "a", "b": "system:b"}
 		}`,
@@ -156,7 +156,7 @@ func TestMapMsr(t *testing.T) {
 
 func TestMapMsi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"msi": {"a": 2, "b": 3}
 		}`,
@@ -170,7 +170,7 @@ func TestMapMsi(t *testing.T) {
 
 func TestMapMsp(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"msp": {
 				"a": {"type": "system:package", "recursive": true},

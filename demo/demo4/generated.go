@@ -134,5 +134,11 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo4")
 	pkg.SetHash(15041727781809772107)
-	pkg.Init("page", func() interface{} { return new(Page) }, func() interface{} { return new(PageRule) }, func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() })
+	pkg.Init("page",
+		func() interface{} { return new(Page) },
+		nil,
+		func() interface{} { return new(PageRule) },
+		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
+	)
+
 }

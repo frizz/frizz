@@ -3640,20 +3640,116 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/tests/data")
 	pkg.SetHash(6167257871666940584)
-	pkg.Init("alajs", func() interface{} { return *new(Alajs) }, func() interface{} { return new(AlajsRule) }, func() reflect.Type { return reflect.TypeOf((*AlajsInterface)(nil)).Elem() })
-	pkg.Init("alas", func() interface{} { return *new(Alas) }, func() interface{} { return new(AlasRule) }, func() reflect.Type { return reflect.TypeOf((*AlasInterface)(nil)).Elem() })
-	pkg.Init("alass", func() interface{} { return *new(Alass) }, func() interface{} { return new(AlassRule) }, func() reflect.Type { return reflect.TypeOf((*AlassInterface)(nil)).Elem() })
-	pkg.Init("aljb", func() interface{} { return new(Aljb) }, func() interface{} { return new(AljbRule) }, func() reflect.Type { return reflect.TypeOf((*AljbInterface)(nil)).Elem() })
-	pkg.Init("aljn", func() interface{} { return new(Aljn) }, func() interface{} { return new(AljnRule) }, func() reflect.Type { return reflect.TypeOf((*AljnInterface)(nil)).Elem() })
-	pkg.Init("aljs", func() interface{} { return new(Aljs) }, func() interface{} { return new(AljsRule) }, func() reflect.Type { return reflect.TypeOf((*AljsInterface)(nil)).Elem() })
-	pkg.Init("almjs", func() interface{} { return *new(Almjs) }, func() interface{} { return new(AlmjsRule) }, func() reflect.Type { return reflect.TypeOf((*AlmjsInterface)(nil)).Elem() })
-	pkg.Init("alms", func() interface{} { return *new(Alms) }, func() interface{} { return new(AlmsRule) }, func() reflect.Type { return reflect.TypeOf((*AlmsInterface)(nil)).Elem() })
-	pkg.Init("almss", func() interface{} { return *new(Almss) }, func() interface{} { return new(AlmssRule) }, func() reflect.Type { return reflect.TypeOf((*AlmssInterface)(nil)).Elem() })
-	pkg.Init("als", func() interface{} { return new(Als) }, func() interface{} { return new(AlsRule) }, func() reflect.Type { return reflect.TypeOf((*AlsInterface)(nil)).Elem() })
-	pkg.Init("alss", func() interface{} { return new(Alss) }, func() interface{} { return new(AlssRule) }, func() reflect.Type { return reflect.TypeOf((*AlssInterface)(nil)).Elem() })
-	pkg.Init("face", func() interface{} { return (*Face)(nil) }, func() interface{} { return new(FaceRule) }, func() reflect.Type { return reflect.TypeOf((*Face)(nil)).Elem() })
-	pkg.Init("facea", func() interface{} { return new(Facea) }, func() interface{} { return new(FaceaRule) }, func() reflect.Type { return reflect.TypeOf((*FaceaInterface)(nil)).Elem() })
-	pkg.Init("faceb", func() interface{} { return new(Faceb) }, func() interface{} { return new(FacebRule) }, func() reflect.Type { return reflect.TypeOf((*FacebInterface)(nil)).Elem() })
-	pkg.Init("multi", func() interface{} { return new(Multi) }, func() interface{} { return new(MultiRule) }, func() reflect.Type { return reflect.TypeOf((*MultiInterface)(nil)).Elem() })
-	pkg.Init("simple", func() interface{} { return new(Simple) }, func() interface{} { return new(SimpleRule) }, func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() })
+	pkg.Init("alajs",
+		func() interface{} { return new(Alajs) },
+		func(in interface{}) interface{} { return *in.(*Alajs) },
+		func() interface{} { return new(AlajsRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlajsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("alas",
+		func() interface{} { return new(Alas) },
+		func(in interface{}) interface{} { return *in.(*Alas) },
+		func() interface{} { return new(AlasRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlasInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("alass",
+		func() interface{} { return new(Alass) },
+		func(in interface{}) interface{} { return *in.(*Alass) },
+		func() interface{} { return new(AlassRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlassInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("aljb",
+		func() interface{} { return new(Aljb) },
+		nil,
+		func() interface{} { return new(AljbRule) },
+		func() reflect.Type { return reflect.TypeOf((*AljbInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("aljn",
+		func() interface{} { return new(Aljn) },
+		nil,
+		func() interface{} { return new(AljnRule) },
+		func() reflect.Type { return reflect.TypeOf((*AljnInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("aljs",
+		func() interface{} { return new(Aljs) },
+		nil,
+		func() interface{} { return new(AljsRule) },
+		func() reflect.Type { return reflect.TypeOf((*AljsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("almjs",
+		func() interface{} { return new(Almjs) },
+		func(in interface{}) interface{} { return *in.(*Almjs) },
+		func() interface{} { return new(AlmjsRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlmjsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("alms",
+		func() interface{} { return new(Alms) },
+		func(in interface{}) interface{} { return *in.(*Alms) },
+		func() interface{} { return new(AlmsRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlmsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("almss",
+		func() interface{} { return new(Almss) },
+		func(in interface{}) interface{} { return *in.(*Almss) },
+		func() interface{} { return new(AlmssRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlmssInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("als",
+		func() interface{} { return new(Als) },
+		nil,
+		func() interface{} { return new(AlsRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("alss",
+		func() interface{} { return new(Alss) },
+		nil,
+		func() interface{} { return new(AlssRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlssInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("face",
+		func() interface{} { return (*Face)(nil) },
+		nil,
+		func() interface{} { return new(FaceRule) },
+		func() reflect.Type { return reflect.TypeOf((*Face)(nil)).Elem() },
+	)
+
+	pkg.Init("facea",
+		func() interface{} { return new(Facea) },
+		nil,
+		func() interface{} { return new(FaceaRule) },
+		func() reflect.Type { return reflect.TypeOf((*FaceaInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("faceb",
+		func() interface{} { return new(Faceb) },
+		nil,
+		func() interface{} { return new(FacebRule) },
+		func() reflect.Type { return reflect.TypeOf((*FacebInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("multi",
+		func() interface{} { return new(Multi) },
+		nil,
+		func() interface{} { return new(MultiRule) },
+		func() reflect.Type { return reflect.TypeOf((*MultiInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("simple",
+		func() interface{} { return new(Simple) },
+		nil,
+		func() interface{} { return new(SimpleRule) },
+		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
+	)
+
 }

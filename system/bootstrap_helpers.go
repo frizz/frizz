@@ -169,10 +169,11 @@ func UnpackUnknownType(ctx context.Context, in Packed, iface bool, ifacePackage,
 	if in.Type() != J_MAP {
 		return nil, kerr.New("YVFHXVKPSG", "Unpacking an unknown type, so input must be a map. Found %s", in.Type())
 	}
-	i, err := GetNewFromTypeField(ctx, in, iface, ifacePackage, ifaceName)
+	nf, df, err := GetNewFromTypeField(ctx, in, iface, ifacePackage, ifaceName)
 	if err != nil {
 		return nil, kerr.Wrap("SJFYDULNOS", err)
 	}
+	i := nf()
 	un, ok := i.(Unpacker)
 	if !ok {
 		return nil, kerr.New("FOLMDMHTVL", "%T does not implement Unpacker", i)
@@ -180,38 +181,60 @@ func UnpackUnknownType(ctx context.Context, in Packed, iface bool, ifacePackage,
 	if err := un.Unpack(ctx, in, iface); err != nil {
 		return nil, kerr.Wrap("BNHVLQPFKC", err)
 	}
+	if df != nil {
+		i = df(i)
+	}
 	return i, nil
 }
 
-func GetNewFromTypeField(ctx context.Context, in Packed, iface bool, ifacePackage, ifaceName string) (interface{}, error) {
+func GetNewFromTypeField(ctx context.Context, in Packed, iface bool, ifacePackage, ifaceName string) (newFunc func() interface{}, derefFunc func(interface{}) interface{}, err error) {
 	t, ok := in.Map()["type"]
 	if !ok {
-		return nil, kerr.New("RXEPCCGFKV", "Type field not found.")
+		return nil, nil, kerr.New("RXEPCCGFKV", "Type field not found.")
 	}
 	tr := new(Reference)
 	if err := tr.Unpack(ctx, t, false); err != nil {
-		return nil, kerr.Wrap("MVOYONPYER", err)
+		return nil, nil, kerr.Wrap("MVOYONPYER", err)
 	}
 	jctx := jsonctx.FromContext(ctx)
-	nf, ok := jctx.GetNewFunc(tr.Package, tr.Name)
+	nf, df, ok := jctx.GetNewFunc(tr.Package, tr.Name)
 	if ok {
-		return nf(), nil
+		return nf, df, nil
 	}
 	if iface && ifacePackage != "" && ifaceName != "" {
 		r := NewReference(ifacePackage, ifaceName)
-		d, ok := r.GetDummy(ctx)
+		nf, ok := jsonctx.FromContext(ctx).GetDummyFunc(r.Package, r.Name)
 		if ok {
-			return d, nil
+			// TODO: fix this
+			return nf, nil, nil
 		}
 	}
-	return nil, kerr.New("BQIJMVGJDT", "NewFunc %s not found.", tr.String())
+	return nil, nil, kerr.New("BQIJMVGJDT", "NewFunc %s not found.", tr.String())
 }
 
 func init() {
 	jpkg := jsonctx.InitPackage("kego.io/json")
-	jpkg.Init("string", func() interface{} { return "" }, func() interface{} { return new(JsonStringRule) }, nil)
-	jpkg.Init("number", func() interface{} { return 0.0 }, func() interface{} { return new(JsonNumberRule) }, nil)
-	jpkg.Init("bool", func() interface{} { return false }, func() interface{} { return new(JsonBoolRule) }, nil)
+	jpkg.Init(
+		"string",
+		func() interface{} { return "" },
+		nil,
+		func() interface{} { return new(JsonStringRule) },
+		nil,
+	)
+	jpkg.Init(
+		"number",
+		func() interface{} { return 0.0 },
+		nil,
+		func() interface{} { return new(JsonNumberRule) },
+		nil,
+	)
+	jpkg.Init(
+		"bool",
+		func() interface{} { return false },
+		nil,
+		func() interface{} { return new(JsonBoolRule) },
+		nil,
+	)
 }
 
 func (v *JsonStringRule) Unpack(ctx context.Context, in Packed, iface bool) error {

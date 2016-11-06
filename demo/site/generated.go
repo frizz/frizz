@@ -770,9 +770,39 @@ func UnpackSection(ctx context.Context, in system.Packed) (Section, error) {
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/site")
 	pkg.SetHash(3726678967244446909)
-	pkg.Init("body", func() interface{} { return new(Body) }, func() interface{} { return new(BodyRule) }, func() reflect.Type { return reflect.TypeOf((*BodyInterface)(nil)).Elem() })
-	pkg.Init("columns", func() interface{} { return new(Columns) }, func() interface{} { return new(ColumnsRule) }, func() reflect.Type { return reflect.TypeOf((*ColumnsInterface)(nil)).Elem() })
-	pkg.Init("hero", func() interface{} { return new(Hero) }, func() interface{} { return new(HeroRule) }, func() reflect.Type { return reflect.TypeOf((*HeroInterface)(nil)).Elem() })
-	pkg.Init("page", func() interface{} { return new(Page) }, func() interface{} { return new(PageRule) }, func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() })
-	pkg.Init("section", func() interface{} { return (*Section)(nil) }, func() interface{} { return new(SectionRule) }, func() reflect.Type { return reflect.TypeOf((*Section)(nil)).Elem() })
+	pkg.Init("body",
+		func() interface{} { return new(Body) },
+		nil,
+		func() interface{} { return new(BodyRule) },
+		func() reflect.Type { return reflect.TypeOf((*BodyInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("columns",
+		func() interface{} { return new(Columns) },
+		nil,
+		func() interface{} { return new(ColumnsRule) },
+		func() reflect.Type { return reflect.TypeOf((*ColumnsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("hero",
+		func() interface{} { return new(Hero) },
+		nil,
+		func() interface{} { return new(HeroRule) },
+		func() reflect.Type { return reflect.TypeOf((*HeroInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("page",
+		func() interface{} { return new(Page) },
+		nil,
+		func() interface{} { return new(PageRule) },
+		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("section",
+		func() interface{} { return (*Section)(nil) },
+		nil,
+		func() interface{} { return new(SectionRule) },
+		func() reflect.Type { return reflect.TypeOf((*Section)(nil)).Elem() },
+	)
+
 }

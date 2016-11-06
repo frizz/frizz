@@ -149,5 +149,11 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/units")
 	pkg.SetHash(10988868301072060435)
-	pkg.Init("rectangle", func() interface{} { return new(Rectangle) }, func() interface{} { return new(RectangleRule) }, func() reflect.Type { return reflect.TypeOf((*RectangleInterface)(nil)).Elem() })
+	pkg.Init("rectangle",
+		func() interface{} { return new(Rectangle) },
+		nil,
+		func() interface{} { return new(RectangleRule) },
+		func() reflect.Type { return reflect.TypeOf((*RectangleInterface)(nil)).Elem() },
+	)
+
 }

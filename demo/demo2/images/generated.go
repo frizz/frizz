@@ -134,5 +134,11 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo2/images")
 	pkg.SetHash(17974458391396798528)
-	pkg.Init("photo", func() interface{} { return new(Photo) }, func() interface{} { return new(PhotoRule) }, func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() })
+	pkg.Init("photo",
+		func() interface{} { return new(Photo) },
+		nil,
+		func() interface{} { return new(PhotoRule) },
+		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
+	)
+
 }

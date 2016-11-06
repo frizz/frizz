@@ -349,7 +349,25 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/words")
 	pkg.SetHash(15839668451341961644)
-	pkg.Init("localizer", func() interface{} { return (*Localizer)(nil) }, func() interface{} { return new(LocalizerRule) }, func() reflect.Type { return reflect.TypeOf((*Localizer)(nil)).Elem() })
-	pkg.Init("simple", func() interface{} { return new(Simple) }, func() interface{} { return new(SimpleRule) }, func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() })
-	pkg.Init("translation", func() interface{} { return new(Translation) }, func() interface{} { return new(TranslationRule) }, func() reflect.Type { return reflect.TypeOf((*TranslationInterface)(nil)).Elem() })
+	pkg.Init("localizer",
+		func() interface{} { return (*Localizer)(nil) },
+		nil,
+		func() interface{} { return new(LocalizerRule) },
+		func() reflect.Type { return reflect.TypeOf((*Localizer)(nil)).Elem() },
+	)
+
+	pkg.Init("simple",
+		func() interface{} { return new(Simple) },
+		nil,
+		func() interface{} { return new(SimpleRule) },
+		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("translation",
+		func() interface{} { return new(Translation) },
+		nil,
+		func() interface{} { return new(TranslationRule) },
+		func() reflect.Type { return reflect.TypeOf((*TranslationInterface)(nil)).Elem() },
+	)
+
 }

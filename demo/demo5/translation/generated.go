@@ -330,12 +330,41 @@ func (v *Smartling) Repack(ctx context.Context) (data interface{}, typePackage s
 		}
 		m["english"] = ob0
 	}
+	if v.Translations != nil {
+		ob0 := map[string]interface{}{}
+		for k0 := range v.Translations {
+			ob1, _, _, _, err := v.Translations[k0].Repack(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0[k0] = ob1
+		}
+		m["translations"] = ob0
+	}
 	return m, "kego.io/demo/demo5/translation", "smartling", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo5/translation")
 	pkg.SetHash(13251613636822643043)
-	pkg.Init("localized", func() interface{} { return (*Localized)(nil) }, func() interface{} { return new(LocalizedRule) }, func() reflect.Type { return reflect.TypeOf((*Localized)(nil)).Elem() })
-	pkg.Init("simple", func() interface{} { return new(Simple) }, func() interface{} { return new(SimpleRule) }, func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() })
-	pkg.Init("smartling", func() interface{} { return new(Smartling) }, func() interface{} { return new(SmartlingRule) }, func() reflect.Type { return reflect.TypeOf((*SmartlingInterface)(nil)).Elem() })
+	pkg.Init("localized",
+		func() interface{} { return (*Localized)(nil) },
+		nil,
+		func() interface{} { return new(LocalizedRule) },
+		func() reflect.Type { return reflect.TypeOf((*Localized)(nil)).Elem() },
+	)
+
+	pkg.Init("simple",
+		func() interface{} { return new(Simple) },
+		nil,
+		func() interface{} { return new(SimpleRule) },
+		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("smartling",
+		func() interface{} { return new(Smartling) },
+		nil,
+		func() interface{} { return new(SmartlingRule) },
+		func() reflect.Type { return reflect.TypeOf((*SmartlingInterface)(nil)).Elem() },
+	)
+
 }

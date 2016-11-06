@@ -14,7 +14,7 @@ import (
 
 func TestArrayAlajs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"alajs": ["a", "b"]
 		}`,
@@ -28,7 +28,7 @@ func TestArrayAlajs(t *testing.T) {
 
 func TestArrayAlas(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"alas": [
 				{"type":"simple", "js": "a"},
@@ -45,7 +45,7 @@ func TestArrayAlas(t *testing.T) {
 
 func TestArrayAlass(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"alass": ["a", "b"]
 		}`,
@@ -59,7 +59,7 @@ func TestArrayAlass(t *testing.T) {
 
 func TestArrayAjs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"ajs": ["a", "b"]
 		}`,
@@ -73,7 +73,7 @@ func TestArrayAjs(t *testing.T) {
 
 func TestArrayAjn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"ajn": [1.1, 1.2]
 		}`,
@@ -87,7 +87,7 @@ func TestArrayAjn(t *testing.T) {
 
 func TestArrayAjb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"ajb": [true, false]
 		}`,
@@ -101,7 +101,7 @@ func TestArrayAjb(t *testing.T) {
 
 func TestArrayAss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"ass": ["a", "b"]
 		}`,
@@ -115,7 +115,7 @@ func TestArrayAss(t *testing.T) {
 
 func TestArrayAsn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"asn": [1.1, 1.2]
 		}`,
@@ -129,7 +129,7 @@ func TestArrayAsn(t *testing.T) {
 
 func TestArrayAsb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"asb": [true, false]
 		}`,
@@ -143,7 +143,7 @@ func TestArrayAsb(t *testing.T) {
 
 func TestArrayAsr(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"asr": ["a", "system:b"]
 		}`,
@@ -157,7 +157,7 @@ func TestArrayAsr(t *testing.T) {
 
 func TestArrayAsi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"asi": [2, 3]
 		}`,
@@ -171,7 +171,7 @@ func TestArrayAsi(t *testing.T) {
 
 func TestArrayAsp(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"asp": [{
 				"type": "system:package",
@@ -190,7 +190,7 @@ func TestArrayAsp(t *testing.T) {
 
 func TestArrayAri(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"ari": [{
 				"type": "system:@string",
@@ -210,7 +210,7 @@ func TestArrayAri(t *testing.T) {
 
 func TestArrayAnri(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"anri": [
 				"a",
@@ -229,7 +229,7 @@ func TestArrayAnri(t *testing.T) {
 
 func TestArrayAi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"ai": [{
 				"type": "facea",
@@ -249,7 +249,7 @@ func TestArrayAi(t *testing.T) {
 
 func TestArrayAm(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"am": [{
 				"type": "multi",
@@ -269,7 +269,7 @@ func TestArrayAm(t *testing.T) {
 
 func TestArrayAalajs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalajs": [["a", "b"],["c", "d"]]
 		}`,
@@ -287,7 +287,7 @@ func TestArrayAalajs(t *testing.T) {
 
 func TestArrayAalas(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalas": [
 				[{"type": "simple", "js": "a"}, {"type": "simple", "js": "b"}],
@@ -308,7 +308,7 @@ func TestArrayAalas(t *testing.T) {
 
 func TestArrayAalass(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalass": [["a", "b"],["c", "d"]]
 		}`,
@@ -326,7 +326,7 @@ func TestArrayAalass(t *testing.T) {
 
 func TestArrayAaljb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aaljb": [true, false]
 		}`,
@@ -340,7 +340,7 @@ func TestArrayAaljb(t *testing.T) {
 
 func TestArrayAaljn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aaljn": [1.1, 1.2]
 		}`,
@@ -354,7 +354,7 @@ func TestArrayAaljn(t *testing.T) {
 
 func TestArrayAaljs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aaljs": ["a", "b"]
 		}`,
@@ -368,7 +368,7 @@ func TestArrayAaljs(t *testing.T) {
 
 func TestArrayAalmjs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalmjs": [{"a": "b", "c": "d"}, {"e": "f", "g": "h"}]
 		}`,
@@ -386,7 +386,7 @@ func TestArrayAalmjs(t *testing.T) {
 
 func TestArrayAalms(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalms": [{
 				"a": {"type":"simple", "js": "b"},
@@ -410,7 +410,7 @@ func TestArrayAalms(t *testing.T) {
 
 func TestArrayAalmss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalmss": [{"a": "b", "c": "d"}, {"e": "f", "g": "h"}]
 		}`,
@@ -428,7 +428,7 @@ func TestArrayAalmss(t *testing.T) {
 
 func TestArrayAalss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aalss": ["a", "b"]
 		}`,
@@ -442,7 +442,7 @@ func TestArrayAalss(t *testing.T) {
 
 func TestArrayAals(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"aals": [
 				{"type": "simple", "js": "a"},

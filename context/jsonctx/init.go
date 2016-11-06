@@ -19,6 +19,7 @@ type packageInfo struct {
 
 type typeInfo struct {
 	newFunc       func() interface{}
+	derefFunc     func(interface{}) interface{}
 	ruleFunc      func() interface{}
 	dummyFunc     func() interface{}
 	interfaceFunc func() reflect.Type
@@ -45,11 +46,12 @@ func InitPackage(path string) *packageInfo {
 	return p
 }
 
-func (p *packageInfo) Init(name string, newFunc, ruleFunc func() interface{}, interfaceFunc func() reflect.Type) {
+func (p *packageInfo) Init(name string, newFunc func() interface{}, derefFunc func(interface{}) interface{}, ruleFunc func() interface{}, interfaceFunc func() reflect.Type) {
 	if p.types[name] == nil {
 		p.types[name] = &typeInfo{}
 	}
 	p.types[name].newFunc = newFunc
+	p.types[name].derefFunc = derefFunc
 	p.types[name].ruleFunc = ruleFunc
 	p.types[name].interfaceFunc = interfaceFunc
 }

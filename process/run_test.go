@@ -42,7 +42,10 @@ func TestRun(t *testing.T) {
 
 	b, err := ioutil.ReadFile(filepath.Join(dir, "generated.go"))
 	require.NoError(t, err)
-	assert.Contains(t, string(b), `pkg.Init("a", func() interface{} { return new(A) }, func() interface{} { return new(ARule) }, func() reflect.Type { return reflect.TypeOf((*AInterface)(nil)).Elem() })`)
+	assert.Contains(t, string(b), `pkg.Init(`)
+	assert.Contains(t, string(b), `func() interface{} { return new(A) },`)
+	assert.Contains(t, string(b), `func() interface{} { return new(ARule) },`)
+	assert.Contains(t, string(b), `func() reflect.Type { return reflect.TypeOf((*AInterface)(nil)).Elem() },`)
 	assert.Contains(t, string(b), fmt.Sprintf("%v", env.Hash))
 
 	err = RunValidateCommand(cb.Ctx())

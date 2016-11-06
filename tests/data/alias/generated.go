@@ -213,13 +213,13 @@ func (v *Alms) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	*v = ob0
 	return nil
 }
-func (v *Alms) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+func (v Alms) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
 		return nil, "kego.io/tests/data/alias", "alms", system.J_NULL, nil
 	}
 	ob0 := map[string]interface{}{}
-	for k0 := range *v {
-		ob1, _, _, _, err := (*v)[k0].Repack(ctx)
+	for k0 := range v {
+		ob1, _, _, _, err := v[k0].Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
@@ -367,7 +367,25 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/tests/data/alias")
 	pkg.SetHash(3681006963164671295)
-	pkg.Init("alms", func() interface{} { return *new(Alms) }, func() interface{} { return new(AlmsRule) }, func() reflect.Type { return reflect.TypeOf((*AlmsInterface)(nil)).Elem() })
-	pkg.Init("main", func() interface{} { return new(Main) }, func() interface{} { return new(MainRule) }, func() reflect.Type { return reflect.TypeOf((*MainInterface)(nil)).Elem() })
-	pkg.Init("simple", func() interface{} { return new(Simple) }, func() interface{} { return new(SimpleRule) }, func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() })
+	pkg.Init("alms",
+		func() interface{} { return new(Alms) },
+		func(in interface{}) interface{} { return *in.(*Alms) },
+		func() interface{} { return new(AlmsRule) },
+		func() reflect.Type { return reflect.TypeOf((*AlmsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("main",
+		func() interface{} { return new(Main) },
+		nil,
+		func() interface{} { return new(MainRule) },
+		func() reflect.Type { return reflect.TypeOf((*MainInterface)(nil)).Elem() },
+	)
+
+	pkg.Init("simple",
+		func() interface{} { return new(Simple) },
+		nil,
+		func() interface{} { return new(SimpleRule) },
+		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
+	)
+
 }

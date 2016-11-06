@@ -130,13 +130,6 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
-	if v.Title != nil {
-		ob0, _, _, _, err := v.Title.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["title"] = ob0
-	}
 	if v.Body != nil {
 		ob0, _, _, _, err := v.Body.Repack(ctx)
 		if err != nil {
@@ -144,10 +137,23 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["body"] = ob0
 	}
+	if v.Title != nil {
+		ob0, _, _, _, err := v.Title.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["title"] = ob0
+	}
 	return m, "kego.io/demo/demo1", "page", system.J_OBJECT, nil
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo1")
 	pkg.SetHash(10713598547770441995)
-	pkg.Init("page", func() interface{} { return new(Page) }, func() interface{} { return new(PageRule) }, func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() })
+	pkg.Init("page",
+		func() interface{} { return new(Page) },
+		nil,
+		func() interface{} { return new(PageRule) },
+		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
+	)
+
 }

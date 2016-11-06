@@ -24,7 +24,7 @@ type JsonCache struct {
 
 const RULE_PREFIX = "@"
 
-func (c *JsonCache) GetNewFunc(path string, name string) (func() interface{}, bool) {
+func (c *JsonCache) GetNewFunc(path string, name string) (newFunc func() interface{}, derefFunc func(interface{}) interface{}, found bool) {
 	rule := false
 	if strings.HasPrefix(name, RULE_PREFIX) {
 		rule = true
@@ -33,24 +33,27 @@ func (c *JsonCache) GetNewFunc(path string, name string) (func() interface{}, bo
 
 	p, ok := c.Packages.Get(path)
 	if !ok {
-		return nil, false
+		return nil, nil, false
 	}
 
 	t, ok := p.Types.Get(name)
 	if !ok {
-		return nil, false
+		return nil, nil, false
 	}
 
 	if rule {
 		if t.RuleFunc == nil {
-			return nil, false
+			return nil, nil, false
 		}
-		return t.RuleFunc, true
+		return t.RuleFunc, nil, true
 	} else {
 		if t.NewFunc == nil {
-			return nil, false
+			return nil, nil, false
 		}
-		return t.NewFunc, true
+		if t.DerefFunc == nil {
+			return t.NewFunc, nil, true
+		}
+		return t.NewFunc, t.DerefFunc, true
 	}
 }
 
@@ -112,6 +115,7 @@ type JsonDummies struct {
 type JsonTypeInfo struct {
 	Name          string
 	NewFunc       func() interface{}
+	DerefFunc     func(interface{}) interface{}
 	RuleFunc      func() interface{}
 	DummyFunc     func() interface{}
 	InterfaceFunc func() reflect.Type
@@ -255,6 +259,7 @@ func (pc *JsonPackages) imp(path string, pkg *packageInfo) {
 		p.Types.Set(name, &JsonTypeInfo{
 			Name:          name,
 			NewFunc:       typ.newFunc,
+			DerefFunc:     typ.derefFunc,
 			RuleFunc:      typ.ruleFunc,
 			InterfaceFunc: typ.interfaceFunc,
 			DummyFunc:     typ.dummyFunc,
