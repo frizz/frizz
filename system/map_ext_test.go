@@ -12,7 +12,7 @@ import (
 	. "kego.io/tests/marshal"
 )
 
-func TestMapAlmjs(t *testing.T) {
+func TestAlmjs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -26,7 +26,7 @@ func TestMapAlmjs(t *testing.T) {
 	)
 }
 
-func TestMapAlms(t *testing.T) {
+func TestAlms(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -43,7 +43,7 @@ func TestMapAlms(t *testing.T) {
 	)
 }
 
-func TestMapAlmss(t *testing.T) {
+func TestAlmss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -57,7 +57,7 @@ func TestMapAlmss(t *testing.T) {
 	)
 }
 
-func TestMapMjs(t *testing.T) {
+func TestMjs(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -71,7 +71,7 @@ func TestMapMjs(t *testing.T) {
 	)
 }
 
-func TestMapMjn(t *testing.T) {
+func TestMjn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -85,7 +85,7 @@ func TestMapMjn(t *testing.T) {
 	)
 }
 
-func TestMapMjb(t *testing.T) {
+func TestMjb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -99,7 +99,7 @@ func TestMapMjb(t *testing.T) {
 	)
 }
 
-func TestMapMss(t *testing.T) {
+func TestMss(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -113,7 +113,7 @@ func TestMapMss(t *testing.T) {
 	)
 }
 
-func TestMapMsn(t *testing.T) {
+func TestMsn(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -127,7 +127,7 @@ func TestMapMsn(t *testing.T) {
 	)
 }
 
-func TestMapMsb(t *testing.T) {
+func TestMsb(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -141,7 +141,7 @@ func TestMapMsb(t *testing.T) {
 	)
 }
 
-func TestMapMsr(t *testing.T) {
+func TestMsr(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -155,7 +155,7 @@ func TestMapMsr(t *testing.T) {
 	)
 }
 
-func TestMapMsi(t *testing.T) {
+func TestMsi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -169,7 +169,7 @@ func TestMapMsi(t *testing.T) {
 	)
 }
 
-func TestMapMsp(t *testing.T) {
+func TestMsp(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -186,7 +186,7 @@ func TestMapMsp(t *testing.T) {
 	)
 }
 
-func TestAlmjs(t *testing.T) {
+func TestAlmjsi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	// Note: map alias types in interfaces are always marshalled to explicit
 	// object notation.
@@ -202,7 +202,7 @@ func TestAlmjs(t *testing.T) {
 	)
 }
 
-func TestAlmjsError(t *testing.T) {
+func TestAlmjsiError(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	// Note: map alias types in interfaces are always marshalled to explicit
 	// object notation, so this throws an error.
@@ -217,7 +217,7 @@ func TestAlmjsError(t *testing.T) {
 	)
 }
 
-func TestMapMri(t *testing.T) {
+func TestMri(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -240,7 +240,7 @@ func TestMapMri(t *testing.T) {
 	)
 }
 
-func TestMapMnri(t *testing.T) {
+func TestMnri(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -261,7 +261,7 @@ func TestMapMnri(t *testing.T) {
 	)
 }
 
-func TestArrayMi(t *testing.T) {
+func TestMi(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
@@ -284,77 +284,218 @@ func TestArrayMi(t *testing.T) {
 	)
 }
 
-/*
-   "mm": {
-     "type": "system:@map",
-     "items": {
-       "type": "@multi"
-     }
-   },
-   "malajs": {
-     "type": "system:@map",
-     "items": {
-       "type": "@alajs"
-     }
-   },
-   "malas": {
-     "type": "system:@map",
-     "items": {
-       "type": "@alas"
-     }
-   },
-   "malass": {
-     "type": "system:@map",
-     "items": {
-       "type": "@alass"
-     }
-   },
-   "maljb": {
-     "type": "system:@map",
-     "items": {
-       "type": "@aljb"
-     }
-   },
-   "maljn": {
-     "type": "system:@map",
-     "items": {
-       "type": "@aljn"
-     }
-   },
-   "maljs": {
-     "type": "system:@map",
-     "items": {
-       "type": "@aljs"
-     }
-   },
-   "malmjs": {
-     "type": "system:@map",
-     "items": {
-       "type": "@almjs"
-     }
-   },
-   "malms": {
-     "type": "system:@map",
-     "items": {
-       "type": "@alms"
-     }
-   },
-   "malmss": {
-     "type": "system:@map",
-     "items": {
-       "type": "@almss"
-     }
-   },
-   "malss": {
-     "type": "system:@map",
-     "items": {
-       "type": "@alss"
-     }
-   },
-   "mals": {
-     "type": "system:@map",
-     "items": {
-       "type": "@als"
-     }
-   }
-*/
+func TestMm(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"mm": {
+				"a": {
+					"type": "multi",
+					"js": "b"
+				},
+				"c": {
+					"type": "multi",
+					"js": "d"
+				}
+			}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Mm, 2)
+			assert.Equal(t, "b", v.(*data.Multi).Mm["a"].Js)
+			assert.Equal(t, "d", v.(*data.Multi).Mm["c"].Js)
+		}),
+	)
+}
+
+func TestMalajs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malajs": {"a": ["b", "c"], "d": ["e", "f"]}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malajs, 2)
+			require.Len(t, v.(*data.Multi).Malajs["a"], 2)
+			require.Len(t, v.(*data.Multi).Malajs["d"], 2)
+			assert.Equal(t, "b", v.(*data.Multi).Malajs["a"][0])
+			assert.Equal(t, "c", v.(*data.Multi).Malajs["a"][1])
+			assert.Equal(t, "e", v.(*data.Multi).Malajs["d"][0])
+			assert.Equal(t, "f", v.(*data.Multi).Malajs["d"][1])
+		}),
+	)
+}
+
+func TestMalas(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malas": {
+				"a": [{"type": "simple", "js": "b"}, {"type": "simple", "js": "c"}],
+				"d": [{"type": "simple", "js": "e"}, {"type": "simple", "js": "f"}]
+			}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malas, 2)
+			require.Len(t, v.(*data.Multi).Malas["a"], 2)
+			require.Len(t, v.(*data.Multi).Malas["d"], 2)
+			assert.Equal(t, "b", v.(*data.Multi).Malas["a"][0].Js)
+			assert.Equal(t, "c", v.(*data.Multi).Malas["a"][1].Js)
+			assert.Equal(t, "e", v.(*data.Multi).Malas["d"][0].Js)
+			assert.Equal(t, "f", v.(*data.Multi).Malas["d"][1].Js)
+		}),
+	)
+}
+
+func TestMalass(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malass": {"a": ["b", "c"], "d": ["e", "f"]}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malass, 2)
+			require.Len(t, v.(*data.Multi).Malass["a"], 2)
+			require.Len(t, v.(*data.Multi).Malass["d"], 2)
+			assert.Equal(t, "b", v.(*data.Multi).Malass["a"][0].Value())
+			assert.Equal(t, "c", v.(*data.Multi).Malass["a"][1].Value())
+			assert.Equal(t, "e", v.(*data.Multi).Malass["d"][0].Value())
+			assert.Equal(t, "f", v.(*data.Multi).Malass["d"][1].Value())
+		}),
+	)
+}
+
+func TestMaljb(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"maljb": {"a": true, "b": false}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Maljb, 2)
+			assert.Equal(t, true, v.(*data.Multi).Maljb["a"].Value())
+			assert.Equal(t, false, v.(*data.Multi).Maljb["b"].Value())
+		}),
+	)
+}
+
+func TestMaljn(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"maljn": {"a": 1.1, "b": 1.2}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Maljn, 2)
+			assert.Equal(t, 1.1, v.(*data.Multi).Maljn["a"].Value())
+			assert.Equal(t, 1.2, v.(*data.Multi).Maljn["b"].Value())
+		}),
+	)
+}
+
+func TestMaljs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"maljs": {"a": "b", "c": "d"}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Maljs, 2)
+			assert.Equal(t, "b", v.(*data.Multi).Maljs["a"].Value())
+			assert.Equal(t, "d", v.(*data.Multi).Maljs["c"].Value())
+		}),
+	)
+}
+
+func TestMalmjs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malmjs": {"a": {"b": "c", "d": "e"}, "f": {"g": "h", "i": "j"}}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malmjs, 2)
+			require.Len(t, v.(*data.Multi).Malmjs["a"], 2)
+			require.Len(t, v.(*data.Multi).Malmjs["f"], 2)
+			assert.Equal(t, "c", v.(*data.Multi).Malmjs["a"]["b"])
+			assert.Equal(t, "e", v.(*data.Multi).Malmjs["a"]["d"])
+			assert.Equal(t, "h", v.(*data.Multi).Malmjs["f"]["g"])
+			assert.Equal(t, "j", v.(*data.Multi).Malmjs["f"]["i"])
+		}),
+	)
+}
+
+func TestMalms(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malms": {
+				"a": {
+					"b": {"type":"simple", "js": "c"},
+					"d": {"type":"simple", "js": "e"}
+				},
+				"f": {
+					"g": {"type":"simple", "js": "h"},
+					"i": {"type":"simple", "js": "j"}
+				}
+			}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malms, 2)
+			require.Len(t, v.(*data.Multi).Malms["a"], 2)
+			require.Len(t, v.(*data.Multi).Malms["f"], 2)
+			assert.Equal(t, "c", v.(*data.Multi).Malms["a"]["b"].Js)
+			assert.Equal(t, "e", v.(*data.Multi).Malms["a"]["d"].Js)
+			assert.Equal(t, "h", v.(*data.Multi).Malms["f"]["g"].Js)
+			assert.Equal(t, "j", v.(*data.Multi).Malms["f"]["i"].Js)
+		}),
+	)
+}
+
+func TestMalmss(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malmss": {"a": {"b": "c", "d": "e"}, "f": {"g": "h", "i": "j"}}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malmss, 2)
+			require.Len(t, v.(*data.Multi).Malmss["a"], 2)
+			require.Len(t, v.(*data.Multi).Malmss["f"], 2)
+			assert.Equal(t, "c", v.(*data.Multi).Malmss["a"]["b"].Value())
+			assert.Equal(t, "e", v.(*data.Multi).Malmss["a"]["d"].Value())
+			assert.Equal(t, "h", v.(*data.Multi).Malmss["f"]["g"].Value())
+			assert.Equal(t, "j", v.(*data.Multi).Malmss["f"]["i"].Value())
+		}),
+	)
+}
+
+func TestMalss(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"malss": {"a": "b", "c": "d"}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Malss, 2)
+			assert.Equal(t, "b", v.(*data.Multi).Malss["a"].Value())
+			assert.Equal(t, "d", v.(*data.Multi).Malss["c"].Value())
+		}),
+	)
+}
+
+func TestMals(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"mals": {
+				"a": {"type": "simple", "js": "b"},
+				"c": {"type": "simple", "js": "d"}
+			}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Mals, 2)
+			assert.Equal(t, "b", v.(*data.Multi).Mals["a"].Js)
+			assert.Equal(t, "d", v.(*data.Multi).Mals["c"].Js)
+		}),
+	)
+}
