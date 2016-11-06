@@ -7,6 +7,7 @@ import (
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/ke"
+	"kego.io/system"
 	"kego.io/tests/data"
 	. "kego.io/tests/marshal"
 )
@@ -185,10 +186,40 @@ func TestMapMsp(t *testing.T) {
 	)
 }
 
-/*
+func TestAlmjs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	// Note: map alias types in interfaces are always marshalled to explicit
+	// object notation.
+	Run(t, ctx, `{
+			"type": "multi",
+			"almjsi": {"type": "almjs", "value": {"a": "b", "c": "d"}}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			assert.Len(t, v.(*data.Multi).Almjsi.GetAlmjs(ctx), 2)
+			assert.Equal(t, "b", v.(*data.Multi).Almjsi.GetAlmjs(ctx)["a"])
+			assert.Equal(t, "d", v.(*data.Multi).Almjsi.GetAlmjs(ctx)["c"])
+		}),
+	)
+}
+
+func TestAlmjsError(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	// Note: map alias types in interfaces are always marshalled to explicit
+	// object notation, so this throws an error.
+	Run(t, ctx, `{
+			"type": "multi",
+			"almjsi": {"a": "b", "c": "d"}
+		}`,
+		UnmarshalError(func(t *testing.T, err error) {
+			require.IsError(t, err, "SVXYHJWMOC")
+			require.HasError(t, err, "RXEPCCGFKV")
+		}),
+	)
+}
+
 func TestMapMri(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
-	Test(t, ctx, `{
+	Run(t, ctx, `{
 			"type": "multi",
 			"mri": {
 				"a": {
@@ -208,22 +239,52 @@ func TestMapMri(t *testing.T) {
 		}),
 	)
 }
-*/
+
+func TestMapMnri(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"mnri": {
+				"a": "a",
+				"b": {"type": "system:int", "value": 1},
+				"c": {"type": "alajs", "value": ["a", "b", "c"]},
+				"d": {"type": "almjs", "value": {"a": "b", "c": "d"}}
+			}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Mnri, 4)
+			assert.Equal(t, "a", v.(*data.Multi).Mnri["a"].GetString(ctx).Value())
+			assert.Equal(t, "1", v.(*data.Multi).Mnri["b"].GetString(ctx).Value())
+			assert.Equal(t, "abc", v.(*data.Multi).Mnri["c"].GetString(ctx).Value())
+			assert.Equal(t, "abcd", v.(*data.Multi).Mnri["d"].GetString(ctx).Value())
+		}),
+	)
+}
+
+func TestArrayMi(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	Run(t, ctx, `{
+			"type": "multi",
+			"mi": {
+				"a": {
+					"type": "facea",
+					"a": "a1"
+				},
+				"b": {
+					"type": "faceb",
+					"b": "b1"
+				}
+			}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			require.Len(t, v.(*data.Multi).Mi, 2)
+			assert.Equal(t, "a1", v.(*data.Multi).Mi["a"].Face())
+			assert.Equal(t, "b1", v.(*data.Multi).Mi["b"].Face())
+		}),
+	)
+}
 
 /*
-   "mnri": {
-     "type": "system:@map",
-     "items": {
-       "type": "system:@string",
-       "interface": true
-     }
-   },
-   "mi": {
-     "type": "system:@map",
-     "items": {
-       "type": "@face"
-     }
-   },
    "mm": {
      "type": "system:@map",
      "items": {

@@ -208,6 +208,43 @@ func TestArrayAri(t *testing.T) {
 	)
 }
 
+func TestAlajs(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	// Note: array alias types in an interface can be expressed without
+	// explicit type notation.
+	Run(t, ctx, `{
+			"type": "multi",
+			"alajsi": ["a", "b"]
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			assert.Len(t, v.(*data.Multi).Alajsi.GetAlajs(ctx), 2)
+			assert.Equal(t, "a", v.(*data.Multi).Alajsi.GetAlajs(ctx)[0])
+			assert.Equal(t, "b", v.(*data.Multi).Alajsi.GetAlajs(ctx)[1])
+		}),
+	)
+}
+
+func TestAlajsExplicit(t *testing.T) {
+	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	// Note: array alias types in an interface can be expressed without
+	// explicit type notation. Explicit type notation is permitted, but it
+	// will marshal back to the bare form.
+	Run(t, ctx, `{
+			"type": "multi",
+			"alajsi": {"type":"alajs", "value": ["a", "b"]}
+		}`,
+		TestValue(func(t *testing.T, v interface{}) {
+			assert.Len(t, v.(*data.Multi).Alajsi.GetAlajs(ctx), 2)
+			assert.Equal(t, "a", v.(*data.Multi).Alajsi.GetAlajs(ctx)[0])
+			assert.Equal(t, "b", v.(*data.Multi).Alajsi.GetAlajs(ctx)[1])
+		}),
+		MarshalledString(`{
+			"type": "multi",
+			"alajsi": ["a", "b"]
+		}`),
+	)
+}
+
 func TestArrayAnri(t *testing.T) {
 	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
 	Run(t, ctx, `{
@@ -215,14 +252,16 @@ func TestArrayAnri(t *testing.T) {
 			"anri": [
 				"a",
 				{"type": "system:int", "value": 1},
-				{"type": "alajs", "value": ["a", "b", "c"]}
+				{"type": "alajs", "value": ["a", "b", "c"]},
+				{"type": "almjs", "value": {"a": "b", "c": "d"}}
 			]
 		}`,
 		TestValue(func(t *testing.T, v interface{}) {
-			require.Len(t, v.(*data.Multi).Anri, 3)
+			require.Len(t, v.(*data.Multi).Anri, 4)
 			assert.Equal(t, "a", v.(*data.Multi).Anri[0].GetString(ctx).Value())
 			assert.Equal(t, "1", v.(*data.Multi).Anri[1].GetString(ctx).Value())
 			assert.Equal(t, "abc", v.(*data.Multi).Anri[2].GetString(ctx).Value())
+			assert.Equal(t, "abcd", v.(*data.Multi).Anri[3].GetString(ctx).Value())
 		}),
 	)
 }

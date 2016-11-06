@@ -55,6 +55,10 @@
     "alajs": {
       "type": "@alajs"
     },
+    "alajsi": {
+      "type": "@alajs",
+      "interface": true
+    },
     "alas": {
       "type": "@alas"
     },
@@ -84,6 +88,10 @@
     },
     "almjs": {
       "type": "@almjs"
+    },
+    "almjsi": {
+      "type": "@almjs",
+      "interface": true
     },
     "alms": {
       "type": "@alms"

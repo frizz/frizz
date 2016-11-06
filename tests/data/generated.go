@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data","Hash":6167257871666940584}
+// info:{"Path":"kego.io/tests/data","Hash":18190841894779402894}
 package data
 
 // ke: {"file": {"notest": true}}
@@ -1682,6 +1682,7 @@ type Multi struct {
 	Ajn    []float64                         `json:"ajn"`
 	Ajs    []string                          `json:"ajs"`
 	Alajs  Alajs                             `json:"alajs"`
+	Alajsi AlajsInterface                    `json:"alajsi"`
 	Alas   Alas                              `json:"alas"`
 	Alass  Alass                             `json:"alass"`
 	Aljb   *Aljb                             `json:"aljb"`
@@ -1691,6 +1692,7 @@ type Multi struct {
 	Aljs   *Aljs                             `json:"aljs"`
 	Aljsi  AljsInterface                     `json:"aljsi"`
 	Almjs  Almjs                             `json:"almjs"`
+	Almjsi AlmjsInterface                    `json:"almjsi"`
 	Alms   Alms                              `json:"alms"`
 	Almss  Almss                             `json:"almss"`
 	Als    *Als                              `json:"als"`
@@ -1994,6 +1996,13 @@ func (v *Multi) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		}
 		v.Alajs = ob0
 	}
+	if field, ok := in.Map()["alajsi"]; ok && field.Type() != system.J_NULL {
+		ob0, err := UnpackAlajsInterface(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Alajsi = ob0
+	}
 	if field, ok := in.Map()["alas"]; ok && field.Type() != system.J_NULL {
 		ob0 := *new(Alas)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2056,6 +2065,13 @@ func (v *Multi) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 			return err
 		}
 		v.Almjs = ob0
+	}
+	if field, ok := in.Map()["almjsi"]; ok && field.Type() != system.J_NULL {
+		ob0, err := UnpackAlmjsInterface(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Almjsi = ob0
 	}
 	if field, ok := in.Map()["alms"]; ok && field.Type() != system.J_NULL {
 		ob0 := *new(Alms)
@@ -2845,6 +2861,27 @@ func (v *Multi) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["alajs"] = ob0
 	}
+	if v.Alajsi != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Alajsi.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/tests/data", "alajs") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["alajsi"] = ob0
+	}
 	if v.Alas != nil {
 		ob0, _, _, _, err := v.Alas.Repack(ctx)
 		if err != nil {
@@ -2949,6 +2986,27 @@ func (v *Multi) Repack(ctx context.Context) (data interface{}, typePackage strin
 			return nil, "", "", "", err
 		}
 		m["almjs"] = ob0
+	}
+	if v.Almjsi != nil {
+		var ob0 interface{}
+		ob0_value, pkg, name, typ, err := v.Almjsi.(system.Repacker).Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/tests/data", "almjs") {
+			typRef := system.NewReference(pkg, name)
+			typeVal, err := typRef.ValueContext(ctx)
+			if err != nil {
+				return nil, "", "", "", err
+			}
+			ob0 = map[string]interface{}{
+				"type":  typeVal,
+				"value": ob0_value,
+			}
+		} else {
+			ob0 = ob0_value
+		}
+		m["almjsi"] = ob0
 	}
 	if v.Alms != nil {
 		ob0, _, _, _, err := v.Alms.Repack(ctx)
@@ -3639,113 +3697,129 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/tests/data")
-	pkg.SetHash(6167257871666940584)
-	pkg.Init("alajs",
+	pkg.SetHash(18190841894779402894)
+	pkg.Init(
+		"alajs",
 		func() interface{} { return new(Alajs) },
 		func(in interface{}) interface{} { return *in.(*Alajs) },
 		func() interface{} { return new(AlajsRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlajsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("alas",
+	pkg.Init(
+		"alas",
 		func() interface{} { return new(Alas) },
 		func(in interface{}) interface{} { return *in.(*Alas) },
 		func() interface{} { return new(AlasRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlasInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("alass",
+	pkg.Init(
+		"alass",
 		func() interface{} { return new(Alass) },
 		func(in interface{}) interface{} { return *in.(*Alass) },
 		func() interface{} { return new(AlassRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlassInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("aljb",
+	pkg.Init(
+		"aljb",
 		func() interface{} { return new(Aljb) },
 		nil,
 		func() interface{} { return new(AljbRule) },
 		func() reflect.Type { return reflect.TypeOf((*AljbInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("aljn",
+	pkg.Init(
+		"aljn",
 		func() interface{} { return new(Aljn) },
 		nil,
 		func() interface{} { return new(AljnRule) },
 		func() reflect.Type { return reflect.TypeOf((*AljnInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("aljs",
+	pkg.Init(
+		"aljs",
 		func() interface{} { return new(Aljs) },
 		nil,
 		func() interface{} { return new(AljsRule) },
 		func() reflect.Type { return reflect.TypeOf((*AljsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("almjs",
+	pkg.Init(
+		"almjs",
 		func() interface{} { return new(Almjs) },
 		func(in interface{}) interface{} { return *in.(*Almjs) },
 		func() interface{} { return new(AlmjsRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlmjsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("alms",
+	pkg.Init(
+		"alms",
 		func() interface{} { return new(Alms) },
 		func(in interface{}) interface{} { return *in.(*Alms) },
 		func() interface{} { return new(AlmsRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlmsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("almss",
+	pkg.Init(
+		"almss",
 		func() interface{} { return new(Almss) },
 		func(in interface{}) interface{} { return *in.(*Almss) },
 		func() interface{} { return new(AlmssRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlmssInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("als",
+	pkg.Init(
+		"als",
 		func() interface{} { return new(Als) },
 		nil,
 		func() interface{} { return new(AlsRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("alss",
+	pkg.Init(
+		"alss",
 		func() interface{} { return new(Alss) },
 		nil,
 		func() interface{} { return new(AlssRule) },
 		func() reflect.Type { return reflect.TypeOf((*AlssInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("face",
+	pkg.Init(
+		"face",
 		func() interface{} { return (*Face)(nil) },
 		nil,
 		func() interface{} { return new(FaceRule) },
 		func() reflect.Type { return reflect.TypeOf((*Face)(nil)).Elem() },
 	)
 
-	pkg.Init("facea",
+	pkg.Init(
+		"facea",
 		func() interface{} { return new(Facea) },
 		nil,
 		func() interface{} { return new(FaceaRule) },
 		func() reflect.Type { return reflect.TypeOf((*FaceaInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("faceb",
+	pkg.Init(
+		"faceb",
 		func() interface{} { return new(Faceb) },
 		nil,
 		func() interface{} { return new(FacebRule) },
 		func() reflect.Type { return reflect.TypeOf((*FacebInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("multi",
+	pkg.Init(
+		"multi",
 		func() interface{} { return new(Multi) },
 		nil,
 		func() interface{} { return new(MultiRule) },
 		func() reflect.Type { return reflect.TypeOf((*MultiInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("simple",
+	pkg.Init(
+		"simple",
 		func() interface{} { return new(Simple) },
 		nil,
 		func() interface{} { return new(SimpleRule) },

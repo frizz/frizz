@@ -2046,84 +2046,96 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/system")
 	pkg.SetHash(5319817629068713650)
-	pkg.Init("array",
+	pkg.Init(
+		"array",
 		nil,
 		nil,
 		func() interface{} { return new(ArrayRule) },
 		nil,
 	)
 
-	pkg.Init("bool",
+	pkg.Init(
+		"bool",
 		func() interface{} { return new(Bool) },
 		nil,
 		func() interface{} { return new(BoolRule) },
 		func() reflect.Type { return reflect.TypeOf((*BoolInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("int",
+	pkg.Init(
+		"int",
 		func() interface{} { return new(Int) },
 		nil,
 		func() interface{} { return new(IntRule) },
 		func() reflect.Type { return reflect.TypeOf((*IntInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("map",
+	pkg.Init(
+		"map",
 		nil,
 		nil,
 		func() interface{} { return new(MapRule) },
 		nil,
 	)
 
-	pkg.Init("number",
+	pkg.Init(
+		"number",
 		func() interface{} { return new(Number) },
 		nil,
 		func() interface{} { return new(NumberRule) },
 		func() reflect.Type { return reflect.TypeOf((*NumberInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("object",
+	pkg.Init(
+		"object",
 		func() interface{} { return new(Object) },
 		nil,
 		func() interface{} { return new(ObjectRule) },
 		func() reflect.Type { return reflect.TypeOf((*ObjectInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("package",
+	pkg.Init(
+		"package",
 		func() interface{} { return new(Package) },
 		nil,
 		func() interface{} { return new(PackageRule) },
 		func() reflect.Type { return reflect.TypeOf((*PackageInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("reference",
+	pkg.Init(
+		"reference",
 		func() interface{} { return new(Reference) },
 		nil,
 		func() interface{} { return new(ReferenceRule) },
 		func() reflect.Type { return reflect.TypeOf((*ReferenceInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("rule",
+	pkg.Init(
+		"rule",
 		func() interface{} { return new(Rule) },
 		nil,
 		func() interface{} { return new(RuleRule) },
 		func() reflect.Type { return reflect.TypeOf((*RuleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("string",
+	pkg.Init(
+		"string",
 		func() interface{} { return new(String) },
 		nil,
 		func() interface{} { return new(StringRule) },
 		func() reflect.Type { return reflect.TypeOf((*StringInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("tags",
+	pkg.Init(
+		"tags",
 		func() interface{} { return new(Tags) },
 		func(in interface{}) interface{} { return *in.(*Tags) },
 		func() interface{} { return new(TagsRule) },
 		func() reflect.Type { return reflect.TypeOf((*TagsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("type",
+	pkg.Init(
+		"type",
 		func() interface{} { return new(Type) },
 		nil,
 		func() interface{} { return new(TypeRule) },
