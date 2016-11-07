@@ -6,8 +6,9 @@ package system
 import (
 	"context"
 	"fmt"
-	"kego.io/context/jsonctx"
 	"reflect"
+
+	"kego.io/context/jsonctx"
 )
 
 // Restriction rules for arrays
