@@ -97,8 +97,8 @@ func getInfo(ctx context.Context, dir string) (info *generate.InfoStruct, found 
 	return &i, true, nil
 }
 
-// Generate generates the source code for type structs, and writes the generated.go to the
-// filesystem.
+// Generate generates the source code for type structs, and writes the
+// generated.go to the filesystem.
 func Generate(ctx context.Context, env *envctx.Env) error {
 
 	wgctx.Add(ctx, "Generate")
@@ -115,8 +115,8 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 		return kerr.Wrap("XFNESBLBTQ", err)
 	}
 
-	// We only backup in the system structs and types files because they are the only
-	// generated files we ever need to roll back
+	// We only backup in the system structs and types files because they are
+	// the only generated files we ever need to roll back
 	backup := env.Path == "kego.io/system"
 
 	if err = save(outputDir, source, filename, backup); err != nil {
