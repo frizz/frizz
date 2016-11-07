@@ -29,6 +29,9 @@ func (v *IconRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/images", "@icon"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -78,6 +81,9 @@ func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/common/images", "@image"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -142,6 +148,9 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/common/images", "@photo"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -214,6 +223,9 @@ func (v *Icon) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/common/images", "icon"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["url"]; ok && field.Type() != system.J_NULL {
@@ -309,6 +321,9 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/images", "photo"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["path"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -392,21 +407,24 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/images")
 	pkg.SetHash(7237742861799384387)
-	pkg.Init("icon",
+	pkg.Init(
+		"icon",
 		func() interface{} { return new(Icon) },
 		nil,
 		func() interface{} { return new(IconRule) },
 		func() reflect.Type { return reflect.TypeOf((*IconInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("image",
+	pkg.Init(
+		"image",
 		func() interface{} { return (*Image)(nil) },
 		nil,
 		func() interface{} { return new(ImageRule) },
 		func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() },
 	)
 
-	pkg.Init("photo",
+	pkg.Init(
+		"photo",
 		func() interface{} { return new(Photo) },
 		nil,
 		func() interface{} { return new(PhotoRule) },

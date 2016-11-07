@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data","Hash":18190841894779402894}
+// info:{"Path":"kego.io/tests/data","Hash":3207115748101114366}
 package data
 
 // ke: {"file": {"notest": true}}
@@ -26,6 +26,9 @@ func (v *AlajsRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@alajs"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -78,6 +81,9 @@ func (v *AlasRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@alas"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -126,6 +132,9 @@ func (v *AlassRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@alass"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -178,6 +187,9 @@ func (v *AljbRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@aljb"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -212,6 +224,59 @@ func (v *AljbRule) Repack(ctx context.Context) (data interface{}, typePackage st
 	return m, "kego.io/tests/data", "@aljb", system.J_OBJECT, nil
 }
 
+// Automatically created basic rule for aljb2
+type Aljb2Rule struct {
+	*system.Object
+	*system.Rule
+}
+
+func (v *Aljb2Rule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@aljb2"); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(system.Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (v *Aljb2Rule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+	if v == nil {
+		return nil, "kego.io/tests/data", "@aljb2", system.J_NULL, nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Rule != nil {
+		ob, _, _, _, err := v.Rule.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	return m, "kego.io/tests/data", "@aljb2", system.J_OBJECT, nil
+}
+
 // Automatically created basic rule for aljn
 type AljnRule struct {
 	*system.Object
@@ -226,6 +291,9 @@ func (v *AljnRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@aljn"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -262,6 +330,59 @@ func (v *AljnRule) Repack(ctx context.Context) (data interface{}, typePackage st
 	return m, "kego.io/tests/data", "@aljn", system.J_OBJECT, nil
 }
 
+// Automatically created basic rule for aljn2
+type Aljn2Rule struct {
+	*system.Object
+	*system.Rule
+}
+
+func (v *Aljn2Rule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@aljn2"); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(system.Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (v *Aljn2Rule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+	if v == nil {
+		return nil, "kego.io/tests/data", "@aljn2", system.J_NULL, nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Rule != nil {
+		ob, _, _, _, err := v.Rule.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	return m, "kego.io/tests/data", "@aljn2", system.J_OBJECT, nil
+}
+
 // Automatically created basic rule for aljs
 type AljsRule struct {
 	*system.Object
@@ -276,6 +397,9 @@ func (v *AljsRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@aljs"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -312,6 +436,59 @@ func (v *AljsRule) Repack(ctx context.Context) (data interface{}, typePackage st
 	return m, "kego.io/tests/data", "@aljs", system.J_OBJECT, nil
 }
 
+// Automatically created basic rule for aljs2
+type Aljs2Rule struct {
+	*system.Object
+	*system.Rule
+}
+
+func (v *Aljs2Rule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
+		return nil
+	}
+	if v.Object == nil {
+		v.Object = new(system.Object)
+	}
+	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@aljs2"); err != nil {
+		return err
+	}
+	if v.Rule == nil {
+		v.Rule = new(system.Rule)
+	}
+	if err := v.Rule.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (v *Aljs2Rule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+	if v == nil {
+		return nil, "kego.io/tests/data", "@aljs2", system.J_NULL, nil
+	}
+	m := map[string]interface{}{}
+	if v.Object != nil {
+		ob, _, _, _, err := v.Object.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	if v.Rule != nil {
+		ob, _, _, _, err := v.Rule.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		for key, val := range ob.(map[string]interface{}) {
+			m[key] = val
+		}
+	}
+	return m, "kego.io/tests/data", "@aljs2", system.J_OBJECT, nil
+}
+
 // Automatically created basic rule for almjs
 type AlmjsRule struct {
 	*system.Object
@@ -326,6 +503,9 @@ func (v *AlmjsRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@almjs"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -378,6 +558,9 @@ func (v *AlmsRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@alms"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -426,6 +609,9 @@ func (v *AlmssRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@almss"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -478,6 +664,9 @@ func (v *AlsRule) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@als"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -526,6 +715,9 @@ func (v *AlssRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@alss"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -578,6 +770,9 @@ func (v *FaceRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@face"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -626,6 +821,9 @@ func (v *FaceaRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@facea"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -678,6 +876,9 @@ func (v *FacebRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@faceb"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -728,6 +929,9 @@ func (v *MultiRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@multi"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -776,6 +980,9 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "@simple"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1074,6 +1281,65 @@ func (v *Aljb) Repack(ctx context.Context) (data interface{}, typePackage string
 	return nil, "kego.io/tests/data", "aljb", system.J_BOOL, nil
 }
 
+// This is an alias bool type that implements the aljb default interface, and can be used to test explicit type marshalling.
+type Aljb2 bool
+
+func (o *Aljb2) Value() bool {
+	return bool(*o)
+}
+
+type Aljb2Interface interface {
+	GetAljb2(ctx context.Context) *Aljb2
+}
+
+func (o *Aljb2) GetAljb2(ctx context.Context) *Aljb2 {
+	return o
+}
+func UnpackAljb2Interface(ctx context.Context, in system.Packed) (Aljb2Interface, error) {
+	switch in.Type() {
+	case system.J_MAP:
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data", "aljb2")
+		if err != nil {
+			return nil, err
+		}
+		ob, ok := i.(Aljb2Interface)
+		if !ok {
+			return nil, fmt.Errorf("%T does not implement Aljb2Interface", i)
+		}
+		return ob, nil
+	case system.J_BOOL:
+		ob := new(Aljb2)
+		if err := ob.Unpack(ctx, in, false); err != nil {
+			return nil, err
+		}
+		return ob, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into Aljb2Interface.", in.Type())
+	}
+}
+func (v *Aljb2) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
+		return nil
+	}
+	if in.Type() == system.J_MAP {
+		in = in.Map()["value"]
+	}
+	if in.Type() != system.J_BOOL {
+		return fmt.Errorf("Invalid type %s while unpacking a bool.", in.Type())
+	}
+	*v = Aljb2(in.Bool())
+	return nil
+}
+func (v *Aljb2) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+	if v == nil {
+		return nil, "kego.io/tests/data", "aljb2", system.J_NULL, nil
+	}
+	if v != nil {
+		return bool(*v), "kego.io/tests/data", "aljb2", system.J_BOOL, nil
+	}
+	return nil, "kego.io/tests/data", "aljb2", system.J_BOOL, nil
+}
+
 type Aljn float64
 
 func (o *Aljn) Value() float64 {
@@ -1132,6 +1398,65 @@ func (v *Aljn) Repack(ctx context.Context) (data interface{}, typePackage string
 	return nil, "kego.io/tests/data", "aljn", system.J_NUMBER, nil
 }
 
+// This is an alias number type that implements the aljn default interface, and can be used to test explicit type marshalling.
+type Aljn2 float64
+
+func (o *Aljn2) Value() float64 {
+	return float64(*o)
+}
+
+type Aljn2Interface interface {
+	GetAljn2(ctx context.Context) *Aljn2
+}
+
+func (o *Aljn2) GetAljn2(ctx context.Context) *Aljn2 {
+	return o
+}
+func UnpackAljn2Interface(ctx context.Context, in system.Packed) (Aljn2Interface, error) {
+	switch in.Type() {
+	case system.J_MAP:
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data", "aljn2")
+		if err != nil {
+			return nil, err
+		}
+		ob, ok := i.(Aljn2Interface)
+		if !ok {
+			return nil, fmt.Errorf("%T does not implement Aljn2Interface", i)
+		}
+		return ob, nil
+	case system.J_NUMBER:
+		ob := new(Aljn2)
+		if err := ob.Unpack(ctx, in, false); err != nil {
+			return nil, err
+		}
+		return ob, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into Aljn2Interface.", in.Type())
+	}
+}
+func (v *Aljn2) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
+		return nil
+	}
+	if in.Type() == system.J_MAP {
+		in = in.Map()["value"]
+	}
+	if in.Type() != system.J_NUMBER {
+		return fmt.Errorf("Invalid type %s while unpacking a number.", in.Type())
+	}
+	*v = Aljn2(in.Number())
+	return nil
+}
+func (v *Aljn2) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+	if v == nil {
+		return nil, "kego.io/tests/data", "aljn2", system.J_NULL, nil
+	}
+	if v != nil {
+		return float64(*v), "kego.io/tests/data", "aljn2", system.J_NUMBER, nil
+	}
+	return nil, "kego.io/tests/data", "aljn2", system.J_NUMBER, nil
+}
+
 type Aljs string
 
 func (o *Aljs) Value() string {
@@ -1188,6 +1513,65 @@ func (v *Aljs) Repack(ctx context.Context) (data interface{}, typePackage string
 		return string(*v), "kego.io/tests/data", "aljs", system.J_STRING, nil
 	}
 	return nil, "kego.io/tests/data", "aljs", system.J_STRING, nil
+}
+
+// This is an alias string type that implements the aljs default interface, and can be used to test explicit type marshalling.
+type Aljs2 string
+
+func (o *Aljs2) Value() string {
+	return string(*o)
+}
+
+type Aljs2Interface interface {
+	GetAljs2(ctx context.Context) *Aljs2
+}
+
+func (o *Aljs2) GetAljs2(ctx context.Context) *Aljs2 {
+	return o
+}
+func UnpackAljs2Interface(ctx context.Context, in system.Packed) (Aljs2Interface, error) {
+	switch in.Type() {
+	case system.J_MAP:
+		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data", "aljs2")
+		if err != nil {
+			return nil, err
+		}
+		ob, ok := i.(Aljs2Interface)
+		if !ok {
+			return nil, fmt.Errorf("%T does not implement Aljs2Interface", i)
+		}
+		return ob, nil
+	case system.J_STRING:
+		ob := new(Aljs2)
+		if err := ob.Unpack(ctx, in, false); err != nil {
+			return nil, err
+		}
+		return ob, nil
+	default:
+		return nil, fmt.Errorf("Unsupported json type %s when unpacking into Aljs2Interface.", in.Type())
+	}
+}
+func (v *Aljs2) Unpack(ctx context.Context, in system.Packed, iface bool) error {
+	if in == nil || in.Type() == system.J_NULL {
+		return nil
+	}
+	if in.Type() == system.J_MAP {
+		in = in.Map()["value"]
+	}
+	if in.Type() != system.J_STRING {
+		return fmt.Errorf("Invalid type %s while unpacking a string.", in.Type())
+	}
+	*v = Aljs2(in.String())
+	return nil
+}
+func (v *Aljs2) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
+	if v == nil {
+		return nil, "kego.io/tests/data", "aljs2", system.J_NULL, nil
+	}
+	if v != nil {
+		return string(*v), "kego.io/tests/data", "aljs2", system.J_STRING, nil
+	}
+	return nil, "kego.io/tests/data", "aljs2", system.J_STRING, nil
 }
 
 type Almjs map[string]string
@@ -1419,6 +1803,9 @@ func (v *Als) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "als"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["js"]; ok && field.Type() != system.J_NULL {
 		ob0, err := system.UnpackString(ctx, field)
 		if err != nil {
@@ -1560,6 +1947,9 @@ func (v *Facea) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "facea"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -1628,6 +2018,9 @@ func (v *Faceb) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "faceb"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["b"]; ok && field.Type() != system.J_NULL {
@@ -1777,6 +2170,9 @@ func (v *Multi) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "multi"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["aalajs"]; ok && field.Type() != system.J_NULL {
@@ -3666,6 +4062,9 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/tests/data", "simple"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["js"]; ok && field.Type() != system.J_NULL {
 		ob0, err := system.UnpackString(ctx, field)
 		if err != nil {
@@ -3697,7 +4096,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/tests/data")
-	pkg.SetHash(18190841894779402894)
+	pkg.SetHash(3207115748101114366)
 	pkg.Init(
 		"alajs",
 		func() interface{} { return new(Alajs) },
@@ -3731,6 +4130,14 @@ func init() {
 	)
 
 	pkg.Init(
+		"aljb2",
+		func() interface{} { return new(Aljb2) },
+		nil,
+		func() interface{} { return new(Aljb2Rule) },
+		func() reflect.Type { return reflect.TypeOf((*Aljb2Interface)(nil)).Elem() },
+	)
+
+	pkg.Init(
 		"aljn",
 		func() interface{} { return new(Aljn) },
 		nil,
@@ -3739,11 +4146,27 @@ func init() {
 	)
 
 	pkg.Init(
+		"aljn2",
+		func() interface{} { return new(Aljn2) },
+		nil,
+		func() interface{} { return new(Aljn2Rule) },
+		func() reflect.Type { return reflect.TypeOf((*Aljn2Interface)(nil)).Elem() },
+	)
+
+	pkg.Init(
 		"aljs",
 		func() interface{} { return new(Aljs) },
 		nil,
 		func() interface{} { return new(AljsRule) },
 		func() reflect.Type { return reflect.TypeOf((*AljsInterface)(nil)).Elem() },
+	)
+
+	pkg.Init(
+		"aljs2",
+		func() interface{} { return new(Aljs2) },
+		nil,
+		func() interface{} { return new(Aljs2Rule) },
+		func() reflect.Type { return reflect.TypeOf((*Aljs2Interface)(nil)).Elem() },
 	)
 
 	pkg.Init(

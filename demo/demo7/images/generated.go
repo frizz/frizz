@@ -28,6 +28,9 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo7/images", "@photo"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -101,6 +104,9 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo7/images", "photo"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -164,7 +170,8 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo7/images")
 	pkg.SetHash(14109639835138036999)
-	pkg.Init("photo",
+	pkg.Init(
+		"photo",
 		func() interface{} { return new(Photo) },
 		nil,
 		func() interface{} { return new(PhotoRule) },

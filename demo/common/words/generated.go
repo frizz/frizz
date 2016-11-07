@@ -28,6 +28,9 @@ func (v *LocalizerRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/words", "@localizer"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -78,6 +81,9 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/words", "@simple"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -126,6 +132,9 @@ func (v *TranslationRule) Unpack(ctx context.Context, in system.Packed, iface bo
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/common/words", "@translation"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -215,6 +224,9 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/words", "simple"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["string"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -289,6 +301,9 @@ func (v *Translation) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/words", "translation"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["english"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -349,21 +364,24 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/words")
 	pkg.SetHash(15839668451341961644)
-	pkg.Init("localizer",
+	pkg.Init(
+		"localizer",
 		func() interface{} { return (*Localizer)(nil) },
 		nil,
 		func() interface{} { return new(LocalizerRule) },
 		func() reflect.Type { return reflect.TypeOf((*Localizer)(nil)).Elem() },
 	)
 
-	pkg.Init("simple",
+	pkg.Init(
+		"simple",
 		func() interface{} { return new(Simple) },
 		nil,
 		func() interface{} { return new(SimpleRule) },
 		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("translation",
+	pkg.Init(
+		"translation",
 		func() interface{} { return new(Translation) },
 		nil,
 		func() interface{} { return new(TranslationRule) },

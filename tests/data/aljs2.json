@@ -1,0 +1,9 @@
+{
+  "description": "This is an alias string type that implements the aljs default interface, and can be used to test explicit type marshalling.",
+  "type": "system:type",
+  "id": "aljs2",
+  "native": "string",
+  "alias": {
+    "type": "json:@string"
+  }
+}

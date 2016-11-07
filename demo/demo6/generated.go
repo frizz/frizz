@@ -28,6 +28,9 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo6", "@page"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -76,6 +79,9 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/demo6", "@person"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -148,6 +154,9 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/demo6", "page"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["heading"]; ok && field.Type() != system.J_NULL {
@@ -246,6 +255,9 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo6", "person"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -295,14 +307,16 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo6")
 	pkg.SetHash(7465480149826331644)
-	pkg.Init("page",
+	pkg.Init(
+		"page",
 		func() interface{} { return new(Page) },
 		nil,
 		func() interface{} { return new(PageRule) },
 		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("person",
+	pkg.Init(
+		"person",
 		func() interface{} { return new(Person) },
 		nil,
 		func() interface{} { return new(PersonRule) },

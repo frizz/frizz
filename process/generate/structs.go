@@ -383,6 +383,13 @@ func printUnpacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ
 					g.Println("return err")
 				}
 				g.Println("}")
+				if embedRef.Package == "kego.io/system" && embedRef.Name == "object" {
+					g.Println("if err := v.Object.InitializeType(", strconv.Quote(typ.Id.Package), ", ", strconv.Quote(typ.Id.Name), "); err != nil {")
+					{
+						g.Println("return err")
+					}
+					g.Println("}")
+				}
 			}
 			for _, f := range structType.SortedFields() {
 				g.Println("if field, ok := in.Map()[", strconv.Quote(f.Name), "]; ok && field.Type() != ", g.SprintRef("kego.io/system", "J_NULL"), " {")

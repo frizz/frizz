@@ -6,9 +6,8 @@ package system
 import (
 	"context"
 	"fmt"
-	"reflect"
-
 	"kego.io/context/jsonctx"
+	"reflect"
 )
 
 // Restriction rules for arrays
@@ -33,6 +32,9 @@ func (v *ArrayRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@array"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -154,6 +156,9 @@ func (v *BoolRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@bool"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -224,6 +229,9 @@ func (v *IntRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@int"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -338,6 +346,9 @@ func (v *MapRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@map"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -486,6 +497,9 @@ func (v *NumberRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@number"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -614,6 +628,9 @@ func (v *ObjectRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@object"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -662,6 +679,9 @@ func (v *PackageRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@package"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -718,6 +738,9 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in Packed, iface bool) error
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@reference"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -812,6 +835,9 @@ func (v *RuleRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@rule"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -878,6 +904,9 @@ func (v *StringRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@string"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1061,6 +1090,9 @@ func (v *TagsRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@tags"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -1109,6 +1141,9 @@ func (v *TypeRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@type"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1510,6 +1545,9 @@ func (v *Package) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "package"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["aliases"]; ok && field.Type() != J_NULL {
 		if field.Type() != J_MAP {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
@@ -1852,6 +1890,9 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "type"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["alias"]; ok && field.Type() != J_NULL {
 		ob0, err := UnpackRuleInterface(ctx, field)
 		if err != nil {
@@ -2046,84 +2087,96 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/system")
 	pkg.SetHash(5319817629068713650)
-	pkg.Init("array",
+	pkg.Init(
+		"array",
 		nil,
 		nil,
 		func() interface{} { return new(ArrayRule) },
 		nil,
 	)
 
-	pkg.Init("bool",
+	pkg.Init(
+		"bool",
 		func() interface{} { return new(Bool) },
 		nil,
 		func() interface{} { return new(BoolRule) },
 		func() reflect.Type { return reflect.TypeOf((*BoolInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("int",
+	pkg.Init(
+		"int",
 		func() interface{} { return new(Int) },
 		nil,
 		func() interface{} { return new(IntRule) },
 		func() reflect.Type { return reflect.TypeOf((*IntInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("map",
+	pkg.Init(
+		"map",
 		nil,
 		nil,
 		func() interface{} { return new(MapRule) },
 		nil,
 	)
 
-	pkg.Init("number",
+	pkg.Init(
+		"number",
 		func() interface{} { return new(Number) },
 		nil,
 		func() interface{} { return new(NumberRule) },
 		func() reflect.Type { return reflect.TypeOf((*NumberInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("object",
+	pkg.Init(
+		"object",
 		func() interface{} { return new(Object) },
 		nil,
 		func() interface{} { return new(ObjectRule) },
 		func() reflect.Type { return reflect.TypeOf((*ObjectInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("package",
+	pkg.Init(
+		"package",
 		func() interface{} { return new(Package) },
 		nil,
 		func() interface{} { return new(PackageRule) },
 		func() reflect.Type { return reflect.TypeOf((*PackageInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("reference",
+	pkg.Init(
+		"reference",
 		func() interface{} { return new(Reference) },
 		nil,
 		func() interface{} { return new(ReferenceRule) },
 		func() reflect.Type { return reflect.TypeOf((*ReferenceInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("rule",
+	pkg.Init(
+		"rule",
 		func() interface{} { return new(Rule) },
 		nil,
 		func() interface{} { return new(RuleRule) },
 		func() reflect.Type { return reflect.TypeOf((*RuleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("string",
+	pkg.Init(
+		"string",
 		func() interface{} { return new(String) },
 		nil,
 		func() interface{} { return new(StringRule) },
 		func() reflect.Type { return reflect.TypeOf((*StringInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("tags",
+	pkg.Init(
+		"tags",
 		func() interface{} { return new(Tags) },
 		func(in interface{}) interface{} { return *in.(*Tags) },
 		func() interface{} { return new(TagsRule) },
 		func() reflect.Type { return reflect.TypeOf((*TagsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("type",
+	pkg.Init(
+		"type",
 		func() interface{} { return new(Type) },
 		nil,
 		func() interface{} { return new(TypeRule) },

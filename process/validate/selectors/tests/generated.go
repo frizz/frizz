@@ -28,6 +28,9 @@ func (v *BasicRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@basic"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -76,6 +79,9 @@ func (v *CRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@c"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -128,6 +134,9 @@ func (v *CollisionRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@collision"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -176,6 +185,9 @@ func (v *DiagramRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@diagram"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -228,6 +240,9 @@ func (v *EmptyRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@empty"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -276,6 +291,9 @@ func (v *EmptyItemRule) Unpack(ctx context.Context, in system.Packed, iface bool
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@emptyItem"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -328,6 +346,9 @@ func (v *ExprRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@expr"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -376,6 +397,9 @@ func (v *GalleryRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@gallery"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -428,6 +452,9 @@ func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@image"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -476,6 +503,9 @@ func (v *InstanceRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@instance"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -528,6 +558,9 @@ func (v *InstanceItemRule) Unpack(ctx context.Context, in system.Packed, iface b
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@instanceItem"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -576,6 +609,9 @@ func (v *KidRule) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@kid"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -628,6 +664,9 @@ func (v *PeopleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@people"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -676,6 +715,9 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@person"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -728,6 +770,9 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@photo"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -776,6 +821,9 @@ func (v *PolykidsRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@polykids"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -828,6 +876,9 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rectangle"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -876,6 +927,9 @@ func (v *RightscaleRule) Unpack(ctx context.Context, in system.Packed, iface boo
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rightscale"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -928,6 +982,9 @@ func (v *RightscaleLinkRule) Unpack(ctx context.Context, in system.Packed, iface
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rightscaleLink"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -976,6 +1033,9 @@ func (v *RightscaleListRule) Unpack(ctx context.Context, in system.Packed, iface
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rightscaleList"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1028,6 +1088,9 @@ func (v *SiblingRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@sibling"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -1076,6 +1139,9 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@simple"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1128,6 +1194,9 @@ func (v *SimpleArrayRule) Unpack(ctx context.Context, in system.Packed, iface bo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@simpleArray"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -1178,6 +1247,9 @@ func (v *SimpleItemRule) Unpack(ctx context.Context, in system.Packed, iface boo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@simpleItem"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -1226,6 +1298,9 @@ func (v *TypedRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@typed"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1302,6 +1377,9 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "basic"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["drinkPreference"]; ok && field.Type() != system.J_NULL {
@@ -1501,6 +1579,9 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "c"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Number)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -1610,6 +1691,9 @@ func (v *Collision) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "collision"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["number"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_MAP {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
@@ -1691,6 +1775,9 @@ func (v *Diagram) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "diagram"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["url"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -1759,6 +1846,9 @@ func (v *Empty) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "empty"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["items"]; ok && field.Type() != system.J_NULL {
@@ -1841,6 +1931,9 @@ func (v *EmptyItem) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "emptyItem"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["arr"]; ok && field.Type() != system.J_NULL {
@@ -1942,6 +2035,9 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "expr"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["false"]; ok && field.Type() != system.J_NULL {
@@ -2099,6 +2195,9 @@ func (v *Gallery) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "gallery"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["images"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_MAP {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
@@ -2212,6 +2311,9 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "instance"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
@@ -2362,6 +2464,9 @@ func (v *InstanceItem) Unpack(ctx context.Context, in system.Packed, iface bool)
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "instanceItem"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2432,6 +2537,9 @@ func (v *Kid) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "kid"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["language"]; ok && field.Type() != system.J_NULL {
@@ -2531,6 +2639,9 @@ func (v *People) Unpack(ctx context.Context, in system.Packed, iface bool) error
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "people"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["others"]; ok && field.Type() != system.J_NULL {
@@ -2640,6 +2751,9 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "person"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
@@ -2761,6 +2875,9 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "photo"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["path"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -2879,6 +2996,9 @@ func (v *Polykids) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "polykids"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -2959,6 +3079,9 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rectangle"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
@@ -3047,6 +3170,9 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rightscale"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
@@ -3198,6 +3324,9 @@ func (v *RightscaleLink) Unpack(ctx context.Context, in system.Packed, iface boo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rightscaleLink"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["href"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3280,6 +3409,9 @@ func (v *RightscaleList) Unpack(ctx context.Context, in system.Packed, iface boo
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rightscaleList"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["foo"]; ok && field.Type() != system.J_NULL {
@@ -3365,6 +3497,9 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "sibling"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -3515,6 +3650,9 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "simple"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(SimpleItem)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3583,6 +3721,9 @@ func (v *SimpleArray) Unpack(ctx context.Context, in system.Packed, iface bool) 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "simpleArray"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -3666,6 +3807,9 @@ func (v *SimpleItem) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "simpleItem"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["b"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -3739,6 +3883,9 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "typed"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["avatar"]; ok && field.Type() != system.J_NULL {
@@ -3893,175 +4040,200 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests")
 	pkg.SetHash(10362807576256830877)
-	pkg.Init("basic",
+	pkg.Init(
+		"basic",
 		func() interface{} { return new(Basic) },
 		nil,
 		func() interface{} { return new(BasicRule) },
 		func() reflect.Type { return reflect.TypeOf((*BasicInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("c",
+	pkg.Init(
+		"c",
 		func() interface{} { return new(C) },
 		nil,
 		func() interface{} { return new(CRule) },
 		func() reflect.Type { return reflect.TypeOf((*CInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("collision",
+	pkg.Init(
+		"collision",
 		func() interface{} { return new(Collision) },
 		nil,
 		func() interface{} { return new(CollisionRule) },
 		func() reflect.Type { return reflect.TypeOf((*CollisionInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("diagram",
+	pkg.Init(
+		"diagram",
 		func() interface{} { return new(Diagram) },
 		nil,
 		func() interface{} { return new(DiagramRule) },
 		func() reflect.Type { return reflect.TypeOf((*DiagramInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("empty",
+	pkg.Init(
+		"empty",
 		func() interface{} { return new(Empty) },
 		nil,
 		func() interface{} { return new(EmptyRule) },
 		func() reflect.Type { return reflect.TypeOf((*EmptyInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("emptyItem",
+	pkg.Init(
+		"emptyItem",
 		func() interface{} { return new(EmptyItem) },
 		nil,
 		func() interface{} { return new(EmptyItemRule) },
 		func() reflect.Type { return reflect.TypeOf((*EmptyItemInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("expr",
+	pkg.Init(
+		"expr",
 		func() interface{} { return new(Expr) },
 		nil,
 		func() interface{} { return new(ExprRule) },
 		func() reflect.Type { return reflect.TypeOf((*ExprInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("gallery",
+	pkg.Init(
+		"gallery",
 		func() interface{} { return new(Gallery) },
 		nil,
 		func() interface{} { return new(GalleryRule) },
 		func() reflect.Type { return reflect.TypeOf((*GalleryInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("image",
+	pkg.Init(
+		"image",
 		func() interface{} { return (*Image)(nil) },
 		nil,
 		func() interface{} { return new(ImageRule) },
 		func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() },
 	)
 
-	pkg.Init("instance",
+	pkg.Init(
+		"instance",
 		func() interface{} { return new(Instance) },
 		nil,
 		func() interface{} { return new(InstanceRule) },
 		func() reflect.Type { return reflect.TypeOf((*InstanceInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("instanceItem",
+	pkg.Init(
+		"instanceItem",
 		func() interface{} { return new(InstanceItem) },
 		nil,
 		func() interface{} { return new(InstanceItemRule) },
 		func() reflect.Type { return reflect.TypeOf((*InstanceItemInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("kid",
+	pkg.Init(
+		"kid",
 		func() interface{} { return new(Kid) },
 		nil,
 		func() interface{} { return new(KidRule) },
 		func() reflect.Type { return reflect.TypeOf((*KidInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("people",
+	pkg.Init(
+		"people",
 		func() interface{} { return new(People) },
 		nil,
 		func() interface{} { return new(PeopleRule) },
 		func() reflect.Type { return reflect.TypeOf((*PeopleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("person",
+	pkg.Init(
+		"person",
 		func() interface{} { return new(Person) },
 		nil,
 		func() interface{} { return new(PersonRule) },
 		func() reflect.Type { return reflect.TypeOf((*PersonInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("photo",
+	pkg.Init(
+		"photo",
 		func() interface{} { return new(Photo) },
 		nil,
 		func() interface{} { return new(PhotoRule) },
 		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("polykids",
+	pkg.Init(
+		"polykids",
 		func() interface{} { return new(Polykids) },
 		nil,
 		func() interface{} { return new(PolykidsRule) },
 		func() reflect.Type { return reflect.TypeOf((*PolykidsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("rectangle",
+	pkg.Init(
+		"rectangle",
 		func() interface{} { return new(Rectangle) },
 		nil,
 		func() interface{} { return new(RectangleRule) },
 		func() reflect.Type { return reflect.TypeOf((*RectangleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("rightscale",
+	pkg.Init(
+		"rightscale",
 		func() interface{} { return new(Rightscale) },
 		nil,
 		func() interface{} { return new(RightscaleRule) },
 		func() reflect.Type { return reflect.TypeOf((*RightscaleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("rightscaleLink",
+	pkg.Init(
+		"rightscaleLink",
 		func() interface{} { return new(RightscaleLink) },
 		nil,
 		func() interface{} { return new(RightscaleLinkRule) },
 		func() reflect.Type { return reflect.TypeOf((*RightscaleLinkInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("rightscaleList",
+	pkg.Init(
+		"rightscaleList",
 		func() interface{} { return new(RightscaleList) },
 		nil,
 		func() interface{} { return new(RightscaleListRule) },
 		func() reflect.Type { return reflect.TypeOf((*RightscaleListInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("sibling",
+	pkg.Init(
+		"sibling",
 		func() interface{} { return new(Sibling) },
 		nil,
 		func() interface{} { return new(SiblingRule) },
 		func() reflect.Type { return reflect.TypeOf((*SiblingInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("simple",
+	pkg.Init(
+		"simple",
 		func() interface{} { return new(Simple) },
 		nil,
 		func() interface{} { return new(SimpleRule) },
 		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("simpleArray",
+	pkg.Init(
+		"simpleArray",
 		func() interface{} { return new(SimpleArray) },
 		nil,
 		func() interface{} { return new(SimpleArrayRule) },
 		func() reflect.Type { return reflect.TypeOf((*SimpleArrayInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("simpleItem",
+	pkg.Init(
+		"simpleItem",
 		func() interface{} { return new(SimpleItem) },
 		nil,
 		func() interface{} { return new(SimpleItemRule) },
 		func() reflect.Type { return reflect.TypeOf((*SimpleItemInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("typed",
+	pkg.Init(
+		"typed",
 		func() interface{} { return new(Typed) },
 		nil,
 		func() interface{} { return new(TypedRule) },

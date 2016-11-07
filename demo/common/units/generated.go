@@ -28,6 +28,9 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/units", "@rectangle"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -100,6 +103,9 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/common/units", "rectangle"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.Int)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -149,7 +155,8 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/units")
 	pkg.SetHash(10988868301072060435)
-	pkg.Init("rectangle",
+	pkg.Init(
+		"rectangle",
 		func() interface{} { return new(Rectangle) },
 		nil,
 		func() interface{} { return new(RectangleRule) },

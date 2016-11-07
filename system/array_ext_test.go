@@ -484,8 +484,8 @@ func TestAals(t *testing.T) {
 	Run(t, ctx, `{
 			"type": "multi",
 			"aals": [
-				{"type": "simple", "js": "a"},
-				{"type": "simple", "js": "b"}
+				{"type": "als", "js": "a"},
+				{"type": "als", "js": "b"}
 			]
 		}`,
 		TestValue(func(t *testing.T, v interface{}) {

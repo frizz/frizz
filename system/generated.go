@@ -35,6 +35,9 @@ func (v *ArrayRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@array"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -154,6 +157,9 @@ func (v *BoolRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@bool"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -224,6 +230,9 @@ func (v *IntRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@int"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -338,6 +347,9 @@ func (v *MapRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@map"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -486,6 +498,9 @@ func (v *NumberRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@number"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -614,6 +629,9 @@ func (v *ObjectRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@object"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -662,6 +680,9 @@ func (v *PackageRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@package"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -718,6 +739,9 @@ func (v *ReferenceRule) Unpack(ctx context.Context, in Packed, iface bool) error
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@reference"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -812,6 +836,9 @@ func (v *RuleRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@rule"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -878,6 +905,9 @@ func (v *StringRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@string"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1061,6 +1091,9 @@ func (v *TagsRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "@tags"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(Rule)
 	}
@@ -1109,6 +1142,9 @@ func (v *TypeRule) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "@type"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1510,6 +1546,9 @@ func (v *Package) Unpack(ctx context.Context, in Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/system", "package"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["aliases"]; ok && field.Type() != J_NULL {
 		if field.Type() != J_MAP {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into a map.", field.Type())
@@ -1850,6 +1889,9 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Object = new(Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/system", "type"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["alias"]; ok && field.Type() != J_NULL {

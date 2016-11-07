@@ -488,8 +488,8 @@ func TestMals(t *testing.T) {
 	Run(t, ctx, `{
 			"type": "multi",
 			"mals": {
-				"a": {"type": "simple", "js": "b"},
-				"c": {"type": "simple", "js": "d"}
+				"a": {"type": "als", "js": "b"},
+				"c": {"type": "als", "js": "d"}
 			}
 		}`,
 		TestValue(func(t *testing.T, v interface{}) {

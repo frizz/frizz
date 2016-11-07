@@ -29,6 +29,9 @@ func (v *BodyRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "@body"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -77,6 +80,9 @@ func (v *ColumnsRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "@columns"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -129,6 +135,9 @@ func (v *HeroRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "@hero"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -179,6 +188,9 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "@page"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -227,6 +239,9 @@ func (v *SectionRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "@section"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -300,6 +315,9 @@ func (v *Body) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "body"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["align"]; ok && field.Type() != system.J_NULL {
@@ -428,6 +446,9 @@ func (v *Columns) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "columns"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["columns"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -523,6 +544,9 @@ func (v *Hero) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "hero"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["head"]; ok && field.Type() != system.J_NULL {
@@ -666,6 +690,9 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/site", "page"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["sections"]; ok && field.Type() != system.J_NULL {
 		if field.Type() != system.J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -770,35 +797,40 @@ func UnpackSection(ctx context.Context, in system.Packed) (Section, error) {
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/site")
 	pkg.SetHash(3726678967244446909)
-	pkg.Init("body",
+	pkg.Init(
+		"body",
 		func() interface{} { return new(Body) },
 		nil,
 		func() interface{} { return new(BodyRule) },
 		func() reflect.Type { return reflect.TypeOf((*BodyInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("columns",
+	pkg.Init(
+		"columns",
 		func() interface{} { return new(Columns) },
 		nil,
 		func() interface{} { return new(ColumnsRule) },
 		func() reflect.Type { return reflect.TypeOf((*ColumnsInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("hero",
+	pkg.Init(
+		"hero",
 		func() interface{} { return new(Hero) },
 		nil,
 		func() interface{} { return new(HeroRule) },
 		func() reflect.Type { return reflect.TypeOf((*HeroInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("page",
+	pkg.Init(
+		"page",
 		func() interface{} { return new(Page) },
 		nil,
 		func() interface{} { return new(PageRule) },
 		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("section",
+	pkg.Init(
+		"section",
 		func() interface{} { return (*Section)(nil) },
 		nil,
 		func() interface{} { return new(SectionRule) },

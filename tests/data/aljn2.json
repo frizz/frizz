@@ -1,0 +1,9 @@
+{
+  "description": "This is an alias number type that implements the aljn default interface, and can be used to test explicit type marshalling.",
+  "type": "system:type",
+  "id": "aljn2",
+  "native": "number",
+  "alias": {
+    "type": "json:@number"
+  }
+}

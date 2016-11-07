@@ -29,6 +29,9 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo8", "@page"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -100,6 +103,9 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo8", "page"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["hero"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(images.Photo)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -135,7 +141,8 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo8")
 	pkg.SetHash(8344646746139445788)
-	pkg.Init("page",
+	pkg.Init(
+		"page",
 		func() interface{} { return new(Page) },
 		nil,
 		func() interface{} { return new(PageRule) },

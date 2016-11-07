@@ -28,6 +28,9 @@ func (v *LocalizedRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo5/translation", "@localized"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -78,6 +81,9 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo5/translation", "@simple"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -126,6 +132,9 @@ func (v *SmartlingRule) Unpack(ctx context.Context, in system.Packed, iface bool
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/demo/demo5/translation", "@smartling"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -215,6 +224,9 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo5/translation", "simple"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["text"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -286,6 +298,9 @@ func (v *Smartling) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/demo/demo5/translation", "smartling"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["english"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -346,21 +361,24 @@ func (v *Smartling) Repack(ctx context.Context) (data interface{}, typePackage s
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/demo5/translation")
 	pkg.SetHash(13251613636822643043)
-	pkg.Init("localized",
+	pkg.Init(
+		"localized",
 		func() interface{} { return (*Localized)(nil) },
 		nil,
 		func() interface{} { return new(LocalizedRule) },
 		func() reflect.Type { return reflect.TypeOf((*Localized)(nil)).Elem() },
 	)
 
-	pkg.Init("simple",
+	pkg.Init(
+		"simple",
 		func() interface{} { return new(Simple) },
 		nil,
 		func() interface{} { return new(SimpleRule) },
 		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("smartling",
+	pkg.Init(
+		"smartling",
 		func() interface{} { return new(Smartling) },
 		nil,
 		func() interface{} { return new(SmartlingRule) },

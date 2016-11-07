@@ -28,6 +28,9 @@ func (v *ARule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "@a"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -78,6 +81,9 @@ func (v *BRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "@b"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -126,6 +132,9 @@ func (v *CRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "@c"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -192,6 +201,9 @@ func (v *DRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "@d"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -242,6 +254,9 @@ func (v *ERule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "@e"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -290,6 +305,9 @@ func (v *FRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "@f"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -364,6 +382,9 @@ func (v *A) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "a"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["b"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -433,6 +454,9 @@ func (v *B) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "b"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["c"]; ok && field.Type() != system.J_NULL {
@@ -536,6 +560,9 @@ func (v *D) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "d"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0, err := UnpackC(ctx, field)
 		if err != nil {
@@ -620,6 +647,9 @@ func (v *E) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "e"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -732,6 +762,9 @@ func (v *F) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("kego.io/process/validate/tests", "f"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(A)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -831,42 +864,48 @@ func (v *F) Repack(ctx context.Context) (data interface{}, typePackage string, t
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/process/validate/tests")
 	pkg.SetHash(17573435268142783549)
-	pkg.Init("a",
+	pkg.Init(
+		"a",
 		func() interface{} { return new(A) },
 		nil,
 		func() interface{} { return new(ARule) },
 		func() reflect.Type { return reflect.TypeOf((*AInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("b",
+	pkg.Init(
+		"b",
 		func() interface{} { return new(B) },
 		nil,
 		func() interface{} { return new(BRule) },
 		func() reflect.Type { return reflect.TypeOf((*BInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("c",
+	pkg.Init(
+		"c",
 		func() interface{} { return (*C)(nil) },
 		nil,
 		func() interface{} { return new(CRule) },
 		func() reflect.Type { return reflect.TypeOf((*C)(nil)).Elem() },
 	)
 
-	pkg.Init("d",
+	pkg.Init(
+		"d",
 		func() interface{} { return new(D) },
 		nil,
 		func() interface{} { return new(DRule) },
 		func() reflect.Type { return reflect.TypeOf((*DInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("e",
+	pkg.Init(
+		"e",
 		func() interface{} { return new(E) },
 		nil,
 		func() interface{} { return new(ERule) },
 		func() reflect.Type { return reflect.TypeOf((*EInterface)(nil)).Elem() },
 	)
 
-	pkg.Init("f",
+	pkg.Init(
+		"f",
 		func() interface{} { return new(F) },
 		nil,
 		func() interface{} { return new(FRule) },
