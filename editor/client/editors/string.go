@@ -119,7 +119,5 @@ func (v *StringEditorView) Render() vecty.Component {
 		)
 	}
 
-	return views.NewEditorView(v.Ctx, v.model.Node).Controls(
-		v.input,
-	)
+	return v.input
 }

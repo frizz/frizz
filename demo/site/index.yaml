@@ -2,6 +2,9 @@ id: index
 sections:
 - copy:
     english: My website
+    translations:
+      de: Jar
+      fr: Oui
     type: words:translation
   type: body
 title: Foo

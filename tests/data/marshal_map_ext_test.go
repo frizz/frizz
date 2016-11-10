@@ -1,4 +1,4 @@
-package system_test
+package data_test
 
 import (
 	"context"

@@ -86,13 +86,12 @@ func (v *BoolEditorView) Render() vecty.Component {
 		}),
 	)
 
-	return views.NewEditorView(v.Ctx, v.model.Node).Controls(
-		elem.Div(
-			prop.Class("checkbox"),
-			elem.Label(
-				v.input,
-				vecty.Text(v.model.Node.Label(v.Ctx)),
-			),
+	return elem.Div(
+		prop.Class("checkbox"),
+		elem.Label(
+			v.input,
+			vecty.Text(v.model.Node.Label(v.Ctx)),
 		),
 	)
+
 }

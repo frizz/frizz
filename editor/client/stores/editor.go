@@ -44,6 +44,9 @@ func (s *EditorStore) Get(node *node.Node) *models.EditorModel {
 
 func (s *EditorStore) Handle(payload *flux.Payload) bool {
 	switch action := payload.Action.(type) {
+	case *actions.EditorData:
+		action.Func(payload)
+
 	case *actions.Add:
 		payload.Wait(s.app.Branches)
 		switch action.Direction() {

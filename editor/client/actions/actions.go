@@ -3,6 +3,7 @@ package actions
 import (
 	"kego.io/editor/client/models"
 	"kego.io/editor/shared"
+	"kego.io/flux"
 	"kego.io/system"
 	"kego.io/system/node"
 )
@@ -151,6 +152,10 @@ func (a *Reorder) Description() string {
 
 func (a *Reorder) CommonAncestor() *node.Node {
 	return a.Model.Node
+}
+
+type EditorData struct {
+	Func func(payload *flux.Payload)
 }
 
 type Modify struct {

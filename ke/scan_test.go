@@ -63,9 +63,6 @@ func TestAll(t *testing.T) {
 	//	}
 	//}
 
-	//disabled
-	return
-
 	if len(untested) > 0 {
 		for pkg, tests := range untested {
 			assert.Fail(t, fmt.Sprintf("Errors thrown in %s but not tested: %v", pkg, tests))
@@ -103,6 +100,7 @@ func walkFile(path string, t *testing.T) error {
 
 	kerrName := ""
 	assertName := ""
+	requireName := ""
 	for _, is := range file.Imports {
 		importPath, _ := strconv.Unquote(is.Path.Value)
 		switch importPath {
@@ -118,18 +116,25 @@ func walkFile(path string, t *testing.T) error {
 			} else {
 				assertName = "assert"
 			}
+		case "github.com/davelondon/ktest/require":
+			if is.Name != nil {
+				requireName, _ = strconv.Unquote(is.Name.Name)
+			} else {
+				requireName = "require"
+			}
 		}
 	}
 
 	// visitor implements ast.Visitor
 	v := &visitor{
-		Bytes:      b,
-		t:          t,
-		kerrName:   kerrName,
-		assertName: assertName,
-		filePath:   path,
-		fset:       fset,
-		pkg:        pkg,
+		Bytes:       b,
+		t:           t,
+		kerrName:    kerrName,
+		assertName:  assertName,
+		requireName: requireName,
+		filePath:    path,
+		fset:        fset,
+		pkg:         pkg,
 	}
 	ast.Walk(v, file)
 
@@ -137,13 +142,14 @@ func walkFile(path string, t *testing.T) error {
 }
 
 type visitor struct {
-	Bytes      []byte
-	t          *testing.T
-	kerrName   string
-	assertName string
-	filePath   string
-	fset       *token.FileSet
-	pkg        string
+	Bytes       []byte
+	t           *testing.T
+	kerrName    string
+	assertName  string
+	requireName string
+	filePath    string
+	fset        *token.FileSet
+	pkg         string
 }
 
 type pkgDef struct {
@@ -202,13 +208,13 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 				def.pkg = v.pkg
 				def.new = name == "New"
 				def.thrown = true
-			} else if pkg == v.assertName && (name == "IsError" || name == "HasError") {
+			} else if (pkg == v.assertName || pkg == v.requireName) && (name == "IsError" || name == "HasError") {
 				def := getErrData(v.t, ty.Args, 2, v.filePath, v.fset.Position(f.Pos()))
 				if def == nil {
 					return v
 				}
 				def.tested = true
-			} else if pkg == v.assertName && (name == "SkipError") {
+			} else if (pkg == v.assertName || pkg == v.requireName) && name == "SkipError" {
 				def := getErrData(v.t, ty.Args, 0, v.filePath, v.fset.Position(f.Pos()))
 				if def == nil {
 					return v

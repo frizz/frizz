@@ -16,10 +16,14 @@ import (
 type EditorModel struct {
 	Node    *node.Node
 	Deleted bool
+	Data    map[interface{}]interface{}
 }
 
 func NewEditor(n *node.Node) *EditorModel {
-	return &EditorModel{Node: n}
+	return &EditorModel{
+		Node: n,
+		Data: map[interface{}]interface{}{},
+	}
 }
 
 func GetEmbedEditable(ctx context.Context, node *node.Node, embed *system.Reference) (editable.Editable, error) {

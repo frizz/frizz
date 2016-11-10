@@ -1,12 +1,13 @@
 description: This represents a translated string
-type: system:type
-id: translation
 fields:
   english:
     description: The original English string
     type: system:@string
   translations:
     description: The translated strings
-    type: system:@map
     items:
       type: system:@string
+    type: system:@map
+id: translation
+native: object
+type: system:type

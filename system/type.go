@@ -292,6 +292,25 @@ func nativeGoType(jsonNativeType string) (string, error) {
 	}
 }
 
+func (t *Type) IsAlias() bool {
+	return t.Alias != nil
+}
+func (t *Type) IsAliasCollection() bool {
+	if !t.IsAlias() {
+		return false
+	}
+	cr, ok := t.Alias.(CollectionRule)
+	if !ok {
+		return false
+	}
+	ir := cr.GetItemsRule()
+	if ir == nil {
+		// dummy rules all implement CollectionRule but return nil
+		return false
+	}
+	return true
+}
+
 func (t *Type) IsJsonValue() bool {
 	return t.IsNativeValue() && t.Id.Package == "kego.io/json"
 }

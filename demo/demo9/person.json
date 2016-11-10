@@ -1,0 +1,14 @@
+{
+	"fields": {
+		"age": {
+			"maximum": 25,
+			"type": "system:@int"
+		},
+		"name": {
+			"type": "system:@string"
+		}
+	},
+	"id": "person",
+	"native": "object",
+	"type": "system:type"
+}

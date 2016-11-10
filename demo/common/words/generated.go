@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/common/words","Hash":15839668451341961644}
+// info:{"Path":"kego.io/demo/common/words","Hash":11971197020902887977}
 package words
 
 // ke: {"file": {"notest": true}}
@@ -363,7 +363,7 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/words")
-	pkg.SetHash(15839668451341961644)
+	pkg.SetHash(11971197020902887977)
 	pkg.Init(
 		"localizer",
 		func() interface{} { return (*Localizer)(nil) },

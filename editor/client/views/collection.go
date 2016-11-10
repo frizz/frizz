@@ -7,6 +7,7 @@ import (
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"
+	"kego.io/system"
 	"kego.io/system/node"
 )
 
@@ -36,9 +37,15 @@ func addCollectionItem(ctx context.Context, app *stores.App, parent *node.Node) 
 		return
 	}
 
-	rw, err := parent.Rule.ItemsRule()
-	if err != nil {
-		app.Fail <- kerr.Wrap("EWYOMNAQMU", err)
+	var rw *system.RuleWrapper
+
+	var err error
+	if parent.Type.IsAliasCollection() {
+		rw = system.WrapRule(ctx, parent.Type.Alias.(system.CollectionRule).GetItemsRule())
+	} else {
+		if rw, err = parent.Rule.ItemsRule(); err != nil {
+			app.Fail <- kerr.Wrap("EWYOMNAQMU", err)
+		}
 	}
 
 	types := rw.PermittedTypes()

@@ -34,7 +34,6 @@ type IconEditorView struct {
 
 	model  *models.EditorModel
 	icon   *Icon
-	input  *vecty.Element
 	editor *editors.StringEditorView
 }
 
