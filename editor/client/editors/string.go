@@ -119,5 +119,5 @@ func (v *StringEditorView) Render() vecty.Component {
 		)
 	}
 
-	return v.input
+	return elem.Div(v.input)
 }

@@ -34,9 +34,10 @@ func NewView(ctx context.Context, self ViewInterface, app AppInterface) *View {
 }
 
 func (v *View) render() vecty.Component {
-	if v.unmounted {
-		return vecty.Nil()
-	}
+	// TODO: was this needed?
+	//if v.unmounted {
+	//	return elem.Nil()
+	//}
 	return v.Self.Render()
 }
 

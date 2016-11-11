@@ -143,7 +143,6 @@ func (v *EditorView) Render() vecty.Component {
 		v.icons,
 		v.controls,
 	)
-
 	v.helpBlock().Apply(group)
 	v.errorBlock().Apply(group)
 
