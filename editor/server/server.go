@@ -358,10 +358,9 @@ func serve(ctx context.Context) error {
 	cmd.Printf("Server now running on %s\n", url)
 
 	// We open the default browser and navigate to the address we're serving
-	// from.
-	if err := browser.OpenURL(url); err != nil {
-		return kerr.Wrap("AEJLAXGVVA", err)
-	}
+	// from. This will error if the system doesn't have a browser, so we can
+	// ignore the error.
+	browser.OpenURL(url)
 
 	withCancel(ctx, func() {
 		err = http.Serve(listner, nil)
