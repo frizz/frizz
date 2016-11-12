@@ -28,20 +28,13 @@ func NewTreeView(ctx context.Context) *TreeView {
 	return v
 }
 
-func (v *TreeView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*TreeView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *TreeView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.Root = v.App.Branches.Root()
-	v.ReconcileBody()
+	vecty.Rerender(v)
 }
 
-func (v *TreeView) Render() vecty.Component {
+func (v *TreeView) Render() *vecty.HTML {
 	if v.Root == nil {
 		return elem.Div()
 	}

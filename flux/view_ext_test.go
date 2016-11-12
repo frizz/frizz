@@ -72,13 +72,6 @@ func (v *TestView) Receive(notif flux.NotifPayload) {
 	close(notif.Done)
 }
 
-func (v *TestView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*TestView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *TestView) Render() vecty.Component {
+func (v *TestView) Render() *vecty.HTML {
 	return elem.Div()
 }

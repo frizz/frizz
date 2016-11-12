@@ -72,7 +72,7 @@ func Start() error {
 	}
 
 	p := views.NewPage(ctx)
-	vecty.RenderAsBody(p)
+	vecty.RenderBody(p)
 
 	// TODO: work out why I can't seem to call this without using eval
 	js.Global.Get("window").Call("eval", "Split(['#tree', '#main'], {sizes:[25, 75]});")

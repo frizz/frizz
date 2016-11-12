@@ -24,6 +24,7 @@ type PanelView struct {
 
 	branch *models.BranchModel
 	node   *node.Node
+	panel  *vecty.HTML
 }
 
 func NewPanelView(ctx context.Context) *PanelView {
@@ -37,24 +38,17 @@ func NewPanelView(ctx context.Context) *PanelView {
 	return v
 }
 
-func (v *PanelView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*PanelView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *PanelView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.branch = v.App.Branches.Selected()
 	v.node = v.App.Nodes.Selected()
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if notif.Type == stores.BranchSelected {
-		v.Node().Get("parentNode").Set("scrollTop", "0")
+		v.panel.Node.Get("parentNode").Set("scrollTop", "0")
 	}
 }
 
-func (v *PanelView) Render() vecty.Component {
+func (v *PanelView) Render() *vecty.HTML {
 	var editor vecty.Component
 	if v.node != nil {
 		switch v.node.Type.NativeJsonType(v.Ctx) {
@@ -101,10 +95,11 @@ func (v *PanelView) Render() vecty.Component {
 			editor = NewPanelNavView(v.Ctx, v.branch)
 		}
 	}
-	return elem.Div(
+	v.panel = elem.Div(
 		prop.Class("content content-panel"),
 		editor,
 	)
+	return v.panel
 }
 
 func addNewFile(ctx context.Context, app *stores.App, all bool) {

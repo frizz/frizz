@@ -22,7 +22,7 @@ type EditorListView struct {
 
 	model     *models.EditorModel
 	filter    *system.Reference
-	container *vecty.Element
+	container *vecty.HTML
 	sort      bool
 	items     int
 	exclude   []string
@@ -47,22 +47,19 @@ func NewEditorListView(ctx context.Context, model *models.EditorModel, filter *s
 	return v
 }
 
-func (v *EditorListView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*EditorListView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
+func (v *EditorListView) Restore(prev vecty.Component) bool {
 	if v.sort {
 		v.sortable()
 	}
+	return false
 }
 
 func (v *EditorListView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	if v.sort && notif.Type == stores.NodeArrayReorder {
-		js.Global.Call("$", v.container.Node()).Call("sortable", "cancel")
+		js.Global.Call("$", v.container.Node).Call("sortable", "cancel")
 	}
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if v.sort {
 		v.sortable()
 	}
@@ -72,7 +69,7 @@ func (v *EditorListView) sortable() {
 	if v.container == nil {
 		return
 	}
-	js.Global.Call("$", v.container.Node()).Call("sortable", js.M{
+	js.Global.Call("$", v.container.Node).Call("sortable", js.M{
 		"handle":               ".handle",
 		"axis":                 "y",
 		"forcePlaceholderSize": true,
@@ -99,7 +96,7 @@ func (v *EditorListView) sortable() {
 	})
 }
 
-func (v *EditorListView) Render() vecty.Component {
+func (v *EditorListView) Render() *vecty.HTML {
 
 	if v.model == nil || v.model.Node.Missing || v.model.Node.Null {
 		return elem.Div(vecty.Text("editor (nil)"))

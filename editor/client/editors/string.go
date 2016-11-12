@@ -42,7 +42,7 @@ type StringEditorView struct {
 
 	model  *models.EditorModel
 	node   *models.NodeModel
-	input  *vecty.Element
+	input  *vecty.HTML
 	format editable.Format
 }
 
@@ -60,26 +60,19 @@ func NewStringEditorView(ctx context.Context, node *node.Node, format editable.F
 	return v
 }
 
-func (v *StringEditorView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*StringEditorView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *StringEditorView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if notif.Type == stores.NodeFocus {
 		v.Focus()
 	}
 }
 
 func (v *StringEditorView) Focus() {
-	v.input.Node().Call("focus")
+	v.input.Node.Call("focus")
 }
 
-func (v *StringEditorView) Render() vecty.Component {
+func (v *StringEditorView) Render() *vecty.HTML {
 
 	contents := vecty.List{
 		prop.Value(v.model.Node.ValueString),

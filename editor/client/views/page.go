@@ -23,13 +23,6 @@ func NewPage(ctx context.Context) *PageView {
 	return v
 }
 
-func (v *PageView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*PageView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *PageView) addKeyboardEvents() {
 	window := dom.GetWindow()
 	document := window.Document().(dom.HTMLDocument)
@@ -121,8 +114,8 @@ func (v *PageView) KeyPress(code int) {
 	}
 }
 
-func (v *PageView) Render() vecty.Component {
-	return elem.Div(
+func (v *PageView) Render() *vecty.HTML {
+	return elem.Body(
 		prop.ID("wrapper"),
 		NewHeader(v.Ctx),
 		elem.Div(

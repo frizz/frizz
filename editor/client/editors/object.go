@@ -59,14 +59,7 @@ func NewObjectEditorView(ctx context.Context, node *node.Node) *ObjectEditorView
 	return v
 }
 
-func (v *ObjectEditorView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*ObjectEditorView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *ObjectEditorView) Render() vecty.Component {
+func (v *ObjectEditorView) Render() *vecty.HTML {
 
 	sections := vecty.List{}
 	sections = append(sections,

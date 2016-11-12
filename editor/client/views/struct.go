@@ -25,14 +25,7 @@ func NewStructView(ctx context.Context, node *node.Node) *StructView {
 	return v
 }
 
-func (v *StructView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*StructView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *StructView) Render() vecty.Component {
+func (v *StructView) Render() *vecty.HTML {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Struct (nil)"))
 	}

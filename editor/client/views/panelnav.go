@@ -13,7 +13,7 @@ type PanelNavView struct {
 	*View
 
 	branch   *models.BranchModel
-	contents []vecty.Markup
+	contents []vecty.MarkupOrComponentOrHTML
 }
 
 func NewPanelNavView(ctx context.Context, branch *models.BranchModel) *PanelNavView {
@@ -23,19 +23,12 @@ func NewPanelNavView(ctx context.Context, branch *models.BranchModel) *PanelNavV
 	return v
 }
 
-func (v *PanelNavView) Contents(markup ...vecty.Markup) *PanelNavView {
+func (v *PanelNavView) Contents(markup ...vecty.MarkupOrComponentOrHTML) *PanelNavView {
 	v.contents = markup
 	return v
 }
 
-func (v *PanelNavView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*PanelNavView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *PanelNavView) Render() vecty.Component {
+func (v *PanelNavView) Render() *vecty.HTML {
 	return elem.Navigation(
 		prop.Class("navbar navbar-default navbar-static-top nagative-margin"),
 		elem.Div(

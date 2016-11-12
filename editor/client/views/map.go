@@ -37,14 +37,7 @@ func NewMapView(ctx context.Context, node *node.Node) *MapView {
 	return v
 }
 
-func (v *MapView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*MapView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *MapView) Render() vecty.Component {
+func (v *MapView) Render() *vecty.HTML {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Map (nil)"))
 	}
@@ -122,9 +115,9 @@ func (v *MapView) Render() vecty.Component {
 
 }
 
-func (v *MapView) errorBlock() vecty.Markup {
+func (v *MapView) errorBlock() *vecty.HTML {
 	if !v.node.Invalid {
-		return vecty.List{}
+		return nil
 	}
 
 	errors := vecty.List{}

@@ -39,14 +39,7 @@ func NewStructFragmentView(ctx context.Context, node *node.Node, origin *system.
 	return v
 }
 
-func (v *StructFragmentView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*StructFragmentView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *StructFragmentView) Render() vecty.Component {
+func (v *StructFragmentView) Render() *vecty.HTML {
 	if v.model == nil {
 		return elem.Div(vecty.Text("StructFragment (nil)"))
 	}
@@ -56,7 +49,7 @@ func (v *StructFragmentView) Render() vecty.Component {
 	}
 
 	if v.model.Node.Missing || v.model.Node.Null {
-		return nullEditor(v.Ctx, v.model.Node, v.App)
+		return elem.Div(nullEditor(v.Ctx, v.model.Node, v.App))
 	}
 
 	// Get the custom editor for the main type. If it wants to edit more of the

@@ -18,6 +18,7 @@ type BranchControlView struct {
 
 	model    *models.BranchModel
 	children vecty.List
+	holder   *vecty.HTML
 }
 
 func NewBranchControlView(ctx context.Context, model *models.BranchModel) *BranchControlView {
@@ -37,26 +38,25 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 }
 
 // ke: {"func": {"notest": true}}
-func (v *BranchControlView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BranchControlView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
+func (v *BranchControlView) Restore(prev vecty.Component) bool {
 	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}
+	return false
 }
 
 func (v *BranchControlView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}
 }
 
 func (v *BranchControlView) focus() {
-	v.Node().Call("scrollIntoViewIfNeeded")
+	if v.holder != nil && v.holder.Node != nil {
+		v.holder.Node.Call("scrollIntoViewIfNeeded")
+	}
 }
 
 func (v *BranchControlView) toggleClick(*vecty.Event) {
@@ -77,16 +77,17 @@ func (v *BranchControlView) labelClick(*vecty.Event) {
 	v.App.Dispatch(&actions.BranchSelecting{Branch: v.model, Op: models.BranchOpClickLabel})
 }
 
-func (v *BranchControlView) Render() vecty.Component {
+func (v *BranchControlView) Render() *vecty.HTML {
 	if v.model == nil {
-		return elem.Div()
+		v.holder = elem.Div()
+		return v.holder
 	}
 
 	selected := v.App.Branches.Selected() == v.model
 
 	icon := v.model.Icon()
 
-	return elem.Div(
+	v.holder = elem.Div(
 		elem.Anchor(
 			vecty.ClassMap{
 				"toggle":   true,
@@ -114,5 +115,6 @@ func (v *BranchControlView) Render() vecty.Component {
 			),
 		),
 	)
+	return v.holder
 
 }

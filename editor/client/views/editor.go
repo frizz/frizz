@@ -39,17 +39,17 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 
 }
 
-func (v *EditorView) Dropdown(markup ...vecty.Markup) *EditorView {
+func (v *EditorView) Dropdown(markup ...vecty.MarkupOrComponentOrHTML) *EditorView {
 	v.dropdown = markup
 	return v
 }
 
-func (v *EditorView) Icons(markup ...vecty.Markup) *EditorView {
+func (v *EditorView) Icons(markup ...vecty.MarkupOrComponentOrHTML) *EditorView {
 	v.icons = markup
 	return v
 }
 
-func (v *EditorView) Controls(markup ...vecty.Markup) *EditorView {
+func (v *EditorView) Controls(markup ...vecty.MarkupOrComponentOrHTML) *EditorView {
 	v.controls = markup
 	return v
 }
@@ -63,23 +63,18 @@ func (v *EditorView) FocusElement(o *js.Object) *EditorView {
 
 func (v *EditorView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if v.focus != nil && notif.Type == stores.NodeFocus {
 		v.focus.Call("focus")
 	}
 }
 
-func (v *EditorView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*EditorView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
+func (v *EditorView) Render() *vecty.HTML {
 
-func (v *EditorView) Render() vecty.Component {
+	dropdownItems := v.dropdown
 
 	if !v.model.Node.Missing && !v.model.Node.Null {
-		v.dropdown = append(v.dropdown, elem.ListItem(
+		dropdownItems = append(dropdownItems, elem.ListItem(
 			elem.Anchor(
 				prop.Href("#"),
 				vecty.Text("Delete"),
@@ -94,8 +89,8 @@ func (v *EditorView) Render() vecty.Component {
 		))
 	}
 
-	var dropdown vecty.Markup
-	if v.dropdown != nil {
+	var dropdown *vecty.HTML
+	if dropdownItems != nil {
 		dropdown = elem.Span(
 			prop.Class("dropdown"),
 			elem.Anchor(
@@ -110,7 +105,7 @@ func (v *EditorView) Render() vecty.Component {
 			),
 			elem.UnorderedList(
 				prop.Class("dropdown-menu"),
-				v.dropdown,
+				dropdownItems,
 			),
 		)
 	}
@@ -142,20 +137,20 @@ func (v *EditorView) Render() vecty.Component {
 		label,
 		v.icons,
 		v.controls,
+		v.helpBlock(),
+		v.errorBlock(),
 	)
-	v.helpBlock().Apply(group)
-	v.errorBlock().Apply(group)
 
 	return group
 }
 
-func (v *EditorView) helpBlock() vecty.Markup {
+func (v *EditorView) helpBlock() *vecty.HTML {
 	if v.model.Node.Rule == nil || v.model.Node.Rule.Interface == nil {
-		return vecty.List{}
+		return nil
 	}
 	description := v.model.Node.Rule.Interface.(system.ObjectInterface).GetObject(v.Ctx).Description
 	if description == "" {
-		return vecty.List{}
+		return nil
 	}
 	return elem.Paragraph(
 		prop.Class("help-block"),
@@ -163,9 +158,9 @@ func (v *EditorView) helpBlock() vecty.Markup {
 	)
 }
 
-func (v *EditorView) errorBlock() vecty.Markup {
+func (v *EditorView) errorBlock() *vecty.HTML {
 	if !v.node.Invalid {
-		return vecty.List{}
+		return nil
 	}
 
 	errors := vecty.List{}

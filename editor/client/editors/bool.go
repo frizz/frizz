@@ -34,7 +34,7 @@ type BoolEditorView struct {
 
 	model  *models.EditorModel
 	node   *models.NodeModel
-	input  *vecty.Element
+	input  *vecty.HTML
 	format editable.Format
 }
 
@@ -51,26 +51,19 @@ func NewBoolEditorView(ctx context.Context, node *node.Node, format editable.For
 	return v
 }
 
-func (v *BoolEditorView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BoolEditorView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *BoolEditorView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if notif.Type == stores.NodeFocus {
 		v.Focus()
 	}
 }
 
 func (v *BoolEditorView) Focus() {
-	v.input.Node().Call("focus")
+	v.input.Node.Call("focus")
 }
 
-func (v *BoolEditorView) Render() vecty.Component {
+func (v *BoolEditorView) Render() *vecty.HTML {
 
 	v.input = elem.Input(
 		prop.Type(prop.TypeCheckbox),

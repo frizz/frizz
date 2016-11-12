@@ -31,14 +31,7 @@ func NewBreadcrumbsView(ctx context.Context, b *models.BranchModel) *Breadcrumbs
 	return v
 }
 
-func (v *BreadcrumbsView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BreadcrumbsView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *BreadcrumbsView) Render() vecty.Component {
+func (v *BreadcrumbsView) Render() *vecty.HTML {
 	if v.branch == nil {
 		return elem.Div()
 	}

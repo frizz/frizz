@@ -21,8 +21,8 @@ type AddPopupView struct {
 	*View
 
 	model      *models.AddPopupModel
-	nameInput  *vecty.Element
-	typeSelect *vecty.Element
+	nameInput  *vecty.HTML
+	typeSelect *vecty.HTML
 }
 
 func NewAddPopupView(ctx context.Context) *AddPopupView {
@@ -34,17 +34,10 @@ func NewAddPopupView(ctx context.Context) *AddPopupView {
 	return v
 }
 
-func (v *AddPopupView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*AddPopupView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *AddPopupView) Receive(notif flux.NotifPayload) {
 	defer close(notif.Done)
 	v.model = v.App.Misc.AddPopup()
-	v.ReconcileBody()
+	vecty.Rerender(v)
 	if v.model.Visible {
 		js.Global.Call("$", "#add-modal").Call("modal", "show")
 		if v.model.HasName() {
@@ -57,7 +50,7 @@ func (v *AddPopupView) Receive(notif flux.NotifPayload) {
 	}
 }
 
-func (v *AddPopupView) Render() vecty.Component {
+func (v *AddPopupView) Render() *vecty.HTML {
 	if v.model == nil || !v.model.Visible {
 		return v.modal()
 	}
@@ -65,7 +58,7 @@ func (v *AddPopupView) Render() vecty.Component {
 	v.nameInput = nil
 	v.typeSelect = nil
 
-	var nameControl, typeControl vecty.Markup
+	var nameControl, typeControl *vecty.HTML
 	if v.model.HasName() {
 		v.nameInput = elem.Input(
 			prop.Class("form-control"),
@@ -137,7 +130,7 @@ func (v *AddPopupView) Render() vecty.Component {
 	)
 }
 
-func (v *AddPopupView) modal(markup ...vecty.Markup) *vecty.Element {
+func (v *AddPopupView) modal(markup ...vecty.MarkupOrComponentOrHTML) *vecty.HTML {
 
 	return elem.Div(
 		prop.ID("add-modal"),
@@ -200,8 +193,8 @@ func (v *AddPopupView) save() {
 	if len(v.model.Types) == 1 {
 		t = v.model.Types[0]
 	} else {
-		options := v.typeSelect.Node().Get("options")
-		selectedIndex := v.typeSelect.Node().Get("selectedIndex").Int()
+		options := v.typeSelect.Node.Get("options")
+		selectedIndex := v.typeSelect.Node.Get("selectedIndex").Int()
 		value := options.Index(selectedIndex).Get("id").String()
 		if value == "" {
 			return
@@ -221,7 +214,7 @@ func (v *AddPopupView) save() {
 
 	switch {
 	case v.model.IsMap():
-		key := v.nameInput.Node().Get("value").String()
+		key := v.nameInput.Node.Get("value").String()
 		if key == "" {
 			// TODO: show an error
 			return
@@ -254,7 +247,7 @@ func (v *AddPopupView) save() {
 			Type:   t,
 		})
 	case v.model.IsFile():
-		name := v.nameInput.Node().Get("value").String()
+		name := v.nameInput.Node.Get("value").String()
 		if name == "" {
 			// TODO: show an error
 			return

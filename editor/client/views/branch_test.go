@@ -41,7 +41,7 @@ func TestBranchRender1(t *testing.T) {
 
 	b := NewBranchView(cb.Ctx(), nil)
 	expected := elem.Div()
-	equal(t, expected, b.Render().(*vecty.Element))
+	equal(t, expected, b.Render())
 
 	cb.AssertAppSuccess()
 
@@ -60,7 +60,7 @@ func TestBranchRender2(t *testing.T) {
 			prop.Class("children"),
 		),
 	)
-	equal(t, expected, b.Render().(*vecty.Element))
+	equal(t, expected, b.Render())
 
 }
 
@@ -230,7 +230,7 @@ func TestBranchView_Unmount(t *testing.T) {
 	assert.Nil(t, b.Notifs)
 }
 
-func equal(t *testing.T, expected, actual *vecty.Element) {
+func equal(t *testing.T, expected, actual *vecty.HTML) {
 	assert.Equal(t, expected.TagName, actual.TagName)
 
 	assert.Equal(t, len(expected.Properties), len(actual.Properties))
@@ -258,10 +258,10 @@ func equal(t *testing.T, expected, actual *vecty.Element) {
 
 	assert.Equal(t, len(expected.Children), len(actual.Children))
 	for i, v := range expected.Children {
-		if e, ok := v.(*vecty.Element); ok {
-			a, ok := actual.Children[i].(*vecty.Element)
+		if e, ok := v.(*vecty.HTML); ok {
+			a, ok := actual.Children[i].(*vecty.HTML)
 			if !ok {
-				assert.Fail(t, "Should be *vecty.Element")
+				assert.Fail(t, "Should be *vecty.HTML")
 			}
 			equal(t, e, a)
 		} else {
@@ -269,7 +269,7 @@ func equal(t *testing.T, expected, actual *vecty.Element) {
 			actualType := reflect.TypeOf(actual.Children[i])
 			assert.Equal(t, expectedType, actualType)
 		}
-		// TODO: should we be comparing non *vecty.Element?
+		// TODO: should we be comparing non *vecty.HTML?
 	}
 }
 

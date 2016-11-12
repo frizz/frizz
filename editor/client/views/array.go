@@ -37,14 +37,7 @@ func NewArrayView(ctx context.Context, node *node.Node) *ArrayView {
 	return v
 }
 
-func (v *ArrayView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*ArrayView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *ArrayView) Render() vecty.Component {
+func (v *ArrayView) Render() *vecty.HTML {
 	if v.model == nil {
 		return elem.Div(vecty.Text("Array (nil)"))
 	}
@@ -122,9 +115,9 @@ func (v *ArrayView) Render() vecty.Component {
 
 }
 
-func (v *ArrayView) errorBlock() vecty.Markup {
+func (v *ArrayView) errorBlock() *vecty.HTML {
 	if !v.node.Invalid {
-		return vecty.List{}
+		return elem.Div()
 	}
 
 	errors := vecty.List{}

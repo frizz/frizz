@@ -26,14 +26,7 @@ func NewEditMenuView(ctx context.Context) *EditMenuView {
 	return v
 }
 
-func (v *EditMenuView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*EditMenuView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *EditMenuView) Render() vecty.Component {
+func (v *EditMenuView) Render() *vecty.HTML {
 
 	var undoLabel, redoLabel string
 	var undoEnabled, redoEnabled bool

@@ -18,14 +18,7 @@ func NewHeader(ctx context.Context) *Header {
 	return v
 }
 
-func (v *Header) Reconcile(old vecty.Component) {
-	if old, ok := old.(*PageView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *Header) Render() vecty.Component {
+func (v *Header) Render() *vecty.HTML {
 	return elem.Navigation(
 		prop.Class("navbar navbar-inverse navbar-fixed-top"),
 		elem.Div(

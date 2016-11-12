@@ -25,14 +25,7 @@ func NewSaveView(ctx context.Context) *SaveView {
 	return v
 }
 
-func (v *SaveView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*SaveView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *SaveView) Render() vecty.Component {
+func (v *SaveView) Render() *vecty.HTML {
 	return elem.ListItem(
 		vecty.ClassMap{
 			"disabled": !v.App.Files.Changed(),

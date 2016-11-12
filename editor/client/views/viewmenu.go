@@ -26,14 +26,7 @@ func NewViewMenuView(ctx context.Context) *ViewMenuView {
 	return v
 }
 
-func (v *ViewMenuView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*ViewMenuView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
-func (v *ViewMenuView) Render() vecty.Component {
+func (v *ViewMenuView) Render() *vecty.HTML {
 	return elem.ListItem(
 		prop.Class("dropdown"),
 		elem.Anchor(

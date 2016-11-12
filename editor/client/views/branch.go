@@ -39,14 +39,6 @@ func NewBranchView(ctx context.Context, model *models.BranchModel) *BranchView {
 	return v
 }
 
-// ke: {"func": {"notest": true}}
-func (v *BranchView) Reconcile(old vecty.Component) {
-	if old, ok := old.(*BranchView); ok {
-		v.Body = old.Body
-	}
-	v.ReconcileBody()
-}
-
 func (v *BranchView) Receive(notif flux.NotifPayload) {
 	wait := &flux.Waiter{}
 	defer wait.Go(notif.Done)
@@ -68,7 +60,7 @@ func (v *BranchView) Receive(notif flux.NotifPayload) {
 		stores.BranchChildAdded,
 		stores.BranchChildDeleted,
 		stores.BranchChildrenReordered:
-		v.ReconcileBody()
+		vecty.Rerender(v)
 		if ds, ok := notif.Data.(*stores.BranchDescendantSelectData); ok {
 			wait.Add(v.App.Dispatch(&actions.BranchSelecting{Branch: ds.Branch, Op: ds.Op}))
 		}
@@ -127,7 +119,7 @@ func loadBranch(ctx context.Context, app *stores.App, b *models.BranchModel, wai
 
 }
 
-func (v *BranchView) Render() vecty.Component {
+func (v *BranchView) Render() *vecty.HTML {
 	if v.model == nil {
 		return elem.Div()
 	}

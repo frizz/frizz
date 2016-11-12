@@ -41,7 +41,7 @@ func TestBranchControlView_Render(t *testing.T) {
 			),
 		),
 	)
-	equal(t, expected, b.Render().(*vecty.Element))
+	equal(t, expected, b.Render())
 
 	cb.AssertAppSuccess()
 
