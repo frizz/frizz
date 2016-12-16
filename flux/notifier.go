@@ -90,6 +90,13 @@ func (s *Notifier) Notify(object interface{}, notif Notif) (done chan struct{}) 
 
 func (s *Notifier) NotifyWithData(object interface{}, notif Notif, data interface{}) (done chan struct{}) {
 	_, done = s.notifyCount(object, notif, data)
+
+	//counter := 0
+	//for _, s := range s.subscribers {
+	//	counter += len(s)
+	//}
+	//fmt.Println(notif, counter)
+
 	return done
 }
 

@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 
 	"github.com/davelondon/kerr"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
 	"kego.io/process/scanner"
 	"kego.io/system"
 )
@@ -58,7 +56,5 @@ func MarshalIndent(ctx context.Context, v interface{}, prefix, indent string) ([
 }
 
 func NewContext(ctx context.Context, path string, aliases map[string]string) context.Context {
-	ctx = envctx.NewContext(ctx, &envctx.Env{Path: path, Aliases: aliases})
-	ctx = jsonctx.AutoContext(ctx)
-	return ctx
+	return system.NewContext(ctx, path, aliases)
 }

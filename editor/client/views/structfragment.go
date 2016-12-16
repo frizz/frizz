@@ -119,18 +119,24 @@ func nullEditor(ctx context.Context, n *node.Node, app *stores.App) *EditorView 
 		})
 	}
 	return NewEditorView(ctx, n).Icons(
-		elem.Anchor(
-			prop.Href("#"),
-			event.Click(add).PreventDefault(),
-			elem.Italic(
-				prop.Class("editor-icon editor-icon-after glyphicon glyphicon-plus-sign"),
-			),
-		),
-	).Dropdown(elem.ListItem(
-		elem.Anchor(
-			prop.Href("#"),
-			vecty.Text("Add"),
-			event.Click(add).PreventDefault(),
-		),
-	))
+		func() vecty.MarkupOrComponentOrHTML {
+			return elem.Anchor(
+				prop.Href("#"),
+				event.Click(add).PreventDefault(),
+				elem.Italic(
+					prop.Class("editor-icon editor-icon-after glyphicon glyphicon-plus-sign"),
+				),
+			)
+		},
+	).Dropdown(
+		func() vecty.MarkupOrComponentOrHTML {
+			return elem.ListItem(
+				elem.Anchor(
+					prop.Href("#"),
+					vecty.Text("Add"),
+					event.Click(add).PreventDefault(),
+				),
+			)
+		},
+	)
 }

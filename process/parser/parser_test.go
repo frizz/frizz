@@ -126,7 +126,7 @@ func TestNoTypeError(t *testing.T) {
 	assert.IsError(t, err, "GJRHNGGWFD")
 	assert.HasError(t, err, "MSNIGTIDIO")
 
-	err = scanForTypes(cb.Ctx(), cb.Env(), nil, &PackageHasher{})
+	err = scanForTypesAndExports(cb.Ctx(), cb.Env(), nil, &PackageHasher{})
 	assert.IsError(t, err, "NUKWIHYFMQ")
 
 }

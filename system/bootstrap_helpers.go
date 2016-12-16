@@ -7,8 +7,15 @@ import (
 	"reflect"
 
 	"github.com/davelondon/kerr"
+	"kego.io/context/envctx"
 	"kego.io/context/jsonctx"
 )
+
+func NewContext(ctx context.Context, path string, aliases map[string]string) context.Context {
+	ctx = envctx.NewContext(ctx, &envctx.Env{Path: path, Aliases: aliases})
+	ctx = jsonctx.AutoContext(ctx)
+	return ctx
+}
 
 func Marshal(ctx context.Context, data interface{}) ([]byte, error) {
 

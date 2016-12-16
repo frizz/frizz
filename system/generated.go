@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":5319817629068713650}
+// info:{"Path":"kego.io/system","Hash":7926774414652922602}
 package system
 
 // ke: {"file": {"notest": true}}
@@ -1343,6 +1343,8 @@ func (v *Number) Repack(ctx context.Context) (data interface{}, typePackage stri
 type Object struct {
 	// Description for the developer
 	Description string `json:"description"`
+	// Make this object available as an exported function
+	Export bool `json:"export"`
 	// All global objects should have an id.
 	Id *Reference `json:"id"`
 	// Extra validation rules for this object or descendants
@@ -1387,6 +1389,13 @@ func (v *Object) Unpack(ctx context.Context, in Packed, iface bool) error {
 			return err
 		}
 		v.Description = ob0
+	}
+	if field, ok := in.Map()["export"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackBool(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Export = ob0
 	}
 	if field, ok := in.Map()["id"]; ok && field.Type() != J_NULL {
 		ob0 := new(Reference)
@@ -1447,6 +1456,10 @@ func (v *Object) Repack(ctx context.Context) (data interface{}, typePackage stri
 	if v.Description != "" {
 		ob0 := v.Description
 		m["description"] = ob0
+	}
+	if v.Export != false {
+		ob0 := v.Export
+		m["export"] = ob0
 	}
 	if v.Id != nil {
 		ob0, _, _, _, err := v.Id.Repack(ctx)
@@ -2087,7 +2100,7 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/system")
-	pkg.SetHash(5319817629068713650)
+	pkg.SetHash(7926774414652922602)
 	pkg.Init(
 		"array",
 		nil,

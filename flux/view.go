@@ -18,7 +18,10 @@ type View struct {
 	Notifs    []chan NotifPayload
 	Self      ViewInterface
 	unmounted bool
+	//	index     int
 }
+
+//var index int
 
 func NewView(ctx context.Context, self ViewInterface, app AppInterface) *View {
 	v := &View{
@@ -26,8 +29,14 @@ func NewView(ctx context.Context, self ViewInterface, app AppInterface) *View {
 		App:  app,
 		Self: self,
 	}
+	//	index++
+	//	v.index = index
 	return v
 }
+
+//func (v *View) Desc() string {
+//	return fmt.Sprintf("%T %d", v.Self, v.index)
+//}
 
 func (v *View) Render() *vecty.HTML {
 	//if v.unmounted {
@@ -59,5 +68,5 @@ func (v *View) Receive(notif NotifPayload) {
 	// ke: {"block": {"notest": true}}
 	// Default receive function for when view doesn't override it
 	defer close(notif.Done)
-	vecty.Rerender(v)
+	vecty.Rerender(v.Self)
 }

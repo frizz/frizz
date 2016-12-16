@@ -43,8 +43,9 @@ func (b *Object) InitializeType(path string, name string) error {
 }
 
 type ObjectStub struct {
-	Id   *Reference `json:"id"`
-	Type *Reference `json:"type"`
+	Id     *Reference `json:"id"`
+	Type   *Reference `json:"type"`
+	Export bool       `json:"export"`
 }
 
 func (v *ObjectStub) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -53,22 +54,28 @@ func (v *ObjectStub) Unpack(ctx context.Context, in Packed, iface bool) error {
 		return nil
 	}
 
-	if field, ok := in.Map()["id"]; ok {
-		if v.Id == nil {
-			v.Id = new(Reference)
-		}
-		if err := v.Id.Unpack(ctx, field, false); err != nil {
+	if field, ok := in.Map()["id"]; ok && field.Type() != J_NULL {
+		ob0 := new(Reference)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
+		v.Id = ob0
 	}
 
-	if field, ok := in.Map()["type"]; ok {
-		if v.Type == nil {
-			v.Type = new(Reference)
-		}
-		if err := v.Type.Unpack(ctx, field, false); err != nil {
+	if field, ok := in.Map()["type"]; ok && field.Type() != J_NULL {
+		ob0 := new(Reference)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
+		v.Type = ob0
+	}
+
+	if field, ok := in.Map()["export"]; ok && field.Type() != J_NULL {
+		ob0, err := UnpackBool(ctx, field)
+		if err != nil {
+			return err
+		}
+		v.Export = ob0
 	}
 	return nil
 }

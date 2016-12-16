@@ -25,6 +25,7 @@ type SysPackageInfo struct {
 	Types           *SysTypes
 	Files           *SysFiles
 	Globals         *SysGlobals
+	Exports         *SysExports
 }
 
 type SysTypes struct {
@@ -58,6 +59,18 @@ type SysGlobalInfo struct {
 	File string
 }
 
+type SysExports struct {
+	sync.RWMutex
+	exports map[string]*SysExportInfo
+}
+
+type SysExportInfo struct {
+	Name         string
+	TypeName     string
+	TypePackage  string
+	JsonContents []byte
+}
+
 func (c *SysCache) Len() int {
 	c.RLock()
 	defer c.RUnlock()
@@ -74,6 +87,7 @@ func (c *SysCache) SetEnv(env *envctx.Env) *SysPackageInfo {
 		Types:   &SysTypes{types: map[string]*SysTypeInfo{}},
 		Files:   &SysFiles{files: map[string]*SysFileInfo{}},
 		Globals: &SysGlobals{globals: map[string]*SysGlobalInfo{}},
+		Exports: &SysExports{exports: map[string]*SysExportInfo{}},
 	}
 	c.m[env.Path] = p
 	return p
@@ -203,6 +217,41 @@ func (c *SysFiles) Keys() []string {
 	c.RLock()
 	defer c.RUnlock()
 	for k, _ := range c.files {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
+}
+
+func (c *SysExports) Set(id, typeName, typePackage string, jsonContents []byte) {
+	c.Lock()
+	defer c.Unlock()
+	c.exports[id] = &SysExportInfo{
+		Name:         id,
+		TypeName:     typeName,
+		TypePackage:  typePackage,
+		JsonContents: jsonContents,
+	}
+}
+
+func (c *SysExports) Get(id string) (*SysExportInfo, bool) {
+	c.RLock()
+	defer c.RUnlock()
+	t, ok := c.exports[id]
+	return t, ok
+}
+
+func (c *SysExports) Len() int {
+	c.RLock()
+	defer c.RUnlock()
+	return len(c.exports)
+}
+
+func (c *SysExports) Keys() []string {
+	out := []string{}
+	c.RLock()
+	defer c.RUnlock()
+	for k, _ := range c.exports {
 		out = append(out, k)
 	}
 	sort.Strings(out)

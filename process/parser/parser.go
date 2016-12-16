@@ -42,7 +42,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 		system.RegisterJsonTypes(ctx)
 	}
 
-	hash := &PackageHasher{Path: path, Aliases: map[string]string{}, Types: map[string]uint64{}}
+	hash := &PackageHasher{Path: path, Aliases: map[string]string{}, Types: map[string]uint64{}, Exports: map[string]uint64{}}
 
 	importPackage := func(importPath string, importAlias string) error {
 		if _, found := scache.Get(importPath); !found {
@@ -94,7 +94,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 
 	cmd.Printf("Parsing %s...", path)
 
-	if err := scanForTypes(ctx, env, pcache, hash); err != nil {
+	if err := scanForTypesAndExports(ctx, env, pcache, hash); err != nil {
 		return nil, kerr.Wrap("VFUNPHUFHD", err)
 	}
 
@@ -152,10 +152,10 @@ func ScanForEnv(ctx context.Context, path string) (env *envctx.Env, err error) {
 	return env, nil
 }
 
-func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
+func scanForTypesAndExports(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackageInfo, hash *PackageHasher) error {
 
-	// While we're scanning for types, we should use a custom unpacking env, because the env from
-	// the context is the one of the local package.
+	// While we're scanning for types, we should use a custom unpacking env,
+	// because the env from the context is the one of the local package.
 
 	files := scanner.ScanDirToFiles(ctx, env.Dir, env.Recursive)
 	bytes := scanner.ScanFilesToBytes(ctx, files)
@@ -189,8 +189,13 @@ func scanForTypes(ctx context.Context, env *envctx.Env, cache *sysctx.SysPackage
 			cache.PackageBytes = b.Bytes
 			cache.PackageFilename = relativeFile
 		default:
-
 			cache.Globals.Set(o.Id.Name, relativeFile)
+			if o.Export {
+				cache.Exports.Set(o.Id.Name, o.Type.Name, o.Type.Package, b.Bytes)
+				if hash != nil {
+					hash.Exports[o.Id.Name+" "+o.Type.Name+" "+o.Type.Package] = cityhash.CityHash64(b.Bytes, uint32(len(b.Bytes)))
+				}
+			}
 		}
 
 	}

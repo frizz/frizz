@@ -22,9 +22,9 @@ type EditorView struct {
 	model    *models.EditorModel
 	node     *models.NodeModel
 	focus    *js.Object
-	controls vecty.List
-	icons    vecty.List
-	dropdown vecty.List
+	controls func() vecty.MarkupOrComponentOrHTML
+	icons    func() vecty.MarkupOrComponentOrHTML
+	dropdown func() vecty.MarkupOrComponentOrHTML
 }
 
 func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
@@ -32,6 +32,9 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 	v.View = New(ctx, v)
 	v.model = v.App.Editors.Get(node)
 	v.node = v.App.Nodes.Get(node)
+	v.controls = func() vecty.MarkupOrComponentOrHTML { return nil }
+	v.icons = func() vecty.MarkupOrComponentOrHTML { return nil }
+	v.dropdown = func() vecty.MarkupOrComponentOrHTML { return nil }
 	v.Watch(v.model.Node,
 		stores.NodeValueChanged,
 	)
@@ -39,17 +42,17 @@ func NewEditorView(ctx context.Context, node *node.Node) *EditorView {
 
 }
 
-func (v *EditorView) Dropdown(markup ...vecty.MarkupOrComponentOrHTML) *EditorView {
+func (v *EditorView) Dropdown(markup func() vecty.MarkupOrComponentOrHTML) *EditorView {
 	v.dropdown = markup
 	return v
 }
 
-func (v *EditorView) Icons(markup ...vecty.MarkupOrComponentOrHTML) *EditorView {
+func (v *EditorView) Icons(markup func() vecty.MarkupOrComponentOrHTML) *EditorView {
 	v.icons = markup
 	return v
 }
 
-func (v *EditorView) Controls(markup ...vecty.MarkupOrComponentOrHTML) *EditorView {
+func (v *EditorView) Controls(markup func() vecty.MarkupOrComponentOrHTML) *EditorView {
 	v.controls = markup
 	return v
 }
@@ -71,7 +74,8 @@ func (v *EditorView) Receive(notif flux.NotifPayload) {
 
 func (v *EditorView) Render() *vecty.HTML {
 
-	dropdownItems := v.dropdown
+	var dropdownItems []vecty.MarkupOrComponentOrHTML
+	dropdownItems = append(dropdownItems, v.dropdown())
 
 	if !v.model.Node.Missing && !v.model.Node.Null {
 		dropdownItems = append(dropdownItems, elem.ListItem(
@@ -104,8 +108,7 @@ func (v *EditorView) Render() *vecty.HTML {
 				),
 			),
 			elem.UnorderedList(
-				prop.Class("dropdown-menu"),
-				dropdownItems,
+				append(dropdownItems, prop.Class("dropdown-menu"))...,
 			),
 		)
 	}
@@ -135,8 +138,8 @@ func (v *EditorView) Render() *vecty.HTML {
 		handle,
 		dropdown,
 		label,
-		v.icons,
-		v.controls,
+		v.icons(),
+		v.controls(),
 		v.helpBlock(),
 		v.errorBlock(),
 	)

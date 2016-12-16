@@ -1,13 +1,43 @@
-Type.Native - the json type
-    object
-    map
-    struct
-    native
-    native-struct (json native, go struct - e.g. system:reference)
 
-Type.GoKind
-    underlying - system:rule-interface
+Instead of embedding *Object:
 
-@int
-int-rule
+---------------------
+package photo:
 
+type Photo struct {
+    meta map[string]interface{} `json:"_meta"`
+    ...
+}
+
+func (o Photo) metaStore() map[string]interface{} {
+    return o.meta
+}
+
+func init() {
+    meta := func (s system.MetaStore) map[string]interface{} {
+        return s.metaStore
+    }
+    system.Register(reflect.TypeOf(Photo{}), meta)
+}
+
+---------------------
+package system:
+
+type MetaStore interface{
+    metaStore() map[string]interface{}
+}
+type MetaKey interface{
+    MetaKey(o interface{}) string
+}
+type MetaFunc func (s system.MetaStore) map[string]interface{}
+func Register(t reflect.Type, m MetaFunc) {
+    // ...
+}
+
+
+---------------------
+package site:
+
+
+
+---------------------

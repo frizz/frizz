@@ -64,63 +64,65 @@ func (v *ObjectEditorView) Render() *vecty.HTML {
 	sections := vecty.List{}
 	sections = append(sections,
 		views.NewPanelNavView(v.Ctx, v.branch).Contents(
-			elem.UnorderedList(
-				prop.Class("nav navbar-nav navbar-right"),
-				elem.ListItem(
-					prop.Class("dropdown"),
-					elem.Anchor(
-						prop.Href("#"),
-						prop.Class("dropdown-toggle"),
-						vecty.Data("toggle", "dropdown"),
-						vecty.Property("role", "button"),
-						vecty.Property("aria-haspopup", "true"),
-						vecty.Property("aria-expanded", "false"),
-						vecty.Text("Options"),
-						elem.Span(
-							prop.Class("caret"),
+			func() vecty.MarkupOrComponentOrHTML {
+				return elem.UnorderedList(
+					prop.Class("nav navbar-nav navbar-right"),
+					elem.ListItem(
+						prop.Class("dropdown"),
+						elem.Anchor(
+							prop.Href("#"),
+							prop.Class("dropdown-toggle"),
+							vecty.Data("toggle", "dropdown"),
+							vecty.Property("role", "button"),
+							vecty.Property("aria-haspopup", "true"),
+							vecty.Property("aria-expanded", "false"),
+							vecty.Text("Options"),
+							elem.Span(
+								prop.Class("caret"),
+							),
 						),
-					),
-					elem.UnorderedList(
-						prop.Class("dropdown-menu"),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								event.Click(func(ev *vecty.Event) {
-									v.App.Dispatch(&actions.ToggleSystemControls{
-										Node: v.model.Node,
-									})
-								}).PreventDefault(),
-								elem.Italic(
-									vecty.ClassMap{
-										"dropdown-icon":       true,
-										"glyphicon":           true,
-										"glyphicon-check":     v.node.ShowSystemControls,
-										"glyphicon-unchecked": !v.node.ShowSystemControls,
-									},
+						elem.UnorderedList(
+							prop.Class("dropdown-menu"),
+							elem.ListItem(
+								elem.Anchor(
+									prop.Href("#"),
+									event.Click(func(ev *vecty.Event) {
+										v.App.Dispatch(&actions.ToggleSystemControls{
+											Node: v.model.Node,
+										})
+									}).PreventDefault(),
+									elem.Italic(
+										vecty.ClassMap{
+											"dropdown-icon":       true,
+											"glyphicon":           true,
+											"glyphicon-check":     v.node.ShowSystemControls,
+											"glyphicon-unchecked": !v.node.ShowSystemControls,
+										},
+									),
+									vecty.Text("System controls"),
 								),
-								vecty.Text("System controls"),
 							),
-						),
-						elem.ListItem(
-							prop.Class("divider"),
-							vecty.Property("role", "separator"),
-						),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Delete"),
-								event.Click(func(e *vecty.Event) {
-									v.App.Dispatch(&actions.Delete{
-										Undoer: &actions.Undoer{},
-										Node:   v.model.Node,
-										Parent: v.model.Node.Parent,
-									})
-								}).PreventDefault(),
+							elem.ListItem(
+								prop.Class("divider"),
+								vecty.Property("role", "separator"),
+							),
+							elem.ListItem(
+								elem.Anchor(
+									prop.Href("#"),
+									vecty.Text("Delete"),
+									event.Click(func(e *vecty.Event) {
+										v.App.Dispatch(&actions.Delete{
+											Undoer: &actions.Undoer{},
+											Node:   v.model.Node,
+											Parent: v.model.Node.Parent,
+										})
+									}).PreventDefault(),
+								),
 							),
 						),
 					),
-				),
-			),
+				)
+			},
 		),
 	)
 

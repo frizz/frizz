@@ -121,22 +121,30 @@ func (v *EditorListView) Render() *vecty.HTML {
 		if e := models.GetEditable(v.Ctx, n); e != nil {
 			f = e.Format(n.Rule)
 			if f == editable.Block || f == editable.Inline {
-				children = append(children, NewEditorView(v.Ctx, n).Controls(e.EditorView(v.Ctx, n, editable.Block)))
+				children = append(children,
+					NewEditorView(v.Ctx, n).Controls(
+						func() vecty.MarkupOrComponentOrHTML {
+							return e.EditorView(v.Ctx, n, editable.Block)
+						},
+					),
+				)
 				return
 			}
 		}
 		if f == editable.Branch {
 			b := v.App.Branches.Get(n)
 			children = append(children, NewEditorView(v.Ctx, n).Icons(
-				elem.Anchor(
-					prop.Href("#"),
-					event.Click(func(e *vecty.Event) {
-						v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpClickEditorLink})
-					}).PreventDefault(),
-					elem.Italic(
-						prop.Class("editor-icon editor-icon-after glyphicon glyphicon-share-alt"),
-					),
-				),
+				func() vecty.MarkupOrComponentOrHTML {
+					return elem.Anchor(
+						prop.Href("#"),
+						event.Click(func(e *vecty.Event) {
+							v.App.Dispatch(&actions.BranchSelecting{Branch: b, Op: models.BranchOpClickEditorLink})
+						}).PreventDefault(),
+						elem.Italic(
+							prop.Class("editor-icon editor-icon-after glyphicon glyphicon-share-alt"),
+						),
+					)
+				},
 			))
 		}
 	}

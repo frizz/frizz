@@ -11,6 +11,7 @@ type PackageHasher struct {
 	Path    string
 	Aliases map[string]string
 	Types   map[string]uint64
+	Exports map[string]uint64
 	Version int
 }
 

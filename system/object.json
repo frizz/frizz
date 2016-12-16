@@ -28,6 +28,11 @@
 				"type": "json:@string"
 			}
 		},
+		"export": {
+			"description": "Make this object available as an exported function",
+			"type": "json:@bool",
+			"optional": true
+		},
 		"description": {
 			"description": "Description for the developer",
 			"type": "json:@string",

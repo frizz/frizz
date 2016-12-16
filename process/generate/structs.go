@@ -27,6 +27,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 		return nil, kerr.New("DQVQWTKRSK", "%s not found in sys ctx", env.Path)
 	}
 	types := pcache.Types
+	exports := pcache.Exports
 
 	g := builder.New(env.Path)
 
@@ -35,13 +36,6 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	g.SetPackageComment("info:" + string(infoBytes))
 	g.SetIntroComment(`ke: {"file": {"notest": true}}`)
 
-	if types.Len() == 0 {
-		b, err := g.Build()
-		if err != nil {
-			return nil, kerr.Wrap("BBRLIODBKL", err)
-		}
-		return b, nil
-	}
 	for _, name := range types.Keys() {
 		t, ok := types.Get(name)
 		if !ok {
@@ -91,11 +85,53 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	}
 	printInitFunction(ctx, env, g, types)
 
+	for _, name := range exports.Keys() {
+		export, ok := exports.Get(name)
+		if !ok {
+			// ke: {"block": {"notest": true}}
+			continue
+		}
+		if err := printExportFunction(ctx, env, g, export); err != nil {
+			return nil, kerr.Wrap("YJHRXIASNO", err)
+		}
+	}
+
 	b, err := g.Build()
 	if err != nil {
 		return nil, kerr.Wrap("XKYHSDKBEP", err)
 	}
 	return b, nil
+}
+
+func printExportFunction(ctx context.Context, env *envctx.Env, g *builder.Builder, export *sysctx.SysExportInfo) error {
+	g.Println("func ", system.GoName(export.Name), "() *", g.SprintRef(export.TypePackage, system.GoName(export.TypeName)), " {")
+	{
+		g.Print("ctx := ")
+		g.PrintFunctionCall("kego.io/system", "NewContext",
+			g.SprintFunctionCall("context", "Background"),
+			strconv.Quote(env.Path),
+			fmt.Sprintf("%#v", env.Aliases),
+		)
+		g.Println()
+
+		g.Println("o := new(", g.SprintRef(export.TypePackage, system.GoName(export.TypeName)), ")")
+
+		g.Print("err := ")
+		g.PrintMethodCall("o", "Unpack",
+			"ctx",
+			g.SprintFunctionCall("kego.io/system", "MustPackString", strconv.Quote(string(export.JsonContents))),
+			"false",
+		)
+		g.Println()
+		g.Println("if err != nil {")
+		{
+			g.Println("panic(err.Error())")
+		}
+		g.Println("}")
+		g.Println("return o")
+	}
+	g.Println("}")
+	return nil
 }
 
 func printRepacker(ctx context.Context, env *envctx.Env, g *builder.Builder, typ *system.Type) error {

@@ -13,17 +13,18 @@ type PanelNavView struct {
 	*View
 
 	branch   *models.BranchModel
-	contents []vecty.MarkupOrComponentOrHTML
+	contents func() vecty.MarkupOrComponentOrHTML
 }
 
 func NewPanelNavView(ctx context.Context, branch *models.BranchModel) *PanelNavView {
 	v := &PanelNavView{}
 	v.View = New(ctx, v)
 	v.branch = branch
+	v.contents = func() vecty.MarkupOrComponentOrHTML { return nil }
 	return v
 }
 
-func (v *PanelNavView) Contents(markup ...vecty.MarkupOrComponentOrHTML) *PanelNavView {
+func (v *PanelNavView) Contents(markup func() vecty.MarkupOrComponentOrHTML) *PanelNavView {
 	v.contents = markup
 	return v
 }
@@ -37,7 +38,7 @@ func (v *PanelNavView) Render() *vecty.HTML {
 				prop.Class("navbar-header"),
 				NewBreadcrumbsView(v.Ctx, v.branch),
 			),
-			vecty.List(v.contents),
+			v.contents(),
 		),
 	)
 }

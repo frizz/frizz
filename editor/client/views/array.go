@@ -64,49 +64,51 @@ func (v *ArrayView) Render() *vecty.HTML {
 
 	return elem.Div(
 		NewPanelNavView(v.Ctx, v.branch).Contents(
-			elem.UnorderedList(
-				prop.Class("nav navbar-nav navbar-right"),
-				elem.ListItem(
-					elem.Anchor(
-						vecty.Text("Add"),
-						prop.Href("#"),
-						event.Click(func(ev *vecty.Event) {
-							addCollectionItem(v.Ctx, v.App, v.model.Node)
-						}).PreventDefault(),
-					),
-				),
-				elem.ListItem(
-					prop.Class("dropdown"),
-					elem.Anchor(
-						prop.Href("#"),
-						prop.Class("dropdown-toggle"),
-						vecty.Data("toggle", "dropdown"),
-						vecty.Property("role", "button"),
-						vecty.Property("aria-haspopup", "true"),
-						vecty.Property("aria-expanded", "false"),
-						vecty.Text("Options"),
-						elem.Span(
-							prop.Class("caret"),
+			func() vecty.MarkupOrComponentOrHTML {
+				return elem.UnorderedList(
+					prop.Class("nav navbar-nav navbar-right"),
+					elem.ListItem(
+						elem.Anchor(
+							vecty.Text("Add"),
+							prop.Href("#"),
+							event.Click(func(ev *vecty.Event) {
+								addCollectionItem(v.Ctx, v.App, v.model.Node)
+							}).PreventDefault(),
 						),
 					),
-					elem.UnorderedList(
-						prop.Class("dropdown-menu"),
-						elem.ListItem(
-							elem.Anchor(
-								prop.Href("#"),
-								vecty.Text("Delete"),
-								event.Click(func(e *vecty.Event) {
-									v.App.Dispatch(&actions.Delete{
-										Undoer: &actions.Undoer{},
-										Node:   v.model.Node,
-										Parent: v.model.Node.Parent,
-									})
-								}).PreventDefault(),
+					elem.ListItem(
+						prop.Class("dropdown"),
+						elem.Anchor(
+							prop.Href("#"),
+							prop.Class("dropdown-toggle"),
+							vecty.Data("toggle", "dropdown"),
+							vecty.Property("role", "button"),
+							vecty.Property("aria-haspopup", "true"),
+							vecty.Property("aria-expanded", "false"),
+							vecty.Text("Options"),
+							elem.Span(
+								prop.Class("caret"),
+							),
+						),
+						elem.UnorderedList(
+							prop.Class("dropdown-menu"),
+							elem.ListItem(
+								elem.Anchor(
+									prop.Href("#"),
+									vecty.Text("Delete"),
+									event.Click(func(e *vecty.Event) {
+										v.App.Dispatch(&actions.Delete{
+											Undoer: &actions.Undoer{},
+											Node:   v.model.Node,
+											Parent: v.model.Node.Parent,
+										})
+									}).PreventDefault(),
+								),
 							),
 						),
 					),
-				),
-			),
+				)
+			},
 		),
 		info,
 		NewEditorListView(v.Ctx, v.model, nil, nil),

@@ -63,33 +63,37 @@ func (v *PanelView) Render() *vecty.HTML {
 		switch v.branch.Contents.(type) {
 		case *models.DataContents:
 			editor = NewPanelNavView(v.Ctx, v.branch).Contents(
-				elem.UnorderedList(
-					prop.Class("nav navbar-nav navbar-right"),
-					elem.ListItem(
-						elem.Anchor(
-							vecty.Text("Add"),
-							prop.Href("#"),
-							event.Click(func(ev *vecty.Event) {
-								addNewFile(v.Ctx, v.App, true)
-							}).PreventDefault(),
+				func() vecty.MarkupOrComponentOrHTML {
+					return elem.UnorderedList(
+						prop.Class("nav navbar-nav navbar-right"),
+						elem.ListItem(
+							elem.Anchor(
+								vecty.Text("Add"),
+								prop.Href("#"),
+								event.Click(func(ev *vecty.Event) {
+									addNewFile(v.Ctx, v.App, true)
+								}).PreventDefault(),
+							),
 						),
-					),
-				),
+					)
+				},
 			)
 		case *models.TypesContents:
 			editor = NewPanelNavView(v.Ctx, v.branch).Contents(
-				elem.UnorderedList(
-					prop.Class("nav navbar-nav navbar-right"),
-					elem.ListItem(
-						elem.Anchor(
-							vecty.Text("Add"),
-							prop.Href("#"),
-							event.Click(func(ev *vecty.Event) {
-								addNewFile(v.Ctx, v.App, false)
-							}).PreventDefault(),
+				func() vecty.MarkupOrComponentOrHTML {
+					return elem.UnorderedList(
+						prop.Class("nav navbar-nav navbar-right"),
+						elem.ListItem(
+							elem.Anchor(
+								vecty.Text("Add"),
+								prop.Href("#"),
+								event.Click(func(ev *vecty.Event) {
+									addNewFile(v.Ctx, v.App, false)
+								}).PreventDefault(),
+							),
 						),
-					),
-				),
+					)
+				},
 			)
 		default:
 			editor = NewPanelNavView(v.Ctx, v.branch)

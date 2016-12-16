@@ -1,4 +1,5 @@
 description: This is the front page of the site.
+export: true
 heading: Front page
 id: frontpage
 people:
