@@ -9,6 +9,7 @@ import (
 
 	"fmt"
 
+	"github.com/davelondon/jennifer/jen"
 	"github.com/davelondon/kerr"
 	"kego.io/context/jsonctx"
 	"kego.io/context/sysctx"
@@ -279,16 +280,16 @@ func (t *Type) NativeJsonType(ctx context.Context) JsonType {
 	}
 }
 
-func nativeGoType(jsonNativeType string) (string, error) {
+func nativeGoType(jsonNativeType string) (*jen.Statement, error) {
 	switch jsonNativeType {
 	case "number":
-		return "float64", nil
+		return jen.Float64(), nil
 	case "string":
-		return "string", nil
+		return jen.String(), nil
 	case "bool":
-		return "bool", nil
+		return jen.Bool(), nil
 	default:
-		return "", kerr.New("TXQIDRBJRH", "Native type not found: %v", jsonNativeType)
+		return nil, kerr.New("TXQIDRBJRH", "Native type not found: %v", jsonNativeType)
 	}
 }
 
@@ -329,7 +330,7 @@ func (t *Type) IsNativeArray() bool {
 func (t *Type) IsNativeObject() bool {
 	return nativeTypeClass(t.Native.Value()) == nativeObject
 }
-func (t *Type) NativeValueGolangType() (string, error) {
+func (t *Type) NativeValueGolangType() (*jen.Statement, error) {
 	return nativeGoType(t.Native.Value())
 }
 

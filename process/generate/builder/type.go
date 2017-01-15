@@ -1,18 +1,18 @@
 package builder
 
 import (
-	"fmt"
-	"strconv"
-
 	"context"
 
+	"github.com/davelondon/jennifer/jen"
 	"github.com/davelondon/kerr"
 	"kego.io/system"
 )
 
 // AliasTypeDefinition returns the Go source for the definition of the type
 // of this alias type [collection prefix][optional pointer][type name]
-func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface) (*jen.Statement, error) {
+
+	s := &jen.Statement{}
 
 	outer := system.WrapRule(ctx, alias)
 
@@ -20,77 +20,78 @@ func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface, path s
 	// arrays, this iterates over the rule and returns the go collection prefix
 	// - e.g. []map[string] for an array of maps. It also returns the inner
 	// rule.
-	prefix, inner, err := collectionPrefixInnerRule(ctx, "", outer)
+	prefix, inner, err := collectionPrefixInnerRule(ctx, nil, outer)
 	if err != nil {
-		return "", kerr.Wrap("BSWTXBHVTH", err)
+		return nil, kerr.Wrap("BSWTXBHVTH", err)
 	}
+	s.Add(prefix)
 
-	pointer := ""
 	// if we have a prefix we should also work out the innerPointer
-	if prefix != "" && inner.PassedAsPointer(ctx) {
-		pointer = "*"
+	if prefix != nil && inner.PassedAsPointer(ctx) {
+		s.Op("*")
 	}
 
-	name := Reference(inner.Parent.Id.Package, system.GoName(inner.Parent.Id.Name), path, getAlias)
+	s.Add(Reference(inner.Parent.Id))
 
-	return fmt.Sprint(prefix, pointer, name), nil
+	return s, nil
 }
 
 // FieldTypeDefinition returns the Go source for the definition of the type
 // of this field [optional pointer][collection prefix][optional pointer][type
 // name]
-func FieldTypeDefinition(ctx context.Context, fieldName string, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+func FieldTypeDefinition(ctx context.Context, fieldName string, field system.RuleInterface) (*jen.Statement, error) {
+	
+	s := &jen.Statement{}
 
-	typeDef, err := TypeDefinition(ctx, field, path, getAlias)
+	typeDef, err := TypeDefinition(ctx, field)
 	if err != nil {
-		return "", kerr.Wrap("BAJJNKKUWI", err)
+		return nil, kerr.Wrap("BAJJNKKUWI", err)
+	}
+	s.Add(typeDef)
+
+	if fieldName != "" {
+		s.Tag(map[string]string{"json": fieldName})
 	}
 
-	tag := getTag(fieldName)
-	if tag != "" {
-		tag = " " + tag
-	}
-
-	return fmt.Sprint(typeDef, tag), nil
+	return s, nil
 }
 
 // TypeDefinition returns the Go source for the definition of the type
 // [optional pointer][collection prefix][optional pointer][type name]
-func TypeDefinition(ctx context.Context, field system.RuleInterface, path string, getAlias func(string) string) (string, error) {
+func TypeDefinition(ctx context.Context, field system.RuleInterface) (*jen.Statement, error) {
+
+	s := &jen.Statement{}
+
 	outer := system.WrapRule(ctx, field)
 
-	outerPointer := outer.PassedAsPointerString(ctx)
+	if outer.PassedAsPointer(ctx) {
+		s.Op("*")
+	}
 
 	// if the rule is a complex collection, with possibly several maps and
 	// arrays, this iterates over the rule and returns the go collection prefix
 	// - e.g. []map[string] for an array of maps. It also returns the inner rule.
-	prefix, inner, err := collectionPrefixInnerRule(ctx, "", outer)
+	prefix, inner, err := collectionPrefixInnerRule(ctx, nil, outer)
 	if err != nil {
-		return "", kerr.Wrap("SOGEFOPJHB", err)
+		return nil, kerr.Wrap("SOGEFOPJHB", err)
 	}
+	s.Add(prefix)
 
-	innerPointer := ""
 	// if we have a prefix we should also work out the innerPointer
-	if prefix != "" && inner.PassedAsPointer(ctx) {
-		innerPointer = "*"
+	if prefix != nil && inner.PassedAsPointer(ctx) {
+		s.Op("*")
 	}
 
-	var n string
 	if inner.Struct.Interface {
-		n = system.GoInterfaceName(inner.Parent.Id.Name)
+		s.Add(InterfaceReference(inner.Parent.Id))
 	} else {
-		n = system.GoName(inner.Parent.Id.Name)
+		s.Add(Reference(inner.Parent.Id))
 	}
-	name := Reference(inner.Parent.Id.Package, n, path, getAlias)
 
-	return fmt.Sprint(outerPointer, prefix, innerPointer, name), nil
+	return s, nil
 }
 
-// collectionPrefix recursively digs down through collection rules, recursively
-// calling itself as long as it finds a collection rule (map or array). It returns
-// the full collection prefix (e.g. any number of appended [] and map[string]'s)
-// and the inner (non collection) rule.
-func collectionPrefixInnerRule(ctx context.Context, prefix string, outer *system.RuleWrapper) (fullPrefix string, inner *system.RuleWrapper, err error) {
+func collectionPrefixInnerRuleJen(ctx context.Context, prefix *jen.Statement, outer *system.RuleWrapper) (fullPrefix *jen.Statement, inner *system.RuleWrapper, err error) {
 
 	kind, alias := outer.Kind(ctx)
 	if alias {
@@ -100,78 +101,50 @@ func collectionPrefixInnerRule(ctx context.Context, prefix string, outer *system
 	case system.KindValue, system.KindStruct, system.KindInterface:
 		return prefix, outer, nil
 	case system.KindArray:
-		prefix += "[]"
+		prefix = jen.Add(prefix).Index()
 	case system.KindMap:
-		prefix += "map[string]"
+		prefix = jen.Add(prefix).Map(jen.String())
 	default:
 		panic("unknown kind")
 	}
 
 	items, err := outer.ItemsRule()
 	if err != nil {
-		return "", nil, kerr.Wrap("SUTYJEGBKW", err)
+		return nil, nil, kerr.Wrap("SUTYJEGBKW", err)
 	}
 	return collectionPrefixInnerRule(ctx, prefix, items)
 }
 
-func formatTag(fieldName string) string {
+// collectionPrefix recursively digs down through collection rules, recursively
+// calling itself as long as it finds a collection rule (map or array). It returns
+// the full collection prefix (e.g. any number of appended [] and map[string]'s)
+// and the inner (non collection) rule.
+func collectionPrefixInnerRule(ctx context.Context, prefix *jen.Statement, outer *system.RuleWrapper) (fullPrefix *jen.Statement, inner *system.RuleWrapper, err error) {
 
-	tag := ""
-	tag = addSubTag(tag, "json", fieldName)
-
-	if tag == "" {
-		return ""
+	kind, alias := outer.Kind(ctx)
+	if alias {
+		return prefix, outer, nil
 	}
-	if strconv.CanBackquote(tag) {
-		return "`" + tag + "`"
+	switch kind {
+	case system.KindValue, system.KindStruct, system.KindInterface:
+		return prefix, outer, nil
+	case system.KindArray:
+		if prefix == nil {
+			prefix = &jen.Statement{}
+		}
+		prefix.Index()
+	case system.KindMap:
+		if prefix == nil {
+			prefix = &jen.Statement{}
+		}
+		prefix.Map(jen.String())
+	default:
+		panic("unknown kind")
 	}
-	return strconv.Quote(tag)
-}
 
-func addSubTag(tag string, name string, content string) string {
-	if content == "" {
-		return tag
+	items, err := outer.ItemsRule()
+	if err != nil {
+		return nil, nil, kerr.Wrap("SUTYJEGBKW", err)
 	}
-	if tag != "" {
-		tag += " "
-	}
-	return fmt.Sprintf("%s%s:%s", tag, name, strconv.Quote(content))
-}
-
-func getTag(fieldName string) string {
-
-	return formatTag(fieldName)
-
-	/*
-		dr, ok := r.Interface.(system.DefaultRule)
-		if !ok {
-			// Doesn't have a default field
-			return formatTag(ctx, fieldName)
-		}
-
-		d := dr.GetDefault()
-		if d == nil {
-			return formatTag(ctx, fieldName)
-		}
-
-		// If we have a marshaler, we have to call it manually
-		if rp, ok := d.(system.Repacker); ok {
-			i, err := rp.Repack(ctx)
-			if err != nil {
-				return "", kerr.Wrap("YIEMHYFVCD", err)
-			}
-			defaultBytes, err := json.Marshal(i)
-			if err != nil {
-				return "", kerr.Wrap("OFWRBEMHAL", err)
-			}
-			return formatTag(ctx, fieldName, defaultBytes, r)
-		}
-
-		defaultBytes, err := json.Marshal(d)
-		if err != nil {
-			return "", kerr.Wrap("QQDOLAJKLU", err)
-		}
-
-		return formatTag(ctx, fieldName, defaultBytes, r)
-	*/
+	return collectionPrefixInnerRule(ctx, prefix, items)
 }

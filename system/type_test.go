@@ -7,6 +7,8 @@ import (
 
 	"context"
 
+	"fmt"
+
 	"github.com/davelondon/ktest/assert"
 	"github.com/davelondon/ktest/require"
 	"kego.io/tests"
@@ -386,17 +388,17 @@ func TestTypeImplements(t *testing.T) {
 */
 
 func TestNativeGoType(t *testing.T) {
-	n, err := nativeGoType("string")
+	s, err := nativeGoType("string")
 	require.NoError(t, err)
-	assert.Equal(t, "string", n)
+	assert.Equal(t, "string", fmt.Sprintf("%#v", s))
 
-	n, err = nativeGoType("number")
+	s, err = nativeGoType("number")
 	require.NoError(t, err)
-	assert.Equal(t, "float64", n)
+	assert.Equal(t, "float64", fmt.Sprintf("%#v", s))
 
-	n, err = nativeGoType("bool")
+	s, err = nativeGoType("bool")
 	require.NoError(t, err)
-	assert.Equal(t, "bool", n)
+	assert.Equal(t, "bool", fmt.Sprintf("%#v", s))
 
 	_, err = nativeGoType("a")
 	assert.IsError(t, err, "TXQIDRBJRH")

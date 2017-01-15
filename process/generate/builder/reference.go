@@ -1,7 +1,31 @@
 package builder
 
-import "fmt"
+import (
+	"fmt"
 
+	"github.com/davelondon/jennifer/jen"
+	"kego.io/system"
+)
+
+func Reference(reference *system.Reference) *jen.Statement {
+	if reference.Package == "kego.io/json" {
+		switch reference.Name {
+		case "string":
+			return jen.String()
+		case "number":
+			return jen.Float64()
+		case "bool":
+			return jen.Bool()
+		}
+	}
+	return jen.Id(fmt.Sprintf("%s.%s", reference.Package, system.GoName(reference.Name)))
+}
+
+func InterfaceReference(reference *system.Reference) *jen.Statement {
+	return jen.Id(fmt.Sprintf("%s.%s", reference.Package, system.GoInterfaceName(reference.Name)))
+}
+
+/*
 func Reference(path string, name string, localPath string, getAlias func(string) string) string {
 	if path == localPath {
 		return name
@@ -22,3 +46,4 @@ func Reference(path string, name string, localPath string, getAlias func(string)
 	}
 	return fmt.Sprintf("%s.%s", getAlias(path), name)
 }
+*/
