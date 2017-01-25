@@ -16,9 +16,14 @@ import (
 	"kego.io/tests"
 )
 
-func TestGenerate(t *testing.T) {
+func TestGenerateSystem(t *testing.T) {
 
 	testGenerated(t, "kego.io/system")
+
+}
+
+func TestGenerateData(t *testing.T) {
+
 	testGenerated(t, "kego.io/tests/data")
 
 }

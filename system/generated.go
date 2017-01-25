@@ -1,15 +1,15 @@
-// info:{"Path":"kego.io/system","Hash":7926774414652922602}
+// info:{"Path":"kego.io/system","Hash":15725281303364755101}
 package system
 
-// ke: {"file": {"notest": true}}
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"kego.io/context/jsonctx"
+	jsonctx "kego.io/context/jsonctx"
 )
+
+// ke: {"file": {"notest": true}}
 
 // Restriction rules for arrays
 type ArrayRule struct {
@@ -1978,7 +1978,7 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Native = ob0
 	} else {
 		ob0 := new(String)
-		if err := ob0.Unpack(ctx, Pack("object"), false); err != nil {
+		if err := ob0.Unpack(ctx, MustPackString("\"object\""), false); err != nil {
 			return err
 		}
 		v.Native = ob0
@@ -2100,101 +2100,83 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/system")
-	pkg.SetHash(7926774414652922602)
-	pkg.Init(
-		"array",
-		nil,
-		nil,
-		func() interface{} { return new(ArrayRule) },
-		nil,
-	)
-
-	pkg.Init(
-		"bool",
-		func() interface{} { return new(Bool) },
-		nil,
-		func() interface{} { return new(BoolRule) },
-		func() reflect.Type { return reflect.TypeOf((*BoolInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"int",
-		func() interface{} { return new(Int) },
-		nil,
-		func() interface{} { return new(IntRule) },
-		func() reflect.Type { return reflect.TypeOf((*IntInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"map",
-		nil,
-		nil,
-		func() interface{} { return new(MapRule) },
-		nil,
-	)
-
-	pkg.Init(
-		"number",
-		func() interface{} { return new(Number) },
-		nil,
-		func() interface{} { return new(NumberRule) },
-		func() reflect.Type { return reflect.TypeOf((*NumberInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"object",
-		func() interface{} { return new(Object) },
-		nil,
-		func() interface{} { return new(ObjectRule) },
-		func() reflect.Type { return reflect.TypeOf((*ObjectInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"package",
-		func() interface{} { return new(Package) },
-		nil,
-		func() interface{} { return new(PackageRule) },
-		func() reflect.Type { return reflect.TypeOf((*PackageInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"reference",
-		func() interface{} { return new(Reference) },
-		nil,
-		func() interface{} { return new(ReferenceRule) },
-		func() reflect.Type { return reflect.TypeOf((*ReferenceInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"rule",
-		func() interface{} { return new(Rule) },
-		nil,
-		func() interface{} { return new(RuleRule) },
-		func() reflect.Type { return reflect.TypeOf((*RuleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"string",
-		func() interface{} { return new(String) },
-		nil,
-		func() interface{} { return new(StringRule) },
-		func() reflect.Type { return reflect.TypeOf((*StringInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"tags",
-		func() interface{} { return new(Tags) },
-		func(in interface{}) interface{} { return *in.(*Tags) },
-		func() interface{} { return new(TagsRule) },
-		func() reflect.Type { return reflect.TypeOf((*TagsInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"type",
-		func() interface{} { return new(Type) },
-		nil,
-		func() interface{} { return new(TypeRule) },
-		func() reflect.Type { return reflect.TypeOf((*TypeInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(0xda3b6c078025de9d)
+	pkg.Init("array", nil, nil, func() interface{} {
+		return new(ArrayRule)
+	}, nil)
+	pkg.Init("bool", func() interface{} {
+		return new(Bool)
+	}, nil, func() interface{} {
+		return new(BoolRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*BoolInterface)(nil)).Elem()
+	})
+	pkg.Init("int", func() interface{} {
+		return new(Int)
+	}, nil, func() interface{} {
+		return new(IntRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*IntInterface)(nil)).Elem()
+	})
+	pkg.Init("map", nil, nil, func() interface{} {
+		return new(MapRule)
+	}, nil)
+	pkg.Init("number", func() interface{} {
+		return new(Number)
+	}, nil, func() interface{} {
+		return new(NumberRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*NumberInterface)(nil)).Elem()
+	})
+	pkg.Init("object", func() interface{} {
+		return new(Object)
+	}, nil, func() interface{} {
+		return new(ObjectRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*ObjectInterface)(nil)).Elem()
+	})
+	pkg.Init("package", func() interface{} {
+		return new(Package)
+	}, nil, func() interface{} {
+		return new(PackageRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PackageInterface)(nil)).Elem()
+	})
+	pkg.Init("reference", func() interface{} {
+		return new(Reference)
+	}, nil, func() interface{} {
+		return new(ReferenceRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*ReferenceInterface)(nil)).Elem()
+	})
+	pkg.Init("rule", func() interface{} {
+		return new(Rule)
+	}, nil, func() interface{} {
+		return new(RuleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*RuleInterface)(nil)).Elem()
+	})
+	pkg.Init("string", func() interface{} {
+		return new(String)
+	}, nil, func() interface{} {
+		return new(StringRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*StringInterface)(nil)).Elem()
+	})
+	pkg.Init("tags", func() interface{} {
+		return new(Tags)
+	}, func(in interface{}) interface{} {
+		return *in.(*Tags)
+	}, func() interface{} {
+		return new(TagsRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*TagsInterface)(nil)).Elem()
+	})
+	pkg.Init("type", func() interface{} {
+		return new(Type)
+	}, nil, func() interface{} {
+		return new(TypeRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*TypeInterface)(nil)).Elem()
+	})
 }
