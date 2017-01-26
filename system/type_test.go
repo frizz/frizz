@@ -100,7 +100,7 @@ func TestNativeValueGolangType(t *testing.T) {
 		ty := &Type{Native: NewString(in)}
 		v, err := ty.NativeValueGolangType()
 		require.NoError(t, err)
-		assert.Equal(t, expected, v)
+		assert.Equal(t, expected, fmt.Sprintf("%#v", v))
 	}
 	test("float64", "number")
 	test("string", "string")
@@ -427,7 +427,7 @@ func TestTypeNativeValueGolangType(t *testing.T) {
 	y := &Type{Native: NewString("bool")}
 	n, err := y.NativeValueGolangType()
 	require.NoError(t, err)
-	assert.Equal(t, "bool", n)
+	assert.Equal(t, "bool", fmt.Sprintf("%#v", n))
 }
 
 func TestTypeGoName(t *testing.T) {

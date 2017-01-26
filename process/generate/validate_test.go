@@ -19,7 +19,7 @@ func TestValidate(t *testing.T) {
 import (
 	_ "a.b/c"
 	_ "d.e/f"
-	"kego.io/process/validate/command"
+	command "kego.io/process/validate/command"
 	_ "kego.io/system"
 )
 

@@ -123,11 +123,7 @@ func TestNoTypeError(t *testing.T) {
 	})
 	cb.Path(pathA).Dir(dirA).Cmd().Sempty().Jsystem()
 	_, err := Parse(cb.Ctx(), pathA)
-	assert.IsError(t, err, "GJRHNGGWFD")
-	assert.HasError(t, err, "MSNIGTIDIO")
-
-	err = scanForTypesAndExports(cb.Ctx(), cb.Env(), nil, &PackageHasher{})
-	assert.IsError(t, err, "NUKWIHYFMQ")
+	assert.HasError(t, err, "NUKWIHYFMQ")
 
 }
 

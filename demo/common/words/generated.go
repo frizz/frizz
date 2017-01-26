@@ -1,16 +1,16 @@
-// info:{"Path":"kego.io/demo/common/words","Hash":11971197020902887977}
+// info:{"Path":"kego.io/demo/common/words","Hash":7440607163868678358}
 package words
 
-// ke: {"file": {"notest": true}}
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/system"
+	jsonctx "kego.io/context/jsonctx"
+	system "kego.io/system"
 )
+
+// ke: {"file": {"notest": true}}
 
 // Automatically created basic rule for localizer
 type LocalizerRule struct {
@@ -363,29 +363,26 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/words")
-	pkg.SetHash(11971197020902887977)
-	pkg.Init(
-		"localizer",
-		func() interface{} { return (*Localizer)(nil) },
-		nil,
-		func() interface{} { return new(LocalizerRule) },
-		func() reflect.Type { return reflect.TypeOf((*Localizer)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"simple",
-		func() interface{} { return new(Simple) },
-		nil,
-		func() interface{} { return new(SimpleRule) },
-		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"translation",
-		func() interface{} { return new(Translation) },
-		nil,
-		func() interface{} { return new(TranslationRule) },
-		func() reflect.Type { return reflect.TypeOf((*TranslationInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(0x674258cb239e88d6)
+	pkg.Init("localizer", func() interface{} {
+		return (*Localizer)(nil)
+	}, nil, func() interface{} {
+		return new(LocalizerRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*Localizer)(nil)).Elem()
+	})
+	pkg.Init("simple", func() interface{} {
+		return new(Simple)
+	}, nil, func() interface{} {
+		return new(SimpleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SimpleInterface)(nil)).Elem()
+	})
+	pkg.Init("translation", func() interface{} {
+		return new(Translation)
+	}, nil, func() interface{} {
+		return new(TranslationRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*TranslationInterface)(nil)).Elem()
+	})
 }

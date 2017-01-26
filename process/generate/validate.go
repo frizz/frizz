@@ -16,6 +16,7 @@ func ValidateCommand(ctx context.Context) (source []byte, err error) {
 
 	f := NewFilePathName(env.Path, "main")
 	f.Anon(env.Path)
+	f.Anon("kego.io/system")
 	for _, p := range env.Aliases {
 		f.Anon(p)
 	}

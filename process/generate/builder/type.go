@@ -40,7 +40,7 @@ func AliasTypeDefinition(ctx context.Context, alias system.RuleInterface) (*jen.
 // of this field [optional pointer][collection prefix][optional pointer][type
 // name]
 func FieldTypeDefinition(ctx context.Context, fieldName string, field system.RuleInterface) (*jen.Statement, error) {
-	
+
 	s := &jen.Statement{}
 
 	typeDef, err := TypeDefinition(ctx, field)
@@ -89,30 +89,6 @@ func TypeDefinition(ctx context.Context, field system.RuleInterface) (*jen.State
 	}
 
 	return s, nil
-}
-
-func collectionPrefixInnerRuleJen(ctx context.Context, prefix *jen.Statement, outer *system.RuleWrapper) (fullPrefix *jen.Statement, inner *system.RuleWrapper, err error) {
-
-	kind, alias := outer.Kind(ctx)
-	if alias {
-		return prefix, outer, nil
-	}
-	switch kind {
-	case system.KindValue, system.KindStruct, system.KindInterface:
-		return prefix, outer, nil
-	case system.KindArray:
-		prefix = jen.Add(prefix).Index()
-	case system.KindMap:
-		prefix = jen.Add(prefix).Map(jen.String())
-	default:
-		panic("unknown kind")
-	}
-
-	items, err := outer.ItemsRule()
-	if err != nil {
-		return nil, nil, kerr.Wrap("SUTYJEGBKW", err)
-	}
-	return collectionPrefixInnerRule(ctx, prefix, items)
 }
 
 // collectionPrefix recursively digs down through collection rules, recursively

@@ -268,7 +268,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 			}
 		}
 		if o.Type == nil {
-			return nil, kerr.New("MSNIGTIDIO", "%s has no type", b.File)
+			continue
 		}
 		switch *o.Type {
 		case *system.NewReference("kego.io/system", "package"):

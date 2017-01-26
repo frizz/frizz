@@ -17,8 +17,8 @@ func TestEditor(t *testing.T) {
 import (
 	_ "a.b/c"
 	_ "d.e/f"
-	"fmt"
-	"kego.io/editor/client"
+	fmt "fmt"
+	client "kego.io/editor/client"
 	_ "kego.io/system"
 )
 
@@ -33,6 +33,5 @@ func main() {
 func TestEditorErr(t *testing.T) {
 	cb := tests.Context("a.b/c").Alias("a", "\"")
 	_, err := Editor(cb.Ctx(), cb.Env())
-	assert.IsError(t, err, "CBTOLUQOGL")
-	assert.HasError(t, err, "CRBYOUOHPG")
+	assert.IsError(t, err, "NEUSQXAQVL")
 }

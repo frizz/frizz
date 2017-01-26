@@ -1,16 +1,16 @@
-// info:{"Path":"kego.io/demo/common/units","Hash":10988868301072060435}
+// info:{"Path":"kego.io/demo/common/units","Hash":5562844427559446456}
 package units
 
-// ke: {"file": {"notest": true}}
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/system"
+	jsonctx "kego.io/context/jsonctx"
+	system "kego.io/system"
 )
+
+// ke: {"file": {"notest": true}}
 
 // Automatically created basic rule for rectangle
 type RectangleRule struct {
@@ -154,13 +154,12 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/units")
-	pkg.SetHash(10988868301072060435)
-	pkg.Init(
-		"rectangle",
-		func() interface{} { return new(Rectangle) },
-		nil,
-		func() interface{} { return new(RectangleRule) },
-		func() reflect.Type { return reflect.TypeOf((*RectangleInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(0x4d3331889d7127b8)
+	pkg.Init("rectangle", func() interface{} {
+		return new(Rectangle)
+	}, nil, func() interface{} {
+		return new(RectangleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*RectangleInterface)(nil)).Elem()
+	})
 }

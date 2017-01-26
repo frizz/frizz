@@ -1,17 +1,17 @@
-// info:{"Path":"kego.io/demo/common/images","Hash":7237742861799384387}
+// info:{"Path":"kego.io/demo/common/images","Hash":1237826309454086895}
 package images
 
-// ke: {"file": {"notest": true}}
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/demo/common/units"
-	"kego.io/system"
+	jsonctx "kego.io/context/jsonctx"
+	units "kego.io/demo/common/units"
+	system "kego.io/system"
 )
+
+// ke: {"file": {"notest": true}}
 
 // Automatically created basic rule for icon
 type IconRule struct {
@@ -339,7 +339,7 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Protocol = ob0
 	} else {
 		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, system.Pack("http"), false); err != nil {
+		if err := ob0.Unpack(ctx, system.MustPackString("\"http\""), false); err != nil {
 			return err
 		}
 		v.Protocol = ob0
@@ -406,29 +406,26 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/demo/common/images")
-	pkg.SetHash(7237742861799384387)
-	pkg.Init(
-		"icon",
-		func() interface{} { return new(Icon) },
-		nil,
-		func() interface{} { return new(IconRule) },
-		func() reflect.Type { return reflect.TypeOf((*IconInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"image",
-		func() interface{} { return (*Image)(nil) },
-		nil,
-		func() interface{} { return new(ImageRule) },
-		func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"photo",
-		func() interface{} { return new(Photo) },
-		nil,
-		func() interface{} { return new(PhotoRule) },
-		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(0x112da4785ca4c2ef)
+	pkg.Init("icon", func() interface{} {
+		return new(Icon)
+	}, nil, func() interface{} {
+		return new(IconRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*IconInterface)(nil)).Elem()
+	})
+	pkg.Init("image", func() interface{} {
+		return (*Image)(nil)
+	}, nil, func() interface{} {
+		return new(ImageRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*Image)(nil)).Elem()
+	})
+	pkg.Init("photo", func() interface{} {
+		return new(Photo)
+	}, nil, func() interface{} {
+		return new(PhotoRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PhotoInterface)(nil)).Elem()
+	})
 }
