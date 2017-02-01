@@ -1,8 +1,6 @@
 package builder
 
 import (
-	"fmt"
-
 	"github.com/davelondon/jennifer/jen"
 	"kego.io/system"
 )
@@ -18,9 +16,9 @@ func Reference(reference *system.Reference) *jen.Statement {
 			return jen.Bool()
 		}
 	}
-	return jen.Id(fmt.Sprintf("%s.%s", reference.Package, system.GoName(reference.Name)))
+	return jen.Qual(reference.Package, system.GoName(reference.Name))
 }
 
 func InterfaceReference(reference *system.Reference) *jen.Statement {
-	return jen.Id(fmt.Sprintf("%s.%s", reference.Package, system.GoInterfaceName(reference.Name)))
+	return jen.Qual(reference.Package, system.GoInterfaceName(reference.Name))
 }

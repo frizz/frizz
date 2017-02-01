@@ -21,7 +21,7 @@ func ValidateCommand(ctx context.Context) (source []byte, err error) {
 		f.Anon(p)
 	}
 	f.Func().Id("main").Params().Block(
-		Id("kego.io/process/validate/command.ValidateMain").Call(Lit(env.Path)),
+		Qual("kego.io/process/validate/command", "ValidateMain").Call(Lit(env.Path)),
 	)
 
 	buf := &bytes.Buffer{}

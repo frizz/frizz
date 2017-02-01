@@ -115,23 +115,25 @@ func printExportFunction(ctx context.Context, env *envctx.Env, f *File, export *
 			return o
 		}
 	*/
-	typ := fmt.Sprint(export.TypePackage, ".", system.GoName(export.TypeName))
-	f.Func().Id(export.Name).Params().Op("*").Id(typ).Block(
-		Id("ctx").Op(":=").Id("kego.io/system.NewContext").Call(
-			Id("context.Background"),
+	typ := Qual(export.TypePackage, system.GoName(export.TypeName))
+	f.Func().Id(export.Name).Params().Op("*").Add(typ).Block(
+		Id("ctx").Op(":=").Qual("kego.io/system", "NewContext").Call(
+			Qual("context", "Background"),
 			Lit(env.Path),
 			Lit(env.Aliases),
 		),
-		Id("o").Op(":=").New(Id(typ)),
+		Id("o").Op(":=").New(typ),
 		If(
-			Err().Op(":=").Id("o", "Unpack").Call(
+			Err().Op(":=").Sel(Id("o"), Id("Unpack")).Call(
 				Id("ctx"),
-				Id("kego.io/system.MustPackString").Call(Lit(string(export.JsonContents))),
+				Qual("kego.io/system", "MustPackString").Call(
+					Lit(string(export.JsonContents)),
+				),
 				False(),
 			),
 			Err().Op("!=").Nil(),
 		).Block(
-			Panic(Id(Err(), "Error").Call()),
+			Panic(Sel(Err(), Id("Error")).Call()),
 		),
 		Return(Id("o")),
 	)
@@ -159,12 +161,12 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 	f.Func().Params(
 		Id("v").Add(ptr).Id(name),
 	).Id("Repack").Params(
-		Id("ctx").Id("context.Context"),
+		Id("ctx").Qual("context", "Context"),
 	).Params(
 		Id("data").Interface(),
 		Id("typePackage").String(),
 		Id("typeName").String(),
-		Id("jsonType").Id("kego.io/system.JsonType"),
+		Id("jsonType").Qual("kego.io/system", "JsonType"),
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
 		/*
@@ -177,28 +179,28 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				Nil(),
 				Lit(typ.Id.Package),
 				Lit(typ.Id.Name),
-				Id("kego.io/system.J_NULL"),
+				Qual("kego.io/system", "J_NULL"),
 				Nil(),
 			),
 		)
 
 		jtype := typ.NativeJsonType(ctx)
-		var jsonType string
+		var jsonQual Code
 		switch jtype {
 		case system.J_NUMBER:
-			jsonType = "kego.io/system.J_NUMBER"
+			jsonQual = Qual("kego.io/system", "J_NUMBER")
 		case system.J_STRING:
-			jsonType = "kego.io/system.J_STRING"
+			jsonQual = Qual("kego.io/system", "J_STRING")
 		case system.J_BOOL:
-			jsonType = "kego.io/system.J_BOOL"
+			jsonQual = Qual("kego.io/system", "J_BOOL")
 		case system.J_MAP:
-			jsonType = "kego.io/system.J_MAP"
+			jsonQual = Qual("kego.io/system", "J_MAP")
 		case system.J_OBJECT:
-			jsonType = "kego.io/system.J_OBJECT"
+			jsonQual = Qual("kego.io/system", "J_OBJECT")
 		case system.J_ARRAY:
-			jsonType = "kego.io/system.J_ARRAY"
+			jsonQual = Qual("kego.io/system", "J_ARRAY")
 		case system.J_NULL:
-			jsonType = "kego.io/system.J_NULL"
+			jsonQual = Qual("kego.io/system", "J_NULL")
 		}
 
 		kind, _ := typ.Kind(ctx)
@@ -214,7 +216,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				structType = system.WrapRule(ctx, typ.Alias).Parent
 			}
 			for _, embedRef := range structType.AllEmbeds() {
-				embedName := system.GoName(embedRef.Name)
+				embedId := Id(system.GoName(embedRef.Name))
 
 				/*
 					if v.{embedName} != nil {
@@ -228,8 +230,8 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 				*/
 
-				g.If(Id("v", embedName).Op("!=").Nil()).Block(
-					List(Id("ob"), Id("_"), Id("_"), Id("_"), Err()).Op(":=").Id("v", embedName, "Repack").Call(Id("ctx")),
+				g.If(Sel(Id("v"), embedId).Op("!=").Nil()).Block(
+					List(Id("ob"), Id("_"), Id("_"), Id("_"), Err()).Op(":=").Sel(Id("v"), embedId, Id("Repack")).Call(Id("ctx")),
 					If(Err().Op("!=").Nil()).Block(
 						Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 					),
@@ -240,7 +242,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 			}
 			for _, f := range structType.SortedFields() {
 				fieldRule := system.WrapRule(ctx, f.Rule)
-				fieldName := system.GoName(f.Name)
+				fieldId := Id(system.GoName(f.Name))
 				fieldType := fieldRule.Parent
 				kind, alias := fieldRule.Kind(ctx)
 				switch {
@@ -252,8 +254,8 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 							m["{f.Name}"] = ob0
 						}
 					*/
-					g.If(Id("v", fieldName).Op("!=").Nil()).BlockFunc(func(g *Group) {
-						if err := printRepackCode(ctx, env, g, Id("v", fieldName), "ob0", 0, f.Rule, true); err != nil {
+					g.If(Sel(Id("v"), fieldId).Op("!=").Nil()).BlockFunc(func(g *Group) {
+						if err := printRepackCode(ctx, env, g, Sel(Id("v"), fieldId), "ob0", 0, f.Rule, true); err != nil {
 							outerErr = kerr.Wrap("WSARHJIFHS", err)
 							return
 						}
@@ -279,8 +281,8 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						}
 					*/
 
-					g.If(Id("v", fieldName).Op("!=").Add(lit)).BlockFunc(func(g *Group) {
-						if err := printRepackCode(ctx, env, g, Id("v", fieldName), "ob0", 0, f.Rule, true); err != nil {
+					g.If(Sel(Id("v"), fieldId).Op("!=").Add(lit)).BlockFunc(func(g *Group) {
+						if err := printRepackCode(ctx, env, g, Sel(Id("v"), fieldId), "ob0", 0, f.Rule, true); err != nil {
 							outerErr = kerr.Wrap("YYDYVIMXPM", err)
 							return
 						}
@@ -298,8 +300,8 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						}
 					*/
 
-					g.If(Id("v", fieldName).Op("!=").Nil()).BlockFunc(func(g *Group) {
-						if err := printRepackCode(ctx, env, g, Id("v", fieldName), "ob0", 0, f.Rule, true); err != nil {
+					g.If(Sel(Id("v"), fieldId).Op("!=").Nil()).BlockFunc(func(g *Group) {
+						if err := printRepackCode(ctx, env, g, Sel(Id("v"), fieldId), "ob0", 0, f.Rule, true); err != nil {
 							outerErr = kerr.Wrap("YSFPHQTBNA", err)
 							return
 						}
@@ -314,7 +316,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				Id("m"),
 				Lit(typ.Id.Package),
 				Lit(typ.Id.Name),
-				Id(jsonType),
+				jsonQual,
 				Nil(),
 			)
 		case system.KindValue:
@@ -337,7 +339,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						String().Parens(Add(ptr).Id("v")),
 						Lit(outer.Id.Package),
 						Lit(outer.Id.Name),
-						Id(jsonType),
+						jsonQual,
 						Nil(),
 					),
 				)
@@ -345,7 +347,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					Nil(),
 					Lit(outer.Id.Package),
 					Lit(outer.Id.Name),
-					Id(jsonType),
+					jsonQual,
 					Nil(),
 				)
 
@@ -361,7 +363,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						Float64().Parens(Add(ptr).Id("v")),
 						Lit(outer.Id.Package),
 						Lit(outer.Id.Name),
-						Id(jsonType),
+						jsonQual,
 						Nil(),
 					),
 				)
@@ -369,7 +371,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					Nil(),
 					Lit(outer.Id.Package),
 					Lit(outer.Id.Name),
-					Id(jsonType),
+					jsonQual,
 					Nil(),
 				)
 
@@ -385,7 +387,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						Bool().Parens(Add(ptr).Id("v")),
 						Lit(outer.Id.Package),
 						Lit(outer.Id.Name),
-						Id(jsonType),
+						jsonQual,
 						Nil(),
 					),
 				)
@@ -393,7 +395,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					Nil(),
 					Lit(outer.Id.Package),
 					Lit(outer.Id.Name),
-					Id(jsonType),
+					jsonQual,
 					Nil(),
 				)
 			}
@@ -413,7 +415,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				Id("ob0"),
 				Lit(typ.Id.Package),
 				Lit(typ.Id.Name),
-				Id(jsonType),
+				jsonQual,
 				Nil(),
 			)
 		}
@@ -441,7 +443,16 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 		*/
 
 		g.Var().Id(out).Interface()
-		g.List(Id(valueVar), Id("pkg"), Id("name"), Id("typ"), Err()).Op(":=").Add(in).Assert(Id("kego.io/system.Repacker")).Op(".").Id("Repack").Call(Id("ctx"))
+		g.List(
+			Id(valueVar),
+			Id("pkg"),
+			Id("name"),
+			Id("typ"),
+			Err(),
+		).Op(":=").Sel(
+			in.Clone().Assert(Qual("kego.io/system", "Repacker")),
+			Id("Repack").Call(Id("ctx")),
+		)
 		g.If(Err().Op("!=").Nil()).Block(
 			Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 		)
@@ -462,15 +473,15 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.If(Id("kego.io/system.ShouldUseExplicitTypeNotation").Call(
+		g.If(Qual("kego.io/system", "ShouldUseExplicitTypeNotation").Call(
 			Id("pkg"),
 			Id("name"),
 			Id("typ"),
 			Lit(field.Parent.Id.Package),
 			Lit(field.Parent.Id.Name),
 		)).Block(
-			Id("typRef").Op(":=").Id("kego.io/system.NewReference").Call(Id("pkg"), Id("name")),
-			List(Id("typeVal"), Err()).Op(":=").Id("typRef", "ValueContext").Call(Id("ctx")),
+			Id("typRef").Op(":=").Qual("kego.io/system", "NewReference").Call(Id("pkg"), Id("name")),
+			List(Id("typeVal"), Err()).Op(":=").Sel(Id("typRef"), Id("ValueContext")).Call(Id("ctx")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 			),
@@ -489,7 +500,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 				return nil, "", "", "", err
 			}
 		*/
-		g.List(Id(out), Id("_"), Id("_"), Id("_"), Err()).Op(":=").Id(in, "Repack").Call(Id("ctx"))
+		g.List(Id(out), Id("_"), Id("_"), Id("_"), Err()).Op(":=").Sel(in, Id("Repack")).Call(Id("ctx"))
 		g.If(Err().Op("!=").Nil()).Block(
 			Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 		)
@@ -577,8 +588,8 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 	var outerErr error
 
 	f.Func().Params(Id("v").Op("*").Id(name)).Id("Unpack").Params(
-		Id("ctx").Id("context.Context"),
-		Id("in").Id("kego.io/system.Packed"),
+		Id("ctx").Qual("context", "Context"),
+		Id("in").Qual("kego.io/system", "Packed"),
 		Id("iface").Bool(),
 	).Error().BlockFunc(func(g *Group) {
 		/*
@@ -586,7 +597,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				return nil
 			}
 		*/
-		g.If(Id("in").Op("==").Nil().Op("||").Id("in", "Type").Call().Op("==").Id("kego.io/system.J_NULL")).Block(
+		g.If(Id("in").Op("==").Nil().Op("||").Sel(Id("in"), Id("Type")).Call().Op("==").Qual("kego.io/system", "J_NULL")).Block(
 			Return(Nil()),
 		)
 
@@ -604,7 +615,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					outerErr = kerr.New("IOEEVJCDPU", "Type %s not found", embedRef.String())
 					return
 				}
-				embedName := system.GoName(embedRef.Name)
+				embedId := Id(system.GoName(embedRef.Name))
 
 				/*
 					if v.{embedName} == nil {
@@ -612,8 +623,8 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 				*/
 
-				g.If(Id("v", embedName).Op("==").Nil()).Block(
-					Id("v", embedName).Op("=").New(builder.Reference(embedType.Id)),
+				g.If(Sel(Id("v"), embedId).Op("==").Nil()).Block(
+					Sel(Id("v"), embedId).Op("=").New(builder.Reference(embedType.Id)),
 				)
 
 				/*
@@ -623,7 +634,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				*/
 
 				g.If(
-					Err().Op(":=").Id("v", embedName, "Unpack").Call(Id("ctx"), Id("in"), False()),
+					Err().Op(":=").Sel(Id("v"), embedId, Id("Unpack")).Call(Id("ctx"), Id("in"), False()),
 					Err().Op("!=").Nil(),
 				).Block(
 					Return(Err()),
@@ -636,7 +647,11 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						}
 					*/
 					g.If(
-						Err().Op(":=").Id("v", "Object", "InitializeType").Call(
+						Err().Op(":=").Sel(
+							Id("v"),
+							Id("Object"),
+							Id("InitializeType"),
+						).Call(
 							Lit(typ.Id.Package),
 							Lit(typ.Id.Name),
 						),
@@ -654,9 +669,19 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						v.{f.Name} = {out}
 					}
 				*/
+				fieldId := Id(system.GoName(f.Name))
 				g.If(
-					List(Id("field"), Id("ok")).Op(":=").Id("in", "Map").Call().Index(Lit(f.Name)),
-					Id("ok").Op("&&").Id("field", "Type").Call().Op("!=").Id("kego.io/system.J_NULL"),
+					List(
+						Id("field"),
+						Id("ok"),
+					).Op(":=").Sel(
+						Id("in"),
+						Id("Map"),
+					).Call().Index(Lit(f.Name)),
+					Id("ok").Op("&&").Sel(
+						Id("field"),
+						Id("Type"),
+					).Call().Op("!=").Qual("kego.io/system", "J_NULL"),
 				).BlockFunc(func(g *Group) {
 					in := "field"
 					out := "ob0"
@@ -665,7 +690,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						outerErr = kerr.Wrap("QLARKEBDBJ", err)
 						return
 					}
-					g.Id("v", system.GoName(f.Name)).Op("=").Id(out)
+					g.Sel(Id("v"), fieldId).Op("=").Id(out)
 				}).Do(func(s *Statement) {
 					if dr, ok := f.Rule.(system.DefaultRule); ok && dr.GetDefault() != nil {
 						/*
@@ -680,14 +705,14 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 								outerErr = kerr.Wrap("DLOUEHXVJF", err)
 								return
 							}
-							in := Id("kego.io/system.MustPackString").Call(Lit(string(b)))
+							in := Qual("kego.io/system", "MustPackString").Call(Lit(string(b)))
 							out := "ob0"
 							depth := 0
 							if err := printUnpackCode(ctx, env, g, in, out, depth, f.Rule); err != nil {
 								outerErr = kerr.Wrap("UOWRFWSTNT", err)
 								return
 							}
-							g.Id("v", system.GoName(f.Name)).Op("=").Id(out)
+							g.Sel(Id("v"), fieldId).Op("=").Id(out)
 						})
 					}
 				})
@@ -702,8 +727,13 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					in = in.Map()["value"]
 				}
 			*/
-			g.If(Id("in", "Type").Call().Op("==").Id("kego.io/system.J_MAP")).Block(
-				Id("in").Op("=").Id("in", "Map").Call().Index(Lit("value")),
+			g.If(
+				Sel(
+					Id("in"),
+					Id("Type"),
+				).Call().Op("==").Qual("kego.io/system", "J_MAP"),
+			).Block(
+				Id("in").Op("=").Sel(Id("in"), Id("Map")).Call().Index(Lit("value")),
 			)
 
 			switch typ.NativeJsonType(ctx) {
@@ -714,13 +744,18 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 					*v = {name}(in.Bool())
 				*/
-				g.If(Id("in", "Type").Call().Op("!=").Id("kego.io/system.J_BOOL")).Block(
-					Return(Id("fmt.Errorf").Call(
+				g.If(
+					Sel(
+						Id("in"),
+						Id("Type"),
+					).Call().Op("!=").Qual("kego.io/system", "J_BOOL"),
+				).Block(
+					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a bool."),
-						Id("in", "Type").Call(),
+						Sel(Id("in"), Id("Type")).Call(),
 					)),
 				)
-				g.Op("*").Id("v").Op("=").Id(name).Call(Id("in", "Bool").Call())
+				g.Op("*").Id("v").Op("=").Id(name).Call(Sel(Id("in"), Id("Bool")).Call())
 
 			case system.J_STRING:
 				/*
@@ -729,13 +764,18 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 					*v = {name}(in.String())
 				*/
-				g.If(Id("in", "Type").Call().Op("!=").Id("kego.io/system.J_STRING")).Block(
-					Return(Id("fmt.Errorf").Call(
+				g.If(
+					Sel(
+						Id("in"),
+						Id("Type"),
+					).Call().Op("!=").Qual("kego.io/system", "J_STRING"),
+				).Block(
+					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a string."),
-						Id("in", "Type").Call(),
+						Sel(Id("in"), Id("Type")).Call(),
 					)),
 				)
-				g.Op("*").Id("v").Op("=").Id(name).Call(Id("in", "String").Call())
+				g.Op("*").Id("v").Op("=").Id(name).Call(Sel(Id("in"), Id("String")).Call())
 
 			case system.J_NUMBER:
 				/*
@@ -744,13 +784,18 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 					*v = {name}(in.Number())
 				*/
-				g.If(Id("in", "Type").Call().Op("!=").Id("kego.io/system.J_NUMBER")).Block(
-					Return(Id("fmt.Errorf").Call(
+				g.If(
+					Sel(
+						Id("in"),
+						Id("Type"),
+					).Call().Op("!=").Qual("kego.io/system", "J_NUMBER"),
+				).Block(
+					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a number."),
-						Id("in", "Type").Call(),
+						Sel(Id("in"), Id("Type")).Call(),
 					)),
 				)
-				g.Op("*").Id("v").Op("=").Id(name).Call(Id("in", "Number").Call())
+				g.Op("*").Id("v").Op("=").Id(name).Call(Sel(Id("in"), Id("Number")).Call())
 			default:
 				panic(fmt.Sprintf("invalid type kind: %s, json native: %s", kind, typ.NativeJsonType(ctx)))
 			}
@@ -760,8 +805,13 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					in = in.Map()["value"]
 				}
 			*/
-			g.If(Id("in", "Type").Call().Op("==").Id("kego.io/system.J_MAP")).Block(
-				Id("in").Op("=").Id("in", "Map").Call().Index(Lit("value")),
+			g.If(
+				Sel(
+					Id("in"),
+					Id("Type"),
+				).Call().Op("==").Qual("kego.io/system", "J_MAP"),
+			).Block(
+				Id("in").Op("=").Sel(Id("in"), Id("Map")).Call().Index(Lit("value")),
 			)
 
 			/*
@@ -769,10 +819,15 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					return fmt.Errorf("Invalid type %s while unpacking an array.", in.Type())
 				}
 			*/
-			g.If(Id("in", "Type").Call().Op("!=").Id("kego.io/system.J_ARRAY")).Block(
-				Return(Id("fmt.Errorf").Call(
+			g.If(
+				Sel(
+					Id("in"),
+					Id("Type"),
+				).Call().Op("!=").Qual("kego.io/system", "J_ARRAY"),
+			).Block(
+				Return(Qual("fmt", "Errorf").Call(
 					Lit("Invalid type %s while unpacking an array."),
-					Id("in", "Type").Call(),
+					Sel(Id("in"), Id("Type")).Call(),
 				)),
 			)
 
@@ -801,13 +856,18 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 			*/
 
 			g.If(Id("iface")).Block(
-				If(Id("in", "Type").Call().Op("!=").Id("kego.io/system.J_MAP")).Block(
-					Return(Id("fmt.Errorf").Call(
+				If(
+					Sel(
+						Id("in"),
+						Id("Type"),
+					).Call().Op("!=").Qual("kego.io/system", "J_MAP"),
+				).Block(
+					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a map."),
-						Id("in", "Type").Call(),
+						Sel(Id("in"), Id("Type")).Call(),
 					)),
 				),
-				Id("in").Op("=").Id("in", "Map").Call().Index(Lit("value")),
+				Id("in").Op("=").Sel(Id("in"), Id("Map")).Call().Index(Lit("value")),
 			)
 
 			/*
@@ -816,10 +876,15 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				}
 			*/
 
-			g.If(Id("in", "Type").Call().Op("!=").Id("kego.io/system.J_MAP")).Block(
-				Return(Id("fmt.Errorf").Call(
+			g.If(
+				Sel(
+					Id("in"),
+					Id("Type"),
+				).Call().Op("!=").Qual("kego.io/system", "J_MAP"),
+			).Block(
+				Return(Qual("fmt", "Errorf").Call(
 					Lit("Invalid type %s while unpacking an array."),
-					Id("in", "Type").Call(),
+					Sel(Id("in"), Id("Type")).Call(),
 				)),
 			)
 
@@ -869,21 +934,21 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 		}).New(builder.Reference(fieldType.Id))
 
 		g.If(
-			Err().Op(":=").Id(out, "Unpack").Call(Id("ctx"), in, False()),
+			Err().Op(":=").Sel(Id(out), Id("Unpack")).Call(Id("ctx"), in, False()),
 			Err().Op("!=").Nil(),
 		).Block(
 			Return(Err()),
 		)
 
 	case kind == system.KindValue:
-		var funcRef string
+		var funcQual Code
 		switch fieldType.NativeJsonType(ctx) {
 		case system.J_STRING:
-			funcRef = "kego.io/system.UnpackString"
+			funcQual = Qual("kego.io/system", "UnpackString")
 		case system.J_NUMBER:
-			funcRef = "kego.io/system.UnpackNumber"
+			funcQual = Qual("kego.io/system", "UnpackNumber")
 		case system.J_BOOL:
-			funcRef = "kego.io/system.UnpackBool"
+			funcQual = Qual("kego.io/system", "UnpackBool")
 		default:
 			return kerr.New("LSGUACQGHB", "Kind == KindValue but native json type==%s", fieldType.NativeJsonType(ctx))
 		}
@@ -894,17 +959,23 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.List(Id(out), Err()).Op(":=").Id(funcRef).Call(Id("ctx"), in)
+		g.List(Id(out), Err()).Op(":=").Add(funcQual).Call(Id("ctx"), in)
 		g.If(Err().Op("!=").Nil()).Block(
 			Return(Err()),
 		)
 
 	case kind == system.KindInterface:
-		var unpackRef string
+		var unpackQual Code
 		if fieldType.Interface {
-			unpackRef = fmt.Sprintf("%s.Unpack%s", fieldType.Id.Package, system.GoName(fieldType.Id.Name))
+			unpackQual = Qual(
+				fieldType.Id.Package,
+				"Unpack"+system.GoName(fieldType.Id.Name),
+			)
 		} else {
-			unpackRef = fmt.Sprintf("%s.Unpack%s", fieldType.Id.Package, system.GoInterfaceName(fieldType.Id.Name))
+			unpackQual = Qual(
+				fieldType.Id.Package,
+				"Unpack"+system.GoInterfaceName(fieldType.Id.Name),
+			)
 		}
 		/*
 			{out}, err := {unpackName}(ctx, {in})
@@ -912,7 +983,7 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 				return err
 			}
 		*/
-		g.List(Id(out), Err()).Op(":=").Id(unpackRef).Call(Id("ctx"), in)
+		g.List(Id(out), Err()).Op(":=").Add(unpackQual).Call(Id("ctx"), in)
 		g.If(Err().Op("!=").Nil()).Block(
 			Return(Err()),
 		)
@@ -924,10 +995,15 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.If(Id(in, "Type").Call().Op("!=").Id("kego.io/system.J_ARRAY")).Block(
-			Return(Id("fmt.Errorf").Call(
+		g.If(
+			Sel(
+				in,
+				Id("Type"),
+			).Call().Op("!=").Qual("kego.io/system", "J_ARRAY"),
+		).Block(
+			Return(Qual("fmt", "Errorf").Call(
 				Lit("Unsupported json type %s found while unpacking into an array."),
-				Id(in, "Type").Call(),
+				Sel(in, Id("Type")).Call(),
 			)),
 		)
 
@@ -947,14 +1023,14 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 
 		g.Id(out).Op(":=").Add(fieldType).Values()
 		var outerErr error
-		g.For(Id(iVar).Op(":=").Range().Id(in, "Array").Call()).BlockFunc(func(block *Group) {
+		g.For(Id(iVar).Op(":=").Range().Sel(in, Id("Array")).Call()).BlockFunc(func(block *Group) {
 			childRule, err := field.ItemsRule()
 			if err != nil {
 				outerErr = kerr.Wrap("PJQBRUEHLD", err)
 				return
 			}
 			childDepth := depth + 1
-			childIn := Id(in, "Array").Call().Index(Id(iVar))
+			childIn := Sel(in, Id("Array")).Call().Index(Id(iVar))
 			childOut := fmt.Sprintf("ob%d", childDepth)
 			if err := printUnpackCode(ctx, env, block, childIn, childOut, childDepth, childRule.Interface); err != nil {
 				outerErr = kerr.Wrap("XCHEJPDJDS", err)
@@ -974,10 +1050,15 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.If(Id(in, "Type").Call().Op("!=").Id("kego.io/system.J_MAP")).Block(
-			Return(Id("fmt.Errorf").Call(
+		g.If(
+			Sel(
+				in,
+				Id("Type"),
+			).Call().Op("!=").Qual("kego.io/system", "J_MAP"),
+		).Block(
+			Return(Qual("fmt", "Errorf").Call(
 				Lit("Unsupported json type %s found while unpacking into a map."),
-				Id(in, "Type").Call(),
+				Sel(in, Id("Type")).Call(),
 			)),
 		)
 
@@ -997,14 +1078,14 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 
 		g.Id(out).Op(":=").Add(fieldType).Values()
 		var outerErr error
-		g.For(Id(kVar).Op(":=").Range().Id(in, "Map").Call()).BlockFunc(func(g *Group) {
+		g.For(Id(kVar).Op(":=").Range().Sel(in, Id("Map")).Call()).BlockFunc(func(g *Group) {
 			items, err := field.ItemsRule()
 			if err != nil {
 				outerErr = kerr.Wrap("FPOBYGVOPP", err)
 				return
 			}
 			childDepth := depth + 1
-			childIn := Id(in, "Map").Call().Index(Id(kVar))
+			childIn := Sel(in, Id("Map")).Call().Index(Id(kVar))
 			childOut := fmt.Sprintf("ob%d", childDepth)
 			if err := printUnpackCode(ctx, env, g, childIn, childOut, childDepth, items.Interface); err != nil {
 				outerErr = kerr.Wrap("ONUJJGIKJE", err)
@@ -1053,15 +1134,15 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *
 		}
 	*/
 	f.Func().Id("Unpack"+interfaceName).Params(
-		Id("ctx").Id("context.Context"),
-		Id("in").Id("kego.io/system.Packed"),
+		Id("ctx").Qual("context", "Context"),
+		Id("in").Qual("kego.io/system", "Packed"),
 	).Params(
 		Id(interfaceName),
 		Error(),
 	).Block(
-		Switch().Id("in", "Type").Call().Block(
-			Case().Id("kego.io/system.J_MAP").CaseBlock(
-				List(Id("i"), Err()).Op(":=").Id("kego.io/system.UnpackUnknownType").Call(
+		Switch().Sel(Id("in"), Id("Type")).Call().Block(
+			Case().Qual("kego.io/system", "J_MAP").CaseBlock(
+				List(Id("i"), Err()).Op(":=").Qual("kego.io/system", "UnpackUnknownType").Call(
 					Id("ctx"),
 					Id("in"),
 					True(),
@@ -1075,7 +1156,7 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *
 				If(Op("!").Id("ok")).Block(
 					Return(
 						Nil(),
-						Id("fmt.Errorf").Call(
+						Qual("fmt", "Errorf").Call(
 							Lit("%T does not implement "+interfaceName),
 							Id("i"),
 						),
@@ -1084,22 +1165,22 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *
 				Return(Id("ob"), Nil()),
 			),
 			Do(func(s *Statement) {
-				var id string
+				var qual Code
 				switch typ.NativeJsonType(ctx) {
 				case system.J_STRING:
-					id = "kego.io/system.J_STRING"
+					qual = Qual("kego.io/system", "J_STRING")
 				case system.J_NUMBER:
-					id = "kego.io/system.J_NUMBER"
+					qual = Qual("kego.io/system", "J_NUMBER")
 				case system.J_BOOL:
-					id = "kego.io/system.J_BOOL"
+					qual = Qual("kego.io/system", "J_BOOL")
 				case system.J_ARRAY:
-					id = "kego.io/system.J_ARRAY"
+					qual = Qual("kego.io/system", "J_ARRAY")
 				}
-				if id != "" {
-					s.Case().Id(id).CaseBlock(
+				if qual != nil {
+					s.Case().Add(qual).CaseBlock(
 						Id("ob").Op(":=").New(Id(typeName)),
 						If(
-							Err().Op(":=").Id("ob", "Unpack").Call(
+							Err().Op(":=").Sel(Id("ob"), Id("Unpack")).Call(
 								Id("ctx"),
 								Id("in"),
 								False(),
@@ -1115,9 +1196,9 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *
 			Default().CaseBlock(
 				Return(
 					Nil(),
-					Id("fmt.Errorf").Call(
+					Qual("fmt", "Errorf").Call(
 						Lit("Unsupported json type %s when unpacking into "+interfaceName+"."),
-						Id("in", "Type").Call(),
+						Sel(Id("in"), Id("Type")).Call(),
 					),
 				),
 			),
@@ -1131,9 +1212,10 @@ func printInterfaceDefinition(ctx context.Context, env *envctx.Env, f *File, typ
 			Get{typ.Id.Name}(ctx context.Context)[*]{typ.Id.Name}
 		}
 	*/
+	name := fmt.Sprint("Get", system.GoName(typ.Id.Name))
 	f.Type().Id(system.GoInterfaceName(typ.Id.Name)).Interface(
-		Id(fmt.Sprint("Get", system.GoName(typ.Id.Name))).Params(
-			Id("ctx").Id("context.Context"),
+		Id(name).Params(
+			Id("ctx").Qual("context", "Context"),
 		).Do(func(s *Statement) {
 			if typ.PassedAsPointer(ctx) {
 				s.Op("*")
@@ -1148,14 +1230,15 @@ func printInterfaceImplementation(ctx context.Context, env *envctx.Env, f *File,
 			return o
 		}
 	*/
+	name := fmt.Sprint("Get", system.GoName(typ.Id.Name))
 	f.Func().Params(
 		Id("o").Do(func(s *Statement) {
 			if typ.PassedAsPointer(ctx) {
 				s.Op("*")
 			}
 		}).Id(system.GoName(typ.Id.Name)),
-	).Id(fmt.Sprint("Get", system.GoName(typ.Id.Name))).Params(
-		Id("ctx").Id("context.Context"),
+	).Id(name).Params(
+		Id("ctx").Qual("context", "Context"),
 	).Do(func(s *Statement) {
 		if typ.PassedAsPointer(ctx) {
 			s.Op("*")
@@ -1210,7 +1293,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, f *File, typ *s
 	var errOuter error
 	f.Type().Id(system.GoName(typ.Id.Name)).Struct().BlockFunc(func(g *Group) {
 		if !typ.Basic {
-			g.Op("*").Id("kego.io/system.Object")
+			g.Op("*").Qual("kego.io/system", "Object")
 		}
 		embedsSortable := system.SortableReferences(typ.Embed)
 		sort.Sort(embedsSortable)
@@ -1247,8 +1330,8 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 		}
 	*/
 	f.Func().Id("init").Params().BlockFunc(func(g *Group) {
-		g.Id("pkg").Op(":=").Id("kego.io/context/jsonctx.InitPackage").Call(Lit(env.Path))
-		g.Id("pkg", "SetHash").Call(Lit(env.Hash))
+		g.Id("pkg").Op(":=").Qual("kego.io/context/jsonctx", "InitPackage").Call(Lit(env.Path))
+		g.Sel(Id("pkg"), Id("SetHash")).Call(Lit(env.Hash))
 		for _, name := range types.Keys() {
 			t, ok := types.Get(name)
 			if !ok {
@@ -1277,11 +1360,14 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 						return reflect.TypeOf((*{ifaceName})(nil)).Elem()
 					}
 				*/
-				interfaceFunc = Func().Params().Id("reflect.Type").Block(
+				interfaceFunc = Func().Params().Qual("reflect", "Type").Block(
 					Return(
-						Id("reflect.TypeOf").Call(
-							Parens(Op("*").Id(ifaceName)).Parens(Nil()),
-						).Op(".").Id("Elem").Call(),
+						Sel(
+							Qual("reflect", "TypeOf").Call(
+								Parens(Op("*").Id(ifaceName)).Parens(Nil()),
+							),
+							Id("Elem").Call(),
+						),
 					),
 				)
 			}
@@ -1348,7 +1434,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 					{interfaceFunc},
 				)
 			*/
-			g.Id("pkg", "Init").Call(
+			g.Sel(Id("pkg"), Id("Init")).Call(
 				Lit(typ.Id.Name),
 				newFunc,
 				derefFunc,

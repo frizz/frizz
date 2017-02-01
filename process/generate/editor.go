@@ -26,11 +26,11 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	*/
 	f.Func().Id("main").Params().Block(
 		If(
-			Err().Op(":=").Id("kego.io/editor/client.Start").Call(),
+			Err().Op(":=").Qual("kego.io/editor/client", "Start").Call(),
 			Err().Op("!=").Nil(),
 		).Block(
-			Id("fmt.Println").Call(
-				Id("err", "Error").Call(),
+			Qual("fmt", "Println").Call(
+				Sel(Err(), Id("Error")).Call(),
 			),
 		),
 	)
