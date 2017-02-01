@@ -161,7 +161,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 	).Id("Repack").Params(
 		Id("ctx").Id("context.Context"),
 	).Params(
-		Id("data").Interface().Values(),
+		Id("data").Interface(),
 		Id("typePackage").String(),
 		Id("typeName").String(),
 		Id("jsonType").Id("kego.io/system.JsonType"),
@@ -207,7 +207,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 			/*
 				m := map[string]interface{}{}
 			*/
-			g.Id("m").Op(":=").Map(String()).Interface().Values().Values()
+			g.Id("m").Op(":=").Map(String()).Interface().Values()
 
 			structType := typ
 			if typ.Alias != nil {
@@ -233,7 +233,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					If(Err().Op("!=").Nil()).Block(
 						Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 					),
-					For(List(Id("key"), Id("val")).Op(":=").Range().Id("ob").Assert(Map(String()).Interface().Values())).Block(
+					For(List(Id("key"), Id("val")).Op(":=").Range().Id("ob").Assert(Map(String()).Interface())).Block(
 						Id("m").Index(Id("key")).Op("=").Id("val"),
 					),
 				)
@@ -440,7 +440,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.Var().Id(out).Interface().Values()
+		g.Var().Id(out).Interface()
 		g.List(Id(valueVar), Id("pkg"), Id("name"), Id("typ"), Err()).Op(":=").Add(in).Assert(Id("kego.io/system.Repacker")).Op(".").Id("Repack").Call(Id("ctx"))
 		g.If(Err().Op("!=").Nil()).Block(
 			Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
@@ -474,7 +474,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			If(Err().Op("!=").Nil()).Block(
 				Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 			),
-			Id(out).Op("=").Map(String()).Interface().Values().Dict(map[Code]Code{
+			Id(out).Op("=").Map(String()).Interface().Dict(map[Code]Code{
 				Lit("type"):  Id("typeVal"),
 				Lit("value"): Id(valueVar),
 			}),
@@ -511,7 +511,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 		*/
 		var outerErr error
 		iVar := fmt.Sprintf("i%d", depth)
-		g.Id(out).Op(":=").Index().Interface().Values().Values()
+		g.Id(out).Op(":=").Index().Interface().Values()
 		g.For(Id(iVar).Op(":=").Range().Add(in)).BlockFunc(func(g *Group) {
 			childIn := Add(in).Index(Id(iVar))
 			childDepth := depth + 1
@@ -541,7 +541,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 		*/
 		var outerErr error
 		kVar := fmt.Sprintf("k%d", depth)
-		g.Id(out).Op(":=").Map(String()).Interface().Values().Values()
+		g.Id(out).Op(":=").Map(String()).Interface().Values()
 		g.For(Id(kVar).Op(":=").Range().Add(in)).BlockFunc(func(g *Group) {
 			childIn := Add(in).Index(Id(kVar))
 			childDepth := depth + 1
@@ -1131,7 +1131,7 @@ func printInterfaceDefinition(ctx context.Context, env *envctx.Env, f *File, typ
 			Get{typ.Id.Name}(ctx context.Context)[*]{typ.Id.Name}
 		}
 	*/
-	f.Type().Id(system.GoInterfaceName(typ.Id.Name)).Interface().Block(
+	f.Type().Id(system.GoInterfaceName(typ.Id.Name)).Interface(
 		Id(fmt.Sprint("Get", system.GoName(typ.Id.Name))).Params(
 			Id("ctx").Id("context.Context"),
 		).Do(func(s *Statement) {
@@ -1295,7 +1295,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 						return (*{typ.Id.Name})(nil)
 					}
 				*/
-				newFunc = Func().Params().Interface().Values().Block(
+				newFunc = Func().Params().Interface().Block(
 					Return(
 						Parens(Op("*").Id(system.GoName(typ.Id.Name))).Parens(Nil()),
 					),
@@ -1308,7 +1308,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 						return new({typ.Id.Name})
 					}
 				*/
-				newFunc = Func().Params().Interface().Values().Block(
+				newFunc = Func().Params().Interface().Block(
 					Return(
 						New(Id(system.GoName(typ.Id.Name))),
 					),
@@ -1320,7 +1320,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 							return *in.(*{typ.Id.Name})
 						}
 					*/
-					derefFunc = Func().Params(Id("in").Interface().Values()).Interface().Values().Block(
+					derefFunc = Func().Params(Id("in").Interface()).Interface().Block(
 						Return(
 							Op("*").Id("in").Assert(Op("*").Id(system.GoName(typ.Id.Name))),
 						),
@@ -1333,7 +1333,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 					return new({typ.Id.ChangeToRule().Name})
 				}
 			*/
-			ruleFunc := Func().Params().Interface().Values().Block(
+			ruleFunc := Func().Params().Interface().Block(
 				Return(
 					New(Id(system.GoName(typ.Id.ChangeToRule().Name))),
 				),
