@@ -1291,7 +1291,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, f *File, typ *s
 		f.Comment(typ.Description)
 	}
 	var errOuter error
-	f.Type().Id(system.GoName(typ.Id.Name)).Struct().BlockFunc(func(g *Group) {
+	f.Type().Id(system.GoName(typ.Id.Name)).StructFunc(func(g *Group) {
 		if !typ.Basic {
 			g.Op("*").Qual("kego.io/system", "Object")
 		}
