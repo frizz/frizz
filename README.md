@@ -5,6 +5,10 @@
 Ke
 ==
 
+The ke project isn't for public consumption yet. Please move along.
+
+However, it might work:
+
 	$ go get kego.io/...
 
 Validate:
