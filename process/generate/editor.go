@@ -30,7 +30,7 @@ func Editor(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 			Err().Op("!=").Nil(),
 		).Block(
 			Qual("fmt", "Println").Call(
-				Sel(Err(), Id("Error")).Call(),
+				Err().Dot("Error").Call(),
 			),
 		),
 	)
