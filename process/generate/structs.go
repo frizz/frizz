@@ -485,7 +485,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			If(Err().Op("!=").Nil()).Block(
 				Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
 			),
-			Id(out).Op("=").Map(String()).Interface().Dict(map[Code]Code{
+			Id(out).Op("=").Map(String()).Interface().Values(Dict{
 				Lit("type"):  Id("typeVal"),
 				Lit("value"): Id(valueVar),
 			}),
