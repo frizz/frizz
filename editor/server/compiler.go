@@ -10,7 +10,7 @@ import (
 
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"github.com/gopherjs/gopherjs/build"
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"

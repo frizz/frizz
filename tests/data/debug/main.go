@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/require"
 	"kego.io/system/node"
 	"kego.io/tests/data"
 )

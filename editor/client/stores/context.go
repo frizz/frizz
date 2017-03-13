@@ -3,7 +3,7 @@ package stores
 import (
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 type ctxKeyType int

@@ -3,7 +3,7 @@ package node_test
 import (
 	"testing"
 
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/require"
 
 	"context"
 

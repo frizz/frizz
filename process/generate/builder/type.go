@@ -3,8 +3,8 @@ package builder
 import (
 	"context"
 
-	"github.com/davelondon/jennifer/jen"
-	"github.com/davelondon/kerr"
+	"github.com/dave/jennifer/jen"
+	"github.com/dave/kerr"
 	"kego.io/system"
 )
 

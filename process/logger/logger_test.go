@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 )
 
 func TestLogger(t *testing.T) {

@@ -27,7 +27,7 @@ func include(name string) bool {
 	if strings.HasSuffix(name, "/mocks") {
 		return false
 	}
-	if name == "github.com/davelondon/kerr" {
+	if name == "github.com/dave/kerr" {
 		return false
 	}
 	if name == "kego.io/editor/client/console" {

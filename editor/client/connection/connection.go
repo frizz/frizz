@@ -4,7 +4,7 @@ import (
 	"net/rpc"
 	"time"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/editor/client/common"
 	"kego.io/editor/shared"
 )

@@ -5,7 +5,7 @@ import (
 
 	"kego.io/system"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 )
 
 func TestPackedType(t *testing.T) {

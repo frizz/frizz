@@ -3,7 +3,7 @@ package stores
 import (
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/editor/client/actions"
 	"kego.io/flux"
 	"kego.io/system/node"

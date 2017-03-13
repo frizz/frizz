@@ -5,12 +5,12 @@ import (
 
 	"reflect"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
-	"github.com/davelondon/vecty"
-	"github.com/davelondon/vecty/elem"
-	"github.com/davelondon/vecty/mock_vecty"
-	"github.com/davelondon/vecty/prop"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
+	"github.com/dave/vecty"
+	"github.com/dave/vecty/elem"
+	"github.com/dave/vecty/mock_vecty"
+	"github.com/dave/vecty/prop"
 	"github.com/go-errors/errors"
 	"github.com/golang/mock/gomock"
 	"kego.io/editor/client/actions"

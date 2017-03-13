@@ -17,10 +17,10 @@ import (
 
 	"encoding/json"
 
-	"github.com/davelondon/kerr"
-	"github.com/davelondon/kerr/ksrc"
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/kerr"
+	"github.com/dave/kerr/ksrc"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 	"kego.io/process/packages"
 )
 
@@ -104,19 +104,19 @@ func walkFile(path string, t *testing.T) error {
 	for _, is := range file.Imports {
 		importPath, _ := strconv.Unquote(is.Path.Value)
 		switch importPath {
-		case "github.com/davelondon/kerr":
+		case "github.com/dave/kerr":
 			if is.Name != nil {
 				kerrName, _ = strconv.Unquote(is.Name.Name)
 			} else {
 				kerrName = "kerr"
 			}
-		case "github.com/davelondon/ktest/assert":
+		case "github.com/dave/ktest/assert":
 			if is.Name != nil {
 				assertName, _ = strconv.Unquote(is.Name.Name)
 			} else {
 				assertName = "assert"
 			}
-		case "github.com/davelondon/ktest/require":
+		case "github.com/dave/ktest/require":
 			if is.Name != nil {
 				requireName, _ = strconv.Unquote(is.Name.Name)
 			} else {

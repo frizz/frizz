@@ -3,8 +3,8 @@ package builder_test
 import (
 	"testing"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 
 	"kego.io/tests"
 	"kego.io/tests/ext"

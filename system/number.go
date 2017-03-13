@@ -9,7 +9,7 @@ import (
 
 	"math"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 func NewNumber(n float64) *Number {

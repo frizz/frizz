@@ -12,7 +12,7 @@ import (
 
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 // key is an unexported type for keys defined in this package.

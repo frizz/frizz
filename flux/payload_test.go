@@ -5,7 +5,7 @@ import (
 
 	"sync"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 )
 
 func TestPayload_Wait(t *testing.T) {

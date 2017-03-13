@@ -5,7 +5,7 @@ import (
 
 	"reflect"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/context/jsonctx"
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/editable"

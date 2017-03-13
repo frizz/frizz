@@ -7,7 +7,7 @@ import (
 
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (fail bool, messages []string, err error) {

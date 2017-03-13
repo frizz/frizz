@@ -3,7 +3,7 @@ package node
 import (
 	"sort"
 
-	"github.com/davelondon/sorter"
+	"github.com/dave/sorter"
 )
 
 func SortNodeMap(in map[string]*Node) (out []*Node) {

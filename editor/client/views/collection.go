@@ -3,7 +3,7 @@ package views
 import (
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/models"
 	"kego.io/editor/client/stores"

@@ -3,7 +3,7 @@ package editable
 import (
 	"context"
 
-	"github.com/davelondon/vecty"
+	"github.com/dave/vecty"
 	"kego.io/system"
 	"kego.io/system/node"
 )

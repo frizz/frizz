@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/net/websocket"
 
-	"github.com/davelondon/gopackages"
-	"github.com/davelondon/kerr"
+	"github.com/dave/gopackages"
+	"github.com/dave/kerr"
 
 	"fmt"
 

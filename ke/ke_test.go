@@ -9,8 +9,8 @@ import (
 
 	"context"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 	"kego.io/ke"
 	"kego.io/process/packages"
 	"kego.io/system"

@@ -10,7 +10,7 @@ import (
 
 	"strings"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 type Image interface {

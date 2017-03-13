@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 	"kego.io/flux"
 )
 

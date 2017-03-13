@@ -7,7 +7,7 @@ import (
 
 	"strings"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/context/envctx"
 	"kego.io/context/sysctx"
 	"kego.io/process/parser"

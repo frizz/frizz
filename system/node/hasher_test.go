@@ -5,8 +5,8 @@ import (
 
 	"context"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 )
 
 func TestNodeHasher_Hash(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 
 	"bytes"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 func NewString(s string) *String {

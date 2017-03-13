@@ -3,7 +3,7 @@ package flux
 import (
 	"context"
 
-	"github.com/davelondon/vecty"
+	"github.com/dave/vecty"
 )
 
 type ViewInterface interface {

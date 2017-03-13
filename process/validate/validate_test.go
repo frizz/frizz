@@ -6,8 +6,8 @@ import (
 	"kego.io/process/parser"
 	"kego.io/system/node"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 	_ "kego.io/process/validate/tests"
 	"kego.io/tests"
 )

@@ -12,7 +12,7 @@ addons:
       - nodejs
 install:
   - go get -u github.com/gopherjs/gopherjs
-  - go get -u github.com/davelondon/kerr/kcov
+  - go get -u github.com/dave/kerr/kcov
   - go get -t -v ./...
 script:
   - kcov -r kego.io

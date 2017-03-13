@@ -3,7 +3,7 @@ package parser
 import (
 	"encoding/json"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"github.com/surge/cityhash"
 )
 

@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 )
 
 func TestHasher(t *testing.T) {

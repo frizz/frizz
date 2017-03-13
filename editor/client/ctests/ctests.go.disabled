@@ -5,10 +5,10 @@ import (
 
 	"context"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
-	"github.com/davelondon/vecty"
-	"github.com/davelondon/vecty/mock_vecty"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
+	"github.com/dave/vecty"
+	"github.com/dave/vecty/mock_vecty"
 	"github.com/golang/mock/gomock"
 	"kego.io/editor/client/connection/mock_connection"
 	"kego.io/editor/client/stores"

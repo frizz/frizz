@@ -3,9 +3,9 @@ package views
 import (
 	"context"
 
-	"github.com/davelondon/kerr"
-	"github.com/davelondon/vecty"
-	"github.com/davelondon/vecty/elem"
+	"github.com/dave/kerr"
+	"github.com/dave/vecty"
+	"github.com/dave/vecty/elem"
 	"kego.io/editor/client/clientctx"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/models"

@@ -3,7 +3,7 @@ package system
 import (
 	"testing"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 )
 
 func TestEmptyPackage(t *testing.T) {

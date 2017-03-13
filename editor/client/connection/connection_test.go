@@ -4,7 +4,7 @@ import (
 	"net/rpc"
 	"testing"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 )
 
 func TestNew(t *testing.T) {

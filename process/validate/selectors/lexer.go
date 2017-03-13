@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 type tokenType string

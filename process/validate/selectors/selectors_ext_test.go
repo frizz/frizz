@@ -8,8 +8,8 @@ import (
 
 	"context"
 
-	"github.com/davelondon/kerr"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/kerr"
+	"github.com/dave/ktest/require"
 	"kego.io/process/parser"
 	. "kego.io/process/validate/selectors"
 	_ "kego.io/process/validate/selectors/tests"

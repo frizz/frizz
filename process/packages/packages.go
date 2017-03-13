@@ -5,7 +5,7 @@ package packages // import "kego.io/process/packages"
 import (
 	"context"
 
-	"github.com/davelondon/gopackages"
+	"github.com/dave/gopackages"
 	"kego.io/context/vosctx"
 )
 

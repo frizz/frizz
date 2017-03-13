@@ -7,8 +7,8 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 	"kego.io/context/sysctx"
 	"kego.io/editor/shared"
 	"kego.io/system"

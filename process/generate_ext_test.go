@@ -10,7 +10,7 @@ import (
 
 	"regexp"
 
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/require"
 	"kego.io/process/generate"
 	"kego.io/process/parser"
 	"kego.io/tests"

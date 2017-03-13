@@ -8,7 +8,7 @@ import (
 
 	"math"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 )
 
 type Int int

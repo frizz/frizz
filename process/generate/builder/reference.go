@@ -1,7 +1,7 @@
 package builder
 
 import (
-	"github.com/davelondon/jennifer/jen"
+	"github.com/dave/jennifer/jen"
 	"kego.io/system"
 )
 

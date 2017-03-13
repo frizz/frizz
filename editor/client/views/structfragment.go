@@ -3,11 +3,11 @@ package views
 import (
 	"context"
 
-	"github.com/davelondon/kerr"
-	"github.com/davelondon/vecty"
-	"github.com/davelondon/vecty/elem"
-	"github.com/davelondon/vecty/event"
-	"github.com/davelondon/vecty/prop"
+	"github.com/dave/kerr"
+	"github.com/dave/vecty"
+	"github.com/dave/vecty/elem"
+	"github.com/dave/vecty/event"
+	"github.com/dave/vecty/prop"
 	"kego.io/context/sysctx"
 	"kego.io/editor/client/actions"
 	"kego.io/editor/client/editable"

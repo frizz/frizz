@@ -8,8 +8,8 @@ import (
 
 	"context"
 
-	"github.com/davelondon/ktest/assert"
-	"github.com/davelondon/ktest/require"
+	"github.com/dave/ktest/assert"
+	"github.com/dave/ktest/require"
 	"kego.io/context/envctx"
 	"kego.io/process"
 	"kego.io/tests"
@@ -233,7 +233,7 @@ func TestImport(t *testing.T) {
 			package site
 			import (
 				"testing"
-				"github.com/davelondon/ktest/assert"
+				"github.com/dave/ktest/assert"
 			)
 			func TestMain(t *testing.T) {
 				assert.Equal(t, "Heading", Site.Title.Text.Value())

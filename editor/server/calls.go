@@ -9,7 +9,7 @@ import (
 
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"github.com/ghodss/yaml"
 	"kego.io/context/envctx"
 	"kego.io/editor/server/auther"

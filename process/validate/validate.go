@@ -5,7 +5,7 @@ package validate // import "kego.io/process/validate"
 import (
 	"context"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/context/envctx"
 	"kego.io/process/scanner"
 	"kego.io/process/validate/selectors"

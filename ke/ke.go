@@ -7,7 +7,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/davelondon/kerr"
+	"github.com/dave/kerr"
 	"kego.io/process/scanner"
 	"kego.io/system"
 )

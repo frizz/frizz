@@ -5,8 +5,8 @@ import (
 
 	"bytes"
 
-	. "github.com/davelondon/jennifer/jen"
-	"github.com/davelondon/kerr"
+	. "github.com/dave/jennifer/jen"
+	"github.com/dave/kerr"
 	"kego.io/context/envctx"
 )
 

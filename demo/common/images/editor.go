@@ -5,10 +5,10 @@ package images
 import (
 	"context"
 
-	"github.com/davelondon/vecty"
-	"github.com/davelondon/vecty/elem"
-	"github.com/davelondon/vecty/prop"
-	"github.com/davelondon/vecty/style"
+	"github.com/dave/vecty"
+	"github.com/dave/vecty/elem"
+	"github.com/dave/vecty/prop"
+	"github.com/dave/vecty/style"
 	"kego.io/editor/client/editable"
 	"kego.io/editor/client/editors"
 	"kego.io/editor/client/models"

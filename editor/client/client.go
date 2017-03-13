@@ -14,8 +14,8 @@ import (
 
 	"context"
 
-	"github.com/davelondon/kerr"
-	"github.com/davelondon/vecty"
+	"github.com/dave/kerr"
+	"github.com/dave/vecty"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"

@@ -3,7 +3,7 @@ package flux
 import (
 	"testing"
 
-	"github.com/davelondon/ktest/assert"
+	"github.com/dave/ktest/assert"
 )
 
 func TestWaiter_Add(t *testing.T) {
