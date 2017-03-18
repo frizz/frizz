@@ -967,7 +967,7 @@ func (n *Node) NativeValue() interface{} {
 func (n *Node) Print(ctx context.Context) string {
 	b, err := system.Marshal(ctx, n.Value)
 	if err != nil {
-		// ke: {"block": {"notest": true}}
+		// notest
 		return err.Error()
 	}
 	return string(b)

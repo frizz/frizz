@@ -143,7 +143,7 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 		_, found := findKey(env.Aliases, parts[0])
 		if !found && parts[0] != env.Path {
 			return "", "", UnknownPackageError{
-				Struct:         kerr.New("KJSOXDESFD", "Unknown package %s", parts[0]),
+				Struct:         kerr.New("KJSOXDESFD", "Unknown package %s", parts[0]).(kerr.Struct),
 				UnknownPackage: parts[0],
 			}
 		}
@@ -166,7 +166,7 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 		packagePath, ok := env.Aliases[parts[0]]
 		if !ok {
 			return "", "", UnknownPackageError{
-				Struct:         kerr.New("DKKFLKDKYI", "Unknown package %s", parts[0]),
+				Struct:         kerr.New("DKKFLKDKYI", "Unknown package %s", parts[0]).(kerr.Struct),
 				UnknownPackage: parts[0],
 			}
 		}

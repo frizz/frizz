@@ -40,7 +40,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	for _, name := range types.Keys() {
 		t, ok := types.Get(name)
 		if !ok {
-			// ke: {"block": {"notest": true}}
+			// notest
 			continue
 		}
 		typ := t.Type.(*system.Type)
@@ -89,7 +89,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 	for _, name := range exports.Keys() {
 		export, ok := exports.Get(name)
 		if !ok {
-			// ke: {"block": {"notest": true}}
+			// notest
 			continue
 		}
 		if err := printExportFunction(ctx, env, f, export); err != nil {
@@ -1275,7 +1275,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 		for _, name := range types.Keys() {
 			t, ok := types.Get(name)
 			if !ok {
-				// ke: {"block": {"notest": true}}
+				// notest
 				continue
 			}
 			typ := t.Type.(*system.Type)

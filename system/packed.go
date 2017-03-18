@@ -84,7 +84,6 @@ func (j *packed) Type() JsonType {
 	case []interface{}:
 		return J_ARRAY
 	}
-	// ke: {"block": {"notest": true}}
 	panic(fmt.Sprintf("Illegal type %T", j.v))
 }
 func (j *packed) Number() float64 {

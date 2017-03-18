@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data","Hash":6908502592837576203}
+// info:{"Path":"kego.io/tests/data","Hash":17800881641489475434}
 package data
 
 import (
@@ -3605,7 +3605,7 @@ func (v *Multi) Repack(ctx context.Context) (data interface{}, typePackage strin
 		ob0 := v.Jb
 		m["jb"] = ob0
 	}
-	if v.Jn != 0 {
+	if v.Jn != 0.0 {
 		ob0 := v.Jn
 		m["jn"] = ob0
 	}
@@ -4096,7 +4096,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/tests/data")
-	pkg.SetHash(0x5fdfee815ff2e60b)
+	pkg.SetHash(uint64(0xf7096f8a31c0a76a))
 	pkg.Init("alajs", func() interface{} {
 		return new(Alajs)
 	}, func(in interface{}) interface{} {

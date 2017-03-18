@@ -176,7 +176,7 @@ func ValidateNode(ctx context.Context, n *node.Node) (errors []ValidationError, 
 			}
 			if failed {
 				for _, message := range messages {
-					errors = append(errors, ValidationError{Struct: kerr.New("KULDIJUYFB", message), Source: current})
+					errors = append(errors, ValidationError{Struct: kerr.New("KULDIJUYFB", message).(kerr.Struct), Source: current})
 				}
 			}
 		}
@@ -201,7 +201,7 @@ func ValidateNode(ctx context.Context, n *node.Node) (errors []ValidationError, 
 			}
 			if failed {
 				for _, message := range messages {
-					errors = append(errors, ValidationError{Struct: kerr.New("HLKQWDCMRN", message), Source: current})
+					errors = append(errors, ValidationError{Struct: kerr.New("HLKQWDCMRN", message).(kerr.Struct), Source: current})
 				}
 			}
 		}

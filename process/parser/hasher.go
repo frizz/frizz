@@ -17,7 +17,7 @@ type PackageHasher struct {
 
 func (p *PackageHasher) Hash() (uint64, error) {
 
-	p.Version = 6
+	p.Version = 7
 
 	bytes, err := json.Marshal(p)
 	if err != nil {

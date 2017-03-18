@@ -114,7 +114,7 @@ var comparatorMap = map[string]func(lhs exprElement, rhs exprElement) exprElemen
 	},
 	"!=": func(lhs exprElement, rhs exprElement) exprElement {
 		if isNull(lhs) || isNull(rhs) {
-			// ke: {"block": {"notest": true}}
+			// notest
 			result := !isNull(lhs) || !isNull(rhs)
 			return exprElement{result, system.J_BOOL}
 		}
@@ -176,7 +176,6 @@ func (p *Parser) evaluateExpression(elements []*exprElement) exprElement {
 		elements = p.evaluateExpressionWithPrecedence(elements, i)
 	}
 	if len(elements) > 1 {
-		// ke: {"block": {"notest": true}}
 		panic("More than one expression result")
 	}
 	return *elements[0]
@@ -233,7 +232,7 @@ func (p *Parser) parseExpression(tokens []*token, current *node.Node) exprElemen
 		} else if thisToken.typ == S_BINOP {
 			finalTokens = append(finalTokens, &exprElement{thisToken.val, system.J_OPERATOR})
 		} else {
-			// ke: {"block": {"notest": true}}
+			// notest
 			logger.Print("Unexpected token ", thisToken, " ignored.")
 		}
 	}

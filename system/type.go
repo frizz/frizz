@@ -144,13 +144,13 @@ func GetAllTypesThatImplementReflectInterface(ctx context.Context, reflectType r
 	for _, pkgName := range scache.Keys() {
 		pkgInfo, ok := scache.Get(pkgName)
 		if !ok {
-			// ke: {"block": {"notest": true}}
+			// notest
 			continue
 		}
 		for _, typName := range pkgInfo.Types.Keys() {
 			typ, ok := pkgInfo.Types.Get(typName)
 			if !ok {
-				// ke: {"block": {"notest": true}}
+				// notest
 				continue
 			}
 			t := typ.Type.(*Type)

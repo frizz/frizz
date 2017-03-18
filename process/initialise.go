@@ -81,7 +81,7 @@ func (f Flags) getOptions() Options {
 		debug = f.Debug
 	}
 	if !flag.Parsed() {
-		// ke: {"block": {"notest": true}}
+		// notest
 		flag.Parse()
 	}
 	if f.Path == nil {

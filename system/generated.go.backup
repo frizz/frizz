@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/system","Hash":7926774414652922602}
+// info:{"Path":"kego.io/system","Hash":15725281303364755101}
 package system
 
 import (
@@ -2100,7 +2100,7 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("kego.io/system")
-	pkg.SetHash(0x6e018f55100adaea)
+	pkg.SetHash(0xda3b6c078025de9d)
 	pkg.Init("array", nil, nil, func() interface{} {
 		return new(ArrayRule)
 	}, nil)

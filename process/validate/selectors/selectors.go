@@ -228,13 +228,13 @@ func (p *Parser) matchNodes(validators []func(*node.Node) (bool, error), documen
 	var matches []*node.Node
 	nodeCount := 0
 	if logger.Enabled {
-		// ke: {"block": {"notest": true}}
+		// notest
 		nodeCount = len(documentMap)
 	}
 	for idx, node := range documentMap {
 		var passed = true
 		if logger.Enabled {
-			// ke: {"block": {"notest": true}}
+			// notest
 			logger.SetPrefix("[Node ", idx, "/", nodeCount, "] ")
 		}
 		for _, validator := range validators {
@@ -368,10 +368,9 @@ func (p *Parser) pclassProduction(value interface{}) func(*node.Node) (bool, err
 			return n.JsonType == system.J_ARRAY && len(n.Array) < 1, nil
 		}
 	}
+	// notest
 	logger.Print("Error: Unknown pclass: ", pclass)
-	// ke: {"block": {"notest": true}}
 	return func(n *node.Node) (bool, error) {
-		// ke: {"block": {"notest": true}}
 		logger.Print("Asserting false due to failed pclassProduction")
 		return false, nil
 	}
@@ -388,9 +387,8 @@ func (p *Parser) nthChildProduction(value interface{}, tokens []*token) (func(*n
 
 	logger.Print("Creating nthChildProduction validator ", pattern)
 	if logger.Enabled {
-		// ke: {"block": {"notest": true}}
+		// notest
 		for idx, pat := range pattern {
-			// ke: {"block": {"notest": true}}
 			logger.Print("[", idx, "] ", pat)
 		}
 	}
@@ -476,9 +474,8 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 	logme := func(lexString string, args []*token) {
 		logger.Print("pclassFuncProduction lex results for [", lexString, "]: (follow)")
 		if logger.Enabled {
-			// ke: {"block": {"notest": true}}
+			// notest
 			for i, arg := range args {
-				// ke: {"block": {"notest": true}}
 				logger.Print("[", i, "]: ", arg)
 			}
 		}
@@ -488,7 +485,6 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 	case "expr":
 		tokens, err := lex(sargs.(string), expressionScanner)
 		if err != nil {
-			// ke: {"block": {"notest": true}}
 			panic(err)
 		}
 		logme(sargs.(string), tokens)
@@ -564,11 +560,10 @@ func (p *Parser) pclassFuncProduction(value interface{}, tokens []*token, docume
 		}, tokens
 
 	default:
-		// ke: {"block": {"notest": true}}
+		// notest
 		// If we didn't find a known pclass, do not match anything.
 		logger.Print("Error: Unknown pclass: ", pclass)
 		return func(node *node.Node) (bool, error) {
-			// ke: {"block": {"notest": true}}
 			logger.Print("Asserting false due to failed pclassFuncProduction")
 			return false, nil
 		}, tokens

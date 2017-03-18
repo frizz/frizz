@@ -71,7 +71,7 @@ func (n *NodeModel) Validate(ctx context.Context, rules []system.RuleInterface) 
 		if failed {
 			invalid = true
 			for _, message := range messages {
-				errors = append(errors, validate.ValidationError{Struct: kerr.New("QEMMGBTXBC", message), Source: n.Node})
+				errors = append(errors, validate.ValidationError{Struct: kerr.New("QEMMGBTXBC", message).(kerr.Struct), Source: n.Node})
 			}
 			// if the object isn't valid we don't want to continue
 			changed = hasChanged()
@@ -93,7 +93,7 @@ func (n *NodeModel) Validate(ctx context.Context, rules []system.RuleInterface) 
 			invalid = true
 			for _, m := range messages {
 				errors = append(errors, validate.ValidationError{
-					Struct: kerr.New("JSATVFEBEJ", m),
+					Struct: kerr.New("JSATVFEBEJ", m).(kerr.Struct),
 					Source: n.Node,
 				})
 			}

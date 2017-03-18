@@ -65,7 +65,7 @@ func (v *View) Watch(object interface{}, notifs ...Notif) {
 }
 
 func (v *View) Receive(notif NotifPayload) {
-	// ke: {"block": {"notest": true}}
+	// notest
 	// Default receive function for when view doesn't override it
 	defer close(notif.Done)
 	vecty.Rerender(v.Self)

@@ -126,9 +126,9 @@ func getFloat64(in interface{}) float64 {
 		}
 		parsed_int_string, err := strconv.ParseInt(as_string, 10, 32)
 		if err == nil {
+			// notest
 			// I don't think this can happen, but I'll leave it in just in
 			// case
-			// ke: {"block": {"notest": true}}
 			value := float64(parsed_int_string)
 			return value
 		}
