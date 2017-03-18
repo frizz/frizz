@@ -20,8 +20,8 @@ import (
 )
 
 // ValidateMain is called by the generated validate command.
-// ke: {"func": {"notest": true}}
 func ValidateMain(path string) {
+	// notest
 
 	// Using process.Flags as the options means that the non-specified options are read from the
 	// command flags.

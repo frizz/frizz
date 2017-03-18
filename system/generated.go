@@ -9,7 +9,7 @@ import (
 	jsonctx "kego.io/context/jsonctx"
 )
 
-// ke: {"file": {"notest": true}}
+// notest
 
 // Restriction rules for arrays
 type ArrayRule struct {

@@ -1,7 +1,7 @@
 // info:{"Path":"kego.io/tests/data/alias","Hash":3681006963164671295}
 package alias
 
-// ke: {"file": {"notest": true}}
+// notest
 
 import (
 	"context"

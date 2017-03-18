@@ -1,7 +1,7 @@
 // info:{"Path":"kego.io/demo/demo1","Hash":10713598547770441995}
 package demo1
 
-// ke: {"file": {"notest": true}}
+// notest
 
 import (
 	"context"

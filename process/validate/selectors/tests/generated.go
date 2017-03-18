@@ -1,7 +1,7 @@
 // info:{"Path":"kego.io/process/validate/selectors/tests","Hash":10362807576256830877}
 package tests
 
-// ke: {"file": {"notest": true}}
+// notest
 
 import (
 	"context"

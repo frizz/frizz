@@ -1,6 +1,6 @@
 package selectors
 
-// ke: {"file": {"notest": true}}
+// notest
 
 import (
 	"fmt"

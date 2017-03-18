@@ -11,7 +11,7 @@ import (
 	system "kego.io/system"
 )
 
-// ke: {"file": {"notest": true}}
+// notest
 
 // Automatically created basic rule for icon
 type IconRule struct {

@@ -34,7 +34,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 
 	f := NewFilePath(env.Path)
 	f.PackageComment("info:" + string(infoBytes))
-	f.Comment(`ke: {"file": {"notest": true}}`)
+	f.Comment(`notest`)
 	f.Line()
 
 	for _, name := range types.Keys() {
