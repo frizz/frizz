@@ -1,12 +1,12 @@
-package packages // import "kego.io/process/packages"
+package packages // import "frizz.io/process/packages"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"context"
 
+	"frizz.io/context/vosctx"
 	"github.com/dave/gopackages"
-	"kego.io/context/vosctx"
 )
 
 func GetDirFromPackage(ctx context.Context, packagePath string) (string, error) {

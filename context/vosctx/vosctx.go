@@ -1,6 +1,6 @@
-package vosctx // import "kego.io/context/vosctx"
+package vosctx // import "frizz.io/context/vosctx"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"os"

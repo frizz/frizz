@@ -5,19 +5,19 @@ import (
 
 	"context"
 
+	"frizz.io/process"
+	"frizz.io/system"
+	"frizz.io/tests/repacker"
+	"frizz.io/tests/unpacker"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/process"
-	"kego.io/system"
-	"kego.io/tests/repacker"
-	"kego.io/tests/unpacker"
 )
 
 var systemContext context.Context
 
 func initialise() context.Context {
 	if systemContext == nil {
-		ctx, _, err := process.Initialise(context.Background(), process.Options{Path: "kego.io/system"})
+		ctx, _, err := process.Initialise(context.Background(), process.Options{Path: "frizz.io/system"})
 		if err != nil {
 			panic(err)
 		}

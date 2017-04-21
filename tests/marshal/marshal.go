@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"frizz.io/frizz"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/ke"
 )
 
 type TestValue func(t *testing.T, v interface{})
@@ -35,7 +35,7 @@ func Run(t *testing.T, ctx context.Context, json string, options ...interface{})
 		}
 		panic("unknown option")
 	}
-	err := ke.Unmarshal(ctx, []byte(json), &v)
+	err := frizz.Unmarshal(ctx, []byte(json), &v)
 	if unmarshalError == nil {
 		require.NoError(t, err)
 	} else {
@@ -45,7 +45,7 @@ func Run(t *testing.T, ctx context.Context, json string, options ...interface{})
 	if testValue != nil {
 		testValue(t, v)
 	}
-	b, err := ke.Marshal(ctx, v)
+	b, err := frizz.Marshal(ctx, v)
 	require.NoError(t, err)
 	if marshalledString != "" {
 		assert.JSONEq(t, string(marshalledString), string(b))

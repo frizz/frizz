@@ -1,6 +1,6 @@
-package node // import "kego.io/system/node"
+package node // import "frizz.io/system/node"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 
 	"context"
 
+	"frizz.io/system"
 	"github.com/dave/kerr"
-	"kego.io/system"
 )
 
 type Node struct {
@@ -771,7 +771,7 @@ func extractFields(ctx context.Context, fields map[string]*system.Field, t *syst
 	}
 	if !t.Basic && !t.Interface {
 		// All types apart from Basic types embed system:object
-		ob, ok := system.GetTypeFromCache(ctx, "kego.io/system", "object")
+		ob, ok := system.GetTypeFromCache(ctx, "frizz.io/system", "object")
 		if !ok {
 			return kerr.New("YRFWOTIGFT", "Type system:object not found in sys ctx")
 		}

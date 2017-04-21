@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"kego.io/context/vosctx"
+	"frizz.io/context/vosctx"
 )
 
 var _ vosctx.Vos = (*MockOs)(nil)

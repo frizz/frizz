@@ -1,7 +1,7 @@
-//go:generate ke kego.io/process/validate/selectors/tests
-package selectors // import "kego.io/process/validate/selectors"
+//go:generate frizz frizz.io/process/validate/selectors/tests
+package selectors // import "frizz.io/process/validate/selectors"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"regexp"
@@ -10,9 +10,9 @@ import (
 
 	"context"
 
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type Parser struct {
@@ -101,12 +101,12 @@ func (p *Parser) selectorProduction(tokens []*token, documentMap []*node.Node, r
 			p.nativeProduction(value),
 		)
 	}
-	_, matched, _ = p.peek(tokens, S_KEGO_TYPE)
+	_, matched, _ = p.peek(tokens, S_FRIZZ_TYPE)
 	if matched {
-		value, tokens, _ = p.match(tokens, S_KEGO_TYPE)
+		value, tokens, _ = p.match(tokens, S_FRIZZ_TYPE)
 		validators = append(
 			validators,
-			p.kegoProduction(value),
+			p.frizzProduction(value),
 		)
 	}
 	_, matched, _ = p.peek(tokens, S_IDENTIFIER)
@@ -263,8 +263,8 @@ func (p *Parser) nativeProduction(value interface{}) func(*node.Node) (bool, err
 	}
 }
 
-func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error) {
-	logger.Print("Creating kegoProduction validator ", value)
+func (p *Parser) frizzProduction(value interface{}) func(*node.Node) (bool, error) {
+	logger.Print("Creating frizzProduction validator ", value)
 	return func(n *node.Node) (bool, error) {
 
 		if n.Null || n.Missing {
@@ -272,12 +272,12 @@ func (p *Parser) kegoProduction(value interface{}) func(*node.Node) (bool, error
 		}
 
 		tokenString := value.(string)
-		kegoType := tokenString[1 : len(tokenString)-1]
-		r, err := system.NewReferenceFromString(p.ctx, kegoType)
+		frizzType := tokenString[1 : len(tokenString)-1]
+		r, err := system.NewReferenceFromString(p.ctx, frizzType)
 		if err != nil {
 			return false, kerr.Wrap("RWDOYBBDVK", err)
 		}
-		logger.Print("kegoProduction ? ", n.Type.Id.Value(), " == ", r.Value())
+		logger.Print("frizzProduction ? ", n.Type.Id.Value(), " == ", r.Value())
 
 		if n.Type.Id.Value() == r.Value() {
 			return true, nil

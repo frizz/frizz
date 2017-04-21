@@ -18,7 +18,7 @@ import (
 	"io/ioutil"
 )
 
-// ke: {"package": {"notest": true}}
+// notest
 
 func main() {
 
@@ -27,7 +27,7 @@ func main() {
 
 	if true {
 		// for testing
-		walkFile("/Users/dave/dev/src/kego.io/cmd/astwalker/test.go")
+		walkFile("/Users/dave/dev/src/frizz.io/cmd/astwalker/test.go")
 	} else {
 		// walk each file in the working directory
 		walker := func(path string, file os.FileInfo, err error) error {
@@ -38,7 +38,7 @@ func main() {
 			fmt.Println(path)
 			return walkFile(path)
 		}
-		filepath.Walk("/Users/dave/dev/src/kego.io/", walker)
+		filepath.Walk("/Users/dave/dev/src/frizz.io/", walker)
 	}
 }
 

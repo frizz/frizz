@@ -3,9 +3,9 @@ package system
 import (
 	"testing"
 
+	"frizz.io/context/envctx"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
 )
 
 /*
@@ -24,7 +24,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, up unpacker.Interface) {
 		B NumberInterface `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
@@ -37,7 +37,7 @@ func testUnpackDefaultNativeTypeNumber(t *testing.T, up unpacker.Interface) {
 
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":1.2}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","b":1.2}`, string(b))
 
 }
 */

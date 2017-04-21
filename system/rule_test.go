@@ -3,9 +3,9 @@ package system
 import (
 	"testing"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/tests"
 )
 
 func TestRuleWrapper_Kind(t *testing.T) {
@@ -280,10 +280,10 @@ func TestWrapRule(t *testing.T) {
 		*Rule
 	}
 	parentType := &Type{
-		Object: &Object{Id: NewReference("a.b/c", "a"), Type: NewReference("kego.io/system", "type")},
+		Object: &Object{Id: NewReference("a.b/c", "a"), Type: NewReference("frizz.io/system", "type")},
 	}
 	ruleType := &Type{
-		Object: &Object{Id: NewReference("a.b/c", "@a"), Type: NewReference("kego.io/system", "type")},
+		Object: &Object{Id: NewReference("a.b/c", "@a"), Type: NewReference("frizz.io/system", "type")},
 	}
 
 	ctx := tests.Context("a.b/c").Stype("a", parentType).Stype("@a", ruleType).Ctx()

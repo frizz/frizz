@@ -4,16 +4,16 @@ import (
 	"context"
 	"testing"
 
+	"frizz.io/frizz"
+	"frizz.io/system"
+	"frizz.io/tests/data"
+	. "frizz.io/tests/marshal"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/ke"
-	"kego.io/system"
-	"kego.io/tests/data"
-	. "kego.io/tests/marshal"
 )
 
 func TestAlmjs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"almjs": {"a": "b", "c": "d"}
@@ -27,7 +27,7 @@ func TestAlmjs(t *testing.T) {
 }
 
 func TestAlms(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"alms": {
@@ -44,7 +44,7 @@ func TestAlms(t *testing.T) {
 }
 
 func TestAlmss(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"almss": {"a": "b", "c": "d"}
@@ -58,7 +58,7 @@ func TestAlmss(t *testing.T) {
 }
 
 func TestMjs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mjs": {"a": "b", "c": "d"}
@@ -72,7 +72,7 @@ func TestMjs(t *testing.T) {
 }
 
 func TestMjn(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mjn": {"a": 1.1, "b": 1.2}
@@ -86,7 +86,7 @@ func TestMjn(t *testing.T) {
 }
 
 func TestMjb(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mjb": {"a": true, "b": false}
@@ -100,7 +100,7 @@ func TestMjb(t *testing.T) {
 }
 
 func TestMss(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mss": {"a": "b", "c": "d"}
@@ -114,7 +114,7 @@ func TestMss(t *testing.T) {
 }
 
 func TestMsn(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"msn": {"a": 1.1, "b": 1.2}
@@ -128,7 +128,7 @@ func TestMsn(t *testing.T) {
 }
 
 func TestMsb(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"msb": {"a": true, "b": false}
@@ -142,21 +142,21 @@ func TestMsb(t *testing.T) {
 }
 
 func TestMsr(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"msr": {"a": "a", "b": "system:b"}
 		}`,
 		TestValue(func(t *testing.T, v interface{}) {
 			require.Len(t, v.(*data.Multi).Msr, 2)
-			assert.Equal(t, "kego.io/tests/data:a", v.(*data.Multi).Msr["a"].Value())
-			assert.Equal(t, "kego.io/system:b", v.(*data.Multi).Msr["b"].Value())
+			assert.Equal(t, "frizz.io/tests/data:a", v.(*data.Multi).Msr["a"].Value())
+			assert.Equal(t, "frizz.io/system:b", v.(*data.Multi).Msr["b"].Value())
 		}),
 	)
 }
 
 func TestMsi(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"msi": {"a": 2, "b": 3}
@@ -170,7 +170,7 @@ func TestMsi(t *testing.T) {
 }
 
 func TestMsp(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"msp": {
@@ -187,7 +187,7 @@ func TestMsp(t *testing.T) {
 }
 
 func TestAlmjsi(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	// Note: map alias types in interfaces are always marshalled to explicit
 	// object notation.
 	Run(t, ctx, `{
@@ -203,7 +203,7 @@ func TestAlmjsi(t *testing.T) {
 }
 
 func TestAlmjsiError(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	// Note: map alias types in interfaces are always marshalled to explicit
 	// object notation, so this throws an error.
 	Run(t, ctx, `{
@@ -218,7 +218,7 @@ func TestAlmjsiError(t *testing.T) {
 }
 
 func TestMri(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mri": {
@@ -241,7 +241,7 @@ func TestMri(t *testing.T) {
 }
 
 func TestMnri(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mnri": {
@@ -262,7 +262,7 @@ func TestMnri(t *testing.T) {
 }
 
 func TestMi(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mi": {
@@ -285,7 +285,7 @@ func TestMi(t *testing.T) {
 }
 
 func TestMm(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mm": {
@@ -308,7 +308,7 @@ func TestMm(t *testing.T) {
 }
 
 func TestMalajs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malajs": {"a": ["b", "c"], "d": ["e", "f"]}
@@ -326,7 +326,7 @@ func TestMalajs(t *testing.T) {
 }
 
 func TestMalas(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malas": {
@@ -347,7 +347,7 @@ func TestMalas(t *testing.T) {
 }
 
 func TestMalass(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malass": {"a": ["b", "c"], "d": ["e", "f"]}
@@ -365,7 +365,7 @@ func TestMalass(t *testing.T) {
 }
 
 func TestMaljb(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"maljb": {"a": true, "b": false}
@@ -379,7 +379,7 @@ func TestMaljb(t *testing.T) {
 }
 
 func TestMaljn(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"maljn": {"a": 1.1, "b": 1.2}
@@ -393,7 +393,7 @@ func TestMaljn(t *testing.T) {
 }
 
 func TestMaljs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"maljs": {"a": "b", "c": "d"}
@@ -407,7 +407,7 @@ func TestMaljs(t *testing.T) {
 }
 
 func TestMalmjs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malmjs": {"a": {"b": "c", "d": "e"}, "f": {"g": "h", "i": "j"}}
@@ -425,7 +425,7 @@ func TestMalmjs(t *testing.T) {
 }
 
 func TestMalms(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malms": {
@@ -452,7 +452,7 @@ func TestMalms(t *testing.T) {
 }
 
 func TestMalmss(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malmss": {"a": {"b": "c", "d": "e"}, "f": {"g": "h", "i": "j"}}
@@ -470,7 +470,7 @@ func TestMalmss(t *testing.T) {
 }
 
 func TestMalss(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"malss": {"a": "b", "c": "d"}
@@ -484,7 +484,7 @@ func TestMalss(t *testing.T) {
 }
 
 func TestMals(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"mals": {

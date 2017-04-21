@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/demo7/images","Hash":14109639835138036999}
+// info:{"Path":"frizz.io/demo/demo7/images","Hash":14109639835138036999}
 package images
 
 // notest
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/system"
+	"frizz.io/context/jsonctx"
+	"frizz.io/system"
 )
 
 // Automatically created basic rule for photo
@@ -28,7 +28,7 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo7/images", "@photo"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo7/images", "@photo"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -41,7 +41,7 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo7/images", "@photo", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo7/images", "@photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -62,7 +62,7 @@ func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo7/images", "@photo", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo7/images", "@photo", system.J_OBJECT, nil
 }
 
 type Photo struct {
@@ -81,7 +81,7 @@ func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 func UnpackPhotoInterface(ctx context.Context, in system.Packed) (PhotoInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo7/images", "photo")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/demo/demo7/images", "photo")
 		if err != nil {
 			return nil, err
 		}
@@ -104,7 +104,7 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo7/images", "photo"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo7/images", "photo"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
@@ -132,7 +132,7 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 }
 func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo7/images", "photo", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo7/images", "photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -165,10 +165,10 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["width"] = ob0
 	}
-	return m, "kego.io/demo/demo7/images", "photo", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo7/images", "photo", system.J_OBJECT, nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo7/images")
+	pkg := jsonctx.InitPackage("frizz.io/demo/demo7/images")
 	pkg.SetHash(14109639835138036999)
 	pkg.Init(
 		"photo",

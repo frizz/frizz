@@ -3,9 +3,9 @@ package generate
 import (
 	"testing"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/tests"
 )
 
 func TestValidate(t *testing.T) {
@@ -19,8 +19,8 @@ func TestValidate(t *testing.T) {
 import (
 	_ "a.b/c"
 	_ "d.e/f"
-	command "kego.io/process/validate/command"
-	_ "kego.io/system"
+	command "frizz.io/process/validate/command"
+	_ "frizz.io/system"
 )
 
 func main() {

@@ -10,21 +10,21 @@ import (
 
 	"regexp"
 
+	"frizz.io/process/generate"
+	"frizz.io/process/parser"
+	"frizz.io/tests"
 	"github.com/dave/ktest/require"
-	"kego.io/process/generate"
-	"kego.io/process/parser"
-	"kego.io/tests"
 )
 
 func TestGenerateSystem(t *testing.T) {
 
-	testGenerated(t, "kego.io/system")
+	testGenerated(t, "frizz.io/system")
 
 }
 
 func TestGenerateData(t *testing.T) {
 
-	testGenerated(t, "kego.io/tests/data")
+	testGenerated(t, "frizz.io/tests/data")
 
 }
 

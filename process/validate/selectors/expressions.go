@@ -3,8 +3,8 @@ package selectors
 import (
 	"strings"
 
-	"kego.io/system"
-	"kego.io/system/node"
+	"frizz.io/system"
+	"frizz.io/system/node"
 )
 
 type exprElement struct {

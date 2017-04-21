@@ -3,9 +3,9 @@ package editable
 import (
 	"context"
 
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/vecty"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type Format string

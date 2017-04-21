@@ -6,11 +6,11 @@ import (
 
 	"context"
 
+	"frizz.io/context/envctx"
+	"frizz.io/tests"
 	"github.com/dave/kerr"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
-	"kego.io/tests"
 )
 
 func TestReferenceRule_Validate(t *testing.T) {
@@ -100,7 +100,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 		B ReferenceInterface `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Alias("e", "c.d/e").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Alias("e", "c.d/e").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := up.Process(ctx, []byte(data), &i)
@@ -113,7 +113,7 @@ func testUnpackDefaultNativeTypeReference(t *testing.T, up unpacker.Interface) {
 
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":"c.d/e:f"}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","b":"c.d/e:f"}`, string(b))
 
 }
 */
@@ -245,7 +245,7 @@ func TestReferenceMarshalJson(t *testing.T) {
 func TestReferenceGetType(t *testing.T) {
 
 	ty := &Type{
-		Object: &Object{Id: NewReference("a.b/c", "d"), Type: NewReference("kego.io/system", "type")},
+		Object: &Object{Id: NewReference("a.b/c", "d"), Type: NewReference("frizz.io/system", "type")},
 	}
 
 	ctx := tests.Context("a.b/c").Stype("d", ty).Ctx()
@@ -290,12 +290,12 @@ func TestReferenceValue(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "d", v)
 
-	r = NewReference("kego.io/json", "a")
+	r = NewReference("frizz.io/json", "a")
 	v, err = r.ValueContext(cb.Ctx())
 	require.NoError(t, err)
 	assert.Equal(t, "json:a", v)
 
-	r = NewReference("kego.io/system", "a")
+	r = NewReference("frizz.io/system", "a")
 	v, err = r.ValueContext(cb.Ctx())
 	require.NoError(t, err)
 	assert.Equal(t, "system:a", v)

@@ -2,7 +2,7 @@
 // function allows irrelevant packages to be excluded.
 package main
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"go/build"
@@ -15,13 +15,13 @@ import (
 )
 
 func include(name string) bool {
-	if !strings.HasPrefix(name, "kego.io/") {
+	if !strings.HasPrefix(name, "frizz.io/") {
 		return false
 	}
-	if strings.HasPrefix(name, "kego.io/demo/") {
+	if strings.HasPrefix(name, "frizz.io/demo/") {
 		return false
 	}
-	if strings.HasPrefix(name, "kego.io/process/validate/selectors/tests") {
+	if strings.HasPrefix(name, "frizz.io/process/validate/selectors/tests") {
 		return false
 	}
 	if strings.HasSuffix(name, "/mocks") {
@@ -30,7 +30,7 @@ func include(name string) bool {
 	if name == "github.com/dave/kerr" {
 		return false
 	}
-	if name == "kego.io/editor/client/console" {
+	if name == "frizz.io/editor/client/console" {
 		return false
 	}
 

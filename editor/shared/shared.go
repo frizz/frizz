@@ -1,6 +1,6 @@
-package shared // import "kego.io/editor/shared"
+package shared // import "frizz.io/editor/shared"
 
-// ke: {"package": {"jstest": true}}
+// frizz: {"package": {"jstest": true}}
 
 type Info struct {
 	Path            string                // Package path

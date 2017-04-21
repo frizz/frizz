@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"kego.io/system/node"
+	"frizz.io/system/node"
 )
 
 type logHandler struct {

@@ -1,7 +1,7 @@
 language: go
 go:
     - 1.8
-go_import_path: kego.io/
+go_import_path: frizz.io/
 notificaitons:
   email:
     recipients: dave@brophy.uk
@@ -15,6 +15,6 @@ install:
   - go get -u github.com/dave/courtney
   - go get -t -v ./...
 script:
-  - courtney kego.io/...
+  - courtney frizz.io/...
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -1,6 +1,6 @@
-package scanner // import "kego.io/process/scanner"
+package scanner // import "frizz.io/process/scanner"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"io/ioutil"

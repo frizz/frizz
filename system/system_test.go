@@ -31,7 +31,7 @@ func TestNoType(t *testing.T) {
 		B *C
 	}
 
-	ctx := tests.Context("kego.io/system").
+	ctx := tests.Context("frizz.io/system").
 		Jtype("a", reflect.TypeOf(&A{})).
 		Jtype("c", reflect.TypeOf(&C{})).Ctx()
 
@@ -48,7 +48,7 @@ func TestNoType(t *testing.T) {
 	a, ok := i.(*A)
 	assert.True(t, ok)
 	assert.NotNil(t, a.B.Object)
-	assert.Equal(t, "kego.io/system:c", a.B.Type.Value())
+	assert.Equal(t, "frizz.io/system:c", a.B.Type.Value())
 
 	j = `{
 		"type": "a",
@@ -60,7 +60,7 @@ func TestNoType(t *testing.T) {
 
 	err = Unmarshal(ctx, []byte(j), &i)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "json: cannot unmarshal kego.io/system:f into Go value of type system.C")
+	assert.Contains(t, err.Error(), "json: cannot unmarshal frizz.io/system:f into Go value of type system.C")
 
 }
 
@@ -89,7 +89,7 @@ func TestNative(t *testing.T) {
 		"bolNull": null
 	}`
 
-	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -115,12 +115,12 @@ func TestNative(t *testing.T) {
 func TestNativeDefaults(t *testing.T) {
 
 	type Foo struct {
-		StrHere    *String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"a\",\"path\":\"kego.io/system\"}}"`
-		NumHere    *Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":2,\"path\":\"kego.io/system\"}}"`
-		BolHere    *Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
-		StrDefault *String `kego:"{\"default\":{\"type\":\"kego.io/system:string\",\"value\":\"b\",\"path\":\"kego.io/system\"}}"`
-		NumDefault *Number `kego:"{\"default\":{\"type\":\"kego.io/system:number\",\"value\":3,\"path\":\"kego.io/system\"}}"`
-		BolDefault *Bool   `kego:"{\"default\":{\"type\":\"kego.io/system:bool\",\"value\":true,\"path\":\"kego.io/system\"}}"`
+		StrHere    *String `frizz:"{\"default\":{\"type\":\"frizz.io/system:string\",\"value\":\"a\",\"path\":\"frizz.io/system\"}}"`
+		NumHere    *Number `frizz:"{\"default\":{\"type\":\"frizz.io/system:number\",\"value\":2,\"path\":\"frizz.io/system\"}}"`
+		BolHere    *Bool   `frizz:"{\"default\":{\"type\":\"frizz.io/system:bool\",\"value\":true,\"path\":\"frizz.io/system\"}}"`
+		StrDefault *String `frizz:"{\"default\":{\"type\":\"frizz.io/system:string\",\"value\":\"b\",\"path\":\"frizz.io/system\"}}"`
+		NumDefault *Number `frizz:"{\"default\":{\"type\":\"frizz.io/system:number\",\"value\":3,\"path\":\"frizz.io/system\"}}"`
+		BolDefault *Bool   `frizz:"{\"default\":{\"type\":\"frizz.io/system:bool\",\"value\":true,\"path\":\"frizz.io/system\"}}"`
 	}
 
 	data := `{
@@ -130,7 +130,7 @@ func TestNativeDefaults(t *testing.T) {
 		"bolHere": false
 	}`
 
-	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -156,12 +156,12 @@ func TestNativeDefaults(t *testing.T) {
 func TestNativeDefaultsShort(t *testing.T) {
 
 	type Foo struct {
-		StrHere    *String `kego:"{\"default\":{\"value\":\"a\"}}"`
-		NumHere    *Number `kego:"{\"default\":{\"value\":2}}"`
-		BolHere    *Bool   `kego:"{\"default\":{\"value\":true}}"`
-		StrDefault *String `kego:"{\"default\":{\"value\":\"b\"}}"`
-		NumDefault *Number `kego:"{\"default\":{\"value\":3}}"`
-		BolDefault *Bool   `kego:"{\"default\":{\"value\":true}}"`
+		StrHere    *String `frizz:"{\"default\":{\"value\":\"a\"}}"`
+		NumHere    *Number `frizz:"{\"default\":{\"value\":2}}"`
+		BolHere    *Bool   `frizz:"{\"default\":{\"value\":true}}"`
+		StrDefault *String `frizz:"{\"default\":{\"value\":\"b\"}}"`
+		NumDefault *Number `frizz:"{\"default\":{\"value\":3}}"`
+		BolDefault *Bool   `frizz:"{\"default\":{\"value\":true}}"`
 	}
 
 	data := `{
@@ -171,7 +171,7 @@ func TestNativeDefaultsShort(t *testing.T) {
 		"bolHere": false
 	}`
 
-	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -205,22 +205,22 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 	type Foo struct {
 
 		// The value is just a, so we should be picking up the package
-		// kego.io/b from the local package path
-		Ref1 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a\",\"path\":\"kego.io/b\"}}"`
+		// frizz.io/b from the local package path
+		Ref1 *Reference `frizz:"{\"default\":{\"type\":\"frizz.io/system:reference\",\"value\":\"a\",\"path\":\"frizz.io/b\"}}"`
 
-		// The value is a:b, so a is the package alias for kego.io/d
+		// The value is a:b, so a is the package alias for frizz.io/d
 		// which we find in the package aliases, and b is the type.
-		Ref2 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a:b\",\"path\":\"kego.io/c\",\"aliases\":{\"a\":\"kego.io/d\"}}}"`
+		Ref2 *Reference `frizz:"{\"default\":{\"type\":\"frizz.io/system:reference\",\"value\":\"a:b\",\"path\":\"frizz.io/c\",\"aliases\":{\"a\":\"frizz.io/d\"}}}"`
 
 		// The value is a full type with package path.
-		Ref3 *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"kego.io/d\",\"aliases\":{\"c\":\"a.b/c\"}}}"`
+		Ref3 *Reference `frizz:"{\"default\":{\"type\":\"frizz.io/system:reference\",\"value\":\"a.b/c:d\",\"path\":\"frizz.io/d\",\"aliases\":{\"c\":\"a.b/c\"}}}"`
 	}
 
 	data := `{
 		"type": "foo"
 	}`
 
-	ctx := tests.Context("kego.io/system").Alias("c", "a.b/c").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Alias("c", "a.b/c").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -229,9 +229,9 @@ func TestDefaultCustomUnmarshal(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.NotNil(t, f.Ref1)
-	assert.Equal(t, "kego.io/b:a", f.Ref1.Value())
+	assert.Equal(t, "frizz.io/b:a", f.Ref1.Value())
 	assert.NotNil(t, f.Ref2)
-	assert.Equal(t, "kego.io/d:b", f.Ref2.Value())
+	assert.Equal(t, "frizz.io/d:b", f.Ref2.Value())
 	assert.NotNil(t, f.Ref3)
 	assert.Equal(t, "a.b/c:d", f.Ref3.Value())
 
@@ -248,7 +248,7 @@ func TestReferenceType(t *testing.T) {
 		"ref": "typ"
 	}`
 
-	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -257,8 +257,8 @@ func TestReferenceType(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.NotNil(t, f.Ref)
-	assert.Equal(t, "kego.io/system:typ", f.Ref.Value())
-	assert.Equal(t, "kego.io/system", f.Ref.Package)
+	assert.Equal(t, "frizz.io/system:typ", f.Ref.Value())
+	assert.Equal(t, "frizz.io/system", f.Ref.Package)
 	assert.Equal(t, "typ", f.Ref.Name)
 
 }
@@ -273,7 +273,7 @@ func TestReferenceEmpty(t *testing.T) {
 		"type": "foo"
 	}`
 
-	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -293,10 +293,10 @@ func TestReferencePath(t *testing.T) {
 
 	data := `{
 		"type": "foo",
-		"ref": "kego.io/pkg:typ"
+		"ref": "frizz.io/pkg:typ"
 	}`
 
-	ctx := tests.Context("kego.io/system").Alias("pkg", "kego.io/pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Alias("pkg", "frizz.io/pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -305,8 +305,8 @@ func TestReferencePath(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.NotNil(t, f.Ref)
-	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
-	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
+	assert.Equal(t, "frizz.io/pkg:typ", f.Ref.Value())
+	assert.Equal(t, "frizz.io/pkg", f.Ref.Package)
 	assert.Equal(t, "typ", f.Ref.Name)
 
 }
@@ -322,7 +322,7 @@ func TestReferenceImport(t *testing.T) {
 		"ref": "pkg:typ"
 	}`
 
-	ctx := tests.Context("kego.io/system").Alias("pkg", "kego.io/pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Alias("pkg", "frizz.io/pkg").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -331,8 +331,8 @@ func TestReferenceImport(t *testing.T) {
 	assert.True(t, ok, "Type %T not correct", i)
 	assert.NotNil(t, f)
 	assert.NotNil(t, f.Ref)
-	assert.Equal(t, "kego.io/pkg:typ", f.Ref.Value())
-	assert.Equal(t, "kego.io/pkg", f.Ref.Package)
+	assert.Equal(t, "frizz.io/pkg:typ", f.Ref.Value())
+	assert.Equal(t, "frizz.io/pkg", f.Ref.Package)
 	assert.Equal(t, "typ", f.Ref.Name)
 
 }
@@ -340,8 +340,8 @@ func TestReferenceImport(t *testing.T) {
 func TestReferenceDefault(t *testing.T) {
 
 	type Foo struct {
-		RefHere    *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkga:typa\",\"path\":\"kego.io/system\",\"aliases\":{\"pkga\":\"kego.io/pkga\"}}}"`
-		RefDefault *Reference `kego:"{\"default\":{\"type\":\"kego.io/system:reference\",\"value\":\"kego.io/pkgb:typb\",\"path\":\"kego.io/system\",\"aliases\":{\"pkgb\":\"kego.io/pkgb\"}}}"`
+		RefHere    *Reference `frizz:"{\"default\":{\"type\":\"frizz.io/system:reference\",\"value\":\"frizz.io/pkga:typa\",\"path\":\"frizz.io/system\",\"aliases\":{\"pkga\":\"frizz.io/pkga\"}}}"`
+		RefDefault *Reference `frizz:"{\"default\":{\"type\":\"frizz.io/system:reference\",\"value\":\"frizz.io/pkgb:typb\",\"path\":\"frizz.io/system\",\"aliases\":{\"pkgb\":\"frizz.io/pkgb\"}}}"`
 	}
 
 	data := `{
@@ -349,7 +349,7 @@ func TestReferenceDefault(t *testing.T) {
 		"refHere": "typc"
 	}`
 
-	ctx := tests.Context("kego.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("foo", reflect.TypeOf(&Foo{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -359,11 +359,11 @@ func TestReferenceDefault(t *testing.T) {
 	assert.NotNil(t, f)
 	assert.NotNil(t, f.RefHere)
 	assert.NotNil(t, f.RefDefault)
-	assert.Equal(t, "kego.io/system:typc", f.RefHere.Value())
-	assert.Equal(t, "kego.io/system", f.RefHere.Package)
+	assert.Equal(t, "frizz.io/system:typc", f.RefHere.Value())
+	assert.Equal(t, "frizz.io/system", f.RefHere.Package)
 	assert.Equal(t, "typc", f.RefHere.Name)
-	assert.Equal(t, "kego.io/pkgb:typb", f.RefDefault.Value())
-	assert.Equal(t, "kego.io/pkgb", f.RefDefault.Package)
+	assert.Equal(t, "frizz.io/pkgb:typb", f.RefDefault.Value())
+	assert.Equal(t, "frizz.io/pkgb", f.RefDefault.Package)
 	assert.Equal(t, "typb", f.RefDefault.Name)
 
 }

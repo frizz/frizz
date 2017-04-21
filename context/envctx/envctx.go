@@ -1,6 +1,6 @@
-package envctx // import "kego.io/context/envctx"
+package envctx // import "frizz.io/context/envctx"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"context"

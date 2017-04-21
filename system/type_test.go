@@ -9,9 +9,9 @@ import (
 
 	"fmt"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/tests"
 )
 
 func TestType_Kind(t *testing.T) {
@@ -34,12 +34,12 @@ func TestType_Kind(t *testing.T) {
 	assert.False(t, alias)
 	assert.Equal(t, KindInterface, kind)
 
-	cb.StypePath("kego.io/json", "string", &Type{
+	cb.StypePath("frizz.io/json", "string", &Type{
 		Object:     &Object{Id: NewReference("a.b/c", "bar")},
 		Native:     NewString("string"),
 		CustomKind: NewString("value"),
 	})
-	ty.Alias = JsonStringRule{Rule: &Rule{}, Object: &Object{Type: NewReference("kego.io/json", "@string")}}
+	ty.Alias = JsonStringRule{Rule: &Rule{}, Object: &Object{Type: NewReference("frizz.io/json", "@string")}}
 	kind, alias = ty.Kind(cb.Ctx())
 	assert.True(t, alias)
 	assert.Equal(t, KindValue, kind)
@@ -50,7 +50,7 @@ func TestType_Kind(t *testing.T) {
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
-	ty.Id.Package = "kego.io/json"
+	ty.Id.Package = "frizz.io/json"
 	kind, alias = ty.Kind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindValue, kind)
@@ -69,7 +69,7 @@ func TestFieldOrigins(t *testing.T) {
 	assert.Equal(t, *NewReference("a.b/c", "d"), *o[0])
 	assert.Equal(t, *NewReference("e.f/g", "h"), *o[1])
 	assert.Equal(t, *NewReference("i.j/k", "l"), *o[2])
-	assert.Equal(t, *NewReference("kego.io/system", "object"), *o[3])
+	assert.Equal(t, *NewReference("frizz.io/system", "object"), *o[3])
 
 	ty.Basic = true
 	o = ty.FieldOrigins()
@@ -204,10 +204,10 @@ func TestIsJsonValue(t *testing.T) {
 		assert.Equal(t, expected, ty.IsJsonValue())
 	}
 	test(false, NewReference("a.b/c", "d"), J_STRING)
-	test(false, NewReference("kego.io/json", "a"), J_OBJECT)
-	test(false, NewReference("kego.io/json", "a"), J_NULL)
-	test(false, NewReference("kego.io/json", "a"), J_MAP)
-	test(true, NewReference("kego.io/json", "a"), J_STRING)
+	test(false, NewReference("frizz.io/json", "a"), J_OBJECT)
+	test(false, NewReference("frizz.io/json", "a"), J_NULL)
+	test(false, NewReference("frizz.io/json", "a"), J_MAP)
+	test(true, NewReference("frizz.io/json", "a"), J_STRING)
 }
 
 func TestNativeJsonType(t *testing.T) {

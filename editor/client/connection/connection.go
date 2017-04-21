@@ -4,9 +4,9 @@ import (
 	"net/rpc"
 	"time"
 
+	"frizz.io/editor/client/common"
+	"frizz.io/editor/shared"
 	"github.com/dave/kerr"
-	"kego.io/editor/client/common"
-	"kego.io/editor/shared"
 )
 
 type Interface interface {

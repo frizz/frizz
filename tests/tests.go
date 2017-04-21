@@ -1,6 +1,6 @@
-package tests // import "kego.io/tests"
+package tests // import "frizz.io/tests"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"reflect"
@@ -10,12 +10,12 @@ import (
 
 	"context"
 
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
-	"kego.io/context/sysctx"
-	"kego.io/context/vosctx"
-	"kego.io/context/wgctx"
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/jsonctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/context/vosctx"
+	"frizz.io/context/wgctx"
 )
 
 type ContextBuilder struct {
@@ -222,7 +222,7 @@ func (c *ContextBuilder) Jauto() *ContextBuilder {
 
 func (c *ContextBuilder) Jsystem() *ContextBuilder {
 	jcache := c.initJson()
-	jcache.Packages.InitManual("kego.io/json", "kego.io/system")
+	jcache.Packages.InitManual("frizz.io/json", "frizz.io/system")
 	jcache.Dummies.InitAuto()
 	return c
 }
@@ -275,7 +275,7 @@ func (c *ContextBuilder) Ssystem(parseParse func(context.Context, string) (*sysc
 	c.initSys()
 	c.initCmd()
 	c.Jsystem() // need json types for system in order to parse
-	_, err := parseParse(c.ctx, "kego.io/system")
+	_, err := parseParse(c.ctx, "frizz.io/system")
 	if err != nil {
 		panic(err.Error())
 	}

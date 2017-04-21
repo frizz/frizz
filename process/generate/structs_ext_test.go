@@ -5,10 +5,10 @@ import (
 
 	"regexp"
 
+	"frizz.io/process/generate"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/process/generate"
-	"kego.io/tests"
 )
 
 /*
@@ -75,8 +75,8 @@ func testGenerateSource(t *testing.T, cb *tests.ContextBuilder) {
 	assert.Contains(t, source, "package a\n")
 	imp := getImports(t, source)
 	assert.Contains(t, imp, "\t\"context\"\n")
-	assert.Contains(t, imp, "\t\"kego.io/context/jsonctx\"\n")
-	assert.Contains(t, imp, "\t\"kego.io/system\"\n")
+	assert.Contains(t, imp, "\t\"frizz.io/context/jsonctx\"\n")
+	assert.Contains(t, imp, "\t\"frizz.io/system\"\n")
 	assert.Contains(t, imp, "\t\"reflect\"\n")
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.NotContains(t, imp, "Amap") // Native collections shouldn't go into the generated file

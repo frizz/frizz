@@ -3,17 +3,17 @@ package validate
 import (
 	"testing"
 
-	"kego.io/process/parser"
-	"kego.io/system/node"
+	"frizz.io/process/parser"
+	"frizz.io/system/node"
 
+	_ "frizz.io/process/validate/tests"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	_ "kego.io/process/validate/tests"
-	"kego.io/tests"
 )
 
 func TestFieldExtraMap(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -21,7 +21,7 @@ func TestFieldExtraMap(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -33,7 +33,7 @@ func TestFieldExtraMap(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -41,7 +41,7 @@ func TestFieldExtraMap(t *testing.T) {
 }
 
 func TestFieldExtraArray(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -49,7 +49,7 @@ func TestFieldExtraArray(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -61,7 +61,7 @@ func TestFieldExtraArray(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -69,7 +69,7 @@ func TestFieldExtraArray(t *testing.T) {
 }
 
 func TestRuleHasExtraRules(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -77,7 +77,7 @@ func TestRuleHasExtraRules(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -86,7 +86,7 @@ func TestRuleHasExtraRules(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -95,7 +95,7 @@ func TestRuleHasExtraRules(t *testing.T) {
 }
 
 func TestFieldExtraRulesObject(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -103,7 +103,7 @@ func TestFieldExtraRulesObject(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:f
@@ -114,7 +114,7 @@ func TestFieldExtraRulesObject(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -157,7 +157,7 @@ func TestValidateObjectChildren(t *testing.T) {
 */
 
 func TestValidateCollection(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -165,7 +165,7 @@ func TestValidateCollection(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:e
@@ -181,7 +181,7 @@ func TestValidateCollection(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -241,7 +241,7 @@ func TestValidateCollection(t *testing.T) {
 }
 
 func TestRulesEnforcer(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -249,7 +249,7 @@ func TestRulesEnforcer(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:a
@@ -261,7 +261,7 @@ func TestRulesEnforcer(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -269,7 +269,7 @@ func TestRulesEnforcer(t *testing.T) {
 }
 
 func TestInterface(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -277,7 +277,7 @@ func TestInterface(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:d
@@ -288,7 +288,7 @@ func TestInterface(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)
@@ -296,7 +296,7 @@ func TestInterface(t *testing.T) {
 }
 
 func TestTestRulesApplyToObjects(t *testing.T) {
-	cb := tests.New().TempGopath(true).CopyToTemp("kego.io/process/validate/tests")
+	cb := tests.New().TempGopath(true).CopyToTemp("frizz.io/process/validate/tests")
 	defer cb.Cleanup()
 
 	path, dir := cb.TempPackage("a", map[string]string{
@@ -304,7 +304,7 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 			type: system:package
 			id: a
 			aliases:
-				tests: kego.io/process/validate/tests
+				tests: frizz.io/process/validate/tests
 		`,
 		"b.yml": `
 			type: tests:a
@@ -317,7 +317,7 @@ func TestTestRulesApplyToObjects(t *testing.T) {
 		`,
 	})
 
-	cb.Path(path).Dir(dir).Alias("tests", "kego.io/process/validate/tests").Jauto().Sauto(parser.Parse)
+	cb.Path(path).Dir(dir).Alias("tests", "frizz.io/process/validate/tests").Jauto().Sauto(parser.Parse)
 
 	errors, err := ValidatePackage(cb.Ctx())
 	require.NoError(t, err)

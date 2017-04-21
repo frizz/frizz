@@ -3,7 +3,7 @@ package editors
 import (
 	"context"
 
-	"kego.io/editor/client/clientctx"
+	"frizz.io/editor/client/clientctx"
 )
 
 func Register(ctx context.Context) {
@@ -12,17 +12,17 @@ func Register(ctx context.Context) {
 	editors := clientctx.FromContext(ctx)
 
 	editors.Set("string", new(StringEditor))
-	editors.Set("kego.io/json:string", new(StringEditor))
-	editors.Set("kego.io/system:string", new(StringEditor))
+	editors.Set("frizz.io/json:string", new(StringEditor))
+	editors.Set("frizz.io/system:string", new(StringEditor))
 
 	editors.Set("number", new(NumberEditor))
-	editors.Set("kego.io/json:number", new(NumberEditor))
-	editors.Set("kego.io/system:number", new(NumberEditor))
-	editors.Set("kego.io/system:int", new(NumberEditor))
+	editors.Set("frizz.io/json:number", new(NumberEditor))
+	editors.Set("frizz.io/system:number", new(NumberEditor))
+	editors.Set("frizz.io/system:int", new(NumberEditor))
 
 	editors.Set("bool", new(BoolEditor))
-	editors.Set("kego.io/json:bool", new(BoolEditor))
-	editors.Set("kego.io/system:bool", new(BoolEditor))
+	editors.Set("frizz.io/json:bool", new(BoolEditor))
+	editors.Set("frizz.io/system:bool", new(BoolEditor))
 
-	editors.Set("kego.io/system:object", new(ObjectEditor))
+	editors.Set("frizz.io/system:object", new(ObjectEditor))
 }

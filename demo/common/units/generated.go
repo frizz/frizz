@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/common/units","Hash":5562844427559446456}
+// info:{"Path":"frizz.io/demo/common/units","Hash":5562844427559446456}
 package units
 
 import (
@@ -6,8 +6,8 @@ import (
 	fmt "fmt"
 	reflect "reflect"
 
-	jsonctx "kego.io/context/jsonctx"
-	system "kego.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
 
 // notest
@@ -28,7 +28,7 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/common/units", "@rectangle"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/common/units", "@rectangle"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -41,7 +41,7 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 }
 func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/common/units", "@rectangle", system.J_NULL, nil
+		return nil, "frizz.io/demo/common/units", "@rectangle", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -62,7 +62,7 @@ func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePacka
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/common/units", "@rectangle", system.J_OBJECT, nil
+	return m, "frizz.io/demo/common/units", "@rectangle", system.J_OBJECT, nil
 }
 
 type Rectangle struct {
@@ -80,7 +80,7 @@ func (o *Rectangle) GetRectangle(ctx context.Context) *Rectangle {
 func UnpackRectangleInterface(ctx context.Context, in system.Packed) (RectangleInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/common/units", "rectangle")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/demo/common/units", "rectangle")
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/common/units", "rectangle"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/common/units", "rectangle"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
@@ -124,7 +124,7 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/common/units", "rectangle", system.J_NULL, nil
+		return nil, "frizz.io/demo/common/units", "rectangle", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -150,10 +150,10 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 		}
 		m["width"] = ob0
 	}
-	return m, "kego.io/demo/common/units", "rectangle", system.J_OBJECT, nil
+	return m, "frizz.io/demo/common/units", "rectangle", system.J_OBJECT, nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/common/units")
+	pkg := jsonctx.InitPackage("frizz.io/demo/common/units")
 	pkg.SetHash(0x4d3331889d7127b8)
 	pkg.Init("rectangle", func() interface{} {
 		return new(Rectangle)

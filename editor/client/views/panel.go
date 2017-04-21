@@ -1,22 +1,22 @@
-package views // import "kego.io/editor/client/views"
+package views // import "frizz.io/editor/client/views"
 
 import (
 	"context"
 
 	"reflect"
 
+	"frizz.io/context/sysctx"
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/models"
+	"frizz.io/editor/client/stores"
+	"frizz.io/flux"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/dave/vecty/event"
 	"github.com/dave/vecty/prop"
-	"kego.io/context/sysctx"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
-	"kego.io/flux"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type PanelView struct {
@@ -116,7 +116,7 @@ func addNewFile(ctx context.Context, app *stores.App, all bool) {
 		// TODO: Work out a more elegant way of doing this!
 		rule := reflect.TypeOf((*system.RuleInterface)(nil)).Elem()
 		for _, t := range typesAll {
-			if t.Id.Package == "kego.io/system" {
+			if t.Id.Package == "frizz.io/system" {
 				// none of the system types should be added as a global
 				continue
 			}
@@ -129,7 +129,7 @@ func addNewFile(ctx context.Context, app *stores.App, all bool) {
 
 	} else {
 		syscache := sysctx.FromContext(ctx)
-		t, ok := syscache.GetType("kego.io/system", "type")
+		t, ok := syscache.GetType("frizz.io/system", "type")
 		if !ok {
 			panic(kerr.New("NNFSJEXNKF", "Can't find system:type in sys ctx").Error())
 		}

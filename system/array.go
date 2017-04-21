@@ -42,7 +42,7 @@ func (r *ArrayRule) Enforce(ctx context.Context, data interface{}) (fail bool, m
 	}
 
 	// If this is true, each item must be unique
-	// UniqueItems Bool `kego:"{\"default\":{\"value\":false}}"`
+	// UniqueItems Bool `frizz:"{\"default\":{\"value\":false}}"`
 	if r.UniqueItems {
 		for i := 0; i < val.Len(); i++ {
 			for j := 0; j < val.Len(); j++ {

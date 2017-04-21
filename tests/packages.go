@@ -10,8 +10,8 @@ import (
 
 	"context"
 
+	"frizz.io/process/packages"
 	"github.com/dave/kerr"
-	"kego.io/process/packages"
 )
 
 // RealGopath instructs the TempNamespace and TempPackage functions to use the real GOPATH
@@ -31,7 +31,7 @@ func (c *ContextBuilder) TempGopath(sys bool) *ContextBuilder {
 	c.gopathInitialized = true
 	c.OsVar("GOPATH", gopath)
 	if sys {
-		c.CopyToTemp("kego.io/system")
+		c.CopyToTemp("frizz.io/system")
 	}
 	return c
 }

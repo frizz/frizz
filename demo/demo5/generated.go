@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/demo5","Hash":14232916769361536059}
+// info:{"Path":"frizz.io/demo/demo5","Hash":14232916769361536059}
 package demo5
 
 // notest
@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/demo/demo5/translation"
-	"kego.io/system"
+	"frizz.io/context/jsonctx"
+	"frizz.io/demo/demo5/translation"
+	"frizz.io/system"
 )
 
 // Automatically created basic rule for page
@@ -29,7 +29,7 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo5", "@page"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo5", "@page"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -42,7 +42,7 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo5", "@page", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo5", "@page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -63,7 +63,7 @@ func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo5", "@page", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo5", "@page", system.J_OBJECT, nil
 }
 
 type Page struct {
@@ -81,7 +81,7 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 func UnpackPageInterface(ctx context.Context, in system.Packed) (PageInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo5", "page")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/demo/demo5", "page")
 		if err != nil {
 			return nil, err
 		}
@@ -104,7 +104,7 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo5", "page"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo5", "page"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["body"]; ok && field.Type() != system.J_NULL {
@@ -125,7 +125,7 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo5", "page", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo5", "page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -143,7 +143,7 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/demo5/translation", "localized") {
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "frizz.io/demo/demo5/translation", "localized") {
 			typRef := system.NewReference(pkg, name)
 			typeVal, err := typRef.ValueContext(ctx)
 			if err != nil {
@@ -164,7 +164,7 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/demo/demo5/translation", "localized") {
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "frizz.io/demo/demo5/translation", "localized") {
 			typRef := system.NewReference(pkg, name)
 			typeVal, err := typRef.ValueContext(ctx)
 			if err != nil {
@@ -179,10 +179,10 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["title"] = ob0
 	}
-	return m, "kego.io/demo/demo5", "page", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo5", "page", system.J_OBJECT, nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo5")
+	pkg := jsonctx.InitPackage("frizz.io/demo/demo5")
 	pkg.SetHash(14232916769361536059)
 	pkg.Init(
 		"page",

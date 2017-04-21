@@ -5,7 +5,7 @@ import (
 
 	"context"
 
-	"kego.io/system/node"
+	"frizz.io/system/node"
 )
 
 type BranchContentsInterface interface {

@@ -5,8 +5,8 @@ import (
 
 	"context"
 
-	"kego.io/context/jsonctx"
-	"kego.io/context/sysctx"
+	"frizz.io/context/jsonctx"
+	"frizz.io/context/sysctx"
 )
 
 /*
@@ -50,17 +50,17 @@ type JsonBoolInterface interface {
 func RegisterJsonTypes(ctx context.Context) {
 
 	scache := sysctx.FromContext(ctx)
-	pcache := scache.Set("kego.io/json")
+	pcache := scache.Set("frizz.io/json")
 
-	tr := NewReference("kego.io/system", "type")
+	tr := NewReference("frizz.io/system", "type")
 
 	makeRule := func(name string) *Type {
 		return &Type{
 			Object: &Object{
-				Id:   NewReference("kego.io/json", fmt.Sprint(jsonctx.RULE_PREFIX, name)),
+				Id:   NewReference("frizz.io/json", fmt.Sprint(jsonctx.RULE_PREFIX, name)),
 				Type: tr},
 			Interface: false,
-			Embed:     []*Reference{NewReference("kego.io/system", "rule")},
+			Embed:     []*Reference{NewReference("frizz.io/system", "rule")},
 			Native:    NewString("object"),
 			Fields:    map[string]RuleInterface{},
 			Rule:      (*Type)(nil)}
@@ -69,7 +69,7 @@ func RegisterJsonTypes(ctx context.Context) {
 	makeType := func(name string) *Type {
 		return &Type{
 			Object: &Object{
-				Id:   NewReference("kego.io/json", name),
+				Id:   NewReference("frizz.io/json", name),
 				Type: tr},
 			Interface: false,
 			Native:    NewString(name),

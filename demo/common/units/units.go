@@ -1,4 +1,4 @@
-//go:generate ke
+//go:generate frizz
 package units
 
-// ke: {"package": {"notest": true}}
+// notest

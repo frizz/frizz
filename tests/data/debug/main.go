@@ -3,9 +3,9 @@ package main
 import (
 	"testing"
 
+	"frizz.io/system/node"
+	"frizz.io/tests/data"
 	"github.com/dave/ktest/require"
-	"kego.io/system/node"
-	"kego.io/tests/data"
 )
 
 func main() {

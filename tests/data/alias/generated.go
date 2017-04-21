@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/tests/data/alias","Hash":3681006963164671295}
+// info:{"Path":"frizz.io/tests/data/alias","Hash":3681006963164671295}
 package alias
 
 // notest
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/system"
+	"frizz.io/context/jsonctx"
+	"frizz.io/system"
 )
 
 // Automatically created basic rule for alms
@@ -38,7 +38,7 @@ func (v *AlmsRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *AlmsRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/tests/data/alias", "@alms", system.J_NULL, nil
+		return nil, "frizz.io/tests/data/alias", "@alms", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -59,7 +59,7 @@ func (v *AlmsRule) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	return m, "kego.io/tests/data/alias", "@alms", system.J_OBJECT, nil
+	return m, "frizz.io/tests/data/alias", "@alms", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for main
@@ -88,7 +88,7 @@ func (v *MainRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *MainRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/tests/data/alias", "@main", system.J_NULL, nil
+		return nil, "frizz.io/tests/data/alias", "@main", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -109,7 +109,7 @@ func (v *MainRule) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	return m, "kego.io/tests/data/alias", "@main", system.J_OBJECT, nil
+	return m, "frizz.io/tests/data/alias", "@main", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simple
@@ -138,7 +138,7 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/tests/data/alias", "@simple", system.J_NULL, nil
+		return nil, "frizz.io/tests/data/alias", "@simple", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -159,7 +159,7 @@ func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	return m, "kego.io/tests/data/alias", "@simple", system.J_OBJECT, nil
+	return m, "frizz.io/tests/data/alias", "@simple", system.J_OBJECT, nil
 }
 
 type Alms map[string]*Simple
@@ -173,7 +173,7 @@ func (o Alms) GetAlms(ctx context.Context) Alms {
 func UnpackAlmsInterface(ctx context.Context, in system.Packed) (AlmsInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data/alias", "alms")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/tests/data/alias", "alms")
 		if err != nil {
 			return nil, err
 		}
@@ -215,7 +215,7 @@ func (v *Alms) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v Alms) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/tests/data/alias", "alms", system.J_NULL, nil
+		return nil, "frizz.io/tests/data/alias", "alms", system.J_NULL, nil
 	}
 	ob0 := map[string]interface{}{}
 	for k0 := range v {
@@ -225,7 +225,7 @@ func (v Alms) Repack(ctx context.Context) (data interface{}, typePackage string,
 		}
 		ob0[k0] = ob1
 	}
-	return ob0, "kego.io/tests/data/alias", "alms", system.J_MAP, nil
+	return ob0, "frizz.io/tests/data/alias", "alms", system.J_MAP, nil
 }
 
 type Main struct {
@@ -242,7 +242,7 @@ func (o *Main) GetMain(ctx context.Context) *Main {
 func UnpackMainInterface(ctx context.Context, in system.Packed) (MainInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data/alias", "main")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/tests/data/alias", "main")
 		if err != nil {
 			return nil, err
 		}
@@ -276,7 +276,7 @@ func (v *Main) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v *Main) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/tests/data/alias", "main", system.J_NULL, nil
+		return nil, "frizz.io/tests/data/alias", "main", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -295,7 +295,7 @@ func (v *Main) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/tests/data/alias", "main", system.J_OBJECT, nil
+	return m, "frizz.io/tests/data/alias", "main", system.J_OBJECT, nil
 }
 
 type Simple struct {
@@ -312,7 +312,7 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 func UnpackSimpleInterface(ctx context.Context, in system.Packed) (SimpleInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/tests/data/alias", "simple")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/tests/data/alias", "simple")
 		if err != nil {
 			return nil, err
 		}
@@ -346,7 +346,7 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 }
 func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/tests/data/alias", "simple", system.J_NULL, nil
+		return nil, "frizz.io/tests/data/alias", "simple", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -362,10 +362,10 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 		ob0 := v.Js
 		m["js"] = ob0
 	}
-	return m, "kego.io/tests/data/alias", "simple", system.J_OBJECT, nil
+	return m, "frizz.io/tests/data/alias", "simple", system.J_OBJECT, nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/tests/data/alias")
+	pkg := jsonctx.InitPackage("frizz.io/tests/data/alias")
 	pkg.SetHash(3681006963164671295)
 	pkg.Init("alms",
 		func() interface{} { return new(Alms) },

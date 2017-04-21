@@ -1,12 +1,12 @@
-//go:generate ke kego.io/system
-package system // import "kego.io/system"
+//go:generate frizz frizz.io/system
+package system // import "frizz.io/system"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"strings"
 
-	"kego.io/context/jsonctx"
+	"frizz.io/context/jsonctx"
 )
 
 func GoName(id string) string {

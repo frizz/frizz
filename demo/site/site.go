@@ -1,9 +1,9 @@
-//go:generate ke
+//go:generate frizz
 package site
 
 import "context"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 type Section interface {
 	Template() string

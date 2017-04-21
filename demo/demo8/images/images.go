@@ -1,6 +1,6 @@
 package images
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import "context"
 

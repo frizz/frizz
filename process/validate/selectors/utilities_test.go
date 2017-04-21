@@ -5,13 +5,13 @@ import (
 
 	"context"
 
+	"frizz.io/process/parser"
+	"frizz.io/system"
+	"frizz.io/system/node"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
 	"github.com/go-errors/errors"
-	"kego.io/process/parser"
-	"kego.io/system"
-	"kego.io/system/node"
-	"kego.io/tests"
 )
 
 func TestGetIndex(t *testing.T) {

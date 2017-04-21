@@ -6,12 +6,12 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"frizz.io/context/sysctx"
+	"frizz.io/process/generate"
+	"frizz.io/system"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/sysctx"
-	"kego.io/process/generate"
-	"kego.io/system"
-	"kego.io/tests"
 )
 
 func TestRuleId(t *testing.T) {
@@ -188,7 +188,7 @@ func TestImportSystem(t *testing.T) {
 		"package.json": `{
 			"type": "system:package",
 			"aliases": {
-				"s": "kego.io/system"
+				"s": "frizz.io/system"
 			}
 		}`,
 	})
@@ -388,7 +388,7 @@ func TestParse(t *testing.T) {
 	}
 	path, dir := cb.TempPackage("a", files)
 
-	path = "kego.io/system"
+	path = "frizz.io/system"
 
 	cb.Path(path).Dir(dir).Cmd().Sempty().Jsystem()
 

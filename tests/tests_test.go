@@ -8,11 +8,11 @@ import (
 
 	"context"
 
+	"frizz.io/context/envctx"
+	"frizz.io/process"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
-	"kego.io/process"
-	"kego.io/tests"
 )
 
 func TestDefaultInterfaceNativeType(t *testing.T) {
@@ -202,7 +202,7 @@ func TestImport(t *testing.T) {
 	require.NoError(t, err)
 	defer os.RemoveAll(namespaceDir)
 
-	path, err := runKego(namespaceDir, "elements", map[string]string{
+	path, err := runFrizz(namespaceDir, "elements", map[string]string{
 		"title.yaml": `
 			type: system:type
 			id: title
@@ -218,7 +218,7 @@ func TestImport(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	_, err = runKego(namespaceDir, "site", map[string]string{
+	_, err = runFrizz(namespaceDir, "site", map[string]string{
 		"site.yaml": `
 			type: elements:page
 			id: site

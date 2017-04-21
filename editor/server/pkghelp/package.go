@@ -7,12 +7,12 @@ import (
 
 	"strings"
 
+	"frizz.io/context/envctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/process/parser"
+	"frizz.io/process/scanner"
+	"frizz.io/system"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
-	"kego.io/context/sysctx"
-	"kego.io/process/parser"
-	"kego.io/process/scanner"
-	"kego.io/system"
 )
 
 type Package struct {
@@ -58,7 +58,7 @@ func Scan(ctx context.Context, path string) (*Package, error) {
 		if o.Type == nil {
 			return nil, kerr.New("AJPCEQTWPS", "%s has no type", b.File)
 		}
-		if o.Id == nil && *o.Type != *system.NewReference("kego.io/system", "package") {
+		if o.Id == nil && *o.Type != *system.NewReference("frizz.io/system", "package") {
 			// we tolerate missing ID only for system:package
 			return nil, kerr.New("YDKYLXTGYC", "%s has no id", b.File)
 		}

@@ -3,12 +3,12 @@ package ext
 import (
 	"testing"
 
-	"kego.io/process"
-	"kego.io/process/generate"
-	"kego.io/tests"
+	"frizz.io/process"
+	"frizz.io/process/generate"
+	"frizz.io/tests"
 )
 
-// ke: {"package": {"notest": true}}
+// notest
 
 func InitialiseAndGenerate(t *testing.T, cb *tests.ContextBuilder, name string, files map[string]string) (string, error) {
 	path, _ := cb.TempPackage(name, files)

@@ -11,13 +11,13 @@ import (
 
 	"context"
 
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/wgctx"
+	"frizz.io/process/generate"
+	"frizz.io/process/logger"
+	"frizz.io/process/validate"
 	"github.com/dave/kerr"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/wgctx"
-	"kego.io/process/generate"
-	"kego.io/process/logger"
-	"kego.io/process/validate"
 )
 
 const validateCommand = ".localke/validate"

@@ -6,15 +6,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"kego.io/process/parser"
+	"frizz.io/process/parser"
 
 	"fmt"
 
+	"frizz.io/context/envctx"
+	"frizz.io/tests"
 	"github.com/dave/kerr"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
-	"kego.io/tests"
 )
 
 func TestRun(t *testing.T) {

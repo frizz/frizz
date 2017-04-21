@@ -3,13 +3,13 @@ package views
 import (
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/models"
+	"frizz.io/editor/client/stores"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/dave/vecty/event"
 	"github.com/dave/vecty/prop"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
 )
 
 type ViewMenuView struct {

@@ -3,9 +3,9 @@ package system
 import (
 	"testing"
 
+	"frizz.io/context/envctx"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
 )
 
 func TestIntRule_Enforce(t *testing.T) {

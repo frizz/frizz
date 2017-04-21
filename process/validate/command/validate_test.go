@@ -4,13 +4,13 @@ import (
 	"os"
 	"testing"
 
+	"frizz.io/context/sysctx"
+	"frizz.io/process/parser"
+	_ "frizz.io/process/validate/tests"
+	_ "frizz.io/system"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/sysctx"
-	"kego.io/process/parser"
-	_ "kego.io/process/validate/tests"
-	_ "kego.io/system"
-	"kego.io/tests"
 )
 
 func TestValidateMain(t *testing.T) {
@@ -18,8 +18,8 @@ func TestValidateMain(t *testing.T) {
 	cb := tests.New().TempGopath(true)
 	defer cb.Cleanup()
 
-	dir := cb.SetTemp("kego.io/system")
-	cb.Path("kego.io/system").Dir(dir).Jempty().Sempty()
+	dir := cb.SetTemp("frizz.io/system")
+	cb.Path("frizz.io/system").Dir(dir).Jempty().Sempty()
 
 	cancelled := false
 	cancel := func() {

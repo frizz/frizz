@@ -1,5 +1,5 @@
 type: system:package
 aliases:
-    images: kego.io/demo/common/images
-    words: kego.io/demo/common/words
-    units: kego.io/demo/common/units
+    images: frizz.io/demo/common/images
+    words: frizz.io/demo/common/words
+    units: frizz.io/demo/common/units

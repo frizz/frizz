@@ -8,9 +8,9 @@ import (
 
 	"regexp"
 
+	"frizz.io/context/envctx"
+	"frizz.io/context/jsonctx"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
 )
 
 type Reference struct {
@@ -45,10 +45,10 @@ func (r Reference) ValueContext(ctx context.Context) (string, error) {
 	if r.Package == env.Path {
 		return r.Name, nil
 	}
-	if r.Package == "kego.io/json" {
+	if r.Package == "frizz.io/json" {
 		return fmt.Sprintf("json:%s", r.Name), nil
 	}
-	if r.Package == "kego.io/system" {
+	if r.Package == "frizz.io/system" {
 		return fmt.Sprintf("system:%s", r.Name), nil
 	}
 	for alias, pkg := range env.Aliases {
@@ -128,16 +128,16 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 
 	if strings.Contains(typeString, "/") {
 		// If the type name contains a slash, I'm assuming it's a fully
-		// qualified type name of the form "kego.io/system:type".
+		// qualified type name of the form "frizz.io/system:type".
 		// TODO: Improve this with a regex?
 		parts := strings.Split(typeString, ":")
 
 		// We hard-code system and json to prevent them having to always be
 		// specified in the aliases
-		if parts[0] == "kego.io/system" {
-			return "kego.io/system", parts[1], nil
-		} else if parts[0] == "kego.io/json" {
-			return "kego.io/json", parts[1], nil
+		if parts[0] == "frizz.io/system" {
+			return "frizz.io/system", parts[1], nil
+		} else if parts[0] == "frizz.io/json" {
+			return "frizz.io/json", parts[1], nil
 		}
 
 		_, found := findKey(env.Aliases, parts[0])
@@ -158,9 +158,9 @@ func GetReferencePartsFromTypeString(ctx context.Context, typeString string) (pa
 		// We hard-code system and json to prevent them having to always be
 		// specified in the aliases
 		if parts[0] == "system" {
-			return "kego.io/system", parts[1], nil
+			return "frizz.io/system", parts[1], nil
 		} else if parts[0] == "json" {
-			return "kego.io/json", parts[1], nil
+			return "frizz.io/json", parts[1], nil
 		}
 
 		packagePath, ok := env.Aliases[parts[0]]
@@ -243,13 +243,13 @@ var _ Repacker = (*Reference)(nil)
 
 func (r *Reference) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType JsonType, err error) {
 	if r == nil {
-		return nil, "kego.io/system", "reference", J_NULL, nil
+		return nil, "frizz.io/system", "reference", J_NULL, nil
 	}
 	val, err := r.ValueContext(ctx)
 	if err != nil {
 		return nil, "", "", "", kerr.Wrap("VQCYFSTPQD", err)
 	}
-	return val, "kego.io/system", "reference", J_STRING, nil
+	return val, "frizz.io/system", "reference", J_STRING, nil
 }
 
 func (r Reference) String() string {

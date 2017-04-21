@@ -2,7 +2,7 @@ package images
 
 import (
 	"context"
-	"kego.io/editor/client_old/mdl"
+	"frizz.io/editor/client_old/mdl"
 )
 
 func (i *Icon) GetEditor(n *editor.Node) editor.EditorInterface {

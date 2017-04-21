@@ -3,8 +3,8 @@ package stores
 import (
 	"context"
 
-	"kego.io/editor/client/models"
-	"kego.io/flux"
+	"frizz.io/editor/client/models"
+	"frizz.io/flux"
 )
 
 type PanelStore struct {

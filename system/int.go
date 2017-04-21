@@ -111,9 +111,9 @@ var _ Unpacker = (*Int)(nil)
 
 func (n *Int) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType JsonType, err error) {
 	if n == nil {
-		return nil, "kego.io/system", "int", J_NULL, nil
+		return nil, "frizz.io/system", "int", J_NULL, nil
 	}
-	return float64(*n), "kego.io/system", "int", J_NUMBER, nil
+	return float64(*n), "frizz.io/system", "int", J_NUMBER, nil
 }
 
 var _ Repacker = (*Int)(nil)

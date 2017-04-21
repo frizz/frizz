@@ -3,8 +3,8 @@ package system
 import (
 	"testing"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
-	"kego.io/tests"
 )
 
 func TestObjectGetType(t *testing.T) {

@@ -3,9 +3,9 @@ package system
 import (
 	"testing"
 
+	"frizz.io/context/envctx"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
 )
 
 func TestStringGetDefault(t *testing.T) {
@@ -29,7 +29,7 @@ func TestUnpackDefaultNativeTypeString(t *testing.T) {
 		B StringInterface `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jsystem().Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -42,7 +42,7 @@ func TestUnpackDefaultNativeTypeString(t *testing.T) {
 
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","b":"c"}`, string(b))
 
 }
 */
@@ -60,7 +60,7 @@ func TestMarshal(t *testing.T) {
 		B String `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -72,7 +72,7 @@ func TestMarshal(t *testing.T) {
 
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","b":"c"}`, string(b))
 
 }
 */
@@ -86,17 +86,17 @@ func TestMarshal1(t *testing.T) {
 		C *String `json:"c"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	a := A{
 		Object: &Object{
-			Type: NewReference("kego.io/system", "a"),
+			Type: NewReference("frizz.io/system", "a"),
 		},
 		B: NewString("d"),
 	}
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":"d"}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","b":"d"}`, string(b))
 
 }
 */
@@ -109,23 +109,23 @@ func TestMarshal2(t *testing.T) {
 		B *String `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	a := A{
 		Object: &Object{
-			Type: NewReference("kego.io/system", "a"),
+			Type: NewReference("frizz.io/system", "a"),
 		},
 		B: NewString("c"),
 	}
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","b":"c"}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","b":"c"}`, string(b))
 
 	b, err = Marshal(ctx, a)
 	require.NoError(t, err)
 	assert.Equal(t, `{"type":"a","b":"c"}`, string(b))
 
-	ctx1 := tests.Context("d.e/f").JtypePath("kego.io/system", "a", reflect.TypeOf(&A{})).Ctx()
+	ctx1 := tests.Context("d.e/f").JtypePath("frizz.io/system", "a", reflect.TypeOf(&A{})).Ctx()
 
 	b, err = Marshal(ctx1, a)
 	require.NoError(t, err)

@@ -1,6 +1,6 @@
-package tests // import "kego.io/process/validate/selectors/tests"
+package tests // import "frizz.io/process/validate/selectors/tests"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 // for tests
 type Image interface {

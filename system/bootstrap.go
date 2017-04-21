@@ -16,7 +16,7 @@ func UnpackMappyInterface(ctx context.Context, in Packed) (MappyInterface, error
 	// Mappy is an map type, so we only accept a typed map
 	switch in.Type() {
 	case J_MAP:
-		ob, err := UnpackUnknownType(ctx, in, true, "kego.io/system", "mappy")
+		ob, err := UnpackUnknownType(ctx, in, true, "frizz.io/system", "mappy")
 		if err != nil {
 			return nil, kerr.Wrap("QSTEIBUNWO", err)
 		}

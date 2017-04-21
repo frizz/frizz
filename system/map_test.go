@@ -3,9 +3,9 @@ package system
 import (
 	"testing"
 
+	"frizz.io/context/envctx"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
 )
 
 /*
@@ -26,7 +26,7 @@ func testMapMarshal(t *testing.T, up unpacker.Interface) {
 		B map[string]*String `json:"b"`
 	}
 
-	ctx := tests.Context("kego.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
+	ctx := tests.Context("frizz.io/system").Jtype("a", reflect.TypeOf(&A{})).Ctx()
 
 	var i interface{}
 	err := Unmarshal(ctx, []byte(data), &i)
@@ -38,7 +38,7 @@ func testMapMarshal(t *testing.T, up unpacker.Interface) {
 
 	b, err := Marshal(ctx, a)
 	require.NoError(t, err)
-	assert.Equal(t, `{"type":"kego.io/system:a","e":"f","b":{"c":"d"}}`, string(b))
+	assert.Equal(t, `{"type":"frizz.io/system:a","e":"f","b":{"c":"d"}}`, string(b))
 
 }
 */

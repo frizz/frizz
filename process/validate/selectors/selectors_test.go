@@ -3,11 +3,11 @@ package selectors
 import (
 	"testing"
 
+	"frizz.io/process/parser"
+	"frizz.io/system/node"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/process/parser"
-	"kego.io/system/node"
-	"kego.io/tests"
 )
 
 func TestUniversalProduction(t *testing.T) {
@@ -24,9 +24,9 @@ func TestUniversalProduction(t *testing.T) {
 	assert.True(t, out)
 }
 
-func TestKegoProduction(t *testing.T) {
+func TestFrizzProduction(t *testing.T) {
 	p := getParser(t)
-	f := p.kegoProduction(nil)
+	f := p.frizzProduction(nil)
 	b, err := f(&node.Node{Null: true})
 	assert.False(t, b)
 	require.NoError(t, err)

@@ -3,13 +3,13 @@ package views
 import (
 	"context"
 
+	"frizz.io/editor/client/clientctx"
+	"frizz.io/editor/client/editable"
+	"frizz.io/editor/client/models"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
-	"kego.io/editor/client/clientctx"
-	"kego.io/editor/client/editable"
-	"kego.io/editor/client/models"
-	"kego.io/system/node"
 )
 
 type StructView struct {
@@ -38,7 +38,7 @@ func (v *StructView) Render() *vecty.HTML {
 	out := vecty.List{}
 
 	// Always show the editor for system:object first
-	objectEditor, ok := clientctx.FromContext(v.Ctx).Get("kego.io/system:object")
+	objectEditor, ok := clientctx.FromContext(v.Ctx).Get("frizz.io/system:object")
 	if !ok {
 		panic(kerr.New("BJRMXESSUV", "Can't find editor for system:object"))
 	}

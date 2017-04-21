@@ -5,13 +5,13 @@ import (
 
 	"github.com/dave/ktest/require"
 
-	"kego.io/process/parser"
-	"kego.io/system"
-	"kego.io/tests"
+	"frizz.io/process/parser"
+	"frizz.io/system"
+	"frizz.io/tests"
 )
 
 func Test(t *testing.T) {
-	cb := tests.Context("kego.io/tests/data/alias").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data/alias").Jauto().Sauto(parser.Parse)
 	s := `{
   "type": "main",
   "id": "data",

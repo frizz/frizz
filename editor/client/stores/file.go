@@ -3,12 +3,12 @@ package stores
 import (
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/models"
+	"frizz.io/flux"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
-	"kego.io/flux"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type FileStore struct {
@@ -74,7 +74,7 @@ func (s *FileStore) Handle(payload *flux.Payload) bool {
 			n.RecomputeHash(s.ctx, true)
 			fm := &models.FileModel{
 				Package:  false,
-				Type:     *action.Type.Id == *system.NewReference("kego.io/system", "type"),
+				Type:     *action.Type.Id == *system.NewReference("frizz.io/system", "type"),
 				Filename: action.BranchFile,
 				Node:     n,
 				Hash:     n.Hash(),

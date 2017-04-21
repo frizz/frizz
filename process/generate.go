@@ -12,12 +12,12 @@ import (
 
 	"encoding/json"
 
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/context/wgctx"
+	"frizz.io/process/generate"
 	"github.com/dave/kerr"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/sysctx"
-	"kego.io/context/wgctx"
-	"kego.io/process/generate"
 )
 
 type SourceType string
@@ -40,8 +40,8 @@ func GenerateAll(ctx context.Context, path string, done map[string]bool) error {
 	if !ok {
 		return kerr.New("XMVXECGDOX", "%s not found in ctx", path)
 	}
-	if path != "kego.io/system" {
-		if err := GenerateAll(ctx, "kego.io/system", done); err != nil {
+	if path != "frizz.io/system" {
+		if err := GenerateAll(ctx, "frizz.io/system", done); err != nil {
 			return kerr.Wrap("HBKXDVYWUP", err)
 		}
 	}
@@ -117,7 +117,7 @@ func Generate(ctx context.Context, env *envctx.Env) error {
 
 	// We only backup in the system structs and types files because they are
 	// the only generated files we ever need to roll back
-	backup := env.Path == "kego.io/system"
+	backup := env.Path == "frizz.io/system"
 
 	if err = save(outputDir, source, filename, backup); err != nil {
 		return kerr.Wrap("UONJTTSTWW", err)

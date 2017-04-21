@@ -1,6 +1,6 @@
-package jsonctx // import "kego.io/context/jsonctx"
+package jsonctx // import "frizz.io/context/jsonctx"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"reflect"

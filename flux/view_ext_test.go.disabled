@@ -9,8 +9,8 @@ import (
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/golang/mock/gomock"
-	"kego.io/flux"
-	"kego.io/flux/mock_flux"
+	"frizz.io/flux"
+	"frizz.io/flux/mock_flux"
 )
 
 func TestNewView(t *testing.T) {

@@ -10,11 +10,11 @@ import (
 
 	"context"
 
+	"frizz.io/context/vosctx"
 	"github.com/dave/kerr"
 	"github.com/gopherjs/gopherjs/build"
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/neelance/sourcemap"
-	"kego.io/context/vosctx"
 )
 
 func Compile(ctx context.Context, source []byte, mapping bool) ([]byte, error) {

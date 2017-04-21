@@ -1,6 +1,6 @@
-package wgctx // import "kego.io/context/wgctx"
+package wgctx // import "frizz.io/context/wgctx"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"os"

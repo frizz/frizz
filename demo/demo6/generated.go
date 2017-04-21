@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/demo/demo6","Hash":7465480149826331644}
+// info:{"Path":"frizz.io/demo/demo6","Hash":7465480149826331644}
 package demo6
 
 // notest
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/system"
+	"frizz.io/context/jsonctx"
+	"frizz.io/system"
 )
 
 // Automatically created basic rule for page
@@ -28,7 +28,7 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo6", "@page"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo6", "@page"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -41,7 +41,7 @@ func (v *PageRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "@page", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo6", "@page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -62,7 +62,7 @@ func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo6", "@page", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo6", "@page", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for person
@@ -81,7 +81,7 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo6", "@person"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo6", "@person"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -94,7 +94,7 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "@person", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo6", "@person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -115,7 +115,7 @@ func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	return m, "kego.io/demo/demo6", "@person", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo6", "@person", system.J_OBJECT, nil
 }
 
 type Page struct {
@@ -133,7 +133,7 @@ func (o *Page) GetPage(ctx context.Context) *Page {
 func UnpackPageInterface(ctx context.Context, in system.Packed) (PageInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo6", "page")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/demo/demo6", "page")
 		if err != nil {
 			return nil, err
 		}
@@ -156,7 +156,7 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo6", "page"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo6", "page"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["heading"]; ok && field.Type() != system.J_NULL {
@@ -184,7 +184,7 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "page", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo6", "page", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -214,7 +214,7 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["people"] = ob0
 	}
-	return m, "kego.io/demo/demo6", "page", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo6", "page", system.J_OBJECT, nil
 }
 
 type Person struct {
@@ -232,7 +232,7 @@ func (o *Person) GetPerson(ctx context.Context) *Person {
 func UnpackPersonInterface(ctx context.Context, in system.Packed) (PersonInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/demo/demo6", "person")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/demo/demo6", "person")
 		if err != nil {
 			return nil, err
 		}
@@ -255,7 +255,7 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/demo/demo6", "person"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/demo/demo6", "person"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
@@ -276,7 +276,7 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 }
 func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/demo/demo6", "person", system.J_NULL, nil
+		return nil, "frizz.io/demo/demo6", "person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -302,10 +302,10 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/demo/demo6", "person", system.J_OBJECT, nil
+	return m, "frizz.io/demo/demo6", "person", system.J_OBJECT, nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/demo/demo6")
+	pkg := jsonctx.InitPackage("frizz.io/demo/demo6")
 	pkg.SetHash(7465480149826331644)
 	pkg.Init(
 		"page",

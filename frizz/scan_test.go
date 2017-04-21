@@ -1,4 +1,4 @@
-package ke_test
+package frizz_test
 
 import (
 	"fmt"
@@ -17,18 +17,18 @@ import (
 
 	"encoding/json"
 
+	"frizz.io/process/packages"
 	"github.com/dave/kerr"
 	"github.com/dave/kerr/ksrc"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/process/packages"
 )
 
 var pkgs = map[string]*pkgDef{}
 var all = map[string]*errDef{}
 
 func TestAll(t *testing.T) {
-	dir, err := packages.GetDirFromPackage(context.Background(), "kego.io")
+	dir, err := packages.GetDirFromPackage(context.Background(), "frizz.io")
 	require.NoError(t, err)
 
 	// walk each file in the working directory
@@ -88,8 +88,8 @@ func walkFile(path string, t *testing.T) error {
 		return kerr.Wrap("FIPPWAKAGK", err)
 	}
 
-	// ignore anything that starts with kego.io/demo/
-	if strings.HasPrefix(pkg, "kego.io/demo/") {
+	// ignore anything that starts with frizz.io/demo/
+	if strings.HasPrefix(pkg, "frizz.io/demo/") {
 		return nil
 	}
 
@@ -175,7 +175,7 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 	case *ast.File:
 		for _, cg := range ty.Comments {
 			for _, c := range cg.List {
-				if strings.HasPrefix(c.Text, "// ke: ") {
+				if strings.HasPrefix(c.Text, "// frizz: ") {
 					val := struct{ Package struct{ Notest bool } }{}
 					err := json.Unmarshal([]byte(c.Text[7:]), &val)
 					require.NoError(v.t, err)

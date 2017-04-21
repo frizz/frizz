@@ -3,14 +3,14 @@ package views
 import (
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/models"
+	"frizz.io/editor/client/stores"
+	"frizz.io/flux"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/dave/vecty/event"
 	"github.com/dave/vecty/prop"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
-	"kego.io/flux"
 )
 
 type BranchControlView struct {
@@ -37,8 +37,8 @@ func NewBranchControlView(ctx context.Context, model *models.BranchModel) *Branc
 	return v
 }
 
-// ke: {"func": {"notest": true}}
 func (v *BranchControlView) Restore(prev vecty.Component) bool {
+	// notest
 	if v.model != nil && v.App.Branches.Selected() == v.model {
 		v.focus()
 	}

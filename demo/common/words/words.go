@@ -1,12 +1,12 @@
-//go:generate ke
+//go:generate frizz
 package words
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"context"
 
-	"kego.io/system"
+	"frizz.io/system"
 )
 
 func (s *Simple) GetString(ctx context.Context) *system.String {

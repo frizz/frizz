@@ -9,9 +9,9 @@ import (
 
 	"io/ioutil"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/tests"
 )
 
 func TestScanFilesToBytes(t *testing.T) {

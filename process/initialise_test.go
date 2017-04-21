@@ -3,10 +3,10 @@ package process
 import (
 	"testing"
 
+	"frizz.io/context/envctx"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/envctx"
-	"kego.io/tests"
 )
 
 func TestGetOptions(t *testing.T) {

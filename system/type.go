@@ -9,10 +9,10 @@ import (
 
 	"fmt"
 
+	"frizz.io/context/jsonctx"
+	"frizz.io/context/sysctx"
 	"github.com/dave/jennifer/jen"
 	"github.com/dave/kerr"
-	"kego.io/context/jsonctx"
-	"kego.io/context/sysctx"
 )
 
 type Kind string
@@ -70,7 +70,7 @@ func (t *Type) PassedAsPointerInverseString(ctx context.Context) string {
 }
 
 func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
-	if t.Id.Package == "kego.io/json" {
+	if t.Id.Package == "frizz.io/json" {
 		return KindValue, false
 	}
 	if len(t.Fields) > 0 {
@@ -313,7 +313,7 @@ func (t *Type) IsAliasCollection() bool {
 }
 
 func (t *Type) IsJsonValue() bool {
-	return t.IsNativeValue() && t.Id.Package == "kego.io/json"
+	return t.IsNativeValue() && t.Id.Package == "frizz.io/json"
 }
 func (t *Type) IsNativeValue() bool {
 	return nativeTypeClass(t.Native.Value()) == nativeValue
@@ -337,7 +337,7 @@ func (t *Type) NativeValueGolangType() (*jen.Statement, error) {
 func (t *Type) AllEmbeds() []*Reference {
 	var out []*Reference
 	if !t.Basic {
-		out = append(out, NewReference("kego.io/system", "object"))
+		out = append(out, NewReference("frizz.io/system", "object"))
 	}
 	return append(out, t.Embed...)
 }
@@ -346,7 +346,7 @@ func (t *Type) FieldOrigins() []*Reference {
 	out := []*Reference{t.Id}
 	out = append(out, t.Embed...)
 	if !t.Basic {
-		out = append(out, NewReference("kego.io/system", "object"))
+		out = append(out, NewReference("frizz.io/system", "object"))
 	}
 	return out
 }

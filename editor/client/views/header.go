@@ -47,7 +47,7 @@ func (v *Header) Render() *vecty.HTML {
 				/* elem.Anchor(
 					prop.Class("navbar-brand"),
 					prop.Href("#"),
-					vecty.Text("Ke"),
+					vecty.Text("Frizz"),
 				), */
 			),
 			elem.Div(

@@ -6,11 +6,11 @@ import (
 
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/sysctx"
-	"kego.io/process/generate/builder"
-	"kego.io/process/parser"
-	"kego.io/system"
-	"kego.io/tests"
+	"frizz.io/context/sysctx"
+	"frizz.io/process/generate/builder"
+	"frizz.io/process/parser"
+	"frizz.io/system"
+	"frizz.io/tests"
 )
 
 func TestGenerateSourceErr1(t *testing.T) {
@@ -25,12 +25,12 @@ func TestGenerateSourceErr2(t *testing.T) {
 	cb.Stype("a", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "a"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("object"),
 		Fields: map[string]system.RuleInterface{
 			"c": &system.StringRule{
 				Object: &system.Object{
-					Type: system.NewReference("kego.io/system", "@foo"),
+					Type: system.NewReference("frizz.io/system", "@foo"),
 				},
 				Rule: &system.Rule{},
 			},
@@ -56,7 +56,7 @@ func TestGenerateSource(t *testing.T) {
 	cb.Stype("amap", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "amap"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("map"),
 	})
 
@@ -64,7 +64,7 @@ func TestGenerateSource(t *testing.T) {
 	cb.Stype("aarr", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "aarr"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("array"),
 	})
 
@@ -72,21 +72,21 @@ func TestGenerateSource(t *testing.T) {
 		Object: &system.Object{
 			Description: "d",
 			Id:          system.NewReference("b.c/d", "a"),
-			Type:        system.NewReference("kego.io/system", "type")},
+			Type:        system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("object"),
 	})
 
 	cb.Stype("an", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "an"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("bool"),
 	})
 
 	cb.Stype("ai", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "ai"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native:    system.NewString("object"),
 		Interface: true,
 	})
@@ -98,8 +98,8 @@ func TestGenerateSource(t *testing.T) {
 	assert.Contains(t, string(source), "package d\n")
 	imp := getImports(t, string(source))
 	assert.Contains(t, imp, "\t\"context\"\n")
-	assert.Contains(t, imp, "\t\"kego.io/context/jsonctx\"\n")
-	assert.Contains(t, imp, "\t\"kego.io/system\"\n")
+	assert.Contains(t, imp, "\t\"frizz.io/context/jsonctx\"\n")
+	assert.Contains(t, imp, "\t\"frizz.io/system\"\n")
 	assert.Contains(t, imp, "\t\"reflect\"\n")
 	assert.NotContains(t, imp, "\"f.g/h\"")
 	assert.NotContains(t, imp, "Amap") // Native collections shouldn't go into the generated file
@@ -122,7 +122,7 @@ func TestPrintStructDefinition(t *testing.T) {
 	r := &system.StringRule{
 		Object: &system.Object{
 			Description: "e",
-			Type:        system.NewReference("kego.io/system", "@string"),
+			Type:        system.NewReference("frizz.io/system", "@string"),
 		},
 		Rule: &system.Rule{},
 	}
@@ -131,7 +131,7 @@ func TestPrintStructDefinition(t *testing.T) {
 		Object: &system.Object{
 			Description: "d",
 			Id:          system.NewReference("b.c/d", "a"),
-			Type:        system.NewReference("kego.io/system", "type")},
+			Type:        system.NewReference("frizz.io/system", "type")},
 		Embed:  []*system.Reference{system.NewReference("b.c/d", "b")},
 		Native: system.NewString("object"),
 		Fields: map[string]system.RuleInterface{"c": r},
@@ -147,7 +147,7 @@ func TestPrintStructDefinition(t *testing.T) {
 	assert.Contains(t, string(source), `package d
 
 import (
-	"kego.io/system"
+	"frizz.io/system"
 )
 
 // d
@@ -167,14 +167,14 @@ func TestPrintInitFunction(t *testing.T) {
 		Object: &system.Object{
 			Description: "d",
 			Id:          system.NewReference("b.c/d", "a"),
-			Type:        system.NewReference("kego.io/system", "type")},
+			Type:        system.NewReference("frizz.io/system", "type")},
 		Embed:  []*system.Reference{system.NewReference("b.c/d", "b")},
 		Native: system.NewString("object"),
 		Fields: map[string]system.RuleInterface{
 			"c": &system.StringRule{
 				Object: &system.Object{
 					Description: "e",
-					Type:        system.NewReference("kego.io/system", "@string"),
+					Type:        system.NewReference("frizz.io/system", "@string"),
 				},
 				Rule: &system.Rule{},
 			},
@@ -184,28 +184,28 @@ func TestPrintInitFunction(t *testing.T) {
 	cb.Stype("@a", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "@a"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("object"),
 	})
 
 	cb.Stype("amap", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "amap"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("map"),
 	})
 
 	cb.Stype("@amap", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "@amap"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("object"),
 	})
 
 	cb.Stype("aiface", &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "aiface"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Interface: true,
 		Native:    system.NewString("object"),
 	})
@@ -223,7 +223,7 @@ func TestPrintInitFunction(t *testing.T) {
 	assert.Contains(t, string(source), `package d
 
 import (
-	"kego.io/context/jsonctx"
+	"frizz.io/context/jsonctx"
 	"reflect"
 )
 
@@ -255,7 +255,7 @@ func TestGenerateCommand_errors(t *testing.T) {
 	ty := &system.Type{
 		Object: &system.Object{
 			Id:   system.NewReference("b.c/d", "a corrupt"),
-			Type: system.NewReference("kego.io/system", "type")},
+			Type: system.NewReference("frizz.io/system", "type")},
 		Native: system.NewString("object"),
 	}
 	cb = tests.Context("b.c/d").Stype("a", ty)

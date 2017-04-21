@@ -1,13 +1,13 @@
-package repacker // import "kego.io/tests/repacker"
+package repacker // import "frizz.io/tests/repacker"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"context"
 
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 var Repack = &Repacker{}

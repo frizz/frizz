@@ -3,9 +3,9 @@ package builder
 import (
 	"context"
 
+	"frizz.io/system"
 	"github.com/dave/jennifer/jen"
 	"github.com/dave/kerr"
-	"kego.io/system"
 )
 
 // AliasTypeDefinition returns the Go source for the definition of the type

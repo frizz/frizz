@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/dave/ktest/assert"
-	"kego.io/process/generate/builder"
+	"frizz.io/process/generate/builder"
 )
 
 func TestGetName(t *testing.T) {
@@ -29,13 +29,13 @@ func TestGetName(t *testing.T) {
 
 	impk := builder.Imports{
 		"e.f/g": builder.Import{Path: "e.f/g", Name: "g", Alias: "d"},
-		"kego.io/process/generate/literal": builder.Import{Path: "kego.io/process/generate/literal", Name: "literal", Alias: "h"}}
+		"frizz.io/process/generate/literal": builder.Import{Path: "frizz.io/process/generate/literal", Name: "literal", Alias: "h"}}
 	type MyType struct{}
 	m := MyType{}
 
-	assert.Equal(t, "MyType", GetName(reflect.TypeOf(m), "kego.io/process/generate/literal", imp.Add))
+	assert.Equal(t, "MyType", GetName(reflect.TypeOf(m), "frizz.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "h.MyType", GetName(reflect.TypeOf(m), "a.b/c", impk.Add))
-	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "kego.io/process/generate/literal", imp.Add))
+	assert.Equal(t, "*MyType", GetName(reflect.TypeOf(&m), "frizz.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "*h.MyType", GetName(reflect.TypeOf(&m), "a.b/c", impk.Add))
 
 	asp := "github.com/dave/ktest/assert"
@@ -83,9 +83,9 @@ func TestGetName(t *testing.T) {
 	assert.Equal(t, "map[bool]string", GetName(reflect.TypeOf(map[bool]string{}), "a.b/c", imp.Add))
 	assert.Equal(t, "map[*int]string", GetName(reflect.TypeOf(map[*int]string{}), "a.b/c", imp.Add))
 
-	assert.Equal(t, "map[MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "kego.io/process/generate/literal", imp.Add))
+	assert.Equal(t, "map[MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "frizz.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "map[h.MyType]string", GetName(reflect.TypeOf(map[MyType]string{}), "a.b/c", impk.Add))
-	assert.Equal(t, "map[*MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "kego.io/process/generate/literal", imp.Add))
+	assert.Equal(t, "map[*MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "frizz.io/process/generate/literal", imp.Add))
 	assert.Equal(t, "map[*h.MyType]string", GetName(reflect.TypeOf(map[*MyType]string{}), "a.b/c", impk.Add))
 
 	assert.Equal(t, "map[Assertions]string", GetName(reflect.TypeOf(map[assert.Assertions]string{}), asp, imp.Add))

@@ -4,16 +4,16 @@ import (
 	"context"
 	"testing"
 
+	"frizz.io/frizz"
+	"frizz.io/system"
+	"frizz.io/tests/data"
+	. "frizz.io/tests/marshal"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/ke"
-	"kego.io/system"
-	"kego.io/tests/data"
-	. "kego.io/tests/marshal"
 )
 
 func TestAljb(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"aljb": true
@@ -26,7 +26,7 @@ func TestAljb(t *testing.T) {
 }
 
 func TestAljbi(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"aljbi": true
@@ -40,7 +40,7 @@ func TestAljbi(t *testing.T) {
 }
 
 func TestAljbi2(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	// aljb2 is another alias bool type that implements the aljb default
 	// interface.
 	Run(t, ctx, `{
@@ -56,7 +56,7 @@ func TestAljbi2(t *testing.T) {
 }
 
 func TestAljn(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"aljn": 1.1
@@ -69,7 +69,7 @@ func TestAljn(t *testing.T) {
 }
 
 func TestAljni(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"aljni": 1.1
@@ -83,7 +83,7 @@ func TestAljni(t *testing.T) {
 }
 
 func TestAljni2(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	// Aljn2 is another alias number type that implements the Aljn default
 	// interface.
 	Run(t, ctx, `{
@@ -99,7 +99,7 @@ func TestAljni2(t *testing.T) {
 }
 
 func TestAljs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"aljs": "a"
@@ -112,7 +112,7 @@ func TestAljs(t *testing.T) {
 }
 
 func TestAljsi(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"aljsi": "a"
@@ -126,7 +126,7 @@ func TestAljsi(t *testing.T) {
 }
 
 func TestAljsi2(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	// Aljs2 is another alias string type that implements the Aljs default
 	// interface.
 	Run(t, ctx, `{
@@ -142,7 +142,7 @@ func TestAljsi2(t *testing.T) {
 }
 
 func TestAls(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"als": {"type": "als", "js": "a"}
@@ -155,7 +155,7 @@ func TestAls(t *testing.T) {
 }
 
 func TestAlsError(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	// Type must be als when unpacking into als, even if it's an alias
 	// of simple
 	Run(t, ctx, `{
@@ -170,7 +170,7 @@ func TestAlsError(t *testing.T) {
 }
 
 func TestAlss(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"alss": "a"
@@ -183,7 +183,7 @@ func TestAlss(t *testing.T) {
 }
 
 func TestBri(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"bri": true
@@ -196,7 +196,7 @@ func TestBri(t *testing.T) {
 }
 
 func TestBri2(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"bri": {"type": "aljb2", "value": true}
@@ -209,7 +209,7 @@ func TestBri2(t *testing.T) {
 }
 
 func TestI(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"i": {"type": "facea", "a": "b"}
@@ -222,7 +222,7 @@ func TestI(t *testing.T) {
 }
 
 func TestJbJnJs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"jb": true,
@@ -238,7 +238,7 @@ func TestJbJnJs(t *testing.T) {
 }
 
 func TestM(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"m": {
@@ -254,7 +254,7 @@ func TestM(t *testing.T) {
 }
 
 func TestNri(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"nri": 1.1
@@ -267,7 +267,7 @@ func TestNri(t *testing.T) {
 }
 
 func TestNri2(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"nri": {"type": "aljn2", "value": 1.1}
@@ -280,7 +280,7 @@ func TestNri2(t *testing.T) {
 }
 
 func TestRi(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"ri": {"type": "system:@string", "default": "a"}
@@ -292,7 +292,7 @@ func TestRi(t *testing.T) {
 }
 
 func TestSbSnSs(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"sb": true,
@@ -308,7 +308,7 @@ func TestSbSnSs(t *testing.T) {
 }
 
 func TestSp(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"sp": {"type": "system:package", "recursive": true}
@@ -320,20 +320,20 @@ func TestSp(t *testing.T) {
 }
 
 func TestSr(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"sr": "a"
 		}`,
 		TestValue(func(t *testing.T, v interface{}) {
-			assert.Equal(t, "kego.io/tests/data", v.(*data.Multi).Sr.Package)
+			assert.Equal(t, "frizz.io/tests/data", v.(*data.Multi).Sr.Package)
 			assert.Equal(t, "a", v.(*data.Multi).Sr.Name)
 		}),
 	)
 }
 
 func TestSri(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"sri": "a"
@@ -346,7 +346,7 @@ func TestSri(t *testing.T) {
 }
 
 func TestSri2(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 	Run(t, ctx, `{
 			"type": "multi",
 			"sri": {"type": "aljs2", "value": "a"}

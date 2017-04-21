@@ -5,8 +5,8 @@ import (
 
 	"context"
 
+	"frizz.io/editor/client/editable"
 	"github.com/dave/kerr"
-	"kego.io/editor/client/editable"
 )
 
 type ctxKeyType int

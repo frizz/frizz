@@ -13,7 +13,7 @@ import (
 	"time"
 	"unicode"
 
-	. "kego.io/process/generate/literal"
+	. "frizz.io/process/generate/literal"
 )
 
 type (

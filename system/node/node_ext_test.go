@@ -7,13 +7,13 @@ import (
 
 	"context"
 
+	"frizz.io/process/parser"
+	"frizz.io/system"
+	"frizz.io/system/node"
+	"frizz.io/tests"
+	"frizz.io/tests/data"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/process/parser"
-	"kego.io/system"
-	"kego.io/system/node"
-	"kego.io/tests"
-	"kego.io/tests/data"
 )
 
 func TestNode_SetIdField(t *testing.T) {
@@ -136,7 +136,7 @@ func TestNode_SetValue(t *testing.T) {
 
 func TestNode_Print(t *testing.T) {
 
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 	s := `{
 	"type": "simple",
@@ -151,7 +151,7 @@ func TestNode_Print(t *testing.T) {
 
 func TestUnmarshal(t *testing.T) {
 
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 	s := `{
 	"type": "simple",
@@ -168,7 +168,7 @@ func TestUnmarshal(t *testing.T) {
 
 func TestNode_Unpack(t *testing.T) {
 
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 	s := `{
 	"type": "multi",
@@ -185,7 +185,7 @@ func TestNode_Unpack(t *testing.T) {
 
 func TestNode_Unpack3(t *testing.T) {
 
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 	s := `{
 	"type": "multi",
@@ -200,7 +200,7 @@ func TestNode_Unpack3(t *testing.T) {
 
 func TestNode_Unpack5(t *testing.T) {
 
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 	s := `{
 	"type": "multi",
@@ -616,11 +616,11 @@ func TestNode_SetValueZero(t *testing.T) {
 	cb, n := data.Setup(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
 
-		sstring, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/system", "string")
+		sstring, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/system", "string")
 		assert.True(t, ok)
-		facea, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "facea")
+		facea, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/tests/data", "facea")
 		assert.True(t, ok)
-		faceb, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "faceb")
+		faceb, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/tests/data", "faceb")
 		assert.True(t, ok)
 
 		c1 := node.NewNode()
@@ -748,9 +748,9 @@ func TestNode_SetValueZero(t *testing.T) {
 func TestNode_SetValueZero2(t *testing.T) {
 	cb, n := data.Empty(t)
 	test := func(t *testing.T, n *node.Node, m *data.Multi) {
-		sstring, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/system", "string")
+		sstring, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/system", "string")
 		assert.True(t, ok)
-		snumber, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/system", "number")
+		snumber, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/system", "number")
 		assert.True(t, ok)
 
 		require.NoError(t, n.Map["ss"].SetValueZero(cb.Ctx(), true, sstring))
@@ -780,7 +780,7 @@ func TestNode_SetValueZero2(t *testing.T) {
 
 func TestNode_SetValueZero3(t *testing.T) {
 	cb, n := data.Empty(t)
-	f, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "face")
+	f, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/tests/data", "face")
 	assert.True(t, ok)
 	err := n.SetValueZero(cb.Ctx(), true, f)
 	assert.HasError(t, err, "VHOSYBMDQL")

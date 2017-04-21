@@ -1,11 +1,11 @@
 package actions
 
 import (
-	"kego.io/editor/client/models"
-	"kego.io/editor/shared"
-	"kego.io/flux"
-	"kego.io/system"
-	"kego.io/system/node"
+	"frizz.io/editor/client/models"
+	"frizz.io/editor/shared"
+	"frizz.io/flux"
+	"frizz.io/system"
+	"frizz.io/system/node"
 )
 
 type ToggleSystemControls struct {

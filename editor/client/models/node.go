@@ -3,10 +3,10 @@ package models
 import (
 	"context"
 
+	"frizz.io/process/validate"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/process/validate"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type NodeModel struct {

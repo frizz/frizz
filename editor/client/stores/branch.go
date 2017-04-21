@@ -5,14 +5,14 @@ import (
 
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/common"
+	"frizz.io/editor/client/editable"
+	"frizz.io/editor/client/models"
+	"frizz.io/flux"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/common"
-	"kego.io/editor/client/editable"
-	"kego.io/editor/client/models"
-	"kego.io/flux"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type BranchStore struct {
@@ -345,7 +345,7 @@ func mutateInsertBranch(s *BranchStore, p *node.Node, n *node.Node, i int, name 
 func mutateAppendBranch(s *BranchStore, p *node.Node, n *node.Node, name string, filename string) (child *models.BranchModel, parent *models.BranchModel, err error) {
 	var parentBranch *models.BranchModel
 	if p == nil {
-		if *n.Type.Id == *system.NewReference("kego.io/system", "type") {
+		if *n.Type.Id == *system.NewReference("frizz.io/system", "type") {
 			parentBranch = s.types
 		} else {
 			parentBranch = s.data

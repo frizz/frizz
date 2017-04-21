@@ -3,9 +3,9 @@ package generate
 import (
 	"testing"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/tests"
 )
 
 func TestEditor(t *testing.T) {
@@ -18,8 +18,8 @@ import (
 	_ "a.b/c"
 	_ "d.e/f"
 	fmt "fmt"
-	client "kego.io/editor/client"
-	_ "kego.io/system"
+	client "frizz.io/editor/client"
+	_ "frizz.io/system"
 )
 
 func main() {

@@ -1,6 +1,6 @@
-package flux // import "kego.io/flux"
+package flux // import "frizz.io/flux"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 type ActionInterface interface{}
 

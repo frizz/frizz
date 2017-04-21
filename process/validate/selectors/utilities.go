@@ -5,8 +5,8 @@ import (
 
 	"encoding/json"
 
-	"kego.io/system"
-	"kego.io/system/node"
+	"frizz.io/system"
+	"frizz.io/system/node"
 )
 
 func nodeIsMemberOfHaystack(needle *node.Node, haystack map[*node.Node]*node.Node) bool {

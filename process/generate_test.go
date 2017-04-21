@@ -4,15 +4,15 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"kego.io/process/parser"
+	"frizz.io/process/parser"
 
 	"path/filepath"
 
 	"os"
 
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/tests"
 )
 
 func TestSave(t *testing.T) {

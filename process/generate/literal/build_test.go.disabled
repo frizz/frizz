@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/dave/ktest/assert"
-	"kego.io/process/generate/builder"
+	"frizz.io/process/generate/builder"
 )
 
 func TestBuild(t *testing.T) {
@@ -26,7 +26,7 @@ func TestBuild(t *testing.T) {
 
 	p = []Pointer{}
 	i = builder.Imports{"a.b/c": builder.Import{Path: "a.b/c", Name: "c", Alias: "a"}}
-	n = Build(foo, &p, "kego.io/process/generate/literal", i.Add)
+	n = Build(foo, &p, "frizz.io/process/generate/literal", i.Add)
 	assert.Equal(t, "ptr1", n.Name)
 	assert.Equal(t, `&a{As:"c"}`, p[0].Source)
 	assert.Equal(t, `&b{Ba:ptr0}`, p[1].Source)
@@ -34,8 +34,8 @@ func TestBuild(t *testing.T) {
 	p = []Pointer{}
 	i = builder.Imports{
 		"foo.com/literal":                  builder.Import{Path: "foo.com/literal", Name: "literal", Alias: "literal"},
-		"kego.io/process/generate/literal": builder.Import{Path: "kego.io/process/generate/literal", Name: "literal", Alias: "f"}}
-	n = Build(foo, &p, "kego.io/system", i.Add)
+		"frizz.io/process/generate/literal": builder.Import{Path: "frizz.io/process/generate/literal", Name: "literal", Alias: "f"}}
+	n = Build(foo, &p, "frizz.io/system", i.Add)
 	assert.Equal(t, "ptr1", n.Name)
 	assert.Equal(t, `&f.a{As:"c"}`, p[0].Source)
 	assert.Equal(t, `&f.b{Ba:ptr0}`, p[1].Source)
@@ -131,7 +131,7 @@ func TestBuildTypes(t *testing.T) {
 
 	p = []Pointer{}
 	i = builder.Imports{"a.b/c": builder.Import{Path: "a.b/c", Alias: "a", Name: "c"}}
-	n = Build(foo, &p, "kego.io/process/generate/literal", i.Add)
+	n = Build(foo, &p, "frizz.io/process/generate/literal", i.Add)
 	assert.Equal(t, "ptr3", n.Name)
 	assert.Equal(t, `&b{Bs:"a", Bm:map[string]string{"b":"c"}, Bmt:map[string]a{"d":a{As:"e"}}, Bmp:map[string]*a{"f":ptr0}, Ba:[]string{"h", "i"}, Bat:[]a{a{As:"j"}, a{As:"k"}}, Bap:[]*a{ptr1, ptr2}}`, p[3].Source)
 	assert.Equal(t, `&a{As:"g"}`, p[0].Source)
@@ -141,8 +141,8 @@ func TestBuildTypes(t *testing.T) {
 	p = []Pointer{}
 	i = builder.Imports{
 		"foo.com/literal":                  builder.Import{Path: "foo.com/literal", Name: "literal", Alias: "literal"},
-		"kego.io/process/generate/literal": builder.Import{Path: "kego.io/process/generate/literal", Name: "literal", Alias: "f"}}
-	n = Build(foo, &p, "kego.io/system", i.Add)
+		"frizz.io/process/generate/literal": builder.Import{Path: "frizz.io/process/generate/literal", Name: "literal", Alias: "f"}}
+	n = Build(foo, &p, "frizz.io/system", i.Add)
 	assert.Equal(t, "ptr3", n.Name)
 	assert.Equal(t, `&f.b{Bs:"a", Bm:map[string]string{"b":"c"}, Bmt:map[string]f.a{"d":f.a{As:"e"}}, Bmp:map[string]*f.a{"f":ptr0}, Ba:[]string{"h", "i"}, Bat:[]f.a{f.a{As:"j"}, f.a{As:"k"}}, Bap:[]*f.a{ptr1, ptr2}}`, p[3].Source)
 	assert.Equal(t, `&f.a{As:"g"}`, p[0].Source)
@@ -183,15 +183,15 @@ func TestBuildTypesNil(t *testing.T) {
 
 	p = []Pointer{}
 	i = builder.Imports{"a.b/c": builder.Import{Path: "a.b/c", Alias: "a", Name: "c"}}
-	n = Build(foo, &p, "kego.io/process/generate/literal", i.Add)
+	n = Build(foo, &p, "frizz.io/process/generate/literal", i.Add)
 	assert.Equal(t, "ptr0", n.Name)
 	assert.Equal(t, `&b{A:(*a)(nil), Bm:map[string]string(nil), Bmt:map[string]a(nil), Bmp:map[string]*a(nil), Ba:[]string(nil), Bat:[]a(nil), Bap:[]*a(nil)}`, p[0].Source)
 
 	p = []Pointer{}
 	i = builder.Imports{
 		"foo.com/literal":                  builder.Import{Path: "foo.com/literal", Name: "literal", Alias: "literal"},
-		"kego.io/process/generate/literal": builder.Import{Path: "kego.io/process/generate/literal", Name: "literal", Alias: "f"}}
-	n = Build(foo, &p, "kego.io/system", i.Add)
+		"frizz.io/process/generate/literal": builder.Import{Path: "frizz.io/process/generate/literal", Name: "literal", Alias: "f"}}
+	n = Build(foo, &p, "frizz.io/system", i.Add)
 	assert.Equal(t, "ptr0", n.Name)
 	assert.Equal(t, `&f.b{A:(*f.a)(nil), Bm:map[string]string(nil), Bmt:map[string]f.a(nil), Bmp:map[string]*f.a(nil), Ba:[]string(nil), Bat:[]f.a(nil), Bap:[]*f.a(nil)}`, p[0].Source)
 }

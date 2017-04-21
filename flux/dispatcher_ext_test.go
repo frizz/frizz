@@ -3,9 +3,9 @@ package flux_test
 import (
 	"testing"
 
+	"frizz.io/flux"
+	"frizz.io/flux/mock_flux"
 	"github.com/golang/mock/gomock"
-	"kego.io/flux"
-	"kego.io/flux/mock_flux"
 )
 
 func TestDispatcher_Notify(t *testing.T) {

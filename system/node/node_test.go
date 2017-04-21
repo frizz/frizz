@@ -5,11 +5,11 @@ import (
 
 	"context"
 
+	"frizz.io/process/parser"
+	"frizz.io/system"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/process/parser"
-	"kego.io/system"
-	"kego.io/tests"
 )
 
 func TestNode_SetValueZero3(t *testing.T) {

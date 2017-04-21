@@ -1,10 +1,10 @@
-package stores // import "kego.io/editor/client/stores"
+package stores // import "frizz.io/editor/client/stores"
 
 import (
 	"context"
 
-	"kego.io/editor/client/connection"
-	"kego.io/flux"
+	"frizz.io/editor/client/connection"
+	"frizz.io/flux"
 )
 
 type App struct {

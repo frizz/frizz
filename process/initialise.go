@@ -3,18 +3,18 @@ package process
 import (
 	"flag"
 
-	"kego.io/process/parser"
+	"frizz.io/process/parser"
 
 	"context"
 
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/jsonctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/context/vosctx"
+	"frizz.io/context/wgctx"
+	"frizz.io/process/packages"
 	"github.com/dave/kerr"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
-	"kego.io/context/sysctx"
-	"kego.io/context/vosctx"
-	"kego.io/context/wgctx"
-	"kego.io/process/packages"
 )
 
 type OptionsInterface interface {

@@ -5,7 +5,7 @@ import (
 
 	"sort"
 
-	"kego.io/system"
+	"frizz.io/system"
 )
 
 func (a Alajs) GetString(ctx context.Context) *system.String {

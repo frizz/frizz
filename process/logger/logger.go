@@ -1,6 +1,6 @@
-package logger // import "kego.io/process/logger"
+package logger // import "frizz.io/process/logger"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"bytes"

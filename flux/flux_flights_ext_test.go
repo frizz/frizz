@@ -5,8 +5,8 @@ import (
 
 	"fmt"
 
+	"frizz.io/flux"
 	"github.com/dave/ktest/assert"
-	"kego.io/flux"
 )
 
 type Flights struct {

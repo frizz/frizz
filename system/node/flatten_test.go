@@ -3,8 +3,8 @@ package node
 import (
 	"testing"
 
+	"frizz.io/system"
 	"github.com/dave/ktest/assert"
-	"kego.io/system"
 )
 
 func TestFlatten(t *testing.T) {

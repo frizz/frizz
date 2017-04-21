@@ -1,3 +1,3 @@
-package process // import "kego.io/process"
+package process // import "frizz.io/process"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}

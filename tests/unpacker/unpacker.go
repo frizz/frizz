@@ -1,11 +1,11 @@
-package unpacker // import "kego.io/tests/unpacker"
+package unpacker // import "frizz.io/tests/unpacker"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"context"
 
-	"kego.io/system"
+	"frizz.io/system"
 )
 
 type Interface interface {

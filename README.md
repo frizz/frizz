@@ -1,21 +1,21 @@
-[![Build Status](https://travis-ci.org/kego/ke.svg?branch=master)](https://travis-ci.org/kego/ke?branch=master)
-[![codecov.io](https://codecov.io/github/kego/ke/coverage.svg?branch=master)](https://codecov.io/github/kego/ke/branch/master)
-[![Floobits Status](https://floobits.com/dave/ke.svg)](https://floobits.com/dave/ke/redirect)
+[![Build Status](https://travis-ci.org/frizz/frizz.svg?branch=master)](https://travis-ci.org/frizz/frizz?branch=master)
+[![codecov.io](https://codecov.io/github/frizz/frizz/coverage.svg?branch=master)](https://codecov.io/github/frizz/frizz/branch/master)
+[![Floobits Status](https://floobits.com/dave/frizz.svg)](https://floobits.com/dave/frizz/redirect)
 
-Ke
+Frizz
 ==
 
-The ke project isn't for public consumption yet. Please move along.
+The frizz project isn't for public consumption yet. Please move along.
 
 However, it might work:
 
-	$ go get kego.io/...
+	$ go get frizz.io/...
 
 Validate:
 
-	$ ke -l -v kego.io/demo/site
+	$ frizz -l -v frizz.io/demo/site
 
 Edit:
 
-	$ ke -l -e kego.io/demo/site
+	$ frizz -l -e frizz.io/demo/site
 	

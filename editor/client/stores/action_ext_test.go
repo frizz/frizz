@@ -6,15 +6,15 @@ import (
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
 
-	"kego.io/system"
-	"kego.io/system/node"
-	"kego.io/tests/data"
+	"frizz.io/system"
+	"frizz.io/system/node"
+	"frizz.io/tests/data"
 )
 
 func TestAddMutationRoot(t *testing.T) {
 	cb, _ := data.Setup(t)
 	a := node.NewNode()
-	ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
+	ty, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/tests/data", "multi")
 	require.True(t, ok)
 	require.NoError(t, mutateAddNode(cb.Ctx(), a, nil, "", 2, ty, "z"))
 	require.NotNil(t, a.Value.(*data.Multi).Id)
@@ -30,7 +30,7 @@ func TestAddMutationRedo(t *testing.T) {
 		a = node.NewNode()
 		p = n.Map["am"]
 		b = node.NewNode()
-		ty, ok := system.GetTypeFromCache(cb.Ctx(), "kego.io/tests/data", "multi")
+		ty, ok := system.GetTypeFromCache(cb.Ctx(), "frizz.io/tests/data", "multi")
 		require.True(t, ok)
 		require.NoError(t, mutateAddNode(cb.Ctx(), a, p, "", 2, ty, ""))
 		require.Equal(t, `[{"js":"amjs0","type":"multi"},{"js":"amjs1","type":"multi"},{"type":"multi"}]`, p.Print(cb.Ctx()))

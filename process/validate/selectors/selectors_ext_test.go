@@ -8,14 +8,14 @@ import (
 
 	"context"
 
+	"frizz.io/process/parser"
+	. "frizz.io/process/validate/selectors"
+	_ "frizz.io/process/validate/selectors/tests"
+	"frizz.io/system"
+	"frizz.io/system/node"
+	"frizz.io/tests"
 	"github.com/dave/kerr"
 	"github.com/dave/ktest/require"
-	"kego.io/process/parser"
-	. "kego.io/process/validate/selectors"
-	_ "kego.io/process/validate/selectors/tests"
-	"kego.io/system"
-	"kego.io/system/node"
-	"kego.io/tests"
 )
 
 // Used for storing the results of the benchmarking tests below
@@ -38,7 +38,7 @@ func runTestsInDirectory(t *testing.T, baseDirectory string) {
 		t.Error("Error encountered while loading conformance tests ", err)
 	}
 
-	cb := tests.Context("kego.io/process/validate/selectors/tests").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/process/validate/selectors/tests").Jauto().Sauto(parser.Parse)
 
 	for _, fileInfo := range files {
 		name := fileInfo.Name()
@@ -326,8 +326,8 @@ func TestLevel3(t *testing.T) {
 	runTestsInDirectory(t, "./tests/level_3/")
 }
 
-func TestKego(t *testing.T) {
-	runTestsInDirectory(t, "./tests/kego/")
+func TestFrizz(t *testing.T) {
+	runTestsInDirectory(t, "./tests/frizz/")
 }
 
 func TestGallery(t *testing.T) {

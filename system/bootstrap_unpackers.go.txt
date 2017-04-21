@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/dave/kerr"
-	"kego.io/packer"
+	"frizz.io/packer"
 )
 
 func (v *ArrayRule) Unpack(ctx context.Context, in packer.Packed, iface bool) error {

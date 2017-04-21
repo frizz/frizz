@@ -1,6 +1,6 @@
-package cmdctx // import "kego.io/context/cmdctx"
+package cmdctx // import "frizz.io/context/cmdctx"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"fmt"

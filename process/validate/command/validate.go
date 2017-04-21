@@ -1,6 +1,6 @@
-package command // import "kego.io/process/validate/command"
+package command // import "frizz.io/process/validate/command"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"fmt"
@@ -10,13 +10,13 @@ import (
 
 	"context"
 
+	"frizz.io/context/envctx"
+	"frizz.io/context/jsonctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/context/wgctx"
+	"frizz.io/process"
+	"frizz.io/process/validate"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
-	"kego.io/context/sysctx"
-	"kego.io/context/wgctx"
-	"kego.io/process"
-	"kego.io/process/validate"
 )
 
 // ValidateMain is called by the generated validate command.
@@ -61,7 +61,7 @@ func validateMain(ctx context.Context, cancel context.CancelFunc, log func(strin
 
 	env := envctx.FromContext(ctx)
 
-	changes, err := comparePackageHash(ctx, "kego.io/system")
+	changes, err := comparePackageHash(ctx, "frizz.io/system")
 	if !changes && err == nil {
 		changes, err = comparePackageHash(ctx, env.Path)
 	}

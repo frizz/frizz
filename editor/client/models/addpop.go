@@ -3,8 +3,8 @@ package models
 import (
 	"context"
 
-	"kego.io/system"
-	"kego.io/system/node"
+	"frizz.io/system"
+	"frizz.io/system/node"
 )
 
 type AddPopupModel struct {

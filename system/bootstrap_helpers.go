@@ -6,9 +6,9 @@ import (
 
 	"reflect"
 
+	"frizz.io/context/envctx"
+	"frizz.io/context/jsonctx"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
 )
 
 func NewContext(ctx context.Context, path string, aliases map[string]string) context.Context {
@@ -220,7 +220,7 @@ func GetNewFromTypeField(ctx context.Context, in Packed, iface bool, ifacePackag
 }
 
 func init() {
-	jpkg := jsonctx.InitPackage("kego.io/json")
+	jpkg := jsonctx.InitPackage("frizz.io/json")
 	jpkg.Init(
 		"string",
 		func() interface{} { return "" },

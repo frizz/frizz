@@ -1,7 +1,7 @@
-// ke is the main cli tool that is used to start the ke processor / editor.
-package main // import "kego.io/cmd/ke"
+// frizz is the main cli tool that is used to start the frizz processor / editor.
+package main // import "frizz.io/cmd/frizz"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"fmt"
@@ -11,14 +11,14 @@ import (
 
 	"context"
 
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/wgctx"
+	"frizz.io/editor/server"
+	"frizz.io/process"
+	"frizz.io/process/validate"
+	_ "frizz.io/system"
 	"github.com/dave/kerr"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/wgctx"
-	"kego.io/editor/server"
-	"kego.io/process"
-	"kego.io/process/validate"
-	_ "kego.io/system"
 )
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 		err := process.RunValidateCommand(ctx)
 		if err != nil {
 			if !cmd.Log {
-				// in log mode, we have already written the output of the exec'ed ke command,
+				// in log mode, we have already written the output of the exec'ed frizz command,
 				// so we don't need to duplicate the error message.
 				if v, ok := kerr.Source(err).(validate.ValidationCommandError); ok {
 					fmt.Println(v.Description)

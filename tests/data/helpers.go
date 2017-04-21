@@ -3,18 +3,18 @@ package data
 import (
 	"testing"
 
+	"frizz.io/process/parser"
+	"frizz.io/system"
+	"frizz.io/system/node"
+	"frizz.io/tests"
 	"github.com/dave/ktest/require"
-	"kego.io/process/parser"
-	"kego.io/system"
-	"kego.io/system/node"
-	"kego.io/tests"
 )
 
 func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 
 	simple := false
 	if !simple {
-		cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+		cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 		m := `"type": "multi",
 			"js": "js1",
 			"ss": "ss1",
@@ -66,7 +66,7 @@ func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 		return cb, n
 
 	} else {
-		cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+		cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 		m := `"type": "multi",
 		"alms": {"a": {"type": "simple", "js": "almsa"}, "b": {"type": "simple", "js": "almsb"}}
@@ -91,7 +91,7 @@ func Setup(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 
 func Empty(t *testing.T) (*tests.ContextBuilder, *node.Node) {
 
-	cb := tests.Context("kego.io/tests/data").Jauto().Sauto(parser.Parse)
+	cb := tests.Context("frizz.io/tests/data").Jauto().Sauto(parser.Parse)
 
 	s := `{
 	"type": "multi",

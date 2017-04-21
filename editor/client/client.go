@@ -1,6 +1,6 @@
-package client // import "kego.io/editor/client"
+package client // import "frizz.io/editor/client"
 
-// ke: {"package": {"jstest": true}}
+// frizz: {"package": {"jstest": true}}
 
 import (
 	"bytes"
@@ -14,23 +14,23 @@ import (
 
 	"context"
 
+	"frizz.io/context/envctx"
+	"frizz.io/context/jsonctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/clientctx"
+	"frizz.io/editor/client/connection"
+	"frizz.io/editor/client/editors"
+	"frizz.io/editor/client/stores"
+	"frizz.io/editor/client/views"
+	"frizz.io/editor/shared"
+	"frizz.io/process/parser"
+	"frizz.io/system"
 	"github.com/dave/kerr"
 	"github.com/dave/vecty"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
 	"honnef.co/go/js/dom"
-	"kego.io/context/envctx"
-	"kego.io/context/jsonctx"
-	"kego.io/context/sysctx"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/clientctx"
-	"kego.io/editor/client/connection"
-	"kego.io/editor/client/editors"
-	"kego.io/editor/client/stores"
-	"kego.io/editor/client/views"
-	"kego.io/editor/shared"
-	"kego.io/process/parser"
-	"kego.io/system"
 )
 
 func Start() error {

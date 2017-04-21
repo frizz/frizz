@@ -7,12 +7,12 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 
+	"frizz.io/context/sysctx"
+	"frizz.io/editor/shared"
+	"frizz.io/system"
+	"frizz.io/tests"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/context/sysctx"
-	"kego.io/editor/shared"
-	"kego.io/system"
-	"kego.io/tests"
 )
 
 func TestRegisterTypes(t *testing.T) {

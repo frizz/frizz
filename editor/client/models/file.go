@@ -1,6 +1,6 @@
 package models
 
-import "kego.io/system/node"
+import "frizz.io/system/node"
 
 type FileModel struct {
 	Package  bool

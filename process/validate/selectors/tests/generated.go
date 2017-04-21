@@ -1,4 +1,4 @@
-// info:{"Path":"kego.io/process/validate/selectors/tests","Hash":10362807576256830877}
+// info:{"Path":"frizz.io/process/validate/selectors/tests","Hash":10362807576256830877}
 package tests
 
 // notest
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"kego.io/context/jsonctx"
-	"kego.io/system"
+	"frizz.io/context/jsonctx"
+	"frizz.io/system"
 )
 
 // Automatically created basic rule for basic
@@ -28,7 +28,7 @@ func (v *BasicRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@basic"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@basic"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -41,7 +41,7 @@ func (v *BasicRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *BasicRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@basic", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@basic", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -62,7 +62,7 @@ func (v *BasicRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@basic", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@basic", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for c
@@ -81,7 +81,7 @@ func (v *CRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@c"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@c"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -94,7 +94,7 @@ func (v *CRule) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 }
 func (v *CRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@c", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@c", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -115,7 +115,7 @@ func (v *CRule) Repack(ctx context.Context) (data interface{}, typePackage strin
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@c", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@c", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for collision
@@ -134,7 +134,7 @@ func (v *CollisionRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@collision"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@collision"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -147,7 +147,7 @@ func (v *CollisionRule) Unpack(ctx context.Context, in system.Packed, iface bool
 }
 func (v *CollisionRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@collision", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@collision", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -168,7 +168,7 @@ func (v *CollisionRule) Repack(ctx context.Context) (data interface{}, typePacka
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@collision", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@collision", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for diagram
@@ -187,7 +187,7 @@ func (v *DiagramRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@diagram"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@diagram"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -200,7 +200,7 @@ func (v *DiagramRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 }
 func (v *DiagramRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@diagram", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@diagram", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -221,7 +221,7 @@ func (v *DiagramRule) Repack(ctx context.Context) (data interface{}, typePackage
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@diagram", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@diagram", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for empty
@@ -240,7 +240,7 @@ func (v *EmptyRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@empty"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@empty"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -253,7 +253,7 @@ func (v *EmptyRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *EmptyRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@empty", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@empty", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -274,7 +274,7 @@ func (v *EmptyRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@empty", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@empty", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for emptyItem
@@ -293,7 +293,7 @@ func (v *EmptyItemRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@emptyItem"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@emptyItem"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -306,7 +306,7 @@ func (v *EmptyItemRule) Unpack(ctx context.Context, in system.Packed, iface bool
 }
 func (v *EmptyItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@emptyItem", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@emptyItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -327,7 +327,7 @@ func (v *EmptyItemRule) Repack(ctx context.Context) (data interface{}, typePacka
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@emptyItem", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@emptyItem", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for expr
@@ -346,7 +346,7 @@ func (v *ExprRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@expr"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@expr"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -359,7 +359,7 @@ func (v *ExprRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *ExprRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@expr", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@expr", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -380,7 +380,7 @@ func (v *ExprRule) Repack(ctx context.Context) (data interface{}, typePackage st
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@expr", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@expr", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for gallery
@@ -399,7 +399,7 @@ func (v *GalleryRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@gallery"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@gallery"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -412,7 +412,7 @@ func (v *GalleryRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 }
 func (v *GalleryRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@gallery", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@gallery", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -433,7 +433,7 @@ func (v *GalleryRule) Repack(ctx context.Context) (data interface{}, typePackage
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@gallery", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@gallery", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for image
@@ -452,7 +452,7 @@ func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@image"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@image"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -465,7 +465,7 @@ func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *ImageRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@image", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@image", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -486,7 +486,7 @@ func (v *ImageRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@image", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@image", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for instance
@@ -505,7 +505,7 @@ func (v *InstanceRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@instance"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@instance"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -518,7 +518,7 @@ func (v *InstanceRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 }
 func (v *InstanceRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@instance", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@instance", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -539,7 +539,7 @@ func (v *InstanceRule) Repack(ctx context.Context) (data interface{}, typePackag
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@instance", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@instance", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for instanceItem
@@ -558,7 +558,7 @@ func (v *InstanceItemRule) Unpack(ctx context.Context, in system.Packed, iface b
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@instanceItem"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@instanceItem"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -571,7 +571,7 @@ func (v *InstanceItemRule) Unpack(ctx context.Context, in system.Packed, iface b
 }
 func (v *InstanceItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@instanceItem", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@instanceItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -592,7 +592,7 @@ func (v *InstanceItemRule) Repack(ctx context.Context) (data interface{}, typePa
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@instanceItem", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@instanceItem", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for kid
@@ -611,7 +611,7 @@ func (v *KidRule) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@kid"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@kid"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -624,7 +624,7 @@ func (v *KidRule) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 }
 func (v *KidRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@kid", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@kid", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -645,7 +645,7 @@ func (v *KidRule) Repack(ctx context.Context) (data interface{}, typePackage str
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@kid", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@kid", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for people
@@ -664,7 +664,7 @@ func (v *PeopleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@people"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@people"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -677,7 +677,7 @@ func (v *PeopleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *PeopleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@people", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@people", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -698,7 +698,7 @@ func (v *PeopleRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@people", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@people", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for person
@@ -717,7 +717,7 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@person"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@person"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -730,7 +730,7 @@ func (v *PersonRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@person", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -751,7 +751,7 @@ func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@person", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@person", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for photo
@@ -770,7 +770,7 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@photo"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@photo"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -783,7 +783,7 @@ func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@photo", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -804,7 +804,7 @@ func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@photo", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@photo", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for polykids
@@ -823,7 +823,7 @@ func (v *PolykidsRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@polykids"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@polykids"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -836,7 +836,7 @@ func (v *PolykidsRule) Unpack(ctx context.Context, in system.Packed, iface bool)
 }
 func (v *PolykidsRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@polykids", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@polykids", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -857,7 +857,7 @@ func (v *PolykidsRule) Repack(ctx context.Context) (data interface{}, typePackag
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@polykids", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@polykids", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rectangle
@@ -876,7 +876,7 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rectangle"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@rectangle"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -889,7 +889,7 @@ func (v *RectangleRule) Unpack(ctx context.Context, in system.Packed, iface bool
 }
 func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rectangle", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@rectangle", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -910,7 +910,7 @@ func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePacka
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rectangle", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@rectangle", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rightscale
@@ -929,7 +929,7 @@ func (v *RightscaleRule) Unpack(ctx context.Context, in system.Packed, iface boo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rightscale"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@rightscale"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -942,7 +942,7 @@ func (v *RightscaleRule) Unpack(ctx context.Context, in system.Packed, iface boo
 }
 func (v *RightscaleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rightscale", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@rightscale", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -963,7 +963,7 @@ func (v *RightscaleRule) Repack(ctx context.Context) (data interface{}, typePack
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rightscale", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@rightscale", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rightscaleLink
@@ -982,7 +982,7 @@ func (v *RightscaleLinkRule) Unpack(ctx context.Context, in system.Packed, iface
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rightscaleLink"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@rightscaleLink"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -995,7 +995,7 @@ func (v *RightscaleLinkRule) Unpack(ctx context.Context, in system.Packed, iface
 }
 func (v *RightscaleLinkRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rightscaleLink", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@rightscaleLink", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1016,7 +1016,7 @@ func (v *RightscaleLinkRule) Repack(ctx context.Context) (data interface{}, type
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rightscaleLink", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@rightscaleLink", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for rightscaleList
@@ -1035,7 +1035,7 @@ func (v *RightscaleListRule) Unpack(ctx context.Context, in system.Packed, iface
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@rightscaleList"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@rightscaleList"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1048,7 +1048,7 @@ func (v *RightscaleListRule) Unpack(ctx context.Context, in system.Packed, iface
 }
 func (v *RightscaleListRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@rightscaleList", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@rightscaleList", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1069,7 +1069,7 @@ func (v *RightscaleListRule) Repack(ctx context.Context) (data interface{}, type
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@rightscaleList", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@rightscaleList", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for sibling
@@ -1088,7 +1088,7 @@ func (v *SiblingRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@sibling"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@sibling"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1101,7 +1101,7 @@ func (v *SiblingRule) Unpack(ctx context.Context, in system.Packed, iface bool) 
 }
 func (v *SiblingRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@sibling", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@sibling", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1122,7 +1122,7 @@ func (v *SiblingRule) Repack(ctx context.Context) (data interface{}, typePackage
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@sibling", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@sibling", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simple
@@ -1141,7 +1141,7 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@simple"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@simple"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1154,7 +1154,7 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@simple", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@simple", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1175,7 +1175,7 @@ func (v *SimpleRule) Repack(ctx context.Context) (data interface{}, typePackage 
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@simple", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@simple", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simpleArray
@@ -1194,7 +1194,7 @@ func (v *SimpleArrayRule) Unpack(ctx context.Context, in system.Packed, iface bo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@simpleArray"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@simpleArray"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1207,7 +1207,7 @@ func (v *SimpleArrayRule) Unpack(ctx context.Context, in system.Packed, iface bo
 }
 func (v *SimpleArrayRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@simpleArray", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@simpleArray", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1228,7 +1228,7 @@ func (v *SimpleArrayRule) Repack(ctx context.Context) (data interface{}, typePac
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@simpleArray", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@simpleArray", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for simpleItem
@@ -1247,7 +1247,7 @@ func (v *SimpleItemRule) Unpack(ctx context.Context, in system.Packed, iface boo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@simpleItem"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@simpleItem"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1260,7 +1260,7 @@ func (v *SimpleItemRule) Unpack(ctx context.Context, in system.Packed, iface boo
 }
 func (v *SimpleItemRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@simpleItem", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@simpleItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1281,7 +1281,7 @@ func (v *SimpleItemRule) Repack(ctx context.Context) (data interface{}, typePack
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@simpleItem", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@simpleItem", system.J_OBJECT, nil
 }
 
 // Automatically created basic rule for typed
@@ -1300,7 +1300,7 @@ func (v *TypedRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "@typed"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "@typed"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -1313,7 +1313,7 @@ func (v *TypedRule) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *TypedRule) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "@typed", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "@typed", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1334,7 +1334,7 @@ func (v *TypedRule) Repack(ctx context.Context) (data interface{}, typePackage s
 			m[key] = val
 		}
 	}
-	return m, "kego.io/process/validate/selectors/tests", "@typed", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "@typed", system.J_OBJECT, nil
 }
 
 type Basic struct {
@@ -1356,7 +1356,7 @@ func (o *Basic) GetBasic(ctx context.Context) *Basic {
 func UnpackBasicInterface(ctx context.Context, in system.Packed) (BasicInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "basic")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "basic")
 		if err != nil {
 			return nil, err
 		}
@@ -1379,7 +1379,7 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "basic"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "basic"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["drinkPreference"]; ok && field.Type() != system.J_NULL {
@@ -1463,7 +1463,7 @@ func (v *Basic) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 }
 func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "basic", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "basic", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1537,7 +1537,7 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["weight"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "basic", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "basic", system.J_OBJECT, nil
 }
 
 type C struct {
@@ -1556,7 +1556,7 @@ func (o *C) GetC(ctx context.Context) *C {
 func UnpackCInterface(ctx context.Context, in system.Packed) (CInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "c")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "c")
 		if err != nil {
 			return nil, err
 		}
@@ -1579,7 +1579,7 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "c"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "c"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -1614,7 +1614,7 @@ func (v *C) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "c", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "c", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1651,7 +1651,7 @@ func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, t
 		}
 		m["c"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "c", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "c", system.J_OBJECT, nil
 }
 
 type Collision struct {
@@ -1668,7 +1668,7 @@ func (o *Collision) GetCollision(ctx context.Context) *Collision {
 func UnpackCollisionInterface(ctx context.Context, in system.Packed) (CollisionInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "collision")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "collision")
 		if err != nil {
 			return nil, err
 		}
@@ -1691,7 +1691,7 @@ func (v *Collision) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "collision"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "collision"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["number"]; ok && field.Type() != system.J_NULL {
@@ -1712,7 +1712,7 @@ func (v *Collision) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *Collision) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "collision", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "collision", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1735,7 +1735,7 @@ func (v *Collision) Repack(ctx context.Context) (data interface{}, typePackage s
 		}
 		m["number"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "collision", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "collision", system.J_OBJECT, nil
 }
 
 type Diagram struct {
@@ -1752,7 +1752,7 @@ func (o *Diagram) GetDiagram(ctx context.Context) *Diagram {
 func UnpackDiagramInterface(ctx context.Context, in system.Packed) (DiagramInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "diagram")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "diagram")
 		if err != nil {
 			return nil, err
 		}
@@ -1775,7 +1775,7 @@ func (v *Diagram) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "diagram"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "diagram"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["url"]; ok && field.Type() != system.J_NULL {
@@ -1789,7 +1789,7 @@ func (v *Diagram) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 }
 func (v *Diagram) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "diagram", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "diagram", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1808,7 +1808,7 @@ func (v *Diagram) Repack(ctx context.Context) (data interface{}, typePackage str
 		}
 		m["url"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "diagram", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "diagram", system.J_OBJECT, nil
 }
 
 type Empty struct {
@@ -1825,7 +1825,7 @@ func (o *Empty) GetEmpty(ctx context.Context) *Empty {
 func UnpackEmptyInterface(ctx context.Context, in system.Packed) (EmptyInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "empty")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "empty")
 		if err != nil {
 			return nil, err
 		}
@@ -1848,7 +1848,7 @@ func (v *Empty) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "empty"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "empty"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["items"]; ok && field.Type() != system.J_NULL {
@@ -1869,7 +1869,7 @@ func (v *Empty) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 }
 func (v *Empty) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "empty", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "empty", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1892,7 +1892,7 @@ func (v *Empty) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["items"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "empty", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "empty", system.J_OBJECT, nil
 }
 
 type EmptyItem struct {
@@ -1910,7 +1910,7 @@ func (o *EmptyItem) GetEmptyItem(ctx context.Context) *EmptyItem {
 func UnpackEmptyItemInterface(ctx context.Context, in system.Packed) (EmptyItemInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "emptyItem")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "emptyItem")
 		if err != nil {
 			return nil, err
 		}
@@ -1933,7 +1933,7 @@ func (v *EmptyItem) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "emptyItem"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "emptyItem"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["arr"]; ok && field.Type() != system.J_NULL {
@@ -1961,7 +1961,7 @@ func (v *EmptyItem) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "emptyItem", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "emptyItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -1991,7 +1991,7 @@ func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage s
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "emptyItem", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "emptyItem", system.J_OBJECT, nil
 }
 
 type Expr struct {
@@ -2014,7 +2014,7 @@ func (o *Expr) GetExpr(ctx context.Context) *Expr {
 func UnpackExprInterface(ctx context.Context, in system.Packed) (ExprInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "expr")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "expr")
 		if err != nil {
 			return nil, err
 		}
@@ -2037,7 +2037,7 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "expr"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "expr"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["false"]; ok && field.Type() != system.J_NULL {
@@ -2093,7 +2093,7 @@ func (v *Expr) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "expr", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "expr", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2154,7 +2154,7 @@ func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string
 		}
 		m["true"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "expr", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "expr", system.J_OBJECT, nil
 }
 
 // This represents a gallery - it's just a list of images
@@ -2172,7 +2172,7 @@ func (o *Gallery) GetGallery(ctx context.Context) *Gallery {
 func UnpackGalleryInterface(ctx context.Context, in system.Packed) (GalleryInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "gallery")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "gallery")
 		if err != nil {
 			return nil, err
 		}
@@ -2195,7 +2195,7 @@ func (v *Gallery) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "gallery"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "gallery"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["images"]; ok && field.Type() != system.J_NULL {
@@ -2216,7 +2216,7 @@ func (v *Gallery) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 }
 func (v *Gallery) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "gallery", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "gallery", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2236,7 +2236,7 @@ func (v *Gallery) Repack(ctx context.Context) (data interface{}, typePackage str
 			if err != nil {
 				return nil, "", "", "", err
 			}
-			if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/process/validate/selectors/tests", "image") {
+			if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "frizz.io/process/validate/selectors/tests", "image") {
 				typRef := system.NewReference(pkg, name)
 				typeVal, err := typRef.ValueContext(ctx)
 				if err != nil {
@@ -2253,12 +2253,12 @@ func (v *Gallery) Repack(ctx context.Context) (data interface{}, typePackage str
 		}
 		m["images"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "gallery", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "gallery", system.J_OBJECT, nil
 }
 func UnpackImage(ctx context.Context, in system.Packed) (Image, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "image")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "image")
 		if err != nil {
 			return nil, err
 		}
@@ -2290,7 +2290,7 @@ func (o *Instance) GetInstance(ctx context.Context) *Instance {
 func UnpackInstanceInterface(ctx context.Context, in system.Packed) (InstanceInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "instance")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "instance")
 		if err != nil {
 			return nil, err
 		}
@@ -2313,7 +2313,7 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "instance"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "instance"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
@@ -2369,7 +2369,7 @@ func (v *Instance) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "instance", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "instance", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2424,7 +2424,7 @@ func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage st
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "instance", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "instance", system.J_OBJECT, nil
 }
 
 type InstanceItem struct {
@@ -2441,7 +2441,7 @@ func (o *InstanceItem) GetInstanceItem(ctx context.Context) *InstanceItem {
 func UnpackInstanceItemInterface(ctx context.Context, in system.Packed) (InstanceItemInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "instanceItem")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "instanceItem")
 		if err != nil {
 			return nil, err
 		}
@@ -2464,7 +2464,7 @@ func (v *InstanceItem) Unpack(ctx context.Context, in system.Packed, iface bool)
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "instanceItem"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "instanceItem"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["name"]; ok && field.Type() != system.J_NULL {
@@ -2478,7 +2478,7 @@ func (v *InstanceItem) Unpack(ctx context.Context, in system.Packed, iface bool)
 }
 func (v *InstanceItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "instanceItem", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "instanceItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2497,7 +2497,7 @@ func (v *InstanceItem) Repack(ctx context.Context) (data interface{}, typePackag
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "instanceItem", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "instanceItem", system.J_OBJECT, nil
 }
 
 type Kid struct {
@@ -2516,7 +2516,7 @@ func (o *Kid) GetKid(ctx context.Context) *Kid {
 func UnpackKidInterface(ctx context.Context, in system.Packed) (KidInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "kid")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "kid")
 		if err != nil {
 			return nil, err
 		}
@@ -2539,7 +2539,7 @@ func (v *Kid) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "kid"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "kid"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["language"]; ok && field.Type() != system.J_NULL {
@@ -2567,7 +2567,7 @@ func (v *Kid) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 }
 func (v *Kid) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "kid", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "kid", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2600,7 +2600,7 @@ func (v *Kid) Repack(ctx context.Context) (data interface{}, typePackage string,
 		}
 		m["preferred"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "kid", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "kid", system.J_OBJECT, nil
 }
 
 type People struct {
@@ -2618,7 +2618,7 @@ func (o *People) GetPeople(ctx context.Context) *People {
 func UnpackPeopleInterface(ctx context.Context, in system.Packed) (PeopleInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "people")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "people")
 		if err != nil {
 			return nil, err
 		}
@@ -2641,7 +2641,7 @@ func (v *People) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "people"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "people"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["others"]; ok && field.Type() != system.J_NULL {
@@ -2676,7 +2676,7 @@ func (v *People) Unpack(ctx context.Context, in system.Packed, iface bool) error
 }
 func (v *People) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "people", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "people", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2710,7 +2710,7 @@ func (v *People) Repack(ctx context.Context) (data interface{}, typePackage stri
 		}
 		m["people"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "people", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "people", system.J_OBJECT, nil
 }
 
 type Person struct {
@@ -2730,7 +2730,7 @@ func (o *Person) GetPerson(ctx context.Context) *Person {
 func UnpackPersonInterface(ctx context.Context, in system.Packed) (PersonInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "person")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "person")
 		if err != nil {
 			return nil, err
 		}
@@ -2753,7 +2753,7 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "person"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "person"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["age"]; ok && field.Type() != system.J_NULL {
@@ -2788,7 +2788,7 @@ func (v *Person) Unpack(ctx context.Context, in system.Packed, iface bool) error
 }
 func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "person", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "person", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2828,7 +2828,7 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "person", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "person", system.J_OBJECT, nil
 }
 
 // This represents an image, and contains path, server and protocol separately
@@ -2852,7 +2852,7 @@ func (o *Photo) GetPhoto(ctx context.Context) *Photo {
 func UnpackPhotoInterface(ctx context.Context, in system.Packed) (PhotoInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "photo")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "photo")
 		if err != nil {
 			return nil, err
 		}
@@ -2875,7 +2875,7 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "photo"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "photo"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["path"]; ok && field.Type() != system.J_NULL {
@@ -2916,7 +2916,7 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 }
 func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "photo", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "photo", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -2956,7 +2956,7 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["size"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "photo", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "photo", system.J_OBJECT, nil
 }
 
 type Polykids struct {
@@ -2973,7 +2973,7 @@ func (o *Polykids) GetPolykids(ctx context.Context) *Polykids {
 func UnpackPolykidsInterface(ctx context.Context, in system.Packed) (PolykidsInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "polykids")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "polykids")
 		if err != nil {
 			return nil, err
 		}
@@ -2996,7 +2996,7 @@ func (v *Polykids) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "polykids"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "polykids"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -3017,7 +3017,7 @@ func (v *Polykids) Unpack(ctx context.Context, in system.Packed, iface bool) err
 }
 func (v *Polykids) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "polykids", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "polykids", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3040,7 +3040,7 @@ func (v *Polykids) Repack(ctx context.Context) (data interface{}, typePackage st
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "polykids", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "polykids", system.J_OBJECT, nil
 }
 
 type Rectangle struct {
@@ -3058,7 +3058,7 @@ func (o *Rectangle) GetRectangle(ctx context.Context) *Rectangle {
 func UnpackRectangleInterface(ctx context.Context, in system.Packed) (RectangleInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "rectangle")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "rectangle")
 		if err != nil {
 			return nil, err
 		}
@@ -3081,7 +3081,7 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rectangle"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "rectangle"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["height"]; ok && field.Type() != system.J_NULL {
@@ -3102,7 +3102,7 @@ func (v *Rectangle) Unpack(ctx context.Context, in system.Packed, iface bool) er
 }
 func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rectangle", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "rectangle", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3128,7 +3128,7 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 		}
 		m["width"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rectangle", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "rectangle", system.J_OBJECT, nil
 }
 
 type Rightscale struct {
@@ -3149,7 +3149,7 @@ func (o *Rightscale) GetRightscale(ctx context.Context) *Rightscale {
 func UnpackRightscaleInterface(ctx context.Context, in system.Packed) (RightscaleInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "rightscale")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "rightscale")
 		if err != nil {
 			return nil, err
 		}
@@ -3172,7 +3172,7 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rightscale"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "rightscale"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["child"]; ok && field.Type() != system.J_NULL {
@@ -3228,7 +3228,7 @@ func (v *Rightscale) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rightscale", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "rightscale", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3283,7 +3283,7 @@ func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage 
 		}
 		m["name"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rightscale", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "rightscale", system.J_OBJECT, nil
 }
 
 type RightscaleLink struct {
@@ -3301,7 +3301,7 @@ func (o *RightscaleLink) GetRightscaleLink(ctx context.Context) *RightscaleLink 
 func UnpackRightscaleLinkInterface(ctx context.Context, in system.Packed) (RightscaleLinkInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "rightscaleLink")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "rightscaleLink")
 		if err != nil {
 			return nil, err
 		}
@@ -3324,7 +3324,7 @@ func (v *RightscaleLink) Unpack(ctx context.Context, in system.Packed, iface boo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rightscaleLink"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "rightscaleLink"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["href"]; ok && field.Type() != system.J_NULL {
@@ -3345,7 +3345,7 @@ func (v *RightscaleLink) Unpack(ctx context.Context, in system.Packed, iface boo
 }
 func (v *RightscaleLink) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rightscaleLink", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "rightscaleLink", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3371,7 +3371,7 @@ func (v *RightscaleLink) Repack(ctx context.Context) (data interface{}, typePack
 		}
 		m["rel"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rightscaleLink", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "rightscaleLink", system.J_OBJECT, nil
 }
 
 type RightscaleList struct {
@@ -3388,7 +3388,7 @@ func (o *RightscaleList) GetRightscaleList(ctx context.Context) *RightscaleList 
 func UnpackRightscaleListInterface(ctx context.Context, in system.Packed) (RightscaleListInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "rightscaleList")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "rightscaleList")
 		if err != nil {
 			return nil, err
 		}
@@ -3411,7 +3411,7 @@ func (v *RightscaleList) Unpack(ctx context.Context, in system.Packed, iface boo
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "rightscaleList"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "rightscaleList"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["foo"]; ok && field.Type() != system.J_NULL {
@@ -3432,7 +3432,7 @@ func (v *RightscaleList) Unpack(ctx context.Context, in system.Packed, iface boo
 }
 func (v *RightscaleList) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "rightscaleList", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "rightscaleList", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3455,7 +3455,7 @@ func (v *RightscaleList) Repack(ctx context.Context) (data interface{}, typePack
 		}
 		m["foo"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "rightscaleList", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "rightscaleList", system.J_OBJECT, nil
 }
 
 type Sibling struct {
@@ -3476,7 +3476,7 @@ func (o *Sibling) GetSibling(ctx context.Context) *Sibling {
 func UnpackSiblingInterface(ctx context.Context, in system.Packed) (SiblingInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "sibling")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "sibling")
 		if err != nil {
 			return nil, err
 		}
@@ -3499,7 +3499,7 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "sibling"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "sibling"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -3555,7 +3555,7 @@ func (v *Sibling) Unpack(ctx context.Context, in system.Packed, iface bool) erro
 }
 func (v *Sibling) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "sibling", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "sibling", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3610,7 +3610,7 @@ func (v *Sibling) Repack(ctx context.Context) (data interface{}, typePackage str
 		}
 		m["e"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "sibling", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "sibling", system.J_OBJECT, nil
 }
 
 type Simple struct {
@@ -3627,7 +3627,7 @@ func (o *Simple) GetSimple(ctx context.Context) *Simple {
 func UnpackSimpleInterface(ctx context.Context, in system.Packed) (SimpleInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "simple")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "simple")
 		if err != nil {
 			return nil, err
 		}
@@ -3650,7 +3650,7 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "simple"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "simple"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -3664,7 +3664,7 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 }
 func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "simple", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "simple", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3683,7 +3683,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "simple", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "simple", system.J_OBJECT, nil
 }
 
 type SimpleArray struct {
@@ -3700,7 +3700,7 @@ func (o *SimpleArray) GetSimpleArray(ctx context.Context) *SimpleArray {
 func UnpackSimpleArrayInterface(ctx context.Context, in system.Packed) (SimpleArrayInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "simpleArray")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "simpleArray")
 		if err != nil {
 			return nil, err
 		}
@@ -3723,7 +3723,7 @@ func (v *SimpleArray) Unpack(ctx context.Context, in system.Packed, iface bool) 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "simpleArray"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "simpleArray"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
@@ -3744,7 +3744,7 @@ func (v *SimpleArray) Unpack(ctx context.Context, in system.Packed, iface bool) 
 }
 func (v *SimpleArray) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "simpleArray", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "simpleArray", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3767,7 +3767,7 @@ func (v *SimpleArray) Repack(ctx context.Context) (data interface{}, typePackage
 		}
 		m["a"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "simpleArray", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "simpleArray", system.J_OBJECT, nil
 }
 
 type SimpleItem struct {
@@ -3784,7 +3784,7 @@ func (o *SimpleItem) GetSimpleItem(ctx context.Context) *SimpleItem {
 func UnpackSimpleItemInterface(ctx context.Context, in system.Packed) (SimpleItemInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "simpleItem")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "simpleItem")
 		if err != nil {
 			return nil, err
 		}
@@ -3807,7 +3807,7 @@ func (v *SimpleItem) Unpack(ctx context.Context, in system.Packed, iface bool) e
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "simpleItem"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "simpleItem"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["b"]; ok && field.Type() != system.J_NULL {
@@ -3821,7 +3821,7 @@ func (v *SimpleItem) Unpack(ctx context.Context, in system.Packed, iface bool) e
 }
 func (v *SimpleItem) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "simpleItem", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "simpleItem", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3840,7 +3840,7 @@ func (v *SimpleItem) Repack(ctx context.Context) (data interface{}, typePackage 
 		}
 		m["b"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "simpleItem", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "simpleItem", system.J_OBJECT, nil
 }
 
 type Typed struct {
@@ -3862,7 +3862,7 @@ func (o *Typed) GetTyped(ctx context.Context) *Typed {
 func UnpackTypedInterface(ctx context.Context, in system.Packed) (TypedInterface, error) {
 	switch in.Type() {
 	case system.J_MAP:
-		i, err := system.UnpackUnknownType(ctx, in, true, "kego.io/process/validate/selectors/tests", "typed")
+		i, err := system.UnpackUnknownType(ctx, in, true, "frizz.io/process/validate/selectors/tests", "typed")
 		if err != nil {
 			return nil, err
 		}
@@ -3885,7 +3885,7 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
-	if err := v.Object.InitializeType("kego.io/process/validate/selectors/tests", "typed"); err != nil {
+	if err := v.Object.InitializeType("frizz.io/process/validate/selectors/tests", "typed"); err != nil {
 		return err
 	}
 	if field, ok := in.Map()["avatar"]; ok && field.Type() != system.J_NULL {
@@ -3955,7 +3955,7 @@ func (v *Typed) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 }
 func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage string, typeName string, jsonType system.JsonType, err error) {
 	if v == nil {
-		return nil, "kego.io/process/validate/selectors/tests", "typed", system.J_NULL, nil
+		return nil, "frizz.io/process/validate/selectors/tests", "typed", system.J_NULL, nil
 	}
 	m := map[string]interface{}{}
 	if v.Object != nil {
@@ -3973,7 +3973,7 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "kego.io/process/validate/selectors/tests", "image") {
+		if system.ShouldUseExplicitTypeNotation(pkg, name, typ, "frizz.io/process/validate/selectors/tests", "image") {
 			typRef := system.NewReference(pkg, name)
 			typeVal, err := typRef.ValueContext(ctx)
 			if err != nil {
@@ -4035,10 +4035,10 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 		}
 		m["weight"] = ob0
 	}
-	return m, "kego.io/process/validate/selectors/tests", "typed", system.J_OBJECT, nil
+	return m, "frizz.io/process/validate/selectors/tests", "typed", system.J_OBJECT, nil
 }
 func init() {
-	pkg := jsonctx.InitPackage("kego.io/process/validate/selectors/tests")
+	pkg := jsonctx.InitPackage("frizz.io/process/validate/selectors/tests")
 	pkg.SetHash(10362807576256830877)
 	pkg.Init(
 		"basic",

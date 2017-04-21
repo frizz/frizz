@@ -2,7 +2,7 @@ package units
 
 import (
 	"context"
-	"kego.io/editor/client_old"
+	"frizz.io/editor/client_old"
 )
 
 func (i *Rectangle) GetEditor(n *editor.Node) editor.EditorInterface {

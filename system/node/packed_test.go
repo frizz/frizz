@@ -3,7 +3,7 @@ package node
 import (
 	"testing"
 
-	"kego.io/system"
+	"frizz.io/system"
 
 	"github.com/dave/ktest/assert"
 )

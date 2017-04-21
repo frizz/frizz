@@ -1,15 +1,15 @@
-package ke // import "kego.io/ke"
+package frizz // import "frizz.io/frizz"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"context"
 
 	"encoding/json"
 
+	"frizz.io/process/scanner"
+	"frizz.io/system"
 	"github.com/dave/kerr"
-	"kego.io/process/scanner"
-	"kego.io/system"
 )
 
 func Open(ctx context.Context, filename string) (value interface{}, err error) {

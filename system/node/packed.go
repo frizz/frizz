@@ -1,6 +1,6 @@
 package node
 
-import "kego.io/system"
+import "frizz.io/system"
 
 var _ system.Packed = (*packed)(nil)
 

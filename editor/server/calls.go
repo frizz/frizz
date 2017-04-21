@@ -9,15 +9,15 @@ import (
 
 	"context"
 
+	"frizz.io/context/envctx"
+	"frizz.io/editor/server/auther"
+	"frizz.io/editor/server/pkghelp"
+	"frizz.io/editor/shared"
+	"frizz.io/process/parser"
+	"frizz.io/process/scanner"
+	"frizz.io/system"
 	"github.com/dave/kerr"
 	"github.com/ghodss/yaml"
-	"kego.io/context/envctx"
-	"kego.io/editor/server/auther"
-	"kego.io/editor/server/pkghelp"
-	"kego.io/editor/shared"
-	"kego.io/process/parser"
-	"kego.io/process/scanner"
-	"kego.io/system"
 )
 
 type Server struct {
@@ -52,7 +52,7 @@ func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse
 			return kerr.New("PHINYFTGEC", "%s has no type", info.File)
 		}
 		// Check id field exists apart from system:package type.
-		if o.Id == nil && *o.Type != *system.NewReference("kego.io/system", "package") {
+		if o.Id == nil && *o.Type != *system.NewReference("frizz.io/system", "package") {
 			return kerr.New("NNOEQPRQXS", "%s has no id", info.File)
 		}
 		// Convert output to YAML if needed.
@@ -82,7 +82,7 @@ func (s *Server) Save(request *shared.SaveRequest, response *shared.SaveResponse
 			}
 			mode = 0644
 			if _, err := os.Stat(full); err == nil || !os.IsNotExist(err) {
-				return kerr.New("XOEPAUNCXB", "Can't overwrite %s - existing file is not a valid ke data file", info.File)
+				return kerr.New("XOEPAUNCXB", "Can't overwrite %s - existing file is not a valid frizz data file", info.File)
 			}
 		}
 

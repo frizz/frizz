@@ -10,11 +10,11 @@ import (
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/mock_vecty"
 	"github.com/golang/mock/gomock"
-	"kego.io/editor/client/connection/mock_connection"
-	"kego.io/editor/client/stores"
-	"kego.io/flux"
-	"kego.io/flux/mock_flux"
-	"kego.io/tests"
+	"frizz.io/editor/client/connection/mock_connection"
+	"frizz.io/editor/client/stores"
+	"frizz.io/flux"
+	"frizz.io/flux/mock_flux"
+	"frizz.io/tests"
 )
 
 type ClientContextBuilder struct {

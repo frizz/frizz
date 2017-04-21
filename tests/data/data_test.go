@@ -5,16 +5,16 @@ import (
 
 	"context"
 
+	"frizz.io/frizz"
+	"frizz.io/system/node"
+	"frizz.io/tests/data"
+	. "frizz.io/tests/marshal"
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
-	"kego.io/ke"
-	"kego.io/system/node"
-	"kego.io/tests/data"
-	. "kego.io/tests/marshal"
 )
 
 func TestUnpackInterface(t *testing.T) {
-	ctx := ke.NewContext(context.Background(), "kego.io/tests/data", nil)
+	ctx := frizz.NewContext(context.Background(), "frizz.io/tests/data", nil)
 
 	Run(t, ctx, `{
 			"type": "aljb",

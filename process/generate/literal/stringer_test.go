@@ -7,7 +7,7 @@ package literal_test
 import (
 	"testing"
 
-	. "kego.io/process/generate/literal"
+	. "frizz.io/process/generate/literal"
 )
 
 type TI int

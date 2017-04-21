@@ -1,6 +1,6 @@
-package sysctx // import "kego.io/context/sysctx"
+package sysctx // import "frizz.io/context/sysctx"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"sync"
@@ -9,8 +9,8 @@ import (
 
 	"context"
 
+	"frizz.io/context/envctx"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
 )
 
 type SysCache struct {

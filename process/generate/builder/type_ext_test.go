@@ -6,8 +6,8 @@ import (
 	"github.com/dave/ktest/assert"
 	"github.com/dave/ktest/require"
 
-	"kego.io/tests"
-	"kego.io/tests/ext"
+	"frizz.io/tests"
+	"frizz.io/tests/ext"
 )
 
 func TestStructs(t *testing.T) {

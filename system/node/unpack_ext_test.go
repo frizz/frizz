@@ -7,19 +7,19 @@ import (
 
 	"context"
 
-	"kego.io/context/envctx"
-	_ "kego.io/demo/common/images"
-	_ "kego.io/demo/common/units"
-	_ "kego.io/demo/common/words"
-	_ "kego.io/demo/site"
-	"kego.io/process"
-	"kego.io/process/scanner"
-	"kego.io/system/node"
+	"frizz.io/context/envctx"
+	_ "frizz.io/demo/common/images"
+	_ "frizz.io/demo/common/units"
+	_ "frizz.io/demo/common/words"
+	_ "frizz.io/demo/site"
+	"frizz.io/process"
+	"frizz.io/process/scanner"
+	"frizz.io/system/node"
 )
 
 func TestUnpack(t *testing.T) {
-	testUnpack(t, "kego.io/system")
-	testUnpack(t, "kego.io/demo/site")
+	testUnpack(t, "frizz.io/system")
+	testUnpack(t, "frizz.io/demo/site")
 }
 func testUnpack(t *testing.T, path string) {
 	ctx, _, err := process.Initialise(context.Background(), &process.Options{
@@ -40,11 +40,11 @@ func testUnpack(t *testing.T, path string) {
 func TestNodeUnpack(t *testing.T) {
 
 	ctx, _, err := process.Initialise(context.Background(), &process.Options{
-		Path: "kego.io/demo/site",
+		Path: "frizz.io/demo/site",
 	})
 	require.NoError(t, err)
 
-	j := `{"type":"system:package","aliases":{"images":"kego.io/demo/common/images","units":"kego.io/demo/common/units","words":"kego.io/demo/common/words"}}`
+	j := `{"type":"system:package","aliases":{"images":"frizz.io/demo/common/images","units":"frizz.io/demo/common/units","words":"frizz.io/demo/common/words"}}`
 
 	_, err = node.Unmarshal(ctx, []byte(j))
 	require.NoError(t, err)

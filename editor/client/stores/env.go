@@ -3,8 +3,8 @@ package stores
 import (
 	"context"
 
-	"kego.io/editor/client/actions"
-	"kego.io/flux"
+	"frizz.io/editor/client/actions"
+	"frizz.io/flux"
 )
 
 type EnvStore struct {

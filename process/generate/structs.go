@@ -11,12 +11,12 @@ import (
 
 	"bytes"
 
+	"frizz.io/context/envctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/process/generate/builder"
+	"frizz.io/system"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
-	"kego.io/context/sysctx"
-	"kego.io/process/generate/builder"
-	"kego.io/system"
 )
 
 func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
@@ -117,7 +117,7 @@ func printExportFunction(ctx context.Context, env *envctx.Env, f *File, export *
 	*/
 	typ := Qual(export.TypePackage, system.GoName(export.TypeName))
 	f.Func().Id(export.Name).Params().Op("*").Add(typ).Block(
-		Id("ctx").Op(":=").Qual("kego.io/system", "NewContext").Call(
+		Id("ctx").Op(":=").Qual("frizz.io/system", "NewContext").Call(
 			Qual("context", "Background"),
 			Lit(env.Path),
 			Lit(env.Aliases),
@@ -126,7 +126,7 @@ func printExportFunction(ctx context.Context, env *envctx.Env, f *File, export *
 		If(
 			Err().Op(":=").Id("o").Dot("Unpack").Call(
 				Id("ctx"),
-				Qual("kego.io/system", "MustPackString").Call(
+				Qual("frizz.io/system", "MustPackString").Call(
 					Lit(string(export.JsonContents)),
 				),
 				False(),
@@ -166,7 +166,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 		Id("data").Interface(),
 		Id("typePackage").String(),
 		Id("typeName").String(),
-		Id("jsonType").Qual("kego.io/system", "JsonType"),
+		Id("jsonType").Qual("frizz.io/system", "JsonType"),
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
 		/*
@@ -179,7 +179,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				Nil(),
 				Lit(typ.Id.Package),
 				Lit(typ.Id.Name),
-				Qual("kego.io/system", "J_NULL"),
+				Qual("frizz.io/system", "J_NULL"),
 				Nil(),
 			),
 		)
@@ -188,19 +188,19 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 		var jsonQual Code
 		switch jtype {
 		case system.J_NUMBER:
-			jsonQual = Qual("kego.io/system", "J_NUMBER")
+			jsonQual = Qual("frizz.io/system", "J_NUMBER")
 		case system.J_STRING:
-			jsonQual = Qual("kego.io/system", "J_STRING")
+			jsonQual = Qual("frizz.io/system", "J_STRING")
 		case system.J_BOOL:
-			jsonQual = Qual("kego.io/system", "J_BOOL")
+			jsonQual = Qual("frizz.io/system", "J_BOOL")
 		case system.J_MAP:
-			jsonQual = Qual("kego.io/system", "J_MAP")
+			jsonQual = Qual("frizz.io/system", "J_MAP")
 		case system.J_OBJECT:
-			jsonQual = Qual("kego.io/system", "J_OBJECT")
+			jsonQual = Qual("frizz.io/system", "J_OBJECT")
 		case system.J_ARRAY:
-			jsonQual = Qual("kego.io/system", "J_ARRAY")
+			jsonQual = Qual("frizz.io/system", "J_ARRAY")
 		case system.J_NULL:
-			jsonQual = Qual("kego.io/system", "J_NULL")
+			jsonQual = Qual("frizz.io/system", "J_NULL")
 		}
 
 		kind, _ := typ.Kind(ctx)
@@ -429,7 +429,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Statement, out string, depth int, f system.RuleInterface, inStruct bool) error {
 	field := system.WrapRule(ctx, f)
 	kind, alias := field.Kind(ctx)
-	//repackerDef := g.SprintRef("kego.io/system", "Repacker")
+	//repackerDef := g.SprintRef("frizz.io/system", "Repacker")
 	switch {
 	case kind == system.KindInterface:
 		valueVar := out + "_value"
@@ -450,7 +450,7 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			Id("typ"),
 			Err(),
 		).Op(":=").Add(in).Assert(
-			Qual("kego.io/system", "Repacker"),
+			Qual("frizz.io/system", "Repacker"),
 		).Dot("Repack").Call(Id("ctx"))
 
 		g.If(Err().Op("!=").Nil()).Block(
@@ -473,14 +473,14 @@ func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.If(Qual("kego.io/system", "ShouldUseExplicitTypeNotation").Call(
+		g.If(Qual("frizz.io/system", "ShouldUseExplicitTypeNotation").Call(
 			Id("pkg"),
 			Id("name"),
 			Id("typ"),
 			Lit(field.Parent.Id.Package),
 			Lit(field.Parent.Id.Name),
 		)).Block(
-			Id("typRef").Op(":=").Qual("kego.io/system", "NewReference").Call(Id("pkg"), Id("name")),
+			Id("typRef").Op(":=").Qual("frizz.io/system", "NewReference").Call(Id("pkg"), Id("name")),
 			List(Id("typeVal"), Err()).Op(":=").Id("typRef").Dot("ValueContext").Call(Id("ctx")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Nil(), Lit(""), Lit(""), Lit(""), Err()),
@@ -589,7 +589,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 
 	f.Func().Params(Id("v").Op("*").Id(name)).Id("Unpack").Params(
 		Id("ctx").Qual("context", "Context"),
-		Id("in").Qual("kego.io/system", "Packed"),
+		Id("in").Qual("frizz.io/system", "Packed"),
 		Id("iface").Bool(),
 	).Error().BlockFunc(func(g *Group) {
 		/*
@@ -597,7 +597,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				return nil
 			}
 		*/
-		g.If(Id("in").Op("==").Nil().Op("||").Id("in").Dot("Type").Call().Op("==").Qual("kego.io/system", "J_NULL")).Block(
+		g.If(Id("in").Op("==").Nil().Op("||").Id("in").Dot("Type").Call().Op("==").Qual("frizz.io/system", "J_NULL")).Block(
 			Return(Nil()),
 		)
 
@@ -640,7 +640,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					Return(Err()),
 				)
 
-				if embedRef.Package == "kego.io/system" && embedRef.Name == "object" {
+				if embedRef.Package == "frizz.io/system" && embedRef.Name == "object" {
 					/*
 						if err := v.Object.InitializeType("{typ.Id.Package}", "{typ.Id.Name}"); err != nil {
 							return err
@@ -671,7 +671,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 						Id("field"),
 						Id("ok"),
 					).Op(":=").Id("in").Dot("Map").Call().Index(Lit(f.Name)),
-					Id("ok").Op("&&").Id("field").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_NULL"),
+					Id("ok").Op("&&").Id("field").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_NULL"),
 				).BlockFunc(func(g *Group) {
 					in := "field"
 					out := "ob0"
@@ -695,7 +695,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 								outerErr = kerr.Wrap("DLOUEHXVJF", err)
 								return
 							}
-							in := Qual("kego.io/system", "MustPackString").Call(Lit(string(b)))
+							in := Qual("frizz.io/system", "MustPackString").Call(Lit(string(b)))
 							out := "ob0"
 							depth := 0
 							if err := printUnpackCode(ctx, env, g, in, out, depth, f.Rule); err != nil {
@@ -717,7 +717,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					in = in.Map()["value"]
 				}
 			*/
-			g.If(Id("in").Dot("Type").Call().Op("==").Qual("kego.io/system", "J_MAP")).Block(
+			g.If(Id("in").Dot("Type").Call().Op("==").Qual("frizz.io/system", "J_MAP")).Block(
 				Id("in").Op("=").Id("in").Dot("Map").Call().Index(Lit("value")),
 			)
 
@@ -729,7 +729,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 					*v = {name}(in.Bool())
 				*/
-				g.If(Id("in").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_BOOL")).Block(
+				g.If(Id("in").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_BOOL")).Block(
 					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a bool."),
 						Id("in").Dot("Type").Call(),
@@ -744,7 +744,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 					*v = {name}(in.String())
 				*/
-				g.If(Id("in").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_STRING")).Block(
+				g.If(Id("in").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_STRING")).Block(
 					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a string."),
 						Id("in").Dot("Type").Call(),
@@ -759,7 +759,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					}
 					*v = {name}(in.Number())
 				*/
-				g.If(Id("in").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_NUMBER")).Block(
+				g.If(Id("in").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_NUMBER")).Block(
 					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a number."),
 						Id("in").Dot("Type").Call(),
@@ -775,7 +775,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					in = in.Map()["value"]
 				}
 			*/
-			g.If(Id("in").Dot("Type").Call().Op("==").Qual("kego.io/system", "J_MAP")).Block(
+			g.If(Id("in").Dot("Type").Call().Op("==").Qual("frizz.io/system", "J_MAP")).Block(
 				Id("in").Op("=").Id("in").Dot("Map").Call().Index(Lit("value")),
 			)
 
@@ -784,7 +784,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 					return fmt.Errorf("Invalid type %s while unpacking an array.", in.Type())
 				}
 			*/
-			g.If(Id("in").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_ARRAY")).Block(
+			g.If(Id("in").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_ARRAY")).Block(
 				Return(Qual("fmt", "Errorf").Call(
 					Lit("Invalid type %s while unpacking an array."),
 					Id("in").Dot("Type").Call(),
@@ -816,7 +816,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 			*/
 
 			g.If(Id("iface")).Block(
-				If(Id("in").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_MAP")).Block(
+				If(Id("in").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_MAP")).Block(
 					Return(Qual("fmt", "Errorf").Call(
 						Lit("Invalid type %s while unpacking a map."),
 						Id("in").Dot("Type").Call(),
@@ -831,7 +831,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				}
 			*/
 
-			g.If(Id("in").Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_MAP")).Block(
+			g.If(Id("in").Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_MAP")).Block(
 				Return(Qual("fmt", "Errorf").Call(
 					Lit("Invalid type %s while unpacking an array."),
 					Id("in").Dot("Type").Call(),
@@ -894,11 +894,11 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 		var funcQual Code
 		switch fieldType.NativeJsonType(ctx) {
 		case system.J_STRING:
-			funcQual = Qual("kego.io/system", "UnpackString")
+			funcQual = Qual("frizz.io/system", "UnpackString")
 		case system.J_NUMBER:
-			funcQual = Qual("kego.io/system", "UnpackNumber")
+			funcQual = Qual("frizz.io/system", "UnpackNumber")
 		case system.J_BOOL:
-			funcQual = Qual("kego.io/system", "UnpackBool")
+			funcQual = Qual("frizz.io/system", "UnpackBool")
 		default:
 			return kerr.New("LSGUACQGHB", "Kind == KindValue but native json type==%s", fieldType.NativeJsonType(ctx))
 		}
@@ -945,7 +945,7 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.If(Add(in).Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_ARRAY")).Block(
+		g.If(Add(in).Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_ARRAY")).Block(
 			Return(Qual("fmt", "Errorf").Call(
 				Lit("Unsupported json type %s found while unpacking into an array."),
 				Add(in).Dot("Type").Call(),
@@ -995,7 +995,7 @@ func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Stateme
 			}
 		*/
 
-		g.If(Add(in).Dot("Type").Call().Op("!=").Qual("kego.io/system", "J_MAP")).Block(
+		g.If(Add(in).Dot("Type").Call().Op("!=").Qual("frizz.io/system", "J_MAP")).Block(
 			Return(Qual("fmt", "Errorf").Call(
 				Lit("Unsupported json type %s found while unpacking into a map."),
 				Add(in).Dot("Type").Call(),
@@ -1075,14 +1075,14 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *
 	*/
 	f.Func().Id("Unpack"+interfaceName).Params(
 		Id("ctx").Qual("context", "Context"),
-		Id("in").Qual("kego.io/system", "Packed"),
+		Id("in").Qual("frizz.io/system", "Packed"),
 	).Params(
 		Id(interfaceName),
 		Error(),
 	).Block(
 		Switch().Id("in").Dot("Type").Call().Block(
-			Case(Qual("kego.io/system", "J_MAP")).Block(
-				List(Id("i"), Err()).Op(":=").Qual("kego.io/system", "UnpackUnknownType").Call(
+			Case(Qual("frizz.io/system", "J_MAP")).Block(
+				List(Id("i"), Err()).Op(":=").Qual("frizz.io/system", "UnpackUnknownType").Call(
 					Id("ctx"),
 					Id("in"),
 					True(),
@@ -1108,13 +1108,13 @@ func printInterfaceUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *
 				var qual Code
 				switch typ.NativeJsonType(ctx) {
 				case system.J_STRING:
-					qual = Qual("kego.io/system", "J_STRING")
+					qual = Qual("frizz.io/system", "J_STRING")
 				case system.J_NUMBER:
-					qual = Qual("kego.io/system", "J_NUMBER")
+					qual = Qual("frizz.io/system", "J_NUMBER")
 				case system.J_BOOL:
-					qual = Qual("kego.io/system", "J_BOOL")
+					qual = Qual("frizz.io/system", "J_BOOL")
 				case system.J_ARRAY:
-					qual = Qual("kego.io/system", "J_ARRAY")
+					qual = Qual("frizz.io/system", "J_ARRAY")
 				}
 				if qual != nil {
 					s.Case(qual).Block(
@@ -1233,7 +1233,7 @@ func printStructDefinition(ctx context.Context, env *envctx.Env, f *File, typ *s
 	var errOuter error
 	f.Type().Id(system.GoName(typ.Id.Name)).StructFunc(func(g *Group) {
 		if !typ.Basic {
-			g.Op("*").Qual("kego.io/system", "Object")
+			g.Op("*").Qual("frizz.io/system", "Object")
 		}
 		embedsSortable := system.SortableReferences(typ.Embed)
 		sort.Sort(embedsSortable)
@@ -1270,7 +1270,7 @@ func printInitFunction(ctx context.Context, env *envctx.Env, f *File, types *sys
 		}
 	*/
 	f.Func().Id("init").Params().BlockFunc(func(g *Group) {
-		g.Id("pkg").Op(":=").Qual("kego.io/context/jsonctx", "InitPackage").Call(Lit(env.Path))
+		g.Id("pkg").Op(":=").Qual("frizz.io/context/jsonctx", "InitPackage").Call(Lit(env.Path))
 		g.Id("pkg").Dot("SetHash").Call(Lit(env.Hash))
 		for _, name := range types.Keys() {
 			t, ok := types.Get(name)

@@ -5,12 +5,12 @@ import (
 
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/models"
+	"frizz.io/flux"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
-	"kego.io/flux"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type NodeStore struct {

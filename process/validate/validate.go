@@ -1,16 +1,16 @@
-package validate // import "kego.io/process/validate"
+package validate // import "frizz.io/process/validate"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"context"
 
+	"frizz.io/context/envctx"
+	"frizz.io/process/scanner"
+	"frizz.io/process/validate/selectors"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
-	"kego.io/process/scanner"
-	"kego.io/process/validate/selectors"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 func ValidatePackage(ctx context.Context) (errors []ValidationError, err error) {

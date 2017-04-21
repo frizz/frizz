@@ -13,14 +13,14 @@ import (
 	"github.com/dave/vecty/prop"
 	"github.com/go-errors/errors"
 	"github.com/golang/mock/gomock"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/ctests"
-	"kego.io/editor/client/models"
-	"kego.io/editor/client/stores"
-	"kego.io/editor/shared"
-	"kego.io/flux"
-	"kego.io/process/parser"
-	"kego.io/system"
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/ctests"
+	"frizz.io/editor/client/models"
+	"frizz.io/editor/client/stores"
+	"frizz.io/editor/shared"
+	"frizz.io/flux"
+	"frizz.io/process/parser"
+	"frizz.io/system"
 )
 
 var branchViewWatchNotifs = []interface{}{
@@ -293,7 +293,7 @@ func setupForSuccessfulFileLoad(t *testing.T, cb *ctests.ClientContextBuilder) {
 	done := make(chan error, 1)
 
 	do := func(method shared.Method, args interface{}, reply interface{}, fail chan error) chan error {
-		// Create a simple ke object and marshal it to a []byte
+		// Create a simple frizz object and marshal it to a []byte
 		var bytes []byte
 		bytes, err := system.Marshal(cb.Ctx(), &system.Object{Type: system.NewReference("system", "object")})
 		require.NoError(t, err)

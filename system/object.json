@@ -1,5 +1,5 @@
 {
-	"description": "This is the base type for the object interface. All ke objects have this type embedded.",
+	"description": "This is the base type for the object interface. All frizz objects have this type embedded.",
 	"type": "type",
 	"id": "object",
 	"basic": true,

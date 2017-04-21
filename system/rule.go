@@ -7,8 +7,8 @@ import (
 
 	"fmt"
 
+	"frizz.io/context/jsonctx"
 	"github.com/dave/kerr"
-	"kego.io/context/jsonctx"
 )
 
 // Enforcer is a rule with properties that need to be enforced against data.
@@ -94,7 +94,7 @@ var _ CollectionRule = (*DummyRule)(nil)
 func init() {
 	jsonctx.InitDummy(reflect.TypeOf((*RuleInterface)(nil)).Elem(), reflect.TypeOf(&DummyRule{}))
 
-	pkg := jsonctx.InitPackage("kego.io/system")
+	pkg := jsonctx.InitPackage("frizz.io/system")
 	pkg.Dummy("rule", func() interface{} { return new(DummyRule) })
 }
 

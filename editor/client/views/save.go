@@ -3,15 +3,15 @@ package views
 import (
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/stores"
+	"frizz.io/editor/shared"
+	"frizz.io/frizz"
 	"github.com/dave/kerr"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/dave/vecty/event"
 	"github.com/dave/vecty/prop"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/stores"
-	"kego.io/editor/shared"
-	"kego.io/ke"
 )
 
 type SaveView struct {
@@ -40,7 +40,7 @@ func (v *SaveView) Render() *vecty.HTML {
 				}
 				for n, f := range v.App.Files.All() {
 					if f.Changed() {
-						b, err := ke.MarshalIndent(v.Ctx, n.Value, "", "\t")
+						b, err := frizz.MarshalIndent(v.Ctx, n.Value, "", "\t")
 						if err != nil {
 							v.App.Fail <- kerr.Wrap("MKHONBVODK", err)
 						}

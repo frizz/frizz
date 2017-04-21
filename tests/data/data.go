@@ -3,7 +3,7 @@ package data
 import (
 	"context"
 
-	"kego.io/system"
+	"frizz.io/system"
 )
 
 type Face interface {

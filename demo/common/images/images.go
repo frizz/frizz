@@ -1,7 +1,7 @@
-//go:generate ke
+//go:generate frizz
 package images
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"fmt"

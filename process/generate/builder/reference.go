@@ -1,12 +1,12 @@
 package builder
 
 import (
+	"frizz.io/system"
 	"github.com/dave/jennifer/jen"
-	"kego.io/system"
 )
 
 func Reference(reference *system.Reference) *jen.Statement {
-	if reference.Package == "kego.io/json" {
+	if reference.Package == "frizz.io/json" {
 		switch reference.Name {
 		case "string":
 			return jen.String()

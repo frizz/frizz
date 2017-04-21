@@ -1,2 +1,2 @@
-//go:generate mockgen -destination mocks.go kego.io/flux DispatcherInterface,NotifierInterface,AppInterface,WatcherInterface
+//go:generate mockgen -destination mocks.go frizz.io/flux DispatcherInterface,NotifierInterface,AppInterface,WatcherInterface
 package mock_flux

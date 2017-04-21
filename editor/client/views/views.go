@@ -6,8 +6,8 @@ import (
 
 	"bytes"
 
-	"kego.io/editor/client/stores"
-	"kego.io/flux"
+	"frizz.io/editor/client/stores"
+	"frizz.io/flux"
 )
 
 type View struct {

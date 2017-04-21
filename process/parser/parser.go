@@ -1,6 +1,6 @@
-package parser // import "kego.io/process/parser"
+package parser // import "frizz.io/process/parser"
 
-// ke: {"package": {"complete": true}}
+// frizz: {"package": {"complete": true}}
 
 import (
 	"fmt"
@@ -13,15 +13,15 @@ import (
 
 	"context"
 
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/context/vosctx"
+	"frizz.io/process/packages"
+	"frizz.io/process/scanner"
+	"frizz.io/system"
 	"github.com/dave/gopackages"
 	"github.com/dave/kerr"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/sysctx"
-	"kego.io/context/vosctx"
-	"kego.io/process/packages"
-	"kego.io/process/scanner"
-	"kego.io/system"
 )
 
 func Parse(ctx context.Context, path string) (*sysctx.SysPackageInfo, error) {
@@ -38,7 +38,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 		}
 	}
 
-	if _, found := scache.Get("kego.io/json"); !found {
+	if _, found := scache.Get("frizz.io/json"); !found {
 		system.RegisterJsonTypes(ctx)
 	}
 
@@ -75,14 +75,14 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 	}
 
 	// Always scan the system package first if we don't have it already
-	if path != "kego.io/system" {
-		if err := importPackage("kego.io/system", "system"); err != nil {
+	if path != "frizz.io/system" {
+		if err := importPackage("frizz.io/system", "system"); err != nil {
 			return nil, kerr.Wrap("ORRCDNUPOX", err)
 		}
 	}
 
 	for aliasName, aliasPath := range env.Aliases {
-		if aliasPath == "kego.io/system" || aliasName == "system" {
+		if aliasPath == "frizz.io/system" || aliasName == "system" {
 			return nil, kerr.New("EWMLNJDXKC", "Illegal import %s", aliasName)
 		}
 		if err := importPackage(aliasPath, aliasName); err != nil {
@@ -172,7 +172,7 @@ func scanForTypesAndExports(ctx context.Context, env *envctx.Env, cache *sysctx.
 		if o.Type == nil {
 			return kerr.New("NUKWIHYFMQ", "%s has no type", b.File)
 		}
-		if o.Id == nil && *o.Type != *system.NewReference("kego.io/system", "package") {
+		if o.Id == nil && *o.Type != *system.NewReference("frizz.io/system", "package") {
 			// we tolerate missing ID only for system:package
 			return kerr.New("DLLMKTDYFW", "%s has no id", b.File)
 		}
@@ -181,11 +181,11 @@ func scanForTypesAndExports(ctx context.Context, env *envctx.Env, cache *sysctx.
 			return kerr.Wrap("AWYRJSCYQS", err)
 		}
 		switch *o.Type {
-		case *system.NewReference("kego.io/system", "type"):
+		case *system.NewReference("frizz.io/system", "type"):
 			if err := ProcessTypeFileBytes(ctx, env, relativeFile, b.Bytes, cache, hash); err != nil {
 				return kerr.Wrap("IVEFDDSKHE", err)
 			}
-		case *system.NewReference("kego.io/system", "package"):
+		case *system.NewReference("frizz.io/system", "package"):
 			cache.PackageBytes = b.Bytes
 			cache.PackageFilename = relativeFile
 		default:
@@ -222,7 +222,7 @@ func ProcessTypeFileBytes(ctx context.Context, env *envctx.Env, filename string,
 		// Check that the rule embeds system:rule
 		found := false
 		for _, em := range t.Rule.Embed {
-			if *em == *system.NewReference("kego.io/system", "rule") {
+			if *em == *system.NewReference("frizz.io/system", "rule") {
 				found = true
 			}
 		}
@@ -237,10 +237,10 @@ func ProcessTypeFileBytes(ctx context.Context, env *envctx.Env, filename string,
 		rule := &system.Type{
 			Object: &system.Object{
 				Description: fmt.Sprintf("Automatically created basic rule for %s", t.Id.Name),
-				Type:        system.NewReference("kego.io/system", "type"),
+				Type:        system.NewReference("frizz.io/system", "type"),
 				Id:          id,
 			},
-			Embed:     []*system.Reference{system.NewReference("kego.io/system", "rule")},
+			Embed:     []*system.Reference{system.NewReference("frizz.io/system", "rule")},
 			Native:    system.NewString("object"),
 			Interface: false,
 		}
@@ -271,7 +271,7 @@ func scanForPackage(ctx context.Context, env *envctx.Env) (*system.Package, erro
 			continue
 		}
 		switch *o.Type {
-		case *system.NewReference("kego.io/system", "package"):
+		case *system.NewReference("frizz.io/system", "package"):
 			var i interface{}
 			err := system.Unmarshal(localContext, b.Bytes, &i)
 			if err != nil {

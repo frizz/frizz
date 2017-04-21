@@ -5,12 +5,12 @@ import (
 
 	"reflect"
 
+	"frizz.io/context/jsonctx"
+	"frizz.io/editor/client/clientctx"
+	"frizz.io/editor/client/editable"
+	"frizz.io/system"
+	"frizz.io/system/node"
 	"github.com/dave/kerr"
-	"kego.io/context/jsonctx"
-	"kego.io/editor/client/clientctx"
-	"kego.io/editor/client/editable"
-	"kego.io/system"
-	"kego.io/system/node"
 )
 
 type EditorModel struct {

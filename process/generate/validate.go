@@ -5,9 +5,9 @@ import (
 
 	"bytes"
 
+	"frizz.io/context/envctx"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/kerr"
-	"kego.io/context/envctx"
 )
 
 func ValidateCommand(ctx context.Context) (source []byte, err error) {
@@ -16,12 +16,12 @@ func ValidateCommand(ctx context.Context) (source []byte, err error) {
 
 	f := NewFilePathName(env.Path, "main")
 	f.Anon(env.Path)
-	f.Anon("kego.io/system")
+	f.Anon("frizz.io/system")
 	for _, p := range env.Aliases {
 		f.Anon(p)
 	}
 	f.Func().Id("main").Params().Block(
-		Qual("kego.io/process/validate/command", "ValidateMain").Call(Lit(env.Path)),
+		Qual("frizz.io/process/validate/command", "ValidateMain").Call(Lit(env.Path)),
 	)
 
 	buf := &bytes.Buffer{}

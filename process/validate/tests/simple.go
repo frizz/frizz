@@ -1,12 +1,12 @@
-//go:generate ke kego.io/process/validate/tests
-package tests // import "kego.io/process/validate/tests"
+//go:generate frizz frizz.io/process/validate/tests
+package tests // import "frizz.io/process/validate/tests"
 
-// ke: {"package": {"notest": true}}
+// notest
 
 import (
 	"context"
 
-	"kego.io/system"
+	"frizz.io/system"
 )
 
 var _ system.StringInterface = (*A)(nil)

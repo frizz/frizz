@@ -1,4 +1,4 @@
-package server // import "kego.io/editor/server"
+package server // import "frizz.io/editor/server"
 
 import (
 	"bytes"
@@ -25,18 +25,18 @@ import (
 
 	"context"
 
+	"frizz.io/context/cmdctx"
+	"frizz.io/context/envctx"
+	"frizz.io/context/sysctx"
+	"frizz.io/context/wgctx"
+	"frizz.io/editor/server/auther"
+	"frizz.io/editor/server/static"
+	"frizz.io/editor/shared"
+	"frizz.io/process"
+	"frizz.io/process/generate"
+	"frizz.io/process/parser"
+	"frizz.io/system"
 	"github.com/pkg/browser"
-	"kego.io/context/cmdctx"
-	"kego.io/context/envctx"
-	"kego.io/context/sysctx"
-	"kego.io/context/wgctx"
-	"kego.io/editor/server/auther"
-	"kego.io/editor/server/static"
-	"kego.io/editor/shared"
-	"kego.io/process"
-	"kego.io/process/generate"
-	"kego.io/process/parser"
-	"kego.io/system"
 )
 
 const writeTimeout = time.Second * 2
@@ -245,7 +245,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request, auth au
 			return kerr.Wrap("OUBOTYGPKU", err)
 		}
 		pkgBytes = b
-		pkgFilename = "package.ke.json"
+		pkgFilename = "package.frizz.json"
 	}
 
 	imports := map[string]shared.ImportInfo{}
@@ -282,7 +282,7 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request, auth au
 		return nil
 	}
 	// First we always import system
-	if err := scan("kego.io/system"); err != nil {
+	if err := scan("frizz.io/system"); err != nil {
 		return kerr.Wrap("KRXSLOJKWV", err)
 	}
 	if err := scan(env.Path); err != nil {

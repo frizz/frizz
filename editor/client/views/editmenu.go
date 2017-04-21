@@ -5,11 +5,11 @@ import (
 
 	"fmt"
 
+	"frizz.io/editor/client/stores"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/dave/vecty/event"
 	"github.com/dave/vecty/prop"
-	"kego.io/editor/client/stores"
 )
 
 type EditMenuView struct {

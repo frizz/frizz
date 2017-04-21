@@ -1,15 +1,15 @@
-package views // import "kego.io/editor/client/views"
+package views // import "frizz.io/editor/client/views"
 
 import (
 	"context"
 
+	"frizz.io/editor/client/actions"
+	"frizz.io/editor/client/models"
+	"frizz.io/flux"
 	"github.com/dave/vecty"
 	"github.com/dave/vecty/elem"
 	"github.com/dave/vecty/prop"
 	"honnef.co/go/js/dom"
-	"kego.io/editor/client/actions"
-	"kego.io/editor/client/models"
-	"kego.io/flux"
 )
 
 type PageView struct {
