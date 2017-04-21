@@ -1,9 +1,8 @@
 [![Build Status](https://travis-ci.org/frizz/frizz.svg?branch=master)](https://travis-ci.org/frizz/frizz?branch=master)
 [![codecov.io](https://codecov.io/github/frizz/frizz/coverage.svg?branch=master)](https://codecov.io/github/frizz/frizz/branch/master)
-[![Floobits Status](https://floobits.com/dave/frizz.svg)](https://floobits.com/dave/frizz/redirect)
 
 Frizz
-==
+=====
 
 The frizz project isn't for public consumption yet. Please move along.
 
