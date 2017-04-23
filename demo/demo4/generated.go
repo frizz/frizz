@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo4","Hash":13638655678583271524}
+// info:{"Path":"frizz.io/demo/demo4","Hash":15088874584432197168}
 package demo4
 
 import (
@@ -8,6 +8,7 @@ import (
 
 	jsonctx "frizz.io/context/jsonctx"
 	system "frizz.io/system"
+	images "github.com/dave/images"
 )
 
 // notest
@@ -67,6 +68,7 @@ func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage st
 
 type Page struct {
 	*system.Object
+	Hero  *images.Photo  `json:"hero"`
 	Title *system.String `json:"title"`
 }
 type PageInterface interface {
@@ -105,6 +107,13 @@ func (v *Page) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.InitializeType("frizz.io/demo/demo4", "page"); err != nil {
 		return err
 	}
+	if field, ok := in.Map()["hero"]; ok && field.Type() != system.J_NULL {
+		ob0 := new(images.Photo)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Hero = ob0
+	}
 	if field, ok := in.Map()["title"]; ok && field.Type() != system.J_NULL {
 		ob0 := new(system.String)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -128,6 +137,13 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 			m[key] = val
 		}
 	}
+	if v.Hero != nil {
+		ob0, _, _, _, err := v.Hero.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["hero"] = ob0
+	}
 	if v.Title != nil {
 		ob0, _, _, _, err := v.Title.Repack(ctx)
 		if err != nil {
@@ -139,7 +155,7 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo4")
-	pkg.SetHash(uint64(0xbd463d1437d1f064))
+	pkg.SetHash(uint64(0xd166737d81803e30))
 	pkg.Init("page", func() interface{} {
 		return new(Page)
 	}, nil, func() interface{} {

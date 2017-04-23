@@ -1,6 +1,6 @@
 type: page
 id: frontpage
 title: foo
-#hero:
-    #type: images:photo
-    #url: https://golang.org/doc/gopher/frontpage.png
+hero:
+    type: images:photo
+    url: https://golang.org/doc/gopher/frontpage.png
