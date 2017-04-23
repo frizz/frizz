@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo1","Hash":8023308831674318852}
+// info:{"Path":"frizz.io/demo/demo1","Hash":18210710321284469519}
 package demo1
 
 import (
@@ -154,7 +154,7 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo1")
-	pkg.SetHash(uint64(0x6f5884df8333c004))
+	pkg.SetHash(uint64(0xfcb9708d7fb3530f))
 	pkg.Init("page", func() interface{} {
 		return new(Page)
 	}, nil, func() interface{} {
