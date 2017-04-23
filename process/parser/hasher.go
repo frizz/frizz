@@ -7,6 +7,8 @@ import (
 	"github.com/surge/cityhash"
 )
 
+const currentPackageHasherVersion = 8
+
 type PackageHasher struct {
 	Path    string
 	Aliases map[string]string
@@ -15,9 +17,13 @@ type PackageHasher struct {
 	Version int
 }
 
-func (p *PackageHasher) Hash() (uint64, error) {
+func (p *PackageHasher) Hash(version int) (uint64, error) {
 
-	p.Version = 7
+	if version > 0 {
+		p.Version = version
+	} else {
+		p.Version = currentPackageHasherVersion
+	}
 
 	bytes, err := json.Marshal(p)
 	if err != nil {

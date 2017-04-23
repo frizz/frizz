@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/demo/demo9","Hash":3818513847626526840}
+// info:{"Path":"frizz.io/demo/demo9","Hash":15575345513641362546}
 package demo9
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for person
 type PersonRule struct {
@@ -154,13 +154,12 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo9")
-	pkg.SetHash(3818513847626526840)
-	pkg.Init(
-		"person",
-		func() interface{} { return new(Person) },
-		nil,
-		func() interface{} { return new(PersonRule) },
-		func() reflect.Type { return reflect.TypeOf((*PersonInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0xd826be3912914472))
+	pkg.Init("person", func() interface{} {
+		return new(Person)
+	}, nil, func() interface{} {
+		return new(PersonRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PersonInterface)(nil)).Elem()
+	})
 }

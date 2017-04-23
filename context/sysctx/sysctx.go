@@ -223,11 +223,11 @@ func (c *SysFiles) Keys() []string {
 	return out
 }
 
-func (c *SysExports) Set(id, typeName, typePackage string, jsonContents []byte) {
+func (c *SysExports) Set(name, typeName, typePackage string, jsonContents []byte) {
 	c.Lock()
 	defer c.Unlock()
-	c.exports[id] = &SysExportInfo{
-		Name:         id,
+	c.exports[name] = &SysExportInfo{
+		Name:         name,
 		TypeName:     typeName,
 		TypePackage:  typePackage,
 		JsonContents: jsonContents,

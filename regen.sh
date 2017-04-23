@@ -1,0 +1,25 @@
+#!/bin/bash
+frizz frizz.io/tests/data/alias
+frizz frizz.io/tests/data
+frizz frizz.io/process/validate/tests
+frizz frizz.io/process/validate/selectors/tests
+frizz frizz.io/system
+frizz frizz.io/demo/common/images
+frizz frizz.io/demo/common/units
+frizz frizz.io/demo/common/words
+frizz frizz.io/demo/demo6
+frizz frizz.io/demo/site
+frizz frizz.io/demo
+frizz frizz.io/demo/demo1
+frizz frizz.io/demo/demo4
+frizz frizz.io/demo/demo8
+frizz frizz.io/demo/demo8/images
+frizz frizz.io/demo/demo5/translation
+frizz frizz.io/demo/demo5
+frizz frizz.io/demo/demo9
+frizz frizz.io/demo/demo3
+frizz frizz.io/demo/demo3/images
+frizz frizz.io/demo/demo7
+frizz frizz.io/demo/demo7/images
+frizz frizz.io/demo/demo2
+frizz frizz.io/demo/demo2/images

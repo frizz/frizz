@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/common/images","Hash":1237826309454086895}
+// info:{"Path":"frizz.io/demo/common/images","Hash":3827775346797945496}
 package images
 
 import (
@@ -406,7 +406,7 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/common/images")
-	pkg.SetHash(0x112da4785ca4c2ef)
+	pkg.SetHash(uint64(0x351efd65c1e3a298))
 	pkg.Init("icon", func() interface{} {
 		return new(Icon)
 	}, nil, func() interface{} {

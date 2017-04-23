@@ -19,7 +19,7 @@ func TestHasher(t *testing.T) {
 			"g": uint64(3),
 		},
 	}
-	h, err := p.Hash()
+	h, err := p.Hash(1)
 	require.NoError(t, err)
-	assert.Equal(t, uint64(0x3c72c8360102caa5), h)
+	assert.Equal(t, uint64(0x1e7153b485e77b8b), h)
 }

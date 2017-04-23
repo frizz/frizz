@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/system","Hash":15725281303364755101}
+// info:{"Path":"frizz.io/system","Hash":12624742093858879408}
 package system
 
 import (
@@ -2100,7 +2100,7 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/system")
-	pkg.SetHash(0xda3b6c078025de9d)
+	pkg.SetHash(uint64(0xaf34180bad6137b0))
 	pkg.Init("array", nil, nil, func() interface{} {
 		return new(ArrayRule)
 	}, nil)

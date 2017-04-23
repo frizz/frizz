@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/demo/demo6","Hash":7465480149826331644}
+// info:{"Path":"frizz.io/demo/demo6","Hash":7818645304440428502}
 package demo6
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for page
 type PageRule struct {
@@ -306,21 +306,27 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo6")
-	pkg.SetHash(7465480149826331644)
-	pkg.Init(
-		"page",
-		func() interface{} { return new(Page) },
-		nil,
-		func() interface{} { return new(PageRule) },
-		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"person",
-		func() interface{} { return new(Person) },
-		nil,
-		func() interface{} { return new(PersonRule) },
-		func() reflect.Type { return reflect.TypeOf((*PersonInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0x6c81687abbf297d6))
+	pkg.Init("page", func() interface{} {
+		return new(Page)
+	}, nil, func() interface{} {
+		return new(PageRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PageInterface)(nil)).Elem()
+	})
+	pkg.Init("person", func() interface{} {
+		return new(Person)
+	}, nil, func() interface{} {
+		return new(PersonRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PersonInterface)(nil)).Elem()
+	})
+}
+func Frontpage() *Page {
+	ctx := system.NewContext(context.Background(), "frizz.io/demo/demo6", map[string]string{})
+	o := new(Page)
+	if err := o.Unpack(ctx, system.MustPackString("{\"description\":\"This is the front page of the site.\",\"export\":true,\"heading\":\"Front page\",\"id\":\"frontpage\",\"people\":[{\"age\":72,\"name\":\"Roy\",\"type\":\"person\"},{\"age\":38,\"name\":\"Dave\",\"type\":\"person\"},{\"age\":36,\"name\":\"John\",\"type\":\"person\"},{\"age\":34,\"name\":\"Peter\",\"type\":\"person\"}],\"type\":\"page\"}"), false); err != nil {
+		panic(err.Error())
+	}
+	return o
 }

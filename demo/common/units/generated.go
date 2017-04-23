@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/common/units","Hash":5562844427559446456}
+// info:{"Path":"frizz.io/demo/common/units","Hash":16221675779563696881}
 package units
 
 import (
@@ -154,7 +154,7 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/common/units")
-	pkg.SetHash(0x4d3331889d7127b8)
+	pkg.SetHash(uint64(0xe11ef82ce673b2f1))
 	pkg.Init("rectangle", func() interface{} {
 		return new(Rectangle)
 	}, nil, func() interface{} {

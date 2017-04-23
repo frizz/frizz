@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/process/validate/tests","Hash":17573435268142783549}
+// info:{"Path":"frizz.io/process/validate/tests","Hash":9486708652413768544}
 package tests
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for a
 type ARule struct {
@@ -863,53 +863,47 @@ func (v *F) Repack(ctx context.Context) (data interface{}, typePackage string, t
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/process/validate/tests")
-	pkg.SetHash(17573435268142783549)
-	pkg.Init(
-		"a",
-		func() interface{} { return new(A) },
-		nil,
-		func() interface{} { return new(ARule) },
-		func() reflect.Type { return reflect.TypeOf((*AInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"b",
-		func() interface{} { return new(B) },
-		nil,
-		func() interface{} { return new(BRule) },
-		func() reflect.Type { return reflect.TypeOf((*BInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"c",
-		func() interface{} { return (*C)(nil) },
-		nil,
-		func() interface{} { return new(CRule) },
-		func() reflect.Type { return reflect.TypeOf((*C)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"d",
-		func() interface{} { return new(D) },
-		nil,
-		func() interface{} { return new(DRule) },
-		func() reflect.Type { return reflect.TypeOf((*DInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"e",
-		func() interface{} { return new(E) },
-		nil,
-		func() interface{} { return new(ERule) },
-		func() reflect.Type { return reflect.TypeOf((*EInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"f",
-		func() interface{} { return new(F) },
-		nil,
-		func() interface{} { return new(FRule) },
-		func() reflect.Type { return reflect.TypeOf((*FInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0x83a78f41b2bf5360))
+	pkg.Init("a", func() interface{} {
+		return new(A)
+	}, nil, func() interface{} {
+		return new(ARule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*AInterface)(nil)).Elem()
+	})
+	pkg.Init("b", func() interface{} {
+		return new(B)
+	}, nil, func() interface{} {
+		return new(BRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*BInterface)(nil)).Elem()
+	})
+	pkg.Init("c", func() interface{} {
+		return (*C)(nil)
+	}, nil, func() interface{} {
+		return new(CRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*C)(nil)).Elem()
+	})
+	pkg.Init("d", func() interface{} {
+		return new(D)
+	}, nil, func() interface{} {
+		return new(DRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*DInterface)(nil)).Elem()
+	})
+	pkg.Init("e", func() interface{} {
+		return new(E)
+	}, nil, func() interface{} {
+		return new(ERule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*EInterface)(nil)).Elem()
+	})
+	pkg.Init("f", func() interface{} {
+		return new(F)
+	}, nil, func() interface{} {
+		return new(FRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*FInterface)(nil)).Elem()
+	})
 }

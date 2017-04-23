@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/process/validate/selectors/tests","Hash":10362807576256830877}
+// info:{"Path":"frizz.io/process/validate/selectors/tests","Hash":958437053934508214}
 package tests
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for basic
 type BasicRule struct {
@@ -2893,7 +2893,7 @@ func (v *Photo) Unpack(ctx context.Context, in system.Packed, iface bool) error 
 		v.Protocol = ob0
 	} else {
 		ob0 := new(system.String)
-		if err := ob0.Unpack(ctx, system.Pack("http"), false); err != nil {
+		if err := ob0.Unpack(ctx, system.MustPackString("\"http\""), false); err != nil {
 			return err
 		}
 		v.Protocol = ob0
@@ -4039,205 +4039,180 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/process/validate/selectors/tests")
-	pkg.SetHash(10362807576256830877)
-	pkg.Init(
-		"basic",
-		func() interface{} { return new(Basic) },
-		nil,
-		func() interface{} { return new(BasicRule) },
-		func() reflect.Type { return reflect.TypeOf((*BasicInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"c",
-		func() interface{} { return new(C) },
-		nil,
-		func() interface{} { return new(CRule) },
-		func() reflect.Type { return reflect.TypeOf((*CInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"collision",
-		func() interface{} { return new(Collision) },
-		nil,
-		func() interface{} { return new(CollisionRule) },
-		func() reflect.Type { return reflect.TypeOf((*CollisionInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"diagram",
-		func() interface{} { return new(Diagram) },
-		nil,
-		func() interface{} { return new(DiagramRule) },
-		func() reflect.Type { return reflect.TypeOf((*DiagramInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"empty",
-		func() interface{} { return new(Empty) },
-		nil,
-		func() interface{} { return new(EmptyRule) },
-		func() reflect.Type { return reflect.TypeOf((*EmptyInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"emptyItem",
-		func() interface{} { return new(EmptyItem) },
-		nil,
-		func() interface{} { return new(EmptyItemRule) },
-		func() reflect.Type { return reflect.TypeOf((*EmptyItemInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"expr",
-		func() interface{} { return new(Expr) },
-		nil,
-		func() interface{} { return new(ExprRule) },
-		func() reflect.Type { return reflect.TypeOf((*ExprInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"gallery",
-		func() interface{} { return new(Gallery) },
-		nil,
-		func() interface{} { return new(GalleryRule) },
-		func() reflect.Type { return reflect.TypeOf((*GalleryInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"image",
-		func() interface{} { return (*Image)(nil) },
-		nil,
-		func() interface{} { return new(ImageRule) },
-		func() reflect.Type { return reflect.TypeOf((*Image)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"instance",
-		func() interface{} { return new(Instance) },
-		nil,
-		func() interface{} { return new(InstanceRule) },
-		func() reflect.Type { return reflect.TypeOf((*InstanceInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"instanceItem",
-		func() interface{} { return new(InstanceItem) },
-		nil,
-		func() interface{} { return new(InstanceItemRule) },
-		func() reflect.Type { return reflect.TypeOf((*InstanceItemInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"kid",
-		func() interface{} { return new(Kid) },
-		nil,
-		func() interface{} { return new(KidRule) },
-		func() reflect.Type { return reflect.TypeOf((*KidInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"people",
-		func() interface{} { return new(People) },
-		nil,
-		func() interface{} { return new(PeopleRule) },
-		func() reflect.Type { return reflect.TypeOf((*PeopleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"person",
-		func() interface{} { return new(Person) },
-		nil,
-		func() interface{} { return new(PersonRule) },
-		func() reflect.Type { return reflect.TypeOf((*PersonInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"photo",
-		func() interface{} { return new(Photo) },
-		nil,
-		func() interface{} { return new(PhotoRule) },
-		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"polykids",
-		func() interface{} { return new(Polykids) },
-		nil,
-		func() interface{} { return new(PolykidsRule) },
-		func() reflect.Type { return reflect.TypeOf((*PolykidsInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"rectangle",
-		func() interface{} { return new(Rectangle) },
-		nil,
-		func() interface{} { return new(RectangleRule) },
-		func() reflect.Type { return reflect.TypeOf((*RectangleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"rightscale",
-		func() interface{} { return new(Rightscale) },
-		nil,
-		func() interface{} { return new(RightscaleRule) },
-		func() reflect.Type { return reflect.TypeOf((*RightscaleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"rightscaleLink",
-		func() interface{} { return new(RightscaleLink) },
-		nil,
-		func() interface{} { return new(RightscaleLinkRule) },
-		func() reflect.Type { return reflect.TypeOf((*RightscaleLinkInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"rightscaleList",
-		func() interface{} { return new(RightscaleList) },
-		nil,
-		func() interface{} { return new(RightscaleListRule) },
-		func() reflect.Type { return reflect.TypeOf((*RightscaleListInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"sibling",
-		func() interface{} { return new(Sibling) },
-		nil,
-		func() interface{} { return new(SiblingRule) },
-		func() reflect.Type { return reflect.TypeOf((*SiblingInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"simple",
-		func() interface{} { return new(Simple) },
-		nil,
-		func() interface{} { return new(SimpleRule) },
-		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"simpleArray",
-		func() interface{} { return new(SimpleArray) },
-		nil,
-		func() interface{} { return new(SimpleArrayRule) },
-		func() reflect.Type { return reflect.TypeOf((*SimpleArrayInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"simpleItem",
-		func() interface{} { return new(SimpleItem) },
-		nil,
-		func() interface{} { return new(SimpleItemRule) },
-		func() reflect.Type { return reflect.TypeOf((*SimpleItemInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"typed",
-		func() interface{} { return new(Typed) },
-		nil,
-		func() interface{} { return new(TypedRule) },
-		func() reflect.Type { return reflect.TypeOf((*TypedInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0xd4d0d6c2b5698b6))
+	pkg.Init("basic", func() interface{} {
+		return new(Basic)
+	}, nil, func() interface{} {
+		return new(BasicRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*BasicInterface)(nil)).Elem()
+	})
+	pkg.Init("c", func() interface{} {
+		return new(C)
+	}, nil, func() interface{} {
+		return new(CRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*CInterface)(nil)).Elem()
+	})
+	pkg.Init("collision", func() interface{} {
+		return new(Collision)
+	}, nil, func() interface{} {
+		return new(CollisionRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*CollisionInterface)(nil)).Elem()
+	})
+	pkg.Init("diagram", func() interface{} {
+		return new(Diagram)
+	}, nil, func() interface{} {
+		return new(DiagramRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*DiagramInterface)(nil)).Elem()
+	})
+	pkg.Init("empty", func() interface{} {
+		return new(Empty)
+	}, nil, func() interface{} {
+		return new(EmptyRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*EmptyInterface)(nil)).Elem()
+	})
+	pkg.Init("emptyItem", func() interface{} {
+		return new(EmptyItem)
+	}, nil, func() interface{} {
+		return new(EmptyItemRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*EmptyItemInterface)(nil)).Elem()
+	})
+	pkg.Init("expr", func() interface{} {
+		return new(Expr)
+	}, nil, func() interface{} {
+		return new(ExprRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*ExprInterface)(nil)).Elem()
+	})
+	pkg.Init("gallery", func() interface{} {
+		return new(Gallery)
+	}, nil, func() interface{} {
+		return new(GalleryRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*GalleryInterface)(nil)).Elem()
+	})
+	pkg.Init("image", func() interface{} {
+		return (*Image)(nil)
+	}, nil, func() interface{} {
+		return new(ImageRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*Image)(nil)).Elem()
+	})
+	pkg.Init("instance", func() interface{} {
+		return new(Instance)
+	}, nil, func() interface{} {
+		return new(InstanceRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*InstanceInterface)(nil)).Elem()
+	})
+	pkg.Init("instanceItem", func() interface{} {
+		return new(InstanceItem)
+	}, nil, func() interface{} {
+		return new(InstanceItemRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*InstanceItemInterface)(nil)).Elem()
+	})
+	pkg.Init("kid", func() interface{} {
+		return new(Kid)
+	}, nil, func() interface{} {
+		return new(KidRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*KidInterface)(nil)).Elem()
+	})
+	pkg.Init("people", func() interface{} {
+		return new(People)
+	}, nil, func() interface{} {
+		return new(PeopleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PeopleInterface)(nil)).Elem()
+	})
+	pkg.Init("person", func() interface{} {
+		return new(Person)
+	}, nil, func() interface{} {
+		return new(PersonRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PersonInterface)(nil)).Elem()
+	})
+	pkg.Init("photo", func() interface{} {
+		return new(Photo)
+	}, nil, func() interface{} {
+		return new(PhotoRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PhotoInterface)(nil)).Elem()
+	})
+	pkg.Init("polykids", func() interface{} {
+		return new(Polykids)
+	}, nil, func() interface{} {
+		return new(PolykidsRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PolykidsInterface)(nil)).Elem()
+	})
+	pkg.Init("rectangle", func() interface{} {
+		return new(Rectangle)
+	}, nil, func() interface{} {
+		return new(RectangleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*RectangleInterface)(nil)).Elem()
+	})
+	pkg.Init("rightscale", func() interface{} {
+		return new(Rightscale)
+	}, nil, func() interface{} {
+		return new(RightscaleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*RightscaleInterface)(nil)).Elem()
+	})
+	pkg.Init("rightscaleLink", func() interface{} {
+		return new(RightscaleLink)
+	}, nil, func() interface{} {
+		return new(RightscaleLinkRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*RightscaleLinkInterface)(nil)).Elem()
+	})
+	pkg.Init("rightscaleList", func() interface{} {
+		return new(RightscaleList)
+	}, nil, func() interface{} {
+		return new(RightscaleListRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*RightscaleListInterface)(nil)).Elem()
+	})
+	pkg.Init("sibling", func() interface{} {
+		return new(Sibling)
+	}, nil, func() interface{} {
+		return new(SiblingRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SiblingInterface)(nil)).Elem()
+	})
+	pkg.Init("simple", func() interface{} {
+		return new(Simple)
+	}, nil, func() interface{} {
+		return new(SimpleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SimpleInterface)(nil)).Elem()
+	})
+	pkg.Init("simpleArray", func() interface{} {
+		return new(SimpleArray)
+	}, nil, func() interface{} {
+		return new(SimpleArrayRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SimpleArrayInterface)(nil)).Elem()
+	})
+	pkg.Init("simpleItem", func() interface{} {
+		return new(SimpleItem)
+	}, nil, func() interface{} {
+		return new(SimpleItemRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SimpleItemInterface)(nil)).Elem()
+	})
+	pkg.Init("typed", func() interface{} {
+		return new(Typed)
+	}, nil, func() interface{} {
+		return new(TypedRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*TypedInterface)(nil)).Elem()
+	})
 }

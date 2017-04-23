@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/tests/data","Hash":17800881641489475434}
+// info:{"Path":"frizz.io/tests/data","Hash":7261178488331622439}
 package data
 
 import (
@@ -4096,7 +4096,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/tests/data")
-	pkg.SetHash(uint64(0xf7096f8a31c0a76a))
+	pkg.SetHash(uint64(0x64c4e35d1fb6d827))
 	pkg.Init("alajs", func() interface{} {
 		return new(Alajs)
 	}, func(in interface{}) interface{} {

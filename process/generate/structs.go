@@ -107,7 +107,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 func printExportFunction(ctx context.Context, env *envctx.Env, f *File, export *sysctx.SysExportInfo) error {
 	/*
 		func {export.Name}() *{typ} {
-			ctx := system.NewContext(context.Background, "{env.Path}", {env.Aliases})
+			ctx := system.NewContext(context.Background(), "{env.Path}", {env.Aliases})
 			o := new({typ})
 			if err := o.Unpack(ctx, system.MustPackString("{export.JsonContents}"), false); err != nil {
 				panic(err.Error())
@@ -118,7 +118,7 @@ func printExportFunction(ctx context.Context, env *envctx.Env, f *File, export *
 	typ := Qual(export.TypePackage, system.GoName(export.TypeName))
 	f.Func().Id(export.Name).Params().Op("*").Add(typ).Block(
 		Id("ctx").Op(":=").Qual("frizz.io/system", "NewContext").Call(
-			Qual("context", "Background"),
+			Qual("context", "Background").Call(),
 			Lit(env.Path),
 			Lit(env.Aliases),
 		),

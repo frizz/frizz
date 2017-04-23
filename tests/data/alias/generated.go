@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/tests/data/alias","Hash":3681006963164671295}
+// info:{"Path":"frizz.io/tests/data/alias","Hash":15525598934803151375}
 package alias
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for alms
 type AlmsRule struct {
@@ -26,6 +26,9 @@ func (v *AlmsRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("frizz.io/tests/data/alias", "@alms"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -78,6 +81,9 @@ func (v *MainRule) Unpack(ctx context.Context, in system.Packed, iface bool) err
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("frizz.io/tests/data/alias", "@main"); err != nil {
+		return err
+	}
 	if v.Rule == nil {
 		v.Rule = new(system.Rule)
 	}
@@ -126,6 +132,9 @@ func (v *SimpleRule) Unpack(ctx context.Context, in system.Packed, iface bool) e
 		v.Object = new(system.Object)
 	}
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
+		return err
+	}
+	if err := v.Object.InitializeType("frizz.io/tests/data/alias", "@simple"); err != nil {
 		return err
 	}
 	if v.Rule == nil {
@@ -265,6 +274,9 @@ func (v *Main) Unpack(ctx context.Context, in system.Packed, iface bool) error {
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("frizz.io/tests/data/alias", "main"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["a"]; ok && field.Type() != system.J_NULL {
 		ob0 := *new(Alms)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
@@ -335,6 +347,9 @@ func (v *Simple) Unpack(ctx context.Context, in system.Packed, iface bool) error
 	if err := v.Object.Unpack(ctx, in, false); err != nil {
 		return err
 	}
+	if err := v.Object.InitializeType("frizz.io/tests/data/alias", "simple"); err != nil {
+		return err
+	}
 	if field, ok := in.Map()["js"]; ok && field.Type() != system.J_NULL {
 		ob0, err := system.UnpackString(ctx, field)
 		if err != nil {
@@ -366,26 +381,28 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/tests/data/alias")
-	pkg.SetHash(3681006963164671295)
-	pkg.Init("alms",
-		func() interface{} { return new(Alms) },
-		func(in interface{}) interface{} { return *in.(*Alms) },
-		func() interface{} { return new(AlmsRule) },
-		func() reflect.Type { return reflect.TypeOf((*AlmsInterface)(nil)).Elem() },
-	)
-
-	pkg.Init("main",
-		func() interface{} { return new(Main) },
-		nil,
-		func() interface{} { return new(MainRule) },
-		func() reflect.Type { return reflect.TypeOf((*MainInterface)(nil)).Elem() },
-	)
-
-	pkg.Init("simple",
-		func() interface{} { return new(Simple) },
-		nil,
-		func() interface{} { return new(SimpleRule) },
-		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0xd77601f91a1ffa0f))
+	pkg.Init("alms", func() interface{} {
+		return new(Alms)
+	}, func(in interface{}) interface{} {
+		return *in.(*Alms)
+	}, func() interface{} {
+		return new(AlmsRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*AlmsInterface)(nil)).Elem()
+	})
+	pkg.Init("main", func() interface{} {
+		return new(Main)
+	}, nil, func() interface{} {
+		return new(MainRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*MainInterface)(nil)).Elem()
+	})
+	pkg.Init("simple", func() interface{} {
+		return new(Simple)
+	}, nil, func() interface{} {
+		return new(SimpleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SimpleInterface)(nil)).Elem()
+	})
 }

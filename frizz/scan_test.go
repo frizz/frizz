@@ -175,9 +175,10 @@ func (v *visitor) Visit(node ast.Node) (w ast.Visitor) {
 	case *ast.File:
 		for _, cg := range ty.Comments {
 			for _, c := range cg.List {
-				if strings.HasPrefix(c.Text, "// frizz: ") {
+				prefix := "// frizz: "
+				if strings.HasPrefix(c.Text, prefix) {
 					val := struct{ Package struct{ Notest bool } }{}
-					err := json.Unmarshal([]byte(c.Text[7:]), &val)
+					err := json.Unmarshal([]byte(c.Text[len(prefix):]), &val)
 					require.NoError(v.t, err)
 					if val.Package.Notest {
 						def := getPkgDef(v.pkg)

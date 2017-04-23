@@ -1,17 +1,17 @@
-// info:{"Path":"frizz.io/demo/demo7","Hash":16224128938049598805}
+// info:{"Path":"frizz.io/demo/demo7","Hash":12177515638784549220}
 package demo7
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/demo/demo7/images"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	images "frizz.io/demo/demo7/images"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for page
 type PageRule struct {
@@ -140,13 +140,12 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo7")
-	pkg.SetHash(16224128938049598805)
-	pkg.Init(
-		"page",
-		func() interface{} { return new(Page) },
-		nil,
-		func() interface{} { return new(PageRule) },
-		func() reflect.Type { return reflect.TypeOf((*PageInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0xa8ff39f448846164))
+	pkg.Init("page", func() interface{} {
+		return new(Page)
+	}, nil, func() interface{} {
+		return new(PageRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PageInterface)(nil)).Elem()
+	})
 }

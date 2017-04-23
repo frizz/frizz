@@ -100,7 +100,7 @@ func parse(ctx context.Context, path string, queue []string) (*sysctx.SysPackage
 
 	cmd.Println(" OK.")
 
-	h, err := hash.Hash()
+	h, err := hash.Hash(0)
 	if err != nil {
 		return nil, kerr.Wrap("MIODRYNEJQ", err)
 	}
@@ -191,7 +191,7 @@ func scanForTypesAndExports(ctx context.Context, env *envctx.Env, cache *sysctx.
 		default:
 			cache.Globals.Set(o.Id.Name, relativeFile)
 			if o.Export {
-				cache.Exports.Set(o.Id.Name, o.Type.Name, o.Type.Package, b.Bytes)
+				cache.Exports.Set(system.GoName(o.Id.Name), o.Type.Name, o.Type.Package, b.Bytes)
 				if hash != nil {
 					hash.Exports[o.Id.Name+" "+o.Type.Name+" "+o.Type.Package] = cityhash.CityHash64(b.Bytes, uint32(len(b.Bytes)))
 				}

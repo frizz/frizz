@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/demo/demo3/images","Hash":16432779313430741732}
+// info:{"Path":"frizz.io/demo/demo3/images","Hash":8390227469870486636}
 package images
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for photo
 type PhotoRule struct {
@@ -139,13 +139,12 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo3/images")
-	pkg.SetHash(16432779313430741732)
-	pkg.Init(
-		"photo",
-		func() interface{} { return new(Photo) },
-		nil,
-		func() interface{} { return new(PhotoRule) },
-		func() reflect.Type { return reflect.TypeOf((*PhotoInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0x7470136e365ad46c))
+	pkg.Init("photo", func() interface{} {
+		return new(Photo)
+	}, nil, func() interface{} {
+		return new(PhotoRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*PhotoInterface)(nil)).Elem()
+	})
 }

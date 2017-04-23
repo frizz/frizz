@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/common/words","Hash":7440607163868678358}
+// info:{"Path":"frizz.io/demo/common/words","Hash":3551767034988909627}
 package words
 
 import (
@@ -363,7 +363,7 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/common/words")
-	pkg.SetHash(0x674258cb239e88d6)
+	pkg.SetHash(uint64(0x314a694cdd74d43b))
 	pkg.Init("localizer", func() interface{} {
 		return (*Localizer)(nil)
 	}, nil, func() interface{} {

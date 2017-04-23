@@ -1,16 +1,16 @@
-// info:{"Path":"frizz.io/demo/demo5/translation","Hash":13251613636822643043}
+// info:{"Path":"frizz.io/demo/demo5/translation","Hash":8415846272540109018}
 package translation
 
-// notest
-
 import (
-	"context"
-	"fmt"
-	"reflect"
+	context "context"
+	fmt "fmt"
+	reflect "reflect"
 
-	"frizz.io/context/jsonctx"
-	"frizz.io/system"
+	jsonctx "frizz.io/context/jsonctx"
+	system "frizz.io/system"
 )
+
+// notest
 
 // Automatically created basic rule for localized
 type LocalizedRule struct {
@@ -360,29 +360,26 @@ func (v *Smartling) Repack(ctx context.Context) (data interface{}, typePackage s
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo5/translation")
-	pkg.SetHash(13251613636822643043)
-	pkg.Init(
-		"localized",
-		func() interface{} { return (*Localized)(nil) },
-		nil,
-		func() interface{} { return new(LocalizedRule) },
-		func() reflect.Type { return reflect.TypeOf((*Localized)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"simple",
-		func() interface{} { return new(Simple) },
-		nil,
-		func() interface{} { return new(SimpleRule) },
-		func() reflect.Type { return reflect.TypeOf((*SimpleInterface)(nil)).Elem() },
-	)
-
-	pkg.Init(
-		"smartling",
-		func() interface{} { return new(Smartling) },
-		nil,
-		func() interface{} { return new(SmartlingRule) },
-		func() reflect.Type { return reflect.TypeOf((*SmartlingInterface)(nil)).Elem() },
-	)
-
+	pkg.SetHash(uint64(0x74cb1798870c68da))
+	pkg.Init("localized", func() interface{} {
+		return (*Localized)(nil)
+	}, nil, func() interface{} {
+		return new(LocalizedRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*Localized)(nil)).Elem()
+	})
+	pkg.Init("simple", func() interface{} {
+		return new(Simple)
+	}, nil, func() interface{} {
+		return new(SimpleRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SimpleInterface)(nil)).Elem()
+	})
+	pkg.Init("smartling", func() interface{} {
+		return new(Smartling)
+	}, nil, func() interface{} {
+		return new(SmartlingRule)
+	}, func() reflect.Type {
+		return reflect.TypeOf((*SmartlingInterface)(nil)).Elem()
+	})
 }
