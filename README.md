@@ -4,17 +4,11 @@
 Frizz
 =====
 
-The frizz project isn't for public consumption yet. Please move along.
+Frizz isn't ready for public consumption yet. Please move along.
 
 However, it might work:
 
-	$ go get frizz.io/...
-
-Validate:
-
-	$ frizz -l -v frizz.io/demo/site
-
-Edit:
-
-	$ frizz -l -e frizz.io/demo/site
+	go get -u frizz.io/...
+    frizz -e frizz.io/demo/demo1
 	
+([more demos](/demo))
