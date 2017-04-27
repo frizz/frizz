@@ -15,18 +15,10 @@
 			"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
 			"pattern-not": "^new-|-rule$|-interface$"
 		},
-		"tags-new": {
+		"tags": {
 			"description": "Tags for general use",
 			"type": "@tags",
 			"optional": true
-		},
-		"tags": {
-			"description": "Tags for general use",
-			"type": "@array",
-			"optional": true,
-			"items": {
-				"type": "json:@string"
-			}
 		},
 		"export": {
 			"description": "Make this object available as an exported function",

@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/system","Hash":7450703025813457504}
+// info:{"Path":"frizz.io/system","Hash":499950622113528466}
 package system
 
 import (
@@ -1350,9 +1350,7 @@ type Object struct {
 	// Extra validation rules for this object or descendants
 	Rules []RuleInterface `json:"rules"`
 	// Tags for general use
-	Tags []string `json:"tags"`
-	// Tags for general use
-	TagsNew Tags `json:"tags-new"`
+	Tags Tags `json:"tags"`
 	// Type of the object.
 	Type *Reference `json:"type"`
 }
@@ -1419,25 +1417,11 @@ func (v *Object) Unpack(ctx context.Context, in Packed, iface bool) error {
 		v.Rules = ob0
 	}
 	if field, ok := in.Map()["tags"]; ok && field.Type() != J_NULL {
-		if field.Type() != J_ARRAY {
-			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
-		}
-		ob0 := []string{}
-		for i0 := range field.Array() {
-			ob1, err := UnpackString(ctx, field.Array()[i0])
-			if err != nil {
-				return err
-			}
-			ob0 = append(ob0, ob1)
-		}
-		v.Tags = ob0
-	}
-	if field, ok := in.Map()["tags-new"]; ok && field.Type() != J_NULL {
 		ob0 := *new(Tags)
 		if err := ob0.Unpack(ctx, field, false); err != nil {
 			return err
 		}
-		v.TagsNew = ob0
+		v.Tags = ob0
 	}
 	if field, ok := in.Map()["type"]; ok && field.Type() != J_NULL {
 		ob0 := new(Reference)
@@ -1494,19 +1478,11 @@ func (v *Object) Repack(ctx context.Context) (data interface{}, typePackage stri
 		m["rules"] = ob0
 	}
 	if v.Tags != nil {
-		ob0 := []interface{}{}
-		for i0 := range v.Tags {
-			ob1 := v.Tags[i0]
-			ob0 = append(ob0, ob1)
-		}
-		m["tags"] = ob0
-	}
-	if v.TagsNew != nil {
-		ob0, _, _, _, err := v.TagsNew.Repack(ctx)
+		ob0, _, _, _, err := v.Tags.Repack(ctx)
 		if err != nil {
 			return nil, "", "", "", err
 		}
-		m["tags-new"] = ob0
+		m["tags"] = ob0
 	}
 	if v.Type != nil {
 		ob0, _, _, _, err := v.Type.Repack(ctx)
@@ -2100,7 +2076,7 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/system")
-	pkg.SetHash(uint64(0x676636ed2c8a0a60))
+	pkg.SetHash(uint64(0x6f02e71244ffa92))
 	pkg.Init("array", nil, nil, func() interface{} {
 		return new(ArrayRule)
 	}, nil)
