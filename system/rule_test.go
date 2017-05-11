@@ -21,28 +21,28 @@ func TestRuleWrapper_Kind(t *testing.T) {
 		Struct:    ar.Rule,
 		Parent:    at,
 	}
-	kind, alias := aw.Kind(cb.Ctx())
+	kind, alias := aw.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
 	aw.Struct.Interface = true
-	kind, alias = aw.Kind(cb.Ctx())
+	kind, alias = aw.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindInterface, kind)
 
 	cr := &MapRule{Rule: &Rule{}, Items: &StringRule{Rule: &Rule{}}}
 	aw.Interface = cr
 	aw.Struct = cr.Rule
-	aw.Parent.CustomKind = NewString(string(KindMap))
-	kind, alias = aw.Kind(cb.Ctx())
+	aw.Parent.Kind = NewString(string(KindMap))
+	kind, alias = aw.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindMap, kind)
 
 	arr := &ArrayRule{Rule: &Rule{}, Items: &StringRule{Rule: &Rule{}}}
 	aw.Interface = arr
 	aw.Struct = arr.Rule
-	aw.Parent.CustomKind = NewString(string(KindArray))
-	kind, alias = aw.Kind(cb.Ctx())
+	aw.Parent.Kind = NewString(string(KindArray))
+	kind, alias = aw.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindArray, kind)
 
@@ -51,8 +51,8 @@ func TestRuleWrapper_Kind(t *testing.T) {
 	dr := &DummyRule{Rule: &Rule{}}
 	aw.Interface = dr
 	aw.Struct = dr.Rule
-	aw.Parent.CustomKind = nil
-	kind, alias = aw.Kind(cb.Ctx())
+	aw.Parent.Kind = nil
+	kind, alias = aw.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 }

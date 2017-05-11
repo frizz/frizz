@@ -121,7 +121,7 @@ func (r *RuleWrapper) InnerType(ctx context.Context) *Type {
 }
 
 func (r *RuleWrapper) PassedAsPointer(ctx context.Context) bool {
-	kind, alias := r.Kind(ctx)
+	kind, alias := r.GetKind(ctx)
 	switch kind {
 	case KindStruct:
 		return true
@@ -139,14 +139,14 @@ func (r *RuleWrapper) PassedAsPointerString(ctx context.Context) string {
 	}
 	return ""
 }
-func (r *RuleWrapper) Kind(ctx context.Context) (kind Kind, alias bool) {
+func (r *RuleWrapper) GetKind(ctx context.Context) (kind Kind, alias bool) {
 
 	if cr, ok := r.Interface.(CollectionRule); ok {
 		// DummyRule always implements CollectionRule but sometimes the actual
 		// type doesn't support it.
 		ir := cr.GetItemsRule()
 		if ir != nil {
-			return Kind(r.Parent.CustomKind.Value()), false
+			return Kind(r.Parent.Kind.Value()), false
 		}
 	}
 
@@ -154,7 +154,7 @@ func (r *RuleWrapper) Kind(ctx context.Context) (kind Kind, alias bool) {
 		return KindInterface, false
 	}
 
-	return r.Parent.Kind(ctx)
+	return r.Parent.GetKind(ctx)
 }
 
 func (r *RuleWrapper) PermittedTypes() []*Type {

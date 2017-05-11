@@ -28,7 +28,7 @@
 			"type": "json:@bool",
 			"optional": true
 		},
-		"custom-kind": {
+		"kind": {
 			"description": "The kind of the type if custom is specified - must be value, struct, collection or interface",
 			"type": "system:@string",
 			"enum": ["value", "struct", "array", "map", "interface"],

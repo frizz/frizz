@@ -27,7 +27,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	inner := r.InnerType(cb.Ctx())
 	assert.Equal(t, "frizz.io/system:string", inner.Id.String())
 
-	kind, alias := r.Kind(cb.Ctx())
+	kind, alias := r.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, kind, system.KindMap)
 
@@ -39,7 +39,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	})
 	assert.Equal(t, "frizz.io/system:int", r.InnerType(cb.Ctx()).Id.String())
 
-	kind, alias = r.Kind(cb.Ctx())
+	kind, alias = r.GetKind(cb.Ctx())
 	assert.True(t, alias)
 	assert.Equal(t, kind, system.KindValue)
 
@@ -53,7 +53,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	})
 	assert.Equal(t, "frizz.io/system:int", r.InnerType(cb.Ctx()).Id.String())
 
-	kind, alias = r.Kind(cb.Ctx())
+	kind, alias = r.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, kind, system.KindInterface)
 
@@ -73,7 +73,7 @@ func TestRuleWrapper_InnerType(t *testing.T) {
 	})
 	assert.Equal(t, "frizz.io/system:package", r.InnerType(cb.Ctx()).Id.String())
 
-	kind, alias = r.Kind(cb.Ctx())
+	kind, alias = r.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, kind, system.KindStruct)
 

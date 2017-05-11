@@ -28,14 +28,14 @@ func testGenerateSource(t *testing.T, cb *tests.ContextBuilder) {
 			"type": "system:type",
 			"id": "amap",
 			"native": "map",
-			"custom-kind": "map"
+			"kind": "map"
 		}`,
 		"aarr.json": `
 		{
 			"type": "system:type",
 			"id": "aarr",
 			"native": "array",
-			"custom-kind": "array"
+			"kind": "array"
 		}`,
 		"a.json": `
 		{
@@ -175,7 +175,7 @@ func testAlias(t *testing.T, cb *tests.ContextBuilder) {
 				"type": "system:type",
 				"id": "type-alias-custom-value",
 				"custom": true,
-				"custom-kind": "value"
+				"kind": "value"
 			}
 		`,
 		"type-alias-custom-collection.json": `
@@ -184,7 +184,7 @@ func testAlias(t *testing.T, cb *tests.ContextBuilder) {
 				"type": "system:type",
 				"id": "type-alias-custom-collection",
 				"custom": true,
-				"custom-kind": "map"
+				"kind": "map"
 			}
 		`,
 		"type-alias-custom-struct.json": `
@@ -193,7 +193,7 @@ func testAlias(t *testing.T, cb *tests.ContextBuilder) {
 				"type": "system:type",
 				"id": "type-alias-custom-struct",
 				"custom": true,
-				"custom-kind": "struct"
+				"kind": "struct"
 			}
 		`,
 		"struct-containing-alias-type-fields.json": `

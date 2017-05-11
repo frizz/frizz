@@ -4,7 +4,7 @@
 	"id": "int",
 	"native": "number",
 	"custom": true,
-	"custom-kind": "value",
+	"kind": "value",
 	"rule": {
 		"description": "Restriction rules for integers",
 		"type": "type",

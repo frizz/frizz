@@ -3,7 +3,7 @@
 	"type": "type",
 	"id": "array",
 	"native": "array",
-	"custom-kind": "array",
+	"kind": "array",
 	"rule": {
 		"description": "Restriction rules for arrays",
 		"type": "type",

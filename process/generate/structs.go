@@ -53,7 +53,7 @@ func Structs(ctx context.Context, env *envctx.Env) (source []byte, err error) {
 				if err := printAliasDefinition(ctx, env, f, typ); err != nil {
 					return nil, kerr.Wrap("TRERIECOEP", err)
 				}
-				if kind, _ := typ.Kind(ctx); kind == system.KindValue {
+				if kind, _ := typ.GetKind(ctx); kind == system.KindValue {
 					if err := printValueMethod(ctx, env, f, typ); err != nil {
 						return nil, kerr.Wrap("PGDUJQVQGR", err)
 					}
@@ -203,7 +203,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 			jsonQual = Qual("frizz.io/system", "J_NULL")
 		}
 
-		kind, _ := typ.Kind(ctx)
+		kind, _ := typ.GetKind(ctx)
 		switch kind {
 		case system.KindStruct:
 			/*
@@ -244,7 +244,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 				fieldRule := system.WrapRule(ctx, f.Rule)
 				fieldName := system.GoName(f.Name)
 				fieldType := fieldRule.Parent
-				kind, alias := fieldRule.Kind(ctx)
+				kind, alias := fieldRule.GetKind(ctx)
 				switch {
 				case kind == system.KindStruct || alias:
 
@@ -428,7 +428,7 @@ func printRepacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 
 func printRepackCode(ctx context.Context, env *envctx.Env, g *Group, in *Statement, out string, depth int, f system.RuleInterface, inStruct bool) error {
 	field := system.WrapRule(ctx, f)
-	kind, alias := field.Kind(ctx)
+	kind, alias := field.GetKind(ctx)
 	//repackerDef := g.SprintRef("frizz.io/system", "Repacker")
 	switch {
 	case kind == system.KindInterface:
@@ -601,7 +601,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 			Return(Nil()),
 		)
 
-		kind, _ := typ.Kind(ctx)
+		kind, _ := typ.GetKind(ctx)
 		switch kind {
 		case system.KindStruct:
 			structType := typ
@@ -866,7 +866,7 @@ func printUnpacker(ctx context.Context, env *envctx.Env, f *File, typ *system.Ty
 func printUnpackCode(ctx context.Context, env *envctx.Env, g *Group, in *Statement, out string, depth int, f system.RuleInterface) error {
 	field := system.WrapRule(ctx, f)
 	fieldType := field.Parent
-	kind, alias := field.Kind(ctx)
+	kind, alias := field.GetKind(ctx)
 	switch {
 	case kind == system.KindStruct || alias:
 

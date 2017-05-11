@@ -3,7 +3,7 @@
 	"type": "type",
 	"id": "map",
 	"native": "map",
-	"custom-kind": "map",
+	"kind": "map",
 	"rule": {
 		"description": "Restriction rules for maps",
 		"type": "type",

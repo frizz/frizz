@@ -20,38 +20,38 @@ func TestType_Kind(t *testing.T) {
 		Object: &Object{Id: NewReference("a.b/c", "foo")},
 		Native: NewString("object"),
 	}
-	kind, alias := ty.Kind(cb.Ctx())
+	kind, alias := ty.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
-	ty.CustomKind = NewString(string(KindValue))
-	kind, alias = ty.Kind(cb.Ctx())
+	ty.Kind = NewString(string(KindValue))
+	kind, alias = ty.GetKind(cb.Ctx())
 	assert.True(t, alias)
 	assert.Equal(t, KindValue, kind)
 
 	ty.Interface = true
-	kind, alias = ty.Kind(cb.Ctx())
+	kind, alias = ty.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindInterface, kind)
 
 	cb.StypePath("frizz.io/json", "string", &Type{
-		Object:     &Object{Id: NewReference("a.b/c", "bar")},
-		Native:     NewString("string"),
-		CustomKind: NewString("value"),
+		Object: &Object{Id: NewReference("a.b/c", "bar")},
+		Native: NewString("string"),
+		Kind:   NewString("value"),
 	})
 	ty.Alias = JsonStringRule{Rule: &Rule{}, Object: &Object{Type: NewReference("frizz.io/json", "@string")}}
-	kind, alias = ty.Kind(cb.Ctx())
+	kind, alias = ty.GetKind(cb.Ctx())
 	assert.True(t, alias)
 	assert.Equal(t, KindValue, kind)
 
 	ty.Fields = map[string]RuleInterface{}
 	ty.Fields["a"] = &JsonStringRule{}
-	kind, alias = ty.Kind(cb.Ctx())
+	kind, alias = ty.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindStruct, kind)
 
 	ty.Id.Package = "frizz.io/json"
-	kind, alias = ty.Kind(cb.Ctx())
+	kind, alias = ty.GetKind(cb.Ctx())
 	assert.False(t, alias)
 	assert.Equal(t, KindValue, kind)
 }

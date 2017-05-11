@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/system","Hash":499950622113528466}
+// info:{"Path":"frizz.io/system","Hash":5039818949371039265}
 package system
 
 import (
@@ -1834,14 +1834,14 @@ type Type struct {
 	Basic bool `json:"basic"`
 	// Custom types are not emitted into the generated source
 	Custom bool `json:"custom"`
-	// The kind of the type if custom is specified - must be value, struct, collection or interface
-	CustomKind *String `json:"custom-kind"`
 	// Types which this should embed - system:object is always added unless basic = true.
 	Embed []*Reference `json:"embed"`
 	// Each field is listed with it's type
 	Fields map[string]RuleInterface `json:"fields"`
 	// Is this type an interface?
 	Interface bool `json:"interface"`
+	// The kind of the type if custom is specified - must be value, struct, collection or interface
+	Kind *String `json:"kind"`
 	// This is the native json type that represents this type. If omitted, default is object.
 	Native *String `json:"native"`
 	// Type that defines restriction rules for this type.
@@ -1904,13 +1904,6 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 		}
 		v.Custom = ob0
 	}
-	if field, ok := in.Map()["custom-kind"]; ok && field.Type() != J_NULL {
-		ob0 := new(String)
-		if err := ob0.Unpack(ctx, field, false); err != nil {
-			return err
-		}
-		v.CustomKind = ob0
-	}
 	if field, ok := in.Map()["embed"]; ok && field.Type() != J_NULL {
 		if field.Type() != J_ARRAY {
 			return fmt.Errorf("Unsupported json type %s found while unpacking into an array.", field.Type())
@@ -1945,6 +1938,13 @@ func (v *Type) Unpack(ctx context.Context, in Packed, iface bool) error {
 			return err
 		}
 		v.Interface = ob0
+	}
+	if field, ok := in.Map()["kind"]; ok && field.Type() != J_NULL {
+		ob0 := new(String)
+		if err := ob0.Unpack(ctx, field, false); err != nil {
+			return err
+		}
+		v.Kind = ob0
 	}
 	if field, ok := in.Map()["native"]; ok && field.Type() != J_NULL {
 		ob0 := new(String)
@@ -2011,13 +2011,6 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 		ob0 := v.Custom
 		m["custom"] = ob0
 	}
-	if v.CustomKind != nil {
-		ob0, _, _, _, err := v.CustomKind.Repack(ctx)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		m["custom-kind"] = ob0
-	}
 	if v.Embed != nil {
 		ob0 := []interface{}{}
 		for i0 := range v.Embed {
@@ -2058,6 +2051,13 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 		ob0 := v.Interface
 		m["interface"] = ob0
 	}
+	if v.Kind != nil {
+		ob0, _, _, _, err := v.Kind.Repack(ctx)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		m["kind"] = ob0
+	}
 	if v.Native != nil {
 		ob0, _, _, _, err := v.Native.Repack(ctx)
 		if err != nil {
@@ -2076,7 +2076,7 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/system")
-	pkg.SetHash(uint64(0x6f02e71244ffa92))
+	pkg.SetHash(uint64(0x45f108a1e18b0e21))
 	pkg.Init("array", nil, nil, func() interface{} {
 		return new(ArrayRule)
 	}, nil)

@@ -97,7 +97,7 @@ func TypeDefinition(ctx context.Context, field system.RuleInterface) (*jen.State
 // and the inner (non collection) rule.
 func collectionPrefixInnerRule(ctx context.Context, prefix *jen.Statement, outer *system.RuleWrapper) (fullPrefix *jen.Statement, inner *system.RuleWrapper, err error) {
 
-	kind, alias := outer.Kind(ctx)
+	kind, alias := outer.GetKind(ctx)
 	if alias {
 		return prefix, outer, nil
 	}

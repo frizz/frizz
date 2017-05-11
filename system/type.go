@@ -43,7 +43,7 @@ func (i InitializableTypeError) Error() string {
 }
 
 func (t *Type) PassedAsPointer(ctx context.Context) bool {
-	kind, alias := t.Kind(ctx)
+	kind, alias := t.GetKind(ctx)
 	switch kind {
 	case KindStruct:
 		return true
@@ -69,7 +69,7 @@ func (t *Type) PassedAsPointerInverseString(ctx context.Context) string {
 	return "*"
 }
 
-func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
+func (t *Type) GetKind(ctx context.Context) (kind Kind, alias bool) {
 	if t.Id.Package == "frizz.io/json" {
 		return KindValue, false
 	}
@@ -77,14 +77,14 @@ func (t *Type) Kind(ctx context.Context) (kind Kind, alias bool) {
 		return KindStruct, false
 	}
 	if t.Alias != nil {
-		k, _ := WrapRule(ctx, t.Alias).Kind(ctx)
+		k, _ := WrapRule(ctx, t.Alias).GetKind(ctx)
 		return k, true
 	}
 	if t.Interface {
 		return KindInterface, false
 	}
-	if t.CustomKind != nil {
-		return Kind(t.CustomKind.Value()), true
+	if t.Kind != nil {
+		return Kind(t.Kind.Value()), true
 	}
 	return KindStruct, false
 }

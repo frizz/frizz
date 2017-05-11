@@ -831,11 +831,11 @@ func (v *Type) Unpack(ctx context.Context, in packer.Packed, iface bool) error {
 		v.Custom = ob
 	}
 
-	if field, ok := in.Map()["custom-kind"]; ok && field.Type() != J_NULL {
-		if v.CustomKind == nil {
-			v.CustomKind = new(String)
+	if field, ok := in.Map()["kind"]; ok && field.Type() != J_NULL {
+		if v.Kind == nil {
+			v.Kind = new(String)
 		}
-		if err := v.CustomKind.Unpack(ctx, field, false); err != nil {
+		if err := v.Kind.Unpack(ctx, field, false); err != nil {
 			return kerr.Wrap("FGDQPCAUYG", err)
 		}
 	}
