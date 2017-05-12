@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/tests/data","Hash":7261178488331622439}
+// info:{"Path":"frizz.io/tests/data","Hash":16637972196389610641}
 package data
 
 import (
@@ -1912,7 +1912,7 @@ func UnpackFace(ctx context.Context, in system.Packed) (Face, error) {
 
 type Facea struct {
 	*system.Object
-	A *system.String `json:"a"`
+	A *system.String
 }
 type FaceaInterface interface {
 	GetFacea(ctx context.Context) *Facea
@@ -1985,7 +1985,7 @@ func (v *Facea) Repack(ctx context.Context) (data interface{}, typePackage strin
 
 type Faceb struct {
 	*system.Object
-	B *system.String `json:"b"`
+	B *system.String
 }
 type FacebInterface interface {
 	GetFaceb(ctx context.Context) *Faceb
@@ -2059,85 +2059,85 @@ func (v *Faceb) Repack(ctx context.Context) (data interface{}, typePackage strin
 // v2
 type Multi struct {
 	*system.Object
-	Aalajs []Alajs                           `json:"aalajs"`
-	Aalas  []Alas                            `json:"aalas"`
-	Aalass []Alass                           `json:"aalass"`
-	Aaljb  []*Aljb                           `json:"aaljb"`
-	Aaljn  []*Aljn                           `json:"aaljn"`
-	Aaljs  []*Aljs                           `json:"aaljs"`
-	Aalmjs []Almjs                           `json:"aalmjs"`
-	Aalms  []Alms                            `json:"aalms"`
-	Aalmss []Almss                           `json:"aalmss"`
-	Aals   []*Als                            `json:"aals"`
-	Aalss  []*Alss                           `json:"aalss"`
-	Ai     []Face                            `json:"ai"`
-	Ajb    []bool                            `json:"ajb"`
-	Ajn    []float64                         `json:"ajn"`
-	Ajs    []string                          `json:"ajs"`
-	Alajs  Alajs                             `json:"alajs"`
-	Alajsi AlajsInterface                    `json:"alajsi"`
-	Alas   Alas                              `json:"alas"`
-	Alass  Alass                             `json:"alass"`
-	Aljb   *Aljb                             `json:"aljb"`
-	Aljbi  AljbInterface                     `json:"aljbi"`
-	Aljn   *Aljn                             `json:"aljn"`
-	Aljni  AljnInterface                     `json:"aljni"`
-	Aljs   *Aljs                             `json:"aljs"`
-	Aljsi  AljsInterface                     `json:"aljsi"`
-	Almjs  Almjs                             `json:"almjs"`
-	Almjsi AlmjsInterface                    `json:"almjsi"`
-	Alms   Alms                              `json:"alms"`
-	Almss  Almss                             `json:"almss"`
-	Als    *Als                              `json:"als"`
-	Alss   *Alss                             `json:"alss"`
-	Am     []*Multi                          `json:"am"`
-	Anri   []system.StringInterface          `json:"anri"`
-	Ari    []system.RuleInterface            `json:"ari"`
-	Asb    []*system.Bool                    `json:"asb"`
-	Asi    []*system.Int                     `json:"asi"`
-	Asn    []*system.Number                  `json:"asn"`
-	Asp    []*system.Package                 `json:"asp"`
-	Asr    []*system.Reference               `json:"asr"`
-	Ass    []*system.String                  `json:"ass"`
-	Bri    system.BoolInterface              `json:"bri"`
-	I      Face                              `json:"i"`
-	Jb     bool                              `json:"jb"`
-	Jn     float64                           `json:"jn"`
-	Js     string                            `json:"js"`
-	M      *Multi                            `json:"m"`
-	Malajs map[string]Alajs                  `json:"malajs"`
-	Malas  map[string]Alas                   `json:"malas"`
-	Malass map[string]Alass                  `json:"malass"`
-	Maljb  map[string]*Aljb                  `json:"maljb"`
-	Maljn  map[string]*Aljn                  `json:"maljn"`
-	Maljs  map[string]*Aljs                  `json:"maljs"`
-	Malmjs map[string]Almjs                  `json:"malmjs"`
-	Malms  map[string]Alms                   `json:"malms"`
-	Malmss map[string]Almss                  `json:"malmss"`
-	Mals   map[string]*Als                   `json:"mals"`
-	Malss  map[string]*Alss                  `json:"malss"`
-	Mi     map[string]Face                   `json:"mi"`
-	Mjb    map[string]bool                   `json:"mjb"`
-	Mjn    map[string]float64                `json:"mjn"`
-	Mjs    map[string]string                 `json:"mjs"`
-	Mm     map[string]*Multi                 `json:"mm"`
-	Mnri   map[string]system.StringInterface `json:"mnri"`
-	Mri    map[string]system.RuleInterface   `json:"mri"`
-	Msb    map[string]*system.Bool           `json:"msb"`
-	Msi    map[string]*system.Int            `json:"msi"`
-	Msn    map[string]*system.Number         `json:"msn"`
-	Msp    map[string]*system.Package        `json:"msp"`
-	Msr    map[string]*system.Reference      `json:"msr"`
-	Mss    map[string]*system.String         `json:"mss"`
-	Nri    system.NumberInterface            `json:"nri"`
-	Ri     system.RuleInterface              `json:"ri"`
-	Sb     *system.Bool                      `json:"sb"`
-	Si     *system.Int                       `json:"si"`
-	Sn     *system.Number                    `json:"sn"`
-	Sp     *system.Package                   `json:"sp"`
-	Sr     *system.Reference                 `json:"sr"`
-	Sri    system.StringInterface            `json:"sri"`
-	Ss     *system.String                    `json:"ss"`
+	Aalajs []Alajs
+	Aalas  []Alas
+	Aalass []Alass
+	Aaljb  []*Aljb
+	Aaljn  []*Aljn
+	Aaljs  []*Aljs
+	Aalmjs []Almjs
+	Aalms  []Alms
+	Aalmss []Almss
+	Aals   []*Als
+	Aalss  []*Alss
+	Ai     []Face
+	Ajb    []bool
+	Ajn    []float64
+	Ajs    []string
+	Alajs  Alajs
+	Alajsi AlajsInterface
+	Alas   Alas
+	Alass  Alass
+	Aljb   *Aljb
+	Aljbi  AljbInterface
+	Aljn   *Aljn
+	Aljni  AljnInterface
+	Aljs   *Aljs
+	Aljsi  AljsInterface
+	Almjs  Almjs
+	Almjsi AlmjsInterface
+	Alms   Alms
+	Almss  Almss
+	Als    *Als
+	Alss   *Alss
+	Am     []*Multi
+	Anri   []system.StringInterface
+	Ari    []system.RuleInterface
+	Asb    []*system.Bool
+	Asi    []*system.Int
+	Asn    []*system.Number
+	Asp    []*system.Package
+	Asr    []*system.Reference
+	Ass    []*system.String
+	Bri    system.BoolInterface
+	I      Face
+	Jb     bool
+	Jn     float64
+	Js     string
+	M      *Multi
+	Malajs map[string]Alajs
+	Malas  map[string]Alas
+	Malass map[string]Alass
+	Maljb  map[string]*Aljb
+	Maljn  map[string]*Aljn
+	Maljs  map[string]*Aljs
+	Malmjs map[string]Almjs
+	Malms  map[string]Alms
+	Malmss map[string]Almss
+	Mals   map[string]*Als
+	Malss  map[string]*Alss
+	Mi     map[string]Face
+	Mjb    map[string]bool
+	Mjn    map[string]float64
+	Mjs    map[string]string
+	Mm     map[string]*Multi
+	Mnri   map[string]system.StringInterface
+	Mri    map[string]system.RuleInterface
+	Msb    map[string]*system.Bool
+	Msi    map[string]*system.Int
+	Msn    map[string]*system.Number
+	Msp    map[string]*system.Package
+	Msr    map[string]*system.Reference
+	Mss    map[string]*system.String
+	Nri    system.NumberInterface
+	Ri     system.RuleInterface
+	Sb     *system.Bool
+	Si     *system.Int
+	Sn     *system.Number
+	Sp     *system.Package
+	Sr     *system.Reference
+	Sri    system.StringInterface
+	Ss     *system.String
 }
 type MultiInterface interface {
 	GetMulti(ctx context.Context) *Multi
@@ -4027,7 +4027,7 @@ func (v *Multi) Repack(ctx context.Context) (data interface{}, typePackage strin
 
 type Simple struct {
 	*system.Object
-	Js string `json:"js"`
+	Js string
 }
 type SimpleInterface interface {
 	GetSimple(ctx context.Context) *Simple
@@ -4096,7 +4096,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/tests/data")
-	pkg.SetHash(uint64(0x64c4e35d1fb6d827))
+	pkg.SetHash(uint64(0xe6e5f38f94a0e491))
 	pkg.Init("alajs", func() interface{} {
 		return new(Alajs)
 	}, func(in interface{}) interface{} {

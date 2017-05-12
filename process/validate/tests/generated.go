@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/process/validate/tests","Hash":9486708652413768544}
+// info:{"Path":"frizz.io/process/validate/tests","Hash":12561908569835894553}
 package tests
 
 import (
@@ -121,7 +121,7 @@ func (v *BRule) Repack(ctx context.Context) (data interface{}, typePackage strin
 type CRule struct {
 	*system.Object
 	*system.Rule
-	Fail *system.Bool `json:"fail"`
+	Fail *system.Bool
 }
 
 func (v *CRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
@@ -347,7 +347,7 @@ func (v *FRule) Repack(ctx context.Context) (data interface{}, typePackage strin
 // A is a simple type containing a string B
 type A struct {
 	*system.Object
-	B *system.String `json:"b"`
+	B *system.String
 }
 type AInterface interface {
 	GetA(ctx context.Context) *A
@@ -421,7 +421,7 @@ func (v *A) Repack(ctx context.Context) (data interface{}, typePackage string, t
 // A is a type containing a string interface B
 type B struct {
 	*system.Object
-	C system.StringInterface `json:"c"`
+	C system.StringInterface
 }
 type BInterface interface {
 	GetB(ctx context.Context) *B
@@ -525,7 +525,7 @@ func UnpackC(ctx context.Context, in system.Packed) (C, error) {
 // D is a type containing a field of type C
 type D struct {
 	*system.Object
-	A C `json:"a"`
+	A C
 }
 type DInterface interface {
 	GetD(ctx context.Context) *D
@@ -613,8 +613,8 @@ func (v *D) Repack(ctx context.Context) (data interface{}, typePackage string, t
 // E is a type containing an array of strings, and a map of strings
 type E struct {
 	*system.Object
-	A []*system.String          `json:"a"`
-	B map[string]*system.String `json:"b"`
+	A []*system.String
+	B map[string]*system.String
 }
 type EInterface interface {
 	GetE(ctx context.Context) *E
@@ -724,10 +724,10 @@ func (v *E) Repack(ctx context.Context) (data interface{}, typePackage string, t
 // F is a type with an extra rule attached to the field
 type F struct {
 	*system.Object
-	A *A             `json:"a"`
-	B []*A           `json:"b"`
-	C map[string]*A  `json:"c"`
-	D *system.String `json:"d"`
+	A *A
+	B []*A
+	C map[string]*A
+	D *system.String
 }
 type FInterface interface {
 	GetF(ctx context.Context) *F
@@ -863,7 +863,7 @@ func (v *F) Repack(ctx context.Context) (data interface{}, typePackage string, t
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/process/validate/tests")
-	pkg.SetHash(uint64(0x83a78f41b2bf5360))
+	pkg.SetHash(uint64(0xae54dd49d600f719))
 	pkg.Init("a", func() interface{} {
 		return new(A)
 	}, nil, func() interface{} {

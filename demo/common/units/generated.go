@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/common/units","Hash":16221675779563696881}
+// info:{"Path":"frizz.io/demo/common/units","Hash":16486883108614153021}
 package units
 
 import (
@@ -67,8 +67,8 @@ func (v *RectangleRule) Repack(ctx context.Context) (data interface{}, typePacka
 
 type Rectangle struct {
 	*system.Object
-	Height *system.Int `json:"height"`
-	Width  *system.Int `json:"width"`
+	Height *system.Int
+	Width  *system.Int
 }
 type RectangleInterface interface {
 	GetRectangle(ctx context.Context) *Rectangle
@@ -154,7 +154,7 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/common/units")
-	pkg.SetHash(uint64(0xe11ef82ce673b2f1))
+	pkg.SetHash(uint64(0xe4cd2cd60655a33d))
 	pkg.Init("rectangle", func() interface{} {
 		return new(Rectangle)
 	}, nil, func() interface{} {

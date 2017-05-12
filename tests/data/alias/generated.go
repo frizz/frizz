@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/tests/data/alias","Hash":15525598934803151375}
+// info:{"Path":"frizz.io/tests/data/alias","Hash":10937179093545034647}
 package alias
 
 import (
@@ -239,7 +239,7 @@ func (v Alms) Repack(ctx context.Context) (data interface{}, typePackage string,
 
 type Main struct {
 	*system.Object
-	A Alms `json:"a"`
+	A Alms
 }
 type MainInterface interface {
 	GetMain(ctx context.Context) *Main
@@ -312,7 +312,7 @@ func (v *Main) Repack(ctx context.Context) (data interface{}, typePackage string
 
 type Simple struct {
 	*system.Object
-	Js string `json:"js"`
+	Js string
 }
 type SimpleInterface interface {
 	GetSimple(ctx context.Context) *Simple
@@ -381,7 +381,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/tests/data/alias")
-	pkg.SetHash(uint64(0xd77601f91a1ffa0f))
+	pkg.SetHash(uint64(0x97c8aa701b94a397))
 	pkg.Init("alms", func() interface{} {
 		return new(Alms)
 	}, func(in interface{}) interface{} {

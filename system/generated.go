@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/system","Hash":5039818949371039265}
+// info:{"Path":"frizz.io/system","Hash":14998675151037318765}
 package system
 
 import (
@@ -16,13 +16,13 @@ type ArrayRule struct {
 	*Object
 	*Rule
 	// This is a rule object, defining the type and restrictions on the value of the items
-	Items RuleInterface `json:"items"`
+	Items RuleInterface
 	// This is the maximum number of items allowed in the array
-	MaxItems *Int `json:"max-items"`
+	MaxItems *Int
 	// This is the minimum number of items allowed in the array
-	MinItems *Int `json:"min-items"`
+	MinItems *Int
 	// If this is true, each item must be unique
-	UniqueItems bool `json:"unique-items"`
+	UniqueItems bool
 }
 
 func (v *ArrayRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -144,7 +144,7 @@ type BoolRule struct {
 	*Object
 	*Rule
 	// Default value if this is missing or null
-	Default *Bool `json:"default"`
+	Default *Bool
 }
 
 func (v *BoolRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -213,13 +213,13 @@ type IntRule struct {
 	*Object
 	*Rule
 	// Default value if this property is omitted
-	Default *Int `json:"default"`
+	Default *Int
 	// This provides an upper bound for the restriction
-	Maximum *Int `json:"maximum"`
+	Maximum *Int
 	// This provides a lower bound for the restriction
-	Minimum *Int `json:"minimum"`
+	Minimum *Int
 	// This restricts the number to be a multiple of the given number
-	MultipleOf *Int `json:"multiple-of"`
+	MultipleOf *Int
 }
 
 func (v *IntRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -330,13 +330,13 @@ type MapRule struct {
 	*Object
 	*Rule
 	// This is a rule object, defining the type and restrictions on the value of the items.
-	Items RuleInterface `json:"items"`
+	Items RuleInterface
 	// Add a system:@string here to provide a restriction for the map keys
-	Keys RuleInterface `json:"keys"`
+	Keys RuleInterface
 	// This is the maximum number of items alowed in the array
-	MaxItems *Int `json:"max-items"`
+	MaxItems *Int
 	// This is the minimum number of items alowed in the array
-	MinItems *Int `json:"min-items"`
+	MinItems *Int
 }
 
 func (v *MapRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -475,17 +475,17 @@ type NumberRule struct {
 	*Object
 	*Rule
 	// Default value if this property is omitted
-	Default *Number `json:"default"`
+	Default *Number
 	// If this is true, the value must be less than maximum. If false or not provided, the value must be less than or equal to the maximum.
-	ExclusiveMaximum bool `json:"exclusive-maximum"`
+	ExclusiveMaximum bool
 	// If this is true, the value must be greater than minimum. If false or not provided, the value must be greater than or equal to the minimum.
-	ExclusiveMinimum bool `json:"exclusive-minimum"`
+	ExclusiveMinimum bool
 	// This provides an upper bound for the restriction
-	Maximum *Number `json:"maximum"`
+	Maximum *Number
 	// This provides a lower bound for the restriction
-	Minimum *Number `json:"minimum"`
+	Minimum *Number
 	// This restricts the number to be a multiple of the given number
-	MultipleOf *Number `json:"multiple-of"`
+	MultipleOf *Number
 }
 
 func (v *NumberRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -724,11 +724,11 @@ type ReferenceRule struct {
 	*Object
 	*Rule
 	// Default value of this is missing or null
-	Default *Reference `json:"default"`
+	Default *Reference
 	// The value must match this regex
-	Pattern *String `json:"pattern"`
+	Pattern *String
 	// The value must not match this regex
-	PatternNot *String `json:"pattern-not"`
+	PatternNot *String
 }
 
 func (v *ReferenceRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -878,23 +878,23 @@ type StringRule struct {
 	*Object
 	*Rule
 	// Default value of this is missing or null
-	Default *String `json:"default"`
+	Default *String
 	// The value of this string is restricted to one of the provided values
-	Enum []string `json:"enum"`
+	Enum []string
 	// This is a string that the value must match
-	Equal *String `json:"equal"`
+	Equal *String
 	// This restricts the value to one of several built-in formats
-	Format *String `json:"format"`
+	Format *String
 	// The editor should render as a multi-line textbox
-	Long bool `json:"long"`
+	Long bool
 	// The value must be shorter or equal to the provided maximum length
-	MaxLength *Int `json:"max-length"`
+	MaxLength *Int
 	// The value must be longer or equal to the provided minimum length
-	MinLength *Int `json:"min-length"`
+	MinLength *Int
 	// The value must match this regex
-	Pattern *String `json:"pattern"`
+	Pattern *String
 	// The value must not match this regex
-	PatternNot *String `json:"pattern-not"`
+	PatternNot *String
 }
 
 func (v *StringRule) Unpack(ctx context.Context, in Packed, iface bool) error {
@@ -1342,17 +1342,17 @@ func (v *Number) Repack(ctx context.Context) (data interface{}, typePackage stri
 // This is the base type for the object interface. All frizz objects have this type embedded.
 type Object struct {
 	// Description for the developer
-	Description string `json:"description"`
+	Description string
 	// Make this object available as an exported function
-	Export bool `json:"export"`
+	Export bool
 	// All global objects should have an id.
-	Id *Reference `json:"id"`
+	Id *Reference
 	// Extra validation rules for this object or descendants
-	Rules []RuleInterface `json:"rules"`
+	Rules []RuleInterface
 	// Tags for general use
-	Tags Tags `json:"tags"`
+	Tags Tags
 	// Type of the object.
-	Type *Reference `json:"type"`
+	Type *Reference
 }
 type ObjectInterface interface {
 	GetObject(ctx context.Context) *Object
@@ -1498,9 +1498,9 @@ func (v *Object) Repack(ctx context.Context) (data interface{}, typePackage stri
 type Package struct {
 	*Object
 	// Map of import aliases used in this package: key = alias, value = package path.
-	Aliases map[string]string `json:"aliases"`
+	Aliases map[string]string
 	// Should we scan subdirectories for data files?
-	Recursive bool `json:"recursive"`
+	Recursive bool
 }
 type PackageInterface interface {
 	GetPackage(ctx context.Context) *Package
@@ -1623,11 +1623,11 @@ func UnpackReferenceInterface(ctx context.Context, in Packed) (ReferenceInterfac
 // All rules will have this embedded in them.
 type Rule struct {
 	// Use the single method getter interface for this type
-	Interface bool `json:"interface"`
+	Interface bool
 	// If this rule is a field, this specifies that the field is optional
-	Optional bool `json:"optional"`
+	Optional bool
 	// Json selector defining what nodes this rule should be applied to.
-	Selector string `json:"selector"`
+	Selector string
 }
 type RuleInterface interface {
 	GetRule(ctx context.Context) *Rule
@@ -1829,23 +1829,23 @@ func (v Tags) Repack(ctx context.Context) (data interface{}, typePackage string,
 type Type struct {
 	*Object
 	// If this type is an alias of another type, specify the underlying type here
-	Alias RuleInterface `json:"alias"`
+	Alias RuleInterface
 	// Basic types don't have system:object added by default to the embedded types.
-	Basic bool `json:"basic"`
+	Basic bool
 	// Custom types are not emitted into the generated source
-	Custom bool `json:"custom"`
+	Custom bool
 	// Types which this should embed - system:object is always added unless basic = true.
-	Embed []*Reference `json:"embed"`
+	Embed []*Reference
 	// Each field is listed with it's type
-	Fields map[string]RuleInterface `json:"fields"`
+	Fields map[string]RuleInterface
 	// Is this type an interface?
-	Interface bool `json:"interface"`
+	Interface bool
 	// The kind of the type if custom is specified - must be value, struct, collection or interface
-	Kind *String `json:"kind"`
+	Kind *String
 	// This is the native json type that represents this type. If omitted, default is object.
-	Native *String `json:"native"`
+	Native *String
 	// Type that defines restriction rules for this type.
-	Rule *Type `json:"rule"`
+	Rule *Type
 }
 type TypeInterface interface {
 	GetType(ctx context.Context) *Type
@@ -2076,7 +2076,7 @@ func (v *Type) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/system")
-	pkg.SetHash(uint64(0x45f108a1e18b0e21))
+	pkg.SetHash(uint64(0xd025ff955f0ec66d))
 	pkg.Init("array", nil, nil, func() interface{} {
 		return new(ArrayRule)
 	}, nil)

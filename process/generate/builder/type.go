@@ -49,9 +49,9 @@ func FieldTypeDefinition(ctx context.Context, fieldName string, field system.Rul
 	}
 	s.Add(typeDef)
 
-	if fieldName != "" {
-		s.Tag(map[string]string{"json": fieldName})
-	}
+	//if fieldName != "" {
+	//	s.Tag(map[string]string{"json": fieldName})
+	//}
 
 	return s, nil
 }

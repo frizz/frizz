@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/common/words","Hash":3551767034988909627}
+// info:{"Path":"frizz.io/demo/common/words","Hash":1013970822415060399}
 package words
 
 import (
@@ -189,7 +189,7 @@ func UnpackLocalizer(ctx context.Context, in system.Packed) (Localizer, error) {
 
 type Simple struct {
 	*system.Object
-	String *system.String `json:"string"`
+	String *system.String
 }
 type SimpleInterface interface {
 	GetSimple(ctx context.Context) *Simple
@@ -264,9 +264,9 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 type Translation struct {
 	*system.Object
 	// The original English string
-	English *system.String `json:"english"`
+	English *system.String
 	// The translated strings
-	Translations map[string]*system.String `json:"translations"`
+	Translations map[string]*system.String
 }
 type TranslationInterface interface {
 	GetTranslation(ctx context.Context) *Translation
@@ -363,7 +363,7 @@ func (v *Translation) Repack(ctx context.Context) (data interface{}, typePackage
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/common/words")
-	pkg.SetHash(uint64(0x314a694cdd74d43b))
+	pkg.SetHash(uint64(0xe1259173aa90daf))
 	pkg.Init("localizer", func() interface{} {
 		return (*Localizer)(nil)
 	}, nil, func() interface{} {

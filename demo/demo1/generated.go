@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo1","Hash":8023308831674318852}
+// info:{"Path":"frizz.io/demo/demo1","Hash":1707443682577011491}
 package demo1
 
 import (
@@ -67,8 +67,8 @@ func (v *PageRule) Repack(ctx context.Context) (data interface{}, typePackage st
 
 type Page struct {
 	*system.Object
-	Body  *system.String `json:"body"`
-	Title *system.String `json:"title"`
+	Body  *system.String
+	Title *system.String
 }
 type PageInterface interface {
 	GetPage(ctx context.Context) *Page
@@ -154,7 +154,7 @@ func (v *Page) Repack(ctx context.Context) (data interface{}, typePackage string
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo1")
-	pkg.SetHash(uint64(0x6f5884df8333c004))
+	pkg.SetHash(uint64(0x17b20efb9dfcd323))
 	pkg.Init("page", func() interface{} {
 		return new(Page)
 	}, nil, func() interface{} {

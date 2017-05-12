@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo5/translation","Hash":8415846272540109018}
+// info:{"Path":"frizz.io/demo/demo5/translation","Hash":5452150500200689024}
 package translation
 
 import (
@@ -189,7 +189,7 @@ func UnpackLocalized(ctx context.Context, in system.Packed) (Localized, error) {
 
 type Simple struct {
 	*system.Object
-	Text *system.String `json:"text"`
+	Text *system.String
 }
 type SimpleInterface interface {
 	GetSimple(ctx context.Context) *Simple
@@ -262,8 +262,8 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 
 type Smartling struct {
 	*system.Object
-	English      *system.String            `json:"english"`
-	Translations map[string]*system.String `json:"translations"`
+	English      *system.String
+	Translations map[string]*system.String
 }
 type SmartlingInterface interface {
 	GetSmartling(ctx context.Context) *Smartling
@@ -360,7 +360,7 @@ func (v *Smartling) Repack(ctx context.Context) (data interface{}, typePackage s
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo5/translation")
-	pkg.SetHash(uint64(0x74cb1798870c68da))
+	pkg.SetHash(uint64(0x4ba9edfe426e2d80))
 	pkg.Init("localized", func() interface{} {
 		return (*Localized)(nil)
 	}, nil, func() interface{} {

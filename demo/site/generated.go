@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/site","Hash":373809904988579279}
+// info:{"Path":"frizz.io/demo/site","Hash":6183517775289362454}
 package site
 
 import (
@@ -280,9 +280,9 @@ func (v *SectionRule) Repack(ctx context.Context) (data interface{}, typePackage
 
 type Body struct {
 	*system.Object
-	Align *system.String         `json:"align"`
-	Copy  system.StringInterface `json:"copy"`
-	Title system.StringInterface `json:"title"`
+	Align *system.String
+	Copy  system.StringInterface
+	Title system.StringInterface
 }
 type BodyInterface interface {
 	GetBody(ctx context.Context) *Body
@@ -411,7 +411,7 @@ func (v *Body) Repack(ctx context.Context) (data interface{}, typePackage string
 
 type Columns struct {
 	*system.Object
-	Columns []Section `json:"columns"`
+	Columns []Section
 }
 type ColumnsInterface interface {
 	GetColumns(ctx context.Context) *Columns
@@ -509,9 +509,9 @@ func (v *Columns) Repack(ctx context.Context) (data interface{}, typePackage str
 
 type Hero struct {
 	*system.Object
-	Head    system.StringInterface `json:"head"`
-	Image   images.Image           `json:"image"`
-	Subhead system.StringInterface `json:"subhead"`
+	Head    system.StringInterface
+	Image   images.Image
+	Subhead system.StringInterface
 }
 type HeroInterface interface {
 	GetHero(ctx context.Context) *Hero
@@ -654,8 +654,8 @@ func (v *Hero) Repack(ctx context.Context) (data interface{}, typePackage string
 
 type Page struct {
 	*system.Object
-	Sections []Section              `json:"sections"`
-	Title    system.StringInterface `json:"title"`
+	Sections []Section
+	Title    system.StringInterface
 }
 type PageInterface interface {
 	GetPage(ctx context.Context) *Page
@@ -796,7 +796,7 @@ func UnpackSection(ctx context.Context, in system.Packed) (Section, error) {
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/site")
-	pkg.SetHash(uint64(0x5300a20c85de5cf))
+	pkg.SetHash(uint64(0x55d044a7aa6fa816))
 	pkg.Init("body", func() interface{} {
 		return new(Body)
 	}, nil, func() interface{} {

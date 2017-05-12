@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/common/images","Hash":3827775346797945496}
+// info:{"Path":"frizz.io/demo/common/images","Hash":6824500852970764543}
 package images
 
 import (
@@ -70,7 +70,7 @@ func (v *IconRule) Repack(ctx context.Context) (data interface{}, typePackage st
 type ImageRule struct {
 	*system.Object
 	*system.Rule
-	Secure *system.Bool `json:"secure"`
+	Secure *system.Bool
 }
 
 func (v *ImageRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
@@ -190,7 +190,7 @@ func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage s
 // This is a type of image, which just contains the url of the image
 type Icon struct {
 	*system.Object
-	Url *system.String `json:"url"`
+	Url *system.String
 }
 type IconInterface interface {
 	GetIcon(ctx context.Context) *Icon
@@ -281,12 +281,12 @@ func UnpackImage(ctx context.Context, in system.Packed) (Image, error) {
 type Photo struct {
 	*system.Object
 	// The path for the url - e.g. /foo/bar.jpg
-	Path *system.String `json:"path"`
+	Path *system.String
 	// The protocol for the url - e.g. http or https
-	Protocol *system.String `json:"protocol"`
+	Protocol *system.String
 	// The server for the url - e.g. www.google.com
-	Server *system.String   `json:"server"`
-	Size   *units.Rectangle `json:"size"`
+	Server *system.String
+	Size   *units.Rectangle
 }
 type PhotoInterface interface {
 	GetPhoto(ctx context.Context) *Photo
@@ -406,7 +406,7 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/common/images")
-	pkg.SetHash(uint64(0x351efd65c1e3a298))
+	pkg.SetHash(uint64(0x5eb57f5e36ac38ff))
 	pkg.Init("icon", func() interface{} {
 		return new(Icon)
 	}, nil, func() interface{} {

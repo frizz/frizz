@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo7/images","Hash":11434735277570565571}
+// info:{"Path":"frizz.io/demo/demo7/images","Hash":8088901034031058716}
 package images
 
 import (
@@ -67,9 +67,9 @@ func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage s
 
 type Photo struct {
 	*system.Object
-	Height *system.Int    `json:"height"`
-	Url    *system.String `json:"url"`
-	Width  *system.Int    `json:"width"`
+	Height *system.Int
+	Url    *system.String
+	Width  *system.Int
 }
 type PhotoInterface interface {
 	GetPhoto(ctx context.Context) *Photo
@@ -169,7 +169,7 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo7/images")
-	pkg.SetHash(uint64(0x9eb05726b038a5c3))
+	pkg.SetHash(uint64(0x70418ca234b60f1c))
 	pkg.Init("photo", func() interface{} {
 		return new(Photo)
 	}, nil, func() interface{} {

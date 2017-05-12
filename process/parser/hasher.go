@@ -7,7 +7,7 @@ import (
 	"github.com/surge/cityhash"
 )
 
-const currentPackageHasherVersion = 8
+const currentPackageHasherVersion = 9
 
 type PackageHasher struct {
 	Path    string

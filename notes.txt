@@ -1,4 +1,16 @@
 
+Things that aren't good
+-----------------------
+Object embedded all over the place
+Must add basic=true to prevent Object embedded
+
+What I'm going to do
+--------------------
+?
+
+
+
+
 Instead of embedding *Object:
 
 ---------------------

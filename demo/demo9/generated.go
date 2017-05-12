@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo9","Hash":15575345513641362546}
+// info:{"Path":"frizz.io/demo/demo9","Hash":17284658946093704279}
 package demo9
 
 import (
@@ -67,8 +67,8 @@ func (v *PersonRule) Repack(ctx context.Context) (data interface{}, typePackage 
 
 type Person struct {
 	*system.Object
-	Age  *system.Int    `json:"age"`
-	Name *system.String `json:"name"`
+	Age  *system.Int
+	Name *system.String
 }
 type PersonInterface interface {
 	GetPerson(ctx context.Context) *Person
@@ -154,7 +154,7 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo9")
-	pkg.SetHash(uint64(0xd826be3912914472))
+	pkg.SetHash(uint64(0xefdf71bbc1b16457))
 	pkg.Init("person", func() interface{} {
 		return new(Person)
 	}, nil, func() interface{} {

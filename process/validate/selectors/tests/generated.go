@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/process/validate/selectors/tests","Hash":958437053934508214}
+// info:{"Path":"frizz.io/process/validate/selectors/tests","Hash":1830204020006179141}
 package tests
 
 import (
@@ -1339,12 +1339,12 @@ func (v *TypedRule) Repack(ctx context.Context) (data interface{}, typePackage s
 
 type Basic struct {
 	*system.Object
-	DrinkPreference   []*system.String            `json:"drinkPreference"`
-	FavoriteColor     *system.String              `json:"favoriteColor"`
-	LanguagesSpoken   []map[string]*system.String `json:"languagesSpoken"`
-	Name              map[string]*system.String   `json:"name"`
-	SeatingPreference []*system.String            `json:"seatingPreference"`
-	Weight            *system.Number              `json:"weight"`
+	DrinkPreference   []*system.String
+	FavoriteColor     *system.String
+	LanguagesSpoken   []map[string]*system.String
+	Name              map[string]*system.String
+	SeatingPreference []*system.String
+	Weight            *system.Number
 }
 type BasicInterface interface {
 	GetBasic(ctx context.Context) *Basic
@@ -1542,9 +1542,9 @@ func (v *Basic) Repack(ctx context.Context) (data interface{}, typePackage strin
 
 type C struct {
 	*system.Object
-	A *system.Number            `json:"a"`
-	B *system.Number            `json:"b"`
-	C map[string]*system.Number `json:"c"`
+	A *system.Number
+	B *system.Number
+	C map[string]*system.Number
 }
 type CInterface interface {
 	GetC(ctx context.Context) *C
@@ -1656,7 +1656,7 @@ func (v *C) Repack(ctx context.Context) (data interface{}, typePackage string, t
 
 type Collision struct {
 	*system.Object
-	Number map[string]*system.String `json:"number"`
+	Number map[string]*system.String
 }
 type CollisionInterface interface {
 	GetCollision(ctx context.Context) *Collision
@@ -1740,7 +1740,7 @@ func (v *Collision) Repack(ctx context.Context) (data interface{}, typePackage s
 
 type Diagram struct {
 	*system.Object
-	Url *system.String `json:"url"`
+	Url *system.String
 }
 type DiagramInterface interface {
 	GetDiagram(ctx context.Context) *Diagram
@@ -1813,7 +1813,7 @@ func (v *Diagram) Repack(ctx context.Context) (data interface{}, typePackage str
 
 type Empty struct {
 	*system.Object
-	Items []*EmptyItem `json:"items"`
+	Items []*EmptyItem
 }
 type EmptyInterface interface {
 	GetEmpty(ctx context.Context) *Empty
@@ -1897,8 +1897,8 @@ func (v *Empty) Repack(ctx context.Context) (data interface{}, typePackage strin
 
 type EmptyItem struct {
 	*system.Object
-	Arr  []*system.String `json:"arr"`
-	Name *system.String   `json:"name"`
+	Arr  []*system.String
+	Name *system.String
 }
 type EmptyItemInterface interface {
 	GetEmptyItem(ctx context.Context) *EmptyItem
@@ -1996,13 +1996,13 @@ func (v *EmptyItem) Repack(ctx context.Context) (data interface{}, typePackage s
 
 type Expr struct {
 	*system.Object
-	False   *system.Bool   `json:"false"`
-	Float   *system.Number `json:"float"`
-	Int     *system.Number `json:"int"`
-	Null    *system.String `json:"null"`
-	String  *system.String `json:"string"`
-	String2 *system.String `json:"string2"`
-	True    *system.Bool   `json:"true"`
+	False   *system.Bool
+	Float   *system.Number
+	Int     *system.Number
+	Null    *system.String
+	String  *system.String
+	String2 *system.String
+	True    *system.Bool
 }
 type ExprInterface interface {
 	GetExpr(ctx context.Context) *Expr
@@ -2160,7 +2160,7 @@ func (v *Expr) Repack(ctx context.Context) (data interface{}, typePackage string
 // This represents a gallery - it's just a list of images
 type Gallery struct {
 	*system.Object
-	Images map[string]Image `json:"images"`
+	Images map[string]Image
 }
 type GalleryInterface interface {
 	GetGallery(ctx context.Context) *Gallery
@@ -2274,11 +2274,11 @@ func UnpackImage(ctx context.Context, in system.Packed) (Image, error) {
 
 type Instance struct {
 	*system.Object
-	Child        map[string]*InstanceItem `json:"child"`
-	Cloud_type   *system.String           `json:"cloud_type"`
-	Display_name *system.String           `json:"display_name"`
-	Links        []*RightscaleLink        `json:"links"`
-	Name         *system.String           `json:"name"`
+	Child        map[string]*InstanceItem
+	Cloud_type   *system.String
+	Display_name *system.String
+	Links        []*RightscaleLink
+	Name         *system.String
 }
 type InstanceInterface interface {
 	GetInstance(ctx context.Context) *Instance
@@ -2429,7 +2429,7 @@ func (v *Instance) Repack(ctx context.Context) (data interface{}, typePackage st
 
 type InstanceItem struct {
 	*system.Object
-	Name *system.String `json:"name"`
+	Name *system.String
 }
 type InstanceItemInterface interface {
 	GetInstanceItem(ctx context.Context) *InstanceItem
@@ -2502,9 +2502,9 @@ func (v *InstanceItem) Repack(ctx context.Context) (data interface{}, typePackag
 
 type Kid struct {
 	*system.Object
-	Language  *system.String `json:"language"`
-	Level     *system.String `json:"level"`
-	Preferred *system.Bool   `json:"preferred"`
+	Language  *system.String
+	Level     *system.String
+	Preferred *system.Bool
 }
 type KidInterface interface {
 	GetKid(ctx context.Context) *Kid
@@ -2605,8 +2605,8 @@ func (v *Kid) Repack(ctx context.Context) (data interface{}, typePackage string,
 
 type People struct {
 	*system.Object
-	Others []*Person `json:"others"`
-	People []*Person `json:"people"`
+	Others []*Person
+	People []*Person
 }
 type PeopleInterface interface {
 	GetPeople(ctx context.Context) *People
@@ -2715,10 +2715,10 @@ func (v *People) Repack(ctx context.Context) (data interface{}, typePackage stri
 
 type Person struct {
 	*system.Object
-	Age    *system.Int    `json:"age"`
-	Colour *system.String `json:"colour"`
-	Hat    *system.Bool   `json:"hat"`
-	Name   *system.String `json:"name"`
+	Age    *system.Int
+	Colour *system.String
+	Hat    *system.Bool
+	Name   *system.String
 }
 type PersonInterface interface {
 	GetPerson(ctx context.Context) *Person
@@ -2835,12 +2835,12 @@ func (v *Person) Repack(ctx context.Context) (data interface{}, typePackage stri
 type Photo struct {
 	*system.Object
 	// The path for the url - e.g. /foo/bar.jpg
-	Path *system.String `json:"path"`
+	Path *system.String
 	// The protocol for the url - e.g. http or https
-	Protocol *system.String `json:"protocol"`
+	Protocol *system.String
 	// The server for the url - e.g. www.google.com
-	Server *system.String `json:"server"`
-	Size   *Rectangle     `json:"size"`
+	Server *system.String
+	Size   *Rectangle
 }
 type PhotoInterface interface {
 	GetPhoto(ctx context.Context) *Photo
@@ -2961,7 +2961,7 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 
 type Polykids struct {
 	*system.Object
-	A []*Kid `json:"a"`
+	A []*Kid
 }
 type PolykidsInterface interface {
 	GetPolykids(ctx context.Context) *Polykids
@@ -3045,8 +3045,8 @@ func (v *Polykids) Repack(ctx context.Context) (data interface{}, typePackage st
 
 type Rectangle struct {
 	*system.Object
-	Height *system.Int `json:"height"`
-	Width  *system.Int `json:"width"`
+	Height *system.Int
+	Width  *system.Int
 }
 type RectangleInterface interface {
 	GetRectangle(ctx context.Context) *Rectangle
@@ -3133,11 +3133,11 @@ func (v *Rectangle) Repack(ctx context.Context) (data interface{}, typePackage s
 
 type Rightscale struct {
 	*system.Object
-	Child        map[string]*InstanceItem `json:"child"`
-	Cloud_type   *system.String           `json:"cloud_type"`
-	Display_name *system.String           `json:"display_name"`
-	Links        []*RightscaleLink        `json:"links"`
-	Name         *system.String           `json:"name"`
+	Child        map[string]*InstanceItem
+	Cloud_type   *system.String
+	Display_name *system.String
+	Links        []*RightscaleLink
+	Name         *system.String
 }
 type RightscaleInterface interface {
 	GetRightscale(ctx context.Context) *Rightscale
@@ -3288,8 +3288,8 @@ func (v *Rightscale) Repack(ctx context.Context) (data interface{}, typePackage 
 
 type RightscaleLink struct {
 	*system.Object
-	Href *system.String `json:"href"`
-	Rel  *system.String `json:"rel"`
+	Href *system.String
+	Rel  *system.String
 }
 type RightscaleLinkInterface interface {
 	GetRightscaleLink(ctx context.Context) *RightscaleLink
@@ -3376,7 +3376,7 @@ func (v *RightscaleLink) Repack(ctx context.Context) (data interface{}, typePack
 
 type RightscaleList struct {
 	*system.Object
-	Foo []*Rightscale `json:"foo"`
+	Foo []*Rightscale
 }
 type RightscaleListInterface interface {
 	GetRightscaleList(ctx context.Context) *RightscaleList
@@ -3460,11 +3460,11 @@ func (v *RightscaleList) Repack(ctx context.Context) (data interface{}, typePack
 
 type Sibling struct {
 	*system.Object
-	A *system.Number            `json:"a"`
-	B *system.Number            `json:"b"`
-	C *C                        `json:"c"`
-	D map[string]*system.Number `json:"d"`
-	E map[string]*system.Number `json:"e"`
+	A *system.Number
+	B *system.Number
+	C *C
+	D map[string]*system.Number
+	E map[string]*system.Number
 }
 type SiblingInterface interface {
 	GetSibling(ctx context.Context) *Sibling
@@ -3615,7 +3615,7 @@ func (v *Sibling) Repack(ctx context.Context) (data interface{}, typePackage str
 
 type Simple struct {
 	*system.Object
-	A *SimpleItem `json:"a"`
+	A *SimpleItem
 }
 type SimpleInterface interface {
 	GetSimple(ctx context.Context) *Simple
@@ -3688,7 +3688,7 @@ func (v *Simple) Repack(ctx context.Context) (data interface{}, typePackage stri
 
 type SimpleArray struct {
 	*system.Object
-	A []*SimpleItem `json:"a"`
+	A []*SimpleItem
 }
 type SimpleArrayInterface interface {
 	GetSimpleArray(ctx context.Context) *SimpleArray
@@ -3772,7 +3772,7 @@ func (v *SimpleArray) Repack(ctx context.Context) (data interface{}, typePackage
 
 type SimpleItem struct {
 	*system.Object
-	B *system.String `json:"b"`
+	B *system.String
 }
 type SimpleItemInterface interface {
 	GetSimpleItem(ctx context.Context) *SimpleItem
@@ -3845,12 +3845,12 @@ func (v *SimpleItem) Repack(ctx context.Context) (data interface{}, typePackage 
 
 type Typed struct {
 	*system.Object
-	Avatar          Image                     `json:"avatar"`
-	DrinkPreference []*system.String          `json:"drinkPreference"`
-	FavoriteColor   *system.String            `json:"favoriteColor"`
-	Kids            map[string]*Kid           `json:"kids"`
-	Name            map[string]*system.String `json:"name"`
-	Weight          *system.Number            `json:"weight"`
+	Avatar          Image
+	DrinkPreference []*system.String
+	FavoriteColor   *system.String
+	Kids            map[string]*Kid
+	Name            map[string]*system.String
+	Weight          *system.Number
 }
 type TypedInterface interface {
 	GetTyped(ctx context.Context) *Typed
@@ -4039,7 +4039,7 @@ func (v *Typed) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/process/validate/selectors/tests")
-	pkg.SetHash(uint64(0xd4d0d6c2b5698b6))
+	pkg.SetHash(uint64(0x196630dbfef5d145))
 	pkg.Init("basic", func() interface{} {
 		return new(Basic)
 	}, nil, func() interface{} {

@@ -1,4 +1,4 @@
-// info:{"Path":"frizz.io/demo/demo8/images","Hash":8250798056163340823}
+// info:{"Path":"frizz.io/demo/demo8/images","Hash":7861437149780521751}
 package images
 
 import (
@@ -15,7 +15,7 @@ import (
 type PhotoRule struct {
 	*system.Object
 	*system.Rule
-	Big *system.Bool `json:"big"`
+	Big *system.Bool
 }
 
 func (v *PhotoRule) Unpack(ctx context.Context, in system.Packed, iface bool) error {
@@ -81,9 +81,9 @@ func (v *PhotoRule) Repack(ctx context.Context) (data interface{}, typePackage s
 
 type Photo struct {
 	*system.Object
-	Height *system.Int    `json:"height"`
-	Url    *system.String `json:"url"`
-	Width  *system.Int    `json:"width"`
+	Height *system.Int
+	Url    *system.String
+	Width  *system.Int
 }
 type PhotoInterface interface {
 	GetPhoto(ctx context.Context) *Photo
@@ -183,7 +183,7 @@ func (v *Photo) Repack(ctx context.Context) (data interface{}, typePackage strin
 }
 func init() {
 	pkg := jsonctx.InitPackage("frizz.io/demo/demo8/images")
-	pkg.SetHash(uint64(0x7280b91e13197217))
+	pkg.SetHash(uint64(0x6d196f6fa0ba3317))
 	pkg.Init("photo", func() interface{} {
 		return new(Photo)
 	}, nil, func() interface{} {
