@@ -1,7 +1,0 @@
-{
-    "id": "simpleData",
-	"type": "simple",
-    "a": {
-        "b": "c"
-    }
-}

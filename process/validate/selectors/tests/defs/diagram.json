@@ -1,9 +1,0 @@
-{
-	"type": "system:type",
-	"id": "diagram",
-	"fields": {
-		"url": {
-			"type": "system:@string"
-		}
-	}
-}

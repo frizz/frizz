@@ -1,6 +1,0 @@
-description: A is a simple type containing a string B
-type: system:type
-id: a
-fields:
-    b:
-        type: system:@string

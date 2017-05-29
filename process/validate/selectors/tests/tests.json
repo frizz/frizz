@@ -1,5 +1,0 @@
-{
-  "description": "Tests for the selectors package",
-  "type": "system:package",
-  "recursive": true
-}

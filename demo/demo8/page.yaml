@@ -1,6 +1,0 @@
-type: system:type
-id: page
-fields:
-    hero:
-        type: images:@photo
-        big: true

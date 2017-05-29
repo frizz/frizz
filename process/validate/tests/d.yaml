@@ -1,7 +1,0 @@
-description: D is a type containing a field of type C
-type: system:type
-id: d
-fields:
-    a:
-        type: "@c"
-        fail: true

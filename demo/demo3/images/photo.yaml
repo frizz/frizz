@@ -1,5 +1,0 @@
-type: system:type
-id: photo
-fields:
-  url:
-    type: system:@string

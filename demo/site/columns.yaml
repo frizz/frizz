@@ -1,8 +1,0 @@
-type: system:type
-id: columns
-fields:
-  columns:
-    type: system:@array
-    items:
-      type: "@section"
-    max-items: 4

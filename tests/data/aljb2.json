@@ -1,9 +1,0 @@
-{
-  "description": "This is an alias bool type that implements the aljb default interface, and can be used to test explicit type marshalling.",
-  "type": "system:type",
-  "id": "aljb2",
-  "native": "bool",
-  "alias": {
-    "type": "json:@bool"
-  }
-}

@@ -1,1 +1,0 @@
-{person}:has(.colour:contains("re")).name

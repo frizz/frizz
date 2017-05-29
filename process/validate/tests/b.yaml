@@ -1,7 +1,0 @@
-description: A is a type containing a string interface B
-type: system:type
-id: b
-fields:
-    c:
-        type: system:@string
-        interface: true

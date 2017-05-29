@@ -5,10 +5,3 @@ Frizz
 =====
 
 Frizz isn't ready for public consumption yet. Please move along.
-
-However, it might work:
-
-	go get -u frizz.io/...
-    frizz -e frizz.io/demo/demo1
-	
-([more demos](/demo))
