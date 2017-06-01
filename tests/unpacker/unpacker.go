@@ -1,6 +1,20 @@
 package unpacker
 
 // frizz
+type Structs struct {
+	Simple struct {
+		Int  int
+		Bool bool
+	}
+	Complex struct {
+		String string
+		Inner  struct {
+			Float32 float32
+		}
+	}
+}
+
+// frizz
 type Natives struct {
 	Bool    bool
 	Byte    byte

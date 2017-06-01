@@ -106,10 +106,8 @@ func Generate(writer io.Writer, path string) error {
 		}
 		name := ts.Name.Name
 		spec := ts.Type
-		if err := addUnpacker(fset, f, name, spec); err != nil {
-			outer = errors.WithMessage(err, fmt.Sprintf("error printing unpacker for type at %s", fset.Position(gd.TokPos)))
-			return false
-		}
+
+		f.Add(unpacker(spec, Id("unpack"+name), Id(name)))
 
 		return true
 	})
@@ -122,96 +120,246 @@ func Generate(writer io.Writer, path string) error {
 	return nil
 }
 
-func addUnpacker(fset *token.FileSet, f *File, name string, spec ast.Expr) error {
-	var outer error
-	/*
-		func unpack<name>(in interface{}) (interface{}, error) {
-			<...>
-		}
+func unpacker(spec ast.Expr, namedFunc *Statement, namedType *Statement) *Statement {
+	/**
+	func <named>(in interface{}) (value <namedType>, err error) {
+		<...>
+	}
 	*/
-	f.Func().Id("unpack"+name).Params(
+	return Func().Do(func(s *Statement) {
+		if namedFunc != nil {
+			// Optional - unpacker is used to generate both anonymous and named
+			// functions
+			s.Add(namedFunc)
+		}
+	}).Params(
 		Id("in").Interface(),
 	).Params(
-		Interface(),
-		Error(),
+		Id("value").Do(func(s *Statement) {
+			if namedType != nil {
+				s.Add(namedType)
+			} else {
+				s.Add(expr(spec))
+			}
+		}),
+		Err().Error(),
 	).BlockFunc(func(g *Group) {
 		switch s := spec.(type) {
-		// TODO
 		case *ast.StructType:
-			/*
-				m, ok := in.(map[string]interface{})
-				if !ok {
-					return nil, errors.Errorf("error unpacking into %s, value should be a map", name)
-				}
-				out := new(<name>)
-				<...>
-				return out, nil
-			*/
-			g.List(Id("m"), Id("ok")).Op(":=").Id("in").Assert(Map(String()).Interface())
-			g.If(Op("!").Id("ok")).Block(
-				Return(
-					Nil(),
-					Qual("github.com/pkg/errors", "Errorf").Call(
-						Lit("error unpacking into %s, value should be a map"),
-						Lit(name),
-					),
-				),
-			)
-			g.Id("out").Op(":=").New(Id(name))
-			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				jsonName := goToJson(f.Names[0].Name)
-				switch ft := f.Type.(type) {
-				default:
-					ast.Print(fset, f)
-				case *ast.Ident:
-					//var native string
-					switch ft.Name {
-					case "bool":
-						// native = "bool"
-					case "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64":
-						// native = "float64"
-					case "rune", "string":
-						// native = "string"
-					case "complex64", "complex128", "error", "uintptr":
-						outer = errors.Errorf("type %s not supported", ft.Name)
-						return
-					default:
-						ast.Print(fset, f)
-					}
-					/*
-						if v, ok := m["<jsonName>"]; ok {
-							c, err := system.Convert_<ft.Name>(v)
-							if err != nil {
-								return nil, errors.WithMessage(err, "error unpacking")
-							}
-							out.<fieldName> = c
-						}
-					*/
-					g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(jsonName)), Id("ok")).Block(
-						List(Id("c"), Err()).Op(":=").Qual("frizz.io/system", fmt.Sprintf("Convert_%s", ft.Name)).Call(Id("v")),
-						If(Err().Op("!=").Nil()).Block(
-							Return(
-								Nil(),
-								Qual("github.com/pkg/errors", "WithMessage").Call(
-									Err(),
-									Lit("error unpacking"),
-								),
-							),
-						),
-						Id("out").Dot(fieldName).Op("=").Id("c"),
-					)
-				}
+			structUnpacker(g, namedType, s)
+		case *ast.Ident:
+			switch s.Name {
+			case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
+				nativeUnpacker(g, s)
 			}
-			g.Return(Id("out"), Nil())
-		default:
-			ast.Print(fset, s)
 		}
 	})
-	if outer != nil {
-		return errors.WithMessage(outer, "error generating source")
+}
+
+/*
+case *BadExpr:
+case *Ident:
+case *Ellipsis:
+case *BasicLit:
+case *FuncLit:
+case *CompositeLit:
+case *ParenExpr:
+case *SelectorExpr:
+case *IndexExpr:
+case *SliceExpr:
+case *TypeAssertExpr:
+case *CallExpr:
+case *StarExpr:
+case *UnaryExpr:
+case *BinaryExpr:
+case *KeyValueExpr:
+
+case *ArrayType:
+case *StructType:
+case *FuncType:
+case *InterfaceType:
+case *MapType:
+case *ChanType:
+*/
+
+// fieldList adds fields to a group - works for both Params() and Struct()
+func fieldList(g *Group, fl *ast.FieldList) {
+	if fl == nil {
+		return
 	}
-	return nil
+	for _, v := range fl.List {
+		g.Do(func(s *Statement) {
+			if v.Names != nil {
+				s.ListFunc(func(g *Group) {
+					for _, n := range v.Names {
+						g.Id(n.Name)
+					}
+				})
+			}
+			s.Add(expr(v.Type))
+		})
+	}
+}
+
+func expr(spec ast.Expr) *Statement {
+	switch spec := spec.(type) {
+	case nil:
+		return Null()
+	case *ast.StructType:
+		/*
+			struct {
+				<fields...>
+					<name(s)> <type>
+				</fields>
+			}
+		*/
+		return StructFunc(func(g *Group) {
+			fieldList(g, spec.Fields)
+		})
+	case *ast.Ident:
+		return Id(spec.Name)
+	case *ast.StarExpr:
+		return Op("*").Add(expr(spec.X))
+	case *ast.ArrayType:
+		return Index(expr(spec.Len)).Add(expr(spec.Elt))
+	case *ast.FuncType:
+		return Func().ParamsFunc(func(g *Group) {
+			fieldList(g, spec.Params)
+		}).ParamsFunc(func(g *Group) {
+			fieldList(g, spec.Results)
+		})
+	case *ast.InterfaceType:
+		return InterfaceFunc(func(g *Group) {
+			fieldList(g, spec.Methods)
+		})
+	case *ast.MapType:
+		return Map(expr(spec.Key)).Add(expr(spec.Value))
+	case *ast.ChanType:
+		return Do(func(s *Statement) {
+			if spec.Dir == ast.SEND {
+				s.Op("<-")
+			}
+		}).Chan().Do(func(s *Statement) {
+			if spec.Dir == ast.RECV {
+				s.Op("<-")
+			}
+		}).Add(expr(spec.Value))
+	case *ast.ParenExpr:
+		return Parens(expr(spec.X))
+	case *ast.Ellipsis:
+		return Op("...").Add(expr(spec.Elt))
+	case *ast.BasicLit:
+		return Op(spec.Value)
+	case *ast.SelectorExpr:
+		return expr(spec.X).Dot(spec.Sel.Name)
+	case *ast.IndexExpr:
+		return expr(spec.X).Index(expr(spec.Index))
+	case *ast.SliceExpr:
+		return expr(spec.X).IndexFunc(func(g *Group) {
+			if spec.Low != nil {
+				g.Add(expr(spec.Low))
+			} else {
+				g.Empty()
+			}
+			if spec.High != nil {
+				g.Add(expr(spec.High))
+			} else {
+				g.Empty()
+			}
+			if spec.Max != nil {
+				g.Add(expr(spec.Max))
+			} else {
+				g.Null()
+			}
+		})
+	case *ast.TypeAssertExpr:
+		return expr(spec.X).Assert(expr(spec.Type))
+	case *ast.CallExpr:
+		return expr(spec.Fun).CallFunc(func(g *Group) {
+			for _, arg := range spec.Args {
+				g.Add(expr(arg))
+			}
+		})
+	case *ast.UnaryExpr:
+		return Op(spec.Op.String()).Add(expr(spec.X))
+	case *ast.BinaryExpr:
+		return expr(spec.X).Op(spec.Op.String()).Add(expr(spec.Y))
+	case *ast.KeyValueExpr:
+		// kludge: would usually use Dict here but it's not a *Statement so
+		// this will work.
+		return expr(spec.Key).Op(":").Add(expr(spec.Value))
+	case *ast.CompositeLit:
+		return ValuesFunc(func(g *Group) {
+			for _, element := range spec.Elts {
+				g.Add(expr(element))
+			}
+		})
+		//case *ast.BadExpr:
+		//case *ast.FuncLit:
+	}
+	return Null()
+}
+
+func structUnpacker(g *Group, namedType *Statement, spec *ast.StructType) {
+	/*
+		m, ok := in.(map[string]interface{})
+		if !ok {
+			return value, errors.New("error unpacking into struct, value should be a map")
+		}
+		var out <type>
+		<fields...>
+		if v, ok := m["<jsonName>"]; ok {
+			u, err := <unpacker>(v)
+			if err != nil {
+				return value, err
+			}
+			out.<fieldName> = u
+		}
+		</fields>
+		return out, nil
+	*/
+	g.List(Id("m"), Id("ok")).Op(":=").Id("in").Assert(Map(String()).Interface())
+	g.If(Op("!").Id("ok")).Block(
+		Return(
+			Id("value"),
+			Qual("github.com/pkg/errors", "New").Call(
+				Lit("error unpacking into struct, value should be a map"),
+			),
+		),
+	)
+	g.Var().Id("out").Do(func(s *Statement) {
+		if namedType != nil {
+			s.Add(namedType)
+		} else {
+			s.Add(expr(spec))
+		}
+	})
+	for _, f := range spec.Fields.List {
+		jsonName := goToJson(f.Names[0].Name)
+		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(jsonName)), Id("ok")).Block(
+			List(Id("u"), Err()).Op(":=").Add(unpacker(f.Type, nil, nil)).Call(Id("v")),
+			If(Err().Op("!=").Nil()).Block(
+				Return(Id("value"), Err()),
+			),
+			Id("out").Dot(f.Names[0].Name).Op("=").Id("u"),
+		)
+	}
+	g.Return(Id("out"), Nil())
+}
+
+func nativeUnpacker(g *Group, spec *ast.Ident) {
+	/*
+		out, err := system.Convert_<spec.Name>(in)
+		if err != nil {
+			return nil, err
+		}
+		return out, nil
+	*/
+	g.List(Id("out"), Err()).Op(":=").Qual("frizz.io/system", fmt.Sprintf("Convert_%s", spec.Name)).Call(Id("in"))
+	g.If(Err().Op("!=").Nil()).Block(
+		Return(Id("value"), Err()),
+	)
+	g.Return(Id("out"), Nil())
 }
 
 func goToJson(name string) string {
