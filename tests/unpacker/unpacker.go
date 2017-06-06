@@ -1,5 +1,54 @@
 package unpacker
 
+import "frizz.io/tests/unpacker/sub"
+
+const N = 2
+
+// frizz
+type Int int
+
+// frizz
+type String string
+
+// frizz
+type Qual struct {
+	Sub sub.Sub
+}
+
+// frizz
+type Pointers struct {
+	String      *string
+	Int         *Int
+	Sub         *sub.Sub
+	Array       *[3]int
+	Slice       *[]string
+	Map         *map[string]int
+	SliceString []*string
+	SliceInt    []*Int
+	SliceSub    []*sub.Sub
+}
+
+// frizz
+type Maps struct {
+	Ints    map[string]int
+	Strings map[string]string
+	Slices  map[string][]string
+	Arrays  map[string][2]int
+	Maps    map[string]map[string]string
+}
+
+// frizz
+type Slices struct {
+	Ints      []int
+	Strings   []string
+	ArrayLit  [5]string
+	ArrayExpr [2 * N]int
+	Structs   []struct {
+		Int int
+	}
+	Arrays [][]string
+}
+
 // frizz
 type Structs struct {
 	Simple struct {

@@ -3,10 +3,219 @@ package unpacker
 import (
 	"bytes"
 	"encoding/json"
+	"reflect"
+	"strings"
 	"testing"
+
+	"frizz.io/tests/unpacker/sub"
+
+	"github.com/pkg/errors"
 )
 
 //var ann = annie.New()
+
+func TestQualSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Qual
+	}{
+		"qual": {`
+			{
+				"sub": {"string": "a"}
+			}`,
+			Qual{
+				Sub: sub.Sub{String: "a"},
+			},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Qual(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestPointersSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Pointers
+	}{
+		"pointers": {`
+			{
+				"string": "a",
+				"int": 2,
+				"sub": {"string": "a"},
+				"array": [1, 2, 3],
+				"slice": ["a", "b", "c"],
+				"map": {"a": 1, "b": 2},
+				"slice-string": ["a"],
+				"slice-int": [1],
+				"slice-sub": [{"string": "a"}]
+			}`,
+			Pointers{
+				String:      func() *string { s := "a"; return &s }(),
+				Int:         func() *Int { i := Int(2); return &i }(),
+				Sub:         &sub.Sub{String: "a"},
+				Array:       &[3]int{1, 2, 3},
+				Slice:       &[]string{"a", "b", "c"},
+				Map:         &map[string]int{"a": 1, "b": 2},
+				SliceString: []*string{func() *string { s := "a"; return &s }()},
+				SliceInt:    []*Int{func() *Int { i := Int(1); return &i }()},
+				SliceSub:    []*sub.Sub{{String: "a"}},
+			},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Pointers(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestMapsSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Maps
+	}{
+		"maps": {`
+			{
+				"ints": {"a": 1, "b": 2, "c": 3},
+				"strings": {"a": "b", "c": "d", "e": "f"},
+				"slices": {"a": ["b", "c"], "d": ["e", "f", "g"]},
+				"arrays": {"a": [1, 2], "b": [3, 4]},
+				"maps": {"a": {"b": "c"}, "d": {"e": "f"}}
+			}`,
+			Maps{
+				Ints:    map[string]int{"a": 1, "b": 2, "c": 3},
+				Strings: map[string]string{"a": "b", "c": "d", "e": "f"},
+				Slices:  map[string][]string{"a": {"b", "c"}, "d": {"e", "f", "g"}},
+				Arrays:  map[string][2]int{"a": {1, 2}, "b": {3, 4}},
+				Maps:    map[string]map[string]string{"a": {"b": "c"}, "d": {"e": "f"}},
+			},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Maps(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestSlicesSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Slices
+	}{
+		"slices": {`
+			{
+				"ints": [1, 2, 3],
+				"strings": ["a", "b", "c"],
+				"array-lit": ["a", "b", "c", "d", "e"],
+				"array-expr": [1, 2, 3, 4],
+				"structs": [{"int": 1}, {"int": 2}],
+				"arrays": [["a", "b"], ["c", "d"]]
+			}`,
+			Slices{
+				Ints:      []int{1, 2, 3},
+				Strings:   []string{"a", "b", "c"},
+				ArrayLit:  [5]string{"a", "b", "c", "d", "e"},
+				ArrayExpr: [2 * N]int{1, 2, 3, 4},
+				Structs: []struct{ Int int }{
+					{Int: 1},
+					{Int: 2},
+				},
+				Arrays: [][]string{
+					{"a", "b"},
+					{"c", "d"},
+				},
+			},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Slices(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestSlicesErrors(t *testing.T) {
+	tests := map[string]struct {
+		json  string
+		error string
+	}{
+		"array lit too long": {
+			`{"array-lit": ["a", "b", "c", "d", "e", "f"]}`,
+			"data length 6 does not fit in array of length 5",
+		},
+		"array expr too long": {
+			`{"array-expr": [1, 2, 3, 4, 5]}`,
+			"data length 5 does not fit in array of length 4",
+		},
+		"wrong type map": {
+			`{"strings": {"a": "b"}}`,
+			"error unpacking into slice, value should be an array",
+		},
+		"wrong type int": {
+			`{"ints": 1}`,
+			"error unpacking into slice, value should be an array",
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatalf("%s error decoding %s", name, err)
+		}
+		_, errtest := Unpackers.Slices(v)
+		if errtest == nil {
+			t.Fatalf("%s expected error %s, got nil", name, test.error)
+		}
+		if !strings.Contains(errors.Cause(errtest).Error(), test.error) {
+			t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
+		}
+	}
+}
 
 func TestStructsSuccess(t *testing.T) {
 	tests := map[string]struct {
@@ -57,7 +266,7 @@ func TestStructsSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := unpackStructs(v)
+		result, err := Unpackers.Structs(v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -104,7 +313,7 @@ func TestNativesSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := unpackNatives(v)
+		result, err := Unpackers.Natives(v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -165,19 +374,20 @@ func TestNativesErrors(t *testing.T) {
 		"float64 too small":  {`{"float-64": -1e999}`, "INKLX"},
 	}
 	for name, test := range tests {
-		if name != "int fraction" {
-			continue
-		}
 		var v interface{}
 		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
 		d.UseNumber()
 		if err := d.Decode(&v); err != nil {
 			t.Fatalf("%s error decoding %s", name, err)
 		}
-		_, errtest := unpackNatives(v)
+		_, errtest := Unpackers.Natives(v)
 		if errtest == nil {
 			t.Fatalf("%s expected error %s, got nil", name, test.error)
 		}
+		//if !strings.Contains(errors.Cause(errtest).Error(), test.errstr) {
+		//	t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
+		//}
+
 		// TODO: get annie working with code coverage.
 		//a, err := ann.Lookup(errtest)
 		//if err != nil {
