@@ -2,7 +2,23 @@ package unpacker
 
 import "frizz.io/tests/unpacker/sub"
 
-const N = 2
+// frizz
+type AliasSub sub.Sub
+
+// frizz
+type AliasSlice []Int
+
+// frizz
+type AliasArray [3]string
+
+// frizz
+type AliasMap map[string]*Qual
+
+// frizz
+type AliasPointer *Int
+
+// frizz
+type Alias Int
 
 // frizz
 type Int int
@@ -36,6 +52,8 @@ type Maps struct {
 	Arrays  map[string][2]int
 	Maps    map[string]map[string]string
 }
+
+const N = 2
 
 // frizz
 type Slices struct {

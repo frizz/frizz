@@ -12,7 +12,251 @@ import (
 	"github.com/pkg/errors"
 )
 
-//var ann = annie.New()
+func TestAliasSubSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected AliasSub
+	}{
+		"alias sub": {`
+			{"string": "a"}`,
+			AliasSub{String: "a"},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.AliasSub(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestAliasSliceSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected AliasSlice
+	}{
+		"alias slice": {`
+			[1, 2, 3]`,
+			AliasSlice{1, 2, 3},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.AliasSlice(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestAliasArraySuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected AliasArray
+	}{
+		"alias array": {`
+			["a", "b", "c"]`,
+			AliasArray{"a", "b", "c"},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.AliasArray(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestAliasArrayFail(t *testing.T) {
+	tests := map[string]struct {
+		json  string
+		error string
+	}{
+		"alias array too long": {
+			`["a", "b", "c", "d"]`,
+			"data length 4 does not fit in array of length 3",
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatalf("%s error decoding %s", name, err)
+		}
+		_, errtest := Unpackers.AliasArray(v)
+		if errtest == nil {
+			t.Fatalf("%s expected error %s, got nil", name, test.error)
+		}
+		if !strings.Contains(errors.Cause(errtest).Error(), test.error) {
+			t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
+		}
+	}
+}
+
+func TestAliasMapSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected AliasMap
+	}{
+		"alias map": {`
+			{"a": {"sub": {"string": "a"}}, "b": {"sub": {"string": "b"}}}`,
+			AliasMap{
+				"a": &Qual{Sub: sub.Sub{String: "a"}},
+				"b": &Qual{Sub: sub.Sub{String: "b"}},
+			},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.AliasMap(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestAliasPointerSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected AliasPointer
+	}{
+		"alias pointer": {`
+			4`,
+			AliasPointer(func() *Int { i := Int(4); return &i }()),
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.AliasPointer(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestAliasSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Alias
+	}{
+		"alias": {`
+			3`,
+			Alias(3),
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Alias(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestIntSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Int
+	}{
+		"int": {`
+			2`,
+			Int(2),
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Int(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestStringSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected String
+	}{
+		"string": {`
+			"a"`,
+			String("a"),
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.String(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
 
 func TestQualSuccess(t *testing.T) {
 	tests := map[string]struct {

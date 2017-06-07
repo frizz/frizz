@@ -10,6 +10,7 @@ var Unpackers = struct {
 }{Sub: unpacker_Sub}
 
 func unpacker_Sub(in interface{}) (value Sub, err error) {
+	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
 		return value, errors.New("error unpacking into struct, value should be a map")
@@ -17,6 +18,7 @@ func unpacker_Sub(in interface{}) (value Sub, err error) {
 	var out Sub
 	if v, ok := m["string"]; ok {
 		u, err := func(in interface{}) (value string, err error) {
+			// nativeUnpacker
 			out, err := system.Convert_string(in)
 			if err != nil {
 				return value, err
