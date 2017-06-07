@@ -12,6 +12,34 @@ import (
 	"github.com/pkg/errors"
 )
 
+
+func TestPrivateSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected Private
+	}{
+		"private": {`
+			{"_i": 1, "_s": "a"}`,
+			Private{i: 1, s: "a"},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		result, err := Unpackers.Private(v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
 func TestAliasSubSuccess(t *testing.T) {
 	tests := map[string]struct {
 		json     string

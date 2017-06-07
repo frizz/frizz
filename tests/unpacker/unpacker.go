@@ -3,6 +3,12 @@ package unpacker
 import "frizz.io/tests/unpacker/sub"
 
 // frizz
+type Private struct {
+	i int
+	s string
+}
+
+// frizz
 type AliasSub sub.Sub
 
 // frizz

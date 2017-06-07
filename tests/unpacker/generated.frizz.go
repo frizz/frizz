@@ -7,6 +7,7 @@ import (
 )
 
 var Unpackers = struct {
+	Private      func(interface{}) (Private, error)
 	AliasSub     func(interface{}) (AliasSub, error)
 	AliasSlice   func(interface{}) (AliasSlice, error)
 	AliasArray   func(interface{}) (AliasArray, error)
@@ -32,12 +33,50 @@ var Unpackers = struct {
 	Maps:         unpacker_Maps,
 	Natives:      unpacker_Natives,
 	Pointers:     unpacker_Pointers,
+	Private:      unpacker_Private,
 	Qual:         unpacker_Qual,
 	Slices:       unpacker_Slices,
 	String:       unpacker_String,
 	Structs:      unpacker_Structs,
 }
 
+func unpacker_Private(in interface{}) (value Private, err error) {
+	// structUnpacker
+	m, ok := in.(map[string]interface{})
+	if !ok {
+		return value, errors.New("error unpacking into struct, value should be a map")
+	}
+	var out Private
+	if v, ok := m["_i"]; ok {
+		u, err := func(in interface{}) (value int, err error) {
+			// nativeUnpacker
+			out, err := system.Convert_int(in)
+			if err != nil {
+				return value, err
+			}
+			return out, nil
+		}(v)
+		if err != nil {
+			return value, err
+		}
+		out.i = u
+	}
+	if v, ok := m["_s"]; ok {
+		u, err := func(in interface{}) (value string, err error) {
+			// nativeUnpacker
+			out, err := system.Convert_string(in)
+			if err != nil {
+				return value, err
+			}
+			return out, nil
+		}(v)
+		if err != nil {
+			return value, err
+		}
+		out.s = u
+	}
+	return out, nil
+}
 func unpacker_AliasSub(in interface{}) (value AliasSub, err error) {
 	// selectorUnpacker
 	out, err := sub.Unpackers.Sub(in)
