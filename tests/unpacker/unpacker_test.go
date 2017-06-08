@@ -19,8 +19,12 @@ func TestInterfaceFieldSuccess(t *testing.T) {
 		expected InterfaceField
 	}{
 		"interface field": {`
-			{"iface": {"__type": "Implements", "int": 1}}`,
-			InterfaceField{Iface: Implements{Int: 1}},
+			{"iface": {"__type": "Impi", "int": 1}}`,
+			InterfaceField{Iface: Impi{Int: 1}},
+		},
+		"interface slice": {`
+			{"slice": [{"__type": "Impi", "int": 1}, {"__type": "Imps", "string": "a"}]}`,
+			InterfaceField{Slice: []Interface{Impi{Int: 1}, Imps{String: "a"}}},
 		},
 	}
 	for name, test := range tests {

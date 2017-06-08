@@ -1,24 +1,39 @@
 package unpacker
 
-import "frizz.io/tests/unpacker/sub"
+import (
+	"frizz.io/tests/unpacker/sub"
+	"fmt"
+)
 
 // frizz
 type InterfaceField struct {
 	Iface Interface
+	Slice []Interface
+	Array [3]Interface
+	Map   map[string]Interface
 }
 
 // frizz
-type Implements struct {
+type Impi struct {
 	Int int
 }
 
-func (i Implements) Foo() int {
-	return i.Int
+func (i Impi) Foo() string {
+	return fmt.Sprint(i.Int)
+}
+
+// frizz
+type Imps struct {
+	String string
+}
+
+func (i Imps) Foo() string {
+	return i.String
 }
 
 // frizz
 type Interface interface {
-	Foo() int
+	Foo() string
 }
 
 // frizz
