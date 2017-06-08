@@ -681,50 +681,50 @@ func TestNativesErrors(t *testing.T) {
 		json  string
 		error string
 	}{
-		"int fraction":       {`{"int": 1.5}`, "UGYQH"},
-		"int string":         {`{"int": "a"}`, "DMSHN"},
-		"int bool":           {`{"int": false}`, "DMSHN"},
-		"int8 too small":     {`{"int-8": -129}`, "JWHEX"},
-		"int8 too big":       {`{"int-8": 128}`, "JWHEX"},
-		"int8 wrong type":    {`{"int-8": "a"}`, "PQDKT"},
-		"int16 too small":    {`{"int-16": -32769}`, "VJGCV"},
-		"int16 too big":      {`{"int-16": 32768}`, "VJGCV"},
-		"int16 wrong type":   {`{"int-16": "a"}`, "YBJBD"},
-		"int32 too small":    {`{"int-32": -2147483649}`, "BRQTC"},
-		"int32 too big":      {`{"int-32": 2147483648}`, "BRQTC"},
-		"int32 wrong type":   {`{"int-32": "a"}`, "DCWYT"},
-		"int64 too small":    {`{"int-64": -9223372036854775809}`, "EPAHS"},
-		"int64 too big":      {`{"int-64": 9223372036854775808}`, "EPAHS"},
-		"int64 wrong type":   {`{"int-64": "a"}`, "DOFWU"},
-		"uint negative":      {`{"uint": -1}`, "FMPHN"},
-		"uint wrong type":    {`{"uint": "a"}`, "CIJOH"},
-		"uint8 negative":     {`{"uint-8": -1}`, "HBACM"},
-		"uint8 too big":      {`{"uint-8": 256}`, "HBACM"},
-		"uint8 wrong type":   {`{"uint-8": "a"}`, "DBUNO"},
-		"uint16 negative":    {`{"uint-16": -1}`, "CXCUQ"},
-		"uint16 too big":     {`{"uint-16": 65536}`, "CXCUQ"},
-		"uint16 wrong type":  {`{"uint-16": "a"}`, "SKVIO"},
-		"uint32 negative":    {`{"uint-32": -1}`, "ILJLU"},
-		"uint32 too big":     {`{"uint-32": 4294967296}`, "ILJLU"},
-		"uint32 wrong type":  {`{"uint-32": "a"}`, "UJMCO"},
-		"uint64 negative":    {`{"uint-64": -1}`, "QSFRS"},
-		"uint64 too big":     {`{"uint-64": 18446744073709551616}`, "QSFRS"},
-		"uint64 wrong type":  {`{"uint-64": "a"}`, "KCTKC"},
-		"string number":      {`{"string": 1.0}`, "YTFIW"},
-		"string bool":        {`{"string": false}`, "YTFIW"},
-		"rune wrong type":    {`{"rune": 1}`, "MPHSY"},
-		"rune too long":      {`{"rune": "aa"}`, "HGHCR"},
-		"bool number":        {`{"bool": 1.0}`, "VPGKI"},
-		"bool string":        {`{"bool": "a"}`, "VPGKI"},
-		"byte negative":      {`{"byte": -1}`, "JPAPE"},
-		"byte too big":       {`{"byte": 256}`, "JPAPE"},
-		"byte wrong type":    {`{"byte": "a"}`, "LKYXV"},
-		"float32 wrong type": {`{"float-32": "a"}`, "RBEXS"},
-		"float32 too big":    {`{"float-32": 1e99}`, "SAHPU"},
-		"float32 too small":  {`{"float-32": -1e99}`, "SAHPU"},
-		"float64 wrong type": {`{"float-64": "a"}`, "YRENT"},
-		"float64 too big":    {`{"float-64": 1e999}`, "INKLX"},
-		"float64 too small":  {`{"float-64": -1e999}`, "INKLX"},
+		"int fraction":       {`{"int": 1.5}`, `strconv.ParseInt: parsing "1.5": invalid syntax`},
+		"int string":         {`{"int": "a"}`, `unpacking into int, value "a" should be json.Number`},
+		"int bool":           {`{"int": false}`, `unpacking into int, value false should be json.Number`},
+		"int8 too small":     {`{"int-8": -129}`, `strconv.ParseInt: parsing "-129": value out of range`},
+		"int8 too big":       {`{"int-8": 128}`, `strconv.ParseInt: parsing "128": value out of range`},
+		"int8 wrong type":    {`{"int-8": "a"}`, `unpacking into int8, value "a" should be json.Number`},
+		"int16 too small":    {`{"int-16": -32769}`, `strconv.ParseInt: parsing "-32769": value out of range`},
+		"int16 too big":      {`{"int-16": 32768}`, `strconv.ParseInt: parsing "32768": value out of range`},
+		"int16 wrong type":   {`{"int-16": "a"}`, `unpacking into int16, value "a" should be json.Number`},
+		"int32 too small":    {`{"int-32": -2147483649}`, `strconv.ParseInt: parsing "-2147483649": value out of range`},
+		"int32 too big":      {`{"int-32": 2147483648}`, `strconv.ParseInt: parsing "2147483648": value out of range`},
+		"int32 wrong type":   {`{"int-32": "a"}`, `unpacking into int32, value "a" should be json.Number`},
+		"int64 too small":    {`{"int-64": -9223372036854775809}`, `strconv.ParseInt: parsing "-9223372036854775809": value out of range`},
+		"int64 too big":      {`{"int-64": 9223372036854775808}`, `strconv.ParseInt: parsing "9223372036854775808": value out of range`},
+		"int64 wrong type":   {`{"int-64": "a"}`, `unpacking into int64, value "a" should be json.Number`},
+		"uint negative":      {`{"uint": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint wrong type":    {`{"uint": "a"}`, `unpacking into uint, value "a" should be json.Number`},
+		"uint8 negative":     {`{"uint-8": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint8 too big":      {`{"uint-8": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
+		"uint8 wrong type":   {`{"uint-8": "a"}`, `unpacking into uint8, value "a" should be json.Number`},
+		"uint16 negative":    {`{"uint-16": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint16 too big":     {`{"uint-16": 65536}`, `strconv.ParseUint: parsing "65536": value out of range`},
+		"uint16 wrong type":  {`{"uint-16": "a"}`, `unpacking into uint16, value "a" should be json.Number`},
+		"uint32 negative":    {`{"uint-32": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint32 too big":     {`{"uint-32": 4294967296}`, `strconv.ParseUint: parsing "4294967296": value out of range`},
+		"uint32 wrong type":  {`{"uint-32": "a"}`, `unpacking into uint32, value "a" should be json.Number`},
+		"uint64 negative":    {`{"uint-64": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint64 too big":     {`{"uint-64": 18446744073709551616}`, `strconv.ParseUint: parsing "18446744073709551616": value out of range`},
+		"uint64 wrong type":  {`{"uint-64": "a"}`, `unpacking into uint64, value "a" should be json.Number`},
+		"string number":      {`{"string": 1.0}`, `unpacking into string, value "1.0" should be string`},
+		"string bool":        {`{"string": false}`, `unpacking into string, value false should be string`},
+		"rune wrong type":    {`{"rune": 1}`, `unpacking into rune, value "1" should be string`},
+		"rune too long":      {`{"rune": "aa"}`, `unpacking into rune: string should have a single rune`},
+		"bool number":        {`{"bool": 1.0}`, `unpacking into bool, value "1.0" should be bool`},
+		"bool string":        {`{"bool": "a"}`, `unpacking into bool, value "a" should be bool`},
+		"byte negative":      {`{"byte": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"byte too big":       {`{"byte": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
+		"byte wrong type":    {`{"byte": "a"}`, `unpacking into byte, value "a" should be json.Number`},
+		"float32 wrong type": {`{"float-32": "a"}`, `unpacking into float32, value "a" should be json.Number`},
+		"float32 too big":    {`{"float-32": 1e99}`, `strconv.ParseFloat: parsing "1e99": value out of range`},
+		"float32 too small":  {`{"float-32": -1e99}`, `strconv.ParseFloat: parsing "-1e99": value out of range`},
+		"float64 wrong type": {`{"float-64": "a"}`, `unpacking into float64, value "a" should be json.Number`},
+		"float64 too big":    {`{"float-64": 1e999}`, `strconv.ParseFloat: parsing "1e999": value out of range`},
+		"float64 too small":  {`{"float-64": -1e999}`, `strconv.ParseFloat: parsing "-1e999": value out of range`},
 	}
 	for name, test := range tests {
 		var v interface{}
@@ -737,17 +737,8 @@ func TestNativesErrors(t *testing.T) {
 		if errtest == nil {
 			t.Fatalf("%s expected error %s, got nil", name, test.error)
 		}
-		//if !strings.Contains(errors.Cause(errtest).Error(), test.errstr) {
-		//	t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
-		//}
-
-		// TODO: get annie working with code coverage.
-		//a, err := ann.Lookup(errtest)
-		//if err != nil {
-		//	t.Fatalf("%s error looking up annotation: %s", name, err)
-		//}
-		//if a != test.error {
-		//	t.Fatalf("%s unexpected error. Expected %s, got %s: %s", name, test.error, a, errtest)
-		//}
+		if !strings.Contains(errors.Cause(errtest).Error(), test.error) {
+			t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
+		}
 	}
 }

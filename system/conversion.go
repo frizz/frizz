@@ -11,8 +11,8 @@ import (
 // unsupported: "complex64", "complex128", "error", "uintptr"
 
 const (
-	errorMessage      = "error unpacking into %s, value %#v should be %s"
-	errorMessageFinal = "error converting %v to %s"
+	errorMessage      = "unpacking into %s, value %#v should be %s"
+	errorMessageFinal = "converting %v to %s"
 )
 
 func Convert(name string, in interface{}) (interface{}, error) {
@@ -233,7 +233,7 @@ func Convert_rune(in interface{}) (rune, error) {
 	var out rune
 	for i, r := range s {
 		if i > 0 {
-			return rune(0), errors.New("error unpacking into rune: string should have a single rune") // HGHCR
+			return rune(0), errors.New("unpacking into rune: string should have a single rune") // HGHCR
 		}
 		out = r
 	}
