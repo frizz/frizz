@@ -48,6 +48,7 @@ func Save(path string) error {
 
 type progDef struct {
 	fset *token.FileSet
+	path string
 }
 
 type fileDef struct {
@@ -68,6 +69,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 
 	prog := &progDef{
 		fset: token.NewFileSet(),
+		path: path,
 	}
 
 	dir, err := patsy.Dir(vos.Os(), path)
@@ -174,7 +176,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	}
 	/*
 		var Unpackers = struct{
-			<name> func(interface{})(<name>, error)
+			<name> func(context.Context, interface{})(<name>, error)
 			<...>
 		}{
 			<name>: unpacker_<name>
@@ -184,7 +186,10 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	*/
 	f.Var().Id("Unpackers").Op("=").StructFunc(func(g *Group) {
 		for _, t := range all {
-			g.Id(t.name).Func().Params(Interface()).Params(Id(t.name), Error())
+			g.Id(t.name).Func().Params(
+				Qual("context", "Context"),
+				Interface(),
+			).Params(Id(t.name), Error())
 		}
 	}).Values(DictFunc(func(d Dict) {
 		for _, t := range all {
@@ -194,6 +199,42 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	for _, t := range all {
 		f.Add(t.unpacker(t.spec, t.name, "unpacker_"+t.name))
 	}
+
+	/*
+		func init() {
+			system.Registry.Set(
+				system.RegistryTypeKey{
+					Path: "<path>",
+					Name: "<name>",
+				},
+				system.RegistryType{
+					Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+						return unpacker_<name>(ctx, in)
+					},
+				},
+			)
+			<...>
+		}
+	*/
+	f.Func().Id("init").Params().BlockFunc(func(g *Group) {
+		for _, t := range all {
+			g.Qual("frizz.io/system", "Registry").Dot("Set").Call(
+				Qual("frizz.io/system", "RegistryTypeKey").Values(Dict{
+					Id("Path"): Lit(t.path),
+					Id("Name"): Lit(t.name),
+				}),
+				Qual("frizz.io/system", "RegistryType").Values(Dict{
+					Id("Unpacker"): Func().Params(
+						Id("ctx").Qual("context", "Context"),
+						Id("in").Interface(),
+					).Params(Interface(), Error()).Block(
+						Return(Id("unpacker_"+t.name).Call(Id("ctx"), Id("in"))),
+					),
+				}),
+			)
+		}
+	})
+
 	if err := f.Render(writer); err != nil {
 		return errors.Wrap(err, "error saving generated file")
 	}
@@ -202,7 +243,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 
 func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 	/**
-	func (in interface{}) (value <named or spec>, err error) {
+	func (ctx context.Context, in interface{}) (value <named or spec>, err error) {
 		<...>
 	}
 	*/
@@ -211,6 +252,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 			s.Id(function)
 		}
 	}).Params(
+		Id("ctx").Qual("context", "Context"),
 		Id("in").Interface(),
 	).Params(
 		Id("value").Do(func(s *Statement) {
@@ -225,6 +267,8 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 		switch spec := spec.(type) {
 		default:
 			panic(fmt.Sprintf("unsupported type %T", spec))
+		case *ast.InterfaceType:
+			f.interfaceUnpacker(g, spec, name)
 		case *ast.StarExpr:
 			f.pointerUnpacker(g, spec, name)
 		case *ast.MapType:
@@ -246,9 +290,45 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 	})
 }
 
+func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias string) {
+	/*
+		out, err := system.UnpackInterface(ctx, in)
+		if err != nil {
+			return value, err
+		}
+		iface, ok := out.(<name or spec>)
+		if !ok {
+			return value, errors.Errorf("error unpacking into interface, type %T does not implement interface", out)
+		}
+		return iface, nil
+	*/
+	g.Comment("interfaceUnpacker")
+	g.List(Id("out"), Err()).Op(":=").Qual("frizz.io/system", "UnpackInterface").Call(Id("ctx"), Id("in"))
+	g.If(Err().Op("!=").Nil()).Block(
+		Return(Id("value"), Err()),
+	)
+	g.List(Id("iface"), Id("ok")).Op(":=").Id("out").Assert(Do(func(s *Statement) {
+		if alias != "" {
+			s.Id(alias)
+		} else {
+			s.Add(f.jast.Expr(spec))
+		}
+	}))
+	g.If(Op("!").Id("ok")).Block(
+		Return(
+			Id("value"),
+			Qual("github.com/pkg/errors", "Errorf").Call(
+				Lit("error unpacking into interface, type %T does not implement interface"),
+				Id("out"),
+			),
+		),
+	)
+	g.Return(Id("iface"), Nil())
+}
+
 func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias string) {
 	/*
-		out, err := <spec.X>.Unpackers.<spec.Sel>(in)
+		out, err := <spec.X>.Unpackers.<spec.Sel>(ctx, in)
 		if err != nil {
 			return value, err
 		}
@@ -268,7 +348,7 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias strin
 			panic(fmt.Sprintf("%s not found in imports", x.Name))
 		}
 		s.Qual(path, "Unpackers")
-	}).Dot(spec.Sel.Name).Call(Id("in"))
+	}).Dot(spec.Sel.Name).Call(Id("ctx"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -283,14 +363,14 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias strin
 
 func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident, alias string) {
 	/*
-		out, err := unpacker_<spec.Name>(in)
+		out, err := unpacker_<spec.Name>(ctx, in)
 		if err != nil {
 			return value, err
 		}
 		return <alias?>(out), nil
 	*/
 	g.Comment("localUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Id("unpacker_" + spec.Name).Call(Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Id("unpacker_"+spec.Name).Call(Id("ctx"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -305,14 +385,14 @@ func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident, alias string) {
 
 func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr, alias string) {
 	/*
-		out, err := <unpacker>(in)
+		out, err := <unpacker>(ctx, in)
 		if err != nil {
 			return value, err
 		}
 		return <alias?>(&out), nil
 	*/
 	g.Comment("pointerUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", "")).Call(Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", "")).Call(Id("ctx"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -333,7 +413,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 		}
 		var out = make(<name or spec>, len(m))
 		for k, v := range m {
-			u, err := <unpacker>(v)
+			u, err := <unpacker>(ctx, v)
 			if err != nil {
 				return value, err
 			}
@@ -359,7 +439,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 		}
 	}), Len(Id("m")))
 	g.For(List(Id("k"), Id("v")).Op(":=").Range().Id("m")).Block(
-		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", "")).Call(Id("v")),
+		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", "")).Call(Id("ctx"), Id("v")),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), Err()),
 		),
@@ -383,7 +463,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 			}
 		<endif>
 		for i, v := range a {
-			u, err := <unpacker>(v)
+			u, err := <unpacker>(ctx, v)
 			if err != nil {
 				return value, err
 			}
@@ -433,7 +513,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 		)
 	}
 	g.For(List(Id("i"), Id("v")).Op(":=").Range().Id("a")).Block(
-		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", "")).Call(Id("v")),
+		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", "")).Call(Id("ctx"), Id("v")),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), Err()),
 		),
@@ -456,7 +536,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		var out <alias or type>
 		<fields...>
 		if v, ok := m["<jsonName>"]; ok {
-			u, err := <unpacker>(v)
+			u, err := <unpacker>(ctx, v)
 			if err != nil {
 				return value, err
 			}
@@ -485,7 +565,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 	for _, field := range spec.Fields.List {
 		jsonName := goToJson(field.Names[0].Name)
 		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(jsonName)), Id("ok")).Block(
-			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("v")),
+			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("ctx"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
 			),
@@ -497,7 +577,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 
 func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident, alias string) {
 	/*
-		out, err := system.Convert_<spec.Name>(in)
+		out, err := system.Convert_<spec.Name>(ctx, in)
 		if err != nil {
 			return nil, err
 		}

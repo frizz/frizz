@@ -3,6 +3,25 @@ package unpacker
 import "frizz.io/tests/unpacker/sub"
 
 // frizz
+type InterfaceField struct {
+	Iface Interface
+}
+
+// frizz
+type Implements struct {
+	Int int
+}
+
+func (i Implements) Foo() int {
+	return i.Int
+}
+
+// frizz
+type Interface interface {
+	Foo() int
+}
+
+// frizz
 type Private struct {
 	i int
 	s string

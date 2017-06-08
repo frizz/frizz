@@ -1,15 +1,16 @@
 package sub
 
 import (
+	context "context"
 	system "frizz.io/system"
 	errors "github.com/pkg/errors"
 )
 
 var Unpackers = struct {
-	Sub func(interface{}) (Sub, error)
+	Sub func(context.Context, interface{}) (Sub, error)
 }{Sub: unpacker_Sub}
 
-func unpacker_Sub(in interface{}) (value Sub, err error) {
+func unpacker_Sub(ctx context.Context, in interface{}) (value Sub, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -17,18 +18,26 @@ func unpacker_Sub(in interface{}) (value Sub, err error) {
 	}
 	var out Sub
 	if v, ok := m["string"]; ok {
-		u, err := func(in interface{}) (value string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_string(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.String = u
 	}
 	return out, nil
+}
+func init() {
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Sub",
+		Path: "frizz.io/tests/unpacker/sub",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Sub(ctx, in)
+	}})
 }

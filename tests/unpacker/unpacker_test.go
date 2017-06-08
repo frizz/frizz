@@ -9,9 +9,86 @@ import (
 
 	"frizz.io/tests/unpacker/sub"
 
+	"frizz.io/system"
 	"github.com/pkg/errors"
 )
 
+func TestInterfaceFieldSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected InterfaceField
+	}{
+		"interface field": {`
+			{"iface": {"__type": "Implements", "int": 1}}`,
+			InterfaceField{Iface: Implements{Int: 1}},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		ctx := system.NewContext()
+		uc := ctx.Value(system.UnpackContextKey).(*system.UnpackContext)
+		uc.Path = "frizz.io/tests/unpacker"
+		result, err := Unpackers.InterfaceField(ctx, v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
+
+func TestUnpackInterfaceSuccess(t *testing.T) {
+	tests := map[string]struct {
+		json     string
+		expected interface{}
+	}{
+		"imterface string": {`
+			{"__type": "string", "__value": "a"}`,
+			"a",
+		},
+		"interface natives": {`
+			{"__type": "Natives", "__value": {"string": "a"}}`,
+			Natives{String: "a"},
+		},
+		"interface sub": {`
+			{"__type": "sub.Sub", "__value": {"string": "a"}}`,
+			sub.Sub{String: "a"},
+		},
+		"interface natives no value": {`
+			{"__type": "Natives", "string": "a"}`,
+			Natives{String: "a"},
+		},
+		"interface sub no value": {`
+			{"__type": "sub.Sub", "string": "a"}`,
+			sub.Sub{String: "a"},
+		},
+	}
+	for name, test := range tests {
+		var v interface{}
+		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
+		d.UseNumber()
+		if err := d.Decode(&v); err != nil {
+			t.Fatal("Error decoding", err)
+		}
+		ctx := system.NewContext()
+		uc := ctx.Value(system.UnpackContextKey).(*system.UnpackContext)
+		uc.Path = "frizz.io/tests/unpacker"
+		uc.Set("sub", "frizz.io/tests/unpacker/sub")
+		result, err := system.UnpackInterface(ctx, v)
+		if err != nil {
+			t.Fatalf("Error while unpacking %s: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
+		}
+	}
+}
 
 func TestPrivateSuccess(t *testing.T) {
 	tests := map[string]struct {
@@ -30,7 +107,7 @@ func TestPrivateSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Private(v)
+		result, err := Unpackers.Private(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -57,7 +134,7 @@ func TestAliasSubSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.AliasSub(v)
+		result, err := Unpackers.AliasSub(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -84,7 +161,7 @@ func TestAliasSliceSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.AliasSlice(v)
+		result, err := Unpackers.AliasSlice(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -111,7 +188,7 @@ func TestAliasArraySuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.AliasArray(v)
+		result, err := Unpackers.AliasArray(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -138,7 +215,7 @@ func TestAliasArrayFail(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatalf("%s error decoding %s", name, err)
 		}
-		_, errtest := Unpackers.AliasArray(v)
+		_, errtest := Unpackers.AliasArray(system.NewContext(), v)
 		if errtest == nil {
 			t.Fatalf("%s expected error %s, got nil", name, test.error)
 		}
@@ -168,7 +245,7 @@ func TestAliasMapSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.AliasMap(v)
+		result, err := Unpackers.AliasMap(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -195,7 +272,7 @@ func TestAliasPointerSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.AliasPointer(v)
+		result, err := Unpackers.AliasPointer(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -222,7 +299,7 @@ func TestAliasSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Alias(v)
+		result, err := Unpackers.Alias(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -249,7 +326,7 @@ func TestIntSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Int(v)
+		result, err := Unpackers.Int(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -276,7 +353,7 @@ func TestStringSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.String(v)
+		result, err := Unpackers.String(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -307,7 +384,7 @@ func TestQualSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Qual(v)
+		result, err := Unpackers.Qual(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -354,7 +431,7 @@ func TestPointersSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Pointers(v)
+		result, err := Unpackers.Pointers(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -393,7 +470,7 @@ func TestMapsSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Maps(v)
+		result, err := Unpackers.Maps(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -440,7 +517,7 @@ func TestSlicesSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Slices(v)
+		result, err := Unpackers.Slices(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -479,7 +556,7 @@ func TestSlicesErrors(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatalf("%s error decoding %s", name, err)
 		}
-		_, errtest := Unpackers.Slices(v)
+		_, errtest := Unpackers.Slices(system.NewContext(), v)
 		if errtest == nil {
 			t.Fatalf("%s expected error %s, got nil", name, test.error)
 		}
@@ -538,7 +615,7 @@ func TestStructsSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Structs(v)
+		result, err := Unpackers.Structs(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -585,7 +662,7 @@ func TestNativesSuccess(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatal("Error decoding", err)
 		}
-		result, err := Unpackers.Natives(v)
+		result, err := Unpackers.Natives(system.NewContext(), v)
 		if err != nil {
 			t.Fatalf("Error while unpacking %s: %s", name, err)
 		}
@@ -652,7 +729,7 @@ func TestNativesErrors(t *testing.T) {
 		if err := d.Decode(&v); err != nil {
 			t.Fatalf("%s error decoding %s", name, err)
 		}
-		_, errtest := Unpackers.Natives(v)
+		_, errtest := Unpackers.Natives(system.NewContext(), v)
 		if errtest == nil {
 			t.Fatalf("%s expected error %s, got nil", name, test.error)
 		}

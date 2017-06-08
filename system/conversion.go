@@ -15,6 +15,44 @@ const (
 	errorMessageFinal = "error converting %v to %s"
 )
 
+func Convert(name string, in interface{}) (interface{}, error) {
+	switch name {
+	case "bool":
+		return Convert_bool(in)
+	case "byte":
+		return Convert_byte(in)
+	case "float32":
+		return Convert_float32(in)
+	case "float64":
+		return Convert_float64(in)
+	case "int":
+		return Convert_int(in)
+	case "int8":
+		return Convert_int8(in)
+	case "int16":
+		return Convert_int16(in)
+	case "int32":
+		return Convert_int32(in)
+	case "uint":
+		return Convert_uint(in)
+	case "uint8":
+		return Convert_uint8(in)
+	case "uint16":
+		return Convert_uint16(in)
+	case "uint32":
+		return Convert_uint32(in)
+	case "int64":
+		return Convert_int64(in)
+	case "uint64":
+		return Convert_uint64(in)
+	case "rune":
+		return Convert_rune(in)
+	case "string":
+		return Convert_string(in)
+	}
+	return nil, errors.Errorf("unknown type %s", name)
+}
+
 func Convert_bool(in interface{}) (bool, error) {
 	b, ok := in.(bool)
 	if !ok {

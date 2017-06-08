@@ -1,46 +1,111 @@
 package unpacker
 
 import (
+	context "context"
 	system "frizz.io/system"
 	sub "frizz.io/tests/unpacker/sub"
 	errors "github.com/pkg/errors"
 )
 
 var Unpackers = struct {
-	Private      func(interface{}) (Private, error)
-	AliasSub     func(interface{}) (AliasSub, error)
-	AliasSlice   func(interface{}) (AliasSlice, error)
-	AliasArray   func(interface{}) (AliasArray, error)
-	AliasMap     func(interface{}) (AliasMap, error)
-	AliasPointer func(interface{}) (AliasPointer, error)
-	Alias        func(interface{}) (Alias, error)
-	Int          func(interface{}) (Int, error)
-	String       func(interface{}) (String, error)
-	Qual         func(interface{}) (Qual, error)
-	Pointers     func(interface{}) (Pointers, error)
-	Maps         func(interface{}) (Maps, error)
-	Slices       func(interface{}) (Slices, error)
-	Structs      func(interface{}) (Structs, error)
-	Natives      func(interface{}) (Natives, error)
+	InterfaceField func(context.Context, interface{}) (InterfaceField, error)
+	Implements     func(context.Context, interface{}) (Implements, error)
+	Interface      func(context.Context, interface{}) (Interface, error)
+	Private        func(context.Context, interface{}) (Private, error)
+	AliasSub       func(context.Context, interface{}) (AliasSub, error)
+	AliasSlice     func(context.Context, interface{}) (AliasSlice, error)
+	AliasArray     func(context.Context, interface{}) (AliasArray, error)
+	AliasMap       func(context.Context, interface{}) (AliasMap, error)
+	AliasPointer   func(context.Context, interface{}) (AliasPointer, error)
+	Alias          func(context.Context, interface{}) (Alias, error)
+	Int            func(context.Context, interface{}) (Int, error)
+	String         func(context.Context, interface{}) (String, error)
+	Qual           func(context.Context, interface{}) (Qual, error)
+	Pointers       func(context.Context, interface{}) (Pointers, error)
+	Maps           func(context.Context, interface{}) (Maps, error)
+	Slices         func(context.Context, interface{}) (Slices, error)
+	Structs        func(context.Context, interface{}) (Structs, error)
+	Natives        func(context.Context, interface{}) (Natives, error)
 }{
-	Alias:        unpacker_Alias,
-	AliasArray:   unpacker_AliasArray,
-	AliasMap:     unpacker_AliasMap,
-	AliasPointer: unpacker_AliasPointer,
-	AliasSlice:   unpacker_AliasSlice,
-	AliasSub:     unpacker_AliasSub,
-	Int:          unpacker_Int,
-	Maps:         unpacker_Maps,
-	Natives:      unpacker_Natives,
-	Pointers:     unpacker_Pointers,
-	Private:      unpacker_Private,
-	Qual:         unpacker_Qual,
-	Slices:       unpacker_Slices,
-	String:       unpacker_String,
-	Structs:      unpacker_Structs,
+	Alias:          unpacker_Alias,
+	AliasArray:     unpacker_AliasArray,
+	AliasMap:       unpacker_AliasMap,
+	AliasPointer:   unpacker_AliasPointer,
+	AliasSlice:     unpacker_AliasSlice,
+	AliasSub:       unpacker_AliasSub,
+	Implements:     unpacker_Implements,
+	Int:            unpacker_Int,
+	Interface:      unpacker_Interface,
+	InterfaceField: unpacker_InterfaceField,
+	Maps:           unpacker_Maps,
+	Natives:        unpacker_Natives,
+	Pointers:       unpacker_Pointers,
+	Private:        unpacker_Private,
+	Qual:           unpacker_Qual,
+	Slices:         unpacker_Slices,
+	String:         unpacker_String,
+	Structs:        unpacker_Structs,
 }
 
-func unpacker_Private(in interface{}) (value Private, err error) {
+func unpacker_InterfaceField(ctx context.Context, in interface{}) (value InterfaceField, err error) {
+	// structUnpacker
+	m, ok := in.(map[string]interface{})
+	if !ok {
+		return value, errors.New("error unpacking into struct, value should be a map")
+	}
+	var out InterfaceField
+	if v, ok := m["iface"]; ok {
+		u, err := func(ctx context.Context, in interface{}) (value Interface, err error) {
+			// localUnpacker
+			out, err := unpacker_Interface(ctx, in)
+			if err != nil {
+				return value, err
+			}
+			return out, nil
+		}(ctx, v)
+		if err != nil {
+			return value, err
+		}
+		out.Iface = u
+	}
+	return out, nil
+}
+func unpacker_Implements(ctx context.Context, in interface{}) (value Implements, err error) {
+	// structUnpacker
+	m, ok := in.(map[string]interface{})
+	if !ok {
+		return value, errors.New("error unpacking into struct, value should be a map")
+	}
+	var out Implements
+	if v, ok := m["int"]; ok {
+		u, err := func(ctx context.Context, in interface{}) (value int, err error) {
+			// nativeUnpacker
+			out, err := system.Convert_int(in)
+			if err != nil {
+				return value, err
+			}
+			return out, nil
+		}(ctx, v)
+		if err != nil {
+			return value, err
+		}
+		out.Int = u
+	}
+	return out, nil
+}
+func unpacker_Interface(ctx context.Context, in interface{}) (value Interface, err error) {
+	// interfaceUnpacker
+	out, err := system.UnpackInterface(ctx, in)
+	if err != nil {
+		return value, err
+	}
+	iface, ok := out.(Interface)
+	if !ok {
+		return value, errors.Errorf("error unpacking into interface, type %T does not implement interface", out)
+	}
+	return iface, nil
+}
+func unpacker_Private(ctx context.Context, in interface{}) (value Private, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -48,28 +113,28 @@ func unpacker_Private(in interface{}) (value Private, err error) {
 	}
 	var out Private
 	if v, ok := m["_i"]; ok {
-		u, err := func(in interface{}) (value int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_int(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.i = u
 	}
 	if v, ok := m["_s"]; ok {
-		u, err := func(in interface{}) (value string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_string(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -77,15 +142,15 @@ func unpacker_Private(in interface{}) (value Private, err error) {
 	}
 	return out, nil
 }
-func unpacker_AliasSub(in interface{}) (value AliasSub, err error) {
+func unpacker_AliasSub(ctx context.Context, in interface{}) (value AliasSub, err error) {
 	// selectorUnpacker
-	out, err := sub.Unpackers.Sub(in)
+	out, err := sub.Unpackers.Sub(ctx, in)
 	if err != nil {
 		return value, err
 	}
 	return AliasSub(out), nil
 }
-func unpacker_AliasSlice(in interface{}) (value AliasSlice, err error) {
+func unpacker_AliasSlice(ctx context.Context, in interface{}) (value AliasSlice, err error) {
 	// sliceUnpacker
 	a, ok := in.([]interface{})
 	if !ok {
@@ -93,14 +158,14 @@ func unpacker_AliasSlice(in interface{}) (value AliasSlice, err error) {
 	}
 	var out = make(AliasSlice, len(a))
 	for i, v := range a {
-		u, err := func(in interface{}) (value Int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value Int, err error) {
 			// localUnpacker
-			out, err := unpacker_Int(in)
+			out, err := unpacker_Int(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -108,7 +173,7 @@ func unpacker_AliasSlice(in interface{}) (value AliasSlice, err error) {
 	}
 	return out[:], nil
 }
-func unpacker_AliasArray(in interface{}) (value AliasArray, err error) {
+func unpacker_AliasArray(ctx context.Context, in interface{}) (value AliasArray, err error) {
 	// sliceUnpacker
 	a, ok := in.([]interface{})
 	if !ok {
@@ -119,14 +184,14 @@ func unpacker_AliasArray(in interface{}) (value AliasArray, err error) {
 		return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 3)
 	}
 	for i, v := range a {
-		u, err := func(in interface{}) (value string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_string(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -134,7 +199,7 @@ func unpacker_AliasArray(in interface{}) (value AliasArray, err error) {
 	}
 	return out, nil
 }
-func unpacker_AliasMap(in interface{}) (value AliasMap, err error) {
+func unpacker_AliasMap(ctx context.Context, in interface{}) (value AliasMap, err error) {
 	// mapUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -142,21 +207,21 @@ func unpacker_AliasMap(in interface{}) (value AliasMap, err error) {
 	}
 	var out = make(AliasMap, len(m))
 	for k, v := range m {
-		u, err := func(in interface{}) (value *Qual, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *Qual, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value Qual, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value Qual, err error) {
 				// localUnpacker
-				out, err := unpacker_Qual(in)
+				out, err := unpacker_Qual(ctx, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -164,30 +229,30 @@ func unpacker_AliasMap(in interface{}) (value AliasMap, err error) {
 	}
 	return out, nil
 }
-func unpacker_AliasPointer(in interface{}) (value AliasPointer, err error) {
+func unpacker_AliasPointer(ctx context.Context, in interface{}) (value AliasPointer, err error) {
 	// pointerUnpacker
-	out, err := func(in interface{}) (value Int, err error) {
+	out, err := func(ctx context.Context, in interface{}) (value Int, err error) {
 		// localUnpacker
-		out, err := unpacker_Int(in)
+		out, err := unpacker_Int(ctx, in)
 		if err != nil {
 			return value, err
 		}
 		return out, nil
-	}(in)
+	}(ctx, in)
 	if err != nil {
 		return value, err
 	}
 	return AliasPointer(&out), nil
 }
-func unpacker_Alias(in interface{}) (value Alias, err error) {
+func unpacker_Alias(ctx context.Context, in interface{}) (value Alias, err error) {
 	// localUnpacker
-	out, err := unpacker_Int(in)
+	out, err := unpacker_Int(ctx, in)
 	if err != nil {
 		return value, err
 	}
 	return Alias(out), nil
 }
-func unpacker_Int(in interface{}) (value Int, err error) {
+func unpacker_Int(ctx context.Context, in interface{}) (value Int, err error) {
 	// nativeUnpacker
 	out, err := system.Convert_int(in)
 	if err != nil {
@@ -195,7 +260,7 @@ func unpacker_Int(in interface{}) (value Int, err error) {
 	}
 	return Int(out), nil
 }
-func unpacker_String(in interface{}) (value String, err error) {
+func unpacker_String(ctx context.Context, in interface{}) (value String, err error) {
 	// nativeUnpacker
 	out, err := system.Convert_string(in)
 	if err != nil {
@@ -203,7 +268,7 @@ func unpacker_String(in interface{}) (value String, err error) {
 	}
 	return String(out), nil
 }
-func unpacker_Qual(in interface{}) (value Qual, err error) {
+func unpacker_Qual(ctx context.Context, in interface{}) (value Qual, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -211,14 +276,14 @@ func unpacker_Qual(in interface{}) (value Qual, err error) {
 	}
 	var out Qual
 	if v, ok := m["sub"]; ok {
-		u, err := func(in interface{}) (value sub.Sub, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value sub.Sub, err error) {
 			// selectorUnpacker
-			out, err := sub.Unpackers.Sub(in)
+			out, err := sub.Unpackers.Sub(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -226,7 +291,7 @@ func unpacker_Qual(in interface{}) (value Qual, err error) {
 	}
 	return out, nil
 }
-func unpacker_Pointers(in interface{}) (value Pointers, err error) {
+func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -234,72 +299,72 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 	}
 	var out Pointers
 	if v, ok := m["string"]; ok {
-		u, err := func(in interface{}) (value *string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *string, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value string, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value string, err error) {
 				// nativeUnpacker
 				out, err := system.Convert_string(in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.String = u
 	}
 	if v, ok := m["int"]; ok {
-		u, err := func(in interface{}) (value *Int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *Int, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value Int, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value Int, err error) {
 				// localUnpacker
-				out, err := unpacker_Int(in)
+				out, err := unpacker_Int(ctx, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int = u
 	}
 	if v, ok := m["sub"]; ok {
-		u, err := func(in interface{}) (value *sub.Sub, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *sub.Sub, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value sub.Sub, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value sub.Sub, err error) {
 				// selectorUnpacker
-				out, err := sub.Unpackers.Sub(in)
+				out, err := sub.Unpackers.Sub(ctx, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Sub = u
 	}
 	if v, ok := m["array"]; ok {
-		u, err := func(in interface{}) (value *[3]int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *[3]int, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value [3]int, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value [3]int, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
@@ -310,35 +375,35 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 					return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 3)
 				}
 				for i, v := range a {
-					u, err := func(in interface{}) (value int, err error) {
+					u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 						// nativeUnpacker
 						out, err := system.Convert_int(in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(v)
+					}(ctx, v)
 					if err != nil {
 						return value, err
 					}
 					out[i] = u
 				}
 				return out, nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Array = u
 	}
 	if v, ok := m["slice"]; ok {
-		u, err := func(in interface{}) (value *[]string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *[]string, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value []string, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value []string, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
@@ -346,35 +411,35 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 				}
 				var out = make([]string, len(a))
 				for i, v := range a {
-					u, err := func(in interface{}) (value string, err error) {
+					u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 						// nativeUnpacker
 						out, err := system.Convert_string(in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(v)
+					}(ctx, v)
 					if err != nil {
 						return value, err
 					}
 					out[i] = u
 				}
 				return out[:], nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Slice = u
 	}
 	if v, ok := m["map"]; ok {
-		u, err := func(in interface{}) (value *map[string]int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value *map[string]int, err error) {
 			// pointerUnpacker
-			out, err := func(in interface{}) (value map[string]int, err error) {
+			out, err := func(ctx context.Context, in interface{}) (value map[string]int, err error) {
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
@@ -382,33 +447,33 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 				}
 				var out = make(map[string]int, len(m))
 				for k, v := range m {
-					u, err := func(in interface{}) (value int, err error) {
+					u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 						// nativeUnpacker
 						out, err := system.Convert_int(in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(v)
+					}(ctx, v)
 					if err != nil {
 						return value, err
 					}
 					out[k] = u
 				}
 				return out, nil
-			}(in)
+			}(ctx, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Map = u
 	}
 	if v, ok := m["slice-string"]; ok {
-		u, err := func(in interface{}) (value []*string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value []*string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -416,35 +481,35 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 			}
 			var out = make([]*string, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value *string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value *string, err error) {
 					// pointerUnpacker
-					out, err := func(in interface{}) (value string, err error) {
+					out, err := func(ctx context.Context, in interface{}) (value string, err error) {
 						// nativeUnpacker
 						out, err := system.Convert_string(in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(in)
+					}(ctx, in)
 					if err != nil {
 						return value, err
 					}
 					return &out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.SliceString = u
 	}
 	if v, ok := m["slice-int"]; ok {
-		u, err := func(in interface{}) (value []*Int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value []*Int, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -452,35 +517,35 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 			}
 			var out = make([]*Int, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value *Int, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value *Int, err error) {
 					// pointerUnpacker
-					out, err := func(in interface{}) (value Int, err error) {
+					out, err := func(ctx context.Context, in interface{}) (value Int, err error) {
 						// localUnpacker
-						out, err := unpacker_Int(in)
+						out, err := unpacker_Int(ctx, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(in)
+					}(ctx, in)
 					if err != nil {
 						return value, err
 					}
 					return &out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.SliceInt = u
 	}
 	if v, ok := m["slice-sub"]; ok {
-		u, err := func(in interface{}) (value []*sub.Sub, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value []*sub.Sub, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -488,28 +553,28 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 			}
 			var out = make([]*sub.Sub, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value *sub.Sub, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value *sub.Sub, err error) {
 					// pointerUnpacker
-					out, err := func(in interface{}) (value sub.Sub, err error) {
+					out, err := func(ctx context.Context, in interface{}) (value sub.Sub, err error) {
 						// selectorUnpacker
-						out, err := sub.Unpackers.Sub(in)
+						out, err := sub.Unpackers.Sub(ctx, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(in)
+					}(ctx, in)
 					if err != nil {
 						return value, err
 					}
 					return &out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -517,7 +582,7 @@ func unpacker_Pointers(in interface{}) (value Pointers, err error) {
 	}
 	return out, nil
 }
-func unpacker_Maps(in interface{}) (value Maps, err error) {
+func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -525,7 +590,7 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 	}
 	var out Maps
 	if v, ok := m["ints"]; ok {
-		u, err := func(in interface{}) (value map[string]int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value map[string]int, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -533,28 +598,28 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 			}
 			var out = make(map[string]int, len(m))
 			for k, v := range m {
-				u, err := func(in interface{}) (value int, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_int(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Ints = u
 	}
 	if v, ok := m["strings"]; ok {
-		u, err := func(in interface{}) (value map[string]string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value map[string]string, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -562,28 +627,28 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 			}
 			var out = make(map[string]string, len(m))
 			for k, v := range m {
-				u, err := func(in interface{}) (value string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_string(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Strings = u
 	}
 	if v, ok := m["slices"]; ok {
-		u, err := func(in interface{}) (value map[string][]string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value map[string][]string, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -591,7 +656,7 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 			}
 			var out = make(map[string][]string, len(m))
 			for k, v := range m {
-				u, err := func(in interface{}) (value []string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value []string, err error) {
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
@@ -599,35 +664,35 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
-						u, err := func(in interface{}) (value string, err error) {
+						u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 							// nativeUnpacker
 							out, err := system.Convert_string(in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(v)
+						}(ctx, v)
 						if err != nil {
 							return value, err
 						}
 						out[i] = u
 					}
 					return out[:], nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Slices = u
 	}
 	if v, ok := m["arrays"]; ok {
-		u, err := func(in interface{}) (value map[string][2]int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value map[string][2]int, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -635,7 +700,7 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 			}
 			var out = make(map[string][2]int, len(m))
 			for k, v := range m {
-				u, err := func(in interface{}) (value [2]int, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value [2]int, err error) {
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
@@ -646,35 +711,35 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 						return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 2)
 					}
 					for i, v := range a {
-						u, err := func(in interface{}) (value int, err error) {
+						u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 							// nativeUnpacker
 							out, err := system.Convert_int(in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(v)
+						}(ctx, v)
 						if err != nil {
 							return value, err
 						}
 						out[i] = u
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Arrays = u
 	}
 	if v, ok := m["maps"]; ok {
-		u, err := func(in interface{}) (value map[string]map[string]string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value map[string]map[string]string, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -682,7 +747,7 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 			}
 			var out = make(map[string]map[string]string, len(m))
 			for k, v := range m {
-				u, err := func(in interface{}) (value map[string]string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value map[string]string, err error) {
 					// mapUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
@@ -690,28 +755,28 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 					}
 					var out = make(map[string]string, len(m))
 					for k, v := range m {
-						u, err := func(in interface{}) (value string, err error) {
+						u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 							// nativeUnpacker
 							out, err := system.Convert_string(in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(v)
+						}(ctx, v)
 						if err != nil {
 							return value, err
 						}
 						out[k] = u
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -719,7 +784,7 @@ func unpacker_Maps(in interface{}) (value Maps, err error) {
 	}
 	return out, nil
 }
-func unpacker_Slices(in interface{}) (value Slices, err error) {
+func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -727,7 +792,7 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 	}
 	var out Slices
 	if v, ok := m["ints"]; ok {
-		u, err := func(in interface{}) (value []int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value []int, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -735,28 +800,28 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 			}
 			var out = make([]int, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value int, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_int(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Ints = u
 	}
 	if v, ok := m["strings"]; ok {
-		u, err := func(in interface{}) (value []string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value []string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -764,28 +829,28 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 			}
 			var out = make([]string, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_string(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Strings = u
 	}
 	if v, ok := m["array-lit"]; ok {
-		u, err := func(in interface{}) (value [5]string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value [5]string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -796,28 +861,28 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 				return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 5)
 			}
 			for i, v := range a {
-				u, err := func(in interface{}) (value string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_string(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.ArrayLit = u
 	}
 	if v, ok := m["array-expr"]; ok {
-		u, err := func(in interface{}) (value [2 * N]int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value [2 * N]int, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -828,28 +893,28 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 				return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 2*N)
 			}
 			for i, v := range a {
-				u, err := func(in interface{}) (value int, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_int(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.ArrayExpr = u
 	}
 	if v, ok := m["structs"]; ok {
-		u, err := func(in interface{}) (value []struct {
+		u, err := func(ctx context.Context, in interface{}) (value []struct {
 			Int int
 		}, err error) {
 			// sliceUnpacker
@@ -861,7 +926,7 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 				Int int
 			}, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value struct {
+				u, err := func(ctx context.Context, in interface{}) (value struct {
 					Int int
 				}, err error) {
 					// structUnpacker
@@ -873,35 +938,35 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 						Int int
 					}
 					if v, ok := m["int"]; ok {
-						u, err := func(in interface{}) (value int, err error) {
+						u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 							// nativeUnpacker
 							out, err := system.Convert_int(in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(v)
+						}(ctx, v)
 						if err != nil {
 							return value, err
 						}
 						out.Int = u
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Structs = u
 	}
 	if v, ok := m["arrays"]; ok {
-		u, err := func(in interface{}) (value [][]string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value [][]string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -909,7 +974,7 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 			}
 			var out = make([][]string, len(a))
 			for i, v := range a {
-				u, err := func(in interface{}) (value []string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value []string, err error) {
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
@@ -917,28 +982,28 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
-						u, err := func(in interface{}) (value string, err error) {
+						u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 							// nativeUnpacker
 							out, err := system.Convert_string(in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(v)
+						}(ctx, v)
 						if err != nil {
 							return value, err
 						}
 						out[i] = u
 					}
 					return out[:], nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -946,7 +1011,7 @@ func unpacker_Slices(in interface{}) (value Slices, err error) {
 	}
 	return out, nil
 }
-func unpacker_Structs(in interface{}) (value Structs, err error) {
+func unpacker_Structs(ctx context.Context, in interface{}) (value Structs, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -954,7 +1019,7 @@ func unpacker_Structs(in interface{}) (value Structs, err error) {
 	}
 	var out Structs
 	if v, ok := m["simple"]; ok {
-		u, err := func(in interface{}) (value struct {
+		u, err := func(ctx context.Context, in interface{}) (value struct {
 			Int  int
 			Bool bool
 		}, err error) {
@@ -968,42 +1033,42 @@ func unpacker_Structs(in interface{}) (value Structs, err error) {
 				Bool bool
 			}
 			if v, ok := m["int"]; ok {
-				u, err := func(in interface{}) (value int, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_int(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out.Int = u
 			}
 			if v, ok := m["bool"]; ok {
-				u, err := func(in interface{}) (value bool, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value bool, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_bool(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out.Bool = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Simple = u
 	}
 	if v, ok := m["complex"]; ok {
-		u, err := func(in interface{}) (value struct {
+		u, err := func(ctx context.Context, in interface{}) (value struct {
 			String string
 			Inner  struct {
 				Float32 float32
@@ -1021,21 +1086,21 @@ func unpacker_Structs(in interface{}) (value Structs, err error) {
 				}
 			}
 			if v, ok := m["string"]; ok {
-				u, err := func(in interface{}) (value string, err error) {
+				u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 					// nativeUnpacker
 					out, err := system.Convert_string(in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out.String = u
 			}
 			if v, ok := m["inner"]; ok {
-				u, err := func(in interface{}) (value struct {
+				u, err := func(ctx context.Context, in interface{}) (value struct {
 					Float32 float32
 				}, err error) {
 					// structUnpacker
@@ -1047,28 +1112,28 @@ func unpacker_Structs(in interface{}) (value Structs, err error) {
 						Float32 float32
 					}
 					if v, ok := m["float-32"]; ok {
-						u, err := func(in interface{}) (value float32, err error) {
+						u, err := func(ctx context.Context, in interface{}) (value float32, err error) {
 							// nativeUnpacker
 							out, err := system.Convert_float32(in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(v)
+						}(ctx, v)
 						if err != nil {
 							return value, err
 						}
 						out.Float32 = u
 					}
 					return out, nil
-				}(v)
+				}(ctx, v)
 				if err != nil {
 					return value, err
 				}
 				out.Inner = u
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
@@ -1076,7 +1141,7 @@ func unpacker_Structs(in interface{}) (value Structs, err error) {
 	}
 	return out, nil
 }
-func unpacker_Natives(in interface{}) (value Natives, err error) {
+func unpacker_Natives(ctx context.Context, in interface{}) (value Natives, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -1084,228 +1149,338 @@ func unpacker_Natives(in interface{}) (value Natives, err error) {
 	}
 	var out Natives
 	if v, ok := m["bool"]; ok {
-		u, err := func(in interface{}) (value bool, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value bool, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_bool(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Bool = u
 	}
 	if v, ok := m["byte"]; ok {
-		u, err := func(in interface{}) (value byte, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value byte, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_byte(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Byte = u
 	}
 	if v, ok := m["float-32"]; ok {
-		u, err := func(in interface{}) (value float32, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value float32, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_float32(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Float32 = u
 	}
 	if v, ok := m["float-64"]; ok {
-		u, err := func(in interface{}) (value float64, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value float64, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_float64(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Float64 = u
 	}
 	if v, ok := m["int"]; ok {
-		u, err := func(in interface{}) (value int, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value int, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_int(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int = u
 	}
 	if v, ok := m["int-8"]; ok {
-		u, err := func(in interface{}) (value int8, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value int8, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_int8(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int8 = u
 	}
 	if v, ok := m["int-16"]; ok {
-		u, err := func(in interface{}) (value int16, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value int16, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_int16(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int16 = u
 	}
 	if v, ok := m["int-32"]; ok {
-		u, err := func(in interface{}) (value int32, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value int32, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_int32(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int32 = u
 	}
 	if v, ok := m["int-64"]; ok {
-		u, err := func(in interface{}) (value int64, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value int64, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_int64(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int64 = u
 	}
 	if v, ok := m["uint"]; ok {
-		u, err := func(in interface{}) (value uint, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value uint, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_uint(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint = u
 	}
 	if v, ok := m["uint-8"]; ok {
-		u, err := func(in interface{}) (value uint8, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value uint8, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_uint8(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint8 = u
 	}
 	if v, ok := m["uint-16"]; ok {
-		u, err := func(in interface{}) (value uint16, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value uint16, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_uint16(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint16 = u
 	}
 	if v, ok := m["uint-32"]; ok {
-		u, err := func(in interface{}) (value uint32, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value uint32, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_uint32(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint32 = u
 	}
 	if v, ok := m["uint-64"]; ok {
-		u, err := func(in interface{}) (value uint64, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value uint64, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_uint64(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint64 = u
 	}
 	if v, ok := m["rune"]; ok {
-		u, err := func(in interface{}) (value rune, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value rune, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_rune(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.Rune = u
 	}
 	if v, ok := m["string"]; ok {
-		u, err := func(in interface{}) (value string, err error) {
+		u, err := func(ctx context.Context, in interface{}) (value string, err error) {
 			// nativeUnpacker
 			out, err := system.Convert_string(in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(v)
+		}(ctx, v)
 		if err != nil {
 			return value, err
 		}
 		out.String = u
 	}
 	return out, nil
+}
+func init() {
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "InterfaceField",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_InterfaceField(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Implements",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Implements(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Interface",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Interface(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Private",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Private(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "AliasSub",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_AliasSub(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "AliasSlice",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_AliasSlice(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "AliasArray",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_AliasArray(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "AliasMap",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_AliasMap(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "AliasPointer",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_AliasPointer(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Alias",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Alias(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Int",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Int(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "String",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_String(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Qual",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Qual(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Pointers",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Pointers(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Maps",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Maps(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Slices",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Slices(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Structs",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Structs(ctx, in)
+	}})
+	system.Registry.Set(system.RegistryTypeKey{
+		Name: "Natives",
+		Path: "frizz.io/tests/unpacker",
+	}, system.RegistryType{Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
+		return unpacker_Natives(ctx, in)
+	}})
 }
