@@ -47,7 +47,7 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 		switch expr.Name {
 		case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
 			if v == nil {
-				return nil, errors.New("unpacking into interface, __value field missing")
+				return nil, errors.New("unpacking native type into interface, __value field missing")
 			}
 			return Convert(expr.Name, v)
 		default:
@@ -79,6 +79,9 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 		return rt.Unpacker(ctx, in)
 	case *ast.MapType:
 		// TODO
+		//if key, ok := expr.Key.(*ast.Ident); !ok || key.Name != "string" {
+		//	return nil, errors.New("unpacking map, key must be string")
+		//}
 	case *ast.ArrayType:
 		// TODO
 	}
