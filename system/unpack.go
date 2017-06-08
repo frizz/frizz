@@ -13,16 +13,16 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 	if !ok {
 		return nil, errors.New("unpacking into interface, value should be a map")
 	}
-	ti, ok := m["__type"]
+	ti, ok := m["_type"]
 	if !ok {
-		return nil, errors.New("unpacking into interface, __type field missing")
+		return nil, errors.New("unpacking into interface, _type field missing")
 	}
 	ts, ok := ti.(string)
 	if !ok {
-		return nil, errors.New("unpacking into interface, __type should be a string")
+		return nil, errors.New("unpacking into interface, _type should be a string")
 	}
 
-	v := m["__value"]
+	v := m["_value"]
 
 	uc := ctx.Value(UnpackContextKey).(*UnpackContext)
 	if uc == nil {
@@ -47,7 +47,7 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 		switch expr.Name {
 		case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
 			if v == nil {
-				return nil, errors.New("unpacking native type into interface, __value field missing")
+				return nil, errors.New("unpacking native type into interface, _value field missing")
 			}
 			return Convert(expr.Name, v)
 		default:

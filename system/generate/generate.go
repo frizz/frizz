@@ -13,17 +13,12 @@ import (
 
 	"fmt"
 
-	"unicode"
-
-	"unicode/utf8"
-
 	"strconv"
 
 	"frizz.io/system/generate/jast"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
-	"github.com/fatih/camelcase"
 	"github.com/pkg/errors"
 )
 
@@ -563,8 +558,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		}
 	})
 	for _, field := range spec.Fields.List {
-		jsonName := goToJson(field.Names[0].Name)
-		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(jsonName)), Id("ok")).Block(
+		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(field.Names[0].Name)), Id("ok")).Block(
 			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("ctx"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
@@ -595,22 +589,4 @@ func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident, alias string) {
 			s.Id(alias).Parens(Id("out"))
 		}
 	}), Nil())
-}
-
-func goToJson(name string) string {
-
-	words := camelcase.Split(name)
-
-	if len(words) == 0 {
-		return ""
-	}
-
-	firstRune, _ := utf8.DecodeRuneInString(words[0])
-	public := unicode.IsUpper(firstRune)
-
-	var prefix string
-	if !public {
-		prefix = "_"
-	}
-	return prefix + strings.ToLower(strings.Join(words, "-"))
 }

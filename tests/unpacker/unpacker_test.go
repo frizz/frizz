@@ -19,11 +19,11 @@ func TestInterfaceFieldSuccess(t *testing.T) {
 		expected InterfaceField
 	}{
 		"interface field": {`
-			{"iface": {"__type": "Impi", "int": 1}}`,
+			{"Iface": {"_type": "Impi", "Int": 1}}`,
 			InterfaceField{Iface: Impi{Int: 1}},
 		},
 		"interface slice": {`
-			{"slice": [{"__type": "Impi", "int": 1}, {"__type": "Imps", "string": "a"}]}`,
+			{"Slice": [{"_type": "Impi", "Int": 1}, {"_type": "Imps", "String": "a"}]}`,
 			InterfaceField{Slice: []Interface{Impi{Int: 1}, Imps{String: "a"}}},
 		},
 	}
@@ -53,23 +53,23 @@ func TestUnpackInterfaceSuccess(t *testing.T) {
 		expected interface{}
 	}{
 		"imterface string": {`
-			{"__type": "string", "__value": "a"}`,
+			{"_type": "string", "_value": "a"}`,
 			"a",
 		},
 		"interface natives": {`
-			{"__type": "Natives", "__value": {"string": "a"}}`,
+			{"_type": "Natives", "_value": {"String": "a"}}`,
 			Natives{String: "a"},
 		},
 		"interface sub": {`
-			{"__type": "sub.Sub", "__value": {"string": "a"}}`,
+			{"_type": "sub.Sub", "_value": {"String": "a"}}`,
 			sub.Sub{String: "a"},
 		},
 		"interface natives no value": {`
-			{"__type": "Natives", "string": "a"}`,
+			{"_type": "Natives", "String": "a"}`,
 			Natives{String: "a"},
 		},
 		"interface sub no value": {`
-			{"__type": "sub.Sub", "string": "a"}`,
+			{"_type": "sub.Sub", "String": "a"}`,
 			sub.Sub{String: "a"},
 		},
 	}
@@ -100,7 +100,7 @@ func TestPrivateSuccess(t *testing.T) {
 		expected Private
 	}{
 		"private": {`
-			{"_i": 1, "_s": "a"}`,
+			{"i": 1, "s": "a"}`,
 			Private{i: 1, s: "a"},
 		},
 	}
@@ -127,7 +127,7 @@ func TestAliasSubSuccess(t *testing.T) {
 		expected AliasSub
 	}{
 		"alias sub": {`
-			{"string": "a"}`,
+			{"String": "a"}`,
 			AliasSub{String: "a"},
 		},
 	}
@@ -235,7 +235,7 @@ func TestAliasMapSuccess(t *testing.T) {
 		expected AliasMap
 	}{
 		"alias map": {`
-			{"a": {"sub": {"string": "a"}}, "b": {"sub": {"string": "b"}}}`,
+			{"a": {"Sub": {"String": "a"}}, "b": {"Sub": {"String": "b"}}}`,
 			AliasMap{
 				"a": &Qual{Sub: sub.Sub{String: "a"}},
 				"b": &Qual{Sub: sub.Sub{String: "b"}},
@@ -374,7 +374,7 @@ func TestQualSuccess(t *testing.T) {
 	}{
 		"qual": {`
 			{
-				"sub": {"string": "a"}
+				"Sub": {"String": "a"}
 			}`,
 			Qual{
 				Sub: sub.Sub{String: "a"},
@@ -405,15 +405,15 @@ func TestPointersSuccess(t *testing.T) {
 	}{
 		"pointers": {`
 			{
-				"string": "a",
-				"int": 2,
-				"sub": {"string": "a"},
-				"array": [1, 2, 3],
-				"slice": ["a", "b", "c"],
-				"map": {"a": 1, "b": 2},
-				"slice-string": ["a"],
-				"slice-int": [1],
-				"slice-sub": [{"string": "a"}]
+				"String": "a",
+				"Int": 2,
+				"Sub": {"String": "a"},
+				"Array": [1, 2, 3],
+				"Slice": ["a", "b", "c"],
+				"Map": {"a": 1, "b": 2},
+				"SliceString": ["a"],
+				"SliceInt": [1],
+				"SliceSub": [{"String": "a"}]
 			}`,
 			Pointers{
 				String:      func() *string { s := "a"; return &s }(),
@@ -452,11 +452,11 @@ func TestMapsSuccess(t *testing.T) {
 	}{
 		"maps": {`
 			{
-				"ints": {"a": 1, "b": 2, "c": 3},
-				"strings": {"a": "b", "c": "d", "e": "f"},
-				"slices": {"a": ["b", "c"], "d": ["e", "f", "g"]},
-				"arrays": {"a": [1, 2], "b": [3, 4]},
-				"maps": {"a": {"b": "c"}, "d": {"e": "f"}}
+				"Ints": {"a": 1, "b": 2, "c": 3},
+				"Strings": {"a": "b", "c": "d", "e": "f"},
+				"Slices": {"a": ["b", "c"], "d": ["e", "f", "g"]},
+				"Arrays": {"a": [1, 2], "b": [3, 4]},
+				"Maps": {"a": {"b": "c"}, "d": {"e": "f"}}
 			}`,
 			Maps{
 				Ints:    map[string]int{"a": 1, "b": 2, "c": 3},
@@ -491,12 +491,12 @@ func TestSlicesSuccess(t *testing.T) {
 	}{
 		"slices": {`
 			{
-				"ints": [1, 2, 3],
-				"strings": ["a", "b", "c"],
-				"array-lit": ["a", "b", "c", "d", "e"],
-				"array-expr": [1, 2, 3, 4],
-				"structs": [{"int": 1}, {"int": 2}],
-				"arrays": [["a", "b"], ["c", "d"]]
+				"Ints": [1, 2, 3],
+				"Strings": ["a", "b", "c"],
+				"ArrayLit": ["a", "b", "c", "d", "e"],
+				"ArrayExpr": [1, 2, 3, 4],
+				"Structs": [{"Int": 1}, {"Int": 2}],
+				"Arrays": [["a", "b"], ["c", "d"]]
 			}`,
 			Slices{
 				Ints:      []int{1, 2, 3},
@@ -537,19 +537,19 @@ func TestSlicesErrors(t *testing.T) {
 		error string
 	}{
 		"array lit too long": {
-			`{"array-lit": ["a", "b", "c", "d", "e", "f"]}`,
+			`{"ArrayLit": ["a", "b", "c", "d", "e", "f"]}`,
 			"data length 6 does not fit in array of length 5",
 		},
 		"array expr too long": {
-			`{"array-expr": [1, 2, 3, 4, 5]}`,
+			`{"ArrayExpr": [1, 2, 3, 4, 5]}`,
 			"data length 5 does not fit in array of length 4",
 		},
 		"wrong type map": {
-			`{"strings": {"a": "b"}}`,
+			`{"Strings": {"a": "b"}}`,
 			"error unpacking into slice, value should be an array",
 		},
 		"wrong type int": {
-			`{"ints": 1}`,
+			`{"Ints": 1}`,
 			"error unpacking into slice, value should be an array",
 		},
 	}
@@ -577,14 +577,14 @@ func TestStructsSuccess(t *testing.T) {
 	}{
 		"structs": {`
 			{
-				"simple": {
-					"int": 1, 
-					"bool": true
+				"Simple": {
+					"Int": 1, 
+					"Bool": true
 				}, 
-				"complex": {
-					"string": "a", 
-					"inner": {
-						"float-32": 1.1
+				"Complex": {
+					"String": "a", 
+					"Inner": {
+						"Float32": 1.1
 					}
 				}
 			}`,
@@ -634,30 +634,30 @@ func TestNativesSuccess(t *testing.T) {
 		json     string
 		expected Natives
 	}{
-		"int":              {`{"int": 1}`, Natives{Int: 1}},
-		"int negative":     {`{"int": -1}`, Natives{Int: -1}},
-		"int8 small":       {`{"int-8": -128}`, Natives{Int8: -128}},
-		"int8 big":         {`{"int-8": 127}`, Natives{Int8: 127}},
-		"int16 small":      {`{"int-16": -32768}`, Natives{Int16: -32768}},
-		"int16 big":        {`{"int-16": 32767}`, Natives{Int16: 32767}},
-		"int32 small":      {`{"int-32": -2147483648}`, Natives{Int32: -2147483648}},
-		"int32 big":        {`{"int-32": 2147483647}`, Natives{Int32: 2147483647}},
-		"int64 small":      {`{"int-64": -9223372036854775808}`, Natives{Int64: -9223372036854775808}},
-		"int64 big":        {`{"int-64": 9223372036854775807}`, Natives{Int64: 9223372036854775807}},
-		"uint":             {`{"uint": 1}`, Natives{Uint: 1}},
-		"uint8 big":        {`{"uint-8": 255}`, Natives{Uint8: 255}},
-		"uint16 big":       {`{"uint-16": 65535}`, Natives{Uint16: 65535}},
-		"uint32 big":       {`{"uint-32": 4294967295}`, Natives{Uint32: 4294967295}},
-		"uint64 big":       {`{"uint-64": 18446744073709551615}`, Natives{Uint64: 18446744073709551615}},
-		"string":           {`{"string": "a"}`, Natives{String: "a"}},
-		"rune":             {`{"rune": "😀"}`, Natives{Rune: '😀'}},
-		"bool true":        {`{"bool": true}`, Natives{Bool: true}},
-		"bool false":       {`{"bool": false}`, Natives{Bool: false}},
-		"byte":             {`{"byte": 123}`, Natives{Byte: byte(123)}},
-		"float32":          {`{"float-32": 1.5}`, Natives{Float32: 1.5}},
-		"float32 negative": {`{"float-32": -1.5}`, Natives{Float32: -1.5}},
-		"float64":          {`{"float-64": 1.5}`, Natives{Float64: 1.5}},
-		"float64 negative": {`{"float-64": -1.5}`, Natives{Float64: -1.5}},
+		"int":              {`{"Int": 1}`, Natives{Int: 1}},
+		"int negative":     {`{"Int": -1}`, Natives{Int: -1}},
+		"int8 small":       {`{"Int8": -128}`, Natives{Int8: -128}},
+		"int8 big":         {`{"Int8": 127}`, Natives{Int8: 127}},
+		"int16 small":      {`{"Int16": -32768}`, Natives{Int16: -32768}},
+		"int16 big":        {`{"Int16": 32767}`, Natives{Int16: 32767}},
+		"int32 small":      {`{"Int32": -2147483648}`, Natives{Int32: -2147483648}},
+		"int32 big":        {`{"Int32": 2147483647}`, Natives{Int32: 2147483647}},
+		"int64 small":      {`{"Int64": -9223372036854775808}`, Natives{Int64: -9223372036854775808}},
+		"int64 big":        {`{"Int64": 9223372036854775807}`, Natives{Int64: 9223372036854775807}},
+		"uint":             {`{"Uint": 1}`, Natives{Uint: 1}},
+		"uint8 big":        {`{"Uint8": 255}`, Natives{Uint8: 255}},
+		"uint16 big":       {`{"Uint16": 65535}`, Natives{Uint16: 65535}},
+		"uint32 big":       {`{"Uint32": 4294967295}`, Natives{Uint32: 4294967295}},
+		"uint64 big":       {`{"Uint64": 18446744073709551615}`, Natives{Uint64: 18446744073709551615}},
+		"string":           {`{"String": "a"}`, Natives{String: "a"}},
+		"rune":             {`{"Rune": "😀"}`, Natives{Rune: '😀'}},
+		"bool true":        {`{"Bool": true}`, Natives{Bool: true}},
+		"bool false":       {`{"Bool": false}`, Natives{Bool: false}},
+		"byte":             {`{"Byte": 123}`, Natives{Byte: byte(123)}},
+		"float32":          {`{"Float32": 1.5}`, Natives{Float32: 1.5}},
+		"float32 negative": {`{"Float32": -1.5}`, Natives{Float32: -1.5}},
+		"float64":          {`{"Float64": 1.5}`, Natives{Float64: 1.5}},
+		"float64 negative": {`{"Float64": -1.5}`, Natives{Float64: -1.5}},
 	}
 	for name, test := range tests {
 		var v interface{}
@@ -681,50 +681,50 @@ func TestNativesErrors(t *testing.T) {
 		json  string
 		error string
 	}{
-		"int fraction":       {`{"int": 1.5}`, `strconv.ParseInt: parsing "1.5": invalid syntax`},
-		"int string":         {`{"int": "a"}`, `unpacking into int, value "a" should be json.Number`},
-		"int bool":           {`{"int": false}`, `unpacking into int, value false should be json.Number`},
-		"int8 too small":     {`{"int-8": -129}`, `strconv.ParseInt: parsing "-129": value out of range`},
-		"int8 too big":       {`{"int-8": 128}`, `strconv.ParseInt: parsing "128": value out of range`},
-		"int8 wrong type":    {`{"int-8": "a"}`, `unpacking into int8, value "a" should be json.Number`},
-		"int16 too small":    {`{"int-16": -32769}`, `strconv.ParseInt: parsing "-32769": value out of range`},
-		"int16 too big":      {`{"int-16": 32768}`, `strconv.ParseInt: parsing "32768": value out of range`},
-		"int16 wrong type":   {`{"int-16": "a"}`, `unpacking into int16, value "a" should be json.Number`},
-		"int32 too small":    {`{"int-32": -2147483649}`, `strconv.ParseInt: parsing "-2147483649": value out of range`},
-		"int32 too big":      {`{"int-32": 2147483648}`, `strconv.ParseInt: parsing "2147483648": value out of range`},
-		"int32 wrong type":   {`{"int-32": "a"}`, `unpacking into int32, value "a" should be json.Number`},
-		"int64 too small":    {`{"int-64": -9223372036854775809}`, `strconv.ParseInt: parsing "-9223372036854775809": value out of range`},
-		"int64 too big":      {`{"int-64": 9223372036854775808}`, `strconv.ParseInt: parsing "9223372036854775808": value out of range`},
-		"int64 wrong type":   {`{"int-64": "a"}`, `unpacking into int64, value "a" should be json.Number`},
-		"uint negative":      {`{"uint": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint wrong type":    {`{"uint": "a"}`, `unpacking into uint, value "a" should be json.Number`},
-		"uint8 negative":     {`{"uint-8": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint8 too big":      {`{"uint-8": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
-		"uint8 wrong type":   {`{"uint-8": "a"}`, `unpacking into uint8, value "a" should be json.Number`},
-		"uint16 negative":    {`{"uint-16": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint16 too big":     {`{"uint-16": 65536}`, `strconv.ParseUint: parsing "65536": value out of range`},
-		"uint16 wrong type":  {`{"uint-16": "a"}`, `unpacking into uint16, value "a" should be json.Number`},
-		"uint32 negative":    {`{"uint-32": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint32 too big":     {`{"uint-32": 4294967296}`, `strconv.ParseUint: parsing "4294967296": value out of range`},
-		"uint32 wrong type":  {`{"uint-32": "a"}`, `unpacking into uint32, value "a" should be json.Number`},
-		"uint64 negative":    {`{"uint-64": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint64 too big":     {`{"uint-64": 18446744073709551616}`, `strconv.ParseUint: parsing "18446744073709551616": value out of range`},
-		"uint64 wrong type":  {`{"uint-64": "a"}`, `unpacking into uint64, value "a" should be json.Number`},
-		"string number":      {`{"string": 1.0}`, `unpacking into string, value "1.0" should be string`},
-		"string bool":        {`{"string": false}`, `unpacking into string, value false should be string`},
-		"rune wrong type":    {`{"rune": 1}`, `unpacking into rune, value "1" should be string`},
-		"rune too long":      {`{"rune": "aa"}`, `unpacking into rune: string should have a single rune`},
-		"bool number":        {`{"bool": 1.0}`, `unpacking into bool, value "1.0" should be bool`},
-		"bool string":        {`{"bool": "a"}`, `unpacking into bool, value "a" should be bool`},
-		"byte negative":      {`{"byte": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"byte too big":       {`{"byte": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
-		"byte wrong type":    {`{"byte": "a"}`, `unpacking into byte, value "a" should be json.Number`},
-		"float32 wrong type": {`{"float-32": "a"}`, `unpacking into float32, value "a" should be json.Number`},
-		"float32 too big":    {`{"float-32": 1e99}`, `strconv.ParseFloat: parsing "1e99": value out of range`},
-		"float32 too small":  {`{"float-32": -1e99}`, `strconv.ParseFloat: parsing "-1e99": value out of range`},
-		"float64 wrong type": {`{"float-64": "a"}`, `unpacking into float64, value "a" should be json.Number`},
-		"float64 too big":    {`{"float-64": 1e999}`, `strconv.ParseFloat: parsing "1e999": value out of range`},
-		"float64 too small":  {`{"float-64": -1e999}`, `strconv.ParseFloat: parsing "-1e999": value out of range`},
+		"int fraction":       {`{"Int": 1.5}`, `strconv.ParseInt: parsing "1.5": invalid syntax`},
+		"int string":         {`{"Int": "a"}`, `unpacking into int, value "a" should be json.Number`},
+		"int bool":           {`{"Int": false}`, `unpacking into int, value false should be json.Number`},
+		"int8 too small":     {`{"Int8": -129}`, `strconv.ParseInt: parsing "-129": value out of range`},
+		"int8 too big":       {`{"Int8": 128}`, `strconv.ParseInt: parsing "128": value out of range`},
+		"int8 wrong type":    {`{"Int8": "a"}`, `unpacking into int8, value "a" should be json.Number`},
+		"int16 too small":    {`{"Int16": -32769}`, `strconv.ParseInt: parsing "-32769": value out of range`},
+		"int16 too big":      {`{"Int16": 32768}`, `strconv.ParseInt: parsing "32768": value out of range`},
+		"int16 wrong type":   {`{"Int16": "a"}`, `unpacking into int16, value "a" should be json.Number`},
+		"int32 too small":    {`{"Int32": -2147483649}`, `strconv.ParseInt: parsing "-2147483649": value out of range`},
+		"int32 too big":      {`{"Int32": 2147483648}`, `strconv.ParseInt: parsing "2147483648": value out of range`},
+		"int32 wrong type":   {`{"Int32": "a"}`, `unpacking into int32, value "a" should be json.Number`},
+		"int64 too small":    {`{"Int64": -9223372036854775809}`, `strconv.ParseInt: parsing "-9223372036854775809": value out of range`},
+		"int64 too big":      {`{"Int64": 9223372036854775808}`, `strconv.ParseInt: parsing "9223372036854775808": value out of range`},
+		"int64 wrong type":   {`{"Int64": "a"}`, `unpacking into int64, value "a" should be json.Number`},
+		"uint negative":      {`{"Uint": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint wrong type":    {`{"Uint": "a"}`, `unpacking into uint, value "a" should be json.Number`},
+		"uint8 negative":     {`{"Uint8": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint8 too big":      {`{"Uint8": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
+		"uint8 wrong type":   {`{"Uint8": "a"}`, `unpacking into uint8, value "a" should be json.Number`},
+		"uint16 negative":    {`{"Uint16": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint16 too big":     {`{"Uint16": 65536}`, `strconv.ParseUint: parsing "65536": value out of range`},
+		"uint16 wrong type":  {`{"Uint16": "a"}`, `unpacking into uint16, value "a" should be json.Number`},
+		"uint32 negative":    {`{"Uint32": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint32 too big":     {`{"Uint32": 4294967296}`, `strconv.ParseUint: parsing "4294967296": value out of range`},
+		"uint32 wrong type":  {`{"Uint32": "a"}`, `unpacking into uint32, value "a" should be json.Number`},
+		"uint64 negative":    {`{"Uint64": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint64 too big":     {`{"Uint64": 18446744073709551616}`, `strconv.ParseUint: parsing "18446744073709551616": value out of range`},
+		"uint64 wrong type":  {`{"Uint64": "a"}`, `unpacking into uint64, value "a" should be json.Number`},
+		"string number":      {`{"String": 1.0}`, `unpacking into string, value "1.0" should be string`},
+		"string bool":        {`{"String": false}`, `unpacking into string, value false should be string`},
+		"rune wrong type":    {`{"Rune": 1}`, `unpacking into rune, value "1" should be string`},
+		"rune too long":      {`{"Rune": "aa"}`, `unpacking into rune: string should have a single rune`},
+		"bool number":        {`{"Bool": 1.0}`, `unpacking into bool, value "1.0" should be bool`},
+		"bool string":        {`{"Bool": "a"}`, `unpacking into bool, value "a" should be bool`},
+		"byte negative":      {`{"Byte": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"byte too big":       {`{"Byte": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
+		"byte wrong type":    {`{"Byte": "a"}`, `unpacking into byte, value "a" should be json.Number`},
+		"float32 wrong type": {`{"Float32": "a"}`, `unpacking into float32, value "a" should be json.Number`},
+		"float32 too big":    {`{"Float32": 1e99}`, `strconv.ParseFloat: parsing "1e99": value out of range`},
+		"float32 too small":  {`{"Float32": -1e99}`, `strconv.ParseFloat: parsing "-1e99": value out of range`},
+		"float64 wrong type": {`{"Float64": "a"}`, `unpacking into float64, value "a" should be json.Number`},
+		"float64 too big":    {`{"Float64": 1e999}`, `strconv.ParseFloat: parsing "1e999": value out of range`},
+		"float64 too small":  {`{"Float64": -1e999}`, `strconv.ParseFloat: parsing "-1e999": value out of range`},
 	}
 	for name, test := range tests {
 		var v interface{}
