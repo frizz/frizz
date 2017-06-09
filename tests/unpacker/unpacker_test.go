@@ -21,6 +21,33 @@ type test struct {
 	error    string
 }
 
+func TestType(t *testing.T) {
+	tests := map[string]test{
+		"type qual": {
+			`"foo.Bar"`,
+			Type{Path: "github.com/foo", Name: "Bar"},
+			"",
+		},
+		"type ident": {
+			`"Foo"`,
+			Type{Path: "frizz.io/tests/unpacker", Name: "Foo"},
+			"",
+		},
+	}
+	for name, test := range tests {
+		if name != "type ident" {
+			continue
+		}
+		v := decode(t, name, test.json)
+
+		r, s := root()
+		r.Imports["foo"] = "github.com/foo"
+		result, err := Unpackers.Type(r, s, v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
 func TestCustom(t *testing.T) {
 	tests := map[string]test{
 		"custom ident": {

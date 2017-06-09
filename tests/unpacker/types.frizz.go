@@ -7,6 +7,7 @@ import (
 )
 
 var Unpackers = struct {
+	Type             func(*frizz.Root, frizz.Stack, interface{}) (Type, error)
 	Custom           func(*frizz.Root, frizz.Stack, interface{}) (Custom, error)
 	EmbedNatives     func(*frizz.Root, frizz.Stack, interface{}) (EmbedNatives, error)
 	EmbedPointer     func(*frizz.Root, frizz.Stack, interface{}) (EmbedPointer, error)
@@ -56,6 +57,7 @@ var Unpackers = struct {
 	Slices:           unpack_Slices,
 	String:           unpack_String,
 	Structs:          unpack_Structs,
+	Type:             unpack_Type,
 }
 
 func unpack_EmbedNatives(root *frizz.Root, stack frizz.Stack, in interface{}) (value EmbedNatives, err error) {
@@ -1749,6 +1751,9 @@ func unpack_Natives(root *frizz.Root, stack frizz.Stack, in interface{}) (value 
 	return out, nil
 }
 func init() {
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Type", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpack_Type(root, stack, in)
+	})
 	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Custom", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
 		return unpack_Custom(root, stack, in)
 	})
