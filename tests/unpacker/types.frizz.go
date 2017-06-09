@@ -48,7 +48,7 @@ var Unpackers = struct {
 	Structs:        unpacker_Structs,
 }
 
-func unpacker_InterfaceField(r *frizz.Root, s frizz.Stack, in interface{}) (value InterfaceField, err error) {
+func unpacker_InterfaceField(root *frizz.Root, stack frizz.Stack, in interface{}) (value InterfaceField, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -56,23 +56,23 @@ func unpacker_InterfaceField(r *frizz.Root, s frizz.Stack, in interface{}) (valu
 	}
 	var out InterfaceField
 	if v, ok := m["Iface"]; ok {
-		s := s.Append(frizz.FieldItem("Iface"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Interface, err error) {
+		stack := stack.Append(frizz.FieldItem("Iface"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Interface, err error) {
 			// localUnpacker
-			out, err := unpacker_Interface(r, s, in)
+			out, err := unpacker_Interface(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Iface = u
 	}
 	if v, ok := m["Slice"]; ok {
-		s := s.Append(frizz.FieldItem("Slice"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []Interface, err error) {
+		stack := stack.Append(frizz.FieldItem("Slice"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []Interface, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -80,30 +80,30 @@ func unpacker_InterfaceField(r *frizz.Root, s frizz.Stack, in interface{}) (valu
 			}
 			var out = make([]Interface, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Interface, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Interface, err error) {
 					// localUnpacker
-					out, err := unpacker_Interface(r, s, in)
+					out, err := unpacker_Interface(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Slice = u
 	}
 	if v, ok := m["Array"]; ok {
-		s := s.Append(frizz.FieldItem("Array"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value [3]Interface, err error) {
+		stack := stack.Append(frizz.FieldItem("Array"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value [3]Interface, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -114,30 +114,30 @@ func unpacker_InterfaceField(r *frizz.Root, s frizz.Stack, in interface{}) (valu
 				return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 3)
 			}
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Interface, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Interface, err error) {
 					// localUnpacker
-					out, err := unpacker_Interface(r, s, in)
+					out, err := unpacker_Interface(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Array = u
 	}
 	if v, ok := m["Map"]; ok {
-		s := s.Append(frizz.FieldItem("Map"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]Interface, err error) {
+		stack := stack.Append(frizz.FieldItem("Map"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]Interface, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -145,22 +145,22 @@ func unpacker_InterfaceField(r *frizz.Root, s frizz.Stack, in interface{}) (valu
 			}
 			var out = make(map[string]Interface, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Interface, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Interface, err error) {
 					// localUnpacker
-					out, err := unpacker_Interface(r, s, in)
+					out, err := unpacker_Interface(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -168,7 +168,7 @@ func unpacker_InterfaceField(r *frizz.Root, s frizz.Stack, in interface{}) (valu
 	}
 	return out, nil
 }
-func unpacker_Impi(r *frizz.Root, s frizz.Stack, in interface{}) (value Impi, err error) {
+func unpacker_Impi(root *frizz.Root, stack frizz.Stack, in interface{}) (value Impi, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -176,15 +176,15 @@ func unpacker_Impi(r *frizz.Root, s frizz.Stack, in interface{}) (value Impi, er
 	}
 	var out Impi
 	if v, ok := m["Int"]; ok {
-		s := s.Append(frizz.FieldItem("Int"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+		stack := stack.Append(frizz.FieldItem("Int"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt(s, in)
+			out, err := frizz.UnpackInt(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -192,7 +192,7 @@ func unpacker_Impi(r *frizz.Root, s frizz.Stack, in interface{}) (value Impi, er
 	}
 	return out, nil
 }
-func unpacker_Imps(r *frizz.Root, s frizz.Stack, in interface{}) (value Imps, err error) {
+func unpacker_Imps(root *frizz.Root, stack frizz.Stack, in interface{}) (value Imps, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -200,15 +200,15 @@ func unpacker_Imps(r *frizz.Root, s frizz.Stack, in interface{}) (value Imps, er
 	}
 	var out Imps
 	if v, ok := m["String"]; ok {
-		s := s.Append(frizz.FieldItem("String"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+		stack := stack.Append(frizz.FieldItem("String"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackString(s, in)
+			out, err := frizz.UnpackString(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -216,9 +216,9 @@ func unpacker_Imps(r *frizz.Root, s frizz.Stack, in interface{}) (value Imps, er
 	}
 	return out, nil
 }
-func unpacker_Interface(r *frizz.Root, s frizz.Stack, in interface{}) (value Interface, err error) {
+func unpacker_Interface(root *frizz.Root, stack frizz.Stack, in interface{}) (value Interface, err error) {
 	// interfaceUnpacker
-	out, err := r.UnpackInterface(s, in)
+	out, err := root.UnpackInterface(stack, in)
 	if err != nil {
 		return value, err
 	}
@@ -228,7 +228,7 @@ func unpacker_Interface(r *frizz.Root, s frizz.Stack, in interface{}) (value Int
 	}
 	return iface, nil
 }
-func unpacker_Private(r *frizz.Root, s frizz.Stack, in interface{}) (value Private, err error) {
+func unpacker_Private(root *frizz.Root, stack frizz.Stack, in interface{}) (value Private, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -236,30 +236,30 @@ func unpacker_Private(r *frizz.Root, s frizz.Stack, in interface{}) (value Priva
 	}
 	var out Private
 	if v, ok := m["i"]; ok {
-		s := s.Append(frizz.FieldItem("i"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+		stack := stack.Append(frizz.FieldItem("i"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt(s, in)
+			out, err := frizz.UnpackInt(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.i = u
 	}
 	if v, ok := m["s"]; ok {
-		s := s.Append(frizz.FieldItem("s"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+		stack := stack.Append(frizz.FieldItem("s"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackString(s, in)
+			out, err := frizz.UnpackString(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -267,15 +267,15 @@ func unpacker_Private(r *frizz.Root, s frizz.Stack, in interface{}) (value Priva
 	}
 	return out, nil
 }
-func unpacker_AliasSub(r *frizz.Root, s frizz.Stack, in interface{}) (value AliasSub, err error) {
+func unpacker_AliasSub(root *frizz.Root, stack frizz.Stack, in interface{}) (value AliasSub, err error) {
 	// selectorUnpacker
-	out, err := sub.Unpackers.Sub(r, s, in)
+	out, err := sub.Unpackers.Sub(root, stack, in)
 	if err != nil {
 		return value, err
 	}
 	return AliasSub(out), nil
 }
-func unpacker_AliasSlice(r *frizz.Root, s frizz.Stack, in interface{}) (value AliasSlice, err error) {
+func unpacker_AliasSlice(root *frizz.Root, stack frizz.Stack, in interface{}) (value AliasSlice, err error) {
 	// sliceUnpacker
 	a, ok := in.([]interface{})
 	if !ok {
@@ -283,15 +283,15 @@ func unpacker_AliasSlice(r *frizz.Root, s frizz.Stack, in interface{}) (value Al
 	}
 	var out = make(AliasSlice, len(a))
 	for i, v := range a {
-		s := s.Append(frizz.ArrayItem(i))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Int, err error) {
+		stack := stack.Append(frizz.ArrayItem(i))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Int, err error) {
 			// localUnpacker
-			out, err := unpacker_Int(r, s, in)
+			out, err := unpacker_Int(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -299,7 +299,7 @@ func unpacker_AliasSlice(r *frizz.Root, s frizz.Stack, in interface{}) (value Al
 	}
 	return out[:], nil
 }
-func unpacker_AliasArray(r *frizz.Root, s frizz.Stack, in interface{}) (value AliasArray, err error) {
+func unpacker_AliasArray(root *frizz.Root, stack frizz.Stack, in interface{}) (value AliasArray, err error) {
 	// sliceUnpacker
 	a, ok := in.([]interface{})
 	if !ok {
@@ -310,15 +310,15 @@ func unpacker_AliasArray(r *frizz.Root, s frizz.Stack, in interface{}) (value Al
 		return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 3)
 	}
 	for i, v := range a {
-		s := s.Append(frizz.ArrayItem(i))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+		stack := stack.Append(frizz.ArrayItem(i))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackString(s, in)
+			out, err := frizz.UnpackString(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -326,7 +326,7 @@ func unpacker_AliasArray(r *frizz.Root, s frizz.Stack, in interface{}) (value Al
 	}
 	return out, nil
 }
-func unpacker_AliasMap(r *frizz.Root, s frizz.Stack, in interface{}) (value AliasMap, err error) {
+func unpacker_AliasMap(root *frizz.Root, stack frizz.Stack, in interface{}) (value AliasMap, err error) {
 	// mapUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -334,22 +334,22 @@ func unpacker_AliasMap(r *frizz.Root, s frizz.Stack, in interface{}) (value Alia
 	}
 	var out = make(AliasMap, len(m))
 	for k, v := range m {
-		s := s.Append(frizz.MapItem(k))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *Qual, err error) {
+		stack := stack.Append(frizz.MapItem(k))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *Qual, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Qual, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Qual, err error) {
 				// localUnpacker
-				out, err := unpacker_Qual(r, s, in)
+				out, err := unpacker_Qual(root, stack, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -357,46 +357,46 @@ func unpacker_AliasMap(r *frizz.Root, s frizz.Stack, in interface{}) (value Alia
 	}
 	return out, nil
 }
-func unpacker_AliasPointer(r *frizz.Root, s frizz.Stack, in interface{}) (value AliasPointer, err error) {
+func unpacker_AliasPointer(root *frizz.Root, stack frizz.Stack, in interface{}) (value AliasPointer, err error) {
 	// pointerUnpacker
-	out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Int, err error) {
+	out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Int, err error) {
 		// localUnpacker
-		out, err := unpacker_Int(r, s, in)
+		out, err := unpacker_Int(root, stack, in)
 		if err != nil {
 			return value, err
 		}
 		return out, nil
-	}(r, s, in)
+	}(root, stack, in)
 	if err != nil {
 		return value, err
 	}
 	return AliasPointer(&out), nil
 }
-func unpacker_Alias(r *frizz.Root, s frizz.Stack, in interface{}) (value Alias, err error) {
+func unpacker_Alias(root *frizz.Root, stack frizz.Stack, in interface{}) (value Alias, err error) {
 	// localUnpacker
-	out, err := unpacker_Int(r, s, in)
+	out, err := unpacker_Int(root, stack, in)
 	if err != nil {
 		return value, err
 	}
 	return Alias(out), nil
 }
-func unpacker_Int(r *frizz.Root, s frizz.Stack, in interface{}) (value Int, err error) {
+func unpacker_Int(root *frizz.Root, stack frizz.Stack, in interface{}) (value Int, err error) {
 	// nativeUnpacker
-	out, err := frizz.UnpackInt(s, in)
+	out, err := frizz.UnpackInt(stack, in)
 	if err != nil {
 		return value, err
 	}
 	return Int(out), nil
 }
-func unpacker_String(r *frizz.Root, s frizz.Stack, in interface{}) (value String, err error) {
+func unpacker_String(root *frizz.Root, stack frizz.Stack, in interface{}) (value String, err error) {
 	// nativeUnpacker
-	out, err := frizz.UnpackString(s, in)
+	out, err := frizz.UnpackString(stack, in)
 	if err != nil {
 		return value, err
 	}
 	return String(out), nil
 }
-func unpacker_Qual(r *frizz.Root, s frizz.Stack, in interface{}) (value Qual, err error) {
+func unpacker_Qual(root *frizz.Root, stack frizz.Stack, in interface{}) (value Qual, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -404,15 +404,15 @@ func unpacker_Qual(r *frizz.Root, s frizz.Stack, in interface{}) (value Qual, er
 	}
 	var out Qual
 	if v, ok := m["Sub"]; ok {
-		s := s.Append(frizz.FieldItem("Sub"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value sub.Sub, err error) {
+		stack := stack.Append(frizz.FieldItem("Sub"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value sub.Sub, err error) {
 			// selectorUnpacker
-			out, err := sub.Unpackers.Sub(r, s, in)
+			out, err := sub.Unpackers.Sub(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -420,7 +420,7 @@ func unpacker_Qual(r *frizz.Root, s frizz.Stack, in interface{}) (value Qual, er
 	}
 	return out, nil
 }
-func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Pointers, err error) {
+func unpacker_Pointers(root *frizz.Root, stack frizz.Stack, in interface{}) (value Pointers, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -428,76 +428,76 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 	}
 	var out Pointers
 	if v, ok := m["String"]; ok {
-		s := s.Append(frizz.FieldItem("String"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *string, err error) {
+		stack := stack.Append(frizz.FieldItem("String"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *string, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 				// nativeUnpacker
-				out, err := frizz.UnpackString(s, in)
+				out, err := frizz.UnpackString(stack, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.String = u
 	}
 	if v, ok := m["Int"]; ok {
-		s := s.Append(frizz.FieldItem("Int"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *Int, err error) {
+		stack := stack.Append(frizz.FieldItem("Int"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *Int, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Int, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Int, err error) {
 				// localUnpacker
-				out, err := unpacker_Int(r, s, in)
+				out, err := unpacker_Int(root, stack, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int = u
 	}
 	if v, ok := m["Sub"]; ok {
-		s := s.Append(frizz.FieldItem("Sub"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *sub.Sub, err error) {
+		stack := stack.Append(frizz.FieldItem("Sub"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *sub.Sub, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value sub.Sub, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value sub.Sub, err error) {
 				// selectorUnpacker
-				out, err := sub.Unpackers.Sub(r, s, in)
+				out, err := sub.Unpackers.Sub(root, stack, in)
 				if err != nil {
 					return value, err
 				}
 				return out, nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Sub = u
 	}
 	if v, ok := m["Array"]; ok {
-		s := s.Append(frizz.FieldItem("Array"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *[3]int, err error) {
+		stack := stack.Append(frizz.FieldItem("Array"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *[3]int, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value [3]int, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value [3]int, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
@@ -508,37 +508,37 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 					return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 3)
 				}
 				for i, v := range a {
-					s := s.Append(frizz.ArrayItem(i))
-					u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+					stack := stack.Append(frizz.ArrayItem(i))
+					u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 						// nativeUnpacker
-						out, err := frizz.UnpackInt(s, in)
+						out, err := frizz.UnpackInt(stack, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(r, s, v)
+					}(root, stack, v)
 					if err != nil {
 						return value, err
 					}
 					out[i] = u
 				}
 				return out, nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Array = u
 	}
 	if v, ok := m["Slice"]; ok {
-		s := s.Append(frizz.FieldItem("Slice"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *[]string, err error) {
+		stack := stack.Append(frizz.FieldItem("Slice"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *[]string, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []string, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []string, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
@@ -546,37 +546,37 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 				}
 				var out = make([]string, len(a))
 				for i, v := range a {
-					s := s.Append(frizz.ArrayItem(i))
-					u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+					stack := stack.Append(frizz.ArrayItem(i))
+					u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 						// nativeUnpacker
-						out, err := frizz.UnpackString(s, in)
+						out, err := frizz.UnpackString(stack, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(r, s, v)
+					}(root, stack, v)
 					if err != nil {
 						return value, err
 					}
 					out[i] = u
 				}
 				return out[:], nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Slice = u
 	}
 	if v, ok := m["Map"]; ok {
-		s := s.Append(frizz.FieldItem("Map"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *map[string]int, err error) {
+		stack := stack.Append(frizz.FieldItem("Map"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *map[string]int, err error) {
 			// pointerUnpacker
-			out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]int, err error) {
+			out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]int, err error) {
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
@@ -584,35 +584,35 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 				}
 				var out = make(map[string]int, len(m))
 				for k, v := range m {
-					s := s.Append(frizz.MapItem(k))
-					u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+					stack := stack.Append(frizz.MapItem(k))
+					u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 						// nativeUnpacker
-						out, err := frizz.UnpackInt(s, in)
+						out, err := frizz.UnpackInt(stack, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(r, s, v)
+					}(root, stack, v)
 					if err != nil {
 						return value, err
 					}
 					out[k] = u
 				}
 				return out, nil
-			}(r, s, in)
+			}(root, stack, in)
 			if err != nil {
 				return value, err
 			}
 			return &out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Map = u
 	}
 	if v, ok := m["SliceString"]; ok {
-		s := s.Append(frizz.FieldItem("SliceString"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []*string, err error) {
+		stack := stack.Append(frizz.FieldItem("SliceString"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []*string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -620,37 +620,37 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 			}
 			var out = make([]*string, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *string, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *string, err error) {
 					// pointerUnpacker
-					out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+					out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 						// nativeUnpacker
-						out, err := frizz.UnpackString(s, in)
+						out, err := frizz.UnpackString(stack, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(r, s, in)
+					}(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return &out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.SliceString = u
 	}
 	if v, ok := m["SliceInt"]; ok {
-		s := s.Append(frizz.FieldItem("SliceInt"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []*Int, err error) {
+		stack := stack.Append(frizz.FieldItem("SliceInt"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []*Int, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -658,37 +658,37 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 			}
 			var out = make([]*Int, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *Int, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *Int, err error) {
 					// pointerUnpacker
-					out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Int, err error) {
+					out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Int, err error) {
 						// localUnpacker
-						out, err := unpacker_Int(r, s, in)
+						out, err := unpacker_Int(root, stack, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(r, s, in)
+					}(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return &out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.SliceInt = u
 	}
 	if v, ok := m["SliceSub"]; ok {
-		s := s.Append(frizz.FieldItem("SliceSub"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []*sub.Sub, err error) {
+		stack := stack.Append(frizz.FieldItem("SliceSub"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []*sub.Sub, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -696,29 +696,29 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 			}
 			var out = make([]*sub.Sub, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value *sub.Sub, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value *sub.Sub, err error) {
 					// pointerUnpacker
-					out, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value sub.Sub, err error) {
+					out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value sub.Sub, err error) {
 						// selectorUnpacker
-						out, err := sub.Unpackers.Sub(r, s, in)
+						out, err := sub.Unpackers.Sub(root, stack, in)
 						if err != nil {
 							return value, err
 						}
 						return out, nil
-					}(r, s, in)
+					}(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return &out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -726,7 +726,7 @@ func unpacker_Pointers(r *frizz.Root, s frizz.Stack, in interface{}) (value Poin
 	}
 	return out, nil
 }
-func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, err error) {
+func unpacker_Maps(root *frizz.Root, stack frizz.Stack, in interface{}) (value Maps, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -734,8 +734,8 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 	}
 	var out Maps
 	if v, ok := m["Ints"]; ok {
-		s := s.Append(frizz.FieldItem("Ints"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]int, err error) {
+		stack := stack.Append(frizz.FieldItem("Ints"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]int, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -743,30 +743,30 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 			}
 			var out = make(map[string]int, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackInt(s, in)
+					out, err := frizz.UnpackInt(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Ints = u
 	}
 	if v, ok := m["Strings"]; ok {
-		s := s.Append(frizz.FieldItem("Strings"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]string, err error) {
+		stack := stack.Append(frizz.FieldItem("Strings"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]string, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -774,30 +774,30 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 			}
 			var out = make(map[string]string, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackString(s, in)
+					out, err := frizz.UnpackString(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Strings = u
 	}
 	if v, ok := m["Slices"]; ok {
-		s := s.Append(frizz.FieldItem("Slices"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string][]string, err error) {
+		stack := stack.Append(frizz.FieldItem("Slices"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string][]string, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -805,8 +805,8 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 			}
 			var out = make(map[string][]string, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []string, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []string, err error) {
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
@@ -814,37 +814,37 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
-						s := s.Append(frizz.ArrayItem(i))
-						u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+						stack := stack.Append(frizz.ArrayItem(i))
+						u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 							// nativeUnpacker
-							out, err := frizz.UnpackString(s, in)
+							out, err := frizz.UnpackString(stack, in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(r, s, v)
+						}(root, stack, v)
 						if err != nil {
 							return value, err
 						}
 						out[i] = u
 					}
 					return out[:], nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Slices = u
 	}
 	if v, ok := m["Arrays"]; ok {
-		s := s.Append(frizz.FieldItem("Arrays"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string][2]int, err error) {
+		stack := stack.Append(frizz.FieldItem("Arrays"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string][2]int, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -852,8 +852,8 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 			}
 			var out = make(map[string][2]int, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value [2]int, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value [2]int, err error) {
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
@@ -864,37 +864,37 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 						return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 2)
 					}
 					for i, v := range a {
-						s := s.Append(frizz.ArrayItem(i))
-						u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+						stack := stack.Append(frizz.ArrayItem(i))
+						u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 							// nativeUnpacker
-							out, err := frizz.UnpackInt(s, in)
+							out, err := frizz.UnpackInt(stack, in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(r, s, v)
+						}(root, stack, v)
 						if err != nil {
 							return value, err
 						}
 						out[i] = u
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Arrays = u
 	}
 	if v, ok := m["Maps"]; ok {
-		s := s.Append(frizz.FieldItem("Maps"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]map[string]string, err error) {
+		stack := stack.Append(frizz.FieldItem("Maps"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]map[string]string, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -902,8 +902,8 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 			}
 			var out = make(map[string]map[string]string, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]string, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]string, err error) {
 					// mapUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
@@ -911,29 +911,29 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 					}
 					var out = make(map[string]string, len(m))
 					for k, v := range m {
-						s := s.Append(frizz.MapItem(k))
-						u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+						stack := stack.Append(frizz.MapItem(k))
+						u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 							// nativeUnpacker
-							out, err := frizz.UnpackString(s, in)
+							out, err := frizz.UnpackString(stack, in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(r, s, v)
+						}(root, stack, v)
 						if err != nil {
 							return value, err
 						}
 						out[k] = u
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -941,7 +941,7 @@ func unpacker_Maps(r *frizz.Root, s frizz.Stack, in interface{}) (value Maps, er
 	}
 	return out, nil
 }
-func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices, err error) {
+func unpacker_Slices(root *frizz.Root, stack frizz.Stack, in interface{}) (value Slices, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -949,8 +949,8 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 	}
 	var out Slices
 	if v, ok := m["Ints"]; ok {
-		s := s.Append(frizz.FieldItem("Ints"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []int, err error) {
+		stack := stack.Append(frizz.FieldItem("Ints"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []int, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -958,30 +958,30 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 			}
 			var out = make([]int, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackInt(s, in)
+					out, err := frizz.UnpackInt(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Ints = u
 	}
 	if v, ok := m["Strings"]; ok {
-		s := s.Append(frizz.FieldItem("Strings"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []string, err error) {
+		stack := stack.Append(frizz.FieldItem("Strings"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -989,30 +989,30 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 			}
 			var out = make([]string, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackString(s, in)
+					out, err := frizz.UnpackString(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Strings = u
 	}
 	if v, ok := m["ArrayLit"]; ok {
-		s := s.Append(frizz.FieldItem("ArrayLit"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value [5]string, err error) {
+		stack := stack.Append(frizz.FieldItem("ArrayLit"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value [5]string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -1023,30 +1023,30 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 				return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 5)
 			}
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackString(s, in)
+					out, err := frizz.UnpackString(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.ArrayLit = u
 	}
 	if v, ok := m["ArrayExpr"]; ok {
-		s := s.Append(frizz.FieldItem("ArrayExpr"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value [2 * N]int, err error) {
+		stack := stack.Append(frizz.FieldItem("ArrayExpr"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value [2 * N]int, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -1057,30 +1057,30 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 				return value, errors.Errorf("data length %d does not fit in array of length %d", len(a), 2*N)
 			}
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackInt(s, in)
+					out, err := frizz.UnpackInt(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.ArrayExpr = u
 	}
 	if v, ok := m["Structs"]; ok {
-		s := s.Append(frizz.FieldItem("Structs"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []struct {
+		stack := stack.Append(frizz.FieldItem("Structs"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []struct {
 			Int int
 		}, err error) {
 			// sliceUnpacker
@@ -1092,8 +1092,8 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 				Int int
 			}, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value struct {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 					Int int
 				}, err error) {
 					// structUnpacker
@@ -1105,37 +1105,37 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 						Int int
 					}
 					if v, ok := m["Int"]; ok {
-						s := s.Append(frizz.FieldItem("Int"))
-						u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+						stack := stack.Append(frizz.FieldItem("Int"))
+						u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 							// nativeUnpacker
-							out, err := frizz.UnpackInt(s, in)
+							out, err := frizz.UnpackInt(stack, in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(r, s, v)
+						}(root, stack, v)
 						if err != nil {
 							return value, err
 						}
 						out.Int = u
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Structs = u
 	}
 	if v, ok := m["Arrays"]; ok {
-		s := s.Append(frizz.FieldItem("Arrays"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value [][]string, err error) {
+		stack := stack.Append(frizz.FieldItem("Arrays"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value [][]string, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -1143,8 +1143,8 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 			}
 			var out = make([][]string, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []string, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []string, err error) {
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
@@ -1152,29 +1152,29 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
-						s := s.Append(frizz.ArrayItem(i))
-						u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+						stack := stack.Append(frizz.ArrayItem(i))
+						u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 							// nativeUnpacker
-							out, err := frizz.UnpackString(s, in)
+							out, err := frizz.UnpackString(stack, in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(r, s, v)
+						}(root, stack, v)
 						if err != nil {
 							return value, err
 						}
 						out[i] = u
 					}
 					return out[:], nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -1182,7 +1182,7 @@ func unpacker_Slices(r *frizz.Root, s frizz.Stack, in interface{}) (value Slices
 	}
 	return out, nil
 }
-func unpacker_Structs(r *frizz.Root, s frizz.Stack, in interface{}) (value Structs, err error) {
+func unpacker_Structs(root *frizz.Root, stack frizz.Stack, in interface{}) (value Structs, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -1190,8 +1190,8 @@ func unpacker_Structs(r *frizz.Root, s frizz.Stack, in interface{}) (value Struc
 	}
 	var out Structs
 	if v, ok := m["Simple"]; ok {
-		s := s.Append(frizz.FieldItem("Simple"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value struct {
+		stack := stack.Append(frizz.FieldItem("Simple"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 			Int  int
 			Bool bool
 		}, err error) {
@@ -1205,45 +1205,45 @@ func unpacker_Structs(r *frizz.Root, s frizz.Stack, in interface{}) (value Struc
 				Bool bool
 			}
 			if v, ok := m["Int"]; ok {
-				s := s.Append(frizz.FieldItem("Int"))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+				stack := stack.Append(frizz.FieldItem("Int"))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackInt(s, in)
+					out, err := frizz.UnpackInt(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out.Int = u
 			}
 			if v, ok := m["Bool"]; ok {
-				s := s.Append(frizz.FieldItem("Bool"))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value bool, err error) {
+				stack := stack.Append(frizz.FieldItem("Bool"))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value bool, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackBool(s, in)
+					out, err := frizz.UnpackBool(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out.Bool = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Simple = u
 	}
 	if v, ok := m["Complex"]; ok {
-		s := s.Append(frizz.FieldItem("Complex"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value struct {
+		stack := stack.Append(frizz.FieldItem("Complex"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 			String string
 			Inner  struct {
 				Float32 float32
@@ -1261,23 +1261,23 @@ func unpacker_Structs(r *frizz.Root, s frizz.Stack, in interface{}) (value Struc
 				}
 			}
 			if v, ok := m["String"]; ok {
-				s := s.Append(frizz.FieldItem("String"))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+				stack := stack.Append(frizz.FieldItem("String"))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 					// nativeUnpacker
-					out, err := frizz.UnpackString(s, in)
+					out, err := frizz.UnpackString(stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out.String = u
 			}
 			if v, ok := m["Inner"]; ok {
-				s := s.Append(frizz.FieldItem("Inner"))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value struct {
+				stack := stack.Append(frizz.FieldItem("Inner"))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 					Float32 float32
 				}, err error) {
 					// structUnpacker
@@ -1289,29 +1289,29 @@ func unpacker_Structs(r *frizz.Root, s frizz.Stack, in interface{}) (value Struc
 						Float32 float32
 					}
 					if v, ok := m["Float32"]; ok {
-						s := s.Append(frizz.FieldItem("Float32"))
-						u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value float32, err error) {
+						stack := stack.Append(frizz.FieldItem("Float32"))
+						u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value float32, err error) {
 							// nativeUnpacker
-							out, err := frizz.UnpackFloat32(s, in)
+							out, err := frizz.UnpackFloat32(stack, in)
 							if err != nil {
 								return value, err
 							}
 							return out, nil
-						}(r, s, v)
+						}(root, stack, v)
 						if err != nil {
 							return value, err
 						}
 						out.Float32 = u
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out.Inner = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -1319,7 +1319,7 @@ func unpacker_Structs(r *frizz.Root, s frizz.Stack, in interface{}) (value Struc
 	}
 	return out, nil
 }
-func unpacker_Natives(r *frizz.Root, s frizz.Stack, in interface{}) (value Natives, err error) {
+func unpacker_Natives(root *frizz.Root, stack frizz.Stack, in interface{}) (value Natives, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -1327,240 +1327,240 @@ func unpacker_Natives(r *frizz.Root, s frizz.Stack, in interface{}) (value Nativ
 	}
 	var out Natives
 	if v, ok := m["Bool"]; ok {
-		s := s.Append(frizz.FieldItem("Bool"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value bool, err error) {
+		stack := stack.Append(frizz.FieldItem("Bool"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value bool, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackBool(s, in)
+			out, err := frizz.UnpackBool(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Bool = u
 	}
 	if v, ok := m["Byte"]; ok {
-		s := s.Append(frizz.FieldItem("Byte"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value byte, err error) {
+		stack := stack.Append(frizz.FieldItem("Byte"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value byte, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackByte(s, in)
+			out, err := frizz.UnpackByte(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Byte = u
 	}
 	if v, ok := m["Float32"]; ok {
-		s := s.Append(frizz.FieldItem("Float32"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value float32, err error) {
+		stack := stack.Append(frizz.FieldItem("Float32"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value float32, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackFloat32(s, in)
+			out, err := frizz.UnpackFloat32(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Float32 = u
 	}
 	if v, ok := m["Float64"]; ok {
-		s := s.Append(frizz.FieldItem("Float64"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value float64, err error) {
+		stack := stack.Append(frizz.FieldItem("Float64"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value float64, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackFloat64(s, in)
+			out, err := frizz.UnpackFloat64(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Float64 = u
 	}
 	if v, ok := m["Int"]; ok {
-		s := s.Append(frizz.FieldItem("Int"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int, err error) {
+		stack := stack.Append(frizz.FieldItem("Int"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt(s, in)
+			out, err := frizz.UnpackInt(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int = u
 	}
 	if v, ok := m["Int8"]; ok {
-		s := s.Append(frizz.FieldItem("Int8"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int8, err error) {
+		stack := stack.Append(frizz.FieldItem("Int8"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int8, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt8(s, in)
+			out, err := frizz.UnpackInt8(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int8 = u
 	}
 	if v, ok := m["Int16"]; ok {
-		s := s.Append(frizz.FieldItem("Int16"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int16, err error) {
+		stack := stack.Append(frizz.FieldItem("Int16"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int16, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt16(s, in)
+			out, err := frizz.UnpackInt16(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int16 = u
 	}
 	if v, ok := m["Int32"]; ok {
-		s := s.Append(frizz.FieldItem("Int32"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int32, err error) {
+		stack := stack.Append(frizz.FieldItem("Int32"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int32, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt32(s, in)
+			out, err := frizz.UnpackInt32(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int32 = u
 	}
 	if v, ok := m["Int64"]; ok {
-		s := s.Append(frizz.FieldItem("Int64"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value int64, err error) {
+		stack := stack.Append(frizz.FieldItem("Int64"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int64, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackInt64(s, in)
+			out, err := frizz.UnpackInt64(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Int64 = u
 	}
 	if v, ok := m["Uint"]; ok {
-		s := s.Append(frizz.FieldItem("Uint"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value uint, err error) {
+		stack := stack.Append(frizz.FieldItem("Uint"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value uint, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackUint(s, in)
+			out, err := frizz.UnpackUint(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint = u
 	}
 	if v, ok := m["Uint8"]; ok {
-		s := s.Append(frizz.FieldItem("Uint8"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value uint8, err error) {
+		stack := stack.Append(frizz.FieldItem("Uint8"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value uint8, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackUint8(s, in)
+			out, err := frizz.UnpackUint8(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint8 = u
 	}
 	if v, ok := m["Uint16"]; ok {
-		s := s.Append(frizz.FieldItem("Uint16"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value uint16, err error) {
+		stack := stack.Append(frizz.FieldItem("Uint16"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value uint16, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackUint16(s, in)
+			out, err := frizz.UnpackUint16(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint16 = u
 	}
 	if v, ok := m["Uint32"]; ok {
-		s := s.Append(frizz.FieldItem("Uint32"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value uint32, err error) {
+		stack := stack.Append(frizz.FieldItem("Uint32"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value uint32, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackUint32(s, in)
+			out, err := frizz.UnpackUint32(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint32 = u
 	}
 	if v, ok := m["Uint64"]; ok {
-		s := s.Append(frizz.FieldItem("Uint64"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value uint64, err error) {
+		stack := stack.Append(frizz.FieldItem("Uint64"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value uint64, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackUint64(s, in)
+			out, err := frizz.UnpackUint64(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Uint64 = u
 	}
 	if v, ok := m["Rune"]; ok {
-		s := s.Append(frizz.FieldItem("Rune"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value rune, err error) {
+		stack := stack.Append(frizz.FieldItem("Rune"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value rune, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackRune(s, in)
+			out, err := frizz.UnpackRune(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
 		out.Rune = u
 	}
 	if v, ok := m["String"]; ok {
-		s := s.Append(frizz.FieldItem("String"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value string, err error) {
+		stack := stack.Append(frizz.FieldItem("String"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 			// nativeUnpacker
-			out, err := frizz.UnpackString(s, in)
+			out, err := frizz.UnpackString(stack, in)
 			if err != nil {
 				return value, err
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -1569,61 +1569,61 @@ func unpacker_Natives(r *frizz.Root, s frizz.Stack, in interface{}) (value Nativ
 	return out, nil
 }
 func init() {
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "InterfaceField", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_InterfaceField(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "InterfaceField", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_InterfaceField(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Impi", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Impi(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Impi", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Impi(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Imps", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Imps(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Imps", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Imps(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Interface", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Interface(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Interface", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Interface(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Private", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Private(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Private", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Private(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasSub", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_AliasSub(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasSub", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_AliasSub(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasSlice", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_AliasSlice(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasSlice", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_AliasSlice(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasArray", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_AliasArray(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasArray", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_AliasArray(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasMap", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_AliasMap(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasMap", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_AliasMap(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasPointer", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_AliasPointer(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "AliasPointer", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_AliasPointer(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Alias", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Alias(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Alias", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Alias(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Int", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Int(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Int", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Int(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "String", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_String(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "String", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_String(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Qual", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Qual(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Qual", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Qual(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Pointers", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Pointers(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Pointers", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Pointers(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Maps", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Maps(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Maps", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Maps(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Slices", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Slices(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Slices", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Slices(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Structs", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Structs(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Structs", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Structs(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Natives", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Natives(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Natives", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Natives(root, stack, in)
 	})
 }

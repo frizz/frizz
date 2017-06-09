@@ -14,7 +14,7 @@ var Unpackers = struct {
 	Type:  unpacker_Type,
 }
 
-func unpacker_Type(r *frizz.Root, s frizz.Stack, in interface{}) (value Type, err error) {
+func unpacker_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -22,8 +22,8 @@ func unpacker_Type(r *frizz.Root, s frizz.Stack, in interface{}) (value Type, er
 	}
 	var out Type
 	if v, ok := m["Fields"]; ok {
-		s := s.Append(frizz.FieldItem("Fields"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value map[string]Field, err error) {
+		stack := stack.Append(frizz.FieldItem("Fields"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]Field, err error) {
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
@@ -31,22 +31,22 @@ func unpacker_Type(r *frizz.Root, s frizz.Stack, in interface{}) (value Type, er
 			}
 			var out = make(map[string]Field, len(m))
 			for k, v := range m {
-				s := s.Append(frizz.MapItem(k))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value Field, err error) {
+				stack := stack.Append(frizz.MapItem(k))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 					// localUnpacker
-					out, err := unpacker_Field(r, s, in)
+					out, err := unpacker_Field(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[k] = u
 			}
 			return out, nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -54,7 +54,7 @@ func unpacker_Type(r *frizz.Root, s frizz.Stack, in interface{}) (value Type, er
 	}
 	return out, nil
 }
-func unpacker_Field(r *frizz.Root, s frizz.Stack, in interface{}) (value Field, err error) {
+func unpacker_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -62,8 +62,8 @@ func unpacker_Field(r *frizz.Root, s frizz.Stack, in interface{}) (value Field, 
 	}
 	var out Field
 	if v, ok := m["Validators"]; ok {
-		s := s.Append(frizz.FieldItem("Validators"))
-		u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value []common.Validator, err error) {
+		stack := stack.Append(frizz.FieldItem("Validators"))
+		u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, err error) {
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
@@ -71,22 +71,22 @@ func unpacker_Field(r *frizz.Root, s frizz.Stack, in interface{}) (value Field, 
 			}
 			var out = make([]common.Validator, len(a))
 			for i, v := range a {
-				s := s.Append(frizz.ArrayItem(i))
-				u, err := func(r *frizz.Root, s frizz.Stack, in interface{}) (value common.Validator, err error) {
+				stack := stack.Append(frizz.ArrayItem(i))
+				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Unpackers.Validator(r, s, in)
+					out, err := common.Unpackers.Validator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
 					return out, nil
-				}(r, s, v)
+				}(root, stack, v)
 				if err != nil {
 					return value, err
 				}
 				out[i] = u
 			}
 			return out[:], nil
-		}(r, s, v)
+		}(root, stack, v)
 		if err != nil {
 			return value, err
 		}
@@ -95,10 +95,10 @@ func unpacker_Field(r *frizz.Root, s frizz.Stack, in interface{}) (value Field, 
 	return out, nil
 }
 func init() {
-	frizz.DefaultRegistry.Set("frizz.io/system", "Type", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Type(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/system", "Type", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Type(root, stack, in)
 	})
-	frizz.DefaultRegistry.Set("frizz.io/system", "Field", func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Field(r, s, in)
+	frizz.DefaultRegistry.Set("frizz.io/system", "Field", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpacker_Field(root, stack, in)
 	})
 }

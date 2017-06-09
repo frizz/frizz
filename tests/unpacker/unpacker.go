@@ -6,12 +6,24 @@ import (
 	"frizz.io/tests/unpacker/sub"
 )
 
-//frizz
-//type Custom *ast.Expr
+/*
+// frizz
+type Custom struct {
+	ast.Expr
+}
 
-//func (Custom) Unpack(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
-
-//}
+func (Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+	str, ok := in.(string)
+	if !ok {
+		return nil, errors.Errorf("%s: custom type must be string", stack)
+	}
+	expr, err := parser.ParseExpr(str)
+	if err != nil {
+		return nil, errors.Wrapf(err, "%s: parsing type string", stack)
+	}
+	return Custom(expr), nil
+}
+*/
 
 // frizz
 type InterfaceField struct {
