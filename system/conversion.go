@@ -16,6 +16,7 @@ const (
 )
 
 func Convert(name string, in interface{}) (interface{}, error) {
+	// notest
 	switch name {
 	case "bool":
 		return Convert_bool(in)

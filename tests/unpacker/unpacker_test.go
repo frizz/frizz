@@ -123,6 +123,7 @@ func TestUnpackInterface(t *testing.T) {
 		"interface sel not string":   {`{"_type": "(1).Foo"}`, nil, "unpacking into interface, SelectorExpr.X should be *ast.Ident"},
 		"interface import not found": {`{"_type": "foo.Foo"}`, nil, "unpacking into interface, can't find foo in imports"},
 		"interface qual not found":   {`{"_type": "sub.Foo"}`, nil, "unpacking into interface, can't find frizz.io/tests/unpacker/sub.Foo in registry"},
+		"interface unsupported type":   {`{"_type": "[]foo"}`, nil, "unsupported type []foo"},
 	}
 	for name, test := range tests {
 		v := decode(t, name, test.json)

@@ -102,13 +102,13 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 			return rt.Unpacker(ctx, v)
 		}
 		return rt.Unpacker(ctx, in)
-	case *ast.MapType:
+		//case *ast.MapType:
 		// TODO
 		//if key, ok := expr.Key.(*ast.Ident); !ok || key.Name != "string" {
 		//	return nil, errors.New("unpacking map, key must be string")
 		//}
-	case *ast.ArrayType:
+		//case *ast.ArrayType:
 		// TODO
 	}
-	return nil, nil
+	return nil, errors.Errorf("unsupported type %s", ts)
 }
