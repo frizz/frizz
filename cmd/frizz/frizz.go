@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	"frizz.io/system/generate"
+	"frizz.io/frizz/generate"
 )
 
 func main() {

@@ -1,9 +1,17 @@
 package unpacker
 
 import (
-	"frizz.io/tests/unpacker/sub"
 	"fmt"
+
+	"frizz.io/tests/unpacker/sub"
 )
+
+//frizz
+//type Custom *ast.Expr
+
+//func (Custom) Unpack(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
+
+//}
 
 // frizz
 type InterfaceField struct {
@@ -19,6 +27,7 @@ type Impi struct {
 }
 
 func (i Impi) Foo() string {
+	// notest
 	return fmt.Sprint(i.Int)
 }
 
@@ -28,6 +37,7 @@ type Imps struct {
 }
 
 func (i Imps) Foo() string {
+	// notest
 	return i.String
 }
 

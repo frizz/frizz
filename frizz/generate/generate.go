@@ -15,7 +15,7 @@ import (
 
 	"strconv"
 
-	"frizz.io/system/generate/jast"
+	"frizz.io/frizz/generate/jast"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
@@ -23,6 +23,7 @@ import (
 )
 
 func Save(path string) error {
+	// notest
 	env := vos.Os()
 
 	dir, err := patsy.Dir(env, path)
@@ -35,7 +36,7 @@ func Save(path string) error {
 		return errors.WithMessage(err, "error generating source")
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(dir, "generated.frizz.go"), buf.Bytes(), 0777); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(dir, "types.frizz.go"), buf.Bytes(), 0777); err != nil {
 		return errors.Wrap(err, "error saving source")
 	}
 	return nil
@@ -79,14 +80,17 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	var filtered []*ast.Package
 	for name, pkg := range pkgs {
 		if strings.HasSuffix(name, "_test") {
+			// notest
 			continue
 		}
 		filtered = append(filtered, pkg)
 	}
 	if len(filtered) == 0 {
+		// notest
 		return errors.Errorf("can't find Go code in package %s", path)
 	}
 	if len(filtered) > 1 {
+		// notest
 		return errors.Errorf("found more than one package in %s", path)
 	}
 	pkg := filtered[0]
@@ -171,7 +175,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	}
 	/*
 		var Unpackers = struct{
-			<name> func(context.Context, interface{})(<name>, error)
+			<name> func(*frizz.Root, frizz.Stack, interface{})(<name>, error)
 			<...>
 		}{
 			<name>: unpacker_<name>
@@ -182,7 +186,8 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	f.Var().Id("Unpackers").Op("=").StructFunc(func(g *Group) {
 		for _, t := range all {
 			g.Id(t.name).Func().Params(
-				Qual("context", "Context"),
+				Op("*").Qual("frizz.io/frizz", "Root"),
+				Qual("frizz.io/frizz", "Stack"),
 				Interface(),
 			).Params(Id(t.name), Error())
 		}
@@ -197,14 +202,14 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 
 	/*
 		func init() {
-			system.Registry.Set(
-				system.RegistryTypeKey{
+			frizz.DefaultRegistry.Set(
+				frizz.RegistryKey{
 					Path: "<path>",
 					Name: "<name>",
 				},
-				system.RegistryType{
-					Unpacker: func(ctx context.Context, in interface{}) (interface{}, error) {
-						return unpacker_<name>(ctx, in)
+				frizz.RegistryType{
+					Unpack: func(r *frizz.Root, s frizz.Stack, in interface{}) (interface{}, error) {
+						return unpacker_<name>(r, s, in)
 					},
 				},
 			)
@@ -213,19 +218,16 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	*/
 	f.Func().Id("init").Params().BlockFunc(func(g *Group) {
 		for _, t := range all {
-			g.Qual("frizz.io/system", "Registry").Dot("Set").Call(
-				Qual("frizz.io/system", "RegistryTypeKey").Values(Dict{
-					Id("Path"): Lit(t.path),
-					Id("Name"): Lit(t.name),
-				}),
-				Qual("frizz.io/system", "RegistryType").Values(Dict{
-					Id("Unpacker"): Func().Params(
-						Id("ctx").Qual("context", "Context"),
-						Id("in").Interface(),
-					).Params(Interface(), Error()).Block(
-						Return(Id("unpacker_"+t.name).Call(Id("ctx"), Id("in"))),
-					),
-				}),
+			g.Qual("frizz.io/frizz", "DefaultRegistry").Dot("Set").Call(
+				Lit(t.path),
+				Lit(t.name),
+				Func().Params(
+					Id("r").Op("*").Qual("frizz.io/frizz", "Root"),
+					Id("s").Qual("frizz.io/frizz", "Stack"),
+					Id("in").Interface(),
+				).Params(Interface(), Error()).Block(
+					Return(Id("unpacker_"+t.name).Call(Id("r"), Id("s"), Id("in"))),
+				),
 			)
 		}
 	})
@@ -238,7 +240,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 
 func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 	/**
-	func (ctx context.Context, in interface{}) (value <named or spec>, err error) {
+	func (r *frizz.Root, s frizz.Stack, in interface{}) (value <named or spec>, err error) {
 		<...>
 	}
 	*/
@@ -247,7 +249,8 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 			s.Id(function)
 		}
 	}).Params(
-		Id("ctx").Qual("context", "Context"),
+		Id("r").Op("*").Qual("frizz.io/frizz", "Root"),
+		Id("s").Qual("frizz.io/frizz", "Stack"),
 		Id("in").Interface(),
 	).Params(
 		Id("value").Do(func(s *Statement) {
@@ -287,7 +290,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 
 func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias string) {
 	/*
-		out, err := system.UnpackInterface(ctx, in)
+		out, err := r.UnpackInterface(s, in)
 		if err != nil {
 			return value, err
 		}
@@ -298,7 +301,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias str
 		return iface, nil
 	*/
 	g.Comment("interfaceUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Qual("frizz.io/system", "UnpackInterface").Call(Id("ctx"), Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Id("r").Dot("UnpackInterface").Call(Id("s"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -323,7 +326,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias str
 
 func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias string) {
 	/*
-		out, err := <spec.X>.Unpackers.<spec.Sel>(ctx, in)
+		out, err := <spec.X>.Unpackers.<spec.Sel>(r, s, in)
 		if err != nil {
 			return value, err
 		}
@@ -343,7 +346,7 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias strin
 			panic(fmt.Sprintf("%s not found in imports", x.Name))
 		}
 		s.Qual(path, "Unpackers")
-	}).Dot(spec.Sel.Name).Call(Id("ctx"), Id("in"))
+	}).Dot(spec.Sel.Name).Call(Id("r"), Id("s"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -358,14 +361,14 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias strin
 
 func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident, alias string) {
 	/*
-		out, err := unpacker_<spec.Name>(ctx, in)
+		out, err := unpacker_<spec.Name>(r, s, in)
 		if err != nil {
 			return value, err
 		}
 		return <alias?>(out), nil
 	*/
 	g.Comment("localUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Id("unpacker_"+spec.Name).Call(Id("ctx"), Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Id("unpacker_"+spec.Name).Call(Id("r"), Id("s"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -380,14 +383,14 @@ func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident, alias string) {
 
 func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr, alias string) {
 	/*
-		out, err := <unpacker>(ctx, in)
+		out, err := <unpacker>(r, s, in)
 		if err != nil {
 			return value, err
 		}
 		return <alias?>(&out), nil
 	*/
 	g.Comment("pointerUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", "")).Call(Id("ctx"), Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", "")).Call(Id("r"), Id("s"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -408,7 +411,8 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 		}
 		var out = make(<name or spec>, len(m))
 		for k, v := range m {
-			u, err := <unpacker>(ctx, v)
+			s := s.Append(frizz.MapItem(k))
+			u, err := <unpacker>(r, s, v)
 			if err != nil {
 				return value, err
 			}
@@ -434,7 +438,8 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 		}
 	}), Len(Id("m")))
 	g.For(List(Id("k"), Id("v")).Op(":=").Range().Id("m")).Block(
-		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", "")).Call(Id("ctx"), Id("v")),
+		Id("s").Op(":=").Id("s").Dot("Append").Call(Qual("frizz.io/frizz", "MapItem").Parens(Id("k"))),
+		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", "")).Call(Id("r"), Id("s"), Id("v")),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), Err()),
 		),
@@ -458,7 +463,8 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 			}
 		<endif>
 		for i, v := range a {
-			u, err := <unpacker>(ctx, v)
+			s := s.Append(frizz.ArrayItem(i))
+			u, err := <unpacker>(r, s, v)
 			if err != nil {
 				return value, err
 			}
@@ -508,7 +514,8 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 		)
 	}
 	g.For(List(Id("i"), Id("v")).Op(":=").Range().Id("a")).Block(
-		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", "")).Call(Id("ctx"), Id("v")),
+		Id("s").Op(":=").Id("s").Dot("Append").Call(Qual("frizz.io/frizz", "ArrayItem").Parens(Id("i"))),
+		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", "")).Call(Id("r"), Id("s"), Id("v")),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), Err()),
 		),
@@ -531,7 +538,8 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		var out <alias or type>
 		<fields...>
 		if v, ok := m["<jsonName>"]; ok {
-			u, err := <unpacker>(ctx, v)
+			s := s.Append(frizz.FieldItem("<jsonName>"))
+			u, err := <unpacker>(r, s, v)
 			if err != nil {
 				return value, err
 			}
@@ -559,7 +567,8 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 	})
 	for _, field := range spec.Fields.List {
 		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(field.Names[0].Name)), Id("ok")).Block(
-			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("ctx"), Id("v")),
+			Id("s").Op(":=").Id("s").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(field.Names[0].Name))),
+			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("r"), Id("s"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
 			),
@@ -571,14 +580,14 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 
 func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident, alias string) {
 	/*
-		out, err := system.Convert_<spec.Name>(ctx, in)
+		out, err := frizz.Unpack<strings.Title(spec.Name)>(s, in)
 		if err != nil {
 			return nil, err
 		}
 		return <alias?>(out), nil
 	*/
 	g.Comment("nativeUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Qual("frizz.io/system", fmt.Sprintf("Convert_%s", spec.Name)).Call(Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Qual("frizz.io/frizz", fmt.Sprintf("Unpack%s", strings.Title(spec.Name))).Call(Id("s"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
