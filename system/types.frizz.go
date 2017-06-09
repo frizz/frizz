@@ -10,11 +10,11 @@ var Unpackers = struct {
 	Type  func(*frizz.Root, frizz.Stack, interface{}) (Type, error)
 	Field func(*frizz.Root, frizz.Stack, interface{}) (Field, error)
 }{
-	Field: unpacker_Field,
-	Type:  unpacker_Type,
+	Field: unpack_Field,
+	Type:  unpack_Type,
 }
 
-func unpacker_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
+func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -34,7 +34,7 @@ func unpacker_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value T
 				stack := stack.Append(frizz.MapItem(k))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 					// localUnpacker
-					out, err := unpacker_Field(root, stack, in)
+					out, err := unpack_Field(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -54,7 +54,7 @@ func unpacker_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value T
 	}
 	return out, nil
 }
-func unpacker_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
+func unpack_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -96,9 +96,9 @@ func unpacker_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value 
 }
 func init() {
 	frizz.DefaultRegistry.Set("frizz.io/system", "Type", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Type(root, stack, in)
+		return unpack_Type(root, stack, in)
 	})
 	frizz.DefaultRegistry.Set("frizz.io/system", "Field", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Field(root, stack, in)
+		return unpack_Field(root, stack, in)
 	})
 }

@@ -55,8 +55,9 @@ type fileDef struct {
 
 type typeDef struct {
 	*fileDef
-	spec ast.Expr
-	name string
+	custom bool
+	spec   ast.Expr
+	name   string
 }
 
 func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
@@ -113,12 +114,18 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 				return true
 			}
 			var found bool
+			var custom bool
 			if gd.Doc == nil {
 				return true
 			}
 			for _, c := range gd.Doc.List {
 				if c.Text == "// frizz" {
 					found = true
+					break
+				}
+				if c.Text == "// frizz-custom" {
+					found = true
+					custom = true
 					break
 				}
 			}
@@ -164,6 +171,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 			}
 			all = append(all, typeDef{
 				fileDef: file,
+				custom:  custom,
 				name:    ts.Name.Name,
 				spec:    ts.Type,
 			})
@@ -178,10 +186,10 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 			<name> func(*frizz.Root, frizz.Stack, interface{})(<name>, error)
 			<...>
 		}{
-			<name>: unpacker_<name>
+			<name>: unpack_<name>
 			<...>
 		}
-		func unpacker_<name><unpacker...>
+		func unpack_<name><unpacker...>
 	*/
 	f.Var().Id("Unpackers").Op("=").StructFunc(func(g *Group) {
 		for _, t := range all {
@@ -193,24 +201,22 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		}
 	}).Values(DictFunc(func(d Dict) {
 		for _, t := range all {
-			d[Id(t.name)] = Id("unpacker_" + t.name)
+			d[Id(t.name)] = Id("unpack_" + t.name)
 		}
 	}))
 	for _, t := range all {
-		f.Add(t.unpacker(t.spec, t.name, "unpacker_"+t.name))
+		if !t.custom {
+			f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name))
+		}
 	}
 
 	/*
 		func init() {
 			frizz.DefaultRegistry.Set(
-				frizz.RegistryKey{
-					Path: "<path>",
-					Name: "<name>",
-				},
-				frizz.RegistryType{
-					Unpack: func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-						return unpacker_<name>(root, stack, in)
-					},
+				"<path>",
+				"<name>",
+				func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+					return unpack_<name>(root, stack, in)
 				},
 			)
 			<...>
@@ -226,7 +232,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					Id("stack").Qual("frizz.io/frizz", "Stack"),
 					Id("in").Interface(),
 				).Params(Interface(), Error()).Block(
-					Return(Id("unpacker_"+t.name).Call(Id("root"), Id("stack"), Id("in"))),
+					Return(Id("unpack_"+t.name).Call(Id("root"), Id("stack"), Id("in"))),
 				),
 			)
 		}
@@ -290,7 +296,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 
 func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias string) {
 	/*
-		out, err := root.UnpackInterface(s, in)
+		out, err := root.UnpackInterface(stack, in)
 		if err != nil {
 			return value, err
 		}
@@ -361,14 +367,14 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, alias strin
 
 func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident, alias string) {
 	/*
-		out, err := unpacker_<spec.Name>(root, stack, in)
+		out, err := unpack_<spec.Name>(root, stack, in)
 		if err != nil {
 			return value, err
 		}
 		return <alias?>(out), nil
 	*/
 	g.Comment("localUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Id("unpacker_"+spec.Name).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Id("unpack_"+spec.Name).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -411,7 +417,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 		}
 		var out = make(<name or spec>, len(m))
 		for k, v := range m {
-			s := s.Append(frizz.MapItem(k))
+			stack := stack.Append(frizz.MapItem(k))
 			u, err := <unpacker>(root, stack, v)
 			if err != nil {
 				return value, err
@@ -463,7 +469,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 			}
 		<endif>
 		for i, v := range a {
-			s := s.Append(frizz.ArrayItem(i))
+			stack := stack.Append(frizz.ArrayItem(i))
 			u, err := <unpacker>(root, stack, v)
 			if err != nil {
 				return value, err
@@ -538,7 +544,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		var out <alias or type>
 		<fields...>
 		if v, ok := m["<jsonName>"]; ok {
-			s := s.Append(frizz.FieldItem("<jsonName>"))
+			stack := stack.Append(frizz.FieldItem("<jsonName>"))
 			u, err := <unpacker>(root, stack, v)
 			if err != nil {
 				return value, err
@@ -566,21 +572,46 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		}
 	})
 	for _, field := range spec.Fields.List {
-		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(field.Names[0].Name)), Id("ok")).Block(
-			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(field.Names[0].Name))),
+		var name string
+		if len(field.Names) == 0 {
+			// anonymous field
+			typ := field.Type
+			for {
+				// remove any number of stars
+				star, ok := typ.(*ast.StarExpr)
+				if !ok {
+					break
+				}
+				typ = star.X
+			}
+			switch typ := typ.(type) {
+			case *ast.Ident:
+				name = typ.Name
+			case *ast.SelectorExpr:
+				name = typ.Sel.Name
+			default:
+				panic(fmt.Sprintf("can't find name for anonymous field %#v", typ))
+			}
+		} else {
+			// named field
+			name = field.Names[0].Name
+		}
+		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(name)), Id("ok")).Block(
+			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(name))),
 			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("root"), Id("stack"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
 			),
-			Id("out").Dot(field.Names[0].Name).Op("=").Id("u"),
+			Id("out").Dot(name).Op("=").Id("u"),
 		)
+
 	}
 	g.Return(Id("out"), Nil())
 }
 
 func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident, alias string) {
 	/*
-		out, err := frizz.Unpack<strings.Title(spec.Name)>(s, in)
+		out, err := frizz.Unpack<strings.Title(spec.Name)>(stack, in)
 		if err != nil {
 			return nil, err
 		}

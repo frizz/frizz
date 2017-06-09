@@ -16,3 +16,7 @@ type Root struct {
 	*Unpacker
 	Imports map[string]string
 }
+
+type Unpackable interface {
+	Unpack(*Root, Stack, interface{}) (interface{}, error)
+}

@@ -2,28 +2,53 @@ package unpacker
 
 import (
 	"fmt"
+	"go/ast"
+	"go/parser"
 
+	"github.com/pkg/errors"
+
+	"frizz.io/frizz"
 	"frizz.io/tests/unpacker/sub"
 )
 
-/*
-// frizz
-type Custom struct {
-	ast.Expr
-}
+// frizz-custom
+type Custom ast.Expr
 
-func (Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+func unpack_Custom(root *frizz.Root, stack frizz.Stack, in interface{}) (value Custom, err error) {
 	str, ok := in.(string)
 	if !ok {
 		return nil, errors.Errorf("%s: custom type must be string", stack)
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return nil, errors.Wrapf(err, "%s: parsing type string", stack)
+		return nil, errors.Wrapf(err, "%s: parsing expr", stack)
 	}
 	return Custom(expr), nil
 }
-*/
+
+// frizz
+type EmbedNatives struct {
+	Natives
+	Int int
+}
+
+// frizz
+type EmbedPointer struct {
+	*Natives
+	Int int
+}
+
+// frizz
+type EmbedQualPointer struct {
+	*sub.Sub
+	Int int
+}
+
+// frizz
+type EmbedQual struct {
+	sub.Sub
+	Int int
+}
 
 // frizz
 type InterfaceField struct {

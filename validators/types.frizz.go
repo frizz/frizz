@@ -11,12 +11,12 @@ var Unpackers = struct {
 	Items func(*frizz.Root, frizz.Stack, interface{}) (Items, error)
 	Regex func(*frizz.Root, frizz.Stack, interface{}) (Regex, error)
 }{
-	Items: unpacker_Items,
-	Keys:  unpacker_Keys,
-	Regex: unpacker_Regex,
+	Items: unpack_Items,
+	Keys:  unpack_Keys,
+	Regex: unpack_Regex,
 }
 
-func unpacker_Keys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
+func unpack_Keys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -56,7 +56,7 @@ func unpacker_Keys(root *frizz.Root, stack frizz.Stack, in interface{}) (value K
 	}
 	return out, nil
 }
-func unpacker_Items(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
+func unpack_Items(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -96,7 +96,7 @@ func unpacker_Items(root *frizz.Root, stack frizz.Stack, in interface{}) (value 
 	}
 	return out, nil
 }
-func unpacker_Regex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
+func unpack_Regex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -122,12 +122,12 @@ func unpacker_Regex(root *frizz.Root, stack frizz.Stack, in interface{}) (value 
 }
 func init() {
 	frizz.DefaultRegistry.Set("frizz.io/validators", "Keys", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Keys(root, stack, in)
+		return unpack_Keys(root, stack, in)
 	})
 	frizz.DefaultRegistry.Set("frizz.io/validators", "Items", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Items(root, stack, in)
+		return unpack_Items(root, stack, in)
 	})
 	frizz.DefaultRegistry.Set("frizz.io/validators", "Regex", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Regex(root, stack, in)
+		return unpack_Regex(root, stack, in)
 	})
 }

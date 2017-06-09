@@ -7,9 +7,9 @@ import (
 
 var Unpackers = struct {
 	Sub func(*frizz.Root, frizz.Stack, interface{}) (Sub, error)
-}{Sub: unpacker_Sub}
+}{Sub: unpack_Sub}
 
-func unpacker_Sub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Sub, err error) {
+func unpack_Sub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Sub, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -35,6 +35,6 @@ func unpacker_Sub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Su
 }
 func init() {
 	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker/sub", "Sub", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Sub(root, stack, in)
+		return unpack_Sub(root, stack, in)
 	})
 }

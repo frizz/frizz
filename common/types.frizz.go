@@ -7,9 +7,9 @@ import (
 
 var Unpackers = struct {
 	Validator func(*frizz.Root, frizz.Stack, interface{}) (Validator, error)
-}{Validator: unpacker_Validator}
+}{Validator: unpack_Validator}
 
-func unpacker_Validator(root *frizz.Root, stack frizz.Stack, in interface{}) (value Validator, err error) {
+func unpack_Validator(root *frizz.Root, stack frizz.Stack, in interface{}) (value Validator, err error) {
 	// interfaceUnpacker
 	out, err := root.UnpackInterface(stack, in)
 	if err != nil {
@@ -23,6 +23,6 @@ func unpacker_Validator(root *frizz.Root, stack frizz.Stack, in interface{}) (va
 }
 func init() {
 	frizz.DefaultRegistry.Set("frizz.io/common", "Validator", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Validator(root, stack, in)
+		return unpack_Validator(root, stack, in)
 	})
 }

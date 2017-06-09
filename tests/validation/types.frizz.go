@@ -7,9 +7,9 @@ import (
 
 var Unpackers = struct {
 	Simple func(*frizz.Root, frizz.Stack, interface{}) (Simple, error)
-}{Simple: unpacker_Simple}
+}{Simple: unpack_Simple}
 
-func unpacker_Simple(root *frizz.Root, stack frizz.Stack, in interface{}) (value Simple, err error) {
+func unpack_Simple(root *frizz.Root, stack frizz.Stack, in interface{}) (value Simple, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -50,6 +50,6 @@ func unpacker_Simple(root *frizz.Root, stack frizz.Stack, in interface{}) (value
 }
 func init() {
 	frizz.DefaultRegistry.Set("frizz.io/tests/validation", "Simple", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpacker_Simple(root, stack, in)
+		return unpack_Simple(root, stack, in)
 	})
 }

@@ -80,6 +80,6 @@ func (u *Unpacker) Unpack(in interface{}) (interface{}, error) {
 		Unpacker: u,
 		Imports:  make(map[string]string),
 	}
-	s := Stack{}
+	s := Stack{RootItem("root")}
 	return r.UnpackInterface(s, in)
 }

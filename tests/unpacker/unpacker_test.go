@@ -10,6 +10,8 @@ import (
 	"frizz.io/frizz"
 	"frizz.io/tests/unpacker/sub"
 
+	"go/ast"
+
 	"github.com/pkg/errors"
 )
 
@@ -17,6 +19,31 @@ type test struct {
 	json     string
 	expected interface{}
 	error    string
+}
+
+func TestCustom(t *testing.T) {
+	tests := map[string]test{
+		"custom ident": {
+			`"Foo"`,
+			&ast.Ident{NamePos: 1, Name: "Foo", Obj: &ast.Object{}},
+			"",
+		},
+		"custom sel": {
+			`"foo.Bar"`,
+			&ast.SelectorExpr{
+				X:   &ast.Ident{NamePos: 1, Name: "foo", Obj: &ast.Object{}},
+				Sel: &ast.Ident{NamePos: 5, Name: "Bar", Obj: nil},
+			},
+			""},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		r, s := root()
+		result, err := Unpackers.Custom(r, s, v)
+
+		ensure(t, name, test, err, result)
+	}
 }
 
 func TestImports(t *testing.T) {
@@ -543,7 +570,7 @@ func root() (*frizz.Root, frizz.Stack) {
 		Unpacker: frizz.New("frizz.io/tests/unpacker"),
 		Imports:  make(map[string]string),
 	}
-	s := frizz.Stack{}
+	s := frizz.Stack{frizz.RootItem("root")}
 	return r, s
 }
 

@@ -10,14 +10,12 @@ func (s Stack) Append(item stackItem) Stack {
 	return append(n, item)
 }
 
-func (s Stack) String() {
+func (s Stack) String() string {
 	var str string
-	for i, item := range s {
-		if i != 0 {
-			str += "."
-		}
+	for _, item := range s {
 		str += item.String()
 	}
+	return str
 }
 
 type stackItem interface {
@@ -36,13 +34,13 @@ func (MapItem) stackItem()   {}
 func (ArrayItem) stackItem() {}
 
 func (r RootItem) String() string {
-	return fmt.Sprintf(`{%s}`, r)
+	return fmt.Sprintf(`%s`, string(r))
 }
 func (f FieldItem) String() string {
-	return string(f)
+	return fmt.Sprintf(`.%s`, string(f))
 }
 func (m MapItem) String() string {
-	return fmt.Sprintf(`["%s"]`, m)
+	return fmt.Sprintf(`["%s"]`, string(m))
 }
 func (a ArrayItem) String() string {
 	return fmt.Sprintf(`[%d]`, a)
