@@ -14,7 +14,7 @@ func unpacker_Sub(ctx context.Context, in interface{}) (value Sub, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Sub
 	if v, ok := m["String"]; ok {

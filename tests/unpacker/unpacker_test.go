@@ -9,402 +9,302 @@ import (
 
 	"frizz.io/tests/unpacker/sub"
 
+	"context"
+
 	"frizz.io/system"
 	"github.com/pkg/errors"
 )
 
-func TestInterfaceFieldSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected InterfaceField
-	}{
-		"interface field": {`
-			{"Iface": {"_type": "Impi", "Int": 1}}`,
-			InterfaceField{Iface: Impi{Int: 1}},
-		},
-		"interface slice": {`
-			{"Slice": [{"_type": "Impi", "Int": 1}, {"_type": "Imps", "String": "a"}]}`,
-			InterfaceField{Slice: []Interface{Impi{Int: 1}, Imps{String: "a"}}},
-		},
-	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		ctx := system.NewContext()
-		uc := ctx.Value(system.UnpackContextKey).(*system.UnpackContext)
-		uc.Path = "frizz.io/tests/unpacker"
-		result, err := Unpackers.InterfaceField(ctx, v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
-	}
+type test struct {
+	json     string
+	expected interface{}
+	error    string
 }
 
-func TestUnpackInterfaceSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected interface{}
-	}{
-		"imterface string": {`
-			{"_type": "string", "_value": "a"}`,
-			"a",
-		},
-		"interface natives": {`
-			{"_type": "Natives", "_value": {"String": "a"}}`,
-			Natives{String: "a"},
-		},
-		"interface sub": {`
-			{"_type": "sub.Sub", "_value": {"String": "a"}}`,
+func TestImports(t *testing.T) {
+	tests := map[string]test{
+		"imports": {
+			`{
+				"_import": {"sub": "frizz.io/tests/unpacker/sub"},
+				"_type": "sub.Sub",
+				"String": "a"
+			}`,
 			sub.Sub{String: "a"},
+			"",
 		},
-		"interface natives no value": {`
-			{"_type": "Natives", "String": "a"}`,
-			Natives{String: "a"},
-		},
-		"interface sub no value": {`
-			{"_type": "sub.Sub", "String": "a"}`,
-			sub.Sub{String: "a"},
-		},
+		"imports not map":  {`{"_type": "Natives", "_import": []}`, nil, "unpacking into interface, _import should be a map"},
+		"imports values":   {`{"_type": "Natives", "_import": {"foo": 1}}`, nil, "unpacking into interface, _import values should be strings"},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		ctx := system.NewContext()
-		uc := ctx.Value(system.UnpackContextKey).(*system.UnpackContext)
-		uc.Path = "frizz.io/tests/unpacker"
-		uc.Set("sub", "frizz.io/tests/unpacker/sub")
+		v := decode(t, name, test.json)
+
+		ctx := system.NewContext("frizz.io/tests/unpacker")
 		result, err := system.UnpackInterface(ctx, v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestPrivateSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Private
-	}{
-		"private": {`
-			{"i": 1, "s": "a"}`,
-			Private{i: 1, s: "a"},
+func TestInterfaceField(t *testing.T) {
+	tests := map[string]test{
+		"interface field": {
+			`{
+				"Iface": {"_type": "Impi", "Int": 1}
+			}`,
+			InterfaceField{Iface: Impi{Int: 1}},
+			"",
 		},
-	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Private(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
-	}
-}
-
-func TestAliasSubSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected AliasSub
-	}{
-		"alias sub": {`
-			{"String": "a"}`,
-			AliasSub{String: "a"},
+		"interface field slice": {
+			`{
+				"Slice": [
+					{"_type": "Impi", "Int": 1},
+					{"_type": "Imps", "String": "a"}
+				]
+			}`,
+			InterfaceField{Slice: []Interface{Impi{Int: 1}, Imps{String: "a"}}},
+			"",
 		},
-	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.AliasSub(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
-	}
-}
-
-func TestAliasSliceSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected AliasSlice
-	}{
-		"alias slice": {`
-			[1, 2, 3]`,
-			AliasSlice{1, 2, 3},
+		"interface field array": {
+			`{
+				"Array": [
+					{"_type": "Impi", "Int": 1},
+					{"_type": "Imps", "String": "a"}
+				]
+			}`,
+			InterfaceField{Array: [3]Interface{Impi{Int: 1}, Imps{String: "a"}}},
+			"",
 		},
-	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.AliasSlice(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
-	}
-}
-
-func TestAliasArraySuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected AliasArray
-	}{
-		"alias array": {`
-			["a", "b", "c"]`,
-			AliasArray{"a", "b", "c"},
-		},
-	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.AliasArray(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
-	}
-}
-
-func TestAliasArrayFail(t *testing.T) {
-	tests := map[string]struct {
-		json  string
-		error string
-	}{
-		"alias array too long": {
-			`["a", "b", "c", "d"]`,
+		"interface field array too long": {
+			`{
+				"Array": [
+					{"_type": "Impi", "Int": 1},
+					{"_type": "Impi", "Int": 1},
+					{"_type": "Impi", "Int": 1},
+					{"_type": "Imps", "String": "a"}
+				]
+			}`,
+			nil,
 			"data length 4 does not fit in array of length 3",
 		},
+		"interface field map": {
+			`{
+				"Map": {
+					"a": {"_type": "Impi", "Int": 1},
+					"b": {"_type": "Imps", "String": "a"}
+				}
+			}`,
+			InterfaceField{Map: map[string]Interface{"a": Impi{Int: 1}, "b": Imps{String: "a"}}},
+			"",
+		},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatalf("%s error decoding %s", name, err)
-		}
-		_, errtest := Unpackers.AliasArray(system.NewContext(), v)
-		if errtest == nil {
-			t.Fatalf("%s expected error %s, got nil", name, test.error)
-		}
-		if !strings.Contains(errors.Cause(errtest).Error(), test.error) {
-			t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
-		}
+		v := decode(t, name, test.json)
+
+		ctx := system.NewContext("frizz.io/tests/unpacker")
+		result, err := Unpackers.InterfaceField(ctx, v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestAliasMapSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected AliasMap
-	}{
-		"alias map": {`
-			{"a": {"Sub": {"String": "a"}}, "b": {"Sub": {"String": "b"}}}`,
+func TestUnpackInterface(t *testing.T) {
+	tests := map[string]test{
+		"interface string":           {`{"_type": "string", "_value": "a"}`, "a", ""},
+		"interface natives":          {`{"_type": "Natives", "_value": {"String": "a"}}`, Natives{String: "a"}, ""},
+		"interface sub":              {`{"_type": "sub.Sub", "_value": {"String": "a"}}`, sub.Sub{String: "a"}, ""},
+		"interface natives no value": {`{"_type": "Natives", "String": "a"}`, Natives{String: "a"}, ""},
+		"interface sub no value":     {`{"_type": "sub.Sub", "String": "a"}`, sub.Sub{String: "a"}, ""},
+		"interface type not found":   {`{"_type": "Foo"}`, nil, "unpacking into interface, can't find frizz.io/tests/unpacker.Foo in type registry"},
+		"interface no _type":         {`{"foo": "bar"}`, nil, "unpacking into interface, _type field missing"},
+		"interface not map":          {`[1, 2]`, nil, "unpacking into interface, value should be a map"},
+		"interface _type wrong type": {`{"_type": true}`, nil, "unpacking into interface, _type should be a string"},
+		"interface parsing type":     {`{"_type": "^"}`, nil, "1:2: expected operand, found 'EOF'"},
+		"interface missing value":    {`{"_type": "int"}`, nil, "unpacking native type into interface, _value field missing"},
+		"interface sel not string":   {`{"_type": "(1).Foo"}`, nil, "unpacking into interface, SelectorExpr.X should be *ast.Ident"},
+		"interface import not found": {`{"_type": "foo.Foo"}`, nil, "unpacking into interface, can't find foo in imports"},
+		"interface qual not found":   {`{"_type": "sub.Foo"}`, nil, "unpacking into interface, can't find frizz.io/tests/unpacker/sub.Foo in registry"},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		ctx := system.NewContext("frizz.io/tests/unpacker")
+		uc := ctx.Value(system.UnpackContextKey).(*system.UnpackContext)
+		uc.Set("sub", "frizz.io/tests/unpacker/sub")
+		result, err := system.UnpackInterface(ctx, v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestUnpackInterfaceNoPath(t *testing.T) {
+	tests := map[string]test{
+		"interface local path not set": {`{"_type": "Natives"}`, nil, "unpacking into interface, local path is not set"},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		ctx := system.NewContext("")
+		result, err := system.UnpackInterface(ctx, v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestUnpackInterfaceNoContext(t *testing.T) {
+	tests := map[string]test{
+		"interface context missing": {`{"_type": "Natives"}`, nil, "unpacking into interface, unpack context not found"},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		result, err := system.UnpackInterface(context.Background(), v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestPrivate(t *testing.T) {
+	tests := map[string]test{
+		"private": {`{"i": 1, "s": "a"}`, Private{i: 1, s: "a"}, ""},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Private(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestAliasSub(t *testing.T) {
+	tests := map[string]test{
+		"alias sub": {`{"String": "a"}`, AliasSub{String: "a"}, ""},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.AliasSub(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestAliasSlice(t *testing.T) {
+	tests := map[string]test{
+		"alias slice": {`[1, 2, 3]`, AliasSlice{1, 2, 3}, ""},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.AliasSlice(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestAliasArray(t *testing.T) {
+	tests := map[string]test{
+		"alias array":          {`["a", "b", "c"]`, AliasArray{"a", "b", "c"}, ""},
+		"alias array too long": {`["a", "b", "c", "d"]`, nil, "data length 4 does not fit in array of length 3"},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.AliasArray(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestAliasMap(t *testing.T) {
+	tests := map[string]test{
+		"alias map": {
+			`{"a": {"Sub": {"String": "a"}}, "b": {"Sub": {"String": "b"}}}`,
 			AliasMap{
 				"a": &Qual{Sub: sub.Sub{String: "a"}},
 				"b": &Qual{Sub: sub.Sub{String: "b"}},
 			},
+			"",
 		},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.AliasMap(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.AliasMap(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestAliasPointerSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected AliasPointer
-	}{
-		"alias pointer": {`
-			4`,
-			AliasPointer(func() *Int { i := Int(4); return &i }()),
-		},
+func TestAliasPointe(t *testing.T) {
+	tests := map[string]test{
+		"alias pointer": {`4`, AliasPointer(func() *Int { i := Int(4); return &i }()), ""},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.AliasPointer(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.AliasPointer(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestAliasSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Alias
-	}{
-		"alias": {`
-			3`,
-			Alias(3),
-		},
+func TestAlias(t *testing.T) {
+	tests := map[string]test{
+		"alias": {`3`, Alias(3), ""},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Alias(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Alias(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestIntSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Int
-	}{
-		"int": {`
-			2`,
-			Int(2),
-		},
+func TestInt(t *testing.T) {
+	tests := map[string]test{
+		"int": {`2`, Int(2), ""},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Int(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Int(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestStringSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected String
-	}{
-		"string": {`
-			"a"`,
-			String("a"),
-		},
+func TestString(t *testing.T) {
+	tests := map[string]test{
+		"string": {`"a"`, String("a"), ""},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.String(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.String(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestQualSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Qual
-	}{
-		"qual": {`
-			{
-				"Sub": {"String": "a"}
-			}`,
-			Qual{
-				Sub: sub.Sub{String: "a"},
-			},
-		},
+func TestQual(t *testing.T) {
+	tests := map[string]test{
+		"qual": {`{"Sub": {"String": "a"}}`, Qual{Sub: sub.Sub{String: "a"}}, ""},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Qual(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Qual(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestPointersSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Pointers
-	}{
-		"pointers": {`
-			{
+func TestPointers(t *testing.T) {
+	tests := map[string]test{
+		"pointers": {
+			`{
 				"String": "a",
 				"Int": 2,
 				"Sub": {"String": "a"},
@@ -426,32 +326,22 @@ func TestPointersSuccess(t *testing.T) {
 				SliceInt:    []*Int{func() *Int { i := Int(1); return &i }()},
 				SliceSub:    []*sub.Sub{{String: "a"}},
 			},
+			"",
 		},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Pointers(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Pointers(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestMapsSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Maps
-	}{
-		"maps": {`
-			{
+func TestMaps(t *testing.T) {
+	tests := map[string]test{
+		"maps": {
+			`{
 				"Ints": {"a": 1, "b": 2, "c": 3},
 				"Strings": {"a": "b", "c": "d", "e": "f"},
 				"Slices": {"a": ["b", "c"], "d": ["e", "f", "g"]},
@@ -465,32 +355,22 @@ func TestMapsSuccess(t *testing.T) {
 				Arrays:  map[string][2]int{"a": {1, 2}, "b": {3, 4}},
 				Maps:    map[string]map[string]string{"a": {"b": "c"}, "d": {"e": "f"}},
 			},
+			"",
 		},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Maps(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Maps(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestSlicesSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Slices
-	}{
-		"slices": {`
-			{
+func TestSlices(t *testing.T) {
+	tests := map[string]test{
+		"slices": {
+			`{
 				"Ints": [1, 2, 3],
 				"Strings": ["a", "b", "c"],
 				"ArrayLit": ["a", "b", "c", "d", "e"],
@@ -512,71 +392,26 @@ func TestSlicesSuccess(t *testing.T) {
 					{"c", "d"},
 				},
 			},
+			"",
 		},
+		"array lit too long":  {`{"ArrayLit": ["a", "b", "c", "d", "e", "f"]}`, nil, "data length 6 does not fit in array of length 5"},
+		"array expr too long": {`{"ArrayExpr": [1, 2, 3, 4, 5]}`, nil, "data length 5 does not fit in array of length 4"},
+		"wrong type map":      {`{"Strings": {"a": "b"}}`, nil, "unpacking into slice, value should be an array"},
+		"wrong type int":      {`{"Ints": 1}`, nil, "unpacking into slice, value should be an array"},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Slices(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Slices(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestSlicesErrors(t *testing.T) {
-	tests := map[string]struct {
-		json  string
-		error string
-	}{
-		"array lit too long": {
-			`{"ArrayLit": ["a", "b", "c", "d", "e", "f"]}`,
-			"data length 6 does not fit in array of length 5",
-		},
-		"array expr too long": {
-			`{"ArrayExpr": [1, 2, 3, 4, 5]}`,
-			"data length 5 does not fit in array of length 4",
-		},
-		"wrong type map": {
-			`{"Strings": {"a": "b"}}`,
-			"error unpacking into slice, value should be an array",
-		},
-		"wrong type int": {
-			`{"Ints": 1}`,
-			"error unpacking into slice, value should be an array",
-		},
-	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatalf("%s error decoding %s", name, err)
-		}
-		_, errtest := Unpackers.Slices(system.NewContext(), v)
-		if errtest == nil {
-			t.Fatalf("%s expected error %s, got nil", name, test.error)
-		}
-		if !strings.Contains(errors.Cause(errtest).Error(), test.error) {
-			t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
-		}
-	}
-}
-
-func TestStructsSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Structs
-	}{
-		"structs": {`
-			{
+func TestStructs(t *testing.T) {
+	tests := map[string]test{
+		"structs": {
+			`{
 				"Simple": {
 					"Int": 1, 
 					"Bool": true
@@ -610,135 +445,122 @@ func TestStructsSuccess(t *testing.T) {
 					},
 				},
 			},
+			"",
 		},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Structs(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if result != test.expected {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Structs(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestNativesSuccess(t *testing.T) {
-	tests := map[string]struct {
-		json     string
-		expected Natives
-	}{
-		"int":              {`{"Int": 1}`, Natives{Int: 1}},
-		"int negative":     {`{"Int": -1}`, Natives{Int: -1}},
-		"int8 small":       {`{"Int8": -128}`, Natives{Int8: -128}},
-		"int8 big":         {`{"Int8": 127}`, Natives{Int8: 127}},
-		"int16 small":      {`{"Int16": -32768}`, Natives{Int16: -32768}},
-		"int16 big":        {`{"Int16": 32767}`, Natives{Int16: 32767}},
-		"int32 small":      {`{"Int32": -2147483648}`, Natives{Int32: -2147483648}},
-		"int32 big":        {`{"Int32": 2147483647}`, Natives{Int32: 2147483647}},
-		"int64 small":      {`{"Int64": -9223372036854775808}`, Natives{Int64: -9223372036854775808}},
-		"int64 big":        {`{"Int64": 9223372036854775807}`, Natives{Int64: 9223372036854775807}},
-		"uint":             {`{"Uint": 1}`, Natives{Uint: 1}},
-		"uint8 big":        {`{"Uint8": 255}`, Natives{Uint8: 255}},
-		"uint16 big":       {`{"Uint16": 65535}`, Natives{Uint16: 65535}},
-		"uint32 big":       {`{"Uint32": 4294967295}`, Natives{Uint32: 4294967295}},
-		"uint64 big":       {`{"Uint64": 18446744073709551615}`, Natives{Uint64: 18446744073709551615}},
-		"string":           {`{"String": "a"}`, Natives{String: "a"}},
-		"rune":             {`{"Rune": "😀"}`, Natives{Rune: '😀'}},
-		"bool true":        {`{"Bool": true}`, Natives{Bool: true}},
-		"bool false":       {`{"Bool": false}`, Natives{Bool: false}},
-		"byte":             {`{"Byte": 123}`, Natives{Byte: byte(123)}},
-		"float32":          {`{"Float32": 1.5}`, Natives{Float32: 1.5}},
-		"float32 negative": {`{"Float32": -1.5}`, Natives{Float32: -1.5}},
-		"float64":          {`{"Float64": 1.5}`, Natives{Float64: 1.5}},
-		"float64 negative": {`{"Float64": -1.5}`, Natives{Float64: -1.5}},
+func TestNatives(t *testing.T) {
+	tests := map[string]test{
+		"int":                {`{"Int": 1}`, Natives{Int: 1}, ""},
+		"int negative":       {`{"Int": -1}`, Natives{Int: -1}, ""},
+		"int8 small":         {`{"Int8": -128}`, Natives{Int8: -128}, ""},
+		"int8 big":           {`{"Int8": 127}`, Natives{Int8: 127}, ""},
+		"int16 small":        {`{"Int16": -32768}`, Natives{Int16: -32768}, ""},
+		"int16 big":          {`{"Int16": 32767}`, Natives{Int16: 32767}, ""},
+		"int32 small":        {`{"Int32": -2147483648}`, Natives{Int32: -2147483648}, ""},
+		"int32 big":          {`{"Int32": 2147483647}`, Natives{Int32: 2147483647}, ""},
+		"int64 small":        {`{"Int64": -9223372036854775808}`, Natives{Int64: -9223372036854775808}, ""},
+		"int64 big":          {`{"Int64": 9223372036854775807}`, Natives{Int64: 9223372036854775807}, ""},
+		"uint":               {`{"Uint": 1}`, Natives{Uint: 1}, ""},
+		"uint8 big":          {`{"Uint8": 255}`, Natives{Uint8: 255}, ""},
+		"uint16 big":         {`{"Uint16": 65535}`, Natives{Uint16: 65535}, ""},
+		"uint32 big":         {`{"Uint32": 4294967295}`, Natives{Uint32: 4294967295}, ""},
+		"uint64 big":         {`{"Uint64": 18446744073709551615}`, Natives{Uint64: 18446744073709551615}, ""},
+		"string":             {`{"String": "a"}`, Natives{String: "a"}, ""},
+		"rune":               {`{"Rune": "😀"}`, Natives{Rune: '😀'}, ""},
+		"bool true":          {`{"Bool": true}`, Natives{Bool: true}, ""},
+		"bool false":         {`{"Bool": false}`, Natives{Bool: false}, ""},
+		"byte":               {`{"Byte": 123}`, Natives{Byte: byte(123)}, ""},
+		"float32":            {`{"Float32": 1.5}`, Natives{Float32: 1.5}, ""},
+		"float32 negative":   {`{"Float32": -1.5}`, Natives{Float32: -1.5}, ""},
+		"float64":            {`{"Float64": 1.5}`, Natives{Float64: 1.5}, ""},
+		"float64 negative":   {`{"Float64": -1.5}`, Natives{Float64: -1.5}, ""},
+		"int fraction":       {`{"Int": 1.5}`, nil, `strconv.ParseInt: parsing "1.5": invalid syntax`},
+		"int string":         {`{"Int": "a"}`, nil, `unpacking into int, value "a" should be json.Number`},
+		"int bool":           {`{"Int": false}`, nil, `unpacking into int, value false should be json.Number`},
+		"int8 too small":     {`{"Int8": -129}`, nil, `strconv.ParseInt: parsing "-129": value out of range`},
+		"int8 too big":       {`{"Int8": 128}`, nil, `strconv.ParseInt: parsing "128": value out of range`},
+		"int8 wrong type":    {`{"Int8": "a"}`, nil, `unpacking into int8, value "a" should be json.Number`},
+		"int16 too small":    {`{"Int16": -32769}`, nil, `strconv.ParseInt: parsing "-32769": value out of range`},
+		"int16 too big":      {`{"Int16": 32768}`, nil, `strconv.ParseInt: parsing "32768": value out of range`},
+		"int16 wrong type":   {`{"Int16": "a"}`, nil, `unpacking into int16, value "a" should be json.Number`},
+		"int32 too small":    {`{"Int32": -2147483649}`, nil, `strconv.ParseInt: parsing "-2147483649": value out of range`},
+		"int32 too big":      {`{"Int32": 2147483648}`, nil, `strconv.ParseInt: parsing "2147483648": value out of range`},
+		"int32 wrong type":   {`{"Int32": "a"}`, nil, `unpacking into int32, value "a" should be json.Number`},
+		"int64 too small":    {`{"Int64": -9223372036854775809}`, nil, `strconv.ParseInt: parsing "-9223372036854775809": value out of range`},
+		"int64 too big":      {`{"Int64": 9223372036854775808}`, nil, `strconv.ParseInt: parsing "9223372036854775808": value out of range`},
+		"int64 wrong type":   {`{"Int64": "a"}`, nil, `unpacking into int64, value "a" should be json.Number`},
+		"uint negative":      {`{"Uint": -1}`, nil, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint wrong type":    {`{"Uint": "a"}`, nil, `unpacking into uint, value "a" should be json.Number`},
+		"uint8 negative":     {`{"Uint8": -1}`, nil, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint8 too big":      {`{"Uint8": 256}`, nil, `strconv.ParseUint: parsing "256": value out of range`},
+		"uint8 wrong type":   {`{"Uint8": "a"}`, nil, `unpacking into uint8, value "a" should be json.Number`},
+		"uint16 negative":    {`{"Uint16": -1}`, nil, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint16 too big":     {`{"Uint16": 65536}`, nil, `strconv.ParseUint: parsing "65536": value out of range`},
+		"uint16 wrong type":  {`{"Uint16": "a"}`, nil, `unpacking into uint16, value "a" should be json.Number`},
+		"uint32 negative":    {`{"Uint32": -1}`, nil, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint32 too big":     {`{"Uint32": 4294967296}`, nil, `strconv.ParseUint: parsing "4294967296": value out of range`},
+		"uint32 wrong type":  {`{"Uint32": "a"}`, nil, `unpacking into uint32, value "a" should be json.Number`},
+		"uint64 negative":    {`{"Uint64": -1}`, nil, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"uint64 too big":     {`{"Uint64": 18446744073709551616}`, nil, `strconv.ParseUint: parsing "18446744073709551616": value out of range`},
+		"uint64 wrong type":  {`{"Uint64": "a"}`, nil, `unpacking into uint64, value "a" should be json.Number`},
+		"string number":      {`{"String": 1.0}`, nil, `unpacking into string, value "1.0" should be string`},
+		"string bool":        {`{"String": false}`, nil, `unpacking into string, value false should be string`},
+		"rune wrong type":    {`{"Rune": 1}`, nil, `unpacking into rune, value "1" should be string`},
+		"rune too long":      {`{"Rune": "aa"}`, nil, `unpacking into rune: string should have a single rune`},
+		"bool number":        {`{"Bool": 1.0}`, nil, `unpacking into bool, value "1.0" should be bool`},
+		"bool string":        {`{"Bool": "a"}`, nil, `unpacking into bool, value "a" should be bool`},
+		"byte negative":      {`{"Byte": -1}`, nil, `strconv.ParseUint: parsing "-1": invalid syntax`},
+		"byte too big":       {`{"Byte": 256}`, nil, `strconv.ParseUint: parsing "256": value out of range`},
+		"byte wrong type":    {`{"Byte": "a"}`, nil, `unpacking into byte, value "a" should be json.Number`},
+		"float32 wrong type": {`{"Float32": "a"}`, nil, `unpacking into float32, value "a" should be json.Number`},
+		"float32 too big":    {`{"Float32": 1e99}`, nil, `strconv.ParseFloat: parsing "1e99": value out of range`},
+		"float32 too small":  {`{"Float32": -1e99}`, nil, `strconv.ParseFloat: parsing "-1e99": value out of range`},
+		"float64 wrong type": {`{"Float64": "a"}`, nil, `unpacking into float64, value "a" should be json.Number`},
+		"float64 too big":    {`{"Float64": 1e999}`, nil, `strconv.ParseFloat: parsing "1e999": value out of range`},
+		"float64 too small":  {`{"Float64": -1e999}`, nil, `strconv.ParseFloat: parsing "-1e999": value out of range`},
 	}
 	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatal("Error decoding", err)
-		}
-		result, err := Unpackers.Natives(system.NewContext(), v)
-		if err != nil {
-			t.Fatalf("Error while unpacking %s: %s", name, err)
-		}
-		if result != test.expected {
-			t.Fatalf("Result %#v not what expected while unpacking %s", result, name)
-		}
+		v := decode(t, name, test.json)
+
+		result, err := Unpackers.Natives(system.NewContext(""), v)
+
+		ensure(t, name, test, err, result)
 	}
 }
 
-func TestNativesErrors(t *testing.T) {
-	tests := map[string]struct {
-		json  string
-		error string
-	}{
-		"int fraction":       {`{"Int": 1.5}`, `strconv.ParseInt: parsing "1.5": invalid syntax`},
-		"int string":         {`{"Int": "a"}`, `unpacking into int, value "a" should be json.Number`},
-		"int bool":           {`{"Int": false}`, `unpacking into int, value false should be json.Number`},
-		"int8 too small":     {`{"Int8": -129}`, `strconv.ParseInt: parsing "-129": value out of range`},
-		"int8 too big":       {`{"Int8": 128}`, `strconv.ParseInt: parsing "128": value out of range`},
-		"int8 wrong type":    {`{"Int8": "a"}`, `unpacking into int8, value "a" should be json.Number`},
-		"int16 too small":    {`{"Int16": -32769}`, `strconv.ParseInt: parsing "-32769": value out of range`},
-		"int16 too big":      {`{"Int16": 32768}`, `strconv.ParseInt: parsing "32768": value out of range`},
-		"int16 wrong type":   {`{"Int16": "a"}`, `unpacking into int16, value "a" should be json.Number`},
-		"int32 too small":    {`{"Int32": -2147483649}`, `strconv.ParseInt: parsing "-2147483649": value out of range`},
-		"int32 too big":      {`{"Int32": 2147483648}`, `strconv.ParseInt: parsing "2147483648": value out of range`},
-		"int32 wrong type":   {`{"Int32": "a"}`, `unpacking into int32, value "a" should be json.Number`},
-		"int64 too small":    {`{"Int64": -9223372036854775809}`, `strconv.ParseInt: parsing "-9223372036854775809": value out of range`},
-		"int64 too big":      {`{"Int64": 9223372036854775808}`, `strconv.ParseInt: parsing "9223372036854775808": value out of range`},
-		"int64 wrong type":   {`{"Int64": "a"}`, `unpacking into int64, value "a" should be json.Number`},
-		"uint negative":      {`{"Uint": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint wrong type":    {`{"Uint": "a"}`, `unpacking into uint, value "a" should be json.Number`},
-		"uint8 negative":     {`{"Uint8": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint8 too big":      {`{"Uint8": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
-		"uint8 wrong type":   {`{"Uint8": "a"}`, `unpacking into uint8, value "a" should be json.Number`},
-		"uint16 negative":    {`{"Uint16": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint16 too big":     {`{"Uint16": 65536}`, `strconv.ParseUint: parsing "65536": value out of range`},
-		"uint16 wrong type":  {`{"Uint16": "a"}`, `unpacking into uint16, value "a" should be json.Number`},
-		"uint32 negative":    {`{"Uint32": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint32 too big":     {`{"Uint32": 4294967296}`, `strconv.ParseUint: parsing "4294967296": value out of range`},
-		"uint32 wrong type":  {`{"Uint32": "a"}`, `unpacking into uint32, value "a" should be json.Number`},
-		"uint64 negative":    {`{"Uint64": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"uint64 too big":     {`{"Uint64": 18446744073709551616}`, `strconv.ParseUint: parsing "18446744073709551616": value out of range`},
-		"uint64 wrong type":  {`{"Uint64": "a"}`, `unpacking into uint64, value "a" should be json.Number`},
-		"string number":      {`{"String": 1.0}`, `unpacking into string, value "1.0" should be string`},
-		"string bool":        {`{"String": false}`, `unpacking into string, value false should be string`},
-		"rune wrong type":    {`{"Rune": 1}`, `unpacking into rune, value "1" should be string`},
-		"rune too long":      {`{"Rune": "aa"}`, `unpacking into rune: string should have a single rune`},
-		"bool number":        {`{"Bool": 1.0}`, `unpacking into bool, value "1.0" should be bool`},
-		"bool string":        {`{"Bool": "a"}`, `unpacking into bool, value "a" should be bool`},
-		"byte negative":      {`{"Byte": -1}`, `strconv.ParseUint: parsing "-1": invalid syntax`},
-		"byte too big":       {`{"Byte": 256}`, `strconv.ParseUint: parsing "256": value out of range`},
-		"byte wrong type":    {`{"Byte": "a"}`, `unpacking into byte, value "a" should be json.Number`},
-		"float32 wrong type": {`{"Float32": "a"}`, `unpacking into float32, value "a" should be json.Number`},
-		"float32 too big":    {`{"Float32": 1e99}`, `strconv.ParseFloat: parsing "1e99": value out of range`},
-		"float32 too small":  {`{"Float32": -1e99}`, `strconv.ParseFloat: parsing "-1e99": value out of range`},
-		"float64 wrong type": {`{"Float64": "a"}`, `unpacking into float64, value "a" should be json.Number`},
-		"float64 too big":    {`{"Float64": 1e999}`, `strconv.ParseFloat: parsing "1e999": value out of range`},
-		"float64 too small":  {`{"Float64": -1e999}`, `strconv.ParseFloat: parsing "-1e999": value out of range`},
+func decode(t *testing.T, name, s string) interface{} {
+	var v interface{}
+	d := json.NewDecoder(bytes.NewBuffer([]byte(s)))
+	d.UseNumber()
+	if err := d.Decode(&v); err != nil {
+		t.Fatalf("%s error decoding %s", name, err)
 	}
-	for name, test := range tests {
-		var v interface{}
-		d := json.NewDecoder(bytes.NewBuffer([]byte(test.json)))
-		d.UseNumber()
-		if err := d.Decode(&v); err != nil {
-			t.Fatalf("%s error decoding %s", name, err)
+	return v
+}
+
+func ensure(t *testing.T, name string, test test, err error, result interface{}) {
+	if test.error != "" {
+		if err == nil {
+			t.Fatalf("%s: expected error '%s', got nil", name, test.error)
 		}
-		_, errtest := Unpackers.Natives(system.NewContext(), v)
-		if errtest == nil {
-			t.Fatalf("%s expected error %s, got nil", name, test.error)
+		if !strings.Contains(errors.Cause(err).Error(), test.error) {
+			t.Fatalf("%s: expected error '%s', got %s", name, test.error, errors.Cause(err))
 		}
-		if !strings.Contains(errors.Cause(errtest).Error(), test.error) {
-			t.Fatalf("%s error expected to contain '%s': %s", name, test.error, errors.Cause(errtest))
+	} else {
+		if err != nil {
+			t.Fatalf("%s: error unpacking: %s", name, err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Fatalf("%s: result %#v not what expected", name, result)
 		}
 	}
 }

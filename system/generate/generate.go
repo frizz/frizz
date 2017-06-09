@@ -293,7 +293,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias str
 		}
 		iface, ok := out.(<name or spec>)
 		if !ok {
-			return value, errors.Errorf("error unpacking into interface, type %T does not implement interface", out)
+			return value, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
 		}
 		return iface, nil
 	*/
@@ -313,7 +313,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, alias str
 		Return(
 			Id("value"),
 			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("error unpacking into interface, type %T does not implement interface"),
+				Lit("unpacking into interface, type %T does not implement interface"),
 				Id("out"),
 			),
 		),
@@ -404,7 +404,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, errors.New("error unpacking into map, value should be a map")
+			return value, errors.New("unpacking into map, value should be a map")
 		}
 		var out = make(<name or spec>, len(m))
 		for k, v := range m {
@@ -422,7 +422,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 		Return(
 			Id("value"),
 			Qual("github.com/pkg/errors", "New").Call(
-				Lit("error unpacking into map, value should be a map"),
+				Lit("unpacking into map, value should be a map"),
 			),
 		),
 	)
@@ -447,7 +447,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 	/*
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, errors.New("error unpacking into slice, value should be an array")
+			return value, errors.New("unpacking into slice, value should be an array")
 		}
 		<if slice type...>
 			var out = make(<name or spec>, len(a))
@@ -472,7 +472,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 		Return(
 			Id("value"),
 			Qual("github.com/pkg/errors", "New").Call(
-				Lit("error unpacking into slice, value should be an array"),
+				Lit("unpacking into slice, value should be an array"),
 			),
 		),
 	)
@@ -526,7 +526,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, errors.New("error unpacking into struct, value should be a map")
+			return value, errors.New("unpacking into struct, value should be a map")
 		}
 		var out <alias or type>
 		<fields...>
@@ -546,7 +546,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		Return(
 			Id("value"),
 			Qual("github.com/pkg/errors", "New").Call(
-				Lit("error unpacking into struct, value should be a map"),
+				Lit("unpacking into struct, value should be a map"),
 			),
 		),
 	)

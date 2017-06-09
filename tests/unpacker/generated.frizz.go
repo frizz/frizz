@@ -53,7 +53,7 @@ func unpacker_InterfaceField(ctx context.Context, in interface{}) (value Interfa
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out InterfaceField
 	if v, ok := m["Iface"]; ok {
@@ -75,7 +75,7 @@ func unpacker_InterfaceField(ctx context.Context, in interface{}) (value Interfa
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]Interface, len(a))
 			for i, v := range a {
@@ -104,7 +104,7 @@ func unpacker_InterfaceField(ctx context.Context, in interface{}) (value Interfa
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out [3]Interface
 			if len(a) > 3 {
@@ -136,7 +136,7 @@ func unpacker_InterfaceField(ctx context.Context, in interface{}) (value Interfa
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into map, value should be a map")
+				return value, errors.New("unpacking into map, value should be a map")
 			}
 			var out = make(map[string]Interface, len(m))
 			for k, v := range m {
@@ -166,7 +166,7 @@ func unpacker_Impi(ctx context.Context, in interface{}) (value Impi, err error) 
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Impi
 	if v, ok := m["Int"]; ok {
@@ -189,7 +189,7 @@ func unpacker_Imps(ctx context.Context, in interface{}) (value Imps, err error) 
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Imps
 	if v, ok := m["String"]; ok {
@@ -216,7 +216,7 @@ func unpacker_Interface(ctx context.Context, in interface{}) (value Interface, e
 	}
 	iface, ok := out.(Interface)
 	if !ok {
-		return value, errors.Errorf("error unpacking into interface, type %T does not implement interface", out)
+		return value, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
 	}
 	return iface, nil
 }
@@ -224,7 +224,7 @@ func unpacker_Private(ctx context.Context, in interface{}) (value Private, err e
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Private
 	if v, ok := m["i"]; ok {
@@ -269,7 +269,7 @@ func unpacker_AliasSlice(ctx context.Context, in interface{}) (value AliasSlice,
 	// sliceUnpacker
 	a, ok := in.([]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into slice, value should be an array")
+		return value, errors.New("unpacking into slice, value should be an array")
 	}
 	var out = make(AliasSlice, len(a))
 	for i, v := range a {
@@ -292,7 +292,7 @@ func unpacker_AliasArray(ctx context.Context, in interface{}) (value AliasArray,
 	// sliceUnpacker
 	a, ok := in.([]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into slice, value should be an array")
+		return value, errors.New("unpacking into slice, value should be an array")
 	}
 	var out AliasArray
 	if len(a) > 3 {
@@ -318,7 +318,7 @@ func unpacker_AliasMap(ctx context.Context, in interface{}) (value AliasMap, err
 	// mapUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into map, value should be a map")
+		return value, errors.New("unpacking into map, value should be a map")
 	}
 	var out = make(AliasMap, len(m))
 	for k, v := range m {
@@ -387,7 +387,7 @@ func unpacker_Qual(ctx context.Context, in interface{}) (value Qual, err error) 
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Qual
 	if v, ok := m["Sub"]; ok {
@@ -410,7 +410,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Pointers
 	if v, ok := m["String"]; ok {
@@ -483,7 +483,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, errors.New("error unpacking into slice, value should be an array")
+					return value, errors.New("unpacking into slice, value should be an array")
 				}
 				var out [3]int
 				if len(a) > 3 {
@@ -522,7 +522,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, errors.New("error unpacking into slice, value should be an array")
+					return value, errors.New("unpacking into slice, value should be an array")
 				}
 				var out = make([]string, len(a))
 				for i, v := range a {
@@ -558,7 +558,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, errors.New("error unpacking into map, value should be a map")
+					return value, errors.New("unpacking into map, value should be a map")
 				}
 				var out = make(map[string]int, len(m))
 				for k, v := range m {
@@ -592,7 +592,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]*string, len(a))
 			for i, v := range a {
@@ -628,7 +628,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]*Int, len(a))
 			for i, v := range a {
@@ -664,7 +664,7 @@ func unpacker_Pointers(ctx context.Context, in interface{}) (value Pointers, err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]*sub.Sub, len(a))
 			for i, v := range a {
@@ -701,7 +701,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Maps
 	if v, ok := m["Ints"]; ok {
@@ -709,7 +709,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into map, value should be a map")
+				return value, errors.New("unpacking into map, value should be a map")
 			}
 			var out = make(map[string]int, len(m))
 			for k, v := range m {
@@ -738,7 +738,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into map, value should be a map")
+				return value, errors.New("unpacking into map, value should be a map")
 			}
 			var out = make(map[string]string, len(m))
 			for k, v := range m {
@@ -767,7 +767,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into map, value should be a map")
+				return value, errors.New("unpacking into map, value should be a map")
 			}
 			var out = make(map[string][]string, len(m))
 			for k, v := range m {
@@ -775,7 +775,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, errors.New("error unpacking into slice, value should be an array")
+						return value, errors.New("unpacking into slice, value should be an array")
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
@@ -811,7 +811,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into map, value should be a map")
+				return value, errors.New("unpacking into map, value should be a map")
 			}
 			var out = make(map[string][2]int, len(m))
 			for k, v := range m {
@@ -819,7 +819,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, errors.New("error unpacking into slice, value should be an array")
+						return value, errors.New("unpacking into slice, value should be an array")
 					}
 					var out [2]int
 					if len(a) > 2 {
@@ -858,7 +858,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 			// mapUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into map, value should be a map")
+				return value, errors.New("unpacking into map, value should be a map")
 			}
 			var out = make(map[string]map[string]string, len(m))
 			for k, v := range m {
@@ -866,7 +866,7 @@ func unpacker_Maps(ctx context.Context, in interface{}) (value Maps, err error) 
 					// mapUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
-						return value, errors.New("error unpacking into map, value should be a map")
+						return value, errors.New("unpacking into map, value should be a map")
 					}
 					var out = make(map[string]string, len(m))
 					for k, v := range m {
@@ -903,7 +903,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Slices
 	if v, ok := m["Ints"]; ok {
@@ -911,7 +911,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]int, len(a))
 			for i, v := range a {
@@ -940,7 +940,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]string, len(a))
 			for i, v := range a {
@@ -969,7 +969,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out [5]string
 			if len(a) > 5 {
@@ -1001,7 +1001,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out [2 * N]int
 			if len(a) > 2*N {
@@ -1035,7 +1035,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([]struct {
 				Int int
@@ -1047,7 +1047,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 					// structUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
-						return value, errors.New("error unpacking into struct, value should be a map")
+						return value, errors.New("unpacking into struct, value should be a map")
 					}
 					var out struct {
 						Int int
@@ -1085,7 +1085,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 			// sliceUnpacker
 			a, ok := in.([]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into slice, value should be an array")
+				return value, errors.New("unpacking into slice, value should be an array")
 			}
 			var out = make([][]string, len(a))
 			for i, v := range a {
@@ -1093,7 +1093,7 @@ func unpacker_Slices(ctx context.Context, in interface{}) (value Slices, err err
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, errors.New("error unpacking into slice, value should be an array")
+						return value, errors.New("unpacking into slice, value should be an array")
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
@@ -1130,7 +1130,7 @@ func unpacker_Structs(ctx context.Context, in interface{}) (value Structs, err e
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Structs
 	if v, ok := m["Simple"]; ok {
@@ -1141,7 +1141,7 @@ func unpacker_Structs(ctx context.Context, in interface{}) (value Structs, err e
 			// structUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into struct, value should be a map")
+				return value, errors.New("unpacking into struct, value should be a map")
 			}
 			var out struct {
 				Int  int
@@ -1192,7 +1192,7 @@ func unpacker_Structs(ctx context.Context, in interface{}) (value Structs, err e
 			// structUnpacker
 			m, ok := in.(map[string]interface{})
 			if !ok {
-				return value, errors.New("error unpacking into struct, value should be a map")
+				return value, errors.New("unpacking into struct, value should be a map")
 			}
 			var out struct {
 				String string
@@ -1221,7 +1221,7 @@ func unpacker_Structs(ctx context.Context, in interface{}) (value Structs, err e
 					// structUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
-						return value, errors.New("error unpacking into struct, value should be a map")
+						return value, errors.New("unpacking into struct, value should be a map")
 					}
 					var out struct {
 						Float32 float32
@@ -1260,7 +1260,7 @@ func unpacker_Natives(ctx context.Context, in interface{}) (value Natives, err e
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return value, errors.New("error unpacking into struct, value should be a map")
+		return value, errors.New("unpacking into struct, value should be a map")
 	}
 	var out Natives
 	if v, ok := m["Bool"]; ok {

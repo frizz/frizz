@@ -12,10 +12,11 @@ const (
 	RegistryContextKey ContextKeyType = 1
 )
 
-func NewContext() context.Context {
+func NewContext(path string) context.Context {
 	u := &UnpackContext{
 		RWMutex: &sync.RWMutex{},
 		imports: make(map[string]string),
+		Path:    path,
 	}
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, UnpackContextKey, u)

@@ -24,14 +24,39 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 
 	v := m["_value"]
 
-	uc := ctx.Value(UnpackContextKey).(*UnpackContext)
-	if uc == nil {
+	uci := ctx.Value(UnpackContextKey)
+	if uci == nil {
 		return nil, errors.New("unpacking into interface, unpack context not found")
 	}
+	uc, ok := uci.(*UnpackContext)
+	if !ok {
+		// notest
+		return nil, errors.New("unpacking into interface, unpack context should be *UnpackContext")
+	}
 
-	rc := ctx.Value(RegistryContextKey).(*RegistryContext)
-	if rc == nil {
+	rci := ctx.Value(RegistryContextKey)
+	if rci == nil {
+		// notest
 		return nil, errors.New("unpacking into interface, registry context not found")
+	}
+	rc, ok := rci.(*RegistryContext)
+	if !ok {
+		// notest
+		return nil, errors.New("unpacking into interface, registry context should by *RegistryContext")
+	}
+
+	if im, ok := m["_import"]; ok {
+		imp, ok := im.(map[string]interface{})
+		if !ok {
+			return nil, errors.New("unpacking into interface, _import should be a map")
+		}
+		for alias, path := range imp {
+			path, ok := path.(string)
+			if !ok {
+				return nil, errors.New("unpacking into interface, _import values should be strings")
+			}
+			uc.Set(alias, path)
+		}
 	}
 
 	if uc.Path == "" {
@@ -40,7 +65,7 @@ func UnpackInterface(ctx context.Context, in interface{}) (interface{}, error) {
 
 	expr, err := parser.ParseExpr(ts)
 	if err != nil {
-		return nil, errors.New("parsing type string")
+		return nil, errors.Wrap(err, "parsing type string")
 	}
 	switch expr := expr.(type) {
 	case *ast.Ident:
