@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/frizz/frizz.svg?branch=master)](https://travis-ci.org/frizz/frizz?branch=master)
-[![codecov.io](https://codecov.io/github/frizz/frizz/coverage.svg?branch=master)](https://codecov.io/github/frizz/frizz/branch/master)
+[![Build Status](https://travis-ci.org/frizz/frizz.svg?branch=rewrite)](https://travis-ci.org/frizz/frizz?branch=rewrite)
+[![codecov.io](https://codecov.io/github/frizz/frizz/coverage.svg?branch=rewrite)](https://codecov.io/github/frizz/frizz/branch/rewrite)
 
 Frizz
 =====
