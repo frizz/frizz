@@ -7,6 +7,7 @@ import (
 )
 
 var Unpackers = struct {
+	CustomSub        func(*frizz.Root, frizz.Stack, interface{}) (CustomSub, error)
 	Ages             func(*frizz.Root, frizz.Stack, interface{}) (Ages, error)
 	Csv              func(*frizz.Root, frizz.Stack, interface{}) (Csv, error)
 	Type             func(*frizz.Root, frizz.Stack, interface{}) (Type, error)
@@ -44,6 +45,7 @@ var Unpackers = struct {
 	AliasSub:         unpack_AliasSub,
 	Csv:              unpack_Csv,
 	Custom:           unpack_Custom,
+	CustomSub:        unpack_CustomSub,
 	EmbedNatives:     unpack_EmbedNatives,
 	EmbedPointer:     unpack_EmbedPointer,
 	EmbedQual:        unpack_EmbedQual,
@@ -64,6 +66,13 @@ var Unpackers = struct {
 	Type:             unpack_Type,
 }
 
+func unpack_CustomSub(root *frizz.Root, stack frizz.Stack, in interface{}) (value CustomSub, err error) {
+	out := new(CustomSub)
+	if err := out.Unpack(root, stack, in); err != nil {
+		return value, err
+	}
+	return *out, nil
+}
 func unpack_Ages(root *frizz.Root, stack frizz.Stack, in interface{}) (value Ages, err error) {
 	out := new(Ages)
 	if err := out.Unpack(root, stack, in); err != nil {
@@ -1783,6 +1792,9 @@ func unpack_Natives(root *frizz.Root, stack frizz.Stack, in interface{}) (value 
 	return out, nil
 }
 func init() {
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "CustomSub", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpack_CustomSub(root, stack, in)
+	})
 	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Ages", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
 		return unpack_Ages(root, stack, in)
 	})

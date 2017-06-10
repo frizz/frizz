@@ -15,6 +15,19 @@ import (
 )
 
 // frizz-custom
+type CustomSub sub.Sub
+
+func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+	s, err := sub.Unpackers.Sub(root, stack, in)
+	if err != nil {
+		return err
+	}
+	s.String += "-b"
+	*c = CustomSub(s)
+	return nil
+}
+
+// frizz-custom
 type Ages map[string]int
 
 func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {

@@ -21,6 +21,24 @@ type test struct {
 	error    string
 }
 
+func TestCustomSub(t *testing.T) {
+	tests := map[string]test{
+		"custom sub": {
+			`{"String": "a"}`,
+			CustomSub(sub.Sub{String: "a-b"}),
+			"",
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		r, s := root()
+		result, err := Unpackers.CustomSub(r, s, v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
 func TestAges(t *testing.T) {
 	tests := map[string]test{
 		"ages": {
