@@ -17,47 +17,51 @@ type Type struct {
 	Name string
 }
 
-func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
+func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
 	str, ok := in.(string)
 	if !ok {
-		return value, errors.Errorf("%s: custom type must be string", stack)
+		return errors.Errorf("%s: custom type must be string", stack)
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return value, errors.Wrapf(err, "%s: parsing expr", stack)
+		return errors.Wrapf(err, "%s: parsing expr", stack)
 	}
 	switch expr := expr.(type) {
 	case *ast.SelectorExpr:
 		x, ok := expr.X.(*ast.Ident)
 		if !ok {
-			return value, errors.Errorf("%s: expr.X must be *ast.Ident", stack)
+			return errors.Errorf("%s: expr.X must be *ast.Ident", stack)
 		}
 		path, ok := root.Imports[x.Name]
 		if !ok {
-			return value, errors.Errorf("%s: alias %s not found in imports", stack, x.Name)
+			return errors.Errorf("%s: alias %s not found in imports", stack, x.Name)
 		}
-		return Type{Path: path, Name: expr.Sel.Name}, nil
+		*t = Type{Path: path, Name: expr.Sel.Name}
+		return nil
 	case *ast.Ident:
-		return Type{Path: root.Path, Name: expr.Name}, nil
+		*t = Type{Path: root.Path, Name: expr.Name}
+		return nil
 	default:
-		return value, errors.Errorf("%s: expr must be *ast.SelectorExpr or *ast.Ident", stack)
+		return errors.Errorf("%s: expr must be *ast.SelectorExpr or *ast.Ident", stack)
 	}
-
 }
 
 // frizz-custom
-type Custom ast.Expr
+type Custom struct {
+	ast.Expr
+}
 
-func unpack_Custom(root *frizz.Root, stack frizz.Stack, in interface{}) (value Custom, err error) {
+func (c *Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
 	str, ok := in.(string)
 	if !ok {
-		return value, errors.Errorf("%s: custom type must be string", stack)
+		return errors.Errorf("%s: custom type must be string", stack)
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return value, errors.Wrapf(err, "%s: parsing expr", stack)
+		return errors.Wrapf(err, "%s: parsing expr", stack)
 	}
-	return Custom(expr), nil
+	*c = Custom{Expr: expr}
+	return nil
 }
 
 // frizz

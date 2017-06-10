@@ -52,15 +52,15 @@ func TestCustom(t *testing.T) {
 	tests := map[string]test{
 		"custom ident": {
 			`"Foo"`,
-			&ast.Ident{NamePos: 1, Name: "Foo", Obj: &ast.Object{}},
+			Custom{&ast.Ident{NamePos: 1, Name: "Foo", Obj: &ast.Object{}}},
 			"",
 		},
 		"custom sel": {
 			`"foo.Bar"`,
-			&ast.SelectorExpr{
+			Custom{&ast.SelectorExpr{
 				X:   &ast.Ident{NamePos: 1, Name: "foo", Obj: &ast.Object{}},
 				Sel: &ast.Ident{NamePos: 5, Name: "Bar", Obj: nil},
-			},
+			}},
 			""},
 	}
 	for name, test := range tests {

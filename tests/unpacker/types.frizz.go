@@ -60,6 +60,20 @@ var Unpackers = struct {
 	Type:             unpack_Type,
 }
 
+func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
+	out := new(Type)
+	if err := out.Unpack(root, stack, in); err != nil {
+		return value, err
+	}
+	return *out, nil
+}
+func unpack_Custom(root *frizz.Root, stack frizz.Stack, in interface{}) (value Custom, err error) {
+	out := new(Custom)
+	if err := out.Unpack(root, stack, in); err != nil {
+		return value, err
+	}
+	return *out, nil
+}
 func unpack_EmbedNatives(root *frizz.Root, stack frizz.Stack, in interface{}) (value EmbedNatives, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})

@@ -18,5 +18,5 @@ type Root struct {
 }
 
 type Unpackable interface {
-	Unpack(*Root, Stack, interface{}) (interface{}, error)
+	Unpack(*Root, Stack, interface{}) error
 }

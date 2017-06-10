@@ -205,9 +205,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		}
 	}))
 	for _, t := range all {
-		if !t.custom {
-			f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name))
-		}
+		f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name, t.custom))
 	}
 
 	/*
@@ -244,7 +242,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	return nil
 }
 
-func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
+func (f *fileDef) unpacker(spec ast.Expr, name, function string, custom bool) *Statement {
 	/**
 	func (root *frizz.Root, stack frizz.Stack, in interface{}) (value <named or spec>, err error) {
 		<...>
@@ -268,6 +266,24 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string) *Statement {
 		}),
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
+		if custom {
+			/*
+				out := new(<name>)
+				if err := out.Unpack(root, stack, in), err != nil {
+					return value, err
+				}
+				return *out, nil
+			*/
+			g.Id("out").Op(":=").New(Id(name))
+			g.If(
+				Err().Op(":=").Id("out").Dot("Unpack").Call(Id("root"), Id("stack"), Id("in")),
+				Err().Op("!=").Nil(),
+			).Block(
+				Return(Id("value"), Err()),
+			)
+			g.Return(Op("*").Id("out"), Nil())
+			return
+		}
 		switch spec := spec.(type) {
 		default:
 			panic(fmt.Sprintf("unsupported type %T", spec))
@@ -396,7 +412,7 @@ func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr, alias string) {
 		return <alias?>(&out), nil
 	*/
 	g.Comment("pointerUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", "")).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", "", false)).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -445,7 +461,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, alias string) {
 	}), Len(Id("m")))
 	g.For(List(Id("k"), Id("v")).Op(":=").Range().Id("m")).Block(
 		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "MapItem").Parens(Id("k"))),
-		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", "")).Call(Id("root"), Id("stack"), Id("v")),
+		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", "", false)).Call(Id("root"), Id("stack"), Id("v")),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), Err()),
 		),
@@ -521,7 +537,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, alias string) {
 	}
 	g.For(List(Id("i"), Id("v")).Op(":=").Range().Id("a")).Block(
 		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "ArrayItem").Parens(Id("i"))),
-		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", "")).Call(Id("root"), Id("stack"), Id("v")),
+		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", "", false)).Call(Id("root"), Id("stack"), Id("v")),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), Err()),
 		),
@@ -598,7 +614,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, alias string) {
 		}
 		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(name)), Id("ok")).Block(
 			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(name))),
-			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "")).Call(Id("root"), Id("stack"), Id("v")),
+			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", "", false)).Call(Id("root"), Id("stack"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
 			),
