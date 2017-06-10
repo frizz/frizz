@@ -4,12 +4,61 @@ import (
 	"fmt"
 	"go/ast"
 	"go/parser"
+	"strconv"
 
 	"github.com/pkg/errors"
+
+	"strings"
 
 	"frizz.io/frizz"
 	"frizz.io/tests/unpacker/sub"
 )
+
+// frizz-custom
+type Ages map[string]int
+
+func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+	str, ok := in.(string)
+	if !ok {
+		return errors.Errorf("%s: ages type must be string", stack)
+	}
+	names := strings.Split(str, ",")
+	ages := Ages{}
+	for _, name := range names {
+		parts := strings.Split(name, ":")
+		if len(parts) != 2 {
+			return errors.Errorf("%s: converting %s to ages", stack, str)
+		}
+		i, err := strconv.ParseInt(parts[1], 10, 0)
+		if err != nil {
+			return errors.Wrapf(err, "%s: converting %s to int", stack, parts[1])
+		}
+		ages[parts[0]] = int(i)
+	}
+	*a = ages
+	return nil
+}
+
+// frizz-custom
+type Csv []int
+
+func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+	str, ok := in.(string)
+	if !ok {
+		return errors.Errorf("%s: csv type must be string", stack)
+	}
+	parts := strings.Split(str, ",")
+	csv := Csv{}
+	for _, part := range parts {
+		i, err := strconv.ParseInt(part, 10, 0)
+		if err != nil {
+			return errors.Wrapf(err, "%s: converting %s to int", stack, part)
+		}
+		csv = append(csv, int(i))
+	}
+	*c = csv
+	return nil
+}
 
 // frizz-custom
 type Type struct {

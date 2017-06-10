@@ -7,6 +7,8 @@ import (
 )
 
 var Unpackers = struct {
+	Ages             func(*frizz.Root, frizz.Stack, interface{}) (Ages, error)
+	Csv              func(*frizz.Root, frizz.Stack, interface{}) (Csv, error)
 	Type             func(*frizz.Root, frizz.Stack, interface{}) (Type, error)
 	Custom           func(*frizz.Root, frizz.Stack, interface{}) (Custom, error)
 	EmbedNatives     func(*frizz.Root, frizz.Stack, interface{}) (EmbedNatives, error)
@@ -33,12 +35,14 @@ var Unpackers = struct {
 	Structs          func(*frizz.Root, frizz.Stack, interface{}) (Structs, error)
 	Natives          func(*frizz.Root, frizz.Stack, interface{}) (Natives, error)
 }{
+	Ages:             unpack_Ages,
 	Alias:            unpack_Alias,
 	AliasArray:       unpack_AliasArray,
 	AliasMap:         unpack_AliasMap,
 	AliasPointer:     unpack_AliasPointer,
 	AliasSlice:       unpack_AliasSlice,
 	AliasSub:         unpack_AliasSub,
+	Csv:              unpack_Csv,
 	Custom:           unpack_Custom,
 	EmbedNatives:     unpack_EmbedNatives,
 	EmbedPointer:     unpack_EmbedPointer,
@@ -60,6 +64,20 @@ var Unpackers = struct {
 	Type:             unpack_Type,
 }
 
+func unpack_Ages(root *frizz.Root, stack frizz.Stack, in interface{}) (value Ages, err error) {
+	out := new(Ages)
+	if err := out.Unpack(root, stack, in); err != nil {
+		return value, err
+	}
+	return *out, nil
+}
+func unpack_Csv(root *frizz.Root, stack frizz.Stack, in interface{}) (value Csv, err error) {
+	out := new(Csv)
+	if err := out.Unpack(root, stack, in); err != nil {
+		return value, err
+	}
+	return *out, nil
+}
 func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
 	out := new(Type)
 	if err := out.Unpack(root, stack, in); err != nil {
@@ -1765,6 +1783,12 @@ func unpack_Natives(root *frizz.Root, stack frizz.Stack, in interface{}) (value 
 	return out, nil
 }
 func init() {
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Ages", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpack_Ages(root, stack, in)
+	})
+	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Csv", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
+		return unpack_Csv(root, stack, in)
+	})
 	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker", "Type", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
 		return unpack_Type(root, stack, in)
 	})

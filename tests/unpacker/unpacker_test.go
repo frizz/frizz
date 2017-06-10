@@ -21,6 +21,42 @@ type test struct {
 	error    string
 }
 
+func TestAges(t *testing.T) {
+	tests := map[string]test{
+		"ages": {
+			`"dave:39,john:37"`,
+			Ages{"dave": 39, "john": 37},
+			"",
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		r, s := root()
+		result, err := Unpackers.Ages(r, s, v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
+func TestCsv(t *testing.T) {
+	tests := map[string]test{
+		"csv": {
+			`"1,2,3"`,
+			Csv{1, 2, 3},
+			"",
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.json)
+
+		r, s := root()
+		result, err := Unpackers.Csv(r, s, v)
+
+		ensure(t, name, test, err, result)
+	}
+}
+
 func TestType(t *testing.T) {
 	tests := map[string]test{
 		"type qual": {
