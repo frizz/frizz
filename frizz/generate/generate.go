@@ -57,9 +57,9 @@ type fileDef struct {
 
 type typeDef struct {
 	*fileDef
-	packer bool
-	spec   ast.Expr
-	name   string
+	packable bool
+	spec     ast.Expr
+	name     string
 }
 
 type typeInfo struct {
@@ -145,7 +145,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 
 	var all []*typeDef
 	var unpackers = map[string]bool{}
-	//	var repackers = map[string]bool{}
+	var repackers = map[string]bool{}
 	for _, f := range pkg.Files {
 		var file *fileDef // lazy init because not all files need action
 		var outer error
@@ -158,7 +158,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 			case nil:
 				return true
 			case *ast.FuncDecl:
-				if n.Name.Name != "Unpack" { // && n.Name.Name != "Repack" {
+				if n.Name.Name != "Unpack" && n.Name.Name != "Repack" {
 					return true
 				}
 				if n.Recv == nil {
@@ -221,6 +221,39 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					}
 					// unpack method is the correct signature.
 					unpackers[receiverType] = true
+				case "Repack":
+					if len(n.Type.Params.List) != 2 {
+						return true
+					}
+					param0 := file.getTypeInfo(n.Type.Params.List[0].Type)
+					param1 := file.getTypeInfo(n.Type.Params.List[1].Type)
+					if param0 != (typeInfo{true, "frizz.io/frizz", "Root"}) {
+						return true
+					}
+					if param1 != (typeInfo{false, "frizz.io/frizz", "Stack"}) {
+						return true
+					}
+
+					// check return is error
+					if len(n.Type.Results.List) != 2 {
+						return true
+					}
+					ift, ok := n.Type.Results.List[0].Type.(*ast.InterfaceType)
+					if !ok {
+						return true
+					}
+					if len(ift.Methods.List) != 0 {
+						return true
+					}
+					ide, ok := n.Type.Results.List[1].Type.(*ast.Ident)
+					if !ok {
+						return true
+					}
+					if ide.Name != "error" {
+						return true
+					}
+					// repack method is the correct signature.
+					repackers[receiverType] = true
 				}
 
 			case *ast.GenDecl:
@@ -270,9 +303,10 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 			return errors.WithMessage(outer, "error parsing Go source")
 		}
 		for _, td := range all {
-			_, hasUnpacker := unpackers[td.name]
-			if hasUnpacker {
-				td.packer = true
+			_, unpacker := unpackers[td.name]
+			_, repacker := repackers[td.name]
+			if unpacker && repacker {
+				td.packable = true
 			}
 		}
 	}
@@ -300,7 +334,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		}
 	}))
 	for _, t := range all {
-		f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name, t.packer))
+		f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name, t.packable))
 	}
 
 	/*
@@ -337,7 +371,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	return nil
 }
 
-func (f *fileDef) unpacker(spec ast.Expr, name, function string, packer bool) *Statement {
+func (f *fileDef) unpacker(spec ast.Expr, name, function string, packable bool) *Statement {
 	/**
 	func (root *frizz.Root, stack frizz.Stack, in interface{}) (value <named or spec>, err error) {
 		<...>
@@ -361,7 +395,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string, packer bool) *S
 		}),
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
-		if packer {
+		if packable {
 			/*
 				out := new(<name>)
 				if err := out.Unpack(root, stack, in), err != nil {

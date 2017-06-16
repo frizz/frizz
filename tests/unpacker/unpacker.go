@@ -10,6 +10,9 @@ import (
 
 	"strings"
 
+	"bytes"
+	"go/printer"
+
 	"frizz.io/frizz"
 	"frizz.io/tests/unpacker/sub"
 )
@@ -25,6 +28,10 @@ func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	s.String += "-b"
 	*c = CustomSub(s)
 	return nil
+}
+
+func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+	return nil, nil
 }
 
 // frizz
@@ -52,6 +59,14 @@ func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	return nil
 }
 
+func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+	var parts []string
+	for k, v := range *a {
+		parts = append(parts, fmt.Sprintf("%s:%s", k, v))
+	}
+	return strings.Join(parts, ","), nil
+}
+
 // frizz
 type Csv []int
 
@@ -71,6 +86,17 @@ func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error 
 	}
 	*c = csv
 	return nil
+}
+
+func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+	var out string
+	for i, v := range *c {
+		if i != 0 {
+			out += ","
+		}
+		out += fmt.Sprint(v)
+	}
+	return out, nil
 }
 
 // frizz
@@ -108,6 +134,18 @@ func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	}
 }
 
+func (t *Type) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+	if t.Path == root.Path {
+		return t.Name, nil
+	}
+	for alias, path := range root.Imports {
+		if path == t.Path {
+			return fmt.Sprintf("%s.%s", alias, t.Name), nil
+		}
+	}
+	return nil, errors.Errorf("%s: can't find %s in imports", stack, t.Path)
+}
+
 // frizz
 type Custom struct {
 	ast.Expr
@@ -124,6 +162,15 @@ func (c *Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) err
 	}
 	*c = Custom{Expr: expr}
 	return nil
+}
+
+func (c *Custom) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+	buf := &bytes.Buffer{}
+	err := printer.Fprint(buf, nil, c.Expr)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return buf.String(), nil
 }
 
 // frizz
