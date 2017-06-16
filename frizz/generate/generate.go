@@ -43,8 +43,10 @@ func Save(path string) error {
 }
 
 type progDef struct {
-	fset *token.FileSet
-	path string
+	fset   *token.FileSet
+	path   string
+	pcache *patsy.Cache
+	dir    string
 }
 
 type fileDef struct {
@@ -55,9 +57,56 @@ type fileDef struct {
 
 type typeDef struct {
 	*fileDef
-	custom bool
+	packer bool
 	spec   ast.Expr
 	name   string
+}
+
+type typeInfo struct {
+	pointer bool
+	path    string
+	name    string
+}
+
+func (f *fileDef) getTypeInfo(e ast.Expr) typeInfo {
+	switch e := e.(type) {
+	case *ast.Ident:
+		return typeInfo{path: f.path, name: e.Name}
+	case *ast.SelectorExpr:
+		if x, ok := e.X.(*ast.Ident); ok && x.Obj == nil {
+			if path, ok := f.imports[x.Name]; ok {
+				return typeInfo{path: path, name: e.Sel.Name}
+			}
+		}
+	case *ast.StarExpr:
+		x := f.getTypeInfo(e.X)
+		x.pointer = true
+		return x
+	}
+	return typeInfo{}
+}
+
+func (p *progDef) newFileDef(f *ast.File) (*fileDef, error) {
+	imports := map[string]string{}
+	for _, is := range f.Imports {
+		path, err := strconv.Unquote(is.Path.Value)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		if is.Name != nil && is.Name.Name != "" && is.Name.Name != "_" {
+			imports[is.Name.Name] = path
+		}
+		name, err := p.pcache.Name(path, p.dir)
+		if err != nil {
+			return nil, err
+		}
+		imports[name] = path
+	}
+	return &fileDef{
+		progDef: p,
+		imports: imports,
+		jast:    jast.New(imports),
+	}, nil
 }
 
 func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
@@ -65,15 +114,13 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	f := NewFilePath(path)
 
 	prog := &progDef{
-		fset: token.NewFileSet(),
-		path: path,
+		fset:   token.NewFileSet(),
+		path:   path,
+		pcache: patsy.NewCache(env),
+		dir:    dir,
 	}
 
-	dir, err := patsy.Dir(vos.Os(), path)
-	if err != nil {
-		return errors.Wrapf(err, "can't find dir for package %s", path)
-	}
-	pkgs, err := parser.ParseDir(prog.fset, dir, nil, parser.ParseComments)
+	pkgs, err := parser.ParseDir(prog.fset, prog.dir, nil, parser.ParseComments)
 	if err != nil {
 		return errors.Wrapf(err, "error parsing Go code in package %s", path)
 	}
@@ -96,8 +143,9 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	}
 	pkg := filtered[0]
 
-	pcache := patsy.NewCache(env)
-	var all []typeDef
+	var all []*typeDef
+	var unpackers = map[string]bool{}
+	//	var repackers = map[string]bool{}
 	for _, f := range pkg.Files {
 		var file *fileDef // lazy init because not all files need action
 		var outer error
@@ -106,79 +154,126 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 				// as soon as error is detected, stop processing
 				return false
 			}
-			if n == nil {
+			switch n := n.(type) {
+			case nil:
 				return true
-			}
-			gd, ok := n.(*ast.GenDecl)
-			if !ok {
-				return true
-			}
-			var found bool
-			var custom bool
-			if gd.Doc == nil {
-				return true
-			}
-			for _, c := range gd.Doc.List {
-				if c.Text == "// frizz" {
-					found = true
-					break
+			case *ast.FuncDecl:
+				if n.Name.Name != "Unpack" { // && n.Name.Name != "Repack" {
+					return true
 				}
-				if c.Text == "// frizz-custom" {
-					found = true
-					custom = true
-					break
+				if n.Recv == nil {
+					// function not method
+					return true
 				}
-			}
-			if !found {
-				return true
-			}
-			if gd.Tok != token.TYPE {
-				outer = errors.Errorf("unsupported token tagged with frizz comment at %s", prog.fset.Position(gd.TokPos))
-				return false
-			}
-			if len(gd.Specs) != 1 {
-				outer = errors.Errorf("must be a single spec in type definition at %s", prog.fset.Position(gd.TokPos))
-				return false
-			}
-			ts, ok := gd.Specs[0].(*ast.TypeSpec)
-			if !ok {
-				outer = errors.Errorf("must be type spec at %s", prog.fset.Position(gd.TokPos))
-				return false
-			}
-			if file == nil {
-				imports := map[string]string{}
-				for _, is := range f.Imports {
-					p, err := strconv.Unquote(is.Path.Value)
+				if len(n.Recv.List) != 1 {
+					return true // impossible?
+				}
+				s, ok := n.Recv.List[0].Type.(*ast.StarExpr)
+				if !ok {
+					return true
+				}
+				id, ok := s.X.(*ast.Ident)
+				if !ok {
+					return true
+				}
+				receiverType := id.Name
+
+				if file == nil {
+					file, err = prog.newFileDef(f)
 					if err != nil {
 						outer = err
 						return false
 					}
-					if is.Name != nil && is.Name.Name != "" && is.Name.Name != "_" {
-						imports[is.Name.Name] = p
+				}
+				// check the signature
+				// Unpack: (*frizz.Root, frizz.Stack, interface{}) error
+				switch n.Name.Name {
+				case "Unpack":
+					if len(n.Type.Params.List) != 3 {
+						return true
 					}
-					name, err := pcache.Name(p, dir)
+					param0 := file.getTypeInfo(n.Type.Params.List[0].Type)
+					param1 := file.getTypeInfo(n.Type.Params.List[1].Type)
+					if param0 != (typeInfo{true, "frizz.io/frizz", "Root"}) {
+						return true
+					}
+					if param1 != (typeInfo{false, "frizz.io/frizz", "Stack"}) {
+						return true
+					}
+					ift, ok := n.Type.Params.List[2].Type.(*ast.InterfaceType)
+					if !ok {
+						return true
+					}
+					if len(ift.Methods.List) != 0 {
+						return true
+					}
+
+					// check return is error
+					if len(n.Type.Results.List) != 1 {
+						return true
+					}
+					ide, ok := n.Type.Results.List[0].Type.(*ast.Ident)
+					if !ok {
+						return true
+					}
+					if ide.Name != "error" {
+						return true
+					}
+					// unpack method is the correct signature.
+					unpackers[receiverType] = true
+				}
+
+			case *ast.GenDecl:
+				var found bool
+				if n.Doc == nil {
+					return true
+				}
+				for _, c := range n.Doc.List {
+					if c.Text == "// frizz" {
+						found = true
+						break
+					}
+				}
+				if !found {
+					return true
+				}
+				if n.Tok != token.TYPE {
+					outer = errors.Errorf("unsupported token tagged with frizz comment at %s", prog.fset.Position(n.TokPos))
+					return false
+				}
+				if len(n.Specs) != 1 {
+					outer = errors.Errorf("must be a single spec in type definition at %s", prog.fset.Position(n.TokPos))
+					return false
+				}
+				ts, ok := n.Specs[0].(*ast.TypeSpec)
+				if !ok {
+					outer = errors.Errorf("must be type spec at %s", prog.fset.Position(n.TokPos))
+					return false
+				}
+				if file == nil {
+					file, err = prog.newFileDef(f)
 					if err != nil {
 						outer = err
 						return false
 					}
-					imports[name] = p
 				}
-				file = &fileDef{
-					progDef: prog,
-					imports: imports,
-					jast:    jast.New(imports),
-				}
+				all = append(all, &typeDef{
+					fileDef: file,
+					name:    ts.Name.Name,
+					spec:    ts.Type,
+				})
 			}
-			all = append(all, typeDef{
-				fileDef: file,
-				custom:  custom,
-				name:    ts.Name.Name,
-				spec:    ts.Type,
-			})
+
 			return true
 		})
 		if outer != nil {
 			return errors.WithMessage(outer, "error parsing Go source")
+		}
+		for _, td := range all {
+			_, hasUnpacker := unpackers[td.name]
+			if hasUnpacker {
+				td.packer = true
+			}
 		}
 	}
 	/*
@@ -205,7 +300,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		}
 	}))
 	for _, t := range all {
-		f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name, t.custom))
+		f.Add(t.unpacker(t.spec, t.name, "unpack_"+t.name, t.packer))
 	}
 
 	/*
@@ -242,7 +337,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	return nil
 }
 
-func (f *fileDef) unpacker(spec ast.Expr, name, function string, custom bool) *Statement {
+func (f *fileDef) unpacker(spec ast.Expr, name, function string, packer bool) *Statement {
 	/**
 	func (root *frizz.Root, stack frizz.Stack, in interface{}) (value <named or spec>, err error) {
 		<...>
@@ -266,7 +361,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name, function string, custom bool) *S
 		}),
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
-		if custom {
+		if packer {
 			/*
 				out := new(<name>)
 				if err := out.Unpack(root, stack, in), err != nil {

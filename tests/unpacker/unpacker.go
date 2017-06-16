@@ -14,7 +14,7 @@ import (
 	"frizz.io/tests/unpacker/sub"
 )
 
-// frizz-custom
+// frizz
 type CustomSub sub.Sub
 
 func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
@@ -27,7 +27,7 @@ func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	return nil
 }
 
-// frizz-custom
+// frizz
 type Ages map[string]int
 
 func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
@@ -52,7 +52,7 @@ func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	return nil
 }
 
-// frizz-custom
+// frizz
 type Csv []int
 
 func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
@@ -73,7 +73,7 @@ func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error 
 	return nil
 }
 
-// frizz-custom
+// frizz
 type Type struct {
 	Path string
 	Name string
@@ -108,7 +108,7 @@ func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	}
 }
 
-// frizz-custom
+// frizz
 type Custom struct {
 	ast.Expr
 }
