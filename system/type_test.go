@@ -12,7 +12,7 @@ import (
 )
 
 func TestType(t *testing.T) {
-	data, err := frizz.Package("frizz.io/system")
+	data, err := frizz.Package("frizz.io/system", Packer{}, validators.Packer{})
 	if err != nil {
 		t.Fatal(err)
 	}

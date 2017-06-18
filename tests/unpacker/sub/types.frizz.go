@@ -5,11 +5,19 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-var Unpackers = struct {
-	Sub func(*frizz.Root, frizz.Stack, interface{}) (Sub, error)
-}{Sub: unpack_Sub}
+type Packer struct{}
 
-func unpack_Sub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Sub, err error) {
+func (Packer) Path() string {
+	return "frizz.io/tests/unpacker/sub"
+}
+func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+	switch name {
+	case "Sub":
+		return p.UnpackSub(root, stack, in)
+	}
+	return nil, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p Packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Sub, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -32,9 +40,4 @@ func unpack_Sub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Sub,
 		out.String = u
 	}
 	return out, nil
-}
-func init() {
-	frizz.DefaultRegistry.Set("frizz.io/tests/unpacker/sub", "Sub", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Sub(root, stack, in)
-	})
 }

@@ -6,15 +6,21 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-var Unpackers = struct {
-	Type  func(*frizz.Root, frizz.Stack, interface{}) (Type, error)
-	Field func(*frizz.Root, frizz.Stack, interface{}) (Field, error)
-}{
-	Field: unpack_Field,
-	Type:  unpack_Type,
-}
+type Packer struct{}
 
-func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
+func (Packer) Path() string {
+	return "frizz.io/system"
+}
+func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+	switch name {
+	case "Type":
+		return p.UnpackType(root, stack, in)
+	case "Field":
+		return p.UnpackField(root, stack, in)
+	}
+	return nil, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p Packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -34,7 +40,7 @@ func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Typ
 				stack := stack.Append(frizz.MapItem(k))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 					// localUnpacker
-					out, err := unpack_Field(root, stack, in)
+					out, err := p.UnpackField(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -54,7 +60,7 @@ func unpack_Type(root *frizz.Root, stack frizz.Stack, in interface{}) (value Typ
 	}
 	return out, nil
 }
-func unpack_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
+func (p Packer) UnpackField(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -74,7 +80,7 @@ func unpack_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value Fi
 				stack := stack.Append(frizz.ArrayItem(i))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Unpackers.Validator(root, stack, in)
+					out, err := common.Packer{}.UnpackValidator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -93,12 +99,4 @@ func unpack_Field(root *frizz.Root, stack frizz.Stack, in interface{}) (value Fi
 		out.Validators = u
 	}
 	return out, nil
-}
-func init() {
-	frizz.DefaultRegistry.Set("frizz.io/system", "Type", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Type(root, stack, in)
-	})
-	frizz.DefaultRegistry.Set("frizz.io/system", "Field", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Field(root, stack, in)
-	})
 }

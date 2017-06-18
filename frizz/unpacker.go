@@ -1,15 +1,23 @@
 package frizz
 
-func New(path string) *Unpacker {
+func New(path string, packers ...Packer) *Unpacker {
+	m := make(map[string]Packer, len(packers))
+	for _, p := range packers {
+		m[p.Path()] = p
+	}
 	return &Unpacker{
-		Path:     path,
-		Registry: DefaultRegistry,
+		Path:    path,
+		Packers: m,
 	}
 }
 
 type Unpacker struct {
-	Path     string
-	Registry *Registry
+	Path    string
+	Packers map[string]Packer
+}
+
+func (u *Unpacker) Register(p Packer) {
+	u.Packers[p.Path()] = p
 }
 
 type Root struct {
@@ -20,4 +28,9 @@ type Root struct {
 type Packable interface {
 	Unpack(*Root, Stack, interface{}) error
 	Repack(*Root, Stack) (interface{}, error)
+}
+
+type Packer interface {
+	Path() string
+	Unpack(*Root, Stack, interface{}, string) (interface{}, error)
 }

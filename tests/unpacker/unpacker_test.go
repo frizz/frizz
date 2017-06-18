@@ -33,7 +33,7 @@ func TestCustomSub(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.CustomSub(r, s, v)
+		result, err := Packer{}.UnpackCustomSub(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -51,7 +51,7 @@ func TestAges(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Ages(r, s, v)
+		result, err := Packer{}.UnpackAges(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -69,7 +69,7 @@ func TestCsv(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Csv(r, s, v)
+		result, err := Packer{}.UnpackCsv(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -96,7 +96,7 @@ func TestType(t *testing.T) {
 
 		r, s := root()
 		r.Imports["foo"] = "github.com/foo"
-		result, err := Unpackers.Type(r, s, v)
+		result, err := Packer{}.UnpackType(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -121,7 +121,7 @@ func TestCustom(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Custom(r, s, v)
+		result, err := Packer{}.UnpackCustom(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -144,7 +144,7 @@ func TestImports(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.json)
 
-		u := frizz.New("frizz.io/tests/unpacker")
+		u := frizz.New("frizz.io/tests/unpacker", sub.Packer{})
 		result, err := u.Unpack(v)
 
 		ensure(t, name, test, err, result)
@@ -207,7 +207,7 @@ func TestInterfaceField(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.InterfaceField(r, s, v)
+		result, err := Packer{}.UnpackInterfaceField(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -220,7 +220,7 @@ func TestUnpackInterface(t *testing.T) {
 		"interface sub":              {`{"_type": "sub.Sub", "_value": {"String": "a"}}`, sub.Sub{String: "a"}, ""},
 		"interface natives no value": {`{"_type": "Natives", "String": "a"}`, Natives{String: "a"}, ""},
 		"interface sub no value":     {`{"_type": "sub.Sub", "String": "a"}`, sub.Sub{String: "a"}, ""},
-		"interface type not found":   {`{"_type": "Foo"}`, nil, "unpacking into interface, can't find frizz.io/tests/unpacker.Foo in type registry"},
+		"interface type not found":   {`{"_type": "Foo"}`, nil, "type Foo not found"},
 		"interface no _type":         {`{"foo": "bar"}`, nil, "unpacking into interface, _type field missing"},
 		"interface not map":          {`[1, 2]`, nil, "unpacking into interface, value should be a map"},
 		"interface _type wrong type": {`{"_type": true}`, nil, "unpacking into interface, _type should be a string"},
@@ -228,7 +228,7 @@ func TestUnpackInterface(t *testing.T) {
 		"interface missing value":    {`{"_type": "int"}`, nil, "unpacking native type into interface, _value field missing"},
 		"interface sel not string":   {`{"_type": "(1).Foo"}`, nil, "unpacking into interface, SelectorExpr.X should be *ast.Ident"},
 		"interface import not found": {`{"_type": "foo.Foo"}`, nil, "unpacking into interface, can't find foo in imports"},
-		"interface qual not found":   {`{"_type": "sub.Foo"}`, nil, "unpacking into interface, can't find frizz.io/tests/unpacker/sub.Foo in registry"},
+		"interface qual not found":   {`{"_type": "sub.Foo"}`, nil, "type Foo not found"},
 		"interface unsupported type": {`{"_type": "[]foo"}`, nil, "unsupported type []foo"},
 	}
 	for name, test := range tests {
@@ -236,6 +236,7 @@ func TestUnpackInterface(t *testing.T) {
 
 		r, s := root()
 		r.Imports["sub"] = "frizz.io/tests/unpacker/sub"
+		r.Register(sub.Packer{})
 		result, err := r.UnpackInterface(s, v)
 
 		ensure(t, name, test, err, result)
@@ -265,7 +266,7 @@ func TestPrivate(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Private(r, s, v)
+		result, err := Packer{}.UnpackPrivate(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -279,7 +280,7 @@ func TestAliasSub(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.AliasSub(r, s, v)
+		result, err := Packer{}.UnpackAliasSub(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -293,7 +294,7 @@ func TestAliasSlice(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.AliasSlice(r, s, v)
+		result, err := Packer{}.UnpackAliasSlice(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -308,7 +309,7 @@ func TestAliasArray(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.AliasArray(r, s, v)
+		result, err := Packer{}.UnpackAliasArray(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -329,7 +330,7 @@ func TestAliasMap(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.AliasMap(r, s, v)
+		result, err := Packer{}.UnpackAliasMap(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -343,7 +344,7 @@ func TestAliasPointe(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.AliasPointer(r, s, v)
+		result, err := Packer{}.UnpackAliasPointer(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -357,7 +358,7 @@ func TestAlias(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Alias(r, s, v)
+		result, err := Packer{}.UnpackAlias(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -371,7 +372,7 @@ func TestInt(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Int(r, s, v)
+		result, err := Packer{}.UnpackInt(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -385,7 +386,7 @@ func TestString(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.String(r, s, v)
+		result, err := Packer{}.UnpackString(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -399,7 +400,7 @@ func TestQual(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Qual(r, s, v)
+		result, err := Packer{}.UnpackQual(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -437,7 +438,7 @@ func TestPointers(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Pointers(r, s, v)
+		result, err := Packer{}.UnpackPointers(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -467,7 +468,7 @@ func TestMaps(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Maps(r, s, v)
+		result, err := Packer{}.UnpackMaps(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -509,7 +510,7 @@ func TestSlices(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Slices(r, s, v)
+		result, err := Packer{}.UnpackSlices(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -559,7 +560,7 @@ func TestStructs(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Structs(r, s, v)
+		result, err := Packer{}.UnpackStructs(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -640,7 +641,7 @@ func TestNatives(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Unpackers.Natives(r, s, v)
+		result, err := Packer{}.UnpackNatives(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -651,6 +652,7 @@ func root() (*frizz.Root, frizz.Stack) {
 		Unpacker: frizz.New("frizz.io/tests/unpacker"),
 		Imports:  make(map[string]string),
 	}
+	r.Register(Packer{})
 	s := frizz.Stack{frizz.RootItem("root")}
 	return r, s
 }

@@ -5,11 +5,19 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-var Unpackers = struct {
-	Validator func(*frizz.Root, frizz.Stack, interface{}) (Validator, error)
-}{Validator: unpack_Validator}
+type Packer struct{}
 
-func unpack_Validator(root *frizz.Root, stack frizz.Stack, in interface{}) (value Validator, err error) {
+func (Packer) Path() string {
+	return "frizz.io/common"
+}
+func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+	switch name {
+	case "Validator":
+		return p.UnpackValidator(root, stack, in)
+	}
+	return nil, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p Packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interface{}) (value Validator, err error) {
 	// interfaceUnpacker
 	out, err := root.UnpackInterface(stack, in)
 	if err != nil {
@@ -20,9 +28,4 @@ func unpack_Validator(root *frizz.Root, stack frizz.Stack, in interface{}) (valu
 		return value, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
 	}
 	return iface, nil
-}
-func init() {
-	frizz.DefaultRegistry.Set("frizz.io/common", "Validator", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Validator(root, stack, in)
-	})
 }

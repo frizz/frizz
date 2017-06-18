@@ -15,8 +15,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Package(path string) (map[string]interface{}, error) {
-	u := New(path)
+func Package(path string, packers ...Packer) (map[string]interface{}, error) {
+	u := New(path, packers...)
 	out := make(map[string]interface{})
 	env := vos.Os()
 	dir, err := patsy.Dir(env, path)

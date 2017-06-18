@@ -6,17 +6,23 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-var Unpackers = struct {
-	Keys  func(*frizz.Root, frizz.Stack, interface{}) (Keys, error)
-	Items func(*frizz.Root, frizz.Stack, interface{}) (Items, error)
-	Regex func(*frizz.Root, frizz.Stack, interface{}) (Regex, error)
-}{
-	Items: unpack_Items,
-	Keys:  unpack_Keys,
-	Regex: unpack_Regex,
-}
+type Packer struct{}
 
-func unpack_Keys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
+func (Packer) Path() string {
+	return "frizz.io/validators"
+}
+func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+	switch name {
+	case "Keys":
+		return p.UnpackKeys(root, stack, in)
+	case "Items":
+		return p.UnpackItems(root, stack, in)
+	case "Regex":
+		return p.UnpackRegex(root, stack, in)
+	}
+	return nil, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p Packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -36,7 +42,7 @@ func unpack_Keys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Key
 				stack := stack.Append(frizz.ArrayItem(i))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Unpackers.Validator(root, stack, in)
+					out, err := common.Packer{}.UnpackValidator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -56,7 +62,7 @@ func unpack_Keys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Key
 	}
 	return out, nil
 }
-func unpack_Items(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
+func (p Packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -76,7 +82,7 @@ func unpack_Items(root *frizz.Root, stack frizz.Stack, in interface{}) (value It
 				stack := stack.Append(frizz.ArrayItem(i))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Unpackers.Validator(root, stack, in)
+					out, err := common.Packer{}.UnpackValidator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -96,7 +102,7 @@ func unpack_Items(root *frizz.Root, stack frizz.Stack, in interface{}) (value It
 	}
 	return out, nil
 }
-func unpack_Regex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
+func (p Packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -119,15 +125,4 @@ func unpack_Regex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Re
 		out.Regex = u
 	}
 	return out, nil
-}
-func init() {
-	frizz.DefaultRegistry.Set("frizz.io/validators", "Keys", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Keys(root, stack, in)
-	})
-	frizz.DefaultRegistry.Set("frizz.io/validators", "Items", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Items(root, stack, in)
-	})
-	frizz.DefaultRegistry.Set("frizz.io/validators", "Regex", func(root *frizz.Root, stack frizz.Stack, in interface{}) (interface{}, error) {
-		return unpack_Regex(root, stack, in)
-	})
 }

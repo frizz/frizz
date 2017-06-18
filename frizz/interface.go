@@ -54,14 +54,14 @@ func (r *Root) UnpackInterface(stack Stack, in interface{}) (interface{}, error)
 			}
 			return UnpackNative(stack, expr.Name, v)
 		default:
-			unpack, ok := r.Registry.Get(r.Path, expr.Name)
+			p, ok := r.Packers[r.Path]
 			if !ok {
-				return nil, errors.Errorf("%s: unpacking into interface, can't find %s.%s in type registry", stack, r.Path, expr.Name)
+				return nil, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, r.Path)
 			}
 			if v != nil {
-				return unpack(r, stack, v)
+				return p.Unpack(r, stack, v, expr.Name)
 			}
-			return unpack(r, stack, in)
+			return p.Unpack(r, stack, in, expr.Name)
 		}
 	case *ast.SelectorExpr:
 		x, ok := expr.X.(*ast.Ident)
@@ -72,14 +72,14 @@ func (r *Root) UnpackInterface(stack Stack, in interface{}) (interface{}, error)
 		if !ok {
 			return nil, errors.Errorf("%s: unpacking into interface, can't find %s in imports", stack, x.Name)
 		}
-		unpack, ok := r.Registry.Get(path, expr.Sel.Name)
+		p, ok := r.Packers[path]
 		if !ok {
-			return nil, errors.Errorf("%s: unpacking into interface, can't find %s.%s in registry", stack, path, expr.Sel.Name)
+			return nil, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, path)
 		}
 		if v != nil {
-			return unpack(r, stack, v)
+			return p.Unpack(r, stack, v, expr.Sel.Name)
 		}
-		return unpack(r, stack, in)
+		return p.Unpack(r, stack, in, expr.Sel.Name)
 	}
 	return nil, errors.Errorf("%s: unsupported type %s", stack, ts)
 }
