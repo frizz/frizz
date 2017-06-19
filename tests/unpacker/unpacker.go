@@ -21,7 +21,7 @@ import (
 type CustomSub sub.Sub
 
 func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
-	s, err := sub.Packer{}.UnpackSub(root, stack, in)
+	s, err := sub.Packer.UnpackSub(root, stack, in)
 	if err != nil {
 		return err
 	}

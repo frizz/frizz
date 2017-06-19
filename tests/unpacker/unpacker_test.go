@@ -33,7 +33,7 @@ func TestCustomSub(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackCustomSub(r, s, v)
+		result, err := Packer.UnpackCustomSub(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -51,7 +51,7 @@ func TestAges(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAges(r, s, v)
+		result, err := Packer.UnpackAges(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -69,7 +69,7 @@ func TestCsv(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackCsv(r, s, v)
+		result, err := Packer.UnpackCsv(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -96,7 +96,7 @@ func TestType(t *testing.T) {
 
 		r, s := root()
 		r.Imports["foo"] = "github.com/foo"
-		result, err := Packer{}.UnpackType(r, s, v)
+		result, err := Packer.UnpackType(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -121,7 +121,7 @@ func TestCustom(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackCustom(r, s, v)
+		result, err := Packer.UnpackCustom(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -144,7 +144,7 @@ func TestImports(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.json)
 
-		u := frizz.New("frizz.io/tests/unpacker", sub.Packer{})
+		u := frizz.New("frizz.io/tests/unpacker", sub.Packer)
 		result, err := u.Unpack(v)
 
 		ensure(t, name, test, err, result)
@@ -207,7 +207,7 @@ func TestInterfaceField(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackInterfaceField(r, s, v)
+		result, err := Packer.UnpackInterfaceField(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -236,7 +236,7 @@ func TestUnpackInterface(t *testing.T) {
 
 		r, s := root()
 		r.Imports["sub"] = "frizz.io/tests/unpacker/sub"
-		r.Register(sub.Packer{})
+		r.Register(sub.Packer)
 		result, err := r.UnpackInterface(s, v)
 
 		ensure(t, name, test, err, result)
@@ -266,7 +266,7 @@ func TestPrivate(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackPrivate(r, s, v)
+		result, err := Packer.UnpackPrivate(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -280,7 +280,7 @@ func TestAliasSub(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAliasSub(r, s, v)
+		result, err := Packer.UnpackAliasSub(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -294,7 +294,7 @@ func TestAliasSlice(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAliasSlice(r, s, v)
+		result, err := Packer.UnpackAliasSlice(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -309,7 +309,7 @@ func TestAliasArray(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAliasArray(r, s, v)
+		result, err := Packer.UnpackAliasArray(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -330,7 +330,7 @@ func TestAliasMap(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAliasMap(r, s, v)
+		result, err := Packer.UnpackAliasMap(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -344,7 +344,7 @@ func TestAliasPointe(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAliasPointer(r, s, v)
+		result, err := Packer.UnpackAliasPointer(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -358,7 +358,7 @@ func TestAlias(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackAlias(r, s, v)
+		result, err := Packer.UnpackAlias(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -372,7 +372,7 @@ func TestInt(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackInt(r, s, v)
+		result, err := Packer.UnpackInt(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -386,7 +386,7 @@ func TestString(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackString(r, s, v)
+		result, err := Packer.UnpackString(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -400,7 +400,7 @@ func TestQual(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackQual(r, s, v)
+		result, err := Packer.UnpackQual(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -438,7 +438,7 @@ func TestPointers(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackPointers(r, s, v)
+		result, err := Packer.UnpackPointers(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -468,7 +468,7 @@ func TestMaps(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackMaps(r, s, v)
+		result, err := Packer.UnpackMaps(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -510,7 +510,7 @@ func TestSlices(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackSlices(r, s, v)
+		result, err := Packer.UnpackSlices(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -560,7 +560,7 @@ func TestStructs(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackStructs(r, s, v)
+		result, err := Packer.UnpackStructs(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -641,7 +641,7 @@ func TestNatives(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		result, err := Packer{}.UnpackNatives(r, s, v)
+		result, err := Packer.UnpackNatives(r, s, v)
 
 		ensure(t, name, test, err, result)
 	}
@@ -652,7 +652,7 @@ func root() (*frizz.Root, frizz.Stack) {
 		Unpacker: frizz.New("frizz.io/tests/unpacker"),
 		Imports:  make(map[string]string),
 	}
-	r.Register(Packer{})
+	r.Register(Packer)
 	s := frizz.Stack{frizz.RootItem("root")}
 	return r, s
 }

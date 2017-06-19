@@ -31,7 +31,7 @@ func Save(path string) error {
 		return errors.WithMessage(err, "error generating source")
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(dir, "types.frizz.go"), buf.Bytes(), 0777); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(dir, "packer.frizz.go"), buf.Bytes(), 0777); err != nil {
 		return errors.Wrap(err, "error saving source")
 	}
 	return nil
@@ -82,7 +82,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 				// as soon as error is detected, stop processing
 				return false
 			}
-			if strings.HasSuffix(fname, "types.frizz.go") {
+			if strings.HasSuffix(fname, "packer.frizz.go") {
 				// ignore everything in the generated file
 				return false
 			}
@@ -244,18 +244,21 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 	}
 
 	/*
-		type Packer struct{}
+		const Packer packer = 0
 
-		func (Packer) Path() string {
+		type packer int
+
+		func (p packer) Path() string {
 			return "<path>"
 		}
 	*/
-	f.Type().Id("Packer").Struct()
-	f.Func().Params(Id("Packer")).Id("Path").Params().String().Block(
+	f.Const().Id("Packer").Id("packer").Op("=").Lit(0)
+	f.Type().Id("packer").Int()
+	f.Func().Params(Id("p").Id("packer")).Id("Path").Params().String().Block(
 		Return(Lit(prog.path)),
 	)
 	/*
-		func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+		func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
 			switch name {
 			<types...>
 			case "<name>":
@@ -265,7 +268,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 			return nil, errors.Errorf("%s: type %s not found", stack, "<name>")
 		}
 	*/
-	f.Func().Params(Id("p").Id("Packer")).Id("Unpack").Params(
+	f.Func().Params(Id("p").Id("packer")).Id("Unpack").Params(
 		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
 		Id("stack").Qual("frizz.io/frizz", "Stack"),
 		Id("in").Interface(),

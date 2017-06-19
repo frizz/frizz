@@ -10,13 +10,13 @@ import (
 
 func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool) *Statement {
 	/**
-	func <if method>(Packer) Unpack<name></if>(root *frizz.Root, stack frizz.Stack, in interface{}) (value <named or spec>, err error) {
+	func <if method>(p packer) Unpack<name></if>(root *frizz.Root, stack frizz.Stack, in interface{}) (value <named or spec>, err error) {
 		<...>
 	}
 	*/
 	return Func().Do(func(s *Statement) {
 		if method {
-			s.Params(Id("p").Id("Packer")).Id("Unpack" + name)
+			s.Params(Id("p").Id("packer")).Id("Unpack" + name)
 		}
 	}).Params(
 		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
@@ -114,7 +114,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, name stri
 
 func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, name string) {
 	/*
-		out, err := <spec.X>.Packer{}.Unpack<name>(root, stack, in)
+		out, err := <spec.X>.Packer.Unpack<name>(root, stack, in)
 		if err != nil {
 			return value, err
 		}
@@ -134,7 +134,7 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, name string
 			panic(fmt.Sprintf("%s not found in imports", x.Name))
 		}
 		s.Qual(path, "Packer")
-	}).Values().Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
+	}).Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)

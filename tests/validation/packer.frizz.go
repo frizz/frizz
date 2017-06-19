@@ -5,19 +5,21 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-type Packer struct{}
+const Packer packer = 0
 
-func (Packer) Path() string {
+type packer int
+
+func (p packer) Path() string {
 	return "frizz.io/tests/validation"
 }
-func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
 	switch name {
 	case "Simple":
 		return p.UnpackSimple(root, stack, in)
 	}
 	return nil, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p Packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}) (value Simple, err error) {
+func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}) (value Simple, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {

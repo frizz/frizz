@@ -6,12 +6,14 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-type Packer struct{}
+const Packer packer = 0
 
-func (Packer) Path() string {
+type packer int
+
+func (p packer) Path() string {
 	return "frizz.io/validators"
 }
-func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
 	switch name {
 	case "Keys":
 		return p.UnpackKeys(root, stack, in)
@@ -22,7 +24,7 @@ func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	}
 	return nil, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p Packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
+func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -42,7 +44,7 @@ func (p Packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) 
 				stack := stack.Append(frizz.ArrayItem(i))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Packer{}.UnpackValidator(root, stack, in)
+					out, err := common.Packer.UnpackValidator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -62,7 +64,7 @@ func (p Packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	}
 	return out, nil
 }
-func (p Packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
+func (p packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -82,7 +84,7 @@ func (p Packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{})
 				stack := stack.Append(frizz.ArrayItem(i))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Packer{}.UnpackValidator(root, stack, in)
+					out, err := common.Packer.UnpackValidator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
@@ -102,7 +104,7 @@ func (p Packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{})
 	}
 	return out, nil
 }
-func (p Packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
+func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {

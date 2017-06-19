@@ -6,12 +6,14 @@ import (
 	errors "github.com/pkg/errors"
 )
 
-type Packer struct{}
+const Packer packer = 0
 
-func (Packer) Path() string {
+type packer int
+
+func (p packer) Path() string {
 	return "frizz.io/system"
 }
-func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
 	switch name {
 	case "Type":
 		return p.UnpackType(root, stack, in)
@@ -20,7 +22,7 @@ func (p Packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	}
 	return nil, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p Packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
+func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -60,7 +62,7 @@ func (p Packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	}
 	return out, nil
 }
-func (p Packer) UnpackField(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
+func (p packer) UnpackField(root *frizz.Root, stack frizz.Stack, in interface{}) (value Field, err error) {
 	// structUnpacker
 	m, ok := in.(map[string]interface{})
 	if !ok {
@@ -80,7 +82,7 @@ func (p Packer) UnpackField(root *frizz.Root, stack frizz.Stack, in interface{})
 				stack := stack.Append(frizz.ArrayItem(i))
 				u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
 					// selectorUnpacker
-					out, err := common.Packer{}.UnpackValidator(root, stack, in)
+					out, err := common.Packer.UnpackValidator(root, stack, in)
 					if err != nil {
 						return value, err
 					}
