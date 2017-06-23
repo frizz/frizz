@@ -11,7 +11,7 @@ import (
 func TestGenerate(t *testing.T) {
 	buf := &bytes.Buffer{}
 	env := vos.Os()
-	path := "frizz.io/tests/unpacker"
+	path := "frizz.io/tests/packer"
 	dir, err := patsy.Dir(env, path)
 	if err != nil {
 		t.Fatal(err.Error())

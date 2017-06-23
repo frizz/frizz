@@ -44,24 +44,24 @@ func (f *fileDef) repacker(spec ast.Expr, name string, method bool, custom bool)
 		default:
 			panic(fmt.Sprintf("unsupported type %T", spec))
 		case *ast.InterfaceType:
-			f.interfaceRepacker(g, spec, name)
+			f.interfaceRepacker(g, spec)
 		case *ast.StarExpr:
-			f.pointerRepacker(g, spec, name)
+			f.pointerRepacker(g, spec)
 		case *ast.MapType:
-			f.mapRepacker(g, spec, name)
+			f.mapRepacker(g, spec)
 		case *ast.ArrayType:
-			f.sliceRepacker(g, spec, name)
+			f.sliceRepacker(g, spec)
 		case *ast.StructType:
-			f.structRepacker(g, spec, name)
+			f.structRepacker(g, spec)
 		case *ast.Ident:
 			switch spec.Name {
 			case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
-				f.nativeRepacker(g, spec, name)
+				f.nativeRepacker(g, spec)
 			default:
-				f.localRepacker(g, spec, name)
+				f.localRepacker(g, spec)
 			}
 		case *ast.SelectorExpr:
-			f.selectorRepacker(g, spec, name)
+			f.selectorRepacker(g, spec)
 		}
 	})
 }
@@ -96,7 +96,7 @@ func (f *fileDef) customRepacker(g *Group, spec ast.Expr, name string) {
 	g.Return(Id("out"), Id("dict"), Nil())
 }
 
-func (f *fileDef) interfaceRepacker(g *Group, spec *ast.InterfaceType, name string) {
+func (f *fileDef) interfaceRepacker(g *Group, spec *ast.InterfaceType) {
 	/*
 		return frizz.RepackInterface(root, stack, in)
 	*/
@@ -110,7 +110,7 @@ func (f *fileDef) interfaceRepacker(g *Group, spec *ast.InterfaceType, name stri
 	)
 }
 
-func (f *fileDef) pointerRepacker(g *Group, spec *ast.StarExpr, name string) {
+func (f *fileDef) pointerRepacker(g *Group, spec *ast.StarExpr) {
 	/*
 		out, dict, err := <unpacker>(root, stack, *in)
 		if err != nil {
@@ -130,7 +130,7 @@ func (f *fileDef) pointerRepacker(g *Group, spec *ast.StarExpr, name string) {
 	g.Return(Id("out"), Id("dict"), Nil())
 }
 
-func (f *fileDef) mapRepacker(g *Group, spec *ast.MapType, name string) {
+func (f *fileDef) mapRepacker(g *Group, spec *ast.MapType) {
 	/*
 		out := make(map[string]interface{}, <len>)
 		for k, item := range in {
@@ -158,7 +158,7 @@ func (f *fileDef) mapRepacker(g *Group, spec *ast.MapType, name string) {
 	g.Return(Id("out"), True(), Nil())
 }
 
-func (f *fileDef) sliceRepacker(g *Group, spec *ast.ArrayType, name string) {
+func (f *fileDef) sliceRepacker(g *Group, spec *ast.ArrayType) {
 	/*
 		out := make([]interface{}, <len>)
 		for i, item := range in {
@@ -186,7 +186,7 @@ func (f *fileDef) sliceRepacker(g *Group, spec *ast.ArrayType, name string) {
 	g.Return(Id("out"), False(), Nil())
 }
 
-func (f *fileDef) selectorRepacker(g *Group, spec *ast.SelectorExpr, name string) {
+func (f *fileDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 	/*
 		out, dict, err := <spec.pkg>.Packer.Repack<spec.name>(root, stack, in)
 		if err != nil {
@@ -206,7 +206,7 @@ func (f *fileDef) selectorRepacker(g *Group, spec *ast.SelectorExpr, name string
 	g.Return(Id("out"), Id("dict"), Nil())
 }
 
-func (f *fileDef) localRepacker(g *Group, spec *ast.Ident, name string) {
+func (f *fileDef) localRepacker(g *Group, spec *ast.Ident) {
 	/*
 		out, dict, err := p.Repack<spec name>(root, stack, in)
 		if err != nil {
@@ -226,7 +226,7 @@ func (f *fileDef) localRepacker(g *Group, spec *ast.Ident, name string) {
 	g.Return(Id("out"), Id("dict"), Nil())
 }
 
-func (f *fileDef) nativeRepacker(g *Group, spec *ast.Ident, name string) {
+func (f *fileDef) nativeRepacker(g *Group, spec *ast.Ident) {
 	/*
 		return system.Repack<type>(in), false, nil
 	*/
@@ -243,7 +243,7 @@ func (f *fileDef) nativeRepacker(g *Group, spec *ast.Ident, name string) {
 	g.Return(Qual("frizz.io/frizz", repackFunction).Call(Id("in")), False(), Nil())
 }
 
-func (f *fileDef) structRepacker(g *Group, spec *ast.StructType, name string) {
+func (f *fileDef) structRepacker(g *Group, spec *ast.StructType) {
 	/*
 		out := make(map[string]interface{}, <fields len>)
 		<fields...>

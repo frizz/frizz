@@ -1,4 +1,4 @@
-package unpacker
+package packer
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 	"go/printer"
 
 	"frizz.io/frizz"
-	"frizz.io/tests/unpacker/sub"
+	"frizz.io/tests/packer/sub"
 )
 
 // frizz

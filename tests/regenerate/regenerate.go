@@ -18,8 +18,8 @@ var packages = []string{
 	"frizz.io/system",
 	"frizz.io/common",
 	"frizz.io/validators",
-	"frizz.io/tests/unpacker",
-	"frizz.io/tests/unpacker/sub",
+	"frizz.io/tests/packer",
+	"frizz.io/tests/packer/sub",
 	"frizz.io/tests/validation",
 }
 

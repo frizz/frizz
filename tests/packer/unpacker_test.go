@@ -1,4 +1,4 @@
-package unpacker
+package packer
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"frizz.io/frizz"
-	"frizz.io/tests/unpacker/sub"
+	"frizz.io/tests/packer/sub"
 
 	"go/ast"
 
@@ -84,7 +84,7 @@ func TestType(t *testing.T) {
 		},
 		"type ident": {
 			`"Foo"`,
-			Type{Path: "frizz.io/tests/unpacker", Name: "Foo"},
+			Type{Path: "frizz.io/tests/packer", Name: "Foo"},
 			"",
 		},
 	}
@@ -131,7 +131,7 @@ func TestImports(t *testing.T) {
 	tests := map[string]test{
 		"imports": {
 			`{
-				"_import": {"sub": "frizz.io/tests/unpacker/sub"},
+				"_import": {"sub": "frizz.io/tests/packer/sub"},
 				"_type": "sub.Sub",
 				"String": "a"
 			}`,
@@ -144,7 +144,7 @@ func TestImports(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.json)
 
-		u := frizz.New("frizz.io/tests/unpacker", sub.Packer)
+		u := frizz.New("frizz.io/tests/packer", sub.Packer)
 		result, err := u.Unpack(v)
 
 		ensure(t, name, test, err, result)
@@ -235,7 +235,7 @@ func TestUnpackInterface(t *testing.T) {
 		v := decode(t, name, test.json)
 
 		r, s := root()
-		r.Imports["sub"] = "frizz.io/tests/unpacker/sub"
+		r.Imports["sub"] = "frizz.io/tests/packer/sub"
 		r.Register(sub.Packer)
 		result, err := r.UnpackInterface(s, v)
 
@@ -649,7 +649,7 @@ func TestNatives(t *testing.T) {
 
 func root() (*frizz.Root, frizz.Stack) {
 	r := &frizz.Root{
-		Unpacker: frizz.New("frizz.io/tests/unpacker"),
+		Unpacker: frizz.New("frizz.io/tests/packer"),
 		Imports:  make(map[string]string),
 	}
 	r.Register(Packer)

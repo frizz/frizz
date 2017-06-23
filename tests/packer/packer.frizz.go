@@ -1,8 +1,8 @@
-package unpacker
+package packer
 
 import (
 	frizz "frizz.io/frizz"
-	sub "frizz.io/tests/unpacker/sub"
+	sub "frizz.io/tests/packer/sub"
 	errors "github.com/pkg/errors"
 )
 
@@ -11,7 +11,7 @@ const Packer packer = 0
 type packer int
 
 func (p packer) Path() string {
-	return "frizz.io/tests/unpacker"
+	return "frizz.io/tests/packer"
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
 	switch name {

@@ -10,7 +10,7 @@ const Packer packer = 0
 type packer int
 
 func (p packer) Path() string {
-	return "frizz.io/tests/unpacker/sub"
+	return "frizz.io/tests/packer/sub"
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
 	switch name {
