@@ -167,7 +167,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					}
 
 					// check return is error
-					if len(n.Type.Results.List) != 2 {
+					if len(n.Type.Results.List) != 3 {
 						return true
 					}
 					ift, ok := n.Type.Results.List[0].Type.(*ast.InterfaceType)
@@ -177,11 +177,10 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					if len(ift.Methods.List) != 0 {
 						return true
 					}
-					ide, ok := n.Type.Results.List[1].Type.(*ast.Ident)
-					if !ok {
+					if ide, ok := n.Type.Results.List[1].Type.(*ast.Ident); !ok || ide.Name != "bool" {
 						return true
 					}
-					if ide.Name != "error" {
+					if ide, ok := n.Type.Results.List[2].Type.(*ast.Ident); !ok || ide.Name != "error" {
 						return true
 					}
 					// repack method is the correct signature.
@@ -296,6 +295,49 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 
 	for _, t := range all {
 		f.Add(t.unpacker(t.spec, t.name, true, t.packable))
+	}
+
+	/*
+		func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, bool, error) {
+			switch name {
+			<types...>
+			case "<name>":
+				return p.Repack<name>(root, stack, in.(<name>))
+			}
+			</types>
+			return nil, false, errors.Errorf("%s: type %s not found", stack, "<name>")
+		}
+	*/
+	f.Func().Params(Id("p").Id("packer")).Id("Repack").Params(
+		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
+		Id("stack").Qual("frizz.io/frizz", "Stack"),
+		Id("in").Interface(),
+		Id("name").String(),
+	).Params(
+		Interface(),
+		Bool(),
+		Error(),
+	).Block(
+		Switch(Id("name")).BlockFunc(func(g *Group) {
+			for _, t := range all {
+				g.Case(Lit(t.name)).Block(
+					Return(Id("p").Dot("Repack"+t.name).Call(Id("root"), Id("stack"), Id("in").Assert(Id(t.name)))),
+				)
+			}
+		}),
+		Return(
+			Nil(),
+			False(),
+			Qual("github.com/pkg/errors", "Errorf").Call(
+				Lit("%s: type %s not found"),
+				Id("stack"),
+				Id("name"),
+			),
+		),
+	)
+
+	for _, t := range all {
+		f.Add(t.repacker(t.spec, t.name, true, t.packable))
 	}
 
 	if err := f.Render(writer); err != nil {

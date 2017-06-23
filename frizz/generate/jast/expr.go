@@ -21,7 +21,7 @@ func (c *Cache) Expr(spec ast.Expr) *jen.Statement {
 	case *ast.ArrayType:
 		return jen.Index(c.Expr(spec.Len)).Add(c.Expr(spec.Elt))
 	case *ast.FuncType:
-		return jen.Func().ParamsFunc(func(g *jen.Group) {
+		return jen.ParamsFunc(func(g *jen.Group) {
 			c.FieldList(g, spec.Params)
 		}).ParamsFunc(func(g *jen.Group) {
 			c.FieldList(g, spec.Results)

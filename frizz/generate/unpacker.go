@@ -33,21 +33,11 @@ func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
 		if custom {
-			/*
-				out := new(<name>)
-				if err := out.Unpack(root, stack, in); err != nil {
-					return value, err
-				}
-				return *out, nil
-			*/
-			g.Id("out").Op(":=").New(Id(name))
-			g.If(
-				Err().Op(":=").Id("out").Dot("Unpack").Call(Id("root"), Id("stack"), Id("in")),
-				Err().Op("!=").Nil(),
-			).Block(
-				Return(Id("value"), Err()),
-			)
-			g.Return(Op("*").Id("out"), Nil())
+			f.customUnpacker(g, spec, name)
+			return
+		}
+		if name != "" {
+			f.aliasUnpacker(g, spec, name)
 			return
 		}
 		switch spec := spec.(type) {
@@ -74,6 +64,45 @@ func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 			f.selectorUnpacker(g, spec, name)
 		}
 	})
+}
+
+func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
+	/*
+		out, err := <unpacker>(root, stack, in)
+		if err != nil {
+			return value, err
+		}
+		return <name>(out), nil
+	*/
+	g.Comment("aliasUnpacker")
+	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec, "", false, false)).Call(
+		Id("root"),
+		Id("stack"),
+		Id("in"),
+	)
+	g.If(Err().Op("!=").Nil()).Block(
+		Return(Id("value"), Err()),
+	)
+	g.Return(Id(name).Parens(Id("out")), Nil())
+}
+
+func (f *fileDef) customUnpacker(g *Group, spec ast.Expr, name string) {
+	/*
+		out := new(<name>)
+		if err := out.Unpack(root, stack, in); err != nil {
+			return value, err
+		}
+		return *out, nil
+	*/
+	g.Comment("customUnpacker")
+	g.Id("out").Op(":=").New(Id(name))
+	g.If(
+		Err().Op(":=").Id("out").Dot("Unpack").Call(Id("root"), Id("stack"), Id("in")),
+		Err().Op("!=").Nil(),
+	).Block(
+		Return(Id("value"), Err()),
+	)
+	g.Return(Op("*").Id("out"), Nil())
 }
 
 func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, name string) {
@@ -121,20 +150,7 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, name string
 		return <alias?>(out), nil
 	*/
 	g.Comment("selectorUnpacker")
-	g.List(Id("out"), Err()).Op(":=").Do(func(s *Statement) {
-		x, ok := spec.X.(*ast.Ident)
-		if !ok {
-			panic("spec.X must be *ast.Ident")
-		}
-		if x.Obj != nil {
-			panic("x.Obj must be nil")
-		}
-		path, ok := f.imports[x.Name]
-		if !ok {
-			panic(fmt.Sprintf("%s not found in imports", x.Name))
-		}
-		s.Qual(path, "Packer")
-	}).Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Err()).Op(":=").Qual(f.pathFromSelector(spec), "Packer").Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
@@ -354,37 +370,14 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, name string) {
 		}
 	})
 	for _, field := range spec.Fields.List {
-		var name string
-		if len(field.Names) == 0 {
-			// anonymous field
-			typ := field.Type
-			for {
-				// remove any number of stars
-				star, ok := typ.(*ast.StarExpr)
-				if !ok {
-					break
-				}
-				typ = star.X
-			}
-			switch typ := typ.(type) {
-			case *ast.Ident:
-				name = typ.Name
-			case *ast.SelectorExpr:
-				name = typ.Sel.Name
-			default:
-				panic(fmt.Sprintf("can't find name for anonymous field %#v", typ))
-			}
-		} else {
-			// named field
-			name = field.Names[0].Name
-		}
-		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(name)), Id("ok")).Block(
+
+		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(fieldName(field))), Id("ok")).Block(
 			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(name))),
 			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", false, false)).Call(Id("root"), Id("stack"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
 			),
-			Id("out").Dot(name).Op("=").Id("u"),
+			Id("out").Dot(fieldName(field)).Op("=").Id("u"),
 		)
 
 	}

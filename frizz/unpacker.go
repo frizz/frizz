@@ -27,10 +27,11 @@ type Root struct {
 
 type Packable interface {
 	Unpack(*Root, Stack, interface{}) error
-	Repack(*Root, Stack) (interface{}, error)
+	Repack(*Root, Stack) (interface{}, bool, error)
 }
 
 type Packer interface {
 	Path() string
 	Unpack(*Root, Stack, interface{}, string) (interface{}, error)
+	Repack(*Root, Stack, interface{}, string) (interface{}, bool, error)
 }

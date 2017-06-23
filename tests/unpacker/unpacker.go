@@ -30,8 +30,8 @@ func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	return nil
 }
 
-func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
-	return nil, nil
+func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
+	return nil, false, nil
 }
 
 // frizz
@@ -59,12 +59,12 @@ func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	return nil
 }
 
-func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
 	var parts []string
 	for k, v := range *a {
 		parts = append(parts, fmt.Sprintf("%s:%s", k, v))
 	}
-	return strings.Join(parts, ","), nil
+	return strings.Join(parts, ","), false, nil
 }
 
 // frizz
@@ -88,7 +88,7 @@ func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error 
 	return nil
 }
 
-func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
 	var out string
 	for i, v := range *c {
 		if i != 0 {
@@ -96,7 +96,7 @@ func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
 		}
 		out += fmt.Sprint(v)
 	}
-	return out, nil
+	return out, false, nil
 }
 
 // frizz
@@ -134,16 +134,16 @@ func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	}
 }
 
-func (t *Type) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+func (t *Type) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
 	if t.Path == root.Path {
-		return t.Name, nil
+		return t.Name, false, nil
 	}
 	for alias, path := range root.Imports {
 		if path == t.Path {
-			return fmt.Sprintf("%s.%s", alias, t.Name), nil
+			return fmt.Sprintf("%s.%s", alias, t.Name), false, nil
 		}
 	}
-	return nil, errors.Errorf("%s: can't find %s in imports", stack, t.Path)
+	return nil, false, errors.Errorf("%s: can't find %s in imports", stack, t.Path)
 }
 
 // frizz
@@ -164,13 +164,13 @@ func (c *Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) err
 	return nil
 }
 
-func (c *Custom) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, error) {
+func (c *Custom) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
 	buf := &bytes.Buffer{}
 	err := printer.Fprint(buf, nil, c.Expr)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, false, errors.WithStack(err)
 	}
-	return buf.String(), nil
+	return buf.String(), false, nil
 }
 
 // frizz
