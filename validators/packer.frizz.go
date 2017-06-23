@@ -38,7 +38,7 @@ func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) 
 			Validators []common.Validator
 		}
 		if v, ok := m["Validators"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("Validators"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})
@@ -89,7 +89,7 @@ func (p packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{})
 			Validators []common.Validator
 		}
 		if v, ok := m["Validators"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("Validators"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})
@@ -140,7 +140,7 @@ func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{})
 			Regex string
 		}
 		if v, ok := m["Regex"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("Regex"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 				// nativeUnpacker
 				out, err := frizz.UnpackString(stack, in)

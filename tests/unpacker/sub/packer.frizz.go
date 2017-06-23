@@ -33,7 +33,7 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 			String string
 		}
 		if v, ok := m["String"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("String"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 				// nativeUnpacker
 				out, err := frizz.UnpackString(stack, in)

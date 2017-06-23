@@ -36,7 +36,7 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 			Fields map[string]Field
 		}
 		if v, ok := m["Fields"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("Fields"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]Field, err error) {
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
@@ -87,7 +87,7 @@ func (p packer) UnpackField(root *frizz.Root, stack frizz.Stack, in interface{})
 			Validators []common.Validator
 		}
 		if v, ok := m["Validators"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("Validators"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, err error) {
 				// sliceUnpacker
 				a, ok := in.([]interface{})

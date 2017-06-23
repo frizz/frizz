@@ -33,7 +33,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 		Err().Error(),
 	).BlockFunc(func(g *Group) {
 		if custom {
-			f.customUnpacker(g, spec, name)
+			f.customUnpacker(g, name)
 			return
 		}
 		if name != "" {
@@ -44,24 +44,24 @@ func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 		default:
 			panic(fmt.Sprintf("unsupported type %T", spec))
 		case *ast.InterfaceType:
-			f.interfaceUnpacker(g, spec, name)
+			f.interfaceUnpacker(g, spec)
 		case *ast.StarExpr:
-			f.pointerUnpacker(g, spec, name)
+			f.pointerUnpacker(g, spec)
 		case *ast.MapType:
-			f.mapUnpacker(g, spec, name)
+			f.mapUnpacker(g, spec)
 		case *ast.ArrayType:
-			f.sliceUnpacker(g, spec, name)
+			f.sliceUnpacker(g, spec)
 		case *ast.StructType:
-			f.structUnpacker(g, spec, name)
+			f.structUnpacker(g, spec)
 		case *ast.Ident:
 			switch spec.Name {
 			case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
-				f.nativeUnpacker(g, spec, name)
+				f.nativeUnpacker(g, spec)
 			default:
-				f.localUnpacker(g, spec, name)
+				f.localUnpacker(g, spec)
 			}
 		case *ast.SelectorExpr:
-			f.selectorUnpacker(g, spec, name)
+			f.selectorUnpacker(g, spec)
 		}
 	})
 }
@@ -86,7 +86,7 @@ func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	g.Return(Id(name).Parens(Id("out")), Nil())
 }
 
-func (f *fileDef) customUnpacker(g *Group, spec ast.Expr, name string) {
+func (f *fileDef) customUnpacker(g *Group, name string) {
 	/*
 		out := new(<name>)
 		if err := out.Unpack(root, stack, in); err != nil {
@@ -105,13 +105,13 @@ func (f *fileDef) customUnpacker(g *Group, spec ast.Expr, name string) {
 	g.Return(Op("*").Id("out"), Nil())
 }
 
-func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, name string) {
+func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 	/*
 		out, err := root.UnpackInterface(stack, in)
 		if err != nil {
 			return value, err
 		}
-		iface, ok := out.(<name or spec>)
+		iface, ok := out.(<spec>)
 		if !ok {
 			return value, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
 		}
@@ -122,13 +122,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, name stri
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
-	g.List(Id("iface"), Id("ok")).Op(":=").Id("out").Assert(Do(func(s *Statement) {
-		if name != "" {
-			s.Id(name)
-		} else {
-			s.Add(f.jast.Expr(spec))
-		}
-	}))
+	g.List(Id("iface"), Id("ok")).Op(":=").Id("out").Assert(f.jast.Expr(spec))
 	g.If(Op("!").Id("ok")).Block(
 		Return(
 			Id("value"),
@@ -141,79 +135,61 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType, name stri
 	g.Return(Id("iface"), Nil())
 }
 
-func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr, name string) {
+func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 	/*
-		out, err := <spec.X>.Packer.Unpack<name>(root, stack, in)
+		out, err := <spec.X>.Packer.Unpack<spec.Sel.Name>(root, stack, in)
 		if err != nil {
 			return value, err
 		}
-		return <alias?>(out), nil
+		return out, nil
 	*/
 	g.Comment("selectorUnpacker")
 	g.List(Id("out"), Err()).Op(":=").Qual(f.pathFromSelector(spec), "Packer").Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
-	g.Return(Do(func(s *Statement) {
-		if name == "" {
-			s.Id("out")
-		} else {
-			s.Id(name).Parens(Id("out"))
-		}
-	}), Nil())
+	g.Return(Id("out"), Nil())
 }
 
-func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident, name string) {
+func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident) {
 	/*
-		out, err := p.Unpack<name>(root, stack, in)
+		out, err := p.Unpack<spec name>(root, stack, in)
 		if err != nil {
 			return value, err
 		}
-		return <alias?>(out), nil
+		return out, nil
 	*/
 	g.Comment("localUnpacker")
 	g.List(Id("out"), Err()).Op(":=").Id("p").Dot("Unpack"+spec.Name).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
-	g.Return(Do(func(s *Statement) {
-		if name == "" {
-			s.Id("out")
-		} else {
-			s.Id(name).Parens(Id("out"))
-		}
-	}), Nil())
+	g.Return(Id("out"), Nil())
 }
 
-func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr, name string) {
+func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr) {
 	/*
 		out, err := <unpacker>(root, stack, in)
 		if err != nil {
 			return value, err
 		}
-		return <alias?>(&out), nil
+		return &out, nil
 	*/
 	g.Comment("pointerUnpacker")
 	g.List(Id("out"), Err()).Op(":=").Add(f.unpacker(spec.X, "", false, false)).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
-	g.Return(Do(func(s *Statement) {
-		if name == "" {
-			s.Op("&").Id("out")
-		} else {
-			s.Id(name).Parens(Op("&").Id("out"))
-		}
-	}), Nil())
+	g.Return(Op("&").Id("out"), Nil())
 }
 
-func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, name string) {
+func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
 			return value, errors.New("unpacking into map, value should be a map")
 		}
-		var out = make(<name or spec>, len(m))
+		var out = make(<spec>, len(m))
 		for k, v := range m {
 			stack := stack.Append(frizz.MapItem(k))
 			u, err := <unpacker>(root, stack, v)
@@ -234,13 +210,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, name string) {
 			),
 		),
 	)
-	g.Var().Id("out").Op("=").Make(Do(func(s *Statement) {
-		if name != "" {
-			s.Id(name)
-		} else {
-			s.Add(f.jast.Expr(spec))
-		}
-	}), Len(Id("m")))
+	g.Var().Id("out").Op("=").Make(f.jast.Expr(spec), Len(Id("m")))
 	g.For(List(Id("k"), Id("v")).Op(":=").Range().Id("m")).Block(
 		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "MapItem").Parens(Id("k"))),
 		List(Id("u"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", false, false)).Call(Id("root"), Id("stack"), Id("v")),
@@ -252,14 +222,14 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType, name string) {
 	g.Return(Id("out"), Nil())
 }
 
-func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, name string) {
+func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 	/*
 		a, ok := in.([]interface{})
 		if !ok {
 			return value, errors.New("unpacking into slice, value should be an array")
 		}
 		<if slice type...>
-			var out = make(<name or spec>, len(a))
+			var out = make(<spec>, len(a))
 		<if array type...>
 			var out <name or spec>
 			if len(a) > <len expr> {
@@ -287,21 +257,14 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, name string) {
 		),
 	)
 
-	var def *Statement
-	if name != "" {
-		def = Id(name)
-	} else {
-		def = f.jast.Expr(spec)
-	}
-
 	if spec.Len == nil {
 		// return type is a slice type, so we use make to get a slice
 		// of the correct size for the data
-		g.Var().Id("out").Op("=").Make(def, Len(Id("a")))
+		g.Var().Id("out").Op("=").Make(f.jast.Expr(spec), Len(Id("a")))
 	} else {
 		// return type is an array type, so we create an array of the
 		// same type
-		g.Var().Id("out").Add(def)
+		g.Var().Id("out").Add(f.jast.Expr(spec))
 	}
 
 	if spec.Len != nil {
@@ -333,21 +296,21 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType, name string) {
 	}), Nil())
 }
 
-func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, name string) {
+func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
 			return value, errors.New("unpacking into struct, value should be a map")
 		}
-		var out <alias or type>
+		var out <spec>
 		<fields...>
-		if v, ok := m["<jsonName>"]; ok {
-			stack := stack.Append(frizz.FieldItem("<jsonName>"))
+		if v, ok := m["<field name>"]; ok {
+			stack := stack.Append(frizz.FieldItem("<field name>"))
 			u, err := <unpacker>(root, stack, v)
 			if err != nil {
 				return value, err
 			}
-			out.<fieldName> = u
+			out.<field name> = u
 		}
 		</fields>
 		return out, nil
@@ -362,46 +325,32 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType, name string) {
 			),
 		),
 	)
-	g.Var().Id("out").Do(func(s *Statement) {
-		if name != "" {
-			s.Id(name)
-		} else {
-			s.Add(f.jast.Expr(spec))
-		}
-	})
+	g.Var().Id("out").Add(f.jast.Expr(spec))
 	for _, field := range spec.Fields.List {
-
 		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(fieldName(field))), Id("ok")).Block(
-			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(name))),
+			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(fieldName(field)))),
 			List(Id("u"), Err()).Op(":=").Add(f.unpacker(field.Type, "", false, false)).Call(Id("root"), Id("stack"), Id("v")),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), Err()),
 			),
 			Id("out").Dot(fieldName(field)).Op("=").Id("u"),
 		)
-
 	}
 	g.Return(Id("out"), Nil())
 }
 
-func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident, name string) {
+func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident) {
 	/*
 		out, err := frizz.Unpack<strings.Title(spec.Name)>(stack, in)
 		if err != nil {
 			return nil, err
 		}
-		return <alias?>(out), nil
+		return out, nil
 	*/
 	g.Comment("nativeUnpacker")
 	g.List(Id("out"), Err()).Op(":=").Qual("frizz.io/frizz", fmt.Sprintf("Unpack%s", strings.Title(spec.Name))).Call(Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), Err()),
 	)
-	g.Return(Do(func(s *Statement) {
-		if name == "" {
-			s.Id("out")
-		} else {
-			s.Id(name).Parens(Id("out"))
-		}
-	}), Nil())
+	g.Return(Id("out"), Nil())
 }

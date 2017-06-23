@@ -35,7 +35,7 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 			Int    int
 		}
 		if v, ok := m["String"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("String"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
 				// nativeUnpacker
 				out, err := frizz.UnpackString(stack, in)
@@ -50,7 +50,7 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 			out.String = u
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(frizz.FieldItem(""))
+			stack := stack.Append(frizz.FieldItem("Int"))
 			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
 				// nativeUnpacker
 				out, err := frizz.UnpackInt(stack, in)
