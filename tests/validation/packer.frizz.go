@@ -12,7 +12,7 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/tests/validation"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
 	switch name {
 	case "Simple":
 		return p.UnpackSimple(root, stack, in)
@@ -71,37 +71,44 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 	}
 	return Simple(out), nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, bool, error) {
+func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Simple":
 		return p.RepackSimple(root, stack, in.(Simple))
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackSimple(root *frizz.Root, stack frizz.Stack, in Simple) (interface{}, bool, error) {
+func (p packer) RepackSimple(root *frizz.Root, stack frizz.Stack, in Simple) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		String string
 		Int    int
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.String); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["String"] = v
+			if !null {
+				empty = false
+				out["String"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		String string
 		Int    int

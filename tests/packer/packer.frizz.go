@@ -13,7 +13,7 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/tests/packer"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
 	switch name {
 	case "CustomSub":
 		return p.UnpackCustomSub(root, stack, in)
@@ -2127,7 +2127,7 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 	}
 	return Natives(out), nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, bool, error) {
+func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "CustomSub":
 		return p.RepackCustomSub(root, stack, in.(CustomSub))
@@ -2186,285 +2186,334 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	case "Natives":
 		return p.RepackNatives(root, stack, in.(Natives))
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackCustomSub(root *frizz.Root, stack frizz.Stack, in CustomSub) (interface{}, bool, error) {
+func (p packer) RepackCustomSub(root *frizz.Root, stack frizz.Stack, in CustomSub) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, err := in.Repack(root, stack)
+	out, dict, null, err := in.Repack(root, stack)
 	if err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
-	return out, dict, nil
+	return out, dict, null, nil
 }
-func (p packer) RepackAges(root *frizz.Root, stack frizz.Stack, in Ages) (interface{}, bool, error) {
+func (p packer) RepackAges(root *frizz.Root, stack frizz.Stack, in Ages) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, err := in.Repack(root, stack)
+	out, dict, null, err := in.Repack(root, stack)
 	if err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
-	return out, dict, nil
+	return out, dict, null, nil
 }
-func (p packer) RepackCsv(root *frizz.Root, stack frizz.Stack, in Csv) (interface{}, bool, error) {
+func (p packer) RepackCsv(root *frizz.Root, stack frizz.Stack, in Csv) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, err := in.Repack(root, stack)
+	out, dict, null, err := in.Repack(root, stack)
 	if err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
-	return out, dict, nil
+	return out, dict, null, nil
 }
-func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (interface{}, bool, error) {
+func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, err := in.Repack(root, stack)
+	out, dict, null, err := in.Repack(root, stack)
 	if err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
-	return out, dict, nil
+	return out, dict, null, nil
 }
-func (p packer) RepackCustom(root *frizz.Root, stack frizz.Stack, in Custom) (interface{}, bool, error) {
+func (p packer) RepackCustom(root *frizz.Root, stack frizz.Stack, in Custom) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, err := in.Repack(root, stack)
+	out, dict, null, err := in.Repack(root, stack)
 	if err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
-	return out, dict, nil
+	return out, dict, null, nil
 }
-func (p packer) RepackEmbedNatives(root *frizz.Root, stack frizz.Stack, in EmbedNatives) (interface{}, bool, error) {
+func (p packer) RepackEmbedNatives(root *frizz.Root, stack frizz.Stack, in EmbedNatives) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Natives
 		Int int
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in Natives) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in Natives) (value interface{}, dict bool, null bool, err error) {
 			// localRepacker
-			out, dict, err := p.RepackNatives(root, stack, in)
+			out, dict, null, err := p.RepackNatives(root, stack, in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Natives); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Natives"] = v
+			if !null {
+				empty = false
+				out["Natives"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Natives
 		Int int
 	})(in))
 }
-func (p packer) RepackEmbedPointer(root *frizz.Root, stack frizz.Stack, in EmbedPointer) (interface{}, bool, error) {
+func (p packer) RepackEmbedPointer(root *frizz.Root, stack frizz.Stack, in EmbedPointer) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		*Natives
 		Int int
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *Natives) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *Natives) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in Natives) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in Natives) (value interface{}, dict bool, null bool, err error) {
 				// localRepacker
-				out, dict, err := p.RepackNatives(root, stack, in)
+				out, dict, null, err := p.RepackNatives(root, stack, in)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
-				return out, dict, nil
+				return out, dict, null, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Natives); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Natives"] = v
+			if !null {
+				empty = false
+				out["Natives"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		*Natives
 		Int int
 	})(in))
 }
-func (p packer) RepackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in EmbedQualPointer) (interface{}, bool, error) {
+func (p packer) RepackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in EmbedQualPointer) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		*sub.Sub
 		Int int
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *sub.Sub) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, err := sub.Packer.RepackSub(root, stack, in)
+				out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
-				return out, dict, nil
+				return out, dict, null, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Sub); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Sub"] = v
+			if !null {
+				empty = false
+				out["Sub"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		*sub.Sub
 		Int int
 	})(in))
 }
-func (p packer) RepackEmbedQual(root *frizz.Root, stack frizz.Stack, in EmbedQual) (interface{}, bool, error) {
+func (p packer) RepackEmbedQual(root *frizz.Root, stack frizz.Stack, in EmbedQual) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		sub.Sub
 		Int int
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// selectorRepacker
-			out, dict, err := sub.Packer.RepackSub(root, stack, in)
+			out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Sub); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Sub"] = v
+			if !null {
+				empty = false
+				out["Sub"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		sub.Sub
 		Int int
 	})(in))
 }
-func (p packer) RepackInterfaceField(root *frizz.Root, stack frizz.Stack, in InterfaceField) (interface{}, bool, error) {
+func (p packer) RepackInterfaceField(root *frizz.Root, stack frizz.Stack, in InterfaceField) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Iface Interface
 		Slice []Interface
 		Array [3]Interface
 		Map   map[string]Interface
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 5)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
 			// localRepacker
-			out, dict, err := p.RepackInterface(root, stack, in)
+			out, dict, null, err := p.RepackInterface(root, stack, in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Iface); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Iface"] = v
+			if !null {
+				empty = false
+				out["Iface"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []Interface) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []Interface) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, err := p.RepackInterface(root, stack, in)
+					out, dict, null, err := p.RepackInterface(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Slice); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Slice"] = v
+			if !null {
+				empty = false
+				out["Slice"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in [3]Interface) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in [3]Interface) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, err := p.RepackInterface(root, stack, in)
+					out, dict, null, err := p.RepackInterface(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Array); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Array"] = v
+			if !null {
+				empty = false
+				out["Array"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]Interface) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]Interface) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, err := p.RepackInterface(root, stack, in)
+					out, dict, null, err := p.RepackInterface(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Map); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Map"] = v
+			if !null {
+				empty = false
+				out["Map"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Iface Interface
 		Slice []Interface
@@ -2472,222 +2521,249 @@ func (p packer) RepackInterfaceField(root *frizz.Root, stack frizz.Stack, in Int
 		Map   map[string]Interface
 	})(in))
 }
-func (p packer) RepackImpi(root *frizz.Root, stack frizz.Stack, in Impi) (interface{}, bool, error) {
+func (p packer) RepackImpi(root *frizz.Root, stack frizz.Stack, in Impi) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Int int
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Int int
 	})(in))
 }
-func (p packer) RepackImps(root *frizz.Root, stack frizz.Stack, in Imps) (interface{}, bool, error) {
+func (p packer) RepackImps(root *frizz.Root, stack frizz.Stack, in Imps) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		String string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.String); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["String"] = v
+			if !null {
+				empty = false
+				out["String"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		String string
 	})(in))
 }
-func (p packer) RepackInterface(root *frizz.Root, stack frizz.Stack, in Interface) (interface{}, bool, error) {
+func (p packer) RepackInterface(root *frizz.Root, stack frizz.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in interface {
 		Foo() string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// interfaceRepacker
-		return frizz.RepackInterface(root, stack, in)
+		return root.RepackInterface(stack, false, in)
 	}(root, stack, (interface {
 		Foo() string
 	})(in))
 }
-func (p packer) RepackPrivate(root *frizz.Root, stack frizz.Stack, in Private) (interface{}, bool, error) {
+func (p packer) RepackPrivate(root *frizz.Root, stack frizz.Stack, in Private) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		i int
 		s string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.i); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["i"] = v
+			if !null {
+				empty = false
+				out["i"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.s); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["s"] = v
+			if !null {
+				empty = false
+				out["s"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		i int
 		s string
 	})(in))
 }
-func (p packer) RepackAliasSub(root *frizz.Root, stack frizz.Stack, in AliasSub) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (interface{}, bool, error) {
+func (p packer) RepackAliasSub(root *frizz.Root, stack frizz.Stack, in AliasSub) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker
-		out, dict, err := sub.Packer.RepackSub(root, stack, in)
+		out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
 		if err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		}
-		return out, dict, nil
+		return out, dict, null, nil
 	}(root, stack, (sub.Sub)(in))
 }
-func (p packer) RepackAliasSlice(root *frizz.Root, stack frizz.Stack, in AliasSlice) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in []Int) (interface{}, bool, error) {
+func (p packer) RepackAliasSlice(root *frizz.Root, stack frizz.Stack, in AliasSlice) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in []Int) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
+		empty := true
 		for i, item := range in {
-			v, _, err := func(root *frizz.Root, stack frizz.Stack, in Int) (interface{}, bool, error) {
+			v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
 				// localRepacker
-				out, dict, err := p.RepackInt(root, stack, in)
+				out, dict, null, err := p.RepackInt(root, stack, in)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
-				return out, dict, nil
+				return out, dict, null, nil
 			}(root, stack, item)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
+			}
+			if !null {
+				empty = false
 			}
 			out[i] = v
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, ([]Int)(in))
 }
-func (p packer) RepackAliasArray(root *frizz.Root, stack frizz.Stack, in AliasArray) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in [3]string) (interface{}, bool, error) {
+func (p packer) RepackAliasArray(root *frizz.Root, stack frizz.Stack, in AliasArray) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in [3]string) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
+		empty := true
 		for i, item := range in {
-			v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+			v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
-				return frizz.RepackString(in), false, nil
+				return frizz.RepackString(in)
 			}(root, stack, item)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
+			}
+			if !null {
+				empty = false
 			}
 			out[i] = v
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, ([3]string)(in))
 }
-func (p packer) RepackAliasMap(root *frizz.Root, stack frizz.Stack, in AliasMap) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in map[string]*Qual) (interface{}, bool, error) {
+func (p packer) RepackAliasMap(root *frizz.Root, stack frizz.Stack, in AliasMap) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in map[string]*Qual) (value interface{}, dict bool, null bool, err error) {
 		// mapRepacker
 		out := make(map[string]interface{}, len(in))
 		for k, item := range in {
-			v, _, err := func(root *frizz.Root, stack frizz.Stack, in *Qual) (interface{}, bool, error) {
+			v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in *Qual) (value interface{}, dict bool, null bool, err error) {
 				// pointerRepacker
-				out, dict, err := func(root *frizz.Root, stack frizz.Stack, in Qual) (interface{}, bool, error) {
+				out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in Qual) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, err := p.RepackQual(root, stack, in)
+					out, dict, null, err := p.RepackQual(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, *in)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
-				return out, dict, nil
+				return out, dict, null, nil
 			}(root, stack, item)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
 			out[k] = v
 		}
-		return out, true, nil
+		return out, true, len(in) == 0, nil
 	}(root, stack, (map[string]*Qual)(in))
 }
-func (p packer) RepackAliasPointer(root *frizz.Root, stack frizz.Stack, in AliasPointer) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in *Int) (interface{}, bool, error) {
+func (p packer) RepackAliasPointer(root *frizz.Root, stack frizz.Stack, in AliasPointer) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in *Int) (value interface{}, dict bool, null bool, err error) {
 		// pointerRepacker
-		out, dict, err := func(root *frizz.Root, stack frizz.Stack, in Int) (interface{}, bool, error) {
+		out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
 			// localRepacker
-			out, dict, err := p.RepackInt(root, stack, in)
+			out, dict, null, err := p.RepackInt(root, stack, in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, *in)
 		if err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		}
-		return out, dict, nil
+		return out, dict, null, nil
 	}(root, stack, (*Int)(in))
 }
-func (p packer) RepackAlias(root *frizz.Root, stack frizz.Stack, in Alias) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in Int) (interface{}, bool, error) {
+func (p packer) RepackAlias(root *frizz.Root, stack frizz.Stack, in Alias) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
 		// localRepacker
-		out, dict, err := p.RepackInt(root, stack, in)
+		out, dict, null, err := p.RepackInt(root, stack, in)
 		if err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		}
-		return out, dict, nil
+		return out, dict, null, nil
 	}(root, stack, (Int)(in))
 }
-func (p packer) RepackInt(root *frizz.Root, stack frizz.Stack, in Int) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+func (p packer) RepackInt(root *frizz.Root, stack frizz.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
-		return frizz.RepackNumber(in), false, nil
+		return frizz.RepackNumber(in)
 	}(root, stack, (int)(in))
 }
-func (p packer) RepackString(root *frizz.Root, stack frizz.Stack, in String) (interface{}, bool, error) {
-	return func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+func (p packer) RepackString(root *frizz.Root, stack frizz.Stack, in String) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
-		return frizz.RepackString(in), false, nil
+		return frizz.RepackString(in)
 	}(root, stack, (string)(in))
 }
-func (p packer) RepackQual(root *frizz.Root, stack frizz.Stack, in Qual) (interface{}, bool, error) {
+func (p packer) RepackQual(root *frizz.Root, stack frizz.Stack, in Qual) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Sub sub.Sub
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// selectorRepacker
-			out, dict, err := sub.Packer.RepackSub(root, stack, in)
+			out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Sub); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Sub"] = v
+			if !null {
+				empty = false
+				out["Sub"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Sub sub.Sub
 	})(in))
 }
-func (p packer) RepackPointers(root *frizz.Root, stack frizz.Stack, in Pointers) (interface{}, bool, error) {
+func (p packer) RepackPointers(root *frizz.Root, stack frizz.Stack, in Pointers) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		String      *string
 		Int         *Int
@@ -2698,227 +2774,275 @@ func (p packer) RepackPointers(root *frizz.Root, stack frizz.Stack, in Pointers)
 		SliceString []*string
 		SliceInt    []*Int
 		SliceSub    []*sub.Sub
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 10)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *string) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *string) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
-				return frizz.RepackString(in), false, nil
+				return frizz.RepackString(in)
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.String); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["String"] = v
+			if !null {
+				empty = false
+				out["String"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *Int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *Int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in Int) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
 				// localRepacker
-				out, dict, err := p.RepackInt(root, stack, in)
+				out, dict, null, err := p.RepackInt(root, stack, in)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
-				return out, dict, nil
+				return out, dict, null, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *sub.Sub) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, err := sub.Packer.RepackSub(root, stack, in)
+				out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
-				return out, dict, nil
+				return out, dict, null, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Sub); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Sub"] = v
+			if !null {
+				empty = false
+				out["Sub"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *[3]int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *[3]int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in [3]int) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in [3]int) (value interface{}, dict bool, null bool, err error) {
 				// sliceRepacker
 				out := make([]interface{}, len(in))
+				empty := true
 				for i, item := range in {
-					v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+					v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
-						return frizz.RepackNumber(in), false, nil
+						return frizz.RepackNumber(in)
 					}(root, stack, item)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
+					}
+					if !null {
+						empty = false
 					}
 					out[i] = v
 				}
-				return out, false, nil
+				return out, false, empty, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Array); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Array"] = v
+			if !null {
+				empty = false
+				out["Array"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *[]string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *[]string) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in []string) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
 				// sliceRepacker
 				out := make([]interface{}, len(in))
+				empty := true
 				for i, item := range in {
-					v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+					v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
-						return frizz.RepackString(in), false, nil
+						return frizz.RepackString(in)
 					}(root, stack, item)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
+					}
+					if !null {
+						empty = false
 					}
 					out[i] = v
 				}
-				return out, false, nil
+				return out, false, empty, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Slice); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Slice"] = v
+			if !null {
+				empty = false
+				out["Slice"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in *map[string]int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *map[string]int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
-			out, dict, err := func(root *frizz.Root, stack frizz.Stack, in map[string]int) (interface{}, bool, error) {
+			out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]int) (value interface{}, dict bool, null bool, err error) {
 				// mapRepacker
 				out := make(map[string]interface{}, len(in))
 				for k, item := range in {
-					v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+					v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
-						return frizz.RepackNumber(in), false, nil
+						return frizz.RepackNumber(in)
 					}(root, stack, item)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
 					out[k] = v
 				}
-				return out, true, nil
+				return out, true, len(in) == 0, nil
 			}(root, stack, *in)
 			if err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			}
-			return out, dict, nil
+			return out, dict, null, nil
 		}(root, stack, in.Map); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Map"] = v
+			if !null {
+				empty = false
+				out["Map"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []*string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []*string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in *string) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *string) (value interface{}, dict bool, null bool, err error) {
 					// pointerRepacker
-					out, dict, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+					out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
-						return frizz.RepackString(in), false, nil
+						return frizz.RepackString(in)
 					}(root, stack, *in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.SliceString); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["SliceString"] = v
+			if !null {
+				empty = false
+				out["SliceString"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []*Int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []*Int) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in *Int) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *Int) (value interface{}, dict bool, null bool, err error) {
 					// pointerRepacker
-					out, dict, err := func(root *frizz.Root, stack frizz.Stack, in Int) (interface{}, bool, error) {
+					out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
 						// localRepacker
-						out, dict, err := p.RepackInt(root, stack, in)
+						out, dict, null, err := p.RepackInt(root, stack, in)
 						if err != nil {
-							return nil, false, err
+							return nil, false, false, err
 						}
-						return out, dict, nil
+						return out, dict, null, nil
 					}(root, stack, *in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.SliceInt); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["SliceInt"] = v
+			if !null {
+				empty = false
+				out["SliceInt"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []*sub.Sub) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []*sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in *sub.Sub) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
 					// pointerRepacker
-					out, dict, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (interface{}, bool, error) {
+					out, dict, null, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 						// selectorRepacker
-						out, dict, err := sub.Packer.RepackSub(root, stack, in)
+						out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
 						if err != nil {
-							return nil, false, err
+							return nil, false, false, err
 						}
-						return out, dict, nil
+						return out, dict, null, nil
 					}(root, stack, *in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.SliceSub); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["SliceSub"] = v
+			if !null {
+				empty = false
+				out["SliceSub"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		String      *string
 		Int         *Int
@@ -2931,145 +3055,169 @@ func (p packer) RepackPointers(root *frizz.Root, stack frizz.Stack, in Pointers)
 		SliceSub    []*sub.Sub
 	})(in))
 }
-func (p packer) RepackMaps(root *frizz.Root, stack frizz.Stack, in Maps) (interface{}, bool, error) {
+func (p packer) RepackMaps(root *frizz.Root, stack frizz.Stack, in Maps) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Ints    map[string]int
 		Strings map[string]string
 		Slices  map[string][]string
 		Arrays  map[string][2]int
 		Maps    map[string]map[string]string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 6)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]int) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]int) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackNumber(in), false, nil
+					return frizz.RepackNumber(in)
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Ints); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Ints"] = v
+			if !null {
+				empty = false
+				out["Ints"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]string) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackString(in), false, nil
+					return frizz.RepackString(in)
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Strings); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Strings"] = v
+			if !null {
+				empty = false
+				out["Strings"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string][]string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string][]string) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in []string) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
 					// sliceRepacker
 					out := make([]interface{}, len(in))
+					empty := true
 					for i, item := range in {
-						v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+						v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
-							return frizz.RepackString(in), false, nil
+							return frizz.RepackString(in)
 						}(root, stack, item)
 						if err != nil {
-							return nil, false, err
+							return nil, false, false, err
+						}
+						if !null {
+							empty = false
 						}
 						out[i] = v
 					}
-					return out, false, nil
+					return out, false, empty, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Slices); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Slices"] = v
+			if !null {
+				empty = false
+				out["Slices"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string][2]int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string][2]int) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in [2]int) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in [2]int) (value interface{}, dict bool, null bool, err error) {
 					// sliceRepacker
 					out := make([]interface{}, len(in))
+					empty := true
 					for i, item := range in {
-						v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+						v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
-							return frizz.RepackNumber(in), false, nil
+							return frizz.RepackNumber(in)
 						}(root, stack, item)
 						if err != nil {
-							return nil, false, err
+							return nil, false, false, err
+						}
+						if !null {
+							empty = false
 						}
 						out[i] = v
 					}
-					return out, false, nil
+					return out, false, empty, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Arrays); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Arrays"] = v
+			if !null {
+				empty = false
+				out["Arrays"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]map[string]string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]map[string]string) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]string) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]string) (value interface{}, dict bool, null bool, err error) {
 					// mapRepacker
 					out := make(map[string]interface{}, len(in))
 					for k, item := range in {
-						v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+						v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
-							return frizz.RepackString(in), false, nil
+							return frizz.RepackString(in)
 						}(root, stack, item)
 						if err != nil {
-							return nil, false, err
+							return nil, false, false, err
 						}
 						out[k] = v
 					}
-					return out, true, nil
+					return out, true, len(in) == 0, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Maps); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Maps"] = v
+			if !null {
+				empty = false
+				out["Maps"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Ints    map[string]int
 		Strings map[string]string
@@ -3078,7 +3226,7 @@ func (p packer) RepackMaps(root *frizz.Root, stack frizz.Stack, in Maps) (interf
 		Maps    map[string]map[string]string
 	})(in))
 }
-func (p packer) RepackSlices(root *frizz.Root, stack frizz.Stack, in Slices) (interface{}, bool, error) {
+func (p packer) RepackSlices(root *frizz.Root, stack frizz.Stack, in Slices) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Ints      []int
 		Strings   []string
@@ -3088,148 +3236,199 @@ func (p packer) RepackSlices(root *frizz.Root, stack frizz.Stack, in Slices) (in
 			Int int
 		}
 		Arrays [][]string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 7)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []int) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []int) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackNumber(in), false, nil
+					return frizz.RepackNumber(in)
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Ints); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Ints"] = v
+			if !null {
+				empty = false
+				out["Ints"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackString(in), false, nil
+					return frizz.RepackString(in)
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Strings); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Strings"] = v
+			if !null {
+				empty = false
+				out["Strings"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in [5]string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in [5]string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackString(in), false, nil
+					return frizz.RepackString(in)
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.ArrayLit); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["ArrayLit"] = v
+			if !null {
+				empty = false
+				out["ArrayLit"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in [2 * N]int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in [2 * N]int) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackNumber(in), false, nil
+					return frizz.RepackNumber(in)
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.ArrayExpr); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["ArrayExpr"] = v
+			if !null {
+				empty = false
+				out["ArrayExpr"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []struct {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []struct {
 			Int int
-		}) (interface{}, bool, error) {
+		}) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in struct {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in struct {
 					Int int
-				}) (interface{}, bool, error) {
+				}) (value interface{}, dict bool, null bool, err error) {
 					// structRepacker
 					out := make(map[string]interface{}, 2)
-					if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+					empty := true
+					if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
-						return frizz.RepackNumber(in), false, nil
+						return frizz.RepackNumber(in)
 					}(root, stack, in.Int); err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					} else {
-						out["Int"] = v
+						if !null {
+							empty = false
+							out["Int"] = v
+						}
 					}
-					return out, false, nil
+					return out, false, empty, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Structs); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Structs"] = v
+			if !null {
+				empty = false
+				out["Structs"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in [][]string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in [][]string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in []string) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
 					// sliceRepacker
 					out := make([]interface{}, len(in))
+					empty := true
 					for i, item := range in {
-						v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+						v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
-							return frizz.RepackString(in), false, nil
+							return frizz.RepackString(in)
 						}(root, stack, item)
 						if err != nil {
-							return nil, false, err
+							return nil, false, false, err
+						}
+						if !null {
+							empty = false
 						}
 						out[i] = v
 					}
-					return out, false, nil
+					return out, false, empty, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Arrays); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Arrays"] = v
+			if !null {
+				empty = false
+				out["Arrays"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Ints      []int
 		Strings   []string
@@ -3241,7 +3440,7 @@ func (p packer) RepackSlices(root *frizz.Root, stack frizz.Stack, in Slices) (in
 		Arrays [][]string
 	})(in))
 }
-func (p packer) RepackStructs(root *frizz.Root, stack frizz.Stack, in Structs) (interface{}, bool, error) {
+func (p packer) RepackStructs(root *frizz.Root, stack frizz.Stack, in Structs) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Simple struct {
 			Int  int
@@ -3253,79 +3452,104 @@ func (p packer) RepackStructs(root *frizz.Root, stack frizz.Stack, in Structs) (
 				Float32 float32
 			}
 		}
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in struct {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in struct {
 			Int  int
 			Bool bool
-		}) (interface{}, bool, error) {
+		}) (value interface{}, dict bool, null bool, err error) {
 			// structRepacker
 			out := make(map[string]interface{}, 3)
-			if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+			empty := true
+			if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
-				return frizz.RepackNumber(in), false, nil
+				return frizz.RepackNumber(in)
 			}(root, stack, in.Int); err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			} else {
-				out["Int"] = v
+				if !null {
+					empty = false
+					out["Int"] = v
+				}
 			}
-			if v, _, err := func(root *frizz.Root, stack frizz.Stack, in bool) (interface{}, bool, error) {
+			if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
-				return frizz.RepackBool(in), false, nil
+				return frizz.RepackBool(in)
 			}(root, stack, in.Bool); err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			} else {
-				out["Bool"] = v
+				if !null {
+					empty = false
+					out["Bool"] = v
+				}
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Simple); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Simple"] = v
+			if !null {
+				empty = false
+				out["Simple"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in struct {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in struct {
 			String string
 			Inner  struct {
 				Float32 float32
 			}
-		}) (interface{}, bool, error) {
+		}) (value interface{}, dict bool, null bool, err error) {
 			// structRepacker
 			out := make(map[string]interface{}, 3)
-			if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+			empty := true
+			if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
-				return frizz.RepackString(in), false, nil
+				return frizz.RepackString(in)
 			}(root, stack, in.String); err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			} else {
-				out["String"] = v
+				if !null {
+					empty = false
+					out["String"] = v
+				}
 			}
-			if v, _, err := func(root *frizz.Root, stack frizz.Stack, in struct {
+			if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in struct {
 				Float32 float32
-			}) (interface{}, bool, error) {
+			}) (value interface{}, dict bool, null bool, err error) {
 				// structRepacker
 				out := make(map[string]interface{}, 2)
-				if v, _, err := func(root *frizz.Root, stack frizz.Stack, in float32) (interface{}, bool, error) {
+				empty := true
+				if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in float32) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
-					return frizz.RepackNumber(in), false, nil
+					return frizz.RepackNumber(in)
 				}(root, stack, in.Float32); err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				} else {
-					out["Float32"] = v
+					if !null {
+						empty = false
+						out["Float32"] = v
+					}
 				}
-				return out, false, nil
+				return out, false, empty, nil
 			}(root, stack, in.Inner); err != nil {
-				return nil, false, err
+				return nil, false, false, err
 			} else {
-				out["Inner"] = v
+				if !null {
+					empty = false
+					out["Inner"] = v
+				}
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Complex); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Complex"] = v
+			if !null {
+				empty = false
+				out["Complex"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Simple struct {
 			Int  int
@@ -3339,7 +3563,7 @@ func (p packer) RepackStructs(root *frizz.Root, stack frizz.Stack, in Structs) (
 		}
 	})(in))
 }
-func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (interface{}, bool, error) {
+func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Bool    bool
 		Byte    byte
@@ -3357,138 +3581,187 @@ func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (
 		Uint64  uint64
 		Rune    rune
 		String  string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 17)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in bool) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackBool(in), false, nil
+			return frizz.RepackBool(in)
 		}(root, stack, in.Bool); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Bool"] = v
+			if !null {
+				empty = false
+				out["Bool"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in byte) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in byte) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Byte); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Byte"] = v
+			if !null {
+				empty = false
+				out["Byte"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in float32) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in float32) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Float32); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Float32"] = v
+			if !null {
+				empty = false
+				out["Float32"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in float64) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in float64) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Float64); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Float64"] = v
+			if !null {
+				empty = false
+				out["Float64"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int"] = v
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int8) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int8) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int8); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int8"] = v
+			if !null {
+				empty = false
+				out["Int8"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int16) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int16) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int16); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int16"] = v
+			if !null {
+				empty = false
+				out["Int16"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int32) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int32) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int32); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int32"] = v
+			if !null {
+				empty = false
+				out["Int32"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in int64) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int64) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Int64); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Int64"] = v
+			if !null {
+				empty = false
+				out["Int64"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in uint) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in uint) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Uint); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Uint"] = v
+			if !null {
+				empty = false
+				out["Uint"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in uint8) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in uint8) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Uint8); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Uint8"] = v
+			if !null {
+				empty = false
+				out["Uint8"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in uint16) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in uint16) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Uint16); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Uint16"] = v
+			if !null {
+				empty = false
+				out["Uint16"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in uint32) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in uint32) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Uint32); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Uint32"] = v
+			if !null {
+				empty = false
+				out["Uint32"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in uint64) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in uint64) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackNumber(in), false, nil
+			return frizz.RepackNumber(in)
 		}(root, stack, in.Uint64); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Uint64"] = v
+			if !null {
+				empty = false
+				out["Uint64"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in rune) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in rune) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.Rune); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Rune"] = v
+			if !null {
+				empty = false
+				out["Rune"] = v
+			}
 		}
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.String); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["String"] = v
+			if !null {
+				empty = false
+				out["String"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Bool    bool
 		Byte    byte

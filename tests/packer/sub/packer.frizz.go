@@ -12,7 +12,7 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/tests/packer/sub"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
 	switch name {
 	case "Sub":
 		return p.UnpackSub(root, stack, in)
@@ -54,28 +54,32 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 	}
 	return Sub(out), nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, bool, error) {
+func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Sub":
 		return p.RepackSub(root, stack, in.(Sub))
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (interface{}, bool, error) {
+func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		String string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.String); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["String"] = v
+			if !null {
+				empty = false
+				out["String"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		String string
 	})(in))

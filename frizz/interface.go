@@ -3,6 +3,7 @@ package frizz
 import (
 	"go/ast"
 	"go/parser"
+	"reflect"
 
 	"github.com/pkg/errors"
 )
@@ -82,4 +83,64 @@ func (r *Root) UnpackInterface(stack Stack, in interface{}) (interface{}, error)
 		return p.Unpack(r, stack, in, expr.Sel.Name)
 	}
 	return nil, errors.Errorf("%s: unsupported type %s", stack, ts)
+}
+
+func (r *Root) RepackInterface(stack Stack, root bool, in interface{}) (value interface{}, dict bool, null bool, err error) {
+	if in == nil {
+		return nil, false, true, nil
+	}
+	t := reflect.TypeOf(in)
+	if t.PkgPath() == "" {
+		switch t.Name() {
+		case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
+			value, dict, null, err = RepackNative(stack, t.Name(), in)
+			if err != nil {
+				return nil, false, false, err
+			}
+		default:
+			return nil, false, false, errors.Errorf("%s: unsupported type %s", stack, t.Name())
+		}
+	} else {
+		p, ok := r.Packers[t.PkgPath()]
+		if !ok {
+			return nil, false, false, errors.Errorf("%s: can't find packer for %s", stack, t.PkgPath())
+		}
+		value, dict, null, err = p.Repack(r, stack, in, t.Name())
+		if err != nil {
+			return nil, false, false, err
+		}
+	}
+
+	typeName := t.Name()
+	if t.PkgPath() != "" && t.PkgPath() != r.Path {
+		alias := r.RegisterPackage(t.PkgPath())
+		typeName = alias + "." + t.Name()
+	}
+
+	out := map[string]interface{}{}
+
+	vmap, isMap := value.(map[string]interface{})
+	isStruct := isMap && !dict
+
+	if isStruct {
+		// if value is a struct, use the value as out
+		out = vmap
+	} else if !null {
+		// if value is not a struct, add the value to _value only if not null
+		out["_value"] = value
+	}
+
+	// always add type information
+	out["_type"] = typeName
+
+	// when repacking into a root, add imports to _import
+	if root {
+		imports := make(map[string]interface{}, len(r.Imports))
+		for a, p := range r.Imports {
+			imports[a] = p
+		}
+		out["_import"] = imports
+	}
+
+	return out, false, false, nil
 }

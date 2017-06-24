@@ -13,7 +13,7 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/system"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
 	switch name {
 	case "Type":
 		return p.UnpackType(root, stack, in)
@@ -124,79 +124,91 @@ func (p packer) UnpackField(root *frizz.Root, stack frizz.Stack, in interface{})
 	}
 	return Field(out), nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, bool, error) {
+func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Type":
 		return p.RepackType(root, stack, in.(Type))
 	case "Field":
 		return p.RepackField(root, stack, in.(Field))
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (interface{}, bool, error) {
+func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Fields map[string]Field
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in map[string]Field) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]Field) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in Field) (interface{}, bool, error) {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in Field) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, err := p.RepackField(root, stack, in)
+					out, dict, null, err := p.RepackField(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
 				}
 				out[k] = v
 			}
-			return out, true, nil
+			return out, true, len(in) == 0, nil
 		}(root, stack, in.Fields); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Fields"] = v
+			if !null {
+				empty = false
+				out["Fields"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Fields map[string]Field
 	})(in))
 }
-func (p packer) RepackField(root *frizz.Root, stack frizz.Stack, in Field) (interface{}, bool, error) {
+func (p packer) RepackField(root *frizz.Root, stack frizz.Stack, in Field) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Validators []common.Validator
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 					// selectorRepacker
-					out, dict, err := common.Packer.RepackValidator(root, stack, in)
+					out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Validators); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Validators"] = v
+			if !null {
+				empty = false
+				out["Validators"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Validators []common.Validator
 	})(in))

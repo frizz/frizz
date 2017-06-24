@@ -13,6 +13,8 @@ import (
 	"bytes"
 	"go/printer"
 
+	"go/token"
+
 	"frizz.io/frizz"
 	"frizz.io/tests/packer/sub"
 )
@@ -30,8 +32,10 @@ func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	return nil
 }
 
-func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
-	return nil, false, nil
+func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
+	c.String = strings.TrimSuffix(c.String, "-b")
+	out := sub.Sub(*c)
+	return sub.Packer.RepackSub(root, stack, out)
 }
 
 // frizz
@@ -59,12 +63,12 @@ func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	return nil
 }
 
-func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
+func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
 	var parts []string
 	for k, v := range *a {
-		parts = append(parts, fmt.Sprintf("%s:%s", k, v))
+		parts = append(parts, fmt.Sprintf("%s:%v", k, v))
 	}
-	return strings.Join(parts, ","), false, nil
+	return strings.Join(parts, ","), false, len(*a) == 0, nil
 }
 
 // frizz
@@ -88,7 +92,7 @@ func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error 
 	return nil
 }
 
-func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
+func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
 	var out string
 	for i, v := range *c {
 		if i != 0 {
@@ -96,7 +100,7 @@ func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, er
 		}
 		out += fmt.Sprint(v)
 	}
-	return out, false, nil
+	return out, false, len(*c) == 0, nil
 }
 
 // frizz
@@ -134,16 +138,11 @@ func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error
 	}
 }
 
-func (t *Type) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
+func (t *Type) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
 	if t.Path == root.Path {
-		return t.Name, false, nil
+		return t.Name, false, false, nil
 	}
-	for alias, path := range root.Imports {
-		if path == t.Path {
-			return fmt.Sprintf("%s.%s", alias, t.Name), false, nil
-		}
-	}
-	return nil, false, errors.Errorf("%s: can't find %s in imports", stack, t.Path)
+	return fmt.Sprintf("%s.%s", root.RegisterPackage(t.Path), t.Name), false, false, nil
 }
 
 // frizz
@@ -164,13 +163,12 @@ func (c *Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) err
 	return nil
 }
 
-func (c *Custom) Repack(root *frizz.Root, stack frizz.Stack) (interface{}, bool, error) {
+func (c *Custom) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
 	buf := &bytes.Buffer{}
-	err := printer.Fprint(buf, nil, c.Expr)
-	if err != nil {
-		return nil, false, errors.WithStack(err)
+	if err := printer.Fprint(buf, token.NewFileSet(), c.Expr); err != nil {
+		return nil, false, false, errors.WithStack(err)
 	}
-	return buf.String(), false, nil
+	return buf.String(), false, buf.Len() == 0, nil
 }
 
 // frizz

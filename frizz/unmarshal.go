@@ -37,8 +37,8 @@ func Package(path string, packers ...Packer) (map[string]interface{}, error) {
 		}
 
 		r := &Root{
-			Unpacker: u,
-			Imports:  make(map[string]string),
+			Context: u,
+			Imports: make(map[string]string),
 		}
 		s := Stack{RootItem(name)}
 		i, err := r.UnpackInterface(s, v)
@@ -65,7 +65,7 @@ func decodeFile(fpath string) (interface{}, error) {
 	return v, nil
 }
 
-func (u *Unpacker) Unmarshal(in []byte) (interface{}, error) {
+func (u *Context) Unmarshal(in []byte) (interface{}, error) {
 	var v interface{}
 	d := json.NewDecoder(bytes.NewBuffer(in))
 	d.UseNumber()
@@ -75,11 +75,20 @@ func (u *Unpacker) Unmarshal(in []byte) (interface{}, error) {
 	return u.Unpack(v)
 }
 
-func (u *Unpacker) Unpack(in interface{}) (interface{}, error) {
+func (u *Context) Unpack(in interface{}) (value interface{}, err error) {
 	r := &Root{
-		Unpacker: u,
-		Imports:  make(map[string]string),
+		Context: u,
+		Imports: make(map[string]string),
 	}
 	s := Stack{RootItem("root")}
 	return r.UnpackInterface(s, in)
+}
+
+func (u *Context) Repack(in interface{}) (value interface{}, dict bool, null bool, err error) {
+	r := &Root{
+		Context: u,
+		Imports: make(map[string]string),
+	}
+	s := Stack{RootItem("root")}
+	return r.RepackInterface(s, true, in)
 }

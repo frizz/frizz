@@ -1,37 +1,37 @@
 package frizz
 
-func New(path string, packers ...Packer) *Unpacker {
+func New(path string, packers ...Packer) *Context {
 	m := make(map[string]Packer, len(packers))
 	for _, p := range packers {
 		m[p.Path()] = p
 	}
-	return &Unpacker{
+	return &Context{
 		Path:    path,
 		Packers: m,
 	}
 }
 
-type Unpacker struct {
+type Context struct {
 	Path    string
 	Packers map[string]Packer
 }
 
-func (u *Unpacker) Register(p Packer) {
+func (u *Context) Register(p Packer) {
 	u.Packers[p.Path()] = p
 }
 
 type Root struct {
-	*Unpacker
+	*Context
 	Imports map[string]string
 }
 
 type Packable interface {
-	Unpack(*Root, Stack, interface{}) error
-	Repack(*Root, Stack) (interface{}, bool, error)
+	Unpack(root *Root, stack Stack, in interface{}) error
+	Repack(root *Root, stack Stack) (value interface{}, dict bool, null bool, err error)
 }
 
 type Packer interface {
 	Path() string
-	Unpack(*Root, Stack, interface{}, string) (interface{}, error)
-	Repack(*Root, Stack, interface{}, string) (interface{}, bool, error)
+	Unpack(root *Root, stack Stack, in interface{}, name string) (value interface{}, err error)
+	Repack(root *Root, stack Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error)
 }

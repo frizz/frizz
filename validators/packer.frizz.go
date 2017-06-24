@@ -13,7 +13,7 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/validators"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
 	switch name {
 	case "Keys":
 		return p.UnpackKeys(root, stack, in)
@@ -161,7 +161,7 @@ func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{})
 	}
 	return Regex(out), nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (interface{}, bool, error) {
+func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Keys":
 		return p.RepackKeys(root, stack, in.(Keys))
@@ -170,91 +170,111 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	case "Regex":
 		return p.RepackRegex(root, stack, in.(Regex))
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackKeys(root *frizz.Root, stack frizz.Stack, in Keys) (interface{}, bool, error) {
+func (p packer) RepackKeys(root *frizz.Root, stack frizz.Stack, in Keys) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Validators []common.Validator
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 					// selectorRepacker
-					out, dict, err := common.Packer.RepackValidator(root, stack, in)
+					out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Validators); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Validators"] = v
+			if !null {
+				empty = false
+				out["Validators"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Validators []common.Validator
 	})(in))
 }
-func (p packer) RepackItems(root *frizz.Root, stack frizz.Stack, in Items) (interface{}, bool, error) {
+func (p packer) RepackItems(root *frizz.Root, stack frizz.Stack, in Items) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Validators []common.Validator
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
+			empty := true
 			for i, item := range in {
-				v, _, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (interface{}, bool, error) {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 					// selectorRepacker
-					out, dict, err := common.Packer.RepackValidator(root, stack, in)
+					out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
 					if err != nil {
-						return nil, false, err
+						return nil, false, false, err
 					}
-					return out, dict, nil
+					return out, dict, null, nil
 				}(root, stack, item)
 				if err != nil {
-					return nil, false, err
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
 				}
 				out[i] = v
 			}
-			return out, false, nil
+			return out, false, empty, nil
 		}(root, stack, in.Validators); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Validators"] = v
+			if !null {
+				empty = false
+				out["Validators"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Validators []common.Validator
 	})(in))
 }
-func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (interface{}, bool, error) {
+func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		Regex string
-	}) (interface{}, bool, error) {
+	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
-		if v, _, err := func(root *frizz.Root, stack frizz.Stack, in string) (interface{}, bool, error) {
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in), false, nil
+			return frizz.RepackString(in)
 		}(root, stack, in.Regex); err != nil {
-			return nil, false, err
+			return nil, false, false, err
 		} else {
-			out["Regex"] = v
+			if !null {
+				empty = false
+				out["Regex"] = v
+			}
 		}
-		return out, false, nil
+		return out, false, empty, nil
 	}(root, stack, (struct {
 		Regex string
 	})(in))
