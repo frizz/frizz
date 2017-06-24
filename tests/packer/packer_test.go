@@ -16,12 +16,13 @@ import (
 )
 
 type test struct {
-	js   string      // json input
-	ex   interface{} // expected unpacked output
-	re   string      // expected repacked output (if different from js)
-	err  string      // if err != "", there should be an error, and will contain this string
-	dict bool        // should the repacked output be a dict?
-	null bool        // should the repacked output be null?
+	js    string      // json input
+	ex    interface{} // expected unpacked output
+	re    string      // expected repacked output (if different from js)
+	err   string      // if err != "", there should be an error, and will contain this string
+	dict  bool        // should the repacked output be a dict?
+	unull bool        // should the unpacked output be null?
+	rnull bool        // should the repacked output be null?
 }
 
 func TestCustomSub(t *testing.T) {
@@ -35,10 +36,10 @@ func TestCustomSub(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackCustomSub(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackCustomSub(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackCustomSub(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackCustomSub(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -53,10 +54,10 @@ func TestAges(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAges(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAges(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAges(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAges(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -71,10 +72,10 @@ func TestCsv(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackCsv(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackCsv(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackCsv(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackCsv(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -97,10 +98,10 @@ func TestType(t *testing.T) {
 
 		r, s := root()
 		r.Imports["foo"] = "github.com/foo"
-		unpacked, err1 := Packer.UnpackType(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackType(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackType(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackType(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -122,10 +123,10 @@ func TestCustom(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackCustom(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackCustom(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackCustom(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackCustom(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -152,10 +153,10 @@ func TestImports(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		u := frizz.New("frizz.io/tests/packer", sub.Packer)
-		unpacked, err1 := u.Unpack(v)
-		repacked, dict, null, err2 := u.Repack(unpacked)
+		unpacked, null1, err1 := u.Unpack(v)
+		repacked, dict, null2, err2 := u.Repack(unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -218,10 +219,10 @@ func TestInterfaceField(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackInterfaceField(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackInterfaceField(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackInterfaceField(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackInterfaceField(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -250,10 +251,10 @@ func TestUnpackInterface(t *testing.T) {
 		r.Imports["sub"] = "frizz.io/tests/packer/sub"
 		r.Register(sub.Packer)
 
-		unpacked, err1 := r.UnpackInterface(s, v)
-		repacked, dict, null, err2 := r.RepackInterface(s, false, unpacked)
+		unpacked, null1, err1 := r.UnpackInterface(s, v)
+		repacked, dict, null2, err2 := r.RepackInterface(s, false, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -266,10 +267,10 @@ func TestUnpackInterfaceNoPath(t *testing.T) {
 
 		r, s := root()
 		r.Path = ""
-		unpacked, err1 := r.UnpackInterface(s, v)
-		repacked, dict, null, err2 := r.RepackInterface(s, false, unpacked)
+		unpacked, null1, err1 := r.UnpackInterface(s, v)
+		repacked, dict, null2, err2 := r.RepackInterface(s, false, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -281,10 +282,10 @@ func TestPrivate(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackPrivate(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackPrivate(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackPrivate(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackPrivate(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -296,10 +297,10 @@ func TestAliasSub(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAliasSub(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAliasSub(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAliasSub(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAliasSub(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -311,10 +312,10 @@ func TestAliasSlice(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAliasSlice(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAliasSlice(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAliasSlice(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAliasSlice(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -327,10 +328,10 @@ func TestAliasArray(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAliasArray(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAliasArray(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAliasArray(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAliasArray(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -349,10 +350,10 @@ func TestAliasMap(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAliasMap(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAliasMap(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAliasMap(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAliasMap(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -364,10 +365,10 @@ func TestAliasPointe(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAliasPointer(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAliasPointer(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAliasPointer(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAliasPointer(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -379,10 +380,10 @@ func TestAlias(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackAlias(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackAlias(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackAlias(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackAlias(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -394,10 +395,10 @@ func TestInt(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackInt(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackInt(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackInt(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackInt(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -409,10 +410,10 @@ func TestString(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackString(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackString(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackString(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackString(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -424,10 +425,10 @@ func TestQual(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackQual(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackQual(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackQual(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackQual(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -462,10 +463,10 @@ func TestPointers(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackPointers(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackPointers(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackPointers(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackPointers(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -492,10 +493,10 @@ func TestMaps(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackMaps(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackMaps(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackMaps(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackMaps(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -534,10 +535,10 @@ func TestSlices(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackSlices(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackSlices(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackSlices(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackSlices(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -584,19 +585,21 @@ func TestStructs(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackStructs(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackStructs(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackStructs(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackStructs(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
 func TestNatives(t *testing.T) {
 	tests := map[string]test{
 		"int":                {js: `{"Int": 1}`, ex: Natives{Int: 1}},
+		"int zero":           {js: `{"Int": 0}`, ex: Natives{Int: 0}, re: "{}", rnull: true},
 		"int negative":       {js: `{"Int": -1}`, ex: Natives{Int: -1}},
 		"int8 small":         {js: `{"Int8": -128}`, ex: Natives{Int8: -128}},
 		"int8 big":           {js: `{"Int8": 127}`, ex: Natives{Int8: 127}},
+		"int8 zero":          {js: `{"Int8": 0}`, ex: Natives{Int8: 0}, re: "{}", rnull: true},
 		"int16 small":        {js: `{"Int16": -32768}`, ex: Natives{Int16: -32768}},
 		"int16 big":          {js: `{"Int16": 32767}`, ex: Natives{Int16: 32767}},
 		"int32 small":        {js: `{"Int32": -2147483648}`, ex: Natives{Int32: -2147483648}},
@@ -611,10 +614,11 @@ func TestNatives(t *testing.T) {
 		"string":             {js: `{"String": "a"}`, ex: Natives{String: "a"}},
 		"rune":               {js: `{"Rune": "😀"}`, ex: Natives{Rune: '😀'}},
 		"bool true":          {js: `{"Bool": true}`, ex: Natives{Bool: true}},
-		"bool false":         {js: `{"Bool": false}`, ex: Natives{Bool: false}, re: "{}", null: true},
+		"bool false":         {js: `{"Bool": false}`, ex: Natives{Bool: false}, re: "{}", rnull: true},
 		"byte":               {js: `{"Byte": 123}`, ex: Natives{Byte: byte(123)}},
 		"float32":            {js: `{"Float32": 1.5}`, ex: Natives{Float32: 1.5}},
 		"float32 negative":   {js: `{"Float32": -1.5}`, ex: Natives{Float32: -1.5}},
+		"float32 zero":       {js: `{"Float32": 0}`, ex: Natives{Float32: 0}, re: "{}", rnull: true},
 		"float64":            {js: `{"Float64": 1.5}`, ex: Natives{Float64: 1.5}},
 		"float64 negative":   {js: `{"Float64": -1.5}`, ex: Natives{Float64: -1.5}},
 		"int fraction":       {js: `{"Int": 1.5}`, err: `strconv.ParseInt: parsing "1.5": invalid syntax`},
@@ -661,15 +665,20 @@ func TestNatives(t *testing.T) {
 		"float64 wrong type": {js: `{"Float64": "a"}`, err: `unpacking into float64, value "a" should be json.Number`},
 		"float64 too big":    {js: `{"Float64": 1e999}`, err: `strconv.ParseFloat: parsing "1e999": value out of range`},
 		"float64 too small":  {js: `{"Float64": -1e999}`, err: `strconv.ParseFloat: parsing "-1e999": value out of range`},
+		"ptr string":         {js: `{"PtrString": "a"}`, ex: Natives{PtrString: func() *string { v := "a"; return &v }()}},
+		"ptr string empty":   {js: `{"PtrString": ""}`, ex: Natives{PtrString: func() *string { v := ""; return &v }()}},
+		"ptr int":            {js: `{"PtrInt": 1}`, ex: Natives{PtrInt: func() *int { v := 1; return &v }()}},
+		"ptr int zero":       {js: `{"PtrInt": 0}`, ex: Natives{PtrInt: func() *int { v := 0; return &v }()}},
+		"ptr int null":       {js: `{"PtrInt": null}`, ex: Natives{PtrInt: nil}, re: "{}", rnull: true},
 	}
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
 		r, s := root()
-		unpacked, err1 := Packer.UnpackNatives(r, s, v)
-		repacked, dict, null, err2 := Packer.RepackNatives(r, s, unpacked)
+		unpacked, null1, err1 := Packer.UnpackNatives(r, s, v)
+		repacked, dict, null2, err2 := Packer.RepackNatives(r, s, unpacked)
 
-		ensure(t, name, test, unpacked, err1, repacked, dict, null, err2)
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
@@ -693,7 +702,7 @@ func decode(t *testing.T, name, s string) interface{} {
 	return v
 }
 
-func ensure(t *testing.T, name string, test test, unpacked interface{}, err1 error, repacked interface{}, dict bool, null bool, err2 error) {
+func ensure(t *testing.T, name string, test test, unpacked interface{}, null1 bool, err1 error, repacked interface{}, dict bool, null2 bool, err2 error) {
 	if test.err != "" {
 		if err1 == nil && err2 == nil {
 			t.Fatalf("%s: expected error '%s', got nil", name, test.err)
@@ -723,8 +732,11 @@ func ensure(t *testing.T, name string, test test, unpacked interface{}, err1 err
 		if dict != test.dict {
 			t.Fatalf("%s: repacked dict = %v, expected %v", name, dict, test.dict)
 		}
-		if null != test.null {
-			t.Fatalf("%s: repacked null = %v, expected %v", name, null, test.null)
+		if null1 != test.unull {
+			t.Fatalf("%s: unpacked null = %v, expected %v", name, null1, test.unull)
+		}
+		if null2 != test.rnull {
+			t.Fatalf("%s: repacked null = %v, expected %v", name, null2, test.rnull)
 		}
 	}
 }

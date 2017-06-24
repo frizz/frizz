@@ -12,35 +12,47 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/common"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Validator":
 		return p.UnpackValidator(root, stack, in)
 	}
-	return nil, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interface{}) (value Validator, err error) {
+func (p packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interface{}) (value Validator, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
 	// aliasUnpacker
-	out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface {
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface {
 		Validate(input interface{}) (valid bool, message string, err error)
-	}, err error) {
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
 		// interfaceUnpacker
-		out, err := root.UnpackInterface(stack, in)
+		out, null, err := root.UnpackInterface(stack, in)
 		if err != nil {
-			return value, err
+			return value, false, err
 		}
 		iface, ok := out.(interface {
 			Validate(input interface{}) (valid bool, message string, err error)
 		})
 		if !ok {
-			return value, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
+			return value, false, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
 		}
-		return iface, nil
+		if null {
+			return value, true, nil
+		}
+		return iface, false, nil
 	}(root, stack, in)
 	if err != nil {
-		return value, err
+		return value, false, err
 	}
-	return Validator(out), nil
+	if null {
+		return value, true, nil
+	}
+	return Validator(out), false, nil
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {

@@ -26,12 +26,12 @@ type Root struct {
 }
 
 type Packable interface {
-	Unpack(root *Root, stack Stack, in interface{}) error
+	Unpack(root *Root, stack Stack, in interface{}) (null bool, err error)
 	Repack(root *Root, stack Stack) (value interface{}, dict bool, null bool, err error)
 }
 
 type Packer interface {
 	Path() string
-	Unpack(root *Root, stack Stack, in interface{}, name string) (value interface{}, err error)
+	Unpack(root *Root, stack Stack, in interface{}, name string) (value interface{}, null bool, err error)
 	Repack(root *Root, stack Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error)
 }

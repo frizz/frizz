@@ -113,13 +113,19 @@ func (f *fileDef) interfaceRepacker(g *Group, spec *ast.InterfaceType) {
 
 func (f *fileDef) pointerRepacker(g *Group, spec *ast.StarExpr) {
 	/*
+		if in = nil {
+			return nil, false, true, nil
+		}
 		out, dict, null, err := <unpacker>(root, stack, *in)
 		if err != nil {
 			return nil, false, false, err
 		}
-		return out, dict, null, nil
+		return out, dict, false, nil
 	*/
 	g.Comment("pointerRepacker")
+	g.If(Id("in").Op("==").Nil()).Block(
+		Return(Nil(), False(), True(), Nil()),
+	)
 	g.List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Add(f.repacker(spec.X, "", false, false)).Call(
 		Id("root"),
 		Id("stack"),
@@ -128,7 +134,7 @@ func (f *fileDef) pointerRepacker(g *Group, spec *ast.StarExpr) {
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Nil(), False(), False(), Err()),
 	)
-	g.Return(Id("out"), Id("dict"), Id("null"), Nil())
+	g.Return(Id("out"), Id("dict"), False(), Nil())
 }
 
 func (f *fileDef) mapRepacker(g *Group, spec *ast.MapType) {

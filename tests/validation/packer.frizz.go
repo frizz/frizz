@@ -12,23 +12,32 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/tests/validation"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Simple":
 		return p.UnpackSimple(root, stack, in)
 	}
-	return nil, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}) (value Simple, err error) {
+func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}) (value Simple, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
 	// aliasUnpacker
-	out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 		String string
 		Int    int
-	}, err error) {
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.New("unpacking into struct, value should be a map")
+		}
+		if len(m) == 0 {
+			return value, true, nil
 		}
 		var out struct {
 			String string
@@ -36,40 +45,59 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 		}
 		if v, ok := m["String"]; ok {
 			stack := stack.Append(frizz.FieldItem("String"))
-			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
-				// nativeUnpacker
-				out, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, err
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, null bool, err error) {
+				if in == nil {
+					return value, true, nil
 				}
-				return out, nil
+				// nativeUnpacker
+				out, null, err := frizz.UnpackString(stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
 			}(root, stack, v)
 			if err != nil {
-				return value, err
+				return value, false, err
 			}
-			out.String = u
+			if !null {
+				out.String = u
+			}
 		}
 		if v, ok := m["Int"]; ok {
 			stack := stack.Append(frizz.FieldItem("Int"))
-			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, err error) {
-				// nativeUnpacker
-				out, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, err
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, null bool, err error) {
+				if in == nil {
+					return value, true, nil
 				}
-				return out, nil
+				// nativeUnpacker
+				out, null, err := frizz.UnpackInt(stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
 			}(root, stack, v)
 			if err != nil {
-				return value, err
+				return value, false, err
 			}
-			out.Int = u
+			if !null {
+				out.Int = u
+			}
 		}
-		return out, nil
+		return out, false, nil
 	}(root, stack, in)
 	if err != nil {
-		return value, err
+		return value, false, err
 	}
-	return Simple(out), nil
+	if null {
+		return value, true, nil
+	}
+	return Simple(out), false, nil
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {

@@ -141,14 +141,13 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					}
 
 					// check return is error
-					if len(n.Type.Results.List) != 1 {
+					if len(n.Type.Results.List) != 2 {
 						return true
 					}
-					ide, ok := n.Type.Results.List[0].Type.(*ast.Ident)
-					if !ok {
+					if ide, ok := n.Type.Results.List[0].Type.(*ast.Ident); !ok || ide.Name != "bool" {
 						return true
 					}
-					if ide.Name != "error" {
+					if ide, ok := n.Type.Results.List[1].Type.(*ast.Ident); !ok || ide.Name != "error" {
 						return true
 					}
 					// unpack method is the correct signature.
@@ -260,14 +259,14 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		Return(Lit(prog.path)),
 	)
 	/*
-		func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
+		func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 			switch name {
 			<types...>
 			case "<name>":
 				return p.Unpack<name>(root, stack, in)
 			}
 			</types>
-			return nil, errors.Errorf("%s: type %s not found", stack, "<name>")
+			return nil, false, errors.Errorf("%s: type %s not found", stack, "<name>")
 		}
 	*/
 	f.Func().Params(Id("p").Id("packer")).Id("Unpack").Params(
@@ -277,6 +276,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		Id("name").String(),
 	).Params(
 		Id("value").Interface(),
+		Id("null").Bool(),
 		Err().Error(),
 	).Block(
 		Switch(Id("name")).BlockFunc(func(g *Group) {
@@ -288,6 +288,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		}),
 		Return(
 			Nil(),
+			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
 				Lit("%s: type %s not found"),
 				Id("stack"),

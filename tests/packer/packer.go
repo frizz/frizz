@@ -15,6 +15,8 @@ import (
 
 	"go/token"
 
+	"sort"
+
 	"frizz.io/frizz"
 	"frizz.io/tests/packer/sub"
 )
@@ -22,14 +24,17 @@ import (
 // frizz
 type CustomSub sub.Sub
 
-func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
-	s, err := sub.Packer.UnpackSub(root, stack, in)
+func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {
+	s, null, err := sub.Packer.UnpackSub(root, stack, in)
 	if err != nil {
-		return err
+		return false, err
+	}
+	if null {
+		return true, nil
 	}
 	s.String += "-b"
 	*c = CustomSub(s)
-	return nil
+	return false, nil
 }
 
 func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
@@ -41,26 +46,26 @@ func (c *CustomSub) Repack(root *frizz.Root, stack frizz.Stack) (value interface
 // frizz
 type Ages map[string]int
 
-func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+func (a *Ages) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return errors.Errorf("%s: ages type must be string", stack)
+		return false, errors.Errorf("%s: ages type must be string", stack)
 	}
 	names := strings.Split(str, ",")
 	ages := Ages{}
 	for _, name := range names {
 		parts := strings.Split(name, ":")
 		if len(parts) != 2 {
-			return errors.Errorf("%s: converting %s to ages", stack, str)
+			return false, errors.Errorf("%s: converting %s to ages", stack, str)
 		}
 		i, err := strconv.ParseInt(parts[1], 10, 0)
 		if err != nil {
-			return errors.Wrapf(err, "%s: converting %s to int", stack, parts[1])
+			return false, errors.Wrapf(err, "%s: converting %s to int", stack, parts[1])
 		}
 		ages[parts[0]] = int(i)
 	}
 	*a = ages
-	return nil
+	return false, nil
 }
 
 func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
@@ -68,28 +73,29 @@ func (a *Ages) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, d
 	for k, v := range *a {
 		parts = append(parts, fmt.Sprintf("%s:%v", k, v))
 	}
+	sort.Strings(parts)
 	return strings.Join(parts, ","), false, len(*a) == 0, nil
 }
 
 // frizz
 type Csv []int
 
-func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+func (c *Csv) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return errors.Errorf("%s: csv type must be string", stack)
+		return false, errors.Errorf("%s: csv type must be string", stack)
 	}
 	parts := strings.Split(str, ",")
 	csv := Csv{}
 	for _, part := range parts {
 		i, err := strconv.ParseInt(part, 10, 0)
 		if err != nil {
-			return errors.Wrapf(err, "%s: converting %s to int", stack, part)
+			return false, errors.Wrapf(err, "%s: converting %s to int", stack, part)
 		}
 		csv = append(csv, int(i))
 	}
 	*c = csv
-	return nil
+	return false, nil
 }
 
 func (c *Csv) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
@@ -109,32 +115,32 @@ type Type struct {
 	Name string
 }
 
-func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+func (t *Type) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return errors.Errorf("%s: custom type must be string", stack)
+		return false, errors.Errorf("%s: custom type must be string", stack)
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return errors.Wrapf(err, "%s: parsing expr", stack)
+		return false, errors.Wrapf(err, "%s: parsing expr", stack)
 	}
 	switch expr := expr.(type) {
 	case *ast.SelectorExpr:
 		x, ok := expr.X.(*ast.Ident)
 		if !ok {
-			return errors.Errorf("%s: expr.X must be *ast.Ident", stack)
+			return false, errors.Errorf("%s: expr.X must be *ast.Ident", stack)
 		}
 		path, ok := root.Imports[x.Name]
 		if !ok {
-			return errors.Errorf("%s: alias %s not found in imports", stack, x.Name)
+			return false, errors.Errorf("%s: alias %s not found in imports", stack, x.Name)
 		}
 		*t = Type{Path: path, Name: expr.Sel.Name}
-		return nil
+		return false, nil
 	case *ast.Ident:
 		*t = Type{Path: root.Path, Name: expr.Name}
-		return nil
+		return false, nil
 	default:
-		return errors.Errorf("%s: expr must be *ast.SelectorExpr or *ast.Ident", stack)
+		return false, errors.Errorf("%s: expr must be *ast.SelectorExpr or *ast.Ident", stack)
 	}
 }
 
@@ -150,17 +156,17 @@ type Custom struct {
 	ast.Expr
 }
 
-func (c *Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) error {
+func (c *Custom) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return errors.Errorf("%s: custom type must be string", stack)
+		return false, errors.Errorf("%s: custom type must be string", stack)
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return errors.Wrapf(err, "%s: parsing expr", stack)
+		return false, errors.Wrapf(err, "%s: parsing expr", stack)
 	}
 	*c = Custom{Expr: expr}
-	return nil
+	return false, nil
 }
 
 func (c *Custom) Repack(root *frizz.Root, stack frizz.Stack) (value interface{}, dict bool, null bool, err error) {
@@ -315,20 +321,23 @@ type Structs struct {
 
 // frizz
 type Natives struct {
-	Bool    bool
-	Byte    byte
-	Float32 float32
-	Float64 float64
-	Int     int
-	Int8    int8
-	Int16   int16
-	Int32   int32
-	Int64   int64
-	Uint    uint
-	Uint8   uint8
-	Uint16  uint16
-	Uint32  uint32
-	Uint64  uint64
-	Rune    rune
-	String  string
+	Bool      bool
+	Byte      byte
+	Float32   float32
+	Float64   float64
+	Int       int
+	Int8      int8
+	Int16     int16
+	Int32     int32
+	Int64     int64
+	Uint      uint
+	Uint8     uint8
+	Uint16    uint16
+	Uint32    uint32
+	Uint64    uint64
+	Rune      rune
+	String    string
+	PtrString *string
+	PtrInt    *int
+	PtrBool   *bool
 }

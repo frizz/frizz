@@ -8,18 +8,21 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (r *Root) UnpackInterface(stack Stack, in interface{}) (interface{}, error) {
+func (r *Root) UnpackInterface(stack Stack, in interface{}) (value interface{}, null bool, err error) {
+	if in == nil {
+		return nil, true, nil
+	}
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return nil, errors.Errorf("%s: unpacking into interface, value should be a map", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, value should be a map", stack)
 	}
 	ti, ok := m["_type"]
 	if !ok {
-		return nil, errors.Errorf("%s: unpacking into interface, _type field missing", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, _type field missing", stack)
 	}
 	ts, ok := ti.(string)
 	if !ok {
-		return nil, errors.Errorf("%s: unpacking into interface, _type should be a string", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, _type should be a string", stack)
 	}
 
 	v := m["_value"]
@@ -27,37 +30,37 @@ func (r *Root) UnpackInterface(stack Stack, in interface{}) (interface{}, error)
 	if im, ok := m["_import"]; ok {
 		imp, ok := im.(map[string]interface{})
 		if !ok {
-			return nil, errors.Errorf("%s: unpacking into interface, _import should be a map", stack)
+			return nil, false, errors.Errorf("%s: unpacking into interface, _import should be a map", stack)
 		}
 		for alias, path := range imp {
 			path, ok := path.(string)
 			if !ok {
-				return nil, errors.Errorf("%s: unpacking into interface, _import values should be strings", stack)
+				return nil, false, errors.Errorf("%s: unpacking into interface, _import values should be strings", stack)
 			}
 			r.Imports[alias] = path
 		}
 	}
 
 	if r.Path == "" {
-		return nil, errors.Errorf("%s: unpacking into interface, local path is not set", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, local path is not set", stack)
 	}
 
 	expr, err := parser.ParseExpr(ts)
 	if err != nil {
-		return nil, errors.Wrapf(err, "%s: parsing type string", stack)
+		return nil, false, errors.Wrapf(err, "%s: parsing type string", stack)
 	}
 	switch expr := expr.(type) {
 	case *ast.Ident:
 		switch expr.Name {
 		case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
 			if v == nil {
-				return nil, errors.Errorf("%s: unpacking native type into interface, _value field missing", stack)
+				return nil, false, errors.Errorf("%s: unpacking native type into interface, _value field missing", stack)
 			}
 			return UnpackNative(stack, expr.Name, v)
 		default:
 			p, ok := r.Packers[r.Path]
 			if !ok {
-				return nil, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, r.Path)
+				return nil, false, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, r.Path)
 			}
 			if v != nil {
 				return p.Unpack(r, stack, v, expr.Name)
@@ -67,22 +70,22 @@ func (r *Root) UnpackInterface(stack Stack, in interface{}) (interface{}, error)
 	case *ast.SelectorExpr:
 		x, ok := expr.X.(*ast.Ident)
 		if !ok {
-			return nil, errors.Errorf("%s: unpacking into interface, SelectorExpr.X should be *ast.Ident", stack)
+			return nil, false, errors.Errorf("%s: unpacking into interface, SelectorExpr.X should be *ast.Ident", stack)
 		}
 		path, ok := r.Imports[x.Name]
 		if !ok {
-			return nil, errors.Errorf("%s: unpacking into interface, can't find %s in imports", stack, x.Name)
+			return nil, false, errors.Errorf("%s: unpacking into interface, can't find %s in imports", stack, x.Name)
 		}
 		p, ok := r.Packers[path]
 		if !ok {
-			return nil, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, path)
+			return nil, false, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, path)
 		}
 		if v != nil {
 			return p.Unpack(r, stack, v, expr.Sel.Name)
 		}
 		return p.Unpack(r, stack, in, expr.Sel.Name)
 	}
-	return nil, errors.Errorf("%s: unsupported type %s", stack, ts)
+	return nil, false, errors.Errorf("%s: unsupported type %s", stack, ts)
 }
 
 func (r *Root) RepackInterface(stack Stack, root bool, in interface{}) (value interface{}, dict bool, null bool, err error) {

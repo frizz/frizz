@@ -34,9 +34,7 @@ func TestType(t *testing.T) {
 							},
 						},
 					},
-					validators.Items{
-						Validators: []common.Validator{},
-					},
+					validators.Items{},
 				},
 			},
 		},

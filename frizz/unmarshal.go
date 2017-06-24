@@ -41,11 +41,13 @@ func Package(path string, packers ...Packer) (map[string]interface{}, error) {
 			Imports: make(map[string]string),
 		}
 		s := Stack{RootItem(name)}
-		i, err := r.UnpackInterface(s, v)
+		i, null, err := r.UnpackInterface(s, v)
 		if err != nil {
 			return nil, errors.Wrapf(err, "unpacking %s", fname)
 		}
-		out[name] = i
+		if !null {
+			out[name] = i
+		}
 	}
 	return out, nil
 }
@@ -72,10 +74,17 @@ func (u *Context) Unmarshal(in []byte) (interface{}, error) {
 	if err := d.Decode(&v); err != nil {
 		return nil, errors.Wrap(err, "decoding json")
 	}
-	return u.Unpack(v)
+	v, null, err := u.Unpack(v)
+	if err != nil {
+		return nil, err
+	}
+	if null {
+		return nil, nil
+	}
+	return v, nil
 }
 
-func (u *Context) Unpack(in interface{}) (value interface{}, err error) {
+func (u *Context) Unpack(in interface{}) (value interface{}, null bool, err error) {
 	r := &Root{
 		Context: u,
 		Imports: make(map[string]string),

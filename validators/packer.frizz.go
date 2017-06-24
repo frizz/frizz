@@ -13,7 +13,7 @@ type packer int
 func (p packer) Path() string {
 	return "frizz.io/validators"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, err error) {
+func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Keys":
 		return p.UnpackKeys(root, stack, in)
@@ -22,144 +22,220 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	case "Regex":
 		return p.UnpackRegex(root, stack, in)
 	}
-	return nil, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, err error) {
+func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
 	// aliasUnpacker
-	out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 		Validators []common.Validator
-	}, err error) {
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.New("unpacking into struct, value should be a map")
+		}
+		if len(m) == 0 {
+			return value, true, nil
 		}
 		var out struct {
 			Validators []common.Validator
 		}
 		if v, ok := m["Validators"]; ok {
 			stack := stack.Append(frizz.FieldItem("Validators"))
-			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, err error) {
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, errors.New("unpacking into slice, value should be an array")
+					return value, false, errors.New("unpacking into slice, value should be an array")
+				}
+				if len(a) == 0 {
+					return value, true, nil
 				}
 				var out = make([]common.Validator, len(a))
 				for i, v := range a {
 					stack := stack.Append(frizz.ArrayItem(i))
-					u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
-						// selectorUnpacker
-						out, err := common.Packer.UnpackValidator(root, stack, in)
-						if err != nil {
-							return value, err
+					u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, null bool, err error) {
+						if in == nil {
+							return value, true, nil
 						}
-						return out, nil
+						// selectorUnpacker
+						out, null, err := common.Packer.UnpackValidator(root, stack, in)
+						if err != nil {
+							return value, false, err
+						}
+						if null {
+							return value, true, nil
+						}
+						return out, false, nil
 					}(root, stack, v)
 					if err != nil {
-						return value, err
+						return value, false, err
 					}
-					out[i] = u
+					if !null {
+						out[i] = u
+					}
 				}
-				return out[:], nil
+				return out[:], false, nil
 			}(root, stack, v)
 			if err != nil {
-				return value, err
+				return value, false, err
 			}
-			out.Validators = u
+			if !null {
+				out.Validators = u
+			}
 		}
-		return out, nil
+		return out, false, nil
 	}(root, stack, in)
 	if err != nil {
-		return value, err
+		return value, false, err
 	}
-	return Keys(out), nil
+	if null {
+		return value, true, nil
+	}
+	return Keys(out), false, nil
 }
-func (p packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, err error) {
+func (p packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
 	// aliasUnpacker
-	out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 		Validators []common.Validator
-	}, err error) {
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.New("unpacking into struct, value should be a map")
+		}
+		if len(m) == 0 {
+			return value, true, nil
 		}
 		var out struct {
 			Validators []common.Validator
 		}
 		if v, ok := m["Validators"]; ok {
 			stack := stack.Append(frizz.FieldItem("Validators"))
-			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, err error) {
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, errors.New("unpacking into slice, value should be an array")
+					return value, false, errors.New("unpacking into slice, value should be an array")
+				}
+				if len(a) == 0 {
+					return value, true, nil
 				}
 				var out = make([]common.Validator, len(a))
 				for i, v := range a {
 					stack := stack.Append(frizz.ArrayItem(i))
-					u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, err error) {
-						// selectorUnpacker
-						out, err := common.Packer.UnpackValidator(root, stack, in)
-						if err != nil {
-							return value, err
+					u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, null bool, err error) {
+						if in == nil {
+							return value, true, nil
 						}
-						return out, nil
+						// selectorUnpacker
+						out, null, err := common.Packer.UnpackValidator(root, stack, in)
+						if err != nil {
+							return value, false, err
+						}
+						if null {
+							return value, true, nil
+						}
+						return out, false, nil
 					}(root, stack, v)
 					if err != nil {
-						return value, err
+						return value, false, err
 					}
-					out[i] = u
+					if !null {
+						out[i] = u
+					}
 				}
-				return out[:], nil
+				return out[:], false, nil
 			}(root, stack, v)
 			if err != nil {
-				return value, err
+				return value, false, err
 			}
-			out.Validators = u
+			if !null {
+				out.Validators = u
+			}
 		}
-		return out, nil
+		return out, false, nil
 	}(root, stack, in)
 	if err != nil {
-		return value, err
+		return value, false, err
 	}
-	return Items(out), nil
+	if null {
+		return value, true, nil
+	}
+	return Items(out), false, nil
 }
-func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, err error) {
+func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
 	// aliasUnpacker
-	out, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 		Regex string
-	}, err error) {
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.New("unpacking into struct, value should be a map")
+		}
+		if len(m) == 0 {
+			return value, true, nil
 		}
 		var out struct {
 			Regex string
 		}
 		if v, ok := m["Regex"]; ok {
 			stack := stack.Append(frizz.FieldItem("Regex"))
-			u, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, err error) {
-				// nativeUnpacker
-				out, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, err
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, null bool, err error) {
+				if in == nil {
+					return value, true, nil
 				}
-				return out, nil
+				// nativeUnpacker
+				out, null, err := frizz.UnpackString(stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
 			}(root, stack, v)
 			if err != nil {
-				return value, err
+				return value, false, err
 			}
-			out.Regex = u
+			if !null {
+				out.Regex = u
+			}
 		}
-		return out, nil
+		return out, false, nil
 	}(root, stack, in)
 	if err != nil {
-		return value, err
+		return value, false, err
 	}
-	return Regex(out), nil
+	if null {
+		return value, true, nil
+	}
+	return Regex(out), false, nil
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
