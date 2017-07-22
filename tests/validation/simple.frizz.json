@@ -1,23 +1,16 @@
 {
-	"_import":{
+	"_import": {
+		"system": "frizz.io/system",
 		"validators": "frizz.io/validators"
 	},
-	"_type": "Type",
+	"_type": "system.Type",
+	"For": "Simple",
 	"Fields": {
-		"Fields": {
+		"String": {
 			"Validators": [
 				{
-					"_type": "validators.Keys",
-					"Validators": [
-						{
-							"_type": "validators.Regex",
-							"Regex": "^_?[a-z][-a-z]*$"
-						}
-					]
-				},
-				{
-					"_type": "validators.Items",
-					"Validators": []
+					"_type": "validators.Regex",
+					"Regex": "^foo.*$"
 				}
 			]
 		}

@@ -188,7 +188,8 @@ func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{})
 	}
 	// aliasUnpacker
 	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
-		Regex string
+		Regex  string
+		Invert bool
 	}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
@@ -202,7 +203,8 @@ func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{})
 			return value, true, nil
 		}
 		var out struct {
-			Regex string
+			Regex  string
+			Invert bool
 		}
 		if v, ok := m["Regex"]; ok {
 			stack := stack.Append(frizz.FieldItem("Regex"))
@@ -225,6 +227,29 @@ func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{})
 			}
 			if !null {
 				out.Regex = u
+			}
+		}
+		if v, ok := m["Invert"]; ok {
+			stack := stack.Append(frizz.FieldItem("Invert"))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value bool, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// nativeUnpacker
+				out, null, err := frizz.UnpackBool(stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out.Invert = u
 			}
 		}
 		return out, false, nil
@@ -334,10 +359,11 @@ func (p packer) RepackItems(root *frizz.Root, stack frizz.Stack, in Items) (valu
 }
 func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
-		Regex string
+		Regex  string
+		Invert bool
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
-		out := make(map[string]interface{}, 2)
+		out := make(map[string]interface{}, 3)
 		empty := true
 		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
@@ -350,8 +376,20 @@ func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (valu
 				out["Regex"] = v
 			}
 		}
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
+			// nativeRepacker
+			return frizz.RepackBool(in)
+		}(root, stack, in.Invert); err != nil {
+			return nil, false, false, err
+		} else {
+			if !null {
+				empty = false
+				out["Invert"] = v
+			}
+		}
 		return out, false, empty, nil
 	}(root, stack, (struct {
-		Regex string
+		Regex  string
+		Invert bool
 	})(in))
 }

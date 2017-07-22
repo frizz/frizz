@@ -6,6 +6,7 @@ import (
 
 // frizz
 type Type struct {
+	For    string
 	Fields map[string]Field
 }
 
