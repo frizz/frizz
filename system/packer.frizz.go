@@ -28,6 +28,7 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	}
 	// aliasUnpacker
 	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+		For    string
 		Fields map[string]Field
 	}, null bool, err error) {
 		if in == nil {
@@ -42,7 +43,31 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 			return value, true, nil
 		}
 		var out struct {
+			For    string
 			Fields map[string]Field
+		}
+		if v, ok := m["For"]; ok {
+			stack := stack.Append(frizz.FieldItem("For"))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// nativeUnpacker
+				out, null, err := frizz.UnpackString(stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out.For = u
+			}
 		}
 		if v, ok := m["Fields"]; ok {
 			stack := stack.Append(frizz.FieldItem("Fields"))
@@ -191,11 +216,23 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 }
 func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
+		For    string
 		Fields map[string]Field
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
-		out := make(map[string]interface{}, 2)
+		out := make(map[string]interface{}, 3)
 		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+			// nativeRepacker
+			return frizz.RepackString(in)
+		}(root, stack, in.For); err != nil {
+			return nil, false, false, err
+		} else {
+			if !null {
+				empty = false
+				out["For"] = v
+			}
+		}
 		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]Field) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
@@ -224,6 +261,7 @@ func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value 
 		}
 		return out, false, empty, nil
 	}(root, stack, (struct {
+		For    string
 		Fields map[string]Field
 	})(in))
 }

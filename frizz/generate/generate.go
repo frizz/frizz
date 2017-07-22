@@ -117,8 +117,8 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 						return false
 					}
 				}
-				// check the signature
-				// Unpack: (*frizz.Root, frizz.Stack, interface{}) error
+				// We check the signature of "Unpack" and "Repack" methods to work out if the receiver implements the
+				// frizz.Packable interface.
 				switch n.Name.Name {
 				case "Unpack":
 					if len(n.Type.Params.List) != 3 {
@@ -150,7 +150,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					if ide, ok := n.Type.Results.List[1].Type.(*ast.Ident); !ok || ide.Name != "error" {
 						return true
 					}
-					// unpack method is the correct signature.
+					// Unpack method is the correct signature.
 					unpackers[receiverType] = true
 				case "Repack":
 					if len(n.Type.Params.List) != 2 {
@@ -185,7 +185,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 					if ide, ok := n.Type.Results.List[3].Type.(*ast.Ident); !ok || ide.Name != "error" {
 						return true
 					}
-					// repack method is the correct signature.
+					// Repack method is the correct signature.
 					repackers[receiverType] = true
 				}
 
