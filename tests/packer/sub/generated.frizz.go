@@ -14,10 +14,10 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
-	case "Sub":
-		return p.UnpackSub(root, stack, in)
 	case "SubInterface":
 		return p.UnpackSubInterface(root, stack, in)
+	case "Sub":
+		return p.UnpackSub(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -116,6 +116,12 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
+func (p packer) RepackSubInterface(root *frizz.Root, stack frizz.Stack, in SubInterface) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface{}, dict bool, null bool, err error) {
+		// interfaceRepacker
+		return root.RepackInterface(stack, false, in)
+	}(root, stack, (interface{})(in))
+}
 func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		String string
@@ -138,12 +144,6 @@ func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value in
 	}(root, stack, (struct {
 		String string
 	})(in))
-}
-func (p packer) RepackSubInterface(root *frizz.Root, stack frizz.Stack, in SubInterface) (value interface{}, dict bool, null bool, err error) {
-	return func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface{}, dict bool, null bool, err error) {
-		// interfaceRepacker
-		return root.RepackInterface(stack, false, in)
-	}(root, stack, (interface{})(in))
 }
 
 const Imports imports = 0

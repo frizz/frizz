@@ -8,6 +8,7 @@ import (
 	"frizz.io/tests/packer/sub"
 )
 
+// TestImports checks that a data-only package (without type definitions) works properly.
 func TestImports(t *testing.T) {
 	obs, err := frizz.Package(Imports)
 	if err != nil {
@@ -16,7 +17,7 @@ func TestImports(t *testing.T) {
 	if len(obs) != 1 {
 		t.Fail()
 	}
-	d, ok := obs["data"]
+	d, ok := obs["sub-interface"]
 	if !ok {
 		t.Fail()
 	}
