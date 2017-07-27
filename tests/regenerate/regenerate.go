@@ -20,9 +20,9 @@ var packages = []string{
 	"frizz.io/system",
 	"frizz.io/common",
 	"frizz.io/validators",
-	"frizz.io/tests/data",
 	"frizz.io/tests/packer",
 	"frizz.io/tests/packer/sub",
+	"frizz.io/tests/packer/data",
 	"frizz.io/tests/validation",
 }
 
