@@ -1,0 +1,11 @@
+{
+	"_import": {
+		"packer": "frizz.io/tests/packer",
+		"sub": "frizz.io/tests/packer/sub"
+	},
+	"_type": "packer.SubInterface",
+	"SubInterface": {
+		"_type": "sub.Sub",
+		"String": "foo"
+	}
+}

@@ -16,6 +16,8 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 	switch name {
 	case "Sub":
 		return p.UnpackSub(root, stack, in)
+	case "SubInterface":
+		return p.UnpackSubInterface(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -74,12 +76,51 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 	}
 	return Sub(out), false, nil
 }
+func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in interface{}) (value SubInterface, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface{}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// interfaceUnpacker
+		out, null, err := root.UnpackInterface(stack, in)
+		if err != nil {
+			return value, false, err
+		}
+		iface, ok := out.(interface{})
+		if !ok {
+			return value, false, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
+		}
+		if null {
+			return value, true, nil
+		}
+		return iface, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return SubInterface(out), false, nil
+}
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Sub":
 		return p.RepackSub(root, stack, in.(Sub))
+	case "SubInterface":
+		return p.RepackSubInterface(root, stack, in.(SubInterface))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) RepackSubInterface(root *frizz.Root, stack frizz.Stack, in SubInterface) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface{}, dict bool, null bool, err error) {
+		// interfaceRepacker
+		return root.RepackInterface(stack, false, in)
+	}(root, stack, (interface{})(in))
 }
 func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {

@@ -16,10 +16,10 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
-	case "Field":
-		return p.UnpackField(root, stack, in)
 	case "Type":
 		return p.UnpackType(root, stack, in)
+	case "Field":
+		return p.UnpackField(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
