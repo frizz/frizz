@@ -10,6 +10,8 @@ import (
 
 	"crypto/sha1"
 
+	"os"
+
 	"frizz.io/frizz/generate"
 	"github.com/dave/jennifer/jen"
 )
@@ -18,6 +20,7 @@ var packages = []string{
 	"frizz.io/system",
 	"frizz.io/common",
 	"frizz.io/validators",
+	"frizz.io/tests/data",
 	"frizz.io/tests/packer",
 	"frizz.io/tests/packer/sub",
 	"frizz.io/tests/validation",
@@ -37,16 +40,29 @@ func Regenerate(env vos.Env, save bool) (map[string][20]byte, error) {
 		}
 
 		buf := &bytes.Buffer{}
-		if err := generate.Generate(buf, env, path, dir); err != nil {
+		hasContents, err := generate.Generate(buf, env, path, dir)
+		if err != nil {
 			return nil, err
 		}
 
 		hashes[path] = sha1.Sum(buf.Bytes())
 
-		if save {
-			// notest
-			if err := ioutil.WriteFile(filepath.Join(dir, "generated.frizz.go"), buf.Bytes(), 0777); err != nil {
+		if !save {
+			continue
+		}
+
+		fname := filepath.Join(dir, "generated.frizz.go")
+
+		// notest
+		if hasContents {
+			if err := ioutil.WriteFile(fname, buf.Bytes(), 0777); err != nil {
 				return nil, err
+			}
+		} else {
+			if _, err := os.Stat(fname); err == nil {
+				if err := os.Remove(fname); err != nil {
+					return nil, err
+				}
 			}
 		}
 	}

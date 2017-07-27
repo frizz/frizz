@@ -15,6 +15,8 @@ import (
 
 	"encoding/base64"
 
+	"os"
+
 	"frizz.io/frizz"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
@@ -32,17 +34,28 @@ func Save(path string) error {
 	}
 
 	buf := &bytes.Buffer{}
-	if err := Generate(buf, env, path, dir); err != nil {
+	hasContent, err := Generate(buf, env, path, dir)
+	if err != nil {
 		return errors.WithMessage(err, "error generating source")
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(dir, "generated.frizz.go"), buf.Bytes(), 0777); err != nil {
-		return errors.Wrap(err, "error saving source")
+	fname := filepath.Join(dir, "generated.frizz.go")
+	if hasContent {
+		if err := ioutil.WriteFile(fname, buf.Bytes(), 0777); err != nil {
+			return errors.Wrap(err, "saving source")
+		}
+	} else {
+		if _, err := os.Stat(fname); err == nil {
+			if err := os.Remove(fname); err != nil {
+				return errors.Wrap(err, "removing source")
+			}
+		}
 	}
+
 	return nil
 }
 
-func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
+func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, error) {
 
 	f := NewFilePath(path)
 
@@ -54,21 +67,29 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) error {
 		annotations: map[string]string{},
 	}
 
-	if err := generatePackers(prog, f); err != nil {
-		return err
+	var err error
+	var packers, types bool
+
+	if packers, err = generatePackers(prog, f); err != nil {
+		return false, err
 	}
 
-	if err := generateTypes(prog, f); err != nil {
-		return err
+	if types, err = generateTypes(prog, f); err != nil {
+		return false, err
+	}
+
+	if !packers && !types {
+		// no source
+		return false, nil
 	}
 
 	if err := f.Render(writer); err != nil {
-		return errors.Wrap(err, "error saving generated file")
+		return false, errors.Wrap(err, "error saving generated file")
 	}
-	return nil
+	return true, nil
 }
 
-func generateTypes(prog *progDef, f *File) error {
+func generateTypes(prog *progDef, f *File) (bool, error) {
 	types := map[string][]byte{}
 	for name, annotation := range prog.annotations {
 		fpath := filepath.Join(prog.dir, annotation)
@@ -77,16 +98,16 @@ func generateTypes(prog *progDef, f *File) error {
 		fdir, fname := filepath.Split(fpath)
 		// TODO: needed to join to "." to get the paths to be exactly the same... Better way?
 		if filepath.Join(fdir, ".") != filepath.Join(prog.dir, ".") {
-			return errors.Errorf("type filename %s points to a location outside the package dir %s %s", annotation)
+			return false, errors.Errorf("type filename %s points to a location outside the package dir %s %s", annotation)
 		}
 
 		if !strings.HasSuffix(fname, ".frizz.json") {
-			return errors.Errorf("type filename %s should end .frizz.json", annotation)
+			return false, errors.Errorf("type filename %s should end .frizz.json", annotation)
 		}
 
 		s, b, err := decodeStub(fpath)
 		if err != nil {
-			return errors.Wrapf(err, "decoding %s", annotation)
+			return false, errors.Wrapf(err, "decoding %s", annotation)
 		}
 
 		tpath, tname, err := frizz.ParseReference(s.Type, prog.path, s.Import)
@@ -94,6 +115,10 @@ func generateTypes(prog *progDef, f *File) error {
 		if tpath == "frizz.io/system" && tname == "Type" {
 			types[name] = b
 		}
+	}
+
+	if len(types) == 0 {
+		return false, nil
 	}
 
 	/*
@@ -138,7 +163,7 @@ func generateTypes(prog *progDef, f *File) error {
 		g.Return(Nil())
 	})
 
-	return nil
+	return true, nil
 
 }
 
@@ -161,10 +186,10 @@ func decodeStub(fpath string) (stub, []byte, error) {
 	return v, b, nil
 }
 
-func generatePackers(prog *progDef, f *File) error {
+func generatePackers(prog *progDef, f *File) (bool, error) {
 	pkgs, err := parser.ParseDir(prog.fset, prog.dir, nil, parser.ParseComments)
 	if err != nil {
-		return errors.Wrapf(err, "error parsing Go code in package %s", prog.path)
+		return false, errors.Wrapf(err, "error parsing Go code in package %s", prog.path)
 	}
 	// ignore any test package
 	var filtered []*ast.Package
@@ -176,12 +201,12 @@ func generatePackers(prog *progDef, f *File) error {
 		filtered = append(filtered, pkg)
 	}
 	if len(filtered) == 0 {
-		// notest
-		return errors.Errorf("can't find Go code in package %s", prog.path)
+		// data only package?
+		return false, nil
 	}
 	if len(filtered) > 1 {
 		// notest
-		return errors.Errorf("found more than one package in %s", prog.path)
+		return false, errors.Errorf("found more than one package in %s", prog.path)
 	}
 	pkg := filtered[0]
 
@@ -361,7 +386,7 @@ func generatePackers(prog *progDef, f *File) error {
 			return true
 		})
 		if outer != nil {
-			return errors.WithMessage(outer, "error parsing Go source")
+			return false, errors.WithMessage(outer, "error parsing Go source")
 		}
 		for _, td := range all {
 			_, unpacker := unpackers[td.name]
@@ -370,6 +395,10 @@ func generatePackers(prog *progDef, f *File) error {
 				td.packable = true
 			}
 		}
+	}
+
+	if len(all) == 0 {
+		return false, nil
 	}
 
 	/*
@@ -473,5 +502,5 @@ func generatePackers(prog *progDef, f *File) error {
 	for _, t := range all {
 		f.Add(t.repacker(t.spec, t.name, true, t.packable))
 	}
-	return nil
+	return true, nil
 }
