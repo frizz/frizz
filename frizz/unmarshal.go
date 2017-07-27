@@ -15,11 +15,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Package(path string, packers ...Packer) (map[string]interface{}, error) {
-	u := New(path, packers...)
+func Package(imports Importer) (map[string]interface{}, error) {
+	u := New(imports)
 	out := make(map[string]interface{})
 	env := vos.Os()
-	dir, err := patsy.Dir(env, path)
+	dir, err := patsy.Dir(env, u.Path)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting dir from path")
 	}

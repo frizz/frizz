@@ -374,7 +374,15 @@ func generateImports(prog *progDef, f *File) (bool, error) {
 	}
 
 	/*
-		func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+		const Imports imports = 0
+
+		type imports int
+
+		func (i imports) Path() string {
+			return "<path>"
+		}
+
+		func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
 			if packers != nil {
 				packers["<path>"] = Packer
 			}
@@ -382,11 +390,16 @@ func generateImports(prog *progDef, f *File) (bool, error) {
 				types["<path>"] = Types
 			}
 			<imports...>
-			<pkg>.AddImports(packers, types)
+			<pkg>.Imports.Add(packers, types)
 			</imports>
 		}
 	*/
-	f.Func().Id("AddImports").Params(
+	f.Const().Id("Imports").Id("imports").Op("=").Lit(0)
+	f.Type().Id("imports").Int()
+	f.Func().Params(Id("i").Id("imports")).Id("Path").Params().String().Block(
+		Return(Lit(prog.path)),
+	)
+	f.Func().Params(Id("i").Id("imports")).Id("Add").Params(
 		Id("packers").Map(String()).Qual("frizz.io/frizz", "Packer"),
 		Id("types").Map(String()).Qual("frizz.io/frizz", "Typer"),
 	).BlockFunc(func(g *Group) {
@@ -401,7 +414,7 @@ func generateImports(prog *progDef, f *File) (bool, error) {
 			)
 		}
 		for pkg := range imports {
-			g.Qual(pkg, "AddImports").Call(Id("packers"), Id("types"))
+			g.Qual(pkg, "Imports").Dot("Add").Call(Id("packers"), Id("types"))
 		}
 	})
 
