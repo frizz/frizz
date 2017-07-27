@@ -35,3 +35,8 @@ type Packer interface {
 	Unpack(root *Root, stack Stack, in interface{}, name string) (value interface{}, null bool, err error)
 	Repack(root *Root, stack Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error)
 }
+
+type Typer interface {
+	Path() string
+	Get(name string) string
+}

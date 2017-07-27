@@ -3,6 +3,7 @@ package system
 import (
 	common "frizz.io/common"
 	frizz "frizz.io/frizz"
+	validators "frizz.io/validators"
 	errors "github.com/pkg/errors"
 )
 
@@ -15,10 +16,10 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
-	case "Type":
-		return p.UnpackType(root, stack, in)
 	case "Field":
 		return p.UnpackField(root, stack, in)
+	case "Type":
+		return p.UnpackType(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -306,4 +307,10 @@ func (p packer) RepackField(root *frizz.Root, stack frizz.Stack, in Field) (valu
 	}(root, stack, (struct {
 		Validators []common.Validator
 	})(in))
+}
+func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+	if packers != nil {
+		packers["frizz.io/system"] = Packer
+	}
+	validators.AddImports(packers, types)
 }

@@ -60,25 +60,39 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 	f := NewFilePath(path)
 
 	prog := &progDef{
-		fset:        token.NewFileSet(),
-		path:        path,
-		pcache:      patsy.NewCache(env),
-		dir:         dir,
-		annotations: map[string]string{},
+		fset:      token.NewFileSet(),
+		path:      path,
+		pcache:    patsy.NewCache(env),
+		dir:       dir,
+		types:     map[string]*typeDef{},
+		typeFiles: map[string][]byte{},
+		stubs:     map[string]*stub{},
 	}
 
-	var err error
-	var packers, types bool
-
-	if packers, err = generatePackers(prog, f); err != nil {
+	if err := scanData(prog); err != nil {
 		return false, err
 	}
 
-	if types, err = generateTypes(prog, f); err != nil {
+	if err := scanSource(prog); err != nil {
 		return false, err
 	}
 
-	if !packers && !types {
+	packers, err := generatePackers(prog, f)
+	if err != nil {
+		return false, err
+	}
+
+	types, err := generateTypeFiles(prog, f)
+	if err != nil {
+		return false, err
+	}
+
+	imports, err := generateImports(prog, f)
+	if err != nil {
+		return false, err
+	}
+
+	if !packers && !types && !imports {
 		// no source
 		return false, nil
 	}
@@ -89,107 +103,31 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 	return true, nil
 }
 
-func generateTypes(prog *progDef, f *File) (bool, error) {
-	types := map[string][]byte{}
-	for name, annotation := range prog.annotations {
-		fpath := filepath.Join(prog.dir, annotation)
+func scanData(prog *progDef) error {
 
-		// sanity check to make sure the filename in the annotation hasn't escaped from the package dir with ..'s
-		fdir, fname := filepath.Split(fpath)
-		// TODO: needed to join to "." to get the paths to be exactly the same... Better way?
-		if filepath.Join(fdir, ".") != filepath.Join(prog.dir, ".") {
-			return false, errors.Errorf("type filename %s points to a location outside the package dir %s %s", annotation)
-		}
+	// scan all .frizz.json files for stubs
 
-		if !strings.HasSuffix(fname, ".frizz.json") {
-			return false, errors.Errorf("type filename %s should end .frizz.json", annotation)
-		}
-
-		s, b, err := decodeStub(fpath)
-		if err != nil {
-			return false, errors.Wrapf(err, "decoding %s", annotation)
-		}
-
-		tpath, tname, err := frizz.ParseReference(s.Type, prog.path, s.Import)
-
-		if tpath == "frizz.io/system" && tname == "Type" {
-			types[name] = b
-		}
-	}
-
-	if len(types) == 0 {
-		return false, nil
-	}
-
-	/*
-		const Types types = 0
-
-		type types int
-
-		func (t types) Path() string {
-			return "<path>"
-		}
-	*/
-	f.Const().Id("Types").Id("types").Op("=").Lit(0)
-	f.Type().Id("types").Int()
-	f.Func().Params(Id("t").Id("types")).Id("Path").Params().String().Block(
-		Return(Lit(prog.path)),
-	)
-	/*
-		func (t types) Get(name string) string {
-			switch name {
-			<types...>
-			case <name>:
-				return <bytes>
-			</types>
-			}
-			return nil
-		}
-	*/
-	f.Func().Params(
-		Id("t").Id("types"),
-	).Id("Get").Params(
-		Id("name").String(),
-	).String().BlockFunc(func(g *Group) {
-		if len(types) > 0 {
-			g.Switch(Id("name")).BlockFunc(func(g *Group) {
-				for name, data := range types {
-					g.Case(Lit(name)).Block(
-						Return(Lit(base64.StdEncoding.EncodeToString([]byte(data)))),
-					)
-				}
-			})
-		}
-		g.Return(Nil())
-	})
-
-	return true, nil
-
-}
-
-type stub struct {
-	Import map[string]string `json:"_import"`
-	Type   string            `json:"_type"`
-}
-
-func decodeStub(fpath string) (stub, []byte, error) {
-	b, err := ioutil.ReadFile(fpath)
+	files, err := filepath.Glob(filepath.Join(prog.dir, "*.frizz.json"))
 	if err != nil {
-		return stub{}, nil, err
+		return errors.Wrapf(err, "finding files in %s", prog.dir)
 	}
-	var v stub
-	d := json.NewDecoder(bytes.NewReader(b))
-	d.UseNumber()
-	if err := d.Decode(&v); err != nil {
-		return stub{}, nil, err
+	for _, fpath := range files {
+		s, err := decodeStub(fpath)
+		if err != nil {
+			return errors.Wrapf(err, "decoding %s", fpath)
+		}
+		prog.stubs[fpath] = s
 	}
-	return v, b, nil
+	return nil
 }
 
-func generatePackers(prog *progDef, f *File) (bool, error) {
+func scanSource(prog *progDef) error {
+
+	// scan all .go files for packers and type files referenced by annotations
+
 	pkgs, err := parser.ParseDir(prog.fset, prog.dir, nil, parser.ParseComments)
 	if err != nil {
-		return false, errors.Wrapf(err, "error parsing Go code in package %s", prog.path)
+		return errors.Wrapf(err, "parsing Go code in package %s", prog.path)
 	}
 	// ignore any test package
 	var filtered []*ast.Package
@@ -202,15 +140,14 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 	}
 	if len(filtered) == 0 {
 		// data only package?
-		return false, nil
+		return nil
 	}
 	if len(filtered) > 1 {
 		// notest
-		return false, errors.Errorf("found more than one package in %s", prog.path)
+		return errors.Errorf("found more than one package in %s", prog.path)
 	}
 	pkg := filtered[0]
 
-	var all []*typeDef
 	var unpackers = map[string]bool{}
 	var repackers = map[string]bool{}
 	for fname, f := range pkg.Files {
@@ -372,23 +309,44 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 						return false
 					}
 				}
-				all = append(all, &typeDef{
+				prog.types[ts.Name.Name] = &typeDef{
 					fileDef: file,
 					name:    ts.Name.Name,
 					spec:    ts.Type,
-				})
+				}
 				if a, ok := annotation.(string); ok {
+
 					// for now, only support annotations as strings
-					prog.annotations[ts.Name.Name] = a
+
+					fpath := filepath.Join(prog.dir, a)
+
+					s, ok := prog.stubs[fpath]
+					if !ok {
+						outer = errors.Errorf("can't find type file %s in annotation", s)
+						return false
+					}
+
+					tpath, tname, err := frizz.ParseReference(s.Type, prog.path, s.Import)
+					if err != nil {
+						outer = err
+						return false
+					}
+
+					if tpath != "frizz.io/system" || tname != "Type" {
+						outer = errors.Errorf("expected frizz.Type, got: %s", s.Type)
+					}
+
+					prog.typeFiles[ts.Name.Name] = s.bytes
+
 				}
 			}
 
 			return true
 		})
 		if outer != nil {
-			return false, errors.WithMessage(outer, "error parsing Go source")
+			return errors.WithMessage(outer, "error parsing Go source")
 		}
-		for _, td := range all {
+		for _, td := range prog.types {
 			_, unpacker := unpackers[td.name]
 			_, repacker := repackers[td.name]
 			if unpacker && repacker {
@@ -397,7 +355,136 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 		}
 	}
 
-	if len(all) == 0 {
+	return nil
+}
+
+func generateImports(prog *progDef, f *File) (bool, error) {
+	imports := map[string]bool{}
+	for _, stub := range prog.stubs {
+		if stub.Import == nil {
+			continue
+		}
+		for _, pkg := range stub.Import {
+			imports[pkg] = true
+		}
+	}
+
+	if len(prog.types) == 0 && len(prog.typeFiles) == 0 && len(imports) == 0 {
+		return false, nil
+	}
+
+	/*
+		func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+			if packers != nil {
+				packers["<path>"] = Packer
+			}
+			if types != nil {
+				types["<path>"] = Types
+			}
+			<imports...>
+			<pkg>.AddImports(packers, types)
+			</imports>
+		}
+	*/
+	f.Func().Id("AddImports").Params(
+		Id("packers").Map(String()).Qual("frizz.io/frizz", "Packer"),
+		Id("types").Map(String()).Qual("frizz.io/frizz", "Typer"),
+	).BlockFunc(func(g *Group) {
+		if len(prog.types) > 0 {
+			g.If(Id("packers").Op("!=").Nil()).Block(
+				Id("packers").Index(Lit(prog.path)).Op("=").Id("Packer"),
+			)
+		}
+		if len(prog.typeFiles) > 0 {
+			g.If(Id("types").Op("!=").Nil()).Block(
+				Id("types").Index(Lit(prog.path)).Op("=").Id("Types"),
+			)
+		}
+		for pkg := range imports {
+			g.Qual(pkg, "AddImports").Call(Id("packers"), Id("types"))
+		}
+	})
+
+	return true, nil
+
+}
+
+func generateTypeFiles(prog *progDef, f *File) (bool, error) {
+
+	if len(prog.typeFiles) == 0 {
+		return false, nil
+	}
+
+	/*
+		const Types types = 0
+
+		type types int
+
+		func (t types) Path() string {
+			return "<path>"
+		}
+	*/
+	f.Const().Id("Types").Id("types").Op("=").Lit(0)
+	f.Type().Id("types").Int()
+	f.Func().Params(Id("t").Id("types")).Id("Path").Params().String().Block(
+		Return(Lit(prog.path)),
+	)
+	/*
+		func (t types) Get(name string) string {
+			switch name {
+			<types...>
+			case <name>:
+				return <bytes>
+			</types>
+			}
+			return nil
+		}
+	*/
+	f.Func().Params(
+		Id("t").Id("types"),
+	).Id("Get").Params(
+		Id("name").String(),
+	).String().BlockFunc(func(g *Group) {
+		if len(prog.typeFiles) > 0 {
+			g.Switch(Id("name")).BlockFunc(func(g *Group) {
+				for name, data := range prog.typeFiles {
+					g.Case(Lit(name)).Block(
+						Return(Lit(base64.StdEncoding.EncodeToString([]byte(data)))),
+					)
+				}
+			})
+		}
+		g.Return(Lit(""))
+	})
+
+	return true, nil
+
+}
+
+type stub struct {
+	Import map[string]string `json:"_import"`
+	Type   string            `json:"_type"`
+	bytes  []byte
+}
+
+func decodeStub(fpath string) (*stub, error) {
+	b, err := ioutil.ReadFile(fpath)
+	if err != nil {
+		return nil, err
+	}
+	v := &stub{}
+	d := json.NewDecoder(bytes.NewReader(b))
+	d.UseNumber()
+	if err := d.Decode(v); err != nil {
+		return nil, err
+	}
+	v.bytes = b
+	return v, nil
+}
+
+func generatePackers(prog *progDef, f *File) (bool, error) {
+
+	if len(prog.types) == 0 {
 		return false, nil
 	}
 
@@ -437,7 +524,7 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 		Err().Error(),
 	).Block(
 		Switch(Id("name")).BlockFunc(func(g *Group) {
-			for _, t := range all {
+			for _, t := range prog.types {
 				g.Case(Lit(t.name)).Block(
 					Return(Id("p").Dot("Unpack"+t.name).Call(Id("root"), Id("stack"), Id("in"))),
 				)
@@ -454,7 +541,7 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 		),
 	)
 
-	for _, t := range all {
+	for _, t := range prog.types {
 		f.Add(t.unpacker(t.spec, t.name, true, t.packable))
 	}
 
@@ -481,7 +568,7 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 		Err().Error(),
 	).Block(
 		Switch(Id("name")).BlockFunc(func(g *Group) {
-			for _, t := range all {
+			for _, t := range prog.types {
 				g.Case(Lit(t.name)).Block(
 					Return(Id("p").Dot("Repack"+t.name).Call(Id("root"), Id("stack"), Id("in").Assert(Id(t.name)))),
 				)
@@ -499,7 +586,7 @@ func generatePackers(prog *progDef, f *File) (bool, error) {
 		),
 	)
 
-	for _, t := range all {
+	for _, t := range prog.types {
 		f.Add(t.repacker(t.spec, t.name, true, t.packable))
 	}
 	return true, nil

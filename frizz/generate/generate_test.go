@@ -16,7 +16,7 @@ func TestGenerate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	if err := Generate(buf, env, path, dir); err != nil {
+	if _, err := Generate(buf, env, path, dir); err != nil {
 		t.Fatal(err.Error())
 	}
 }

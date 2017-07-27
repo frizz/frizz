@@ -104,3 +104,8 @@ func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value in
 		String string
 	})(in))
 }
+func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+	if packers != nil {
+		packers["frizz.io/tests/packer/sub"] = Packer
+	}
+}
