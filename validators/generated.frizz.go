@@ -264,12 +264,12 @@ func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{})
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
+	case "Regex":
+		return p.RepackRegex(root, stack, in.(Regex))
 	case "Keys":
 		return p.RepackKeys(root, stack, in.(Keys))
 	case "Items":
 		return p.RepackItems(root, stack, in.(Items))
-	case "Regex":
-		return p.RepackRegex(root, stack, in.(Regex))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -392,4 +392,9 @@ func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (valu
 		Regex  string
 		Invert bool
 	})(in))
+}
+func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+	if packers != nil {
+		packers["frizz.io/validators"] = Packer
+	}
 }

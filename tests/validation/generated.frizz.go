@@ -2,6 +2,8 @@ package validation
 
 import (
 	frizz "frizz.io/frizz"
+	system "frizz.io/system"
+	validators "frizz.io/validators"
 	errors "github.com/pkg/errors"
 )
 
@@ -117,5 +119,15 @@ func (t types) Get(name string) string {
 	case "Simple":
 		return "ewoJIl9pbXBvcnQiOiB7CgkJInN5c3RlbSI6ICJmcml6ei5pby9zeXN0ZW0iLAoJCSJ2YWxpZGF0b3JzIjogImZyaXp6LmlvL3ZhbGlkYXRvcnMiCgl9LAoJIl90eXBlIjogInN5c3RlbS5UeXBlIiwKCSJGaWVsZHMiOiB7CgkJIlN0cmluZyI6IHsKCQkJIlZhbGlkYXRvcnMiOiBbCgkJCQl7CgkJCQkJIl90eXBlIjogInZhbGlkYXRvcnMuUmVnZXgiLAoJCQkJCSJSZWdleCI6ICJeZm9vLiokIgoJCQkJfQoJCQldCgkJfQoJfQp9"
 	}
-	return nil
+	return ""
+}
+func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+	if packers != nil {
+		packers["frizz.io/tests/validation"] = Packer
+	}
+	if types != nil {
+		types["frizz.io/tests/validation"] = Types
+	}
+	system.AddImports(packers, types)
+	validators.AddImports(packers, types)
 }

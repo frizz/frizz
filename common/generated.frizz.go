@@ -71,3 +71,8 @@ func (p packer) RepackValidator(root *frizz.Root, stack frizz.Stack, in Validato
 		Validate(input interface{}) (valid bool, message string, err error)
 	})(in))
 }
+func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+	if packers != nil {
+		packers["frizz.io/common"] = Packer
+	}
+}

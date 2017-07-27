@@ -239,8 +239,8 @@ func TestUnpackInterface(t *testing.T) {
 		"interface _type wrong type": {js: `{"_type": true}`, err: "unpacking into interface, _type should be a string"},
 		"interface parsing type":     {js: `{"_type": "^"}`, err: "1:2: expected operand, found 'EOF'"},
 		"interface missing value":    {js: `{"_type": "int"}`, err: "unpacking native type into interface, _value field missing"},
-		"interface sel not string":   {js: `{"_type": "(1).Foo"}`, err: "unpacking into interface, SelectorExpr.X should be *ast.Ident"},
-		"interface import not found": {js: `{"_type": "foo.Foo"}`, err: "unpacking into interface, can't find foo in imports"},
+		"interface sel not string":   {js: `{"_type": "(1).Foo"}`, err: "parsing reference (1).Foo, SelectorExpr.X should be *ast.Ident"},
+		"interface import not found": {js: `{"_type": "foo.Foo"}`, err: "parsing reference foo.Foo, can't find foo in imports"},
 		"interface qual not found":   {js: `{"_type": "sub.Foo"}`, err: "type Foo not found"},
 		"interface unsupported type": {js: `{"_type": "[]foo"}`, err: "unsupported type []foo"},
 	}
@@ -707,8 +707,10 @@ func ensure(t *testing.T, name string, test test, unpacked interface{}, null1 bo
 		if err1 == nil && err2 == nil {
 			t.Fatalf("%s: expected error '%s', got nil", name, test.err)
 		}
-		if !strings.Contains(errors.Cause(err1).Error(), test.err) && !strings.Contains(errors.Cause(err2).Error(), test.err) {
-			t.Fatalf("%s: expected error '%s', got %s and %s", name, test.err, errors.Cause(err1), errors.Cause(err2))
+		err1match := err1 != nil && strings.Contains(errors.Cause(err1).Error(), test.err)
+		err2match := err2 != nil && strings.Contains(errors.Cause(err2).Error(), test.err)
+		if !err1match && !err2match {
+			t.Fatalf("%s: expected error '%s', got '%s' and '%s'", name, test.err, errors.Cause(err1), errors.Cause(err2))
 		}
 	} else {
 		if err1 != nil {
