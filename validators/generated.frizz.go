@@ -393,14 +393,3 @@ func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (valu
 		Invert bool
 	})(in))
 }
-
-const Types types = 0
-
-type types int
-
-func (t types) Path() string {
-	return "frizz.io/validators"
-}
-func (t types) Get(name string) string {
-	return nil
-}

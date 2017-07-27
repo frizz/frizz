@@ -5096,14 +5096,3 @@ func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (
 		PtrBool   *bool
 	})(in))
 }
-
-const Types types = 0
-
-type types int
-
-func (t types) Path() string {
-	return "frizz.io/tests/packer"
-}
-func (t types) Get(name string) string {
-	return nil
-}
