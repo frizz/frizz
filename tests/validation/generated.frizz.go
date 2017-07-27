@@ -121,13 +121,21 @@ func (t types) Get(name string) string {
 	}
 	return ""
 }
-func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+
+const Imports imports = 0
+
+type imports int
+
+func (i imports) Path() string {
+	return "frizz.io/tests/validation"
+}
+func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
 	if packers != nil {
 		packers["frizz.io/tests/validation"] = Packer
 	}
 	if types != nil {
 		types["frizz.io/tests/validation"] = Types
 	}
-	validators.AddImports(packers, types)
-	system.AddImports(packers, types)
+	validators.Imports.Add(packers, types)
+	system.Imports.Add(packers, types)
 }

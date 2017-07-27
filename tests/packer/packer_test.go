@@ -130,6 +130,29 @@ func TestCustom(t *testing.T) {
 	}
 }
 
+
+func TestImportsFail(t *testing.T) {
+	tests := map[string]test{
+		"imports": {
+			js: `{
+				"_import": {"sub": "frizz.io/tests/packer/sub"},
+				"_type": "sub.Sub",
+				"String": "a"
+			}`,
+			err: "packer for frizz.io/tests/packer not registered",
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		u := frizz.New(Imports)
+		unpacked, null1, err1 := u.Unpack(v)
+		repacked, dict, null2, err2 := u.Repack(unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
 func TestImports(t *testing.T) {
 	tests := map[string]test{
 		"imports": {
@@ -152,7 +175,8 @@ func TestImports(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		u := frizz.New("frizz.io/tests/packer", sub.Packer)
+		u := frizz.New(Imports)
+		u.Register(sub.Packer)
 		unpacked, null1, err1 := u.Unpack(v)
 		repacked, dict, null2, err2 := u.Repack(unpacked)
 
@@ -684,10 +708,9 @@ func TestNatives(t *testing.T) {
 
 func root() (*frizz.Root, frizz.Stack) {
 	r := &frizz.Root{
-		Context: frizz.New("frizz.io/tests/packer"),
+		Context: frizz.New(Imports),
 		Imports: make(map[string]string),
 	}
-	r.Register(Packer)
 	s := frizz.Stack{frizz.RootItem("root")}
 	return r, s
 }

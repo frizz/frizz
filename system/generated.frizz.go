@@ -308,9 +308,17 @@ func (p packer) RepackField(root *frizz.Root, stack frizz.Stack, in Field) (valu
 		Validators []common.Validator
 	})(in))
 }
-func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
+
+const Imports imports = 0
+
+type imports int
+
+func (i imports) Path() string {
+	return "frizz.io/system"
+}
+func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
 	if packers != nil {
 		packers["frizz.io/system"] = Packer
 	}
-	validators.AddImports(packers, types)
+	validators.Imports.Add(packers, types)
 }

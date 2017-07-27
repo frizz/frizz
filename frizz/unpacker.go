@@ -1,13 +1,11 @@
 package frizz
 
-func New(path string, packers ...Packer) *Context {
-	m := make(map[string]Packer, len(packers))
-	for _, p := range packers {
-		m[p.Path()] = p
-	}
+func New(imports Importer) *Context {
+	packers := map[string]Packer{}
+	imports.Add(packers, nil)
 	return &Context{
-		Path:    path,
-		Packers: m,
+		Path:    imports.Path(),
+		Packers: packers,
 	}
 }
 
@@ -39,4 +37,9 @@ type Packer interface {
 type Typer interface {
 	Path() string
 	Get(name string) string
+}
+
+type Importer interface {
+	Path() string
+	Add(map[string]Packer, map[string]Typer)
 }
