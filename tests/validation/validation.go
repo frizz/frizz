@@ -8,7 +8,7 @@ import (
 
 var Packers = []frizz.Packer{Packer, system.Packer, validators.Packer}
 
-// frizz
+// frizz: "simple.frizz.json"
 type Simple struct {
 	String string
 }

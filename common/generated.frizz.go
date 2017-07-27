@@ -71,3 +71,14 @@ func (p packer) RepackValidator(root *frizz.Root, stack frizz.Stack, in Validato
 		Validate(input interface{}) (valid bool, message string, err error)
 	})(in))
 }
+
+const Types types = 0
+
+type types int
+
+func (t types) Path() string {
+	return "frizz.io/common"
+}
+func (t types) Get(name string) string {
+	return nil
+}

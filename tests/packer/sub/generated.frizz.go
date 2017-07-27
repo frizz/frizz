@@ -104,3 +104,14 @@ func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value in
 		String string
 	})(in))
 }
+
+const Types types = 0
+
+type types int
+
+func (t types) Path() string {
+	return "frizz.io/tests/packer/sub"
+}
+func (t types) Get(name string) string {
+	return nil
+}
