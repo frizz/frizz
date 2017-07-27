@@ -4,7 +4,6 @@
 		"validators": "frizz.io/validators"
 	},
 	"_type": "system.Type",
-	"For": "Simple",
 	"Fields": {
 		"String": {
 			"Validators": [

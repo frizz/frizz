@@ -104,3 +104,18 @@ func (p packer) RepackSimple(root *frizz.Root, stack frizz.Stack, in Simple) (va
 		String string
 	})(in))
 }
+
+const Types types = 0
+
+type types int
+
+func (t types) Path() string {
+	return "frizz.io/tests/validation"
+}
+func (t types) Get(name string) string {
+	switch name {
+	case "Simple":
+		return "ewoJIl9pbXBvcnQiOiB7CgkJInN5c3RlbSI6ICJmcml6ei5pby9zeXN0ZW0iLAoJCSJ2YWxpZGF0b3JzIjogImZyaXp6LmlvL3ZhbGlkYXRvcnMiCgl9LAoJIl90eXBlIjogInN5c3RlbS5UeXBlIiwKCSJGaWVsZHMiOiB7CgkJIlN0cmluZyI6IHsKCQkJIlZhbGlkYXRvcnMiOiBbCgkJCQl7CgkJCQkJIl90eXBlIjogInZhbGlkYXRvcnMuUmVnZXgiLAoJCQkJCSJSZWdleCI6ICJeZm9vLiokIgoJCQkJfQoJCQldCgkJfQoJfQp9"
+	}
+	return nil
+}

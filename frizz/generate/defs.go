@@ -11,10 +11,11 @@ import (
 )
 
 type progDef struct {
-	fset   *token.FileSet
-	path   string
-	pcache *patsy.Cache
-	dir    string
+	fset        *token.FileSet
+	path        string
+	pcache      *patsy.Cache
+	dir         string
+	annotations map[string]string // Types with an annotation. Key is the type name, value is the annotation
 }
 
 type fileDef struct {

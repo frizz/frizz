@@ -45,7 +45,7 @@ func Regenerate(env vos.Env, save bool) (map[string][20]byte, error) {
 
 		if save {
 			// notest
-			if err := ioutil.WriteFile(filepath.Join(dir, "packer.frizz.go"), buf.Bytes(), 0777); err != nil {
+			if err := ioutil.WriteFile(filepath.Join(dir, "generated.frizz.go"), buf.Bytes(), 0777); err != nil {
 				return nil, err
 			}
 		}
