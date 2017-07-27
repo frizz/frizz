@@ -128,6 +128,6 @@ func AddImports(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
 	if types != nil {
 		types["frizz.io/tests/validation"] = Types
 	}
-	system.AddImports(packers, types)
 	validators.AddImports(packers, types)
+	system.AddImports(packers, types)
 }

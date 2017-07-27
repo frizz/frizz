@@ -22,6 +22,11 @@ import (
 )
 
 // frizz
+type SubInterface struct {
+	SubInterface sub.SubInterface
+}
+
+// frizz
 type CustomSub sub.Sub
 
 func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {

@@ -4,3 +4,6 @@ package sub
 type Sub struct {
 	String string
 }
+
+// frizz
+type SubInterface interface{}
