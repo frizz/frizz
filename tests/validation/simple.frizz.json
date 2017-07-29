@@ -4,14 +4,17 @@
 		"validators": "frizz.io/validators"
 	},
 	"_type": "system.Type",
-	"Fields": {
-		"String": {
-			"Validators": [
-				{
-					"_type": "validators.Regex",
-					"Regex": "^foo.*$"
-				}
-			]
+	"Validators": [
+		{
+			"_type": "validators.Struct",
+			"_value": {
+				"String": [
+					{
+						"_type": "validators.Regex",
+						"Regex": "^foo.*$"
+					}
+				]
+			}
 		}
-	}
+	]
 }

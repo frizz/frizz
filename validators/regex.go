@@ -5,27 +5,8 @@ import (
 
 	"fmt"
 
-	"frizz.io/common"
 	"github.com/pkg/errors"
 )
-
-// frizz
-type Keys struct {
-	Validators []common.Validator
-}
-
-func (k Keys) Validate(input interface{}) (valid bool, message string, err error) {
-	return true, "", nil
-}
-
-// frizz
-type Items struct {
-	Validators []common.Validator
-}
-
-func (i Items) Validate(input interface{}) (valid bool, message string, err error) {
-	return true, "", nil
-}
 
 // frizz
 type Regex struct {
@@ -41,7 +22,7 @@ func (r Regex) Validate(input interface{}) (valid bool, message string, err erro
 	case fmt.Stringer:
 		s = input.String()
 	default:
-		return false, "", errors.Errorf("input to Regex validator should be string or fmt.Stringer, got %T.", input)
+		return false, "", errors.Errorf("validator Regex can only validate string or fmt.Stringer. Found %T.", input)
 	}
 	matched, err := regexp.Match(r.Regex, []byte(s))
 	if err != nil {
