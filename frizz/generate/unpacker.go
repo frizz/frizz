@@ -133,7 +133,7 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 		}
 		iface, ok := out.(<spec>)
 		if !ok {
-			return value, false, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
+			return value, false, errors.Errorf("%s: unpacking into interface, type %T does not implement interface", stack, out)
 		}
 		if null {
 			return value, true, nil
@@ -151,7 +151,8 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 			Id("value"),
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("unpacking into interface, type %T does not implement interface"),
+				Lit("%s: unpacking into interface, type %T does not implement interface"),
+				Id("stack"),
 				Id("out"),
 			),
 		),
@@ -232,7 +233,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.New("unpacking into map, value should be a map")
+			return value, false, errors.Errorf("%s: unpacking into map, value should be a map", stack)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -256,8 +257,9 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 		Return(
 			Id("value"),
 			False(),
-			Qual("github.com/pkg/errors", "New").Call(
+			Qual("github.com/pkg/errors", "Errorf").Call(
 				Lit("unpacking into map, value should be a map"),
+				Id("stack"),
 			),
 		),
 	)
@@ -282,7 +284,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 	/*
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.New("unpacking into slice, value should be an array")
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -292,7 +294,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 		<if array type...>
 			var out <name or spec>
 			if len(a) > <len expr> {
-				return value, false, errors.Errorf("data length %d does not fit in array of length %d", len(a), <len expr>)
+				return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), <len expr>)
 			}
 		<endif>
 		for i, v := range a {
@@ -313,8 +315,9 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 		Return(
 			Id("value"),
 			False(),
-			Qual("github.com/pkg/errors", "New").Call(
-				Lit("unpacking into slice, value should be an array"),
+			Qual("github.com/pkg/errors", "Errorf").Call(
+				Lit("%s: unpacking into slice, value should be an array"),
+				Id("stack"),
 			),
 		),
 	)
@@ -338,7 +341,8 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 				Id("value"),
 				False(),
 				Qual("github.com/pkg/errors", "Errorf").Call(
-					Lit("data length %d does not fit in array of length %d"),
+					Lit("%s: data length %d does not fit in array of length %d"),
+					Id("stack"),
 					Len(Id("a")),
 					f.jast.Expr(spec.Len),
 				),
@@ -371,7 +375,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -397,8 +401,9 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 		Return(
 			Id("value"),
 			False(),
-			Qual("github.com/pkg/errors", "New").Call(
-				Lit("unpacking into struct, value should be a map"),
+			Qual("github.com/pkg/errors", "Errorf").Call(
+				Lit("%s: unpacking into struct, value should be a map"),
+				Id("stack"),
 			),
 		),
 	)

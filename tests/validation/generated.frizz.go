@@ -35,7 +35,7 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -117,7 +117,7 @@ func (t types) Path() string {
 func (t types) Get(name string) string {
 	switch name {
 	case "Simple":
-		return "ewoJIl9pbXBvcnQiOiB7CgkJInN5c3RlbSI6ICJmcml6ei5pby9zeXN0ZW0iLAoJCSJ2YWxpZGF0b3JzIjogImZyaXp6LmlvL3ZhbGlkYXRvcnMiCgl9LAoJIl90eXBlIjogInN5c3RlbS5UeXBlIiwKCSJGaWVsZHMiOiB7CgkJIlN0cmluZyI6IHsKCQkJIlZhbGlkYXRvcnMiOiBbCgkJCQl7CgkJCQkJIl90eXBlIjogInZhbGlkYXRvcnMuUmVnZXgiLAoJCQkJCSJSZWdleCI6ICJeZm9vLiokIgoJCQkJfQoJCQldCgkJfQoJfQp9"
+		return "ewoJIl9pbXBvcnQiOiB7CgkJInN5c3RlbSI6ICJmcml6ei5pby9zeXN0ZW0iLAoJCSJ2YWxpZGF0b3JzIjogImZyaXp6LmlvL3ZhbGlkYXRvcnMiCgl9LAoJIl90eXBlIjogInN5c3RlbS5UeXBlIiwKCSJWYWxpZGF0b3JzIjogWwoJCXsKCQkJIl90eXBlIjogInZhbGlkYXRvcnMuU3RydWN0IiwKCQkJIl92YWx1ZSI6IHsKCQkJCSJTdHJpbmciOiBbCgkJCQkJewoJCQkJCQkiX3R5cGUiOiAidmFsaWRhdG9ycy5SZWdleCIsCgkJCQkJCSJSZWdleCI6ICJeZm9vLiokIgoJCQkJCX0KCQkJCV0KCQkJfQoJCX0KCV0KfQ=="
 	}
 	return ""
 }
@@ -136,6 +136,6 @@ func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typ
 	if types != nil {
 		types["frizz.io/tests/validation"] = Types
 	}
-	system.Imports.Add(packers, types)
 	validators.Imports.Add(packers, types)
+	system.Imports.Add(packers, types)
 }

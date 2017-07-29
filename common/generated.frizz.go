@@ -39,7 +39,7 @@ func (p packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interfac
 			Validate(input interface{}) (valid bool, message string, err error)
 		})
 		if !ok {
-			return value, false, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
+			return value, false, errors.Errorf("%s: unpacking into interface, type %T does not implement interface", stack, out)
 		}
 		if null {
 			return value, true, nil

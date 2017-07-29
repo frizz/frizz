@@ -14,10 +14,10 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
-	case "SubInterface":
-		return p.UnpackSubInterface(root, stack, in)
 	case "Sub":
 		return p.UnpackSub(root, stack, in)
+	case "SubInterface":
+		return p.UnpackSubInterface(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -35,7 +35,7 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.New("unpacking into struct, value should be a map")
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -92,7 +92,7 @@ func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in inter
 		}
 		iface, ok := out.(interface{})
 		if !ok {
-			return value, false, errors.Errorf("unpacking into interface, type %T does not implement interface", out)
+			return value, false, errors.Errorf("%s: unpacking into interface, type %T does not implement interface", stack, out)
 		}
 		if null {
 			return value, true, nil
