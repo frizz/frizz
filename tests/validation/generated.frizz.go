@@ -136,6 +136,6 @@ func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typ
 	if types != nil {
 		types["frizz.io/tests/validation"] = Types
 	}
-	validators.Imports.Add(packers, types)
 	system.Imports.Add(packers, types)
+	validators.Imports.Add(packers, types)
 }
