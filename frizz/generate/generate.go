@@ -17,6 +17,8 @@ import (
 
 	"os"
 
+	"sort"
+
 	"frizz.io/frizz"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
@@ -358,6 +360,184 @@ func scanSource(prog *progDef) error {
 	return nil
 }
 
+func generatePackers(prog *progDef, f *File) (bool, error) {
+
+	if len(prog.types) == 0 {
+		return false, nil
+	}
+
+	var sorted []*typeDef
+	for _, t := range prog.types {
+		sorted = append(sorted, t)
+	}
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
+
+	/*
+		const Packer packer = 0
+
+		type packer int
+
+		func (p packer) Path() string {
+			return "<path>"
+		}
+	*/
+	f.Const().Id("Packer").Id("packer").Op("=").Lit(0)
+	f.Type().Id("packer").Int()
+	f.Func().Params(Id("p").Id("packer")).Id("Path").Params().String().Block(
+		Return(Lit(prog.path)),
+	)
+	/*
+		func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+			switch name {
+			<types...>
+			case "<name>":
+				return p.Unpack<name>(root, stack, in)
+			}
+			</types>
+			return nil, false, errors.Errorf("%s: type %s not found", stack, "<name>")
+		}
+	*/
+	f.Func().Params(Id("p").Id("packer")).Id("Unpack").Params(
+		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
+		Id("stack").Qual("frizz.io/frizz", "Stack"),
+		Id("in").Interface(),
+		Id("name").String(),
+	).Params(
+		Id("value").Interface(),
+		Id("null").Bool(),
+		Err().Error(),
+	).Block(
+		Switch(Id("name")).BlockFunc(func(g *Group) {
+			for _, t := range sorted {
+				g.Case(Lit(t.name)).Block(
+					Return(Id("p").Dot("Unpack"+t.name).Call(Id("root"), Id("stack"), Id("in"))),
+				)
+			}
+		}),
+		Return(
+			Nil(),
+			False(),
+			Qual("github.com/pkg/errors", "Errorf").Call(
+				Lit("%s: type %s not found"),
+				Id("stack"),
+				Id("name"),
+			),
+		),
+	)
+
+	for _, t := range sorted {
+		f.Add(t.unpacker(t.spec, t.name, true, t.packable))
+	}
+
+	/*
+		func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+			switch name {
+			<types...>
+			case "<name>":
+				return p.Repack<name>(root, stack, in.(<name>))
+			}
+			</types>
+			return nil, false, false, errors.Errorf("%s: type %s not found", stack, "<name>")
+		}
+	*/
+	f.Func().Params(Id("p").Id("packer")).Id("Repack").Params(
+		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
+		Id("stack").Qual("frizz.io/frizz", "Stack"),
+		Id("in").Interface(),
+		Id("name").String(),
+	).Params(
+		Id("value").Interface(),
+		Id("dict").Bool(),
+		Id("null").Bool(),
+		Err().Error(),
+	).Block(
+		Switch(Id("name")).BlockFunc(func(g *Group) {
+			for _, t := range sorted {
+				g.Case(Lit(t.name)).Block(
+					Return(Id("p").Dot("Repack"+t.name).Call(Id("root"), Id("stack"), Id("in").Assert(Id(t.name)))),
+				)
+			}
+		}),
+		Return(
+			Nil(),
+			False(),
+			False(),
+			Qual("github.com/pkg/errors", "Errorf").Call(
+				Lit("%s: type %s not found"),
+				Id("stack"),
+				Id("name"),
+			),
+		),
+	)
+
+	for _, t := range sorted {
+		f.Add(t.repacker(t.spec, t.name, true, t.packable))
+	}
+	return true, nil
+}
+
+func generateTypeFiles(prog *progDef, f *File) (bool, error) {
+
+	if len(prog.typeFiles) == 0 {
+		return false, nil
+	}
+
+	type def struct {
+		name string
+		data []byte
+	}
+	var sorted []def
+	for name, data := range prog.typeFiles {
+		sorted = append(sorted, def{name, data})
+	}
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
+
+	/*
+		const Types types = 0
+
+		type types int
+
+		func (t types) Path() string {
+			return "<path>"
+		}
+	*/
+	f.Const().Id("Types").Id("types").Op("=").Lit(0)
+	f.Type().Id("types").Int()
+	f.Func().Params(Id("t").Id("types")).Id("Path").Params().String().Block(
+		Return(Lit(prog.path)),
+	)
+	/*
+		func (t types) Get(name string) string {
+			switch name {
+			<types...>
+			case <name>:
+				return <bytes>
+			</types>
+			}
+			return nil
+		}
+	*/
+	f.Func().Params(
+		Id("t").Id("types"),
+	).Id("Get").Params(
+		Id("name").String(),
+	).String().BlockFunc(func(g *Group) {
+		if len(sorted) > 0 {
+			g.Switch(Id("name")).BlockFunc(func(g *Group) {
+				for _, d := range sorted {
+					g.Case(Lit(d.name)).Block(
+						Return(Lit(base64.StdEncoding.EncodeToString([]byte(d.data)))),
+					)
+				}
+			})
+		}
+		g.Return(Lit(""))
+	})
+
+	return true, nil
+
+}
+
 func generateImports(prog *progDef, f *File) (bool, error) {
 	imports := map[string]bool{}
 	for _, stub := range prog.stubs {
@@ -372,6 +552,12 @@ func generateImports(prog *progDef, f *File) (bool, error) {
 	if len(prog.types) == 0 && len(prog.typeFiles) == 0 && len(imports) == 0 {
 		return false, nil
 	}
+
+	var sorted []string
+	for pkg := range imports {
+		sorted = append(sorted, pkg)
+	}
+	sort.Strings(sorted)
 
 	/*
 		const Imports imports = 0
@@ -413,61 +599,9 @@ func generateImports(prog *progDef, f *File) (bool, error) {
 				Id("types").Index(Lit(prog.path)).Op("=").Id("Types"),
 			)
 		}
-		for pkg := range imports {
+		for _, pkg := range sorted {
 			g.Qual(pkg, "Imports").Dot("Add").Call(Id("packers"), Id("types"))
 		}
-	})
-
-	return true, nil
-
-}
-
-func generateTypeFiles(prog *progDef, f *File) (bool, error) {
-
-	if len(prog.typeFiles) == 0 {
-		return false, nil
-	}
-
-	/*
-		const Types types = 0
-
-		type types int
-
-		func (t types) Path() string {
-			return "<path>"
-		}
-	*/
-	f.Const().Id("Types").Id("types").Op("=").Lit(0)
-	f.Type().Id("types").Int()
-	f.Func().Params(Id("t").Id("types")).Id("Path").Params().String().Block(
-		Return(Lit(prog.path)),
-	)
-	/*
-		func (t types) Get(name string) string {
-			switch name {
-			<types...>
-			case <name>:
-				return <bytes>
-			</types>
-			}
-			return nil
-		}
-	*/
-	f.Func().Params(
-		Id("t").Id("types"),
-	).Id("Get").Params(
-		Id("name").String(),
-	).String().BlockFunc(func(g *Group) {
-		if len(prog.typeFiles) > 0 {
-			g.Switch(Id("name")).BlockFunc(func(g *Group) {
-				for name, data := range prog.typeFiles {
-					g.Case(Lit(name)).Block(
-						Return(Lit(base64.StdEncoding.EncodeToString([]byte(data)))),
-					)
-				}
-			})
-		}
-		g.Return(Lit(""))
 	})
 
 	return true, nil
@@ -493,114 +627,4 @@ func decodeStub(fpath string) (*stub, error) {
 	}
 	v.bytes = b
 	return v, nil
-}
-
-func generatePackers(prog *progDef, f *File) (bool, error) {
-
-	if len(prog.types) == 0 {
-		return false, nil
-	}
-
-	/*
-		const Packer packer = 0
-
-		type packer int
-
-		func (p packer) Path() string {
-			return "<path>"
-		}
-	*/
-	f.Const().Id("Packer").Id("packer").Op("=").Lit(0)
-	f.Type().Id("packer").Int()
-	f.Func().Params(Id("p").Id("packer")).Id("Path").Params().String().Block(
-		Return(Lit(prog.path)),
-	)
-	/*
-		func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
-			switch name {
-			<types...>
-			case "<name>":
-				return p.Unpack<name>(root, stack, in)
-			}
-			</types>
-			return nil, false, errors.Errorf("%s: type %s not found", stack, "<name>")
-		}
-	*/
-	f.Func().Params(Id("p").Id("packer")).Id("Unpack").Params(
-		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
-		Id("stack").Qual("frizz.io/frizz", "Stack"),
-		Id("in").Interface(),
-		Id("name").String(),
-	).Params(
-		Id("value").Interface(),
-		Id("null").Bool(),
-		Err().Error(),
-	).Block(
-		Switch(Id("name")).BlockFunc(func(g *Group) {
-			for _, t := range prog.types {
-				g.Case(Lit(t.name)).Block(
-					Return(Id("p").Dot("Unpack"+t.name).Call(Id("root"), Id("stack"), Id("in"))),
-				)
-			}
-		}),
-		Return(
-			Nil(),
-			False(),
-			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("%s: type %s not found"),
-				Id("stack"),
-				Id("name"),
-			),
-		),
-	)
-
-	for _, t := range prog.types {
-		f.Add(t.unpacker(t.spec, t.name, true, t.packable))
-	}
-
-	/*
-		func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
-			switch name {
-			<types...>
-			case "<name>":
-				return p.Repack<name>(root, stack, in.(<name>))
-			}
-			</types>
-			return nil, false, false, errors.Errorf("%s: type %s not found", stack, "<name>")
-		}
-	*/
-	f.Func().Params(Id("p").Id("packer")).Id("Repack").Params(
-		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
-		Id("stack").Qual("frizz.io/frizz", "Stack"),
-		Id("in").Interface(),
-		Id("name").String(),
-	).Params(
-		Id("value").Interface(),
-		Id("dict").Bool(),
-		Id("null").Bool(),
-		Err().Error(),
-	).Block(
-		Switch(Id("name")).BlockFunc(func(g *Group) {
-			for _, t := range prog.types {
-				g.Case(Lit(t.name)).Block(
-					Return(Id("p").Dot("Repack"+t.name).Call(Id("root"), Id("stack"), Id("in").Assert(Id(t.name)))),
-				)
-			}
-		}),
-		Return(
-			Nil(),
-			False(),
-			False(),
-			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("%s: type %s not found"),
-				Id("stack"),
-				Id("name"),
-			),
-		),
-	)
-
-	for _, t := range prog.types {
-		f.Add(t.repacker(t.spec, t.name, true, t.packable))
-	}
-	return true, nil
 }

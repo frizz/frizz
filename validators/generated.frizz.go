@@ -15,14 +15,14 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
-	case "Struct":
-		return p.UnpackStruct(root, stack, in)
-	case "Keys":
-		return p.UnpackKeys(root, stack, in)
 	case "Items":
 		return p.UnpackItems(root, stack, in)
+	case "Keys":
+		return p.UnpackKeys(root, stack, in)
 	case "Regex":
 		return p.UnpackRegex(root, stack, in)
+	case "Struct":
+		return p.UnpackStruct(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -76,6 +76,57 @@ func (p packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{})
 		return value, true, nil
 	}
 	return Items(out), false, nil
+}
+func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// sliceUnpacker
+		a, ok := in.([]interface{})
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+		}
+		if len(a) == 0 {
+			return value, true, nil
+		}
+		var out = make([]common.Validator, len(a))
+		for i, v := range a {
+			stack := stack.Append(frizz.ArrayItem(i))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// selectorUnpacker
+				out, null, err := common.Packer.UnpackValidator(root, stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out[i] = u
+			}
+		}
+		return out[:], false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return Keys(out), false, nil
 }
 func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, null bool, err error) {
 	if in == nil {
@@ -232,107 +283,20 @@ func (p packer) UnpackStruct(root *frizz.Root, stack frizz.Stack, in interface{}
 	}
 	return Struct(out), false, nil
 }
-func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) (value Keys, null bool, err error) {
-	if in == nil {
-		return value, true, nil
-	}
-	// aliasUnpacker
-	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, null bool, err error) {
-		if in == nil {
-			return value, true, nil
-		}
-		// sliceUnpacker
-		a, ok := in.([]interface{})
-		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
-		}
-		if len(a) == 0 {
-			return value, true, nil
-		}
-		var out = make([]common.Validator, len(a))
-		for i, v := range a {
-			stack := stack.Append(frizz.ArrayItem(i))
-			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, null bool, err error) {
-				if in == nil {
-					return value, true, nil
-				}
-				// selectorUnpacker
-				out, null, err := common.Packer.UnpackValidator(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
-				}
-				return out, false, nil
-			}(root, stack, v)
-			if err != nil {
-				return value, false, err
-			}
-			if !null {
-				out[i] = u
-			}
-		}
-		return out[:], false, nil
-	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
-	}
-	return Keys(out), false, nil
-}
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
-	case "Struct":
-		return p.RepackStruct(root, stack, in.(Struct))
-	case "Keys":
-		return p.RepackKeys(root, stack, in.(Keys))
 	case "Items":
 		return p.RepackItems(root, stack, in.(Items))
+	case "Keys":
+		return p.RepackKeys(root, stack, in.(Keys))
 	case "Regex":
 		return p.RepackRegex(root, stack, in.(Regex))
+	case "Struct":
+		return p.RepackStruct(root, stack, in.(Struct))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackStruct(root *frizz.Root, stack frizz.Stack, in Struct) (value interface{}, dict bool, null bool, err error) {
-	return func(root *frizz.Root, stack frizz.Stack, in map[string][]common.Validator) (value interface{}, dict bool, null bool, err error) {
-		// mapRepacker
-		out := make(map[string]interface{}, len(in))
-		for k, item := range in {
-			v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
-				// sliceRepacker
-				out := make([]interface{}, len(in))
-				empty := true
-				for i, item := range in {
-					v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
-						// selectorRepacker
-						out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
-						if err != nil {
-							return nil, false, false, err
-						}
-						return out, dict, null, nil
-					}(root, stack, item)
-					if err != nil {
-						return nil, false, false, err
-					}
-					if !null {
-						empty = false
-					}
-					out[i] = v
-				}
-				return out, false, empty, nil
-			}(root, stack, item)
-			if err != nil {
-				return nil, false, false, err
-			}
-			out[k] = v
-		}
-		return out, true, len(in) == 0, nil
-	}(root, stack, (map[string][]common.Validator)(in))
-}
-func (p packer) RepackKeys(root *frizz.Root, stack frizz.Stack, in Keys) (value interface{}, dict bool, null bool, err error) {
+func (p packer) RepackItems(root *frizz.Root, stack frizz.Stack, in Items) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
@@ -357,7 +321,7 @@ func (p packer) RepackKeys(root *frizz.Root, stack frizz.Stack, in Keys) (value 
 		return out, false, empty, nil
 	}(root, stack, ([]common.Validator)(in))
 }
-func (p packer) RepackItems(root *frizz.Root, stack frizz.Stack, in Items) (value interface{}, dict bool, null bool, err error) {
+func (p packer) RepackKeys(root *frizz.Root, stack frizz.Stack, in Keys) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
@@ -417,6 +381,42 @@ func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (valu
 		Regex  string
 		Invert bool
 	})(in))
+}
+func (p packer) RepackStruct(root *frizz.Root, stack frizz.Stack, in Struct) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in map[string][]common.Validator) (value interface{}, dict bool, null bool, err error) {
+		// mapRepacker
+		out := make(map[string]interface{}, len(in))
+		for k, item := range in {
+			v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+				// sliceRepacker
+				out := make([]interface{}, len(in))
+				empty := true
+				for i, item := range in {
+					v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+						// selectorRepacker
+						out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
+						if err != nil {
+							return nil, false, false, err
+						}
+						return out, dict, null, nil
+					}(root, stack, item)
+					if err != nil {
+						return nil, false, false, err
+					}
+					if !null {
+						empty = false
+					}
+					out[i] = v
+				}
+				return out, false, empty, nil
+			}(root, stack, item)
+			if err != nil {
+				return nil, false, false, err
+			}
+			out[k] = v
+		}
+		return out, true, len(in) == 0, nil
+	}(root, stack, (map[string][]common.Validator)(in))
 }
 
 const Imports imports = 0
