@@ -164,6 +164,39 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 }
 
 func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
+	pkg := f.pathFromSelector(spec)
+	if pkg == "encoding/json" && spec.Sel.Name == "Number" {
+		// special case for json.Number
+		/*
+			out, ok := in.(json.Number)
+			if !ok {
+				return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+			}
+			if out == "" {
+				return value, true, nil
+			}
+			return out, false, nil
+		*/
+		g.Comment("selectorUnpacker (json.Number)")
+		g.List(Id("out"), Id("ok")).Op(":=").Id("in").Assert(Qual("encoding/json", "Number"))
+		g.If(Op("!").Id("ok")).Block(
+			Return(
+				Id("value"),
+				False(),
+				Qual("github.com/pkg/errors", "Errorf").Call(
+					Lit("%s: unpacking into json.Number, found %T"),
+					Id("stack"),
+					Id("in"),
+				),
+			),
+		)
+		g.If(Id("out").Op("==").Lit("")).Block(
+			Return(Id("value"), True(), Nil()),
+		)
+		g.Return(Id("out"), False(), Nil())
+		return
+	}
+
 	/*
 		out, null, err := <spec.X>.Packer.Unpack<spec.Sel.Name>(root, stack, in)
 		if err != nil {
@@ -175,7 +208,7 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 		return out, false, nil
 	*/
 	g.Comment("selectorUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(f.pathFromSelector(spec), "Packer").Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(pkg, "Packer").Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), False(), Err()),
 	)

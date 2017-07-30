@@ -13,6 +13,12 @@
 						"_type": "validators.Regex",
 						"Regex": "^foo.*$"
 					}
+				],
+				"Int": [
+					{
+						"_type": "validators.GreaterThan",
+						"_value": 2
+					}
 				]
 			}
 		}

@@ -1,6 +1,7 @@
 package packer
 
 import (
+	json "encoding/json"
 	frizz "frizz.io/frizz"
 	sub "frizz.io/tests/packer/sub"
 	errors "github.com/pkg/errors"
@@ -1497,6 +1498,7 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 		PtrString *string
 		PtrInt    *int
 		PtrBool   *bool
+		Number    json.Number
 	}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
@@ -1529,6 +1531,7 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 			PtrString *string
 			PtrInt    *int
 			PtrBool   *bool
+			Number    json.Number
 		}
 		if v, ok := m["Bool"]; ok {
 			stack := stack.Append(frizz.FieldItem("Bool"))
@@ -2004,6 +2007,29 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 			}
 			if !null {
 				out.PtrBool = u
+			}
+		}
+		if v, ok := m["Number"]; ok {
+			stack := stack.Append(frizz.FieldItem("Number"))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value json.Number, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// selectorUnpacker (json.Number)
+				out, ok := in.(json.Number)
+				if !ok {
+					return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+				}
+				if out == "" {
+					return value, true, nil
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out.Number = u
 			}
 		}
 		return out, false, nil
@@ -4156,9 +4182,10 @@ func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (
 		PtrString *string
 		PtrInt    *int
 		PtrBool   *bool
+		Number    json.Number
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
-		out := make(map[string]interface{}, 20)
+		out := make(map[string]interface{}, 21)
 		empty := true
 		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
@@ -4399,6 +4426,20 @@ func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (
 				out["PtrBool"] = v
 			}
 		}
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+			// selectorRepacker (json.Number)
+			if in == "" {
+				return value, false, true, nil
+			}
+			return in, false, false, nil
+		}(root, stack, in.Number); err != nil {
+			return nil, false, false, err
+		} else {
+			if !null {
+				empty = false
+				out["Number"] = v
+			}
+		}
 		return out, false, empty, nil
 	}(root, stack, (struct {
 		Bool      bool
@@ -4420,6 +4461,7 @@ func (p packer) RepackNatives(root *frizz.Root, stack frizz.Stack, in Natives) (
 		PtrString *string
 		PtrInt    *int
 		PtrBool   *bool
+		Number    json.Number
 	})(in))
 }
 func (p packer) RepackPointers(root *frizz.Root, stack frizz.Stack, in Pointers) (value interface{}, dict bool, null bool, err error) {

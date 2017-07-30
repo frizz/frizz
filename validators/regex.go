@@ -18,8 +18,14 @@ func (r Regex) Validate(input interface{}) (valid bool, message string, err erro
 	var s string
 	switch input := input.(type) {
 	case string:
+		if input == "" {
+			return true, "", nil
+		}
 		s = input
 	case fmt.Stringer:
+		if input == nil {
+			return true, "", nil
+		}
 		s = input.String()
 	default:
 		return false, "", errors.Errorf("validator Regex can only validate string or fmt.Stringer. Found %T.", input)

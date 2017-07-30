@@ -202,6 +202,21 @@ func (f *fileDef) sliceRepacker(g *Group, spec *ast.ArrayType) {
 }
 
 func (f *fileDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
+	pkg := f.pathFromSelector(spec)
+	if pkg == "encoding/json" && spec.Sel.Name == "Number" {
+		g.Comment("selectorRepacker (json.Number)")
+		/*
+			if in == "" {
+				return nil, false, true, nil
+			}
+			return in, false, false, nil
+		*/
+		g.If(Id("in").Op("==").Lit("")).Block(
+			Return(Id("value"), False(), True(), Nil()),
+		)
+		g.Return(Id("in"), False(), False(), Nil())
+		return
+	}
 	/*
 		out, dict, null, err := <spec.pkg>.Packer.Repack<spec.name>(root, stack, in)
 		if err != nil {
@@ -210,7 +225,7 @@ func (f *fileDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 		return out, dict, null, nil
 	*/
 	g.Comment("selectorRepacker")
-	g.List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Qual(f.pathFromSelector(spec), "Packer").Dot("Repack"+spec.Sel.Name).Call(
+	g.List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Qual(pkg, "Packer").Dot("Repack"+spec.Sel.Name).Call(
 		Id("root"),
 		Id("stack"),
 		Id("in"),

@@ -28,6 +28,7 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 	// aliasUnpacker
 	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
 		String string
+		Int    int
 	}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
@@ -42,6 +43,7 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 		}
 		var out struct {
 			String string
+			Int    int
 		}
 		if v, ok := m["String"]; ok {
 			stack := stack.Append(frizz.FieldItem("String"))
@@ -66,6 +68,29 @@ func (p packer) UnpackSimple(root *frizz.Root, stack frizz.Stack, in interface{}
 				out.String = u
 			}
 		}
+		if v, ok := m["Int"]; ok {
+			stack := stack.Append(frizz.FieldItem("Int"))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value int, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// nativeUnpacker
+				out, null, err := frizz.UnpackInt(stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out.Int = u
+			}
+		}
 		return out, false, nil
 	}(root, stack, in)
 	if err != nil {
@@ -86,9 +111,10 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 func (p packer) RepackSimple(root *frizz.Root, stack frizz.Stack, in Simple) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
 		String string
+		Int    int
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
-		out := make(map[string]interface{}, 2)
+		out := make(map[string]interface{}, 3)
 		empty := true
 		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
@@ -101,9 +127,21 @@ func (p packer) RepackSimple(root *frizz.Root, stack frizz.Stack, in Simple) (va
 				out["String"] = v
 			}
 		}
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+			// nativeRepacker
+			return frizz.RepackNumber(in)
+		}(root, stack, in.Int); err != nil {
+			return nil, false, false, err
+		} else {
+			if !null {
+				empty = false
+				out["Int"] = v
+			}
+		}
 		return out, false, empty, nil
 	}(root, stack, (struct {
 		String string
+		Int    int
 	})(in))
 }
 
@@ -117,7 +155,7 @@ func (t types) Path() string {
 func (t types) Get(name string) string {
 	switch name {
 	case "Simple":
-		return "ewoJIl9pbXBvcnQiOiB7CgkJInN5c3RlbSI6ICJmcml6ei5pby9zeXN0ZW0iLAoJCSJ2YWxpZGF0b3JzIjogImZyaXp6LmlvL3ZhbGlkYXRvcnMiCgl9LAoJIl90eXBlIjogInN5c3RlbS5UeXBlIiwKCSJWYWxpZGF0b3JzIjogWwoJCXsKCQkJIl90eXBlIjogInZhbGlkYXRvcnMuU3RydWN0IiwKCQkJIl92YWx1ZSI6IHsKCQkJCSJTdHJpbmciOiBbCgkJCQkJewoJCQkJCQkiX3R5cGUiOiAidmFsaWRhdG9ycy5SZWdleCIsCgkJCQkJCSJSZWdleCI6ICJeZm9vLiokIgoJCQkJCX0KCQkJCV0KCQkJfQoJCX0KCV0KfQ=="
+		return "ewoJIl9pbXBvcnQiOiB7CgkJInN5c3RlbSI6ICJmcml6ei5pby9zeXN0ZW0iLAoJCSJ2YWxpZGF0b3JzIjogImZyaXp6LmlvL3ZhbGlkYXRvcnMiCgl9LAoJIl90eXBlIjogInN5c3RlbS5UeXBlIiwKCSJWYWxpZGF0b3JzIjogWwoJCXsKCQkJIl90eXBlIjogInZhbGlkYXRvcnMuU3RydWN0IiwKCQkJIl92YWx1ZSI6IHsKCQkJCSJTdHJpbmciOiBbCgkJCQkJewoJCQkJCQkiX3R5cGUiOiAidmFsaWRhdG9ycy5SZWdleCIsCgkJCQkJCSJSZWdleCI6ICJeZm9vLiokIgoJCQkJCX0KCQkJCV0sCgkJCQkiSW50IjogWwoJCQkJCXsKCQkJCQkJIl90eXBlIjogInZhbGlkYXRvcnMuR3JlYXRlclRoYW4iLAoJCQkJCQkiX3ZhbHVlIjogMgoJCQkJCX0KCQkJCV0KCQkJfQoJCX0KCV0KfQ=="
 	}
 	return ""
 }
