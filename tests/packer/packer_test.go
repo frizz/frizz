@@ -130,7 +130,6 @@ func TestCustom(t *testing.T) {
 	}
 }
 
-
 func TestImportsFail(t *testing.T) {
 	tests := map[string]test{
 		"imports": {
@@ -694,6 +693,10 @@ func TestNatives(t *testing.T) {
 		"ptr int":            {js: `{"PtrInt": 1}`, ex: Natives{PtrInt: func() *int { v := 1; return &v }()}},
 		"ptr int zero":       {js: `{"PtrInt": 0}`, ex: Natives{PtrInt: func() *int { v := 0; return &v }()}},
 		"ptr int null":       {js: `{"PtrInt": null}`, ex: Natives{PtrInt: nil}, re: "{}", rnull: true},
+		"number zero":        {js: `{"Number": 0}`, ex: Natives{Number: json.Number("0")}},
+		"number one":         {js: `{"Number": 1}`, ex: Natives{Number: json.Number("1")}},
+		"number neg":         {js: `{"Number": -1}`, ex: Natives{Number: json.Number("-1")}},
+		"number uint64 big":  {js: `{"Number": 18446744073709551616}`, ex: Natives{Number: json.Number("18446744073709551616")}},
 	}
 	for name, test := range tests {
 		v := decode(t, name, test.js)

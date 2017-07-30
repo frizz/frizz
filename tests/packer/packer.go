@@ -17,6 +17,8 @@ import (
 
 	"sort"
 
+	"encoding/json"
+
 	"frizz.io/frizz"
 	"frizz.io/tests/packer/sub"
 )
@@ -345,4 +347,5 @@ type Natives struct {
 	PtrString *string
 	PtrInt    *int
 	PtrBool   *bool
+	Number    json.Number
 }

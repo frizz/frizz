@@ -1,6 +1,7 @@
 package validators
 
 import (
+	json "encoding/json"
 	common "frizz.io/common"
 	frizz "frizz.io/frizz"
 	errors "github.com/pkg/errors"
@@ -15,16 +16,82 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
+	case "GreaterThan":
+		return p.UnpackGreaterThan(root, stack, in)
+	case "GreaterThanOrEqual":
+		return p.UnpackGreaterThanOrEqual(root, stack, in)
 	case "Items":
 		return p.UnpackItems(root, stack, in)
 	case "Keys":
 		return p.UnpackKeys(root, stack, in)
+	case "Length":
+		return p.UnpackLength(root, stack, in)
+	case "LessThan":
+		return p.UnpackLessThan(root, stack, in)
+	case "LessThanOrEqual":
+		return p.UnpackLessThanOrEqual(root, stack, in)
+	case "NotZero":
+		return p.UnpackNotZero(root, stack, in)
 	case "Regex":
 		return p.UnpackRegex(root, stack, in)
 	case "Struct":
 		return p.UnpackStruct(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) UnpackGreaterThan(root *frizz.Root, stack frizz.Stack, in interface{}) (value GreaterThan, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value json.Number, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// selectorUnpacker (json.Number)
+		out, ok := in.(json.Number)
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+		}
+		if out == "" {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return GreaterThan(out), false, nil
+}
+func (p packer) UnpackGreaterThanOrEqual(root *frizz.Root, stack frizz.Stack, in interface{}) (value GreaterThanOrEqual, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value json.Number, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// selectorUnpacker (json.Number)
+		out, ok := in.(json.Number)
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+		}
+		if out == "" {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return GreaterThanOrEqual(out), false, nil
 }
 func (p packer) UnpackItems(root *frizz.Root, stack frizz.Stack, in interface{}) (value Items, null bool, err error) {
 	if in == nil {
@@ -127,6 +194,139 @@ func (p packer) UnpackKeys(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		return value, true, nil
 	}
 	return Keys(out), false, nil
+}
+func (p packer) UnpackLength(root *frizz.Root, stack frizz.Stack, in interface{}) (value Length, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// sliceUnpacker
+		a, ok := in.([]interface{})
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+		}
+		if len(a) == 0 {
+			return value, true, nil
+		}
+		var out = make([]common.Validator, len(a))
+		for i, v := range a {
+			stack := stack.Append(frizz.ArrayItem(i))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// selectorUnpacker
+				out, null, err := common.Packer.UnpackValidator(root, stack, in)
+				if err != nil {
+					return value, false, err
+				}
+				if null {
+					return value, true, nil
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out[i] = u
+			}
+		}
+		return out[:], false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return Length(out), false, nil
+}
+func (p packer) UnpackLessThan(root *frizz.Root, stack frizz.Stack, in interface{}) (value LessThan, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value json.Number, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// selectorUnpacker (json.Number)
+		out, ok := in.(json.Number)
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+		}
+		if out == "" {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return LessThan(out), false, nil
+}
+func (p packer) UnpackLessThanOrEqual(root *frizz.Root, stack frizz.Stack, in interface{}) (value LessThanOrEqual, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value json.Number, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// selectorUnpacker (json.Number)
+		out, ok := in.(json.Number)
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+		}
+		if out == "" {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return LessThanOrEqual(out), false, nil
+}
+func (p packer) UnpackNotZero(root *frizz.Root, stack frizz.Stack, in interface{}) (value NotZero, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct{}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// structUnpacker
+		m, ok := in.(map[string]interface{})
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+		}
+		if len(m) == 0 {
+			return value, true, nil
+		}
+		var out struct{}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return NotZero(out), false, nil
 }
 func (p packer) UnpackRegex(root *frizz.Root, stack frizz.Stack, in interface{}) (value Regex, null bool, err error) {
 	if in == nil {
@@ -285,16 +485,46 @@ func (p packer) UnpackStruct(root *frizz.Root, stack frizz.Stack, in interface{}
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
+	case "GreaterThan":
+		return p.RepackGreaterThan(root, stack, in.(GreaterThan))
+	case "GreaterThanOrEqual":
+		return p.RepackGreaterThanOrEqual(root, stack, in.(GreaterThanOrEqual))
 	case "Items":
 		return p.RepackItems(root, stack, in.(Items))
 	case "Keys":
 		return p.RepackKeys(root, stack, in.(Keys))
+	case "Length":
+		return p.RepackLength(root, stack, in.(Length))
+	case "LessThan":
+		return p.RepackLessThan(root, stack, in.(LessThan))
+	case "LessThanOrEqual":
+		return p.RepackLessThanOrEqual(root, stack, in.(LessThanOrEqual))
+	case "NotZero":
+		return p.RepackNotZero(root, stack, in.(NotZero))
 	case "Regex":
 		return p.RepackRegex(root, stack, in.(Regex))
 	case "Struct":
 		return p.RepackStruct(root, stack, in.(Struct))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) RepackGreaterThan(root *frizz.Root, stack frizz.Stack, in GreaterThan) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+		// selectorRepacker (json.Number)
+		if in == "" {
+			return value, false, true, nil
+		}
+		return in, false, false, nil
+	}(root, stack, (json.Number)(in))
+}
+func (p packer) RepackGreaterThanOrEqual(root *frizz.Root, stack frizz.Stack, in GreaterThanOrEqual) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+		// selectorRepacker (json.Number)
+		if in == "" {
+			return value, false, true, nil
+		}
+		return in, false, false, nil
+	}(root, stack, (json.Number)(in))
 }
 func (p packer) RepackItems(root *frizz.Root, stack frizz.Stack, in Items) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
@@ -345,6 +575,57 @@ func (p packer) RepackKeys(root *frizz.Root, stack frizz.Stack, in Keys) (value 
 		}
 		return out, false, empty, nil
 	}(root, stack, ([]common.Validator)(in))
+}
+func (p packer) RepackLength(root *frizz.Root, stack frizz.Stack, in Length) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+		// sliceRepacker
+		out := make([]interface{}, len(in))
+		empty := true
+		for i, item := range in {
+			v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+				// selectorRepacker
+				out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
+				if err != nil {
+					return nil, false, false, err
+				}
+				return out, dict, null, nil
+			}(root, stack, item)
+			if err != nil {
+				return nil, false, false, err
+			}
+			if !null {
+				empty = false
+			}
+			out[i] = v
+		}
+		return out, false, empty, nil
+	}(root, stack, ([]common.Validator)(in))
+}
+func (p packer) RepackLessThan(root *frizz.Root, stack frizz.Stack, in LessThan) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+		// selectorRepacker (json.Number)
+		if in == "" {
+			return value, false, true, nil
+		}
+		return in, false, false, nil
+	}(root, stack, (json.Number)(in))
+}
+func (p packer) RepackLessThanOrEqual(root *frizz.Root, stack frizz.Stack, in LessThanOrEqual) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+		// selectorRepacker (json.Number)
+		if in == "" {
+			return value, false, true, nil
+		}
+		return in, false, false, nil
+	}(root, stack, (json.Number)(in))
+}
+func (p packer) RepackNotZero(root *frizz.Root, stack frizz.Stack, in NotZero) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in struct{}) (value interface{}, dict bool, null bool, err error) {
+		// structRepacker
+		out := make(map[string]interface{}, 1)
+		empty := true
+		return out, false, empty, nil
+	}(root, stack, (struct{})(in))
 }
 func (p packer) RepackRegex(root *frizz.Root, stack frizz.Stack, in Regex) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
