@@ -5,12 +5,17 @@ import (
 
 	"strings"
 
+	"bytes"
+	"encoding/json"
+
 	"frizz.io/frizz"
-	"frizz.io/frizz/validator"
-	"frizz.io/tests/validation"
+	"frizz.io/system"
+	"frizz.io/tests/packer"
+	"frizz.io/validators"
 )
 
 type testDef struct {
+	ty string // type
 	js string // json input
 	ms string // expect invalid with this message
 	er string // expect error containing this string
@@ -20,34 +25,90 @@ func TestValidate(t *testing.T) {
 
 	tests := map[string]testDef{
 		"regex success": {
-			js: `{"_type": "Simple","String": "foo"}`,
+			ty: `{
+				"_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"},
+				"_type": "system.Type",
+				"Validators": [{
+					"_type": "validators.Struct",
+					"_value": {"String": [{"_type": "validators.Regex","Regex": "^foo.*$"}]}
+				}]
+			}`,
+			js: `{"_type": "Natives", "String": "foo"}`,
 		},
 		"regex fail": {
-			js: `{"_type": "Simple","String": "bar"}`,
+			ty: `{
+				"_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"},
+				"_type": "system.Type",
+				"Validators": [{
+					"_type": "validators.Struct",
+					"_value": {"String": [{"_type": "validators.Regex","Regex": "^foo.*$"}]}
+				}]
+			}`,
+			js: `{"_type": "Natives", "String": "bar"}`,
 			ms: `input "bar" did not match regex "^foo.*$"`,
 		},
 		"gt success": {
-			js: `{"_type": "Simple","Int": 3}`,
+			ty: `{
+				"_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"},
+				"_type": "system.Type",
+				"Validators": [{
+					"_type": "validators.Struct",
+					"_value": {"Int": [{"_type": "validators.GreaterThan","_value": 2}]}
+				}]
+			}`,
+			js: `{"_type": "Natives","Int": 3}`,
 		},
 		"gt fail": {
-			js: `{"_type": "Simple","Int": 1}`,
+			ty: `{
+				"_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"},
+				"_type": "system.Type",
+				"Validators": [{
+					"_type": "validators.Struct",
+					"_value": {"Int": [{"_type": "validators.GreaterThan","_value": 2}]}
+				}]
+			}`,
+			js: `{"_type": "Natives","Int": 1}`,
 			ms: "value 1 must be greater than 1",
 		},
 		"gt success zero": {
-			js: `{"_type": "Simple","Int": 0}`,
+			ty: `{
+				"_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"},
+				"_type": "system.Type",
+				"Validators": [{
+					"_type": "validators.Struct",
+					"_value": {"Int": [{"_type": "validators.GreaterThan","_value": 2}]}
+				}]
+			}`,
+			js: `{"_type": "Natives","Int": 0}`,
 		},
 		"gt success empty": {
-			js: `{"_type": "Simple"}`,
+			ty: `{
+				"_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"},
+				"_type": "system.Type",
+				"Validators": [{
+					"_type": "validators.Struct",
+					"_value": {"Int": [{"_type": "validators.GreaterThan","_value": 2}]}
+				}]
+			}`,
+			js: `{"_type": "Natives"}`,
 		},
 	}
 
 	for name, td := range tests {
-		f := frizz.New(validation.Imports)
+		r := &frizz.Root{
+			Context: frizz.New(packer.Imports).Register(system.Packer, validators.Packer),
+			Imports: make(map[string]string),
+		}
+		v := unmarshal(t, td.ty)
+		r.ParseImports(v)
+		typ, _, err := system.Packer.UnpackType(r, frizz.Stack{frizz.RootItem("root")}, v)
+
+		f := frizz.New(packer.Imports)
 		iface, err := f.Unmarshal([]byte(td.js))
 		if err != nil {
 			t.Fatal(err)
 		}
-		valid, message, err := validator.Validate(iface, validation.Imports)
+		valid, message, err := typ.Validate(iface)
 		if td.er == "" && err != nil {
 			t.Fatalf("%s: error when none expepected: %s", name, err.Error())
 		}
@@ -65,4 +126,14 @@ func TestValidate(t *testing.T) {
 		}
 	}
 
+}
+
+func unmarshal(t *testing.T, in string) interface{} {
+	var v interface{}
+	d := json.NewDecoder(bytes.NewBuffer([]byte(in)))
+	d.UseNumber()
+	if err := d.Decode(&v); err != nil {
+		t.Fatal(err)
+	}
+	return v
 }

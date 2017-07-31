@@ -27,20 +27,6 @@ func (r *Root) UnpackInterface(stack Stack, in interface{}) (value interface{}, 
 
 	v := m["_value"]
 
-	if im, ok := m["_import"]; ok {
-		imp, ok := im.(map[string]interface{})
-		if !ok {
-			return nil, false, errors.Errorf("%s: unpacking into interface, _import should be a map", stack)
-		}
-		for alias, path := range imp {
-			path, ok := path.(string)
-			if !ok {
-				return nil, false, errors.Errorf("%s: unpacking into interface, _import values should be strings", stack)
-			}
-			r.Imports[alias] = path
-		}
-	}
-
 	if r.Path == "" {
 		return nil, false, errors.Errorf("%s: unpacking into interface, local path is not set", stack)
 	}

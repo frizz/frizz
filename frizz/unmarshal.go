@@ -40,6 +40,9 @@ func Package(imports Importer) (map[string]interface{}, error) {
 			Context: u,
 			Imports: make(map[string]string),
 		}
+		if err := r.ParseImports(v); err != nil {
+			return nil, errors.Wrapf(err, "parsing imports from %s", fname)
+		}
 		s := Stack{RootItem(name)}
 		i, null, err := r.UnpackInterface(s, v)
 		if err != nil {
@@ -88,6 +91,9 @@ func (u *Context) Unpack(in interface{}) (value interface{}, null bool, err erro
 	r := &Root{
 		Context: u,
 		Imports: make(map[string]string),
+	}
+	if err := r.ParseImports(in); err != nil {
+		return nil, false, errors.Wrap(err, "parsing imports")
 	}
 	s := Stack{RootItem("root")}
 	return r.UnpackInterface(s, in)
