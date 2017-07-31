@@ -164,11 +164,11 @@ func TestImports(t *testing.T) {
 		},
 		"imports not map": {
 			js:  `{"_type": "Natives", "_import": []}`,
-			err: "unpacking into interface, _import should be a map",
+			err: "parsing _import, should be a map, found []interface {}",
 		},
 		"imports values": {
 			js:  `{"_type": "Natives", "_import": {"foo": 1}}`,
-			err: "unpacking into interface, _import values should be strings",
+			err: "parsing _import, values should be strings, found json.Number",
 		},
 	}
 	for name, test := range tests {
