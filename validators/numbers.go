@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"reflect"
+
 	"github.com/pkg/errors"
 )
 
@@ -12,34 +14,53 @@ import (
 type GreaterThan json.Number
 
 func (g GreaterThan) Validate(input interface{}) (valid bool, message string, err error) {
-	return validate(input, ">", json.Number(g))
+	return g.ValidateValue(reflect.ValueOf(input))
+}
+
+func (g GreaterThan) ValidateValue(value reflect.Value) (valid bool, message string, err error) {
+	return validate(value, ">", json.Number(g))
 }
 
 // frizz
 type LessThan json.Number
 
 func (l LessThan) Validate(input interface{}) (valid bool, message string, err error) {
-	return validate(input, "<", json.Number(l))
+	return l.ValidateValue(reflect.ValueOf(input))
+}
+
+func (l LessThan) ValidateValue(value reflect.Value) (valid bool, message string, err error) {
+	return validate(value, "<", json.Number(l))
 }
 
 // frizz
 type GreaterThanOrEqual json.Number
 
 func (g GreaterThanOrEqual) Validate(input interface{}) (valid bool, message string, err error) {
-	return validate(input, ">=", json.Number(g))
+	return g.ValidateValue(reflect.ValueOf(input))
+}
+
+func (g GreaterThanOrEqual) ValidateValue(value reflect.Value) (valid bool, message string, err error) {
+	return validate(value, ">=", json.Number(g))
 }
 
 // frizz
 type LessThanOrEqual json.Number
 
 func (l LessThanOrEqual) Validate(input interface{}) (valid bool, message string, err error) {
-	return validate(input, "<=", json.Number(l))
+	return l.ValidateValue(reflect.ValueOf(input))
 }
 
-func validate(input interface{}, operator string, comparison json.Number) (valid bool, message string, err error) {
-	switch input.(type) {
-	case int, int8, int16, int32, int64:
-		input := MustInt64(input)
+func (l LessThanOrEqual) ValidateValue(value reflect.Value) (valid bool, message string, err error) {
+	return validate(value, "<=", json.Number(l))
+}
+
+func validate(value reflect.Value, operator string, comparison json.Number) (valid bool, message string, err error) {
+	switch value.Type().Kind() {
+	case reflect.Interface, reflect.Ptr:
+		// interface or ptr: recurse with elem
+		return validate(value.Elem(), operator, comparison)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		input := MustInt64Value(value)
 		if input == 0 {
 			return true, "", nil
 		}
@@ -64,8 +85,8 @@ func validate(input interface{}, operator string, comparison json.Number) (valid
 				return false, fmt.Sprintf("value %v must be less than or equal to %v", input, i), nil
 			}
 		}
-	case uint, uint8, uint16, uint32, uint64:
-		input := MustUint64(input)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		input := MustUint64Value(value)
 		if input == 0 {
 			return true, "", nil
 		}
@@ -90,8 +111,8 @@ func validate(input interface{}, operator string, comparison json.Number) (valid
 				return false, fmt.Sprintf("value %v must be less than or equal to %v", input, i), nil
 			}
 		}
-	case float32, float64:
-		input := MustFloat64(input)
+	case reflect.Float32, reflect.Float64:
+		input := MustFloat64Value(value)
 		if input == 0.0 {
 			return true, "", nil
 		}
@@ -116,6 +137,8 @@ func validate(input interface{}, operator string, comparison json.Number) (valid
 				return false, fmt.Sprintf("value %v must be less than or equal to %v", input, f), nil
 			}
 		}
+	default:
+		return false, "", errors.Errorf("unknown type for numeric comparison %T", value.Interface())
 	}
 	return true, "", nil
 }
