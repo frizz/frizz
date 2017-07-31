@@ -1,6 +1,9 @@
 package validators
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func MustInt64(input interface{}) int64 {
 	switch input := input.(type) {
@@ -45,4 +48,20 @@ func MustFloat64(input interface{}) float64 {
 	default:
 		panic(fmt.Sprintf("MustFloat64 must be given a float32 or float64. Found %T", input))
 	}
+}
+
+var int64type = reflect.TypeOf(int64(0))
+var uint64type = reflect.TypeOf(uint64(0))
+var float64type = reflect.TypeOf(float64(0))
+
+func MustInt64Value(value reflect.Value) int64 {
+	return value.Convert(int64type).Interface().(int64)
+}
+
+func MustUint64Value(value reflect.Value) uint64 {
+	return value.Convert(uint64type).Interface().(uint64)
+}
+
+func MustFloat64Value(value reflect.Value) float64 {
+	return value.Convert(float64type).Interface().(float64)
 }

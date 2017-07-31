@@ -14,15 +14,20 @@ import (
 	"frizz.io/validators"
 )
 
-type valDef struct {
-	typeFile string // type
-	tests    map[string]testDef
-}
-
-type testDef struct {
-	data string // json input
-	msg  string // expect invalid with this message
-	err  string // expect error containing this string
+func TestNumbers(t *testing.T) {
+	vals := map[string]valDef{
+		"gt int": {
+			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.GreaterThan", "_value": 2}
+			]}`,
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Int", "_value": 3}`},
+				"fail eq": {data: `{"_type": "Int", "_value": 2}`, msg: `value 2 must be greater than 2`},
+				"fail lt": {data: `{"_type": "Int", "_value": 1}`, msg: `value 1 must be greater than 2`},
+			},
+		},
+	}
+	run(t, "Numbers", vals)
 }
 
 func TestStructs(t *testing.T) {
@@ -42,7 +47,7 @@ func TestStructs(t *testing.T) {
 			]}`,
 			tests: map[string]testDef{
 				"success":       {data: `{"_type": "Natives", "Int": 3}`},
-				"fail":          {data: `{"_type": "Natives", "Int": 1}`, msg: "value 1 must be greater than 1"},
+				"fail":          {data: `{"_type": "Natives", "Int": 1}`, msg: "value 1 must be greater than 2"},
 				"success zero":  {data: `{"_type": "Natives", "Int": 0}`},
 				"success empty": {data: `{"_type": "Natives"}`},
 			},
@@ -92,6 +97,9 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 			if test.msg != "" && valid {
 				t.Fatalf("%s - %s - %s: expected invalid %#v, but result was valid", name, valName, testName, test.msg)
 			}
+			if test.msg != "" && !valid && !strings.Contains(message, test.msg) {
+				t.Fatalf("%s - %s - %s: expected %#v, but message was %#v", name, valName, testName, test.msg, message)
+			}
 		}
 	}
 }
@@ -104,4 +112,15 @@ func unmarshal(t *testing.T, in string) (interface{}, error) {
 		return nil, err
 	}
 	return v, nil
+}
+
+type valDef struct {
+	typeFile string // type
+	tests    map[string]testDef
+}
+
+type testDef struct {
+	data string // json input
+	msg  string // expect invalid with this message
+	err  string // expect error containing this string
 }
