@@ -269,6 +269,12 @@ type Alias Int
 type Int int
 
 // frizz
+type Uint uint
+
+// frizz
+type Float64 float64
+
+// frizz
 type String string
 
 // frizz

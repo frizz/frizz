@@ -4,6 +4,7 @@ import (
 	json "encoding/json"
 	common "frizz.io/common"
 	frizz "frizz.io/frizz"
+	system "frizz.io/system"
 	errors "github.com/pkg/errors"
 )
 
@@ -16,6 +17,8 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
+	case "Equal":
+		return p.UnpackEqual(root, stack, in)
 	case "GreaterThan":
 		return p.UnpackGreaterThan(root, stack, in)
 	case "GreaterThanOrEqual":
@@ -38,6 +41,33 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.UnpackStruct(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) UnpackEqual(root *frizz.Root, stack frizz.Stack, in interface{}) (value Equal, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value system.Raw, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// selectorUnpacker
+		out, null, err := system.Packer.UnpackRaw(root, stack, in)
+		if err != nil {
+			return value, false, err
+		}
+		if null {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return Equal(out), false, nil
 }
 func (p packer) UnpackGreaterThan(root *frizz.Root, stack frizz.Stack, in interface{}) (value GreaterThan, null bool, err error) {
 	if in == nil {
@@ -485,6 +515,8 @@ func (p packer) UnpackStruct(root *frizz.Root, stack frizz.Stack, in interface{}
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
+	case "Equal":
+		return p.RepackEqual(root, stack, in.(Equal))
 	case "GreaterThan":
 		return p.RepackGreaterThan(root, stack, in.(GreaterThan))
 	case "GreaterThanOrEqual":
@@ -507,6 +539,16 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.RepackStruct(root, stack, in.(Struct))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) RepackEqual(root *frizz.Root, stack frizz.Stack, in Equal) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in system.Raw) (value interface{}, dict bool, null bool, err error) {
+		// selectorRepacker
+		out, dict, null, err := system.Packer.RepackRaw(root, stack, in)
+		if err != nil {
+			return nil, false, false, err
+		}
+		return out, dict, null, nil
+	}(root, stack, (system.Raw)(in))
 }
 func (p packer) RepackGreaterThan(root *frizz.Root, stack frizz.Stack, in GreaterThan) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {

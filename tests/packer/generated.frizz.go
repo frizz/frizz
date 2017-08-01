@@ -44,6 +44,8 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.UnpackEmbedQual(root, stack, in)
 	case "EmbedQualPointer":
 		return p.UnpackEmbedQualPointer(root, stack, in)
+	case "Float64":
+		return p.UnpackFloat64(root, stack, in)
 	case "Impi":
 		return p.UnpackImpi(root, stack, in)
 	case "Imps":
@@ -74,6 +76,8 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.UnpackSubInterface(root, stack, in)
 	case "Type":
 		return p.UnpackType(root, stack, in)
+	case "Uint":
+		return p.UnpackUint(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -745,6 +749,33 @@ func (p packer) UnpackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in i
 		return value, true, nil
 	}
 	return EmbedQualPointer(out), false, nil
+}
+func (p packer) UnpackFloat64(root *frizz.Root, stack frizz.Stack, in interface{}) (value Float64, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value float64, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// nativeUnpacker
+		out, null, err := frizz.UnpackFloat64(stack, in)
+		if err != nil {
+			return value, false, err
+		}
+		if null {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return Float64(out), false, nil
 }
 func (p packer) UnpackImpi(root *frizz.Root, stack frizz.Stack, in interface{}) (value Impi, null bool, err error) {
 	if in == nil {
@@ -3417,6 +3448,33 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	}
 	return *out, false, nil
 }
+func (p packer) UnpackUint(root *frizz.Root, stack frizz.Stack, in interface{}) (value Uint, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value uint, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// nativeUnpacker
+		out, null, err := frizz.UnpackUint(stack, in)
+		if err != nil {
+			return value, false, err
+		}
+		if null {
+			return value, true, nil
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return Uint(out), false, nil
+}
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Ages":
@@ -3447,6 +3505,8 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.RepackEmbedQual(root, stack, in.(EmbedQual))
 	case "EmbedQualPointer":
 		return p.RepackEmbedQualPointer(root, stack, in.(EmbedQualPointer))
+	case "Float64":
+		return p.RepackFloat64(root, stack, in.(Float64))
 	case "Impi":
 		return p.RepackImpi(root, stack, in.(Impi))
 	case "Imps":
@@ -3477,6 +3537,8 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.RepackSubInterface(root, stack, in.(SubInterface))
 	case "Type":
 		return p.RepackType(root, stack, in.(Type))
+	case "Uint":
+		return p.RepackUint(root, stack, in.(Uint))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
@@ -3808,6 +3870,12 @@ func (p packer) RepackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in E
 		*sub.Sub
 		Int int
 	})(in))
+}
+func (p packer) RepackFloat64(root *frizz.Root, stack frizz.Stack, in Float64) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in float64) (value interface{}, dict bool, null bool, err error) {
+		// nativeRepacker
+		return frizz.RepackNumber(in)
+	}(root, stack, (float64)(in))
 }
 func (p packer) RepackImpi(root *frizz.Root, stack frizz.Stack, in Impi) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
@@ -5223,6 +5291,12 @@ func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value 
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
+}
+func (p packer) RepackUint(root *frizz.Root, stack frizz.Stack, in Uint) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in uint) (value interface{}, dict bool, null bool, err error) {
+		// nativeRepacker
+		return frizz.RepackNumber(in)
+	}(root, stack, (uint)(in))
 }
 
 const Imports imports = 0

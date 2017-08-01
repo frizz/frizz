@@ -3,8 +3,6 @@ package validation_test
 import (
 	"testing"
 
-	"strings"
-
 	"bytes"
 	"encoding/json"
 
@@ -21,9 +19,55 @@ func TestNumbers(t *testing.T) {
 				{"_type": "validators.GreaterThan", "_value": 2}
 			]}`,
 			tests: map[string]testDef{
-				"success": {data: `{"_type": "Int", "_value": 3}`},
-				"fail eq": {data: `{"_type": "Int", "_value": 2}`, msg: `value 2 must be greater than 2`},
-				"fail lt": {data: `{"_type": "Int", "_value": 1}`, msg: `value 1 must be greater than 2`},
+				"int success":   {data: `{"_type": "Int", "_value": 3}`},
+				"int fail eq":   {data: `{"_type": "Int", "_value": 2}`, msg: `value 2 must be greater than 2`},
+				"int fail lt":   {data: `{"_type": "Int", "_value": 1}`, msg: `value 1 must be greater than 2`},
+				"float success": {data: `{"_type": "Float64", "_value": 3.1}`},
+				"float fail eq": {data: `{"_type": "Float64", "_value": 2.0}`, msg: `value 2 must be greater than 2`},
+				"float fail lt": {data: `{"_type": "Float64", "_value": 1.1}`, msg: `value 1.1 must be greater than 2`},
+			},
+		},
+		"gt int neg": {
+			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.GreaterThan", "_value": -2}
+			]}`,
+			tests: map[string]testDef{
+				"uint err":      {data: `{"_type": "Uint", "_value": 3}`, err: `type packer.Uint can only be compared with uint64, not -2: strconv.ParseUint: parsing "-2": invalid syntax`},
+				"int success":   {data: `{"_type": "Int", "_value": -1}`},
+				"int fail eq":   {data: `{"_type": "Int", "_value": -2}`, msg: "value -2 must be greater than -2"},
+				"int fail lt":   {data: `{"_type": "Int", "_value": -3}`, msg: "value -3 must be greater than -2"},
+				"float success": {data: `{"_type": "Float64", "_value": -1.9}`},
+				"float fail eq": {data: `{"_type": "Float64", "_value": -2.0}`, msg: `value -2 must be greater than -2`},
+				"float fail lt": {data: `{"_type": "Float64", "_value": -2.1}`, msg: `value -2.1 must be greater than -2`},
+			},
+		},
+		"gt float": {
+			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.GreaterThan", "_value": 2.1}
+			]}`,
+			tests: map[string]testDef{
+				"int err":       {data: `{"_type": "Int", "_value": 3}`, err: `type packer.Int can only be compared with int64, not 2.1: strconv.ParseInt: parsing "2.1": invalid syntax`},
+				"float success": {data: `{"_type": "Float64", "_value": 3.1}`},
+				"float fail eq": {data: `{"_type": "Float64", "_value": 2.1}`, msg: `value 2.1 must be greater than 2.1`},
+				"float fail lt": {data: `{"_type": "Float64", "_value": 1.1}`, msg: `value 1.1 must be greater than 2.1`},
+			},
+		},
+		"eq int": {
+			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Equal", "_value": 2}
+			]}`,
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Int", "_value": 2}`},
+				"fail":    {data: `{"_type": "Int", "_value": 1}`, msg: "value 1 must be equal to 2"},
+			},
+		},
+		"eq string": {
+			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Equal", "_value": "a"}
+			]}`,
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "String", "_value": "a"}`},
+				"fail":    {data: `{"_type": "String", "_value": "b"}`, msg: "value \"b\" must be equal to \"a\""},
 			},
 		},
 	}
@@ -32,24 +76,22 @@ func TestNumbers(t *testing.T) {
 
 func TestStructs(t *testing.T) {
 	vals := map[string]valDef{
-		"regex": {
+		"equal": {
 			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
-				{"_type": "validators.Struct", "_value": {"String": [{"_type": "validators.Regex","Regex": "^foo.*$"}]}}
+				{"_type": "validators.Struct", "_value": {"String": [{"_type": "validators.Equal", "_value": "a"}]}}
 			]}`,
 			tests: map[string]testDef{
-				"success": {data: `{"_type": "Natives", "String": "foo"}`},
-				"fail":    {data: `{"_type": "Natives", "String": "bar"}`, msg: `input "bar" did not match regex "^foo.*$"`},
+				"success": {data: `{"_type": "Natives", "String": "a"}`},
+				"fail":    {data: `{"_type": "Natives", "String": "b"}`, msg: `value "b" must be equal to "a"`},
+				"empty":   {data: `{"_type": "Natives"}`, msg: `value "" must be equal to "a"`},
 			},
 		},
-		"gt": {
+		"unknown": {
 			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
-				{"_type": "validators.Struct", "_value": {"Int": [{"_type": "validators.GreaterThan","_value": 2}]}}
+				{"_type": "validators.Struct", "_value": {"Foo": [{"_type": "validators.Equal", "_value": "a"}]}}
 			]}`,
 			tests: map[string]testDef{
-				"success":       {data: `{"_type": "Natives", "Int": 3}`},
-				"fail":          {data: `{"_type": "Natives", "Int": 1}`, msg: "value 1 must be greater than 2"},
-				"success zero":  {data: `{"_type": "Natives", "Int": 0}`},
-				"success empty": {data: `{"_type": "Natives"}`},
+				"err": {data: `{"_type": "Natives", "String": "a"}`, err: `field Foo not found in packer.Natives`},
 			},
 		},
 	}
@@ -83,22 +125,22 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 			}
 			valid, message, err := typ.Validate(iface)
 			if test.err == "" && err != nil {
-				t.Fatalf("%s - %s - %s: error when none expepected: %s", name, valName, testName, err.Error())
+				t.Errorf("%s - %s - %s: error when none expepected: %s", name, valName, testName, err.Error())
 			}
 			if test.err != "" && err == nil {
-				t.Fatalf("%s - %s - %s: no error when one expepected: %s", name, valName, testName, test.err)
+				t.Errorf("%s - %s - %s: no error when one expepected: %s", name, valName, testName, test.err)
 			}
-			if test.err != "" && err != nil && !strings.Contains(err.Error(), test.err) {
-				t.Fatalf("%s - %s - %s: unexpected error: %s. Expected: %s", name, valName, testName, err.Error(), test.err)
+			if test.err != "" && err != nil && err.Error() != test.err {
+				t.Errorf("%s - %s - %s: unexpected error: %s. Expected: %s", name, valName, testName, err.Error(), test.err)
 			}
-			if test.msg == "" && !valid {
-				t.Fatalf("%s - %s - %s: expected valid, but result was invalid %#v", name, valName, testName, message)
+			if test.err == "" && test.msg == "" && !valid {
+				t.Errorf("%s - %s - %s: expected valid, but result was invalid %#v", name, valName, testName, message)
 			}
-			if test.msg != "" && valid {
-				t.Fatalf("%s - %s - %s: expected invalid %#v, but result was valid", name, valName, testName, test.msg)
+			if test.err == "" && test.msg != "" && valid {
+				t.Errorf("%s - %s - %s: expected invalid %#v, but result was valid", name, valName, testName, test.msg)
 			}
-			if test.msg != "" && !valid && !strings.Contains(message, test.msg) {
-				t.Fatalf("%s - %s - %s: expected %#v, but message was %#v", name, valName, testName, test.msg, message)
+			if test.err == "" && test.msg != "" && !valid && message != test.msg {
+				t.Errorf("%s - %s - %s: expected %#v, but message was %#v", name, valName, testName, test.msg, message)
 			}
 		}
 	}
