@@ -1,6 +1,10 @@
 package frizz
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pkg/errors"
+)
 
 type Stack []stackItem
 
@@ -16,6 +20,10 @@ func (s Stack) String() string {
 		str += item.String()
 	}
 	return str
+}
+
+func (s Stack) Wrap(err error) error {
+	return errors.Wrapf(err, "%s:", s)
 }
 
 type stackItem interface {

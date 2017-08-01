@@ -1,12 +1,16 @@
 package common
 
-import "reflect"
+import (
+	"reflect"
+
+	"frizz.io/frizz"
+)
 
 // frizz
 type Validator interface {
-	Validate(input interface{}) (valid bool, message string, err error)
+	Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error)
 }
 
 type ValueValidator interface {
-	ValidateValue(input reflect.Value) (valid bool, message string, err error)
+	ValidateValue(stack frizz.Stack, input reflect.Value) (valid bool, message string, err error)
 }

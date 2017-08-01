@@ -20,11 +20,11 @@ func TestNumbers(t *testing.T) {
 			]}`,
 			tests: map[string]testDef{
 				"int success":   {data: `{"_type": "Int", "_value": 3}`},
-				"int fail eq":   {data: `{"_type": "Int", "_value": 2}`, msg: `value 2 must be greater than 2`},
-				"int fail lt":   {data: `{"_type": "Int", "_value": 1}`, msg: `value 1 must be greater than 2`},
+				"int fail eq":   {data: `{"_type": "Int", "_value": 2}`, msg: `root: value 2 must be greater than 2`},
+				"int fail lt":   {data: `{"_type": "Int", "_value": 1}`, msg: `root: value 1 must be greater than 2`},
 				"float success": {data: `{"_type": "Float64", "_value": 3.1}`},
-				"float fail eq": {data: `{"_type": "Float64", "_value": 2.0}`, msg: `value 2 must be greater than 2`},
-				"float fail lt": {data: `{"_type": "Float64", "_value": 1.1}`, msg: `value 1.1 must be greater than 2`},
+				"float fail eq": {data: `{"_type": "Float64", "_value": 2.0}`, msg: `root: value 2 must be greater than 2`},
+				"float fail lt": {data: `{"_type": "Float64", "_value": 1.1}`, msg: `root: value 1.1 must be greater than 2`},
 			},
 		},
 		"gt int neg": {
@@ -32,13 +32,13 @@ func TestNumbers(t *testing.T) {
 				{"_type": "validators.GreaterThan", "_value": -2}
 			]}`,
 			tests: map[string]testDef{
-				"uint err":      {data: `{"_type": "Uint", "_value": 3}`, err: `type packer.Uint can only be compared with uint64, not -2: strconv.ParseUint: parsing "-2": invalid syntax`},
+				"uint err":      {data: `{"_type": "Uint", "_value": 3}`, err: `root: type packer.Uint can only be compared with uint64, not -2: strconv.ParseUint: parsing "-2": invalid syntax`},
 				"int success":   {data: `{"_type": "Int", "_value": -1}`},
-				"int fail eq":   {data: `{"_type": "Int", "_value": -2}`, msg: "value -2 must be greater than -2"},
-				"int fail lt":   {data: `{"_type": "Int", "_value": -3}`, msg: "value -3 must be greater than -2"},
+				"int fail eq":   {data: `{"_type": "Int", "_value": -2}`, msg: "root: value -2 must be greater than -2"},
+				"int fail lt":   {data: `{"_type": "Int", "_value": -3}`, msg: "root: value -3 must be greater than -2"},
 				"float success": {data: `{"_type": "Float64", "_value": -1.9}`},
-				"float fail eq": {data: `{"_type": "Float64", "_value": -2.0}`, msg: `value -2 must be greater than -2`},
-				"float fail lt": {data: `{"_type": "Float64", "_value": -2.1}`, msg: `value -2.1 must be greater than -2`},
+				"float fail eq": {data: `{"_type": "Float64", "_value": -2.0}`, msg: `root: value -2 must be greater than -2`},
+				"float fail lt": {data: `{"_type": "Float64", "_value": -2.1}`, msg: `root: value -2.1 must be greater than -2`},
 			},
 		},
 		"gt float": {
@@ -46,10 +46,10 @@ func TestNumbers(t *testing.T) {
 				{"_type": "validators.GreaterThan", "_value": 2.1}
 			]}`,
 			tests: map[string]testDef{
-				"int err":       {data: `{"_type": "Int", "_value": 3}`, err: `type packer.Int can only be compared with int64, not 2.1: strconv.ParseInt: parsing "2.1": invalid syntax`},
+				"int err":       {data: `{"_type": "Int", "_value": 3}`, err: `root: type packer.Int can only be compared with int64, not 2.1: strconv.ParseInt: parsing "2.1": invalid syntax`},
 				"float success": {data: `{"_type": "Float64", "_value": 3.1}`},
-				"float fail eq": {data: `{"_type": "Float64", "_value": 2.1}`, msg: `value 2.1 must be greater than 2.1`},
-				"float fail lt": {data: `{"_type": "Float64", "_value": 1.1}`, msg: `value 1.1 must be greater than 2.1`},
+				"float fail eq": {data: `{"_type": "Float64", "_value": 2.1}`, msg: `root: value 2.1 must be greater than 2.1`},
+				"float fail lt": {data: `{"_type": "Float64", "_value": 1.1}`, msg: `root: value 1.1 must be greater than 2.1`},
 			},
 		},
 		"eq int": {
@@ -58,7 +58,7 @@ func TestNumbers(t *testing.T) {
 			]}`,
 			tests: map[string]testDef{
 				"success": {data: `{"_type": "Int", "_value": 2}`},
-				"fail":    {data: `{"_type": "Int", "_value": 1}`, msg: "value 1 must be equal to 2"},
+				"fail":    {data: `{"_type": "Int", "_value": 1}`, msg: "root: value 1 must be equal to 2"},
 			},
 		},
 		"eq string": {
@@ -67,7 +67,7 @@ func TestNumbers(t *testing.T) {
 			]}`,
 			tests: map[string]testDef{
 				"success": {data: `{"_type": "String", "_value": "a"}`},
-				"fail":    {data: `{"_type": "String", "_value": "b"}`, msg: "value \"b\" must be equal to \"a\""},
+				"fail":    {data: `{"_type": "String", "_value": "b"}`, msg: "root: value \"b\" must be equal to \"a\""},
 			},
 		},
 	}
@@ -82,8 +82,8 @@ func TestStructs(t *testing.T) {
 			]}`,
 			tests: map[string]testDef{
 				"success": {data: `{"_type": "Natives", "String": "a"}`},
-				"fail":    {data: `{"_type": "Natives", "String": "b"}`, msg: `value "b" must be equal to "a"`},
-				"empty":   {data: `{"_type": "Natives"}`, msg: `value "" must be equal to "a"`},
+				"fail":    {data: `{"_type": "Natives", "String": "b"}`, msg: `root.String: value "b" must be equal to "a"`},
+				"empty":   {data: `{"_type": "Natives"}`, msg: `root.String: value "" must be equal to "a"`},
 			},
 		},
 		"unknown": {
@@ -91,7 +91,7 @@ func TestStructs(t *testing.T) {
 				{"_type": "validators.Struct", "_value": {"Foo": [{"_type": "validators.Equal", "_value": "a"}]}}
 			]}`,
 			tests: map[string]testDef{
-				"err": {data: `{"_type": "Natives", "String": "a"}`, err: `field Foo not found in packer.Natives`},
+				"err": {data: `{"_type": "Natives", "String": "a"}`, err: `root: field Foo not found in packer.Natives`},
 			},
 		},
 	}
@@ -123,7 +123,7 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 			if err != nil {
 				t.Fatalf("%s - %s - %s: %s", name, valName, testName, err.Error())
 			}
-			valid, message, err := typ.Validate(iface)
+			valid, message, err := typ.Validate(frizz.Stack{frizz.RootItem("root")}, iface)
 			if test.err == "" && err != nil {
 				t.Errorf("%s - %s - %s: error when none expepected: %s", name, valName, testName, err.Error())
 			}

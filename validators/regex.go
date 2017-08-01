@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 
+	"frizz.io/frizz"
 	"github.com/pkg/errors"
 )
 
@@ -14,7 +15,7 @@ type Regex struct {
 	Invert bool
 }
 
-func (r Regex) Validate(input interface{}) (valid bool, message string, err error) {
+func (r Regex) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
 	var s string
 	switch input := input.(type) {
 	case string:
@@ -22,17 +23,17 @@ func (r Regex) Validate(input interface{}) (valid bool, message string, err erro
 	case fmt.Stringer:
 		s = input.String()
 	default:
-		return false, "", errors.Errorf("validator Regex can only validate string or fmt.Stringer. Found %T.", input)
+		return false, "", errors.Errorf("%s: validators.Regex can only validate string or fmt.Stringer, found %T", stack, input)
 	}
 	matched, err := regexp.Match(r.Regex, []byte(s))
 	if err != nil {
 		return false, "", errors.WithStack(err)
 	}
 	if !r.Invert && !matched {
-		return false, fmt.Sprintf("input %#v did not match regex %#v", input, r.Regex), nil
+		return false, fmt.Sprintf("%s: value %#v did not match regex %#v", stack, input, r.Regex), nil
 	}
 	if r.Invert && matched {
-		return false, fmt.Sprintf("input %#v matched regex %#v", input, r.Regex), nil
+		return false, fmt.Sprintf("%s: value %#v matched regex %#v", stack, input, r.Regex), nil
 	}
 	return true, "", nil
 }

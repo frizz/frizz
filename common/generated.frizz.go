@@ -25,7 +25,7 @@ func (p packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interfac
 	}
 	// aliasUnpacker
 	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface {
-		Validate(input interface{}) (valid bool, message string, err error)
+		Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error)
 	}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
@@ -36,7 +36,7 @@ func (p packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interfac
 			return value, false, err
 		}
 		iface, ok := out.(interface {
-			Validate(input interface{}) (valid bool, message string, err error)
+			Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error)
 		})
 		if !ok {
 			return value, false, errors.Errorf("%s: unpacking into interface, type %T does not implement interface", stack, out)
@@ -63,12 +63,12 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 }
 func (p packer) RepackValidator(root *frizz.Root, stack frizz.Stack, in Validator) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in interface {
-		Validate(input interface{}) (valid bool, message string, err error)
+		Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error)
 	}) (value interface{}, dict bool, null bool, err error) {
 		// interfaceRepacker
 		return root.RepackInterface(stack, false, in)
 	}(root, stack, (interface {
-		Validate(input interface{}) (valid bool, message string, err error)
+		Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error)
 	})(in))
 }
 

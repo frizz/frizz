@@ -1,9 +1,15 @@
 package validators
 
+import (
+	"fmt"
+
+	"frizz.io/frizz"
+)
+
 // frizz
 type NotZero struct{}
 
-func (n NotZero) Validate(input interface{}) (valid bool, message string, err error) {
+func (n NotZero) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
 	var fail bool
 	switch input.(type) {
 	case bool:
@@ -35,7 +41,7 @@ func (n NotZero) Validate(input interface{}) (valid bool, message string, err er
 		}
 	}
 	if fail {
-		return false, "must not be zero value", nil
+		return false, fmt.Sprintf("%s: must not be zero value", stack), nil
 	}
 	return true, "", nil
 }

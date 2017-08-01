@@ -43,6 +43,6 @@ func Validate(v interface{}, imports frizz.Importer) (valid bool, message string
 		return false, "", errors.Errorf("type should system.Type, got %T", typeiface)
 	}
 
-	return t.Validate(v)
+	return t.Validate(frizz.Stack{frizz.RootItem("root")}, v)
 
 }
