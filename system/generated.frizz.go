@@ -15,10 +15,27 @@ func (p packer) Path() string {
 }
 func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
+	case "Raw":
+		return p.UnpackRaw(root, stack, in)
 	case "Type":
 		return p.UnpackType(root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) UnpackRaw(root *frizz.Root, stack frizz.Stack, in interface{}) (value Raw, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// customUnpacker
+	out := new(Raw)
+	null, err = out.Unpack(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return *out, false, nil
 }
 func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, null bool, err error) {
 	if in == nil {
@@ -101,10 +118,20 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 }
 func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
+	case "Raw":
+		return p.RepackRaw(root, stack, in.(Raw))
 	case "Type":
 		return p.RepackType(root, stack, in.(Type))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+}
+func (p packer) RepackRaw(root *frizz.Root, stack frizz.Stack, in Raw) (value interface{}, dict bool, null bool, err error) {
+	// customRepacker
+	out, dict, null, err := in.Repack(root, stack)
+	if err != nil {
+		return nil, false, false, err
+	}
+	return out, dict, null, nil
 }
 func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {

@@ -10,10 +10,6 @@ import (
 // frizz
 type Type struct {
 	Validators []common.Validator
-	//Fields map[string][]common.Validator // Validators for struct fields
-	//Keys   []common.Validator            // Validators for map keys
-	//Items  []common.Validator            // Validators for map / array items
-	//Value  []common.Validator            // Validators for native values
 }
 
 func (t Type) Validate(value interface{}) (valid bool, message string, err error) {
