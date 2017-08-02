@@ -74,6 +74,10 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.UnpackStructs(root, stack, in)
 	case "SubInterface":
 		return p.UnpackSubInterface(root, stack, in)
+	case "SubMap":
+		return p.UnpackSubMap(root, stack, in)
+	case "SubSlice":
+		return p.UnpackSubSlice(root, stack, in)
 	case "Type":
 		return p.UnpackType(root, stack, in)
 	case "Uint":
@@ -3433,6 +3437,164 @@ func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in inter
 	}
 	return SubInterface(out), false, nil
 }
+func (p packer) UnpackSubMap(root *frizz.Root, stack frizz.Stack, in interface{}) (value SubMap, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+		Map map[string]sub.Sub
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// structUnpacker
+		m, ok := in.(map[string]interface{})
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+		}
+		if len(m) == 0 {
+			return value, true, nil
+		}
+		var out struct {
+			Map map[string]sub.Sub
+		}
+		if v, ok := m["Map"]; ok {
+			stack := stack.Append(frizz.FieldItem("Map"))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value map[string]sub.Sub, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// mapUnpacker
+				m, ok := in.(map[string]interface{})
+				if !ok {
+					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+				}
+				if len(m) == 0 {
+					return value, true, nil
+				}
+				var out = make(map[string]sub.Sub, len(m))
+				for k, v := range m {
+					stack := stack.Append(frizz.MapItem(k))
+					u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+						if in == nil {
+							return value, true, nil
+						}
+						// selectorUnpacker
+						out, null, err := sub.Packer.UnpackSub(root, stack, in)
+						if err != nil {
+							return value, false, err
+						}
+						if null {
+							return value, true, nil
+						}
+						return out, false, nil
+					}(root, stack, v)
+					if err != nil {
+						return value, false, err
+					}
+					if !null {
+						out[k] = u
+					}
+				}
+				return out, false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out.Map = u
+			}
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return SubMap(out), false, nil
+}
+func (p packer) UnpackSubSlice(root *frizz.Root, stack frizz.Stack, in interface{}) (value SubSlice, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+		Slice []sub.Sub
+	}, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// structUnpacker
+		m, ok := in.(map[string]interface{})
+		if !ok {
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+		}
+		if len(m) == 0 {
+			return value, true, nil
+		}
+		var out struct {
+			Slice []sub.Sub
+		}
+		if v, ok := m["Slice"]; ok {
+			stack := stack.Append(frizz.FieldItem("Slice"))
+			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []sub.Sub, null bool, err error) {
+				if in == nil {
+					return value, true, nil
+				}
+				// sliceUnpacker
+				a, ok := in.([]interface{})
+				if !ok {
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+				}
+				if len(a) == 0 {
+					return value, true, nil
+				}
+				var out = make([]sub.Sub, len(a))
+				for i, v := range a {
+					stack := stack.Append(frizz.ArrayItem(i))
+					u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+						if in == nil {
+							return value, true, nil
+						}
+						// selectorUnpacker
+						out, null, err := sub.Packer.UnpackSub(root, stack, in)
+						if err != nil {
+							return value, false, err
+						}
+						if null {
+							return value, true, nil
+						}
+						return out, false, nil
+					}(root, stack, v)
+					if err != nil {
+						return value, false, err
+					}
+					if !null {
+						out[i] = u
+					}
+				}
+				return out[:], false, nil
+			}(root, stack, v)
+			if err != nil {
+				return value, false, err
+			}
+			if !null {
+				out.Slice = u
+			}
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil {
+		return value, false, err
+	}
+	if null {
+		return value, true, nil
+	}
+	return SubSlice(out), false, nil
+}
 func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, null bool, err error) {
 	if in == nil {
 		return value, true, nil
@@ -3535,6 +3697,10 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.RepackStructs(root, stack, in.(Structs))
 	case "SubInterface":
 		return p.RepackSubInterface(root, stack, in.(SubInterface))
+	case "SubMap":
+		return p.RepackSubMap(root, stack, in.(SubMap))
+	case "SubSlice":
+		return p.RepackSubSlice(root, stack, in.(SubSlice))
 	case "Type":
 		return p.RepackType(root, stack, in.(Type))
 	case "Uint":
@@ -5282,6 +5448,86 @@ func (p packer) RepackSubInterface(root *frizz.Root, stack frizz.Stack, in SubIn
 		return out, false, empty, nil
 	}(root, stack, (struct {
 		SubInterface sub.SubInterface
+	})(in))
+}
+func (p packer) RepackSubMap(root *frizz.Root, stack frizz.Stack, in SubMap) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in struct {
+		Map map[string]sub.Sub
+	}) (value interface{}, dict bool, null bool, err error) {
+		// structRepacker
+		out := make(map[string]interface{}, 2)
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in map[string]sub.Sub) (value interface{}, dict bool, null bool, err error) {
+			// mapRepacker
+			out := make(map[string]interface{}, len(in))
+			for k, item := range in {
+				v, _, _, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+					// selectorRepacker
+					out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
+					if err != nil {
+						return nil, false, false, err
+					}
+					return out, dict, null, nil
+				}(root, stack, item)
+				if err != nil {
+					return nil, false, false, err
+				}
+				out[k] = v
+			}
+			return out, true, len(in) == 0, nil
+		}(root, stack, in.Map); err != nil {
+			return nil, false, false, err
+		} else {
+			if !null {
+				empty = false
+				out["Map"] = v
+			}
+		}
+		return out, false, empty, nil
+	}(root, stack, (struct {
+		Map map[string]sub.Sub
+	})(in))
+}
+func (p packer) RepackSubSlice(root *frizz.Root, stack frizz.Stack, in SubSlice) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in struct {
+		Slice []sub.Sub
+	}) (value interface{}, dict bool, null bool, err error) {
+		// structRepacker
+		out := make(map[string]interface{}, 2)
+		empty := true
+		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []sub.Sub) (value interface{}, dict bool, null bool, err error) {
+			// sliceRepacker
+			out := make([]interface{}, len(in))
+			empty := true
+			for i, item := range in {
+				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+					// selectorRepacker
+					out, dict, null, err := sub.Packer.RepackSub(root, stack, in)
+					if err != nil {
+						return nil, false, false, err
+					}
+					return out, dict, null, nil
+				}(root, stack, item)
+				if err != nil {
+					return nil, false, false, err
+				}
+				if !null {
+					empty = false
+				}
+				out[i] = v
+			}
+			return out, false, empty, nil
+		}(root, stack, in.Slice); err != nil {
+			return nil, false, false, err
+		} else {
+			if !null {
+				empty = false
+				out["Slice"] = v
+			}
+		}
+		return out, false, empty, nil
+	}(root, stack, (struct {
+		Slice []sub.Sub
 	})(in))
 }
 func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
