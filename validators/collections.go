@@ -26,12 +26,8 @@ func (f Struct) ValidateValue(stack frizz.Stack, value reflect.Value) (valid boo
 		}
 		inner := stack.Append(frizz.FieldItem(name))
 		for _, v := range validators {
-			valid, message, err = v.Validate(inner, field.Interface())
-			if err != nil {
-				return false, "", err
-			}
-			if !valid {
-				return false, message, nil
+			if valid, message, err = v.Validate(inner, field.Interface()); err != nil || !valid {
+				return valid, message, err
 			}
 		}
 	}
@@ -53,12 +49,8 @@ func (l Length) ValidateValue(stack frizz.Stack, value reflect.Value) (valid boo
 	}
 	length := value.Len()
 	for _, validator := range l {
-		valid, message, err = validator.Validate(stack, length)
-		if err != nil {
-			return false, "", err
-		}
-		if !valid {
-			return false, message, nil
+		if valid, message, err := validator.Validate(stack, length); err != nil || !valid {
+			return valid, message, err
 		}
 	}
 	return true, "", nil
@@ -79,12 +71,8 @@ func (k Keys) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool,
 		keyValue := value.MapKeys()[i]
 		inner := stack.Append(frizz.MapItem(keyValue.Interface().(string)))
 		for _, validator := range k {
-			valid, message, err = validator.Validate(inner, keyValue.Interface())
-			if err != nil {
-				return false, "", err
-			}
-			if !valid {
-				return false, message, nil
+			if valid, message, err := validator.Validate(inner, keyValue.Interface()); err != nil || !valid {
+				return valid, message, err
 			}
 		}
 	}
@@ -116,12 +104,8 @@ func (i Items) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool
 			inner = stack.Append(frizz.ArrayItem(j))
 		}
 		for _, validator := range i {
-			valid, message, err = validator.Validate(inner, itemValue.Interface())
-			if err != nil {
-				return false, "", err
-			}
-			if !valid {
-				return false, message, nil
+			if valid, message, err := validator.Validate(inner, itemValue.Interface()); err != nil || !valid {
+				return valid, message, err
 			}
 		}
 	}
