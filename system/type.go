@@ -4,8 +4,8 @@ import (
 	"reflect"
 
 	"frizz.io/common"
-	"github.com/pkg/errors"
 	"frizz.io/frizz"
+	"github.com/pkg/errors"
 )
 
 // frizz
@@ -22,7 +22,7 @@ func (t Type) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool,
 	case reflect.Invalid, reflect.Chan, reflect.Func, reflect.UnsafePointer:
 		return false, "", errors.Errorf("%s: can't validate kind %s", stack, value.Kind())
 	case reflect.Ptr, reflect.Interface:
-		if valid, message, err := t.Validate(stack, value.Elem()); err != nil || !valid {
+		if valid, message, err := t.ValidateValue(stack, value.Elem()); err != nil || !valid {
 			return valid, message, err
 		}
 	default:

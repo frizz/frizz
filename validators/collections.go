@@ -26,7 +26,11 @@ func (f Struct) ValidateValue(stack frizz.Stack, value reflect.Value) (valid boo
 		}
 		inner := stack.Append(frizz.FieldItem(name))
 		for _, v := range validators {
-			if valid, message, err = v.Validate(inner, field.Interface()); err != nil || !valid {
+			if vv, ok := v.(common.ValueValidator); ok {
+				if valid, message, err := vv.ValidateValue(inner, field); err != nil || !valid {
+					return valid, message, err
+				}
+			} else if valid, message, err := v.Validate(inner, field.Interface()); err != nil || !valid {
 				return valid, message, err
 			}
 		}
