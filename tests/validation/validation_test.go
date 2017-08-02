@@ -4,13 +4,50 @@ import (
 	"testing"
 
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 
 	"frizz.io/frizz"
+	"frizz.io/frizz/validator"
 	"frizz.io/system"
 	"frizz.io/tests/packer"
 	"frizz.io/validators"
 )
+
+type msss map[string]map[string]string
+type mss map[string]string
+
+func TestType(t *testing.T) {
+	vals := map[string]valDef{
+		"sub": {
+			types: msss{"frizz.io/tests/packer/sub": mss{"Sub": `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Struct", "_value": {"String": [{"_type": "validators.Equal", "_value": "a"}]}}
+			]}`}},
+			tests: map[string]testDef{
+				"struct": {data: `{"_type": "Qual", "Sub": {"String": "b"}}`, msg: `root.Sub.String: value "b" must be equal to "a"`},
+				"map":    {data: `{"_type": "SubMap", "Map": {"a": {"String": "b"}}}`, msg: `root.Map["a"].String: value "b" must be equal to "a"`},
+				"slice":  {data: `{"_type": "SubSlice", "Slice": [{"String": "b"}]}`, msg: `root.Slice[0].String: value "b" must be equal to "a"`},
+			},
+		},
+	}
+	run(t, "Type", vals)
+}
+
+func TestMocks(t *testing.T) {
+	vals := map[string]valDef{
+		"gt int": {
+			types: msss{"frizz.io/tests/packer": mss{"Int": `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.GreaterThan", "_value": 2}
+			]}`}},
+			tests: map[string]testDef{
+				"int success": {data: `{"_type": "Int", "_value": 3}`},
+				"int fail eq": {data: `{"_type": "Int", "_value": 2}`, msg: `root: value 2 must be greater than 2`},
+				"int fail lt": {data: `{"_type": "Int", "_value": 1}`, msg: `root: value 1 must be greater than 2`},
+			},
+		},
+	}
+	run(t, "Mocks", vals)
+}
 
 func TestNumbers(t *testing.T) {
 	vals := map[string]valDef{
@@ -101,29 +138,31 @@ func TestStructs(t *testing.T) {
 func run(t *testing.T, name string, vals map[string]valDef) {
 	for valName, val := range vals {
 		for testName, test := range val.tests {
-			r := &frizz.Root{
-				// packer.Imports does not automatically import system or validators, so we must register manually
-				Context: frizz.New(packer.Imports).Register(system.Packer, validators.Packer),
-				Imports: make(map[string]string),
-			}
-			v, err := unmarshal(t, val.typeFile)
-			if err != nil {
-				t.Fatalf("%s - %s - %s: unmarshaling typeFile: %s", name, valName, testName, err.Error())
-			}
-			if err := r.ParseImports(v); err != nil {
-				t.Fatalf("%s - %s - %s: parsing typeFile imports: %s", name, valName, testName, err.Error())
-			}
-			typ, _, err := system.Packer.UnpackType(r, frizz.Stack{frizz.RootItem("root")}, v)
-			if err != nil {
-				t.Fatalf("%s - %s - %s: unpacking typeFile: %s", name, valName, testName, err.Error())
-			}
+			var valid bool
+			var message string
+			var err error
 
 			f := frizz.New(packer.Imports)
 			iface, err := f.Unmarshal([]byte(test.data))
 			if err != nil {
 				t.Fatalf("%s - %s - %s: %s", name, valName, testName, err.Error())
 			}
-			valid, message, err := typ.Validate(frizz.Stack{frizz.RootItem("root")}, iface)
+
+			if val.typeFile != "" {
+				typ := unmarshalType(t, name, valName, testName, val.typeFile)
+				valid, message, err = typ.Validate(frizz.Stack{frizz.RootItem("root")}, iface)
+			} else {
+				mi := mockImporter{
+					path:    "frizz.io/tests/packer",
+					packers: []frizz.Packer{packer.Packer, system.Packer, validators.Packer},
+					typers:  map[string]frizz.Typer{},
+				}
+				for typPkg, m := range val.types {
+					mi.typers[typPkg] = mockTyper{path: typPkg, types: m}
+				}
+				valid, message, err = validator.Validate(iface, mi)
+			}
+
 			if test.err == "" && err != nil {
 				t.Errorf("%s - %s - %s: error when none expepected: %s", name, valName, testName, err.Error())
 			}
@@ -146,7 +185,27 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 	}
 }
 
-func unmarshal(t *testing.T, in string) (interface{}, error) {
+func unmarshalType(t *testing.T, name, val, test, in string) system.Type {
+	r := &frizz.Root{
+		// packer.Imports does not automatically import system or validators, so we must register manually
+		Context: frizz.New(packer.Imports).Register(system.Packer, validators.Packer),
+		Imports: make(map[string]string),
+	}
+	v, err := unmarshal(in)
+	if err != nil {
+		t.Fatalf("%s - %s - %s: unmarshaling typeFile: %s", name, val, test, err.Error())
+	}
+	if err := r.ParseImports(v); err != nil {
+		t.Fatalf("%s - %s - %s: parsing typeFile imports: %s", name, val, test, err.Error())
+	}
+	typ, _, err := system.Packer.UnpackType(r, frizz.Stack{frizz.RootItem("root")}, v)
+	if err != nil {
+		t.Fatalf("%s - %s - %s: unpacking typeFile: %s", name, val, test, err.Error())
+	}
+	return typ
+}
+
+func unmarshal(in string) (interface{}, error) {
 	var v interface{}
 	d := json.NewDecoder(bytes.NewBuffer([]byte(in)))
 	d.UseNumber()
@@ -157,6 +216,7 @@ func unmarshal(t *testing.T, in string) (interface{}, error) {
 }
 
 type valDef struct {
+	types    map[string]map[string]string
 	typeFile string // type
 	tests    map[string]testDef
 }
@@ -165,4 +225,40 @@ type testDef struct {
 	data string // json input
 	msg  string // expect invalid with this message
 	err  string // expect error containing this string
+}
+
+type mockImporter struct {
+	path    string
+	packers []frizz.Packer
+	typers  map[string]frizz.Typer
+}
+
+func (m mockImporter) Path() string {
+	return m.path
+}
+
+func (m mockImporter) Add(p map[string]frizz.Packer, t map[string]frizz.Typer) {
+	if p != nil {
+		for _, v := range m.packers {
+			p[v.Path()] = v
+		}
+	}
+	if t != nil {
+		for k, v := range m.typers {
+			t[k] = v
+		}
+	}
+}
+
+type mockTyper struct {
+	path  string
+	types map[string]string
+}
+
+func (m mockTyper) Path() string {
+	return m.path
+}
+
+func (m mockTyper) Get(name string) string {
+	return base64.StdEncoding.EncodeToString([]byte(m.types[name]))
 }

@@ -283,6 +283,16 @@ type Qual struct {
 }
 
 // frizz
+type SubSlice struct {
+	Slice []sub.Sub
+}
+
+// frizz
+type SubMap struct {
+	Map map[string]sub.Sub
+}
+
+// frizz
 type Pointers struct {
 	String      *string
 	Int         *Int
