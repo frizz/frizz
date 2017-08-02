@@ -138,16 +138,13 @@ func TestStructs(t *testing.T) {
 func run(t *testing.T, name string, vals map[string]valDef) {
 	for valName, val := range vals {
 		for testName, test := range val.tests {
-			var valid bool
-			var message string
-			var err error
-
-			f := frizz.New(packer.Imports)
-			iface, err := f.Unmarshal([]byte(test.data))
+			iface, err := frizz.New(packer.Imports).Unmarshal([]byte(test.data))
 			if err != nil {
 				t.Fatalf("%s - %s - %s: %s", name, valName, testName, err.Error())
 			}
 
+			var valid bool
+			var message string
 			if val.typeFile != "" {
 				typ := unmarshalType(t, name, valName, testName, val.typeFile)
 				valid, message, err = typ.Validate(frizz.Stack{frizz.RootItem("root")}, iface)
