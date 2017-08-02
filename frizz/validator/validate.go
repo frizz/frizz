@@ -16,34 +16,34 @@ func Validate(v interface{}, imports frizz.Importer) (valid bool, message string
 }
 
 func validate(stack frizz.Stack, value reflect.Value, imports frizz.Importer, types map[string]frizz.Typer) (valid bool, message string, err error) {
-	valid, message, err = validateType(stack, value, imports, types)
-	if err != nil {
-		return false, "", err
-	}
-	if !valid {
-		return false, message, nil
+
+	for value.Kind() == reflect.Ptr {
+		// ptr: find elem
+		value = value.Elem()
 	}
 
-	// validate fields
-	for value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
-		value = value.Elem()
+	if valid, message, err := validateType(stack, value, imports, types); err != nil || !valid {
+		return valid, message, err
+	}
+
+	if value.Kind() == reflect.Interface {
+		// interface: recurse with elem
+		return validate(stack, value.Elem(), imports, types)
 	}
 
 	switch value.Kind() {
 	case reflect.Struct:
+		// validate fields
 		for i := 0; i < value.Type().NumField(); i++ {
 			name := value.Type().Field(i).Name
 			field := value.Field(i)
 			inner := stack.Append(frizz.FieldItem(name))
-			valid, message, err = validate(inner, field, imports, types)
-			if err != nil {
-				return false, "", err
-			}
-			if !valid {
-				return false, message, nil
+			if valid, message, err := validate(inner, field, imports, types); err != nil || !valid {
+				return valid, message, err
 			}
 		}
 	case reflect.Map, reflect.Array, reflect.Slice:
+		// validate items
 		for i := 0; i < value.Len(); i++ {
 			var item reflect.Value
 			var inner frizz.Stack
@@ -55,12 +55,8 @@ func validate(stack frizz.Stack, value reflect.Value, imports frizz.Importer, ty
 				item = value.Index(i)
 				inner = stack.Append(frizz.ArrayItem(i))
 			}
-			valid, message, err = validate(inner, item, imports, types)
-			if err != nil {
-				return false, "", err
-			}
-			if !valid {
-				return false, message, nil
+			if valid, message, err := validate(inner, item, imports, types); err != nil || !valid {
+				return valid, message, err
 			}
 		}
 	}
@@ -97,12 +93,8 @@ func validateType(stack frizz.Stack, value reflect.Value, imports frizz.Importer
 		return false, "", errors.Errorf("%s: type should system.Type, got %T", stack, typeiface)
 	}
 
-	valid, message, err = t.ValidateValue(stack, value)
-	if err != nil {
-		return false, "", err
-	}
-	if !valid {
-		return false, message, nil
+	if valid, message, err := t.ValidateValue(stack, value); err != nil || !valid {
+		return valid, message, err
 	}
 	return true, "", nil
 }
