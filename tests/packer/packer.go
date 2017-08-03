@@ -33,11 +33,8 @@ type CustomSub sub.Sub
 
 func (c *CustomSub) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}) (null bool, err error) {
 	s, null, err := sub.Packer.UnpackSub(root, stack, in)
-	if err != nil {
-		return false, err
-	}
-	if null {
-		return true, nil
+	if err != nil || null {
+		return null, err
 	}
 	s.String += "-b"
 	*c = CustomSub(s)

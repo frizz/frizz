@@ -51,11 +51,8 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -68,11 +65,8 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Sub(out), false, nil
 }
@@ -99,11 +93,8 @@ func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in inter
 		}
 		return iface, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return SubInterface(out), false, nil
 }

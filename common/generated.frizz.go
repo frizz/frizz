@@ -46,11 +46,8 @@ func (p packer) UnpackValidator(root *frizz.Root, stack frizz.Stack, in interfac
 		}
 		return iface, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Validator(out), false, nil
 }
