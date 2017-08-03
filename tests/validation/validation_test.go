@@ -17,6 +17,23 @@ import (
 type msss map[string]map[string]string
 type mss map[string]string
 
+func TestInterface(t *testing.T) {
+	vals := map[string]valDef{
+		"validator": {
+			typeFile: `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "InterfaceValidator", "_value": "1"}
+			]}`,
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Impi", "Int": 1}`},
+				"fail": {data: `{"_type": "Impi", "Int": 2}`, msg: "root: value \"2\" should be equal to \"1\""},
+				"zero": {data: `{"_type": "Impi", "Int": 0}`, msg: "root: value \"0\" should be equal to \"1\""},
+				"missing": {data: `{"_type": "Impi"}`, msg: "root: value \"0\" should be equal to \"1\""},
+			},
+		},
+	}
+	run(t, "Interface", vals)
+}
+
 func TestPointersNull(t *testing.T) {
 	vals := map[string]valDef{
 		"false": {
@@ -33,8 +50,8 @@ func TestPointersNull(t *testing.T) {
 				{"_type": "validators.Struct", "_value": {"Int": [{"_type": "validators.IsNull"}]}}
 			]}`}},
 			tests: map[string]testDef{
-				"success": {data: `{"_type": "Pointers", "Int": 1}`, msg: "root.Int: value 1 must be null"},
-				"null":    {data: `{"_type": "Pointers"}`},
+				"not null": {data: `{"_type": "Pointers", "Int": 1}`, msg: "root.Int: value 1 must be null"},
+				"success":  {data: `{"_type": "Pointers"}`},
 			},
 		},
 	}
