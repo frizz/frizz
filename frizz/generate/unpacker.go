@@ -78,11 +78,8 @@ func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	/*
 		out, null, err := <unpacker>(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return <name>(out), false, nil
 	*/
@@ -92,11 +89,8 @@ func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 		Id("stack"),
 		Id("in"),
 	)
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Id("value"), False(), Err()),
-	)
-	g.If(Id("null")).Block(
-		Return(Id("value"), True(), Nil()),
+	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+		Return(Id("value"), Id("null"), Err()),
 	)
 	g.Return(Id(name).Parens(Id("out")), False(), Nil())
 }
@@ -105,22 +99,16 @@ func (f *fileDef) customUnpacker(g *Group, name string) {
 	/*
 		out := new(<name>)
 		null, err = out.Unpack(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return *out, false, nil
 	*/
 	g.Comment("customUnpacker")
 	g.Id("out").Op(":=").New(Id(name))
 	g.List(Id("null"), Err()).Op("=").Id("out").Dot("Unpack").Call(Id("root"), Id("stack"), Id("in"))
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Id("value"), False(), Err()),
-	)
-	g.If(Id("null")).Block(
-		Return(Id("value"), True(), Nil()),
+	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+		Return(Id("value"), Id("null"), Err()),
 	)
 	g.Return(Op("*").Id("out"), False(), Nil())
 }
@@ -199,21 +187,15 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 
 	/*
 		out, null, err := <spec.X>.Packer.Unpack<spec.Sel.Name>(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	*/
 	g.Comment("selectorUnpacker")
 	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(pkg, "Packer").Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Id("value"), False(), Err()),
-	)
-	g.If(Id("null")).Block(
-		Return(Id("value"), True(), Nil()),
+	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+		Return(Id("value"), Id("null"), Err()),
 	)
 	g.Return(Id("out"), False(), Nil())
 }
@@ -221,21 +203,15 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident) {
 	/*
 		out, null, err := p.Unpack<spec name>(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	*/
 	g.Comment("localUnpacker")
 	g.List(Id("out"), Id("null"), Err()).Op(":=").Id("p").Dot("Unpack"+spec.Name).Call(Id("root"), Id("stack"), Id("in"))
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Id("value"), False(), Err()),
-	)
-	g.If(Id("null")).Block(
-		Return(Id("value"), True(), Nil()),
+	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+		Return(Id("value"), Id("null"), Err()),
 	)
 	g.Return(Id("out"), False(), Nil())
 }
@@ -243,21 +219,15 @@ func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident) {
 func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr) {
 	/*
 		out, null, err := <unpacker>(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return &out, false, nil
 	*/
 	g.Comment("pointerUnpacker")
 	g.List(Id("out"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.X, "", false, false)).Call(Id("root"), Id("stack"), Id("in"))
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Id("value"), False(), Err()),
-	)
-	g.If(Id("null")).Block(
-		Return(Id("value"), True(), Nil()),
+	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+		Return(Id("value"), Id("null"), Err()),
 	)
 	g.Return(Op("&").Id("out"), False(), Nil())
 }
@@ -462,21 +432,15 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident) {
 	/*
 		out, null, err := frizz.Unpack<strings.Title(spec.Name)>(stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, nil
 	*/
 	g.Comment("nativeUnpacker")
 	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual("frizz.io/frizz", fmt.Sprintf("Unpack%s", strings.Title(spec.Name))).Call(Id("stack"), Id("in"))
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Id("value"), False(), Err()),
-	)
-	g.If(Id("null")).Block(
-		Return(Id("value"), True(), Nil()),
+	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+		Return(Id("value"), Id("null"), Err()),
 	)
 	g.Return(Id("out"), False(), Nil())
 }

@@ -29,11 +29,8 @@ func (p packer) UnpackRaw(root *frizz.Root, stack frizz.Stack, in interface{}) (
 	// customUnpacker
 	out := new(Raw)
 	null, err = out.Unpack(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return *out, false, nil
 }
@@ -82,11 +79,8 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 						}
 						// selectorUnpacker
 						out, null, err := common.Packer.UnpackValidator(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -108,11 +102,8 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Type(out), false, nil
 }

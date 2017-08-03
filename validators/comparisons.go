@@ -64,6 +64,10 @@ func (e Equal) Validate(stack frizz.Stack, input interface{}) (valid bool, messa
 }
 
 func (e Equal) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+	if !value.IsValid() {
+		// nil value -> return valid
+		return true, "", nil
+	}
 	comparison := e.Value
 	switch comparison := comparison.(type) {
 	case json.Number:
@@ -82,6 +86,10 @@ func (e Equal) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool
 }
 
 func compare(stack frizz.Stack, value reflect.Value, operator string, comparison json.Number) (valid bool, message string, err error) {
+	if !value.IsValid() {
+		// nil value -> return valid
+		return true, "", nil
+	}
 	switch value.Type().Kind() {
 	case reflect.Interface, reflect.Ptr:
 		// interface or ptr: recurse with elem

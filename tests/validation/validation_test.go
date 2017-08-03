@@ -17,6 +17,64 @@ import (
 type msss map[string]map[string]string
 type mss map[string]string
 
+func TestPointersNull(t *testing.T) {
+	vals := map[string]valDef{
+		"false": {
+			types: msss{"frizz.io/tests/packer": mss{"Pointers": `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Struct", "_value": {"Int": [{"_type": "validators.NotNull"}]}}
+			]}`}},
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Pointers", "Int": 1}`},
+				"null":    {data: `{"_type": "Pointers"}`, msg: "root.Int: value must not be null"},
+			},
+		},
+		"true": {
+			types: msss{"frizz.io/tests/packer": mss{"Pointers": `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Struct", "_value": {"Int": [{"_type": "validators.IsNull"}]}}
+			]}`}},
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Pointers", "Int": 1}`, msg: "root.Int: value 1 must be null"},
+				"null":    {data: `{"_type": "Pointers"}`},
+			},
+		},
+	}
+	run(t, "PointersNull", vals)
+}
+
+func TestPointersByStruct(t *testing.T) {
+	vals := map[string]valDef{
+		"eq": {
+			types: msss{"frizz.io/tests/packer": mss{"Pointers": `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Struct", "_value": {"Int": [{"_type": "validators.Equal", "_value": 2}]}}
+			]}`}},
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Pointers", "Int": 2}`},
+				"null":    {data: `{"_type": "Pointers"}`},
+				"zero":    {data: `{"_type": "Pointers", "Int": 0}`, msg: "root.Int: value 0 must be equal to 2"},
+				"fail":    {data: `{"_type": "Pointers", "Int": 1}`, msg: "root.Int: value 1 must be equal to 2"},
+			},
+		},
+	}
+	run(t, "PointersByStruct", vals)
+}
+
+func TestPointers(t *testing.T) {
+	vals := map[string]valDef{
+		"eq": {
+			types: msss{"frizz.io/tests/packer": mss{"Int": `{"_type": "system.Type", "_import": {"system": "frizz.io/system", "validators": "frizz.io/validators"}, "Validators": [
+				{"_type": "validators.Equal", "_value": 2}
+			]}`}},
+			tests: map[string]testDef{
+				"success": {data: `{"_type": "Pointers", "Int": 2}`},
+				"null":    {data: `{"_type": "Pointers"}`},
+				"zero":    {data: `{"_type": "Pointers", "Int": 0}`, msg: "root.Int: value 0 must be equal to 2"},
+				"fail":    {data: `{"_type": "Pointers", "Int": 1}`, msg: "root.Int: value 1 must be equal to 2"},
+			},
+		},
+	}
+	run(t, "Pointers", vals)
+}
+
 func TestType(t *testing.T) {
 	vals := map[string]valDef{
 		"sub": {

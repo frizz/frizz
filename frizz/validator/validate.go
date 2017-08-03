@@ -17,13 +17,12 @@ func Validate(v interface{}, imports frizz.Importer) (valid bool, message string
 
 func validate(stack frizz.Stack, value reflect.Value, imports frizz.Importer, types map[string]frizz.Typer) (valid bool, message string, err error) {
 
-	for value.Kind() == reflect.Ptr {
-		// ptr: find elem
-		value = value.Elem()
-	}
-
 	if valid, message, err := validateType(stack, value, imports, types); err != nil || !valid {
 		return valid, message, err
+	}
+
+	for value.Kind() == reflect.Ptr {
+		value = value.Elem()
 	}
 
 	if value.Kind() == reflect.Interface {
@@ -65,13 +64,28 @@ func validate(stack frizz.Stack, value reflect.Value, imports frizz.Importer, ty
 
 func validateType(stack frizz.Stack, value reflect.Value, imports frizz.Importer, types map[string]frizz.Typer) (valid bool, message string, err error) {
 
-	typer, ok := types[value.Type().PkgPath()]
+	if (value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface) && value.IsNil() {
+		// it is not possible to validate a nil value by it's type -> return valid
+		return true, "", nil
+	}
+
+	t := value.Type()
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	if t.PkgPath() == "" {
+		// native value -> return valid
+		return true, "", nil
+	}
+
+	typer, ok := types[t.PkgPath()]
 	if !ok {
 		// no typer -> return valid
 		return true, "", nil
 	}
 
-	typebase64 := typer.Get(value.Type().Name())
+	typebase64 := typer.Get(t.Name())
 	if typebase64 == "" {
 		// no type in typer -> return valid
 		return true, "", nil
@@ -88,12 +102,12 @@ func validateType(stack frizz.Stack, value reflect.Value, imports frizz.Importer
 		return false, "", errors.Wrapf(err, "%s: unmarshaling type", stack)
 	}
 
-	t, ok := typeiface.(system.Type)
+	typ, ok := typeiface.(system.Type)
 	if !ok {
 		return false, "", errors.Errorf("%s: type should system.Type, got %T", stack, typeiface)
 	}
 
-	if valid, message, err := t.ValidateValue(stack, value); err != nil || !valid {
+	if valid, message, err := typ.ValidateValue(stack, value); err != nil || !valid {
 		return valid, message, err
 	}
 	return true, "", nil

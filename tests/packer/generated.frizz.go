@@ -92,11 +92,8 @@ func (p packer) UnpackAges(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	// customUnpacker
 	out := new(Ages)
 	null, err = out.Unpack(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return *out, false, nil
 }
@@ -111,19 +108,13 @@ func (p packer) UnpackAlias(root *frizz.Root, stack frizz.Stack, in interface{})
 		}
 		// localUnpacker
 		out, null, err := p.UnpackInt(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Alias(out), false, nil
 }
@@ -156,11 +147,8 @@ func (p packer) UnpackAliasArray(root *frizz.Root, stack frizz.Stack, in interfa
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -173,11 +161,8 @@ func (p packer) UnpackAliasArray(root *frizz.Root, stack frizz.Stack, in interfa
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return AliasArray(out), false, nil
 }
@@ -212,19 +197,13 @@ func (p packer) UnpackAliasMap(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					// localUnpacker
 					out, null, err := p.UnpackQual(root, stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -237,11 +216,8 @@ func (p packer) UnpackAliasMap(root *frizz.Root, stack frizz.Stack, in interface
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return AliasMap(out), false, nil
 }
@@ -261,27 +237,18 @@ func (p packer) UnpackAliasPointer(root *frizz.Root, stack frizz.Stack, in inter
 			}
 			// localUnpacker
 			out, null, err := p.UnpackInt(root, stack, in)
-			if err != nil {
-				return value, false, err
-			}
-			if null {
-				return value, true, nil
+			if err != nil || null {
+				return value, null, err
 			}
 			return out, false, nil
 		}(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return &out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return AliasPointer(out), false, nil
 }
@@ -311,11 +278,8 @@ func (p packer) UnpackAliasSlice(root *frizz.Root, stack frizz.Stack, in interfa
 				}
 				// localUnpacker
 				out, null, err := p.UnpackInt(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -328,11 +292,8 @@ func (p packer) UnpackAliasSlice(root *frizz.Root, stack frizz.Stack, in interfa
 		}
 		return out[:], false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return AliasSlice(out), false, nil
 }
@@ -347,19 +308,13 @@ func (p packer) UnpackAliasSub(root *frizz.Root, stack frizz.Stack, in interface
 		}
 		// selectorUnpacker
 		out, null, err := sub.Packer.UnpackSub(root, stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return AliasSub(out), false, nil
 }
@@ -370,11 +325,8 @@ func (p packer) UnpackCsv(root *frizz.Root, stack frizz.Stack, in interface{}) (
 	// customUnpacker
 	out := new(Csv)
 	null, err = out.Unpack(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return *out, false, nil
 }
@@ -385,11 +337,8 @@ func (p packer) UnpackCustom(root *frizz.Root, stack frizz.Stack, in interface{}
 	// customUnpacker
 	out := new(Custom)
 	null, err = out.Unpack(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return *out, false, nil
 }
@@ -400,11 +349,8 @@ func (p packer) UnpackCustomSub(root *frizz.Root, stack frizz.Stack, in interfac
 	// customUnpacker
 	out := new(CustomSub)
 	null, err = out.Unpack(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return *out, false, nil
 }
@@ -440,11 +386,8 @@ func (p packer) UnpackEmbedNatives(root *frizz.Root, stack frizz.Stack, in inter
 				}
 				// localUnpacker
 				out, null, err := p.UnpackNatives(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -463,11 +406,8 @@ func (p packer) UnpackEmbedNatives(root *frizz.Root, stack frizz.Stack, in inter
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -480,11 +420,8 @@ func (p packer) UnpackEmbedNatives(root *frizz.Root, stack frizz.Stack, in inter
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return EmbedNatives(out), false, nil
 }
@@ -525,19 +462,13 @@ func (p packer) UnpackEmbedPointer(root *frizz.Root, stack frizz.Stack, in inter
 					}
 					// localUnpacker
 					out, null, err := p.UnpackNatives(root, stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -556,11 +487,8 @@ func (p packer) UnpackEmbedPointer(root *frizz.Root, stack frizz.Stack, in inter
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -573,11 +501,8 @@ func (p packer) UnpackEmbedPointer(root *frizz.Root, stack frizz.Stack, in inter
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return EmbedPointer(out), false, nil
 }
@@ -613,11 +538,8 @@ func (p packer) UnpackEmbedQual(root *frizz.Root, stack frizz.Stack, in interfac
 				}
 				// selectorUnpacker
 				out, null, err := sub.Packer.UnpackSub(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -636,11 +558,8 @@ func (p packer) UnpackEmbedQual(root *frizz.Root, stack frizz.Stack, in interfac
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -653,11 +572,8 @@ func (p packer) UnpackEmbedQual(root *frizz.Root, stack frizz.Stack, in interfac
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return EmbedQual(out), false, nil
 }
@@ -698,19 +614,13 @@ func (p packer) UnpackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in i
 					}
 					// selectorUnpacker
 					out, null, err := sub.Packer.UnpackSub(root, stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -729,11 +639,8 @@ func (p packer) UnpackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in i
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -746,11 +653,8 @@ func (p packer) UnpackEmbedQualPointer(root *frizz.Root, stack frizz.Stack, in i
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return EmbedQualPointer(out), false, nil
 }
@@ -765,19 +669,13 @@ func (p packer) UnpackFloat64(root *frizz.Root, stack frizz.Stack, in interface{
 		}
 		// nativeUnpacker
 		out, null, err := frizz.UnpackFloat64(stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Float64(out), false, nil
 }
@@ -811,11 +709,8 @@ func (p packer) UnpackImpi(root *frizz.Root, stack frizz.Stack, in interface{}) 
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -828,11 +723,8 @@ func (p packer) UnpackImpi(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Impi(out), false, nil
 }
@@ -866,11 +758,8 @@ func (p packer) UnpackImps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -883,11 +772,8 @@ func (p packer) UnpackImps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Imps(out), false, nil
 }
@@ -902,19 +788,13 @@ func (p packer) UnpackInt(root *frizz.Root, stack frizz.Stack, in interface{}) (
 		}
 		// nativeUnpacker
 		out, null, err := frizz.UnpackInt(stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Int(out), false, nil
 }
@@ -945,11 +825,8 @@ func (p packer) UnpackInterface(root *frizz.Root, stack frizz.Stack, in interfac
 		}
 		return iface, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Interface(out), false, nil
 }
@@ -989,11 +866,8 @@ func (p packer) UnpackInterfaceField(root *frizz.Root, stack frizz.Stack, in int
 				}
 				// localUnpacker
 				out, null, err := p.UnpackInterface(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1027,11 +901,8 @@ func (p packer) UnpackInterfaceField(root *frizz.Root, stack frizz.Stack, in int
 						}
 						// localUnpacker
 						out, null, err := p.UnpackInterface(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -1077,11 +948,8 @@ func (p packer) UnpackInterfaceField(root *frizz.Root, stack frizz.Stack, in int
 						}
 						// localUnpacker
 						out, null, err := p.UnpackInterface(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -1124,11 +992,8 @@ func (p packer) UnpackInterfaceField(root *frizz.Root, stack frizz.Stack, in int
 						}
 						// localUnpacker
 						out, null, err := p.UnpackInterface(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -1150,11 +1015,8 @@ func (p packer) UnpackInterfaceField(root *frizz.Root, stack frizz.Stack, in int
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return InterfaceField(out), false, nil
 }
@@ -1211,11 +1073,8 @@ func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackInt(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -1258,11 +1117,8 @@ func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackString(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -1320,11 +1176,8 @@ func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 								}
 								// nativeUnpacker
 								out, null, err := frizz.UnpackString(stack, in)
-								if err != nil {
-									return value, false, err
-								}
-								if null {
-									return value, true, nil
+								if err != nil || null {
+									return value, null, err
 								}
 								return out, false, nil
 							}(root, stack, v)
@@ -1394,11 +1247,8 @@ func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 								}
 								// nativeUnpacker
 								out, null, err := frizz.UnpackInt(stack, in)
-								if err != nil {
-									return value, false, err
-								}
-								if null {
-									return value, true, nil
+								if err != nil || null {
+									return value, null, err
 								}
 								return out, false, nil
 							}(root, stack, v)
@@ -1465,11 +1315,8 @@ func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 								}
 								// nativeUnpacker
 								out, null, err := frizz.UnpackString(stack, in)
-								if err != nil {
-									return value, false, err
-								}
-								if null {
-									return value, true, nil
+								if err != nil || null {
+									return value, null, err
 								}
 								return out, false, nil
 							}(root, stack, v)
@@ -1500,11 +1347,8 @@ func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Maps(out), false, nil
 }
@@ -1576,11 +1420,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackBool(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1599,11 +1440,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackByte(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1622,11 +1460,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackFloat32(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1645,11 +1480,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackFloat64(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1668,11 +1500,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1691,11 +1520,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt8(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1714,11 +1540,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt16(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1737,11 +1560,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt32(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1760,11 +1580,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt64(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1783,11 +1600,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackUint(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1806,11 +1620,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackUint8(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1829,11 +1640,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackUint16(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1852,11 +1660,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackUint32(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1875,11 +1680,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackUint64(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1898,11 +1700,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackRune(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1921,11 +1720,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -1949,19 +1745,13 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 					}
 					// nativeUnpacker
 					out, null, err := frizz.UnpackString(stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -1985,19 +1775,13 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 					}
 					// nativeUnpacker
 					out, null, err := frizz.UnpackInt(stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2021,19 +1805,13 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 					}
 					// nativeUnpacker
 					out, null, err := frizz.UnpackBool(stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2069,11 +1847,8 @@ func (p packer) UnpackNatives(root *frizz.Root, stack frizz.Stack, in interface{
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Natives(out), false, nil
 }
@@ -2128,19 +1903,13 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					// nativeUnpacker
 					out, null, err := frizz.UnpackString(stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2164,19 +1933,13 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					// localUnpacker
 					out, null, err := p.UnpackInt(root, stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2200,19 +1963,13 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					// selectorUnpacker
 					out, null, err := sub.Packer.UnpackSub(root, stack, in)
-					if err != nil {
-						return value, false, err
-					}
-					if null {
-						return value, true, nil
+					if err != nil || null {
+						return value, null, err
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2254,11 +2011,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 							}
 							// nativeUnpacker
 							out, null, err := frizz.UnpackInt(stack, in)
-							if err != nil {
-								return value, false, err
-							}
-							if null {
-								return value, true, nil
+							if err != nil || null {
+								return value, null, err
 							}
 							return out, false, nil
 						}(root, stack, v)
@@ -2271,11 +2025,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2314,11 +2065,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 							}
 							// nativeUnpacker
 							out, null, err := frizz.UnpackString(stack, in)
-							if err != nil {
-								return value, false, err
-							}
-							if null {
-								return value, true, nil
+							if err != nil || null {
+								return value, null, err
 							}
 							return out, false, nil
 						}(root, stack, v)
@@ -2331,11 +2079,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					return out[:], false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2374,11 +2119,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 							}
 							// nativeUnpacker
 							out, null, err := frizz.UnpackInt(stack, in)
-							if err != nil {
-								return value, false, err
-							}
-							if null {
-								return value, true, nil
+							if err != nil || null {
+								return value, null, err
 							}
 							return out, false, nil
 						}(root, stack, v)
@@ -2391,11 +2133,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 					}
 					return out, false, nil
 				}(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return &out, false, nil
 			}(root, stack, v)
@@ -2434,19 +2173,13 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 							}
 							// nativeUnpacker
 							out, null, err := frizz.UnpackString(stack, in)
-							if err != nil {
-								return value, false, err
-							}
-							if null {
-								return value, true, nil
+							if err != nil || null {
+								return value, null, err
 							}
 							return out, false, nil
 						}(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return &out, false, nil
 					}(root, stack, v)
@@ -2494,19 +2227,13 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 							}
 							// localUnpacker
 							out, null, err := p.UnpackInt(root, stack, in)
-							if err != nil {
-								return value, false, err
-							}
-							if null {
-								return value, true, nil
+							if err != nil || null {
+								return value, null, err
 							}
 							return out, false, nil
 						}(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return &out, false, nil
 					}(root, stack, v)
@@ -2554,19 +2281,13 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 							}
 							// selectorUnpacker
 							out, null, err := sub.Packer.UnpackSub(root, stack, in)
-							if err != nil {
-								return value, false, err
-							}
-							if null {
-								return value, true, nil
+							if err != nil || null {
+								return value, null, err
 							}
 							return out, false, nil
 						}(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return &out, false, nil
 					}(root, stack, v)
@@ -2588,11 +2309,8 @@ func (p packer) UnpackPointers(root *frizz.Root, stack frizz.Stack, in interface
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Pointers(out), false, nil
 }
@@ -2628,11 +2346,8 @@ func (p packer) UnpackPrivate(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackInt(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -2651,11 +2366,8 @@ func (p packer) UnpackPrivate(root *frizz.Root, stack frizz.Stack, in interface{
 				}
 				// nativeUnpacker
 				out, null, err := frizz.UnpackString(stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -2668,11 +2380,8 @@ func (p packer) UnpackPrivate(root *frizz.Root, stack frizz.Stack, in interface{
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Private(out), false, nil
 }
@@ -2706,11 +2415,8 @@ func (p packer) UnpackQual(root *frizz.Root, stack frizz.Stack, in interface{}) 
 				}
 				// selectorUnpacker
 				out, null, err := sub.Packer.UnpackSub(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -2723,11 +2429,8 @@ func (p packer) UnpackQual(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Qual(out), false, nil
 }
@@ -2790,11 +2493,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackInt(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -2837,11 +2537,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackString(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -2887,11 +2584,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackString(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -2937,11 +2631,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackInt(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -3007,11 +2698,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 								}
 								// nativeUnpacker
 								out, null, err := frizz.UnpackInt(stack, in)
-								if err != nil {
-									return value, false, err
-								}
-								if null {
-									return value, true, nil
+								if err != nil || null {
+									return value, null, err
 								}
 								return out, false, nil
 							}(root, stack, v)
@@ -3078,11 +2766,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 								}
 								// nativeUnpacker
 								out, null, err := frizz.UnpackString(stack, in)
-								if err != nil {
-									return value, false, err
-								}
-								if null {
-									return value, true, nil
+								if err != nil || null {
+									return value, null, err
 								}
 								return out, false, nil
 							}(root, stack, v)
@@ -3113,11 +2798,8 @@ func (p packer) UnpackSlices(root *frizz.Root, stack frizz.Stack, in interface{}
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Slices(out), false, nil
 }
@@ -3132,19 +2814,13 @@ func (p packer) UnpackString(root *frizz.Root, stack frizz.Stack, in interface{}
 		}
 		// nativeUnpacker
 		out, null, err := frizz.UnpackString(stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return String(out), false, nil
 }
@@ -3217,11 +2893,8 @@ func (p packer) UnpackStructs(root *frizz.Root, stack frizz.Stack, in interface{
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackInt(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -3240,11 +2913,8 @@ func (p packer) UnpackStructs(root *frizz.Root, stack frizz.Stack, in interface{
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackBool(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -3297,11 +2967,8 @@ func (p packer) UnpackStructs(root *frizz.Root, stack frizz.Stack, in interface{
 						}
 						// nativeUnpacker
 						out, null, err := frizz.UnpackString(stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -3339,11 +3006,8 @@ func (p packer) UnpackStructs(root *frizz.Root, stack frizz.Stack, in interface{
 								}
 								// nativeUnpacker
 								out, null, err := frizz.UnpackFloat32(stack, in)
-								if err != nil {
-									return value, false, err
-								}
-								if null {
-									return value, true, nil
+								if err != nil || null {
+									return value, null, err
 								}
 								return out, false, nil
 							}(root, stack, v)
@@ -3374,11 +3038,8 @@ func (p packer) UnpackStructs(root *frizz.Root, stack frizz.Stack, in interface{
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Structs(out), false, nil
 }
@@ -3412,11 +3073,8 @@ func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in inter
 				}
 				// selectorUnpacker
 				out, null, err := sub.Packer.UnpackSubInterface(root, stack, in)
-				if err != nil {
-					return value, false, err
-				}
-				if null {
-					return value, true, nil
+				if err != nil || null {
+					return value, null, err
 				}
 				return out, false, nil
 			}(root, stack, v)
@@ -3429,11 +3087,8 @@ func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in inter
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return SubInterface(out), false, nil
 }
@@ -3482,11 +3137,8 @@ func (p packer) UnpackSubMap(root *frizz.Root, stack frizz.Stack, in interface{}
 						}
 						// selectorUnpacker
 						out, null, err := sub.Packer.UnpackSub(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -3508,11 +3160,8 @@ func (p packer) UnpackSubMap(root *frizz.Root, stack frizz.Stack, in interface{}
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return SubMap(out), false, nil
 }
@@ -3561,11 +3210,8 @@ func (p packer) UnpackSubSlice(root *frizz.Root, stack frizz.Stack, in interface
 						}
 						// selectorUnpacker
 						out, null, err := sub.Packer.UnpackSub(root, stack, in)
-						if err != nil {
-							return value, false, err
-						}
-						if null {
-							return value, true, nil
+						if err != nil || null {
+							return value, null, err
 						}
 						return out, false, nil
 					}(root, stack, v)
@@ -3587,11 +3233,8 @@ func (p packer) UnpackSubSlice(root *frizz.Root, stack frizz.Stack, in interface
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return SubSlice(out), false, nil
 }
@@ -3602,11 +3245,8 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 	// customUnpacker
 	out := new(Type)
 	null, err = out.Unpack(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return *out, false, nil
 }
@@ -3621,19 +3261,13 @@ func (p packer) UnpackUint(root *frizz.Root, stack frizz.Stack, in interface{}) 
 		}
 		// nativeUnpacker
 		out, null, err := frizz.UnpackUint(stack, in)
-		if err != nil {
-			return value, false, err
-		}
-		if null {
-			return value, true, nil
+		if err != nil || null {
+			return value, null, err
 		}
 		return out, false, nil
 	}(root, stack, in)
-	if err != nil {
-		return value, false, err
-	}
-	if null {
-		return value, true, nil
+	if err != nil || null {
+		return value, null, err
 	}
 	return Uint(out), false, nil
 }
