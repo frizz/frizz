@@ -56,6 +56,8 @@ func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.UnpackInterface(root, stack, in)
 	case "InterfaceField":
 		return p.UnpackInterfaceField(root, stack, in)
+	case "InterfaceValidator":
+		return p.UnpackInterfaceValidator(root, stack, in)
 	case "Maps":
 		return p.UnpackMaps(root, stack, in)
 	case "Natives":
@@ -1019,6 +1021,27 @@ func (p packer) UnpackInterfaceField(root *frizz.Root, stack frizz.Stack, in int
 		return value, null, err
 	}
 	return InterfaceField(out), false, nil
+}
+func (p packer) UnpackInterfaceValidator(root *frizz.Root, stack frizz.Stack, in interface{}) (value InterfaceValidator, null bool, err error) {
+	if in == nil {
+		return value, true, nil
+	}
+	// aliasUnpacker
+	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, null bool, err error) {
+		if in == nil {
+			return value, true, nil
+		}
+		// nativeUnpacker
+		out, null, err := frizz.UnpackString(stack, in)
+		if err != nil || null {
+			return value, null, err
+		}
+		return out, false, nil
+	}(root, stack, in)
+	if err != nil || null {
+		return value, null, err
+	}
+	return InterfaceValidator(out), false, nil
 }
 func (p packer) UnpackMaps(root *frizz.Root, stack frizz.Stack, in interface{}) (value Maps, null bool, err error) {
 	if in == nil {
@@ -3313,6 +3336,8 @@ func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name
 		return p.RepackInterface(root, stack, in.(Interface))
 	case "InterfaceField":
 		return p.RepackInterfaceField(root, stack, in.(InterfaceField))
+	case "InterfaceValidator":
+		return p.RepackInterfaceValidator(root, stack, in.(InterfaceValidator))
 	case "Maps":
 		return p.RepackMaps(root, stack, in.(Maps))
 	case "Natives":
@@ -3857,6 +3882,12 @@ func (p packer) RepackInterfaceField(root *frizz.Root, stack frizz.Stack, in Int
 		Array [3]Interface
 		Map   map[string]Interface
 	})(in))
+}
+func (p packer) RepackInterfaceValidator(root *frizz.Root, stack frizz.Stack, in InterfaceValidator) (value interface{}, dict bool, null bool, err error) {
+	return func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+		// nativeRepacker
+		return frizz.RepackString(in)
+	}(root, stack, (string)(in))
 }
 func (p packer) RepackMaps(root *frizz.Root, stack frizz.Stack, in Maps) (value interface{}, dict bool, null bool, err error) {
 	return func(root *frizz.Root, stack frizz.Stack, in struct {
