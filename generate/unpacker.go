@@ -10,17 +10,18 @@ import (
 
 func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool) *Statement {
 	/**
-	func <if method>(p packer) Unpack<name></if>(root *frizz.Root, stack frizz.Stack, in interface{}) (value <named or spec>, null bool, err error) {
+	func <if method>(p packageType) Unpack<name></if>(context global.Context, root global.Root, stack global.Stack, in interface{}) (value <named or spec>, null bool, err error) {
 		<...>
 	}
 	*/
 	return Func().Do(func(s *Statement) {
 		if method {
-			s.Params(Id("p").Id("packer")).Id("Unpack" + name)
+			s.Params(Id("p").Id("packageType")).Id("Unpack" + name)
 		}
 	}).Params(
-		Id("root").Op("*").Qual("frizz.io/frizz", "Root"),
-		Id("stack").Qual("frizz.io/frizz", "Stack"),
+		Id("context").Qual("frizz.io/global", "Context"),
+		Id("root").Qual("frizz.io/global", "Root"),
+		Id("stack").Qual("frizz.io/global", "Stack"),
 		Id("in").Interface(),
 	).Params(
 		Id("value").Do(func(s *Statement) {
@@ -77,7 +78,7 @@ func (f *fileDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 
 func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	/*
-		out, null, err := <unpacker>(root, stack, in)
+		out, null, err := <unpacker>(context, root, stack, in)
 		if err != nil || null {
 			return value, null, err
 		}
@@ -85,6 +86,7 @@ func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	*/
 	g.Comment("aliasUnpacker")
 	g.List(Id("out"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec, "", false, false)).Call(
+		Id("context"),
 		Id("root"),
 		Id("stack"),
 		Id("in"),
@@ -98,7 +100,7 @@ func (f *fileDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 func (f *fileDef) customUnpacker(g *Group, name string) {
 	/*
 		out := new(<name>)
-		null, err = out.Unpack(root, stack, in)
+		null, err = out.Unpack(context, root, stack, in)
 		if err != nil || null {
 			return value, null, err
 		}
@@ -106,7 +108,12 @@ func (f *fileDef) customUnpacker(g *Group, name string) {
 	*/
 	g.Comment("customUnpacker")
 	g.Id("out").Op(":=").New(Id(name))
-	g.List(Id("null"), Err()).Op("=").Id("out").Dot("Unpack").Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("null"), Err()).Op("=").Id("out").Dot("Unpack").Call(
+		Id("context"),
+		Id("root"),
+		Id("stack"),
+		Id("in"),
+	)
 	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
 		Return(Id("value"), Id("null"), Err()),
 	)
@@ -115,7 +122,7 @@ func (f *fileDef) customUnpacker(g *Group, name string) {
 
 func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 	/*
-		out, null, err := root.UnpackInterface(stack, in)
+		out, null, err := pack.UnpackInterface(context, root, stack, in)
 		if err != nil {
 			return value, false, err
 		}
@@ -129,7 +136,12 @@ func (f *fileDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 		return iface, false, nil
 	*/
 	g.Comment("interfaceUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Id("root").Dot("UnpackInterface").Call(Id("stack"), Id("in"))
+	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual("frizz.io/pack", "UnpackInterface").Call(
+		Id("context"),
+		Id("root"),
+		Id("stack"),
+		Id("in"),
+	)
 	g.If(Err().Op("!=").Nil()).Block(
 		Return(Id("value"), False(), Err()),
 	)
@@ -186,14 +198,19 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 	}
 
 	/*
-		out, null, err := <spec.X>.Packer.Unpack<spec.Sel.Name>(root, stack, in)
+		out, null, err := <spec.X>.Package.Unpack<spec.Sel.Name>(context, root, stack, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
 	*/
 	g.Comment("selectorUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(pkg, "Packer").Dot("Unpack"+spec.Sel.Name).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(pkg, "Package").Dot("Unpack"+spec.Sel.Name).Call(
+		Id("context"),
+		Id("root"),
+		Id("stack"),
+		Id("in"),
+	)
 	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
 		Return(Id("value"), Id("null"), Err()),
 	)
@@ -209,7 +226,12 @@ func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident) {
 		return out, false, nil
 	*/
 	g.Comment("localUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Id("p").Dot("Unpack"+spec.Name).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Id("null"), Err()).Op(":=").Id("p").Dot("Unpack"+spec.Name).Call(
+		Id("context"),
+		Id("root"),
+		Id("stack"),
+		Id("in"),
+	)
 	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
 		Return(Id("value"), Id("null"), Err()),
 	)
@@ -218,14 +240,19 @@ func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident) {
 
 func (f *fileDef) pointerUnpacker(g *Group, spec *ast.StarExpr) {
 	/*
-		out, null, err := <unpacker>(root, stack, in)
+		out, null, err := <unpacker>(context, root, stack, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return &out, false, nil
 	*/
 	g.Comment("pointerUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.X, "", false, false)).Call(Id("root"), Id("stack"), Id("in"))
+	g.List(Id("out"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.X, "", false, false)).Call(
+		Id("context"),
+		Id("root"),
+		Id("stack"),
+		Id("in"),
+	)
 	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
 		Return(Id("value"), Id("null"), Err()),
 	)
@@ -244,7 +271,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 		var out = make(<spec>, len(m))
 		for k, v := range m {
 			stack := stack.Append(frizz.MapItem(k))
-			u, null, err := <unpacker>(root, stack, v)
+			u, null, err := <unpacker>(context, root, stack, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -271,8 +298,13 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 	)
 	g.Var().Id("out").Op("=").Make(f.jast.Expr(spec), Len(Id("m")))
 	g.For(List(Id("k"), Id("v")).Op(":=").Range().Id("m")).Block(
-		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "MapItem").Parens(Id("k"))),
-		List(Id("u"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", false, false)).Call(Id("root"), Id("stack"), Id("v")),
+		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/global", "MapItem").Parens(Id("k"))),
+		List(Id("u"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.Value, "", false, false)).Call(
+			Id("context"),
+			Id("root"),
+			Id("stack"),
+			Id("v"),
+		),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), False(), Err()),
 		),
@@ -302,7 +334,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 		<endif>
 		for i, v := range a {
 			stack := stack.Append(frizz.ArrayItem(i))
-			u, null, err := <unpacker>(root, stack, v)
+			u, null, err := <unpacker>(context, root, stack, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -353,8 +385,13 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 		)
 	}
 	g.For(List(Id("i"), Id("v")).Op(":=").Range().Id("a")).Block(
-		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "ArrayItem").Parens(Id("i"))),
-		List(Id("u"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", false, false)).Call(Id("root"), Id("stack"), Id("v")),
+		Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/global", "ArrayItem").Parens(Id("i"))),
+		List(Id("u"), Id("null"), Err()).Op(":=").Add(f.unpacker(spec.Elt, "", false, false)).Call(
+			Id("context"),
+			Id("root"),
+			Id("stack"),
+			Id("v"),
+		),
 		If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), False(), Err()),
 		),
@@ -387,7 +424,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 		<fields...>
 		if v, ok := m["<field name>"]; ok {
 			stack := stack.Append(frizz.FieldItem("<field name>"))
-			u, null, err := <unpacker>(root, stack, v)
+			u, null, err := <unpacker>(context, root, stack, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -416,8 +453,13 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 	g.Var().Id("out").Add(f.jast.Expr(spec))
 	for _, field := range spec.Fields.List {
 		g.If(List(Id("v"), Id("ok")).Op(":=").Id("m").Index(Lit(fieldName(field))), Id("ok")).Block(
-			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/frizz", "FieldItem").Parens(Lit(fieldName(field)))),
-			List(Id("u"), Id("null"), Err()).Op(":=").Add(f.unpacker(field.Type, "", false, false)).Call(Id("root"), Id("stack"), Id("v")),
+			Id("stack").Op(":=").Id("stack").Dot("Append").Call(Qual("frizz.io/global", "FieldItem").Parens(Lit(fieldName(field)))),
+			List(Id("u"), Id("null"), Err()).Op(":=").Add(f.unpacker(field.Type, "", false, false)).Call(
+				Id("context"),
+				Id("root"),
+				Id("stack"),
+				Id("v"),
+			),
 			If(Err().Op("!=").Nil()).Block(
 				Return(Id("value"), False(), Err()),
 			),
@@ -431,14 +473,14 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 
 func (f *fileDef) nativeUnpacker(g *Group, spec *ast.Ident) {
 	/*
-		out, null, err := frizz.Unpack<strings.Title(spec.Name)>(stack, in)
+		out, null, err := pack.Unpack<strings.Title(spec.Name)>(stack, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, nil
 	*/
 	g.Comment("nativeUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual("frizz.io/frizz", fmt.Sprintf("Unpack%s", strings.Title(spec.Name))).Call(Id("stack"), Id("in"))
+	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual("frizz.io/pack", fmt.Sprintf("Unpack%s", strings.Title(spec.Name))).Call(Id("stack"), Id("in"))
 	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
 		Return(Id("value"), Id("null"), Err()),
 	)

@@ -2,44 +2,44 @@ package system
 
 import (
 	common "frizz.io/common"
-	frizz "frizz.io/frizz"
+	global "frizz.io/global"
 	errors "github.com/pkg/errors"
 )
 
-const Packer packer = 0
+const Package packageType = 0
 
-type packer int
+type packageType int
 
-func (p packer) Path() string {
+func (p packageType) Path() string {
 	return "frizz.io/system"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+func (p packageType) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Raw":
-		return p.UnpackRaw(root, stack, in)
+		return p.UnpackRaw(context, root, stack, in)
 	case "Type":
-		return p.UnpackType(root, stack, in)
+		return p.UnpackType(context, root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) UnpackRaw(root *frizz.Root, stack frizz.Stack, in interface{}) (value Raw, null bool, err error) {
+func (p packageType) UnpackRaw(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Raw, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// customUnpacker
 	out := new(Raw)
-	null, err = out.Unpack(root, stack, in)
+	null, err = out.Unpack(context, root, stack, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return *out, false, nil
 }
-func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) (value Type, null bool, err error) {
+func (p packageType) UnpackType(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Type, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
 		Validators []common.Validator
 	}, null bool, err error) {
 		if in == nil {
@@ -57,8 +57,8 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 			Validators []common.Validator
 		}
 		if v, ok := m["Validators"]; ok {
-			stack := stack.Append(frizz.FieldItem("Validators"))
-			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+			stack := stack.Append(global.FieldItem("Validators"))
+			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []common.Validator, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
@@ -72,18 +72,18 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 				}
 				var out = make([]common.Validator, len(a))
 				for i, v := range a {
-					stack := stack.Append(frizz.ArrayItem(i))
-					u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value common.Validator, null bool, err error) {
+					stack := stack.Append(global.ArrayItem(i))
+					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value common.Validator, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// selectorUnpacker
-						out, null, err := common.Packer.UnpackValidator(root, stack, in)
+						out, null, err := common.Package.UnpackValidator(context, root, stack, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(root, stack, v)
+					}(context, root, stack, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -92,7 +92,7 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 					}
 				}
 				return out[:], false, nil
-			}(root, stack, v)
+			}(context, root, stack, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -101,49 +101,49 @@ func (p packer) UnpackType(root *frizz.Root, stack frizz.Stack, in interface{}) 
 			}
 		}
 		return out, false, nil
-	}(root, stack, in)
+	}(context, root, stack, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Type(out), false, nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Raw":
-		return p.RepackRaw(root, stack, in.(Raw))
+		return p.RepackRaw(context, root, stack, in.(Raw))
 	case "Type":
-		return p.RepackType(root, stack, in.(Type))
+		return p.RepackType(context, root, stack, in.(Type))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackRaw(root *frizz.Root, stack frizz.Stack, in Raw) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackRaw(context global.Context, root global.Root, stack global.Stack, in Raw) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, null, err := in.Repack(root, stack)
+	out, dict, null, err := in.Repack(context, root, stack)
 	if err != nil {
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
 }
-func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
-	return func(root *frizz.Root, stack frizz.Stack, in struct {
+func (p packageType) RepackType(context global.Context, root global.Root, stack global.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.Context, root global.Root, stack global.Stack, in struct {
 		Validators []common.Validator
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 					// selectorRepacker
-					out, dict, null, err := common.Packer.RepackValidator(root, stack, in)
+					out, dict, null, err := common.Package.RepackValidator(context, root, stack, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(root, stack, item)
+				}(context, root, stack, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -153,7 +153,7 @@ func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value 
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(root, stack, in.Validators); err != nil {
+		}(context, root, stack, in.Validators); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -162,20 +162,13 @@ func (p packer) RepackType(root *frizz.Root, stack frizz.Stack, in Type) (value 
 			}
 		}
 		return out, false, empty, nil
-	}(root, stack, (struct {
+	}(context, root, stack, (struct {
 		Validators []common.Validator
 	})(in))
 }
-
-const Imports imports = 0
-
-type imports int
-
-func (i imports) Path() string {
-	return "frizz.io/system"
+func (p packageType) Get(name string) string {
+	return ""
 }
-func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
-	if packers != nil {
-		packers["frizz.io/system"] = Packer
-	}
+func (p packageType) Add(packages map[string]global.Package) {
+	packages["frizz.io/system"] = Package
 }

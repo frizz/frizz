@@ -8,9 +8,11 @@ import (
 	"encoding/json"
 
 	"frizz.io/frizz"
-	"frizz.io/frizz/validator"
+	"frizz.io/global"
+	"frizz.io/pack"
 	"frizz.io/system"
 	"frizz.io/tests/packer"
+	"frizz.io/validator"
 	"frizz.io/validators"
 )
 
@@ -25,8 +27,8 @@ func TestInterface(t *testing.T) {
 			]}`,
 			tests: map[string]testDef{
 				"success": {data: `{"_type": "Impi", "Int": 1}`},
-				"fail": {data: `{"_type": "Impi", "Int": 2}`, msg: "root: value \"2\" should be equal to \"1\""},
-				"zero": {data: `{"_type": "Impi", "Int": 0}`, msg: "root: value \"0\" should be equal to \"1\""},
+				"fail":    {data: `{"_type": "Impi", "Int": 2}`, msg: "root: value \"2\" should be equal to \"1\""},
+				"zero":    {data: `{"_type": "Impi", "Int": 0}`, msg: "root: value \"0\" should be equal to \"1\""},
 				"missing": {data: `{"_type": "Impi"}`, msg: "root: value \"0\" should be equal to \"1\""},
 			},
 		},
@@ -213,7 +215,7 @@ func TestStructs(t *testing.T) {
 func run(t *testing.T, name string, vals map[string]valDef) {
 	for valName, val := range vals {
 		for testName, test := range val.tests {
-			iface, err := frizz.New(packer.Imports).Unmarshal([]byte(test.data))
+			iface, err := frizz.New(packer.Package).Unmarshal([]byte(test.data))
 			if err != nil {
 				t.Fatalf("%s - %s - %s: %s", name, valName, testName, err.Error())
 			}
@@ -222,15 +224,25 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 			var message string
 			if val.typeFile != "" {
 				typ := unmarshalType(t, name, valName, testName, val.typeFile)
-				valid, message, err = typ.Validate(frizz.Stack{frizz.RootItem("root")}, iface)
+				valid, message, err = typ.Validate(global.NewStack("root"), iface)
 			} else {
-				mi := mockImporter{
-					path:    "frizz.io/tests/packer",
-					packers: []frizz.Packer{packer.Packer, system.Packer, validators.Packer},
-					typers:  map[string]frizz.Typer{},
+				mi := mockPackage{
+					path: packer.Package.Path(),
+					packages: map[string]global.Package{
+						packer.Package.Path():     mockPackage{path: packer.Package.Path(), inner: packer.Package},
+						system.Package.Path():     mockPackage{path: system.Package.Path(), inner: system.Package},
+						validators.Package.Path(): mockPackage{path: validators.Package.Path(), inner: validators.Package},
+					},
+					types: map[string]string{},
+					inner: packer.Package,
 				}
-				for typPkg, m := range val.types {
-					mi.typers[typPkg] = mockTyper{path: typPkg, types: m}
+				for path, types := range val.types {
+					if _, ok := mi.packages[path]; ok {
+						mp := mi.packages[path].(mockPackage)
+						mi.packages[path] = mockPackage{path: path, inner: mp.inner, types: types}
+					} else {
+						mi.packages[path] = mockPackage{path: path, types: types}
+					}
 				}
 				valid, message, err = validator.Validate(iface, mi)
 			}
@@ -258,19 +270,17 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 }
 
 func unmarshalType(t *testing.T, name, val, test, in string) system.Type {
-	r := &frizz.Root{
-		// packer.Imports does not automatically import system or validators, so we must register manually
-		Context: frizz.New(packer.Imports).Register(system.Packer, validators.Packer),
-		Imports: make(map[string]string),
-	}
+	// packer.Imports does not automatically import system or validators, so we must register manually
+	c := frizz.New(packer.Package, system.Package, validators.Package)
+	r := pack.NewRoot()
 	v, err := unmarshal(in)
 	if err != nil {
 		t.Fatalf("%s - %s - %s: unmarshaling typeFile: %s", name, val, test, err.Error())
 	}
-	if err := r.ParseImports(v); err != nil {
+	if err := r.Parse(v); err != nil {
 		t.Fatalf("%s - %s - %s: parsing typeFile imports: %s", name, val, test, err.Error())
 	}
-	typ, _, err := system.Packer.UnpackType(r, frizz.Stack{frizz.RootItem("root")}, v)
+	typ, _, err := system.Package.UnpackType(c, r, global.NewStack("root"), v)
 	if err != nil {
 		t.Fatalf("%s - %s - %s: unpacking typeFile: %s", name, val, test, err.Error())
 	}
@@ -299,38 +309,31 @@ type testDef struct {
 	err  string // expect error containing this string
 }
 
-type mockImporter struct {
-	path    string
-	packers []frizz.Packer
-	typers  map[string]frizz.Typer
+type mockPackage struct {
+	path     string
+	packages map[string]global.Package
+	types    map[string]string
+	inner    global.Package
 }
 
-func (m mockImporter) Path() string {
-	return m.path
+func (m mockPackage) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+	return m.inner.Unpack(context, root, stack, in, name)
 }
 
-func (m mockImporter) Add(p map[string]frizz.Packer, t map[string]frizz.Typer) {
-	if p != nil {
-		for _, v := range m.packers {
-			p[v.Path()] = v
-		}
-	}
-	if t != nil {
-		for k, v := range m.typers {
-			t[k] = v
-		}
-	}
+func (m mockPackage) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+	return m.inner.Repack(context, root, stack, in, name)
 }
 
-type mockTyper struct {
-	path  string
-	types map[string]string
-}
-
-func (m mockTyper) Path() string {
-	return m.path
-}
-
-func (m mockTyper) Get(name string) string {
+func (m mockPackage) Get(name string) string {
 	return base64.StdEncoding.EncodeToString([]byte(m.types[name]))
+}
+
+func (m mockPackage) Add(packages map[string]global.Package) {
+	for _, v := range m.packages {
+		packages[v.Path()] = v
+	}
+}
+
+func (m mockPackage) Path() string {
+	return m.path
 }

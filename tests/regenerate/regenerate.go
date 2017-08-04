@@ -12,7 +12,7 @@ import (
 
 	"os"
 
-	"frizz.io/frizz/generate"
+	"frizz.io/generate"
 	"github.com/dave/jennifer/jen"
 )
 

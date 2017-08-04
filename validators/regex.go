@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"frizz.io/frizz"
+	"frizz.io/global"
 	"github.com/pkg/errors"
 )
 
@@ -15,7 +15,7 @@ type Regex struct {
 	Invert bool
 }
 
-func (r Regex) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (r Regex) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	var s string
 	switch input := input.(type) {
 	case string:

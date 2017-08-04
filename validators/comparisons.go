@@ -7,7 +7,7 @@ import (
 
 	"reflect"
 
-	"frizz.io/frizz"
+	"frizz.io/global"
 	"frizz.io/system"
 	"github.com/pkg/errors"
 )
@@ -15,55 +15,55 @@ import (
 // frizz
 type GreaterThan json.Number
 
-func (g GreaterThan) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (g GreaterThan) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return g.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (g GreaterThan) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (g GreaterThan) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	return compare(stack, value, ">", json.Number(g))
 }
 
 // frizz
 type LessThan json.Number
 
-func (l LessThan) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (l LessThan) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return l.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (l LessThan) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (l LessThan) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	return compare(stack, value, "<", json.Number(l))
 }
 
 // frizz
 type GreaterThanOrEqual json.Number
 
-func (g GreaterThanOrEqual) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (g GreaterThanOrEqual) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return g.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (g GreaterThanOrEqual) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (g GreaterThanOrEqual) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	return compare(stack, value, ">=", json.Number(g))
 }
 
 // frizz
 type LessThanOrEqual json.Number
 
-func (l LessThanOrEqual) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (l LessThanOrEqual) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return l.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (l LessThanOrEqual) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (l LessThanOrEqual) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	return compare(stack, value, "<=", json.Number(l))
 }
 
 // frizz
 type Equal system.Raw
 
-func (e Equal) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (e Equal) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return e.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (e Equal) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (e Equal) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	if !value.IsValid() {
 		// nil value -> return valid
 		return true, "", nil
@@ -85,7 +85,7 @@ func (e Equal) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool
 	return false, "", errors.Errorf("%s: unsupported type %T for validatros.Equal value", stack, comparison)
 }
 
-func compare(stack frizz.Stack, value reflect.Value, operator string, comparison json.Number) (valid bool, message string, err error) {
+func compare(stack global.Stack, value reflect.Value, operator string, comparison json.Number) (valid bool, message string, err error) {
 	if !value.IsValid() {
 		// nil value -> return valid
 		return true, "", nil

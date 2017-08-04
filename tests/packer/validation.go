@@ -3,14 +3,15 @@ package packer
 import (
 	"fmt"
 
-	"frizz.io/frizz"
+	"frizz.io/global"
+
 	"github.com/pkg/errors"
 )
 
 // frizz
 type InterfaceValidator string
 
-func (i InterfaceValidator) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (i InterfaceValidator) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	iface, ok := input.(Interface)
 	if !ok {
 		return false, "", errors.Errorf("%s: InterfaceValidator can only validate type packer.Interface. Found %T", stack, input)

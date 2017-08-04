@@ -1,10 +1,14 @@
-package frizz
+package global
 
 import (
 	"fmt"
 
 	"github.com/pkg/errors"
 )
+
+func NewStack(name string) Stack {
+	return Stack{RootItem(name)}
+}
 
 type Stack []stackItem
 

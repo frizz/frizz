@@ -5,7 +5,8 @@ import (
 	"go/token"
 	"strconv"
 
-	"frizz.io/frizz/generate/jast"
+	"frizz.io/generate/jast"
+
 	"github.com/dave/patsy"
 	"github.com/pkg/errors"
 )
@@ -18,6 +19,7 @@ type progDef struct {
 	types     map[string]*typeDef // Type name: type def
 	typeFiles map[string][]byte   // Type name: bytes
 	stubs     map[string]*stub    // File name: stub
+	imports   map[string]bool
 }
 
 type fileDef struct {

@@ -3,19 +3,19 @@ package validators
 import (
 	"fmt"
 
-	"reflect"
+	"frizz.io/global"
 
-	"frizz.io/frizz"
+	"reflect"
 )
 
 // frizz
 type IsNull struct{}
 
-func (i IsNull) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (i IsNull) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return i.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (i IsNull) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (i IsNull) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	for value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
 		value = value.Elem()
 	}
@@ -29,11 +29,11 @@ func (i IsNull) ValidateValue(stack frizz.Stack, value reflect.Value) (valid boo
 // frizz
 type NotNull struct{}
 
-func (n NotNull) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (n NotNull) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	return n.ValidateValue(stack, reflect.ValueOf(input))
 }
 
-func (n NotNull) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (n NotNull) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
 	for value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
 		value = value.Elem()
 	}
@@ -48,7 +48,7 @@ func (n NotNull) ValidateValue(stack frizz.Stack, value reflect.Value) (valid bo
 // frizz
 type Zero bool
 
-func (z Zero) Validate(stack frizz.Stack, input interface{}) (valid bool, message string, err error) {
+func (z Zero) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
 	var zero bool
 	switch input.(type) {
 	case bool:
