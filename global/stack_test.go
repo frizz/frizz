@@ -1,4 +1,4 @@
-package frizz
+package global
 
 import (
 	"testing"

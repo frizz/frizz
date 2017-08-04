@@ -1,32 +1,33 @@
 package sub
 
 import (
-	frizz "frizz.io/frizz"
+	global "frizz.io/global"
+	pack "frizz.io/pack"
 	errors "github.com/pkg/errors"
 )
 
-const Packer packer = 0
+const Package packageType = 0
 
-type packer int
+type packageType int
 
-func (p packer) Path() string {
+func (p packageType) Path() string {
 	return "frizz.io/tests/packer/sub"
 }
-func (p packer) Unpack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+func (p packageType) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Sub":
-		return p.UnpackSub(root, stack, in)
+		return p.UnpackSub(context, root, stack, in)
 	case "SubInterface":
-		return p.UnpackSubInterface(root, stack, in)
+		return p.UnpackSubInterface(context, root, stack, in)
 	}
 	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (value Sub, null bool, err error) {
+func (p packageType) UnpackSub(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Sub, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
 		String string
 	}, null bool, err error) {
 		if in == nil {
@@ -44,18 +45,18 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 			String string
 		}
 		if v, ok := m["String"]; ok {
-			stack := stack.Append(frizz.FieldItem("String"))
-			u, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value string, null bool, err error) {
+			stack := stack.Append(global.FieldItem("String"))
+			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := frizz.UnpackString(stack, in)
+				out, null, err := pack.UnpackString(stack, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(root, stack, v)
+			}(context, root, stack, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -64,23 +65,23 @@ func (p packer) UnpackSub(root *frizz.Root, stack frizz.Stack, in interface{}) (
 			}
 		}
 		return out, false, nil
-	}(root, stack, in)
+	}(context, root, stack, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Sub(out), false, nil
 }
-func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in interface{}) (value SubInterface, null bool, err error) {
+func (p packageType) UnpackSubInterface(context global.Context, root global.Root, stack global.Stack, in interface{}) (value SubInterface, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface{}, null bool, err error) {
+	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value interface{}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// interfaceUnpacker
-		out, null, err := root.UnpackInterface(stack, in)
+		out, null, err := pack.UnpackInterface(context, root, stack, in)
 		if err != nil {
 			return value, false, err
 		}
@@ -92,32 +93,32 @@ func (p packer) UnpackSubInterface(root *frizz.Root, stack frizz.Stack, in inter
 			return value, true, nil
 		}
 		return iface, false, nil
-	}(root, stack, in)
+	}(context, root, stack, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return SubInterface(out), false, nil
 }
-func (p packer) Repack(root *frizz.Root, stack frizz.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Sub":
-		return p.RepackSub(root, stack, in.(Sub))
+		return p.RepackSub(context, root, stack, in.(Sub))
 	case "SubInterface":
-		return p.RepackSubInterface(root, stack, in.(SubInterface))
+		return p.RepackSubInterface(context, root, stack, in.(SubInterface))
 	}
 	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
 }
-func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value interface{}, dict bool, null bool, err error) {
-	return func(root *frizz.Root, stack frizz.Stack, in struct {
+func (p packageType) RepackSub(context global.Context, root global.Root, stack global.Stack, in Sub) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.Context, root global.Root, stack global.Stack, in struct {
 		String string
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(root *frizz.Root, stack frizz.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
-			return frizz.RepackString(in)
-		}(root, stack, in.String); err != nil {
+			return pack.RepackString(in)
+		}(context, root, stack, in.String); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -126,26 +127,19 @@ func (p packer) RepackSub(root *frizz.Root, stack frizz.Stack, in Sub) (value in
 			}
 		}
 		return out, false, empty, nil
-	}(root, stack, (struct {
+	}(context, root, stack, (struct {
 		String string
 	})(in))
 }
-func (p packer) RepackSubInterface(root *frizz.Root, stack frizz.Stack, in SubInterface) (value interface{}, dict bool, null bool, err error) {
-	return func(root *frizz.Root, stack frizz.Stack, in interface{}) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackSubInterface(context global.Context, root global.Root, stack global.Stack, in SubInterface) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value interface{}, dict bool, null bool, err error) {
 		// interfaceRepacker
-		return root.RepackInterface(stack, false, in)
-	}(root, stack, (interface{})(in))
+		return pack.RepackInterface(context, root, stack, false, in)
+	}(context, root, stack, (interface{})(in))
 }
-
-const Imports imports = 0
-
-type imports int
-
-func (i imports) Path() string {
-	return "frizz.io/tests/packer/sub"
+func (p packageType) Get(name string) string {
+	return ""
 }
-func (i imports) Add(packers map[string]frizz.Packer, types map[string]frizz.Typer) {
-	if packers != nil {
-		packers["frizz.io/tests/packer/sub"] = Packer
-	}
+func (p packageType) Add(packages map[string]global.Package) {
+	packages["frizz.io/tests/packer/sub"] = Package
 }

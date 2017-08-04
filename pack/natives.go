@@ -1,4 +1,4 @@
-package frizz
+package pack
 
 import (
 	"encoding/json"
@@ -7,10 +7,11 @@ import (
 
 	"fmt"
 
+	"frizz.io/global"
 	"github.com/pkg/errors"
 )
 
-func RepackNative(stack Stack, name string, in interface{}) (value interface{}, dict bool, null bool, err error) {
+func RepackNative(stack global.Stack, name string, in interface{}) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "bool":
 		return RepackBool(in)
@@ -61,7 +62,7 @@ const (
 	errorMessageFinal = "%s: converting %v to %s"
 )
 
-func UnpackNative(stack Stack, name string, in interface{}) (value interface{}, null bool, err error) {
+func UnpackNative(stack global.Stack, name string, in interface{}) (value interface{}, null bool, err error) {
 	// notest
 	switch name {
 	case "bool":
@@ -100,7 +101,7 @@ func UnpackNative(stack Stack, name string, in interface{}) (value interface{}, 
 	return nil, false, errors.Errorf("%s: unknown type %s", stack, name)
 }
 
-func UnpackBool(stack Stack, in interface{}) (bool, bool, error) {
+func UnpackBool(stack global.Stack, in interface{}) (bool, bool, error) {
 	if in == nil {
 		return false, false, nil
 	}
@@ -111,7 +112,7 @@ func UnpackBool(stack Stack, in interface{}) (bool, bool, error) {
 	return b, false, nil
 }
 
-func UnpackByte(stack Stack, in interface{}) (byte, bool, error) {
+func UnpackByte(stack global.Stack, in interface{}) (byte, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -126,7 +127,7 @@ func UnpackByte(stack Stack, in interface{}) (byte, bool, error) {
 	return byte(i), false, nil
 }
 
-func UnpackFloat32(stack Stack, in interface{}) (float32, bool, error) {
+func UnpackFloat32(stack global.Stack, in interface{}) (float32, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -141,7 +142,7 @@ func UnpackFloat32(stack Stack, in interface{}) (float32, bool, error) {
 	return float32(f), false, nil
 }
 
-func UnpackFloat64(stack Stack, in interface{}) (float64, bool, error) {
+func UnpackFloat64(stack global.Stack, in interface{}) (float64, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -156,7 +157,7 @@ func UnpackFloat64(stack Stack, in interface{}) (float64, bool, error) {
 	return f, false, nil
 }
 
-func UnpackInt(stack Stack, in interface{}) (int, bool, error) {
+func UnpackInt(stack global.Stack, in interface{}) (int, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -171,7 +172,7 @@ func UnpackInt(stack Stack, in interface{}) (int, bool, error) {
 	return int(i), false, nil
 }
 
-func UnpackInt8(stack Stack, in interface{}) (int8, bool, error) {
+func UnpackInt8(stack global.Stack, in interface{}) (int8, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -186,7 +187,7 @@ func UnpackInt8(stack Stack, in interface{}) (int8, bool, error) {
 	return int8(i), false, nil
 }
 
-func UnpackInt16(stack Stack, in interface{}) (int16, bool, error) {
+func UnpackInt16(stack global.Stack, in interface{}) (int16, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -201,7 +202,7 @@ func UnpackInt16(stack Stack, in interface{}) (int16, bool, error) {
 	return int16(i), false, nil
 }
 
-func UnpackInt32(stack Stack, in interface{}) (int32, bool, error) {
+func UnpackInt32(stack global.Stack, in interface{}) (int32, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -216,7 +217,7 @@ func UnpackInt32(stack Stack, in interface{}) (int32, bool, error) {
 	return int32(i), false, nil
 }
 
-func UnpackInt64(stack Stack, in interface{}) (int64, bool, error) {
+func UnpackInt64(stack global.Stack, in interface{}) (int64, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -231,7 +232,7 @@ func UnpackInt64(stack Stack, in interface{}) (int64, bool, error) {
 	return i, false, nil
 }
 
-func UnpackUint(stack Stack, in interface{}) (uint, bool, error) {
+func UnpackUint(stack global.Stack, in interface{}) (uint, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -246,7 +247,7 @@ func UnpackUint(stack Stack, in interface{}) (uint, bool, error) {
 	return uint(i), false, nil
 }
 
-func UnpackUint8(stack Stack, in interface{}) (uint8, bool, error) {
+func UnpackUint8(stack global.Stack, in interface{}) (uint8, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -261,7 +262,7 @@ func UnpackUint8(stack Stack, in interface{}) (uint8, bool, error) {
 	return uint8(i), false, nil
 }
 
-func UnpackUint16(stack Stack, in interface{}) (uint16, bool, error) {
+func UnpackUint16(stack global.Stack, in interface{}) (uint16, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -276,7 +277,7 @@ func UnpackUint16(stack Stack, in interface{}) (uint16, bool, error) {
 	return uint16(i), false, nil
 }
 
-func UnpackUint32(stack Stack, in interface{}) (uint32, bool, error) {
+func UnpackUint32(stack global.Stack, in interface{}) (uint32, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -291,7 +292,7 @@ func UnpackUint32(stack Stack, in interface{}) (uint32, bool, error) {
 	return uint32(i), false, nil
 }
 
-func UnpackUint64(stack Stack, in interface{}) (uint64, bool, error) {
+func UnpackUint64(stack global.Stack, in interface{}) (uint64, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}
@@ -306,7 +307,7 @@ func UnpackUint64(stack Stack, in interface{}) (uint64, bool, error) {
 	return i, false, nil
 }
 
-func UnpackString(stack Stack, in interface{}) (string, bool, error) {
+func UnpackString(stack global.Stack, in interface{}) (string, bool, error) {
 	if in == nil {
 		return "", false, nil
 	}
@@ -317,7 +318,7 @@ func UnpackString(stack Stack, in interface{}) (string, bool, error) {
 	return s, false, nil
 }
 
-func UnpackRune(stack Stack, in interface{}) (rune, bool, error) {
+func UnpackRune(stack global.Stack, in interface{}) (rune, bool, error) {
 	if in == nil {
 		return 0, false, nil
 	}

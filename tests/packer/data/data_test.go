@@ -10,7 +10,7 @@ import (
 
 // TestImports checks that a data-only package (without type definitions) works properly.
 func TestImports(t *testing.T) {
-	obs, err := frizz.Package(Imports)
+	obs, err := frizz.Package(Package)
 	if err != nil {
 		t.Fatal(err)
 	}
