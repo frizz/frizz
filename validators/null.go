@@ -11,17 +11,17 @@ import (
 // frizz
 type IsNull struct{}
 
-func (i IsNull) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
-	return i.ValidateValue(stack, reflect.ValueOf(input))
+func (i IsNull) Validate(context global.ValidationContext, input interface{}) (valid bool, message string, err error) {
+	return i.ValidateValue(context, reflect.ValueOf(input))
 }
 
-func (i IsNull) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (i IsNull) ValidateValue(context global.ValidationContext, value reflect.Value) (valid bool, message string, err error) {
 	for value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
 		value = value.Elem()
 	}
 	if value.IsValid() {
 		// input not null -> return invalid
-		return false, fmt.Sprintf("%s: value %v must be null", stack, value.Interface()), nil
+		return false, fmt.Sprintf("%s: value %v must be null", context.Location(), value.Interface()), nil
 	}
 	return true, "", nil
 }
@@ -29,17 +29,17 @@ func (i IsNull) ValidateValue(stack global.Stack, value reflect.Value) (valid bo
 // frizz
 type NotNull struct{}
 
-func (n NotNull) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
-	return n.ValidateValue(stack, reflect.ValueOf(input))
+func (n NotNull) Validate(context global.ValidationContext, input interface{}) (valid bool, message string, err error) {
+	return n.ValidateValue(context, reflect.ValueOf(input))
 }
 
-func (n NotNull) ValidateValue(stack global.Stack, value reflect.Value) (valid bool, message string, err error) {
+func (n NotNull) ValidateValue(context global.ValidationContext, value reflect.Value) (valid bool, message string, err error) {
 	for value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface {
 		value = value.Elem()
 	}
 	if !value.IsValid() {
 		// input null -> return invalid
-		return false, fmt.Sprintf("%s: value must not be null", stack), nil
+		return false, fmt.Sprintf("%s: value must not be null", context.Location()), nil
 	}
 	return true, "", nil
 }
@@ -48,7 +48,7 @@ func (n NotNull) ValidateValue(stack global.Stack, value reflect.Value) (valid b
 // frizz
 type Zero bool
 
-func (z Zero) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
+func (z Zero) Validate(context global.ValidationContext, input interface{}) (valid bool, message string, err error) {
 	var zero bool
 	switch input.(type) {
 	case bool:
@@ -81,10 +81,10 @@ func (z Zero) Validate(stack global.Stack, input interface{}) (valid bool, messa
 	}
 	if bool(z) && !zero {
 		// Zero(true) -> must be zero -> input not zero -> return invalid
-		return false, fmt.Sprintf("%s: value %v must be zero", stack, input), nil
+		return false, fmt.Sprintf("%s: value %v must be zero", context.Location(), input), nil
 	} else if !bool(z) && zero {
 		// Zero(false) -> must not be zero -> input zero -> return invalid
-		return false, fmt.Sprintf("%s: value %v must not be zero", stack, input), nil
+		return false, fmt.Sprintf("%s: value %v must not be zero", context.Location(), input), nil
 	}
 	return true, "", nil
 }

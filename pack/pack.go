@@ -5,17 +5,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Unpack(c global.Context, in interface{}) (value interface{}, null bool, err error) {
-	r := NewRoot()
-	if err := r.Parse(in); err != nil {
+func Unpack(context global.PackageContext, in interface{}) (value interface{}, null bool, err error) {
+	c := NewDataContext(context, NewRootContext(context), global.NewStack("root"))
+	if err := c.Root().ParseImports(in); err != nil {
 		return nil, false, errors.Wrap(err, "parsing imports")
 	}
-	s := global.NewStack("root")
-	return UnpackInterface(c, r, s, in)
+	return UnpackInterface(c, in)
 }
 
-func Repack(c global.Context, in interface{}) (value interface{}, dict bool, null bool, err error) {
-	r := NewRoot()
-	s := global.NewStack("root")
-	return RepackInterface(c, r, s, true, in)
+func Repack(context global.PackageContext, in interface{}) (value interface{}, dict bool, null bool, err error) {
+	c := NewDataContext(context, NewRootContext(context), global.NewStack("root"))
+	return RepackInterface(c, true, in)
 }

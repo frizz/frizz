@@ -37,9 +37,9 @@ func TestCustomSub(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackCustomSub(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackCustomSub(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackCustomSub(context, v)
+		repacked, dict, null2, err2 := Package.RepackCustomSub(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -55,9 +55,9 @@ func TestAges(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAges(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAges(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAges(context, v)
+		repacked, dict, null2, err2 := Package.RepackAges(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -73,9 +73,9 @@ func TestCsv(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackCsv(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackCsv(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackCsv(context, v)
+		repacked, dict, null2, err2 := Package.RepackCsv(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -98,10 +98,10 @@ func TestType(t *testing.T) {
 		}
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		r.Imports()["foo"] = "github.com/foo"
-		unpacked, null1, err1 := Package.UnpackType(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackType(c, r, s, unpacked)
+		context := getContext()
+		context.Root().RegisterImport("github.com/foo")
+		unpacked, null1, err1 := Package.UnpackType(context, v)
+		repacked, dict, null2, err2 := Package.RepackType(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -124,9 +124,9 @@ func TestCustom(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackCustom(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackCustom(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackCustom(context, v)
+		repacked, dict, null2, err2 := Package.RepackCustom(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -176,8 +176,7 @@ func TestImports(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c := frizz.New(Package)
-		c.Register(sub.Package)
+		c := frizz.New(Package, sub.Package)
 		unpacked, null1, err1 := pack.Unpack(c, v)
 		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
 
@@ -243,9 +242,9 @@ func TestInterfaceField(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackInterfaceField(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackInterfaceField(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackInterfaceField(context, v)
+		repacked, dict, null2, err2 := Package.RepackInterfaceField(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -272,12 +271,12 @@ func TestUnpackInterface(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		r.Imports()["sub"] = "frizz.io/tests/packer/sub"
-		c.Register(sub.Package)
+		context := getContext()
+		context.Root().RegisterImport("frizz.io/tests/packer/sub")
+		context.Package().Register(sub.Package)
 
-		unpacked, null1, err1 := pack.UnpackInterface(c, r, s, v)
-		repacked, dict, null2, err2 := pack.RepackInterface(c, r, s, false, unpacked)
+		unpacked, null1, err1 := pack.UnpackInterface(context, v)
+		repacked, dict, null2, err2 := pack.RepackInterface(context, false, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -291,11 +290,11 @@ func TestUnpackInterfaceNoPath(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
+		context := root()
 		//r.Path = ""
 		// TODO
-		unpacked, null1, err1 := pack.UnpackInterface(c, r, s, v)
-		repacked, dict, null2, err2 := pack.RepackInterface(c, r, s, false, unpacked)
+		unpacked, null1, err1 := pack.UnpackInterface(context, v)
+		repacked, dict, null2, err2 := pack.RepackInterface(context, false, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -309,9 +308,9 @@ func TestPrivate(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackPrivate(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackPrivate(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackPrivate(context, v)
+		repacked, dict, null2, err2 := Package.RepackPrivate(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -324,9 +323,9 @@ func TestAliasSub(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAliasSub(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAliasSub(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAliasSub(context, v)
+		repacked, dict, null2, err2 := Package.RepackAliasSub(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -339,9 +338,9 @@ func TestAliasSlice(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAliasSlice(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAliasSlice(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAliasSlice(context, v)
+		repacked, dict, null2, err2 := Package.RepackAliasSlice(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -355,9 +354,9 @@ func TestAliasArray(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAliasArray(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAliasArray(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAliasArray(context, v)
+		repacked, dict, null2, err2 := Package.RepackAliasArray(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -377,9 +376,9 @@ func TestAliasMap(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAliasMap(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAliasMap(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAliasMap(context, v)
+		repacked, dict, null2, err2 := Package.RepackAliasMap(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -392,9 +391,9 @@ func TestAliasPointe(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAliasPointer(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAliasPointer(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAliasPointer(context, v)
+		repacked, dict, null2, err2 := Package.RepackAliasPointer(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -407,9 +406,9 @@ func TestAlias(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackAlias(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackAlias(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackAlias(context, v)
+		repacked, dict, null2, err2 := Package.RepackAlias(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -422,9 +421,9 @@ func TestInt(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackInt(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackInt(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackInt(context, v)
+		repacked, dict, null2, err2 := Package.RepackInt(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -437,9 +436,9 @@ func TestString(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackString(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackString(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackString(context, v)
+		repacked, dict, null2, err2 := Package.RepackString(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -452,9 +451,9 @@ func TestQual(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackQual(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackQual(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackQual(context, v)
+		repacked, dict, null2, err2 := Package.RepackQual(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -490,9 +489,9 @@ func TestPointers(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackPointers(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackPointers(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackPointers(context, v)
+		repacked, dict, null2, err2 := Package.RepackPointers(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -520,9 +519,9 @@ func TestMaps(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackMaps(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackMaps(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackMaps(context, v)
+		repacked, dict, null2, err2 := Package.RepackMaps(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -562,9 +561,9 @@ func TestSlices(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackSlices(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackSlices(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackSlices(context, v)
+		repacked, dict, null2, err2 := Package.RepackSlices(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -612,9 +611,9 @@ func TestStructs(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackStructs(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackStructs(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackStructs(context, v)
+		repacked, dict, null2, err2 := Package.RepackStructs(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
@@ -706,19 +705,19 @@ func TestNatives(t *testing.T) {
 	for name, test := range tests {
 		v := decode(t, name, test.js)
 
-		c, r, s := root()
-		unpacked, null1, err1 := Package.UnpackNatives(c, r, s, v)
-		repacked, dict, null2, err2 := Package.RepackNatives(c, r, s, unpacked)
+		context := getContext()
+		unpacked, null1, err1 := Package.UnpackNatives(context, v)
+		repacked, dict, null2, err2 := Package.RepackNatives(context, unpacked)
 
 		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
 	}
 }
 
-func root() (global.Context, global.Root, global.Stack) {
+func getContext() global.DataContext {
 	c := frizz.New(Package)
-	r := pack.NewRoot()
+	r := pack.NewRootContext(c)
 	s := global.NewStack("root")
-	return c, r, s
+	return pack.NewDataContext(c, r, s)
 }
 
 func decode(t *testing.T, name, s string) interface{} {

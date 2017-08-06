@@ -14,20 +14,20 @@ type packageType int
 func (p packageType) Path() string {
 	return "frizz.io/tests/packer/data"
 }
-func (p packageType) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, errors.Errorf("%s: type %s not found", context.Location(), name)
 }
-func (p packageType) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) Repack(context global.DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	}
-	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", context.Location(), name)
 }
-func (p packageType) Get(name string) string {
+func (p packageType) GetType(name string) string {
 	return ""
 }
-func (p packageType) Add(packages map[string]global.Package) {
-	packer.Package.Add(packages)
-	sub.Package.Add(packages)
+func (p packageType) GetImportedPackages(packages map[string]global.Package) {
+	packer.Package.GetImportedPackages(packages)
+	sub.Package.GetImportedPackages(packages)
 }

@@ -19,10 +19,10 @@ func TestStack_String(t *testing.T) {
 
 func TestStack_Append(t *testing.T) {
 	s := Stack{}
-	s1 := s.Append(RootItem("root"))
-	s2 := s1.Append(FieldItem("field"))
-	s3 := s2.Append(MapItem("map"))
-	s4 := s3.Append(ArrayItem(1))
+	s1 := s.Child(RootItem("root"))
+	s2 := s1.Child(FieldItem("field"))
+	s3 := s2.Child(MapItem("map"))
+	s4 := s3.Child(ArrayItem(1))
 	if s.String() != `` {
 		t.Fatalf("Stack string not what expected: %s", s.String())
 	}

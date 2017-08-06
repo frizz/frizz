@@ -12,7 +12,7 @@ func NewStack(name string) Stack {
 
 type Stack []stackItem
 
-func (s Stack) Append(item stackItem) Stack {
+func (s Stack) Child(item stackItem) Location {
 	n := make(Stack, len(s), len(s)+1)
 	copy(n, s)
 	return append(n, item)

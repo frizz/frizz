@@ -3,60 +3,60 @@ package pack
 import (
 	"reflect"
 
-	"github.com/pkg/errors"
 	"frizz.io/global"
 	"frizz.io/utils"
+	"github.com/pkg/errors"
 )
 
-func UnpackInterface(context global.Context, root global.Root, stack global.Stack, in interface{}) (value interface{}, null bool, err error) {
+func UnpackInterface(context global.DataContext, in interface{}) (value interface{}, null bool, err error) {
 	if in == nil {
 		return nil, true, nil
 	}
 	m, ok := in.(map[string]interface{})
 	if !ok {
-		return nil, false, errors.Errorf("%s: unpacking into interface, value should be a map", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, value should be a map", context.Location())
 	}
 	ti, ok := m["_type"]
 	if !ok {
-		return nil, false, errors.Errorf("%s: unpacking into interface, _type field missing", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, _type field missing", context.Location())
 	}
 	ts, ok := ti.(string)
 	if !ok {
-		return nil, false, errors.Errorf("%s: unpacking into interface, _type should be a string", stack)
+		return nil, false, errors.Errorf("%s: unpacking into interface, _type should be a string", context.Location())
 	}
 
 	v := m["_value"]
 
-	if context.Path() == "" {
-		return nil, false, errors.Errorf("%s: unpacking into interface, local path is not set", stack)
+	if context.Package().Path() == "" {
+		return nil, false, errors.Errorf("%s: unpacking into interface, local path is not set", context.Location())
 	}
 
-	path, name, err := utils.ParseReference(ts, context.Path(), root.Imports())
+	path, name, err := utils.ParseReference(ts, context.Package().Path(), context.Root().Imports())
 	if err != nil {
-		return nil, false, errors.Wrapf(err, "%s: unpacking into interface", stack)
+		return nil, false, errors.Wrapf(err, "%s: unpacking into interface", context.Location())
 	} else if path != "" && name != "" {
 		// we have a path and a name => unpack with packer
-		p := context.Package(path)
+		p := context.Package().Get(path)
 		if p == nil {
-			return nil, false, errors.Errorf("%s: unpacking into interface, packer for %s not registered", stack, context.Path())
+			return nil, false, errors.Errorf("%s: unpacking into interface, packer for %s not registered", context.Location(), context.Package().Path())
 		}
 		if v != nil {
-			return p.Unpack(context, root, stack, v, name)
+			return p.Unpack(context, v, name)
 		}
-		return p.Unpack(context, root, stack, in, name)
+		return p.Unpack(context, in, name)
 	} else if name != "" {
 		// no path path but we have a name => native type
 		if v == nil {
-			return nil, false, errors.Errorf("%s: unpacking native type into interface, _value field missing", stack)
+			return nil, false, errors.Errorf("%s: unpacking native type into interface, _value field missing", context.Location())
 		}
-		return UnpackNative(stack, name, v)
+		return UnpackNative(context.Location(), name, v)
 	} else {
 		// no path or name => type not found
-		return nil, false, errors.Errorf("%s: unsupported type %s", stack, ts)
+		return nil, false, errors.Errorf("%s: unsupported type %s", context.Location(), ts)
 	}
 }
 
-func RepackInterface(context global.Context, root global.Root, stack global.Stack, isroot bool, in interface{}) (value interface{}, dict bool, null bool, err error) {
+func RepackInterface(context global.DataContext, isroot bool, in interface{}) (value interface{}, dict bool, null bool, err error) {
 	if in == nil {
 		return nil, false, true, nil
 	}
@@ -64,27 +64,27 @@ func RepackInterface(context global.Context, root global.Root, stack global.Stac
 	if t.PkgPath() == "" {
 		switch t.Name() {
 		case "bool", "byte", "float32", "float64", "int", "int8", "int16", "int32", "uint", "uint8", "uint16", "uint32", "int64", "uint64", "rune", "string":
-			value, dict, null, err = RepackNative(stack, t.Name(), in)
+			value, dict, null, err = RepackNative(context.Location(), t.Name(), in)
 			if err != nil {
 				return nil, false, false, err
 			}
 		default:
-			return nil, false, false, errors.Errorf("%s: unsupported type %s", stack, t.Name())
+			return nil, false, false, errors.Errorf("%s: unsupported type %s", context.Location(), t.Name())
 		}
 	} else {
-		p := context.Package(t.PkgPath())
+		p := context.Package().Get(t.PkgPath())
 		if p == nil {
-			return nil, false, false, errors.Errorf("%s: can't find packer for %s", stack, t.PkgPath())
+			return nil, false, false, errors.Errorf("%s: can't find packer for %s", context.Location(), t.PkgPath())
 		}
-		value, dict, null, err = p.Repack(context, root, stack, in, t.Name())
+		value, dict, null, err = p.Repack(context, in, t.Name())
 		if err != nil {
 			return nil, false, false, err
 		}
 	}
 
 	typeName := t.Name()
-	if t.PkgPath() != "" && t.PkgPath() != context.Path() {
-		alias := root.Register(t.PkgPath())
+	if t.PkgPath() != "" && t.PkgPath() != context.Package().Path() {
+		alias := context.Root().RegisterImport(t.PkgPath())
 		typeName = alias + "." + t.Name()
 	}
 
@@ -106,8 +106,8 @@ func RepackInterface(context global.Context, root global.Root, stack global.Stac
 
 	// when repacking into a root, add imports to _import
 	if isroot {
-		imports := make(map[string]interface{}, len(root.Imports()))
-		for a, p := range root.Imports() {
+		imports := make(map[string]interface{}, len(context.Root().Imports()))
+		for a, p := range context.Root().Imports() {
 			imports[a] = p
 		}
 		out["_import"] = imports

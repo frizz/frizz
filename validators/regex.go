@@ -15,7 +15,7 @@ type Regex struct {
 	Invert bool
 }
 
-func (r Regex) Validate(stack global.Stack, input interface{}) (valid bool, message string, err error) {
+func (r Regex) Validate(context global.ValidationContext, input interface{}) (valid bool, message string, err error) {
 	var s string
 	switch input := input.(type) {
 	case string:
@@ -23,17 +23,17 @@ func (r Regex) Validate(stack global.Stack, input interface{}) (valid bool, mess
 	case fmt.Stringer:
 		s = input.String()
 	default:
-		return false, "", errors.Errorf("%s: validators.Regex can only validate string or fmt.Stringer, found %T", stack, input)
+		return false, "", errors.Errorf("%s: validators.Regex can only validate string or fmt.Stringer, found %T", context.Location(), input)
 	}
 	matched, err := regexp.Match(r.Regex, []byte(s))
 	if err != nil {
 		return false, "", errors.WithStack(err)
 	}
 	if !r.Invert && !matched {
-		return false, fmt.Sprintf("%s: value %#v did not match regex %#v", stack, input, r.Regex), nil
+		return false, fmt.Sprintf("%s: value %#v did not match regex %#v", context.Location(), input, r.Regex), nil
 	}
 	if r.Invert && matched {
-		return false, fmt.Sprintf("%s: value %#v matched regex %#v", stack, input, r.Regex), nil
+		return false, fmt.Sprintf("%s: value %#v matched regex %#v", context.Location(), input, r.Regex), nil
 	}
 	return true, "", nil
 }

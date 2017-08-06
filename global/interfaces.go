@@ -1,27 +1,47 @@
 package global
 
 type Packable interface {
-	Unpack(context Context, root Root, stack Stack, in interface{}) (null bool, err error)
-	Repack(context Context, root Root, stack Stack) (value interface{}, dict bool, null bool, err error)
+	Unpack(context DataContext, in interface{}) (null bool, err error)
+	Repack(context DataContext) (value interface{}, dict bool, null bool, err error)
 }
 
 type Package interface {
 	Path() string
-	Unpack(context Context, root Root, stack Stack, in interface{}, name string) (value interface{}, null bool, err error)
-	Repack(context Context, root Root, stack Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error)
-	Get(name string) string
-	Add(packages map[string]Package)
+	Unpack(context DataContext, in interface{}, name string) (value interface{}, null bool, err error)
+	Repack(context DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error)
+	GetType(name string) string
+	GetImportedPackages(packages map[string]Package)
 }
 
-type Root interface {
-	Parse(value interface{}) error
-	Register(path string) string
+// PackageContext describes the package, the package path, all the packages that are directly imported, and the
+// flattened package import tree
+type PackageContext interface {
+	Path() string
+	Register(packages ...Package)
+	Get(path string) Package
+}
+
+// RootContext describes a single json file that includes a "_import" field which maps the aliases to package paths.
+type RootContext interface {
+	Package() PackageContext
+	RegisterImport(path string) string
+	ParseImports(v interface{}) error
 	Imports() map[string]string
 }
 
-type Context interface {
-	Path() string
-	Register(packages ...Package)
-	Package(path string) Package
-	Unmarshal(in []byte) (interface{}, error)
+type ValidationContext interface {
+	Package() PackageContext
+	Location() Location
+}
+
+type DataContext interface {
+	Package() PackageContext
+	Root() RootContext
+	Location() Location
+	New(location Location) DataContext
+}
+
+type Location interface {
+	String() string
+	Child(item stackItem) Location
 }

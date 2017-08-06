@@ -215,7 +215,7 @@ func TestStructs(t *testing.T) {
 func run(t *testing.T, name string, vals map[string]valDef) {
 	for valName, val := range vals {
 		for testName, test := range val.tests {
-			iface, err := frizz.New(packer.Package).Unmarshal([]byte(test.data))
+			iface, err := frizz.Unmarshal(frizz.New(packer.Package), []byte(test.data))
 			if err != nil {
 				t.Fatalf("%s - %s - %s: %s", name, valName, testName, err.Error())
 			}
@@ -224,7 +224,8 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 			var message string
 			if val.typeFile != "" {
 				typ := unmarshalType(t, name, valName, testName, val.typeFile)
-				valid, message, err = typ.Validate(global.NewStack("root"), iface)
+				context := pack.NewValidationContext(frizz.New(packer.Package), global.NewStack("root"))
+				valid, message, err = typ.Validate(context, iface)
 			} else {
 				mi := mockPackage{
 					path: packer.Package.Path(),
@@ -244,7 +245,8 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 						mi.packages[path] = mockPackage{path: path, types: types}
 					}
 				}
-				valid, message, err = validator.Validate(iface, mi)
+				context := frizz.New(mi)
+				valid, message, err = validator.Validate(context, iface)
 			}
 
 			if test.err == "" && err != nil {
@@ -272,15 +274,16 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 func unmarshalType(t *testing.T, name, val, test, in string) system.Type {
 	// packer.Imports does not automatically import system or validators, so we must register manually
 	c := frizz.New(packer.Package, system.Package, validators.Package)
-	r := pack.NewRoot()
+	r := pack.NewRootContext(c)
 	v, err := unmarshal(in)
 	if err != nil {
 		t.Fatalf("%s - %s - %s: unmarshaling typeFile: %s", name, val, test, err.Error())
 	}
-	if err := r.Parse(v); err != nil {
+	if err := r.ParseImports(v); err != nil {
 		t.Fatalf("%s - %s - %s: parsing typeFile imports: %s", name, val, test, err.Error())
 	}
-	typ, _, err := system.Package.UnpackType(c, r, global.NewStack("root"), v)
+	d := pack.NewDataContext(c, r, global.NewStack("root"))
+	typ, _, err := system.Package.UnpackType(d, v)
 	if err != nil {
 		t.Fatalf("%s - %s - %s: unpacking typeFile: %s", name, val, test, err.Error())
 	}
@@ -316,19 +319,19 @@ type mockPackage struct {
 	inner    global.Package
 }
 
-func (m mockPackage) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
-	return m.inner.Unpack(context, root, stack, in, name)
+func (m mockPackage) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
+	return m.inner.Unpack(context, in, name)
 }
 
-func (m mockPackage) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
-	return m.inner.Repack(context, root, stack, in, name)
+func (m mockPackage) Repack(context global.DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+	return m.inner.Repack(context, in, name)
 }
 
-func (m mockPackage) Get(name string) string {
+func (m mockPackage) GetType(name string) string {
 	return base64.StdEncoding.EncodeToString([]byte(m.types[name]))
 }
 
-func (m mockPackage) Add(packages map[string]global.Package) {
+func (m mockPackage) GetImportedPackages(packages map[string]global.Package) {
 	for _, v := range m.packages {
 		packages[v.Path()] = v
 	}
