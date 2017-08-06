@@ -8,9 +8,9 @@ import (
 
 // frizz
 type Validator interface {
-	Validate(stack global.Stack, input interface{}) (valid bool, message string, err error)
+	Validate(context global.ValidationContext, input interface{}) (valid bool, message string, err error)
 }
 
 type ValueValidator interface {
-	ValidateValue(stack global.Stack, input reflect.Value) (valid bool, message string, err error)
+	ValidateValue(context global.ValidationContext, input reflect.Value) (valid bool, message string, err error)
 }

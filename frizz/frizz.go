@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"bytes"
+
 	"frizz.io/global"
 	"frizz.io/pack"
 	"frizz.io/utils"
@@ -12,13 +14,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func New(local global.Package, more ...global.Package) global.Context {
+func New(local global.Package, more ...global.Package) global.PackageContext {
 	all := map[string]global.Package{}
-	local.Add(all)
+	local.GetImportedPackages(all)
 	for _, p := range more {
-		p.Add(all)
+		p.GetImportedPackages(all)
 	}
-	return pack.NewContext(local.Path(), all)
+	return pack.NewPackageContext(local.Path(), all)
 }
 
 func Package(p global.Package) (map[string]interface{}, error) {
@@ -42,12 +44,13 @@ func Package(p global.Package) (map[string]interface{}, error) {
 			return nil, errors.Wrapf(err, "decoding %s", fname)
 		}
 
-		r := pack.NewRoot()
-		if err := r.Parse(v); err != nil {
+		r := pack.NewRootContext(c)
+		if err := r.ParseImports(v); err != nil {
 			return nil, errors.Wrapf(err, "parsing imports from %s", fname)
 		}
 		s := global.NewStack(name)
-		i, null, err := pack.UnpackInterface(c, r, s, v)
+		d := pack.NewDataContext(c, r, s)
+		i, null, err := pack.UnpackInterface(d, v)
 		if err != nil {
 			return nil, errors.Wrapf(err, "unpacking %s", fname)
 		}
@@ -56,4 +59,19 @@ func Package(p global.Package) (map[string]interface{}, error) {
 		}
 	}
 	return out, nil
+}
+
+func Unmarshal(context global.PackageContext, in []byte) (interface{}, error) {
+	data, err := utils.DecodeReader(bytes.NewBuffer(in))
+	if err != nil {
+		return nil, err
+	}
+	v, null, err := pack.Unpack(context, data)
+	if err != nil || null {
+		return nil, err
+	}
+	if null {
+		return nil, nil
+	}
+	return v, nil
 }

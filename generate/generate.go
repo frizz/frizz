@@ -200,22 +200,14 @@ func scanSource(prog *progDef) error {
 				// frizz.Packable interface.
 				switch n.Name.Name {
 				case "Unpack":
-					if len(n.Type.Params.List) != 4 {
+					if len(n.Type.Params.List) != 2 {
 						return true
 					}
 					param0 := file.getTypeInfo(n.Type.Params.List[0].Type)
-					param1 := file.getTypeInfo(n.Type.Params.List[1].Type)
-					param2 := file.getTypeInfo(n.Type.Params.List[2].Type)
-					if param0 != (typeInfo{false, "frizz.io/global", "Context"}) {
+					if param0 != (typeInfo{false, "frizz.io/global", "DataContext"}) {
 						return true
 					}
-					if param1 != (typeInfo{false, "frizz.io/global", "Root"}) {
-						return true
-					}
-					if param2 != (typeInfo{false, "frizz.io/global", "Stack"}) {
-						return true
-					}
-					if ift, ok := n.Type.Params.List[3].Type.(*ast.InterfaceType); !ok || len(ift.Methods.List) != 0 {
+					if ift, ok := n.Type.Params.List[1].Type.(*ast.InterfaceType); !ok || len(ift.Methods.List) != 0 {
 						return true
 					}
 					// check return is bool, error
@@ -231,19 +223,11 @@ func scanSource(prog *progDef) error {
 					// Unpack method is the correct signature.
 					unpackers[receiverType] = true
 				case "Repack":
-					if len(n.Type.Params.List) != 3 {
+					if len(n.Type.Params.List) != 1 {
 						return true
 					}
 					param0 := file.getTypeInfo(n.Type.Params.List[0].Type)
-					param1 := file.getTypeInfo(n.Type.Params.List[1].Type)
-					param2 := file.getTypeInfo(n.Type.Params.List[2].Type)
-					if param0 != (typeInfo{false, "frizz.io/global", "Context"}) {
-						return true
-					}
-					if param1 != (typeInfo{false, "frizz.io/global", "Root"}) {
-						return true
-					}
-					if param2 != (typeInfo{false, "frizz.io/global", "Stack"}) {
+					if param0 != (typeInfo{false, "frizz.io/global", "DataContext"}) {
 						return true
 					}
 					// check return is error
@@ -387,20 +371,18 @@ func generatePackers(prog *progDef, f *File) {
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 
 	/*
-		func (p packageType) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+		func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
 			switch name {
 			<types...>
 			case "<name>":
-				return p.Unpack<name>(context, root, stack, in)
+				return p.Unpack<name>(context, in)
 			}
 			</types>
-			return nil, false, errors.Errorf("%s: type %s not found", stack, "<name>")
+			return nil, false, errors.Errorf("%s: type %s not found", context.Location(), "<name>")
 		}
 	*/
 	f.Func().Params(Id("p").Id("packageType")).Id("Unpack").Params(
-		Id("context").Qual("frizz.io/global", "Context"),
-		Id("root").Qual("frizz.io/global", "Root"),
-		Id("stack").Qual("frizz.io/global", "Stack"),
+		Id("context").Qual("frizz.io/global", "DataContext"),
 		Id("in").Interface(),
 		Id("name").String(),
 	).Params(
@@ -413,8 +395,6 @@ func generatePackers(prog *progDef, f *File) {
 				g.Case(Lit(t.name)).Block(
 					Return(Id("p").Dot("Unpack"+t.name).Call(
 						Id("context"),
-						Id("root"),
-						Id("stack"),
 						Id("in"),
 					)),
 				)
@@ -425,7 +405,7 @@ func generatePackers(prog *progDef, f *File) {
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
 				Lit("%s: type %s not found"),
-				Id("stack"),
+				Id("context").Dot("Location").Call(),
 				Id("name"),
 			),
 		),
@@ -436,20 +416,18 @@ func generatePackers(prog *progDef, f *File) {
 	}
 
 	/*
-		func (p packageType) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+		func (p packageType) Repack(context global.DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 			switch name {
 			<types...>
 			case "<name>":
-				return p.Repack<name>(context, root, stack, in.(<name>))
+				return p.Repack<name>(context, in.(<name>))
 			}
 			</types>
-			return nil, false, false, errors.Errorf("%s: type %s not found", stack, "<name>")
+			return nil, false, false, errors.Errorf("%s: type %s not found", context.Location(), "<name>")
 		}
 	*/
 	f.Func().Params(Id("p").Id("packageType")).Id("Repack").Params(
-		Id("context").Qual("frizz.io/global", "Context"),
-		Id("root").Qual("frizz.io/global", "Root"),
-		Id("stack").Qual("frizz.io/global", "Stack"),
+		Id("context").Qual("frizz.io/global", "DataContext"),
 		Id("in").Interface(),
 		Id("name").String(),
 	).Params(
@@ -463,8 +441,6 @@ func generatePackers(prog *progDef, f *File) {
 				g.Case(Lit(t.name)).Block(
 					Return(Id("p").Dot("Repack"+t.name).Call(
 						Id("context"),
-						Id("root"),
-						Id("stack"),
 						Id("in").Assert(Id(t.name)),
 					)),
 				)
@@ -476,7 +452,7 @@ func generatePackers(prog *progDef, f *File) {
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
 				Lit("%s: type %s not found"),
-				Id("stack"),
+				Id("context").Dot("Location").Call(),
 				Id("name"),
 			),
 		),
@@ -500,7 +476,7 @@ func generateTypeFiles(prog *progDef, f *File) {
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 
 	/*
-		func (p packageType) Get(name string) string {
+		func (p packageType) GetType(name string) string {
 			switch name {
 			<types...>
 			case <name>:
@@ -512,7 +488,7 @@ func generateTypeFiles(prog *progDef, f *File) {
 	*/
 	f.Func().Params(
 		Id("p").Id("packageType"),
-	).Id("Get").Params(
+	).Id("GetType").Params(
 		Id("name").String(),
 	).String().BlockFunc(func(g *Group) {
 		if len(sorted) > 0 {
@@ -538,21 +514,21 @@ func generateImports(prog *progDef, f *File) {
 	sort.Strings(sorted)
 
 	/*
-		func (p packageType) Add(packages map[string]global.Package) {
+		func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 			packages["<path>"] = Package
 			<imports...>
 			<pkg>.Package.Add(packages)
 			</imports>
 		}
 	*/
-	f.Func().Params(Id("p").Id("packageType")).Id("Add").Params(
+	f.Func().Params(Id("p").Id("packageType")).Id("GetImportedPackages").Params(
 		Id("packages").Map(String()).Qual("frizz.io/global", "Package"),
 	).BlockFunc(func(g *Group) {
 		if len(prog.types) > 0 || len(prog.typeFiles) > 0 {
 			g.Id("packages").Index(Lit(prog.path)).Op("=").Id("Package")
 		}
 		for _, pkg := range sorted {
-			g.Qual(pkg, "Package").Dot("Add").Call(Id("packages"))
+			g.Qual(pkg, "Package").Dot("GetImportedPackages").Call(Id("packages"))
 		}
 	})
 

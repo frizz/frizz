@@ -16,160 +16,160 @@ type packageType int
 func (p packageType) Path() string {
 	return "frizz.io/validators"
 }
-func (p packageType) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Equal":
-		return p.UnpackEqual(context, root, stack, in)
+		return p.UnpackEqual(context, in)
 	case "GreaterThan":
-		return p.UnpackGreaterThan(context, root, stack, in)
+		return p.UnpackGreaterThan(context, in)
 	case "GreaterThanOrEqual":
-		return p.UnpackGreaterThanOrEqual(context, root, stack, in)
+		return p.UnpackGreaterThanOrEqual(context, in)
 	case "IsNull":
-		return p.UnpackIsNull(context, root, stack, in)
+		return p.UnpackIsNull(context, in)
 	case "Items":
-		return p.UnpackItems(context, root, stack, in)
+		return p.UnpackItems(context, in)
 	case "Keys":
-		return p.UnpackKeys(context, root, stack, in)
+		return p.UnpackKeys(context, in)
 	case "Length":
-		return p.UnpackLength(context, root, stack, in)
+		return p.UnpackLength(context, in)
 	case "LessThan":
-		return p.UnpackLessThan(context, root, stack, in)
+		return p.UnpackLessThan(context, in)
 	case "LessThanOrEqual":
-		return p.UnpackLessThanOrEqual(context, root, stack, in)
+		return p.UnpackLessThanOrEqual(context, in)
 	case "NotNull":
-		return p.UnpackNotNull(context, root, stack, in)
+		return p.UnpackNotNull(context, in)
 	case "Regex":
-		return p.UnpackRegex(context, root, stack, in)
+		return p.UnpackRegex(context, in)
 	case "Struct":
-		return p.UnpackStruct(context, root, stack, in)
+		return p.UnpackStruct(context, in)
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, errors.Errorf("%s: type %s not found", context.Location(), name)
 }
-func (p packageType) UnpackEqual(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Equal, null bool, err error) {
+func (p packageType) UnpackEqual(context global.DataContext, in interface{}) (value Equal, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value system.Raw, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value system.Raw, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// selectorUnpacker
-		out, null, err := system.Package.UnpackRaw(context, root, stack, in)
+		out, null, err := system.Package.UnpackRaw(context, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Equal(out), false, nil
 }
-func (p packageType) UnpackGreaterThan(context global.Context, root global.Root, stack global.Stack, in interface{}) (value GreaterThan, null bool, err error) {
+func (p packageType) UnpackGreaterThan(context global.DataContext, in interface{}) (value GreaterThan, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value json.Number, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value json.Number, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// selectorUnpacker (json.Number)
 		out, ok := in.(json.Number)
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", context.Location(), in)
 		}
 		if out == "" {
 			return value, true, nil
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return GreaterThan(out), false, nil
 }
-func (p packageType) UnpackGreaterThanOrEqual(context global.Context, root global.Root, stack global.Stack, in interface{}) (value GreaterThanOrEqual, null bool, err error) {
+func (p packageType) UnpackGreaterThanOrEqual(context global.DataContext, in interface{}) (value GreaterThanOrEqual, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value json.Number, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value json.Number, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// selectorUnpacker (json.Number)
 		out, ok := in.(json.Number)
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", context.Location(), in)
 		}
 		if out == "" {
 			return value, true, nil
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return GreaterThanOrEqual(out), false, nil
 }
-func (p packageType) UnpackIsNull(context global.Context, root global.Root, stack global.Stack, in interface{}) (value IsNull, null bool, err error) {
+func (p packageType) UnpackIsNull(context global.DataContext, in interface{}) (value IsNull, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct{}, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct{}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
 		}
 		var out struct{}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return IsNull(out), false, nil
 }
-func (p packageType) UnpackItems(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Items, null bool, err error) {
+func (p packageType) UnpackItems(context global.DataContext, in interface{}) (value Items, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value []common.Validator, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 		}
 		if len(a) == 0 {
 			return value, true, nil
 		}
 		var out = make([]common.Validator, len(a))
 		for i, v := range a {
-			stack := stack.Append(global.ArrayItem(i))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value common.Validator, null bool, err error) {
+			context := context.New(context.Location().Child(global.ArrayItem(i)))
+			u, null, err := func(context global.DataContext, in interface{}) (value common.Validator, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker
-				out, null, err := common.Package.UnpackValidator(context, root, stack, in)
+				out, null, err := common.Package.UnpackValidator(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -178,43 +178,43 @@ func (p packageType) UnpackItems(context global.Context, root global.Root, stack
 			}
 		}
 		return out[:], false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Items(out), false, nil
 }
-func (p packageType) UnpackKeys(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Keys, null bool, err error) {
+func (p packageType) UnpackKeys(context global.DataContext, in interface{}) (value Keys, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value []common.Validator, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 		}
 		if len(a) == 0 {
 			return value, true, nil
 		}
 		var out = make([]common.Validator, len(a))
 		for i, v := range a {
-			stack := stack.Append(global.ArrayItem(i))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value common.Validator, null bool, err error) {
+			context := context.New(context.Location().Child(global.ArrayItem(i)))
+			u, null, err := func(context global.DataContext, in interface{}) (value common.Validator, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker
-				out, null, err := common.Package.UnpackValidator(context, root, stack, in)
+				out, null, err := common.Package.UnpackValidator(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -223,43 +223,43 @@ func (p packageType) UnpackKeys(context global.Context, root global.Root, stack 
 			}
 		}
 		return out[:], false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Keys(out), false, nil
 }
-func (p packageType) UnpackLength(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Length, null bool, err error) {
+func (p packageType) UnpackLength(context global.DataContext, in interface{}) (value Length, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value []common.Validator, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 		}
 		if len(a) == 0 {
 			return value, true, nil
 		}
 		var out = make([]common.Validator, len(a))
 		for i, v := range a {
-			stack := stack.Append(global.ArrayItem(i))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value common.Validator, null bool, err error) {
+			context := context.New(context.Location().Child(global.ArrayItem(i)))
+			u, null, err := func(context global.DataContext, in interface{}) (value common.Validator, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker
-				out, null, err := common.Package.UnpackValidator(context, root, stack, in)
+				out, null, err := common.Package.UnpackValidator(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -268,91 +268,91 @@ func (p packageType) UnpackLength(context global.Context, root global.Root, stac
 			}
 		}
 		return out[:], false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Length(out), false, nil
 }
-func (p packageType) UnpackLessThan(context global.Context, root global.Root, stack global.Stack, in interface{}) (value LessThan, null bool, err error) {
+func (p packageType) UnpackLessThan(context global.DataContext, in interface{}) (value LessThan, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value json.Number, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value json.Number, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// selectorUnpacker (json.Number)
 		out, ok := in.(json.Number)
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", context.Location(), in)
 		}
 		if out == "" {
 			return value, true, nil
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return LessThan(out), false, nil
 }
-func (p packageType) UnpackLessThanOrEqual(context global.Context, root global.Root, stack global.Stack, in interface{}) (value LessThanOrEqual, null bool, err error) {
+func (p packageType) UnpackLessThanOrEqual(context global.DataContext, in interface{}) (value LessThanOrEqual, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value json.Number, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value json.Number, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// selectorUnpacker (json.Number)
 		out, ok := in.(json.Number)
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+			return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", context.Location(), in)
 		}
 		if out == "" {
 			return value, true, nil
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return LessThanOrEqual(out), false, nil
 }
-func (p packageType) UnpackNotNull(context global.Context, root global.Root, stack global.Stack, in interface{}) (value NotNull, null bool, err error) {
+func (p packageType) UnpackNotNull(context global.DataContext, in interface{}) (value NotNull, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct{}, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct{}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
 		}
 		var out struct{}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return NotNull(out), false, nil
 }
-func (p packageType) UnpackRegex(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Regex, null bool, err error) {
+func (p packageType) UnpackRegex(context global.DataContext, in interface{}) (value Regex, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Regex  string
 		Invert bool
 	}, null bool, err error) {
@@ -362,7 +362,7 @@ func (p packageType) UnpackRegex(context global.Context, root global.Root, stack
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -372,18 +372,18 @@ func (p packageType) UnpackRegex(context global.Context, root global.Root, stack
 			Invert bool
 		}
 		if v, ok := m["Regex"]; ok {
-			stack := stack.Append(global.FieldItem("Regex"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Regex")))
+			u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackString(stack, in)
+				out, null, err := pack.UnpackString(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -392,18 +392,18 @@ func (p packageType) UnpackRegex(context global.Context, root global.Root, stack
 			}
 		}
 		if v, ok := m["Invert"]; ok {
-			stack := stack.Append(global.FieldItem("Invert"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value bool, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Invert")))
+			u, null, err := func(context global.DataContext, in interface{}) (value bool, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackBool(stack, in)
+				out, null, err := pack.UnpackBool(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -412,58 +412,58 @@ func (p packageType) UnpackRegex(context global.Context, root global.Root, stack
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Regex(out), false, nil
 }
-func (p packageType) UnpackStruct(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Struct, null bool, err error) {
+func (p packageType) UnpackStruct(context global.DataContext, in interface{}) (value Struct, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string][]common.Validator, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value map[string][]common.Validator, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// mapUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+			return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
 		}
 		var out = make(map[string][]common.Validator, len(m))
 		for k, v := range m {
-			stack := stack.Append(global.MapItem(k))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []common.Validator, null bool, err error) {
+			context := context.New(context.Location().Child(global.MapItem(k)))
+			u, null, err := func(context global.DataContext, in interface{}) (value []common.Validator, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]common.Validator, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value common.Validator, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value common.Validator, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// selectorUnpacker
-						out, null, err := common.Package.UnpackValidator(context, root, stack, in)
+						out, null, err := common.Package.UnpackValidator(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -472,7 +472,7 @@ func (p packageType) UnpackStruct(context global.Context, root global.Root, stac
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -481,91 +481,91 @@ func (p packageType) UnpackStruct(context global.Context, root global.Root, stac
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Struct(out), false, nil
 }
-func (p packageType) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) Repack(context global.DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Equal":
-		return p.RepackEqual(context, root, stack, in.(Equal))
+		return p.RepackEqual(context, in.(Equal))
 	case "GreaterThan":
-		return p.RepackGreaterThan(context, root, stack, in.(GreaterThan))
+		return p.RepackGreaterThan(context, in.(GreaterThan))
 	case "GreaterThanOrEqual":
-		return p.RepackGreaterThanOrEqual(context, root, stack, in.(GreaterThanOrEqual))
+		return p.RepackGreaterThanOrEqual(context, in.(GreaterThanOrEqual))
 	case "IsNull":
-		return p.RepackIsNull(context, root, stack, in.(IsNull))
+		return p.RepackIsNull(context, in.(IsNull))
 	case "Items":
-		return p.RepackItems(context, root, stack, in.(Items))
+		return p.RepackItems(context, in.(Items))
 	case "Keys":
-		return p.RepackKeys(context, root, stack, in.(Keys))
+		return p.RepackKeys(context, in.(Keys))
 	case "Length":
-		return p.RepackLength(context, root, stack, in.(Length))
+		return p.RepackLength(context, in.(Length))
 	case "LessThan":
-		return p.RepackLessThan(context, root, stack, in.(LessThan))
+		return p.RepackLessThan(context, in.(LessThan))
 	case "LessThanOrEqual":
-		return p.RepackLessThanOrEqual(context, root, stack, in.(LessThanOrEqual))
+		return p.RepackLessThanOrEqual(context, in.(LessThanOrEqual))
 	case "NotNull":
-		return p.RepackNotNull(context, root, stack, in.(NotNull))
+		return p.RepackNotNull(context, in.(NotNull))
 	case "Regex":
-		return p.RepackRegex(context, root, stack, in.(Regex))
+		return p.RepackRegex(context, in.(Regex))
 	case "Struct":
-		return p.RepackStruct(context, root, stack, in.(Struct))
+		return p.RepackStruct(context, in.(Struct))
 	}
-	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", context.Location(), name)
 }
-func (p packageType) RepackEqual(context global.Context, root global.Root, stack global.Stack, in Equal) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in system.Raw) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackEqual(context global.DataContext, in Equal) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in system.Raw) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker
-		out, dict, null, err := system.Package.RepackRaw(context, root, stack, in)
+		out, dict, null, err := system.Package.RepackRaw(context, in)
 		if err != nil {
 			return nil, false, false, err
 		}
 		return out, dict, null, nil
-	}(context, root, stack, (system.Raw)(in))
+	}(context, (system.Raw)(in))
 }
-func (p packageType) RepackGreaterThan(context global.Context, root global.Root, stack global.Stack, in GreaterThan) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackGreaterThan(context global.DataContext, in GreaterThan) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in json.Number) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker (json.Number)
 		if in == "" {
 			return value, false, true, nil
 		}
 		return in, false, false, nil
-	}(context, root, stack, (json.Number)(in))
+	}(context, (json.Number)(in))
 }
-func (p packageType) RepackGreaterThanOrEqual(context global.Context, root global.Root, stack global.Stack, in GreaterThanOrEqual) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackGreaterThanOrEqual(context global.DataContext, in GreaterThanOrEqual) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in json.Number) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker (json.Number)
 		if in == "" {
 			return value, false, true, nil
 		}
 		return in, false, false, nil
-	}(context, root, stack, (json.Number)(in))
+	}(context, (json.Number)(in))
 }
-func (p packageType) RepackIsNull(context global.Context, root global.Root, stack global.Stack, in IsNull) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct{}) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackIsNull(context global.DataContext, in IsNull) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct{}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 1)
 		empty := true
 		return out, false, empty, nil
-	}(context, root, stack, (struct{})(in))
+	}(context, (struct{})(in))
 }
-func (p packageType) RepackItems(context global.Context, root global.Root, stack global.Stack, in Items) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackItems(context global.DataContext, in Items) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
 		empty := true
 		for i, item := range in {
-			v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+			v, _, null, err := func(context global.DataContext, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, null, err := common.Package.RepackValidator(context, root, stack, in)
+				out, dict, null, err := common.Package.RepackValidator(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
@@ -575,22 +575,22 @@ func (p packageType) RepackItems(context global.Context, root global.Root, stack
 			out[i] = v
 		}
 		return out, false, empty, nil
-	}(context, root, stack, ([]common.Validator)(in))
+	}(context, ([]common.Validator)(in))
 }
-func (p packageType) RepackKeys(context global.Context, root global.Root, stack global.Stack, in Keys) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackKeys(context global.DataContext, in Keys) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
 		empty := true
 		for i, item := range in {
-			v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+			v, _, null, err := func(context global.DataContext, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, null, err := common.Package.RepackValidator(context, root, stack, in)
+				out, dict, null, err := common.Package.RepackValidator(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
@@ -600,22 +600,22 @@ func (p packageType) RepackKeys(context global.Context, root global.Root, stack 
 			out[i] = v
 		}
 		return out, false, empty, nil
-	}(context, root, stack, ([]common.Validator)(in))
+	}(context, ([]common.Validator)(in))
 }
-func (p packageType) RepackLength(context global.Context, root global.Root, stack global.Stack, in Length) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackLength(context global.DataContext, in Length) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
 		empty := true
 		for i, item := range in {
-			v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+			v, _, null, err := func(context global.DataContext, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, null, err := common.Package.RepackValidator(context, root, stack, in)
+				out, dict, null, err := common.Package.RepackValidator(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
@@ -625,46 +625,46 @@ func (p packageType) RepackLength(context global.Context, root global.Root, stac
 			out[i] = v
 		}
 		return out, false, empty, nil
-	}(context, root, stack, ([]common.Validator)(in))
+	}(context, ([]common.Validator)(in))
 }
-func (p packageType) RepackLessThan(context global.Context, root global.Root, stack global.Stack, in LessThan) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackLessThan(context global.DataContext, in LessThan) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in json.Number) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker (json.Number)
 		if in == "" {
 			return value, false, true, nil
 		}
 		return in, false, false, nil
-	}(context, root, stack, (json.Number)(in))
+	}(context, (json.Number)(in))
 }
-func (p packageType) RepackLessThanOrEqual(context global.Context, root global.Root, stack global.Stack, in LessThanOrEqual) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackLessThanOrEqual(context global.DataContext, in LessThanOrEqual) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in json.Number) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker (json.Number)
 		if in == "" {
 			return value, false, true, nil
 		}
 		return in, false, false, nil
-	}(context, root, stack, (json.Number)(in))
+	}(context, (json.Number)(in))
 }
-func (p packageType) RepackNotNull(context global.Context, root global.Root, stack global.Stack, in NotNull) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct{}) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackNotNull(context global.DataContext, in NotNull) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct{}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 1)
 		empty := true
 		return out, false, empty, nil
-	}(context, root, stack, (struct{})(in))
+	}(context, (struct{})(in))
 }
-func (p packageType) RepackRegex(context global.Context, root global.Root, stack global.Stack, in Regex) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackRegex(context global.DataContext, in Regex) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Regex  string
 		Invert bool
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackString(in)
-		}(context, root, stack, in.Regex); err != nil {
+		}(context, in.Regex); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -672,10 +672,10 @@ func (p packageType) RepackRegex(context global.Context, root global.Root, stack
 				out["Regex"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in bool) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackBool(in)
-		}(context, root, stack, in.Invert); err != nil {
+		}(context, in.Invert); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -684,29 +684,29 @@ func (p packageType) RepackRegex(context global.Context, root global.Root, stack
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Regex  string
 		Invert bool
 	})(in))
 }
-func (p packageType) RepackStruct(context global.Context, root global.Root, stack global.Stack, in Struct) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in map[string][]common.Validator) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackStruct(context global.DataContext, in Struct) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in map[string][]common.Validator) (value interface{}, dict bool, null bool, err error) {
 		// mapRepacker
 		out := make(map[string]interface{}, len(in))
 		for k, item := range in {
-			v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
+			v, _, _, err := func(context global.DataContext, in []common.Validator) (value interface{}, dict bool, null bool, err error) {
 				// sliceRepacker
 				out := make([]interface{}, len(in))
 				empty := true
 				for i, item := range in {
-					v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in common.Validator) (value interface{}, dict bool, null bool, err error) {
+					v, _, null, err := func(context global.DataContext, in common.Validator) (value interface{}, dict bool, null bool, err error) {
 						// selectorRepacker
-						out, dict, null, err := common.Package.RepackValidator(context, root, stack, in)
+						out, dict, null, err := common.Package.RepackValidator(context, in)
 						if err != nil {
 							return nil, false, false, err
 						}
 						return out, dict, null, nil
-					}(context, root, stack, item)
+					}(context, item)
 					if err != nil {
 						return nil, false, false, err
 					}
@@ -716,18 +716,18 @@ func (p packageType) RepackStruct(context global.Context, root global.Root, stac
 					out[i] = v
 				}
 				return out, false, empty, nil
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
 			out[k] = v
 		}
 		return out, true, len(in) == 0, nil
-	}(context, root, stack, (map[string][]common.Validator)(in))
+	}(context, (map[string][]common.Validator)(in))
 }
-func (p packageType) Get(name string) string {
+func (p packageType) GetType(name string) string {
 	return ""
 }
-func (p packageType) Add(packages map[string]global.Package) {
+func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/validators"] = Package
 }

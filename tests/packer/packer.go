@@ -31,8 +31,8 @@ type SubInterface struct {
 // frizz
 type CustomSub sub.Sub
 
-func (c *CustomSub) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}) (null bool, err error) {
-	s, null, err := sub.Package.UnpackSub(context, root, stack, in)
+func (c *CustomSub) Unpack(context global.DataContext, in interface{}) (null bool, err error) {
+	s, null, err := sub.Package.UnpackSub(context, in)
 	if err != nil || null {
 		return null, err
 	}
@@ -41,30 +41,30 @@ func (c *CustomSub) Unpack(context global.Context, root global.Root, stack globa
 	return false, nil
 }
 
-func (c *CustomSub) Repack(context global.Context, root global.Root, stack global.Stack) (value interface{}, dict bool, null bool, err error) {
+func (c *CustomSub) Repack(context global.DataContext) (value interface{}, dict bool, null bool, err error) {
 	c.String = strings.TrimSuffix(c.String, "-b")
 	out := sub.Sub(*c)
-	return sub.Package.RepackSub(context, root, stack, out)
+	return sub.Package.RepackSub(context, out)
 }
 
 // frizz
 type Ages map[string]int
 
-func (a *Ages) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}) (null bool, err error) {
+func (a *Ages) Unpack(context global.DataContext, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return false, errors.Errorf("%s: ages type must be string", stack)
+		return false, errors.Errorf("%s: ages type must be string", context.Location())
 	}
 	names := strings.Split(str, ",")
 	ages := Ages{}
 	for _, name := range names {
 		parts := strings.Split(name, ":")
 		if len(parts) != 2 {
-			return false, errors.Errorf("%s: converting %s to ages", stack, str)
+			return false, errors.Errorf("%s: converting %s to ages", context.Location(), str)
 		}
 		i, err := strconv.ParseInt(parts[1], 10, 0)
 		if err != nil {
-			return false, errors.Wrapf(err, "%s: converting %s to int", stack, parts[1])
+			return false, errors.Wrapf(err, "%s: converting %s to int", context.Location(), parts[1])
 		}
 		ages[parts[0]] = int(i)
 	}
@@ -72,7 +72,7 @@ func (a *Ages) Unpack(context global.Context, root global.Root, stack global.Sta
 	return false, nil
 }
 
-func (a *Ages) Repack(context global.Context, root global.Root, stack global.Stack) (value interface{}, dict bool, null bool, err error) {
+func (a *Ages) Repack(context global.DataContext) (value interface{}, dict bool, null bool, err error) {
 	var parts []string
 	for k, v := range *a {
 		parts = append(parts, fmt.Sprintf("%s:%v", k, v))
@@ -84,17 +84,17 @@ func (a *Ages) Repack(context global.Context, root global.Root, stack global.Sta
 // frizz
 type Csv []int
 
-func (c *Csv) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}) (null bool, err error) {
+func (c *Csv) Unpack(context global.DataContext, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return false, errors.Errorf("%s: csv type must be string", stack)
+		return false, errors.Errorf("%s: csv type must be string", context.Location())
 	}
 	parts := strings.Split(str, ",")
 	csv := Csv{}
 	for _, part := range parts {
 		i, err := strconv.ParseInt(part, 10, 0)
 		if err != nil {
-			return false, errors.Wrapf(err, "%s: converting %s to int", stack, part)
+			return false, errors.Wrapf(err, "%s: converting %s to int", context.Location(), part)
 		}
 		csv = append(csv, int(i))
 	}
@@ -102,7 +102,7 @@ func (c *Csv) Unpack(context global.Context, root global.Root, stack global.Stac
 	return false, nil
 }
 
-func (c *Csv) Repack(context global.Context, root global.Root, stack global.Stack) (value interface{}, dict bool, null bool, err error) {
+func (c *Csv) Repack(context global.DataContext) (value interface{}, dict bool, null bool, err error) {
 	var out string
 	for i, v := range *c {
 		if i != 0 {
@@ -119,40 +119,40 @@ type Type struct {
 	Name string
 }
 
-func (t *Type) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}) (null bool, err error) {
+func (t *Type) Unpack(context global.DataContext, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return false, errors.Errorf("%s: custom type must be string", stack)
+		return false, errors.Errorf("%s: custom type must be string", context.Location())
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return false, errors.Wrapf(err, "%s: parsing expr", stack)
+		return false, errors.Wrapf(err, "%s: parsing expr", context.Location())
 	}
 	switch expr := expr.(type) {
 	case *ast.SelectorExpr:
 		x, ok := expr.X.(*ast.Ident)
 		if !ok {
-			return false, errors.Errorf("%s: expr.X must be *ast.Ident", stack)
+			return false, errors.Errorf("%s: expr.X must be *ast.Ident", context.Location())
 		}
-		path, ok := root.Imports()[x.Name]
+		path, ok := context.Root().Imports()[x.Name]
 		if !ok {
-			return false, errors.Errorf("%s: alias %s not found in imports", stack, x.Name)
+			return false, errors.Errorf("%s: alias %s not found in imports", context.Location(), x.Name)
 		}
 		*t = Type{Path: path, Name: expr.Sel.Name}
 		return false, nil
 	case *ast.Ident:
-		*t = Type{Path: context.Path(), Name: expr.Name}
+		*t = Type{Path: context.Package().Path(), Name: expr.Name}
 		return false, nil
 	default:
-		return false, errors.Errorf("%s: expr must be *ast.SelectorExpr or *ast.Ident", stack)
+		return false, errors.Errorf("%s: expr must be *ast.SelectorExpr or *ast.Ident", context.Location())
 	}
 }
 
-func (t *Type) Repack(context global.Context, root global.Root, stack global.Stack) (value interface{}, dict bool, null bool, err error) {
-	if t.Path == context.Path() {
+func (t *Type) Repack(context global.DataContext) (value interface{}, dict bool, null bool, err error) {
+	if t.Path == context.Package().Path() {
 		return t.Name, false, false, nil
 	}
-	return fmt.Sprintf("%s.%s", root.Register(t.Path), t.Name), false, false, nil
+	return fmt.Sprintf("%s.%s", context.Root().RegisterImport(t.Path), t.Name), false, false, nil
 }
 
 // frizz
@@ -160,20 +160,20 @@ type Custom struct {
 	ast.Expr
 }
 
-func (c *Custom) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}) (null bool, err error) {
+func (c *Custom) Unpack(context global.DataContext, in interface{}) (null bool, err error) {
 	str, ok := in.(string)
 	if !ok {
-		return false, errors.Errorf("%s: custom type must be string", stack)
+		return false, errors.Errorf("%s: custom type must be string", context.Location())
 	}
 	expr, err := parser.ParseExpr(str)
 	if err != nil {
-		return false, errors.Wrapf(err, "%s: parsing expr", stack)
+		return false, errors.Wrapf(err, "%s: parsing expr", context.Location())
 	}
 	*c = Custom{Expr: expr}
 	return false, nil
 }
 
-func (c *Custom) Repack(context global.Context, root global.Root, stack global.Stack) (value interface{}, dict bool, null bool, err error) {
+func (c *Custom) Repack(context global.DataContext) (value interface{}, dict bool, null bool, err error) {
 	buf := &bytes.Buffer{}
 	if err := printer.Fprint(buf, token.NewFileSet(), c.Expr); err != nil {
 		return nil, false, false, errors.WithStack(err)

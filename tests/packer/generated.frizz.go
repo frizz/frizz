@@ -15,146 +15,146 @@ type packageType int
 func (p packageType) Path() string {
 	return "frizz.io/tests/packer"
 }
-func (p packageType) Unpack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, null bool, err error) {
+func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
 	case "Ages":
-		return p.UnpackAges(context, root, stack, in)
+		return p.UnpackAges(context, in)
 	case "Alias":
-		return p.UnpackAlias(context, root, stack, in)
+		return p.UnpackAlias(context, in)
 	case "AliasArray":
-		return p.UnpackAliasArray(context, root, stack, in)
+		return p.UnpackAliasArray(context, in)
 	case "AliasMap":
-		return p.UnpackAliasMap(context, root, stack, in)
+		return p.UnpackAliasMap(context, in)
 	case "AliasPointer":
-		return p.UnpackAliasPointer(context, root, stack, in)
+		return p.UnpackAliasPointer(context, in)
 	case "AliasSlice":
-		return p.UnpackAliasSlice(context, root, stack, in)
+		return p.UnpackAliasSlice(context, in)
 	case "AliasSub":
-		return p.UnpackAliasSub(context, root, stack, in)
+		return p.UnpackAliasSub(context, in)
 	case "Csv":
-		return p.UnpackCsv(context, root, stack, in)
+		return p.UnpackCsv(context, in)
 	case "Custom":
-		return p.UnpackCustom(context, root, stack, in)
+		return p.UnpackCustom(context, in)
 	case "CustomSub":
-		return p.UnpackCustomSub(context, root, stack, in)
+		return p.UnpackCustomSub(context, in)
 	case "EmbedNatives":
-		return p.UnpackEmbedNatives(context, root, stack, in)
+		return p.UnpackEmbedNatives(context, in)
 	case "EmbedPointer":
-		return p.UnpackEmbedPointer(context, root, stack, in)
+		return p.UnpackEmbedPointer(context, in)
 	case "EmbedQual":
-		return p.UnpackEmbedQual(context, root, stack, in)
+		return p.UnpackEmbedQual(context, in)
 	case "EmbedQualPointer":
-		return p.UnpackEmbedQualPointer(context, root, stack, in)
+		return p.UnpackEmbedQualPointer(context, in)
 	case "Float64":
-		return p.UnpackFloat64(context, root, stack, in)
+		return p.UnpackFloat64(context, in)
 	case "Impi":
-		return p.UnpackImpi(context, root, stack, in)
+		return p.UnpackImpi(context, in)
 	case "Imps":
-		return p.UnpackImps(context, root, stack, in)
+		return p.UnpackImps(context, in)
 	case "Int":
-		return p.UnpackInt(context, root, stack, in)
+		return p.UnpackInt(context, in)
 	case "Interface":
-		return p.UnpackInterface(context, root, stack, in)
+		return p.UnpackInterface(context, in)
 	case "InterfaceField":
-		return p.UnpackInterfaceField(context, root, stack, in)
+		return p.UnpackInterfaceField(context, in)
 	case "InterfaceValidator":
-		return p.UnpackInterfaceValidator(context, root, stack, in)
+		return p.UnpackInterfaceValidator(context, in)
 	case "Maps":
-		return p.UnpackMaps(context, root, stack, in)
+		return p.UnpackMaps(context, in)
 	case "Natives":
-		return p.UnpackNatives(context, root, stack, in)
+		return p.UnpackNatives(context, in)
 	case "Pointers":
-		return p.UnpackPointers(context, root, stack, in)
+		return p.UnpackPointers(context, in)
 	case "Private":
-		return p.UnpackPrivate(context, root, stack, in)
+		return p.UnpackPrivate(context, in)
 	case "Qual":
-		return p.UnpackQual(context, root, stack, in)
+		return p.UnpackQual(context, in)
 	case "Slices":
-		return p.UnpackSlices(context, root, stack, in)
+		return p.UnpackSlices(context, in)
 	case "String":
-		return p.UnpackString(context, root, stack, in)
+		return p.UnpackString(context, in)
 	case "Structs":
-		return p.UnpackStructs(context, root, stack, in)
+		return p.UnpackStructs(context, in)
 	case "SubInterface":
-		return p.UnpackSubInterface(context, root, stack, in)
+		return p.UnpackSubInterface(context, in)
 	case "SubMap":
-		return p.UnpackSubMap(context, root, stack, in)
+		return p.UnpackSubMap(context, in)
 	case "SubSlice":
-		return p.UnpackSubSlice(context, root, stack, in)
+		return p.UnpackSubSlice(context, in)
 	case "Type":
-		return p.UnpackType(context, root, stack, in)
+		return p.UnpackType(context, in)
 	case "Uint":
-		return p.UnpackUint(context, root, stack, in)
+		return p.UnpackUint(context, in)
 	}
-	return nil, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, errors.Errorf("%s: type %s not found", context.Location(), name)
 }
-func (p packageType) UnpackAges(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Ages, null bool, err error) {
+func (p packageType) UnpackAges(context global.DataContext, in interface{}) (value Ages, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// customUnpacker
 	out := new(Ages)
-	null, err = out.Unpack(context, root, stack, in)
+	null, err = out.Unpack(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return *out, false, nil
 }
-func (p packageType) UnpackAlias(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Alias, null bool, err error) {
+func (p packageType) UnpackAlias(context global.DataContext, in interface{}) (value Alias, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Int, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value Int, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// localUnpacker
-		out, null, err := p.UnpackInt(context, root, stack, in)
+		out, null, err := p.UnpackInt(context, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Alias(out), false, nil
 }
-func (p packageType) UnpackAliasArray(context global.Context, root global.Root, stack global.Stack, in interface{}) (value AliasArray, null bool, err error) {
+func (p packageType) UnpackAliasArray(context global.DataContext, in interface{}) (value AliasArray, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [3]string, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value [3]string, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 		}
 		if len(a) == 0 {
 			return value, true, nil
 		}
 		var out [3]string
 		if len(a) > 3 {
-			return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), 3)
+			return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", context.Location(), len(a), 3)
 		}
 		for i, v := range a {
-			stack := stack.Append(global.ArrayItem(i))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+			context := context.New(context.Location().Child(global.ArrayItem(i)))
+			u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackString(stack, in)
+				out, null, err := pack.UnpackString(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -163,53 +163,53 @@ func (p packageType) UnpackAliasArray(context global.Context, root global.Root, 
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return AliasArray(out), false, nil
 }
-func (p packageType) UnpackAliasMap(context global.Context, root global.Root, stack global.Stack, in interface{}) (value AliasMap, null bool, err error) {
+func (p packageType) UnpackAliasMap(context global.DataContext, in interface{}) (value AliasMap, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]*Qual, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value map[string]*Qual, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// mapUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+			return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
 		}
 		var out = make(map[string]*Qual, len(m))
 		for k, v := range m {
-			stack := stack.Append(global.MapItem(k))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *Qual, null bool, err error) {
+			context := context.New(context.Location().Child(global.MapItem(k)))
+			u, null, err := func(context global.DataContext, in interface{}) (value *Qual, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Qual, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value Qual, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// localUnpacker
-					out, null, err := p.UnpackQual(context, root, stack, in)
+					out, null, err := p.UnpackQual(context, in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -218,74 +218,74 @@ func (p packageType) UnpackAliasMap(context global.Context, root global.Root, st
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return AliasMap(out), false, nil
 }
-func (p packageType) UnpackAliasPointer(context global.Context, root global.Root, stack global.Stack, in interface{}) (value AliasPointer, null bool, err error) {
+func (p packageType) UnpackAliasPointer(context global.DataContext, in interface{}) (value AliasPointer, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *Int, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value *Int, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// pointerUnpacker
-		out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Int, null bool, err error) {
+		out, null, err := func(context global.DataContext, in interface{}) (value Int, null bool, err error) {
 			if in == nil {
 				return value, true, nil
 			}
 			// localUnpacker
-			out, null, err := p.UnpackInt(context, root, stack, in)
+			out, null, err := p.UnpackInt(context, in)
 			if err != nil || null {
 				return value, null, err
 			}
 			return out, false, nil
-		}(context, root, stack, in)
+		}(context, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return &out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return AliasPointer(out), false, nil
 }
-func (p packageType) UnpackAliasSlice(context global.Context, root global.Root, stack global.Stack, in interface{}) (value AliasSlice, null bool, err error) {
+func (p packageType) UnpackAliasSlice(context global.DataContext, in interface{}) (value AliasSlice, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []Int, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value []Int, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 		}
 		if len(a) == 0 {
 			return value, true, nil
 		}
 		var out = make([]Int, len(a))
 		for i, v := range a {
-			stack := stack.Append(global.ArrayItem(i))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Int, null bool, err error) {
+			context := context.New(context.Location().Child(global.ArrayItem(i)))
+			u, null, err := func(context global.DataContext, in interface{}) (value Int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// localUnpacker
-				out, null, err := p.UnpackInt(context, root, stack, in)
+				out, null, err := p.UnpackInt(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -294,75 +294,75 @@ func (p packageType) UnpackAliasSlice(context global.Context, root global.Root, 
 			}
 		}
 		return out[:], false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return AliasSlice(out), false, nil
 }
-func (p packageType) UnpackAliasSub(context global.Context, root global.Root, stack global.Stack, in interface{}) (value AliasSub, null bool, err error) {
+func (p packageType) UnpackAliasSub(context global.DataContext, in interface{}) (value AliasSub, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// selectorUnpacker
-		out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+		out, null, err := sub.Package.UnpackSub(context, in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return AliasSub(out), false, nil
 }
-func (p packageType) UnpackCsv(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Csv, null bool, err error) {
+func (p packageType) UnpackCsv(context global.DataContext, in interface{}) (value Csv, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// customUnpacker
 	out := new(Csv)
-	null, err = out.Unpack(context, root, stack, in)
+	null, err = out.Unpack(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return *out, false, nil
 }
-func (p packageType) UnpackCustom(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Custom, null bool, err error) {
+func (p packageType) UnpackCustom(context global.DataContext, in interface{}) (value Custom, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// customUnpacker
 	out := new(Custom)
-	null, err = out.Unpack(context, root, stack, in)
+	null, err = out.Unpack(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return *out, false, nil
 }
-func (p packageType) UnpackCustomSub(context global.Context, root global.Root, stack global.Stack, in interface{}) (value CustomSub, null bool, err error) {
+func (p packageType) UnpackCustomSub(context global.DataContext, in interface{}) (value CustomSub, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// customUnpacker
 	out := new(CustomSub)
-	null, err = out.Unpack(context, root, stack, in)
+	null, err = out.Unpack(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return *out, false, nil
 }
-func (p packageType) UnpackEmbedNatives(context global.Context, root global.Root, stack global.Stack, in interface{}) (value EmbedNatives, null bool, err error) {
+func (p packageType) UnpackEmbedNatives(context global.DataContext, in interface{}) (value EmbedNatives, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Natives
 		Int int
 	}, null bool, err error) {
@@ -372,7 +372,7 @@ func (p packageType) UnpackEmbedNatives(context global.Context, root global.Root
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -382,18 +382,18 @@ func (p packageType) UnpackEmbedNatives(context global.Context, root global.Root
 			Int int
 		}
 		if v, ok := m["Natives"]; ok {
-			stack := stack.Append(global.FieldItem("Natives"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Natives, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Natives")))
+			u, null, err := func(context global.DataContext, in interface{}) (value Natives, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// localUnpacker
-				out, null, err := p.UnpackNatives(context, root, stack, in)
+				out, null, err := p.UnpackNatives(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -402,18 +402,18 @@ func (p packageType) UnpackEmbedNatives(context global.Context, root global.Root
 			}
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -422,18 +422,18 @@ func (p packageType) UnpackEmbedNatives(context global.Context, root global.Root
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return EmbedNatives(out), false, nil
 }
-func (p packageType) UnpackEmbedPointer(context global.Context, root global.Root, stack global.Stack, in interface{}) (value EmbedPointer, null bool, err error) {
+func (p packageType) UnpackEmbedPointer(context global.DataContext, in interface{}) (value EmbedPointer, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		*Natives
 		Int int
 	}, null bool, err error) {
@@ -443,7 +443,7 @@ func (p packageType) UnpackEmbedPointer(context global.Context, root global.Root
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -453,28 +453,28 @@ func (p packageType) UnpackEmbedPointer(context global.Context, root global.Root
 			Int int
 		}
 		if v, ok := m["Natives"]; ok {
-			stack := stack.Append(global.FieldItem("Natives"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *Natives, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Natives")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *Natives, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Natives, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value Natives, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// localUnpacker
-					out, null, err := p.UnpackNatives(context, root, stack, in)
+					out, null, err := p.UnpackNatives(context, in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -483,18 +483,18 @@ func (p packageType) UnpackEmbedPointer(context global.Context, root global.Root
 			}
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -503,18 +503,18 @@ func (p packageType) UnpackEmbedPointer(context global.Context, root global.Root
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return EmbedPointer(out), false, nil
 }
-func (p packageType) UnpackEmbedQual(context global.Context, root global.Root, stack global.Stack, in interface{}) (value EmbedQual, null bool, err error) {
+func (p packageType) UnpackEmbedQual(context global.DataContext, in interface{}) (value EmbedQual, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		sub.Sub
 		Int int
 	}, null bool, err error) {
@@ -524,7 +524,7 @@ func (p packageType) UnpackEmbedQual(context global.Context, root global.Root, s
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -534,18 +534,18 @@ func (p packageType) UnpackEmbedQual(context global.Context, root global.Root, s
 			Int int
 		}
 		if v, ok := m["Sub"]; ok {
-			stack := stack.Append(global.FieldItem("Sub"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Sub")))
+			u, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker
-				out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+				out, null, err := sub.Package.UnpackSub(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -554,18 +554,18 @@ func (p packageType) UnpackEmbedQual(context global.Context, root global.Root, s
 			}
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -574,18 +574,18 @@ func (p packageType) UnpackEmbedQual(context global.Context, root global.Root, s
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return EmbedQual(out), false, nil
 }
-func (p packageType) UnpackEmbedQualPointer(context global.Context, root global.Root, stack global.Stack, in interface{}) (value EmbedQualPointer, null bool, err error) {
+func (p packageType) UnpackEmbedQualPointer(context global.DataContext, in interface{}) (value EmbedQualPointer, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		*sub.Sub
 		Int int
 	}, null bool, err error) {
@@ -595,7 +595,7 @@ func (p packageType) UnpackEmbedQualPointer(context global.Context, root global.
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -605,28 +605,28 @@ func (p packageType) UnpackEmbedQualPointer(context global.Context, root global.
 			Int int
 		}
 		if v, ok := m["Sub"]; ok {
-			stack := stack.Append(global.FieldItem("Sub"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Sub")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// selectorUnpacker
-					out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+					out, null, err := sub.Package.UnpackSub(context, in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -635,18 +635,18 @@ func (p packageType) UnpackEmbedQualPointer(context global.Context, root global.
 			}
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -655,39 +655,39 @@ func (p packageType) UnpackEmbedQualPointer(context global.Context, root global.
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return EmbedQualPointer(out), false, nil
 }
-func (p packageType) UnpackFloat64(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Float64, null bool, err error) {
+func (p packageType) UnpackFloat64(context global.DataContext, in interface{}) (value Float64, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value float64, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value float64, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// nativeUnpacker
-		out, null, err := pack.UnpackFloat64(stack, in)
+		out, null, err := pack.UnpackFloat64(context.Location(), in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Float64(out), false, nil
 }
-func (p packageType) UnpackImpi(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Impi, null bool, err error) {
+func (p packageType) UnpackImpi(context global.DataContext, in interface{}) (value Impi, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Int int
 	}, null bool, err error) {
 		if in == nil {
@@ -696,7 +696,7 @@ func (p packageType) UnpackImpi(context global.Context, root global.Root, stack 
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -705,18 +705,18 @@ func (p packageType) UnpackImpi(context global.Context, root global.Root, stack 
 			Int int
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -725,18 +725,18 @@ func (p packageType) UnpackImpi(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Impi(out), false, nil
 }
-func (p packageType) UnpackImps(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Imps, null bool, err error) {
+func (p packageType) UnpackImps(context global.DataContext, in interface{}) (value Imps, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		String string
 	}, null bool, err error) {
 		if in == nil {
@@ -745,7 +745,7 @@ func (p packageType) UnpackImps(context global.Context, root global.Root, stack 
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -754,18 +754,18 @@ func (p packageType) UnpackImps(context global.Context, root global.Root, stack 
 			String string
 		}
 		if v, ok := m["String"]; ok {
-			stack := stack.Append(global.FieldItem("String"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("String")))
+			u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackString(stack, in)
+				out, null, err := pack.UnpackString(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -774,46 +774,46 @@ func (p packageType) UnpackImps(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Imps(out), false, nil
 }
-func (p packageType) UnpackInt(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Int, null bool, err error) {
+func (p packageType) UnpackInt(context global.DataContext, in interface{}) (value Int, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// nativeUnpacker
-		out, null, err := pack.UnpackInt(stack, in)
+		out, null, err := pack.UnpackInt(context.Location(), in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Int(out), false, nil
 }
-func (p packageType) UnpackInterface(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Interface, null bool, err error) {
+func (p packageType) UnpackInterface(context global.DataContext, in interface{}) (value Interface, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value interface {
+	out, null, err := func(context global.DataContext, in interface{}) (value interface {
 		Foo() string
 	}, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// interfaceUnpacker
-		out, null, err := pack.UnpackInterface(context, root, stack, in)
+		out, null, err := pack.UnpackInterface(context, in)
 		if err != nil {
 			return value, false, err
 		}
@@ -821,24 +821,24 @@ func (p packageType) UnpackInterface(context global.Context, root global.Root, s
 			Foo() string
 		})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into interface, type %T does not implement interface", stack, out)
+			return value, false, errors.Errorf("%s: unpacking into interface, type %T does not implement interface", context.Location(), out)
 		}
 		if null {
 			return value, true, nil
 		}
 		return iface, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Interface(out), false, nil
 }
-func (p packageType) UnpackInterfaceField(context global.Context, root global.Root, stack global.Stack, in interface{}) (value InterfaceField, null bool, err error) {
+func (p packageType) UnpackInterfaceField(context global.DataContext, in interface{}) (value InterfaceField, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Iface Interface
 		Slice []Interface
 		Array [3]Interface
@@ -850,7 +850,7 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -862,18 +862,18 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 			Map   map[string]Interface
 		}
 		if v, ok := m["Iface"]; ok {
-			stack := stack.Append(global.FieldItem("Iface"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Interface, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Iface")))
+			u, null, err := func(context global.DataContext, in interface{}) (value Interface, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// localUnpacker
-				out, null, err := p.UnpackInterface(context, root, stack, in)
+				out, null, err := p.UnpackInterface(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -882,33 +882,33 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 			}
 		}
 		if v, ok := m["Slice"]; ok {
-			stack := stack.Append(global.FieldItem("Slice"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []Interface, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Slice")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []Interface, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]Interface, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Interface, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value Interface, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// localUnpacker
-						out, null, err := p.UnpackInterface(context, root, stack, in)
+						out, null, err := p.UnpackInterface(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -917,7 +917,7 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -926,36 +926,36 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 			}
 		}
 		if v, ok := m["Array"]; ok {
-			stack := stack.Append(global.FieldItem("Array"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [3]Interface, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Array")))
+			u, null, err := func(context global.DataContext, in interface{}) (value [3]Interface, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out [3]Interface
 				if len(a) > 3 {
-					return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), 3)
+					return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", context.Location(), len(a), 3)
 				}
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Interface, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value Interface, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// localUnpacker
-						out, null, err := p.UnpackInterface(context, root, stack, in)
+						out, null, err := p.UnpackInterface(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -964,7 +964,7 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -973,33 +973,33 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 			}
 		}
 		if v, ok := m["Map"]; ok {
-			stack := stack.Append(global.FieldItem("Map"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]Interface, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Map")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string]Interface, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string]Interface, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Interface, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value Interface, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// localUnpacker
-						out, null, err := p.UnpackInterface(context, root, stack, in)
+						out, null, err := p.UnpackInterface(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -1008,7 +1008,7 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1017,39 +1017,39 @@ func (p packageType) UnpackInterfaceField(context global.Context, root global.Ro
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return InterfaceField(out), false, nil
 }
-func (p packageType) UnpackInterfaceValidator(context global.Context, root global.Root, stack global.Stack, in interface{}) (value InterfaceValidator, null bool, err error) {
+func (p packageType) UnpackInterfaceValidator(context global.DataContext, in interface{}) (value InterfaceValidator, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// nativeUnpacker
-		out, null, err := pack.UnpackString(stack, in)
+		out, null, err := pack.UnpackString(context.Location(), in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return InterfaceValidator(out), false, nil
 }
-func (p packageType) UnpackMaps(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Maps, null bool, err error) {
+func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (value Maps, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Ints    map[string]int
 		Strings map[string]string
 		Slices  map[string][]string
@@ -1062,7 +1062,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -1075,33 +1075,33 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 			Maps    map[string]map[string]string
 		}
 		if v, ok := m["Ints"]; ok {
-			stack := stack.Append(global.FieldItem("Ints"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Ints")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string]int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string]int, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackInt(stack, in)
+						out, null, err := pack.UnpackInt(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -1110,7 +1110,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1119,33 +1119,33 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 			}
 		}
 		if v, ok := m["Strings"]; ok {
-			stack := stack.Append(global.FieldItem("Strings"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Strings")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string]string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string]string, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackString(stack, in)
+						out, null, err := pack.UnpackString(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -1154,7 +1154,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1163,48 +1163,48 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 			}
 		}
 		if v, ok := m["Slices"]; ok {
-			stack := stack.Append(global.FieldItem("Slices"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string][]string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Slices")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string][]string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string][]string, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []string, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value []string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// sliceUnpacker
 						a, ok := in.([]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 						}
 						if len(a) == 0 {
 							return value, true, nil
 						}
 						var out = make([]string, len(a))
 						for i, v := range a {
-							stack := stack.Append(global.ArrayItem(i))
-							u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+							context := context.New(context.Location().Child(global.ArrayItem(i)))
+							u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 								if in == nil {
 									return value, true, nil
 								}
 								// nativeUnpacker
-								out, null, err := pack.UnpackString(stack, in)
+								out, null, err := pack.UnpackString(context.Location(), in)
 								if err != nil || null {
 									return value, null, err
 								}
 								return out, false, nil
-							}(context, root, stack, v)
+							}(context, v)
 							if err != nil {
 								return value, false, err
 							}
@@ -1213,7 +1213,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 							}
 						}
 						return out[:], false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -1222,7 +1222,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1231,51 +1231,51 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 			}
 		}
 		if v, ok := m["Arrays"]; ok {
-			stack := stack.Append(global.FieldItem("Arrays"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string][2]int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Arrays")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string][2]int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string][2]int, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [2]int, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value [2]int, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// sliceUnpacker
 						a, ok := in.([]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 						}
 						if len(a) == 0 {
 							return value, true, nil
 						}
 						var out [2]int
 						if len(a) > 2 {
-							return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), 2)
+							return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", context.Location(), len(a), 2)
 						}
 						for i, v := range a {
-							stack := stack.Append(global.ArrayItem(i))
-							u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+							context := context.New(context.Location().Child(global.ArrayItem(i)))
+							u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 								if in == nil {
 									return value, true, nil
 								}
 								// nativeUnpacker
-								out, null, err := pack.UnpackInt(stack, in)
+								out, null, err := pack.UnpackInt(context.Location(), in)
 								if err != nil || null {
 									return value, null, err
 								}
 								return out, false, nil
-							}(context, root, stack, v)
+							}(context, v)
 							if err != nil {
 								return value, false, err
 							}
@@ -1284,7 +1284,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 							}
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -1293,7 +1293,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1302,48 +1302,48 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 			}
 		}
 		if v, ok := m["Maps"]; ok {
-			stack := stack.Append(global.FieldItem("Maps"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]map[string]string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Maps")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string]map[string]string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string]map[string]string, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]string, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value map[string]string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// mapUnpacker
 						m, ok := in.(map[string]interface{})
 						if !ok {
-							return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+							return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 						}
 						if len(m) == 0 {
 							return value, true, nil
 						}
 						var out = make(map[string]string, len(m))
 						for k, v := range m {
-							stack := stack.Append(global.MapItem(k))
-							u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+							context := context.New(context.Location().Child(global.MapItem(k)))
+							u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 								if in == nil {
 									return value, true, nil
 								}
 								// nativeUnpacker
-								out, null, err := pack.UnpackString(stack, in)
+								out, null, err := pack.UnpackString(context.Location(), in)
 								if err != nil || null {
 									return value, null, err
 								}
 								return out, false, nil
-							}(context, root, stack, v)
+							}(context, v)
 							if err != nil {
 								return value, false, err
 							}
@@ -1352,7 +1352,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 							}
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -1361,7 +1361,7 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1370,18 +1370,18 @@ func (p packageType) UnpackMaps(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Maps(out), false, nil
 }
-func (p packageType) UnpackNatives(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Natives, null bool, err error) {
+func (p packageType) UnpackNatives(context global.DataContext, in interface{}) (value Natives, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Bool      bool
 		Byte      byte
 		Float32   float32
@@ -1409,7 +1409,7 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -1437,18 +1437,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			Number    json.Number
 		}
 		if v, ok := m["Bool"]; ok {
-			stack := stack.Append(global.FieldItem("Bool"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value bool, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Bool")))
+			u, null, err := func(context global.DataContext, in interface{}) (value bool, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackBool(stack, in)
+				out, null, err := pack.UnpackBool(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1457,18 +1457,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Byte"]; ok {
-			stack := stack.Append(global.FieldItem("Byte"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value byte, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Byte")))
+			u, null, err := func(context global.DataContext, in interface{}) (value byte, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackByte(stack, in)
+				out, null, err := pack.UnpackByte(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1477,18 +1477,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Float32"]; ok {
-			stack := stack.Append(global.FieldItem("Float32"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value float32, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Float32")))
+			u, null, err := func(context global.DataContext, in interface{}) (value float32, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackFloat32(stack, in)
+				out, null, err := pack.UnpackFloat32(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1497,18 +1497,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Float64"]; ok {
-			stack := stack.Append(global.FieldItem("Float64"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value float64, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Float64")))
+			u, null, err := func(context global.DataContext, in interface{}) (value float64, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackFloat64(stack, in)
+				out, null, err := pack.UnpackFloat64(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1517,18 +1517,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1537,18 +1537,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Int8"]; ok {
-			stack := stack.Append(global.FieldItem("Int8"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int8, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int8")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int8, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt8(stack, in)
+				out, null, err := pack.UnpackInt8(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1557,18 +1557,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Int16"]; ok {
-			stack := stack.Append(global.FieldItem("Int16"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int16, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int16")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int16, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt16(stack, in)
+				out, null, err := pack.UnpackInt16(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1577,18 +1577,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Int32"]; ok {
-			stack := stack.Append(global.FieldItem("Int32"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int32, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int32")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int32, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt32(stack, in)
+				out, null, err := pack.UnpackInt32(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1597,18 +1597,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Int64"]; ok {
-			stack := stack.Append(global.FieldItem("Int64"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int64, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int64")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int64, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt64(stack, in)
+				out, null, err := pack.UnpackInt64(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1617,18 +1617,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Uint"]; ok {
-			stack := stack.Append(global.FieldItem("Uint"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value uint, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Uint")))
+			u, null, err := func(context global.DataContext, in interface{}) (value uint, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackUint(stack, in)
+				out, null, err := pack.UnpackUint(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1637,18 +1637,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Uint8"]; ok {
-			stack := stack.Append(global.FieldItem("Uint8"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value uint8, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Uint8")))
+			u, null, err := func(context global.DataContext, in interface{}) (value uint8, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackUint8(stack, in)
+				out, null, err := pack.UnpackUint8(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1657,18 +1657,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Uint16"]; ok {
-			stack := stack.Append(global.FieldItem("Uint16"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value uint16, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Uint16")))
+			u, null, err := func(context global.DataContext, in interface{}) (value uint16, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackUint16(stack, in)
+				out, null, err := pack.UnpackUint16(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1677,18 +1677,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Uint32"]; ok {
-			stack := stack.Append(global.FieldItem("Uint32"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value uint32, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Uint32")))
+			u, null, err := func(context global.DataContext, in interface{}) (value uint32, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackUint32(stack, in)
+				out, null, err := pack.UnpackUint32(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1697,18 +1697,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Uint64"]; ok {
-			stack := stack.Append(global.FieldItem("Uint64"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value uint64, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Uint64")))
+			u, null, err := func(context global.DataContext, in interface{}) (value uint64, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackUint64(stack, in)
+				out, null, err := pack.UnpackUint64(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1717,18 +1717,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Rune"]; ok {
-			stack := stack.Append(global.FieldItem("Rune"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value rune, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Rune")))
+			u, null, err := func(context global.DataContext, in interface{}) (value rune, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackRune(stack, in)
+				out, null, err := pack.UnpackRune(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1737,18 +1737,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["String"]; ok {
-			stack := stack.Append(global.FieldItem("String"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("String")))
+			u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackString(stack, in)
+				out, null, err := pack.UnpackString(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1757,28 +1757,28 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["PtrString"]; ok {
-			stack := stack.Append(global.FieldItem("PtrString"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("PtrString")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// nativeUnpacker
-					out, null, err := pack.UnpackString(stack, in)
+					out, null, err := pack.UnpackString(context.Location(), in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1787,28 +1787,28 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["PtrInt"]; ok {
-			stack := stack.Append(global.FieldItem("PtrInt"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("PtrInt")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// nativeUnpacker
-					out, null, err := pack.UnpackInt(stack, in)
+					out, null, err := pack.UnpackInt(context.Location(), in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1817,28 +1817,28 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["PtrBool"]; ok {
-			stack := stack.Append(global.FieldItem("PtrBool"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *bool, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("PtrBool")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *bool, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value bool, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value bool, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// nativeUnpacker
-					out, null, err := pack.UnpackBool(stack, in)
+					out, null, err := pack.UnpackBool(context.Location(), in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1847,21 +1847,21 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Number"]; ok {
-			stack := stack.Append(global.FieldItem("Number"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value json.Number, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Number")))
+			u, null, err := func(context global.DataContext, in interface{}) (value json.Number, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker (json.Number)
 				out, ok := in.(json.Number)
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", stack, in)
+					return value, false, errors.Errorf("%s: unpacking into json.Number, found %T", context.Location(), in)
 				}
 				if out == "" {
 					return value, true, nil
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1870,18 +1870,18 @@ func (p packageType) UnpackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Natives(out), false, nil
 }
-func (p packageType) UnpackPointers(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Pointers, null bool, err error) {
+func (p packageType) UnpackPointers(context global.DataContext, in interface{}) (value Pointers, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		String      *string
 		Int         *Int
 		Sub         *sub.Sub
@@ -1898,7 +1898,7 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -1915,28 +1915,28 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			SliceSub    []*sub.Sub
 		}
 		if v, ok := m["String"]; ok {
-			stack := stack.Append(global.FieldItem("String"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("String")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// nativeUnpacker
-					out, null, err := pack.UnpackString(stack, in)
+					out, null, err := pack.UnpackString(context.Location(), in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1945,28 +1945,28 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["Int"]; ok {
-			stack := stack.Append(global.FieldItem("Int"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *Int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Int")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *Int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Int, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value Int, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// localUnpacker
-					out, null, err := p.UnpackInt(context, root, stack, in)
+					out, null, err := p.UnpackInt(context, in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -1975,28 +1975,28 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["Sub"]; ok {
-			stack := stack.Append(global.FieldItem("Sub"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Sub")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// selectorUnpacker
-					out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+					out, null, err := sub.Package.UnpackSub(context, in)
 					if err != nil || null {
 						return value, null, err
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2005,41 +2005,41 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["Array"]; ok {
-			stack := stack.Append(global.FieldItem("Array"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *[3]int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Array")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *[3]int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [3]int, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value [3]int, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 					}
 					if len(a) == 0 {
 						return value, true, nil
 					}
 					var out [3]int
 					if len(a) > 3 {
-						return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), 3)
+						return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", context.Location(), len(a), 3)
 					}
 					for i, v := range a {
-						stack := stack.Append(global.ArrayItem(i))
-						u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+						context := context.New(context.Location().Child(global.ArrayItem(i)))
+						u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 							if in == nil {
 								return value, true, nil
 							}
 							// nativeUnpacker
-							out, null, err := pack.UnpackInt(stack, in)
+							out, null, err := pack.UnpackInt(context.Location(), in)
 							if err != nil || null {
 								return value, null, err
 							}
 							return out, false, nil
-						}(context, root, stack, v)
+						}(context, v)
 						if err != nil {
 							return value, false, err
 						}
@@ -2048,12 +2048,12 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 						}
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2062,38 +2062,38 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["Slice"]; ok {
-			stack := stack.Append(global.FieldItem("Slice"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *[]string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Slice")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *[]string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []string, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value []string, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 					}
 					if len(a) == 0 {
 						return value, true, nil
 					}
 					var out = make([]string, len(a))
 					for i, v := range a {
-						stack := stack.Append(global.ArrayItem(i))
-						u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+						context := context.New(context.Location().Child(global.ArrayItem(i)))
+						u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 							if in == nil {
 								return value, true, nil
 							}
 							// nativeUnpacker
-							out, null, err := pack.UnpackString(stack, in)
+							out, null, err := pack.UnpackString(context.Location(), in)
 							if err != nil || null {
 								return value, null, err
 							}
 							return out, false, nil
-						}(context, root, stack, v)
+						}(context, v)
 						if err != nil {
 							return value, false, err
 						}
@@ -2102,12 +2102,12 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 						}
 					}
 					return out[:], false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2116,38 +2116,38 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["Map"]; ok {
-			stack := stack.Append(global.FieldItem("Map"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *map[string]int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Map")))
+			u, null, err := func(context global.DataContext, in interface{}) (value *map[string]int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// pointerUnpacker
-				out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]int, null bool, err error) {
+				out, null, err := func(context global.DataContext, in interface{}) (value map[string]int, null bool, err error) {
 					if in == nil {
 						return value, true, nil
 					}
 					// mapUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
-						return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+						return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 					}
 					if len(m) == 0 {
 						return value, true, nil
 					}
 					var out = make(map[string]int, len(m))
 					for k, v := range m {
-						stack := stack.Append(global.MapItem(k))
-						u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+						context := context.New(context.Location().Child(global.MapItem(k)))
+						u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 							if in == nil {
 								return value, true, nil
 							}
 							// nativeUnpacker
-							out, null, err := pack.UnpackInt(stack, in)
+							out, null, err := pack.UnpackInt(context.Location(), in)
 							if err != nil || null {
 								return value, null, err
 							}
 							return out, false, nil
-						}(context, root, stack, v)
+						}(context, v)
 						if err != nil {
 							return value, false, err
 						}
@@ -2156,12 +2156,12 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 						}
 					}
 					return out, false, nil
-				}(context, root, stack, in)
+				}(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return &out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2170,43 +2170,43 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["SliceString"]; ok {
-			stack := stack.Append(global.FieldItem("SliceString"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []*string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("SliceString")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []*string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]*string, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *string, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value *string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// pointerUnpacker
-						out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+						out, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 							if in == nil {
 								return value, true, nil
 							}
 							// nativeUnpacker
-							out, null, err := pack.UnpackString(stack, in)
+							out, null, err := pack.UnpackString(context.Location(), in)
 							if err != nil || null {
 								return value, null, err
 							}
 							return out, false, nil
-						}(context, root, stack, in)
+						}(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return &out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2215,7 +2215,7 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2224,43 +2224,43 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["SliceInt"]; ok {
-			stack := stack.Append(global.FieldItem("SliceInt"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []*Int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("SliceInt")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []*Int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]*Int, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *Int, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value *Int, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// pointerUnpacker
-						out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Int, null bool, err error) {
+						out, null, err := func(context global.DataContext, in interface{}) (value Int, null bool, err error) {
 							if in == nil {
 								return value, true, nil
 							}
 							// localUnpacker
-							out, null, err := p.UnpackInt(context, root, stack, in)
+							out, null, err := p.UnpackInt(context, in)
 							if err != nil || null {
 								return value, null, err
 							}
 							return out, false, nil
-						}(context, root, stack, in)
+						}(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return &out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2269,7 +2269,7 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2278,43 +2278,43 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		if v, ok := m["SliceSub"]; ok {
-			stack := stack.Append(global.FieldItem("SliceSub"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []*sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("SliceSub")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []*sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]*sub.Sub, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value *sub.Sub, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value *sub.Sub, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// pointerUnpacker
-						out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+						out, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 							if in == nil {
 								return value, true, nil
 							}
 							// selectorUnpacker
-							out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+							out, null, err := sub.Package.UnpackSub(context, in)
 							if err != nil || null {
 								return value, null, err
 							}
 							return out, false, nil
-						}(context, root, stack, in)
+						}(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return &out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2323,7 +2323,7 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2332,18 +2332,18 @@ func (p packageType) UnpackPointers(context global.Context, root global.Root, st
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Pointers(out), false, nil
 }
-func (p packageType) UnpackPrivate(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Private, null bool, err error) {
+func (p packageType) UnpackPrivate(context global.DataContext, in interface{}) (value Private, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		i int
 		s string
 	}, null bool, err error) {
@@ -2353,7 +2353,7 @@ func (p packageType) UnpackPrivate(context global.Context, root global.Root, sta
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2363,18 +2363,18 @@ func (p packageType) UnpackPrivate(context global.Context, root global.Root, sta
 			s string
 		}
 		if v, ok := m["i"]; ok {
-			stack := stack.Append(global.FieldItem("i"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("i")))
+			u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackInt(stack, in)
+				out, null, err := pack.UnpackInt(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2383,18 +2383,18 @@ func (p packageType) UnpackPrivate(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["s"]; ok {
-			stack := stack.Append(global.FieldItem("s"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("s")))
+			u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// nativeUnpacker
-				out, null, err := pack.UnpackString(stack, in)
+				out, null, err := pack.UnpackString(context.Location(), in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2403,18 +2403,18 @@ func (p packageType) UnpackPrivate(context global.Context, root global.Root, sta
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Private(out), false, nil
 }
-func (p packageType) UnpackQual(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Qual, null bool, err error) {
+func (p packageType) UnpackQual(context global.DataContext, in interface{}) (value Qual, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Sub sub.Sub
 	}, null bool, err error) {
 		if in == nil {
@@ -2423,7 +2423,7 @@ func (p packageType) UnpackQual(context global.Context, root global.Root, stack 
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2432,18 +2432,18 @@ func (p packageType) UnpackQual(context global.Context, root global.Root, stack 
 			Sub sub.Sub
 		}
 		if v, ok := m["Sub"]; ok {
-			stack := stack.Append(global.FieldItem("Sub"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Sub")))
+			u, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker
-				out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+				out, null, err := sub.Package.UnpackSub(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2452,18 +2452,18 @@ func (p packageType) UnpackQual(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Qual(out), false, nil
 }
-func (p packageType) UnpackSlices(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Slices, null bool, err error) {
+func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (value Slices, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Ints      []int
 		Strings   []string
 		ArrayLit  [5]string
@@ -2479,7 +2479,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2495,33 +2495,33 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			Arrays [][]string
 		}
 		if v, ok := m["Ints"]; ok {
-			stack := stack.Append(global.FieldItem("Ints"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Ints")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]int, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackInt(stack, in)
+						out, null, err := pack.UnpackInt(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2530,7 +2530,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2539,33 +2539,33 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		if v, ok := m["Strings"]; ok {
-			stack := stack.Append(global.FieldItem("Strings"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Strings")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]string, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackString(stack, in)
+						out, null, err := pack.UnpackString(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2574,7 +2574,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2583,36 +2583,36 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		if v, ok := m["ArrayLit"]; ok {
-			stack := stack.Append(global.FieldItem("ArrayLit"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [5]string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("ArrayLit")))
+			u, null, err := func(context global.DataContext, in interface{}) (value [5]string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out [5]string
 				if len(a) > 5 {
-					return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), 5)
+					return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", context.Location(), len(a), 5)
 				}
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackString(stack, in)
+						out, null, err := pack.UnpackString(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2621,7 +2621,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2630,36 +2630,36 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		if v, ok := m["ArrayExpr"]; ok {
-			stack := stack.Append(global.FieldItem("ArrayExpr"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [2 * N]int, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("ArrayExpr")))
+			u, null, err := func(context global.DataContext, in interface{}) (value [2 * N]int, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out [2 * N]int
 				if len(a) > 2*N {
-					return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", stack, len(a), 2*N)
+					return value, false, errors.Errorf("%s: data length %d does not fit in array of length %d", context.Location(), len(a), 2*N)
 				}
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackInt(stack, in)
+						out, null, err := pack.UnpackInt(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2668,7 +2668,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2677,8 +2677,8 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		if v, ok := m["Structs"]; ok {
-			stack := stack.Append(global.FieldItem("Structs"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []struct {
+			context := context.New(context.Location().Child(global.FieldItem("Structs")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []struct {
 				Int int
 			}, null bool, err error) {
 				if in == nil {
@@ -2687,7 +2687,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2696,8 +2696,8 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					Int int
 				}, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value struct {
 						Int int
 					}, null bool, err error) {
 						if in == nil {
@@ -2706,7 +2706,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 						// structUnpacker
 						m, ok := in.(map[string]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 						}
 						if len(m) == 0 {
 							return value, true, nil
@@ -2715,18 +2715,18 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 							Int int
 						}
 						if v, ok := m["Int"]; ok {
-							stack := stack.Append(global.FieldItem("Int"))
-							u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+							context := context.New(context.Location().Child(global.FieldItem("Int")))
+							u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 								if in == nil {
 									return value, true, nil
 								}
 								// nativeUnpacker
-								out, null, err := pack.UnpackInt(stack, in)
+								out, null, err := pack.UnpackInt(context.Location(), in)
 								if err != nil || null {
 									return value, null, err
 								}
 								return out, false, nil
-							}(context, root, stack, v)
+							}(context, v)
 							if err != nil {
 								return value, false, err
 							}
@@ -2735,7 +2735,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 							}
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2744,7 +2744,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2753,48 +2753,48 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		if v, ok := m["Arrays"]; ok {
-			stack := stack.Append(global.FieldItem("Arrays"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value [][]string, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Arrays")))
+			u, null, err := func(context global.DataContext, in interface{}) (value [][]string, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([][]string, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []string, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value []string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// sliceUnpacker
 						a, ok := in.([]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 						}
 						if len(a) == 0 {
 							return value, true, nil
 						}
 						var out = make([]string, len(a))
 						for i, v := range a {
-							stack := stack.Append(global.ArrayItem(i))
-							u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+							context := context.New(context.Location().Child(global.ArrayItem(i)))
+							u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 								if in == nil {
 									return value, true, nil
 								}
 								// nativeUnpacker
-								out, null, err := pack.UnpackString(stack, in)
+								out, null, err := pack.UnpackString(context.Location(), in)
 								if err != nil || null {
 									return value, null, err
 								}
 								return out, false, nil
-							}(context, root, stack, v)
+							}(context, v)
 							if err != nil {
 								return value, false, err
 							}
@@ -2803,7 +2803,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 							}
 						}
 						return out[:], false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2812,7 +2812,7 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2821,39 +2821,39 @@ func (p packageType) UnpackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Slices(out), false, nil
 }
-func (p packageType) UnpackString(context global.Context, root global.Root, stack global.Stack, in interface{}) (value String, null bool, err error) {
+func (p packageType) UnpackString(context global.DataContext, in interface{}) (value String, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// nativeUnpacker
-		out, null, err := pack.UnpackString(stack, in)
+		out, null, err := pack.UnpackString(context.Location(), in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return String(out), false, nil
 }
-func (p packageType) UnpackStructs(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Structs, null bool, err error) {
+func (p packageType) UnpackStructs(context global.DataContext, in interface{}) (value Structs, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Simple struct {
 			Int  int
 			Bool bool
@@ -2871,7 +2871,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2889,8 +2889,8 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Simple"]; ok {
-			stack := stack.Append(global.FieldItem("Simple"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+			context := context.New(context.Location().Child(global.FieldItem("Simple")))
+			u, null, err := func(context global.DataContext, in interface{}) (value struct {
 				Int  int
 				Bool bool
 			}, null bool, err error) {
@@ -2900,7 +2900,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 				// structUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -2910,18 +2910,18 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 					Bool bool
 				}
 				if v, ok := m["Int"]; ok {
-					stack := stack.Append(global.FieldItem("Int"))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value int, null bool, err error) {
+					context := context.New(context.Location().Child(global.FieldItem("Int")))
+					u, null, err := func(context global.DataContext, in interface{}) (value int, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackInt(stack, in)
+						out, null, err := pack.UnpackInt(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2930,18 +2930,18 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 					}
 				}
 				if v, ok := m["Bool"]; ok {
-					stack := stack.Append(global.FieldItem("Bool"))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value bool, null bool, err error) {
+					context := context.New(context.Location().Child(global.FieldItem("Bool")))
+					u, null, err := func(context global.DataContext, in interface{}) (value bool, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackBool(stack, in)
+						out, null, err := pack.UnpackBool(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -2950,7 +2950,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -2959,8 +2959,8 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 			}
 		}
 		if v, ok := m["Complex"]; ok {
-			stack := stack.Append(global.FieldItem("Complex"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+			context := context.New(context.Location().Child(global.FieldItem("Complex")))
+			u, null, err := func(context global.DataContext, in interface{}) (value struct {
 				String string
 				Inner  struct {
 					Float32 float32
@@ -2972,7 +2972,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 				// structUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -2984,18 +2984,18 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 					}
 				}
 				if v, ok := m["String"]; ok {
-					stack := stack.Append(global.FieldItem("String"))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value string, null bool, err error) {
+					context := context.New(context.Location().Child(global.FieldItem("String")))
+					u, null, err := func(context global.DataContext, in interface{}) (value string, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// nativeUnpacker
-						out, null, err := pack.UnpackString(stack, in)
+						out, null, err := pack.UnpackString(context.Location(), in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -3004,8 +3004,8 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 					}
 				}
 				if v, ok := m["Inner"]; ok {
-					stack := stack.Append(global.FieldItem("Inner"))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+					context := context.New(context.Location().Child(global.FieldItem("Inner")))
+					u, null, err := func(context global.DataContext, in interface{}) (value struct {
 						Float32 float32
 					}, null bool, err error) {
 						if in == nil {
@@ -3014,7 +3014,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 						// structUnpacker
 						m, ok := in.(map[string]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 						}
 						if len(m) == 0 {
 							return value, true, nil
@@ -3023,18 +3023,18 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 							Float32 float32
 						}
 						if v, ok := m["Float32"]; ok {
-							stack := stack.Append(global.FieldItem("Float32"))
-							u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value float32, null bool, err error) {
+							context := context.New(context.Location().Child(global.FieldItem("Float32")))
+							u, null, err := func(context global.DataContext, in interface{}) (value float32, null bool, err error) {
 								if in == nil {
 									return value, true, nil
 								}
 								// nativeUnpacker
-								out, null, err := pack.UnpackFloat32(stack, in)
+								out, null, err := pack.UnpackFloat32(context.Location(), in)
 								if err != nil || null {
 									return value, null, err
 								}
 								return out, false, nil
-							}(context, root, stack, v)
+							}(context, v)
 							if err != nil {
 								return value, false, err
 							}
@@ -3043,7 +3043,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 							}
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -3052,7 +3052,7 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -3061,18 +3061,18 @@ func (p packageType) UnpackStructs(context global.Context, root global.Root, sta
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Structs(out), false, nil
 }
-func (p packageType) UnpackSubInterface(context global.Context, root global.Root, stack global.Stack, in interface{}) (value SubInterface, null bool, err error) {
+func (p packageType) UnpackSubInterface(context global.DataContext, in interface{}) (value SubInterface, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		SubInterface sub.SubInterface
 	}, null bool, err error) {
 		if in == nil {
@@ -3081,7 +3081,7 @@ func (p packageType) UnpackSubInterface(context global.Context, root global.Root
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -3090,18 +3090,18 @@ func (p packageType) UnpackSubInterface(context global.Context, root global.Root
 			SubInterface sub.SubInterface
 		}
 		if v, ok := m["SubInterface"]; ok {
-			stack := stack.Append(global.FieldItem("SubInterface"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.SubInterface, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("SubInterface")))
+			u, null, err := func(context global.DataContext, in interface{}) (value sub.SubInterface, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// selectorUnpacker
-				out, null, err := sub.Package.UnpackSubInterface(context, root, stack, in)
+				out, null, err := sub.Package.UnpackSubInterface(context, in)
 				if err != nil || null {
 					return value, null, err
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -3110,18 +3110,18 @@ func (p packageType) UnpackSubInterface(context global.Context, root global.Root
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return SubInterface(out), false, nil
 }
-func (p packageType) UnpackSubMap(context global.Context, root global.Root, stack global.Stack, in interface{}) (value SubMap, null bool, err error) {
+func (p packageType) UnpackSubMap(context global.DataContext, in interface{}) (value SubMap, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Map map[string]sub.Sub
 	}, null bool, err error) {
 		if in == nil {
@@ -3130,7 +3130,7 @@ func (p packageType) UnpackSubMap(context global.Context, root global.Root, stac
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -3139,33 +3139,33 @@ func (p packageType) UnpackSubMap(context global.Context, root global.Root, stac
 			Map map[string]sub.Sub
 		}
 		if v, ok := m["Map"]; ok {
-			stack := stack.Append(global.FieldItem("Map"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value map[string]sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Map")))
+			u, null, err := func(context global.DataContext, in interface{}) (value map[string]sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", stack)
+					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
 				}
 				if len(m) == 0 {
 					return value, true, nil
 				}
 				var out = make(map[string]sub.Sub, len(m))
 				for k, v := range m {
-					stack := stack.Append(global.MapItem(k))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+					context := context.New(context.Location().Child(global.MapItem(k)))
+					u, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// selectorUnpacker
-						out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+						out, null, err := sub.Package.UnpackSub(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -3174,7 +3174,7 @@ func (p packageType) UnpackSubMap(context global.Context, root global.Root, stac
 					}
 				}
 				return out, false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -3183,18 +3183,18 @@ func (p packageType) UnpackSubMap(context global.Context, root global.Root, stac
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return SubMap(out), false, nil
 }
-func (p packageType) UnpackSubSlice(context global.Context, root global.Root, stack global.Stack, in interface{}) (value SubSlice, null bool, err error) {
+func (p packageType) UnpackSubSlice(context global.DataContext, in interface{}) (value SubSlice, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value struct {
+	out, null, err := func(context global.DataContext, in interface{}) (value struct {
 		Slice []sub.Sub
 	}, null bool, err error) {
 		if in == nil {
@@ -3203,7 +3203,7 @@ func (p packageType) UnpackSubSlice(context global.Context, root global.Root, st
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", stack)
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -3212,33 +3212,33 @@ func (p packageType) UnpackSubSlice(context global.Context, root global.Root, st
 			Slice []sub.Sub
 		}
 		if v, ok := m["Slice"]; ok {
-			stack := stack.Append(global.FieldItem("Slice"))
-			u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value []sub.Sub, null bool, err error) {
+			context := context.New(context.Location().Child(global.FieldItem("Slice")))
+			u, null, err := func(context global.DataContext, in interface{}) (value []sub.Sub, null bool, err error) {
 				if in == nil {
 					return value, true, nil
 				}
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", stack)
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
 				}
 				if len(a) == 0 {
 					return value, true, nil
 				}
 				var out = make([]sub.Sub, len(a))
 				for i, v := range a {
-					stack := stack.Append(global.ArrayItem(i))
-					u, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value sub.Sub, null bool, err error) {
+					context := context.New(context.Location().Child(global.ArrayItem(i)))
+					u, null, err := func(context global.DataContext, in interface{}) (value sub.Sub, null bool, err error) {
 						if in == nil {
 							return value, true, nil
 						}
 						// selectorUnpacker
-						out, null, err := sub.Package.UnpackSub(context, root, stack, in)
+						out, null, err := sub.Package.UnpackSub(context, in)
 						if err != nil || null {
 							return value, null, err
 						}
 						return out, false, nil
-					}(context, root, stack, v)
+					}(context, v)
 					if err != nil {
 						return value, false, err
 					}
@@ -3247,7 +3247,7 @@ func (p packageType) UnpackSubSlice(context global.Context, root global.Root, st
 					}
 				}
 				return out[:], false, nil
-			}(context, root, stack, v)
+			}(context, v)
 			if err != nil {
 				return value, false, err
 			}
@@ -3256,146 +3256,146 @@ func (p packageType) UnpackSubSlice(context global.Context, root global.Root, st
 			}
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return SubSlice(out), false, nil
 }
-func (p packageType) UnpackType(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Type, null bool, err error) {
+func (p packageType) UnpackType(context global.DataContext, in interface{}) (value Type, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// customUnpacker
 	out := new(Type)
-	null, err = out.Unpack(context, root, stack, in)
+	null, err = out.Unpack(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return *out, false, nil
 }
-func (p packageType) UnpackUint(context global.Context, root global.Root, stack global.Stack, in interface{}) (value Uint, null bool, err error) {
+func (p packageType) UnpackUint(context global.DataContext, in interface{}) (value Uint, null bool, err error) {
 	if in == nil {
 		return value, true, nil
 	}
 	// aliasUnpacker
-	out, null, err := func(context global.Context, root global.Root, stack global.Stack, in interface{}) (value uint, null bool, err error) {
+	out, null, err := func(context global.DataContext, in interface{}) (value uint, null bool, err error) {
 		if in == nil {
 			return value, true, nil
 		}
 		// nativeUnpacker
-		out, null, err := pack.UnpackUint(stack, in)
+		out, null, err := pack.UnpackUint(context.Location(), in)
 		if err != nil || null {
 			return value, null, err
 		}
 		return out, false, nil
-	}(context, root, stack, in)
+	}(context, in)
 	if err != nil || null {
 		return value, null, err
 	}
 	return Uint(out), false, nil
 }
-func (p packageType) Repack(context global.Context, root global.Root, stack global.Stack, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) Repack(context global.DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error) {
 	switch name {
 	case "Ages":
-		return p.RepackAges(context, root, stack, in.(Ages))
+		return p.RepackAges(context, in.(Ages))
 	case "Alias":
-		return p.RepackAlias(context, root, stack, in.(Alias))
+		return p.RepackAlias(context, in.(Alias))
 	case "AliasArray":
-		return p.RepackAliasArray(context, root, stack, in.(AliasArray))
+		return p.RepackAliasArray(context, in.(AliasArray))
 	case "AliasMap":
-		return p.RepackAliasMap(context, root, stack, in.(AliasMap))
+		return p.RepackAliasMap(context, in.(AliasMap))
 	case "AliasPointer":
-		return p.RepackAliasPointer(context, root, stack, in.(AliasPointer))
+		return p.RepackAliasPointer(context, in.(AliasPointer))
 	case "AliasSlice":
-		return p.RepackAliasSlice(context, root, stack, in.(AliasSlice))
+		return p.RepackAliasSlice(context, in.(AliasSlice))
 	case "AliasSub":
-		return p.RepackAliasSub(context, root, stack, in.(AliasSub))
+		return p.RepackAliasSub(context, in.(AliasSub))
 	case "Csv":
-		return p.RepackCsv(context, root, stack, in.(Csv))
+		return p.RepackCsv(context, in.(Csv))
 	case "Custom":
-		return p.RepackCustom(context, root, stack, in.(Custom))
+		return p.RepackCustom(context, in.(Custom))
 	case "CustomSub":
-		return p.RepackCustomSub(context, root, stack, in.(CustomSub))
+		return p.RepackCustomSub(context, in.(CustomSub))
 	case "EmbedNatives":
-		return p.RepackEmbedNatives(context, root, stack, in.(EmbedNatives))
+		return p.RepackEmbedNatives(context, in.(EmbedNatives))
 	case "EmbedPointer":
-		return p.RepackEmbedPointer(context, root, stack, in.(EmbedPointer))
+		return p.RepackEmbedPointer(context, in.(EmbedPointer))
 	case "EmbedQual":
-		return p.RepackEmbedQual(context, root, stack, in.(EmbedQual))
+		return p.RepackEmbedQual(context, in.(EmbedQual))
 	case "EmbedQualPointer":
-		return p.RepackEmbedQualPointer(context, root, stack, in.(EmbedQualPointer))
+		return p.RepackEmbedQualPointer(context, in.(EmbedQualPointer))
 	case "Float64":
-		return p.RepackFloat64(context, root, stack, in.(Float64))
+		return p.RepackFloat64(context, in.(Float64))
 	case "Impi":
-		return p.RepackImpi(context, root, stack, in.(Impi))
+		return p.RepackImpi(context, in.(Impi))
 	case "Imps":
-		return p.RepackImps(context, root, stack, in.(Imps))
+		return p.RepackImps(context, in.(Imps))
 	case "Int":
-		return p.RepackInt(context, root, stack, in.(Int))
+		return p.RepackInt(context, in.(Int))
 	case "Interface":
-		return p.RepackInterface(context, root, stack, in.(Interface))
+		return p.RepackInterface(context, in.(Interface))
 	case "InterfaceField":
-		return p.RepackInterfaceField(context, root, stack, in.(InterfaceField))
+		return p.RepackInterfaceField(context, in.(InterfaceField))
 	case "InterfaceValidator":
-		return p.RepackInterfaceValidator(context, root, stack, in.(InterfaceValidator))
+		return p.RepackInterfaceValidator(context, in.(InterfaceValidator))
 	case "Maps":
-		return p.RepackMaps(context, root, stack, in.(Maps))
+		return p.RepackMaps(context, in.(Maps))
 	case "Natives":
-		return p.RepackNatives(context, root, stack, in.(Natives))
+		return p.RepackNatives(context, in.(Natives))
 	case "Pointers":
-		return p.RepackPointers(context, root, stack, in.(Pointers))
+		return p.RepackPointers(context, in.(Pointers))
 	case "Private":
-		return p.RepackPrivate(context, root, stack, in.(Private))
+		return p.RepackPrivate(context, in.(Private))
 	case "Qual":
-		return p.RepackQual(context, root, stack, in.(Qual))
+		return p.RepackQual(context, in.(Qual))
 	case "Slices":
-		return p.RepackSlices(context, root, stack, in.(Slices))
+		return p.RepackSlices(context, in.(Slices))
 	case "String":
-		return p.RepackString(context, root, stack, in.(String))
+		return p.RepackString(context, in.(String))
 	case "Structs":
-		return p.RepackStructs(context, root, stack, in.(Structs))
+		return p.RepackStructs(context, in.(Structs))
 	case "SubInterface":
-		return p.RepackSubInterface(context, root, stack, in.(SubInterface))
+		return p.RepackSubInterface(context, in.(SubInterface))
 	case "SubMap":
-		return p.RepackSubMap(context, root, stack, in.(SubMap))
+		return p.RepackSubMap(context, in.(SubMap))
 	case "SubSlice":
-		return p.RepackSubSlice(context, root, stack, in.(SubSlice))
+		return p.RepackSubSlice(context, in.(SubSlice))
 	case "Type":
-		return p.RepackType(context, root, stack, in.(Type))
+		return p.RepackType(context, in.(Type))
 	case "Uint":
-		return p.RepackUint(context, root, stack, in.(Uint))
+		return p.RepackUint(context, in.(Uint))
 	}
-	return nil, false, false, errors.Errorf("%s: type %s not found", stack, name)
+	return nil, false, false, errors.Errorf("%s: type %s not found", context.Location(), name)
 }
-func (p packageType) RepackAges(context global.Context, root global.Root, stack global.Stack, in Ages) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAges(context global.DataContext, in Ages) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, null, err := in.Repack(context, root, stack)
+	out, dict, null, err := in.Repack(context)
 	if err != nil {
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
 }
-func (p packageType) RepackAlias(context global.Context, root global.Root, stack global.Stack, in Alias) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAlias(context global.DataContext, in Alias) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in Int) (value interface{}, dict bool, null bool, err error) {
 		// localRepacker
-		out, dict, null, err := p.RepackInt(context, root, stack, in)
+		out, dict, null, err := p.RepackInt(context, in)
 		if err != nil {
 			return nil, false, false, err
 		}
 		return out, dict, null, nil
-	}(context, root, stack, (Int)(in))
+	}(context, (Int)(in))
 }
-func (p packageType) RepackAliasArray(context global.Context, root global.Root, stack global.Stack, in AliasArray) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in [3]string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAliasArray(context global.DataContext, in AliasArray) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in [3]string) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
 		empty := true
 		for i, item := range in {
-			v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+			v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackString(in)
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
@@ -3405,73 +3405,73 @@ func (p packageType) RepackAliasArray(context global.Context, root global.Root, 
 			out[i] = v
 		}
 		return out, false, empty, nil
-	}(context, root, stack, ([3]string)(in))
+	}(context, ([3]string)(in))
 }
-func (p packageType) RepackAliasMap(context global.Context, root global.Root, stack global.Stack, in AliasMap) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in map[string]*Qual) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAliasMap(context global.DataContext, in AliasMap) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in map[string]*Qual) (value interface{}, dict bool, null bool, err error) {
 		// mapRepacker
 		out := make(map[string]interface{}, len(in))
 		for k, item := range in {
-			v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in *Qual) (value interface{}, dict bool, null bool, err error) {
+			v, _, _, err := func(context global.DataContext, in *Qual) (value interface{}, dict bool, null bool, err error) {
 				// pointerRepacker
 				if in == nil {
 					return nil, false, true, nil
 				}
-				out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in Qual) (value interface{}, dict bool, null bool, err error) {
+				out, dict, null, err := func(context global.DataContext, in Qual) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, null, err := p.RepackQual(context, root, stack, in)
+					out, dict, null, err := p.RepackQual(context, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(context, root, stack, *in)
+				}(context, *in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, false, nil
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
 			out[k] = v
 		}
 		return out, true, len(in) == 0, nil
-	}(context, root, stack, (map[string]*Qual)(in))
+	}(context, (map[string]*Qual)(in))
 }
-func (p packageType) RepackAliasPointer(context global.Context, root global.Root, stack global.Stack, in AliasPointer) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in *Int) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAliasPointer(context global.DataContext, in AliasPointer) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in *Int) (value interface{}, dict bool, null bool, err error) {
 		// pointerRepacker
 		if in == nil {
 			return nil, false, true, nil
 		}
-		out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
+		out, dict, null, err := func(context global.DataContext, in Int) (value interface{}, dict bool, null bool, err error) {
 			// localRepacker
-			out, dict, null, err := p.RepackInt(context, root, stack, in)
+			out, dict, null, err := p.RepackInt(context, in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, null, nil
-		}(context, root, stack, *in)
+		}(context, *in)
 		if err != nil {
 			return nil, false, false, err
 		}
 		return out, dict, false, nil
-	}(context, root, stack, (*Int)(in))
+	}(context, (*Int)(in))
 }
-func (p packageType) RepackAliasSlice(context global.Context, root global.Root, stack global.Stack, in AliasSlice) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in []Int) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAliasSlice(context global.DataContext, in AliasSlice) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in []Int) (value interface{}, dict bool, null bool, err error) {
 		// sliceRepacker
 		out := make([]interface{}, len(in))
 		empty := true
 		for i, item := range in {
-			v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
+			v, _, null, err := func(context global.DataContext, in Int) (value interface{}, dict bool, null bool, err error) {
 				// localRepacker
-				out, dict, null, err := p.RepackInt(context, root, stack, in)
+				out, dict, null, err := p.RepackInt(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, item)
+			}(context, item)
 			if err != nil {
 				return nil, false, false, err
 			}
@@ -3481,58 +3481,58 @@ func (p packageType) RepackAliasSlice(context global.Context, root global.Root, 
 			out[i] = v
 		}
 		return out, false, empty, nil
-	}(context, root, stack, ([]Int)(in))
+	}(context, ([]Int)(in))
 }
-func (p packageType) RepackAliasSub(context global.Context, root global.Root, stack global.Stack, in AliasSub) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackAliasSub(context global.DataContext, in AliasSub) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 		// selectorRepacker
-		out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+		out, dict, null, err := sub.Package.RepackSub(context, in)
 		if err != nil {
 			return nil, false, false, err
 		}
 		return out, dict, null, nil
-	}(context, root, stack, (sub.Sub)(in))
+	}(context, (sub.Sub)(in))
 }
-func (p packageType) RepackCsv(context global.Context, root global.Root, stack global.Stack, in Csv) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackCsv(context global.DataContext, in Csv) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, null, err := in.Repack(context, root, stack)
+	out, dict, null, err := in.Repack(context)
 	if err != nil {
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
 }
-func (p packageType) RepackCustom(context global.Context, root global.Root, stack global.Stack, in Custom) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackCustom(context global.DataContext, in Custom) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, null, err := in.Repack(context, root, stack)
+	out, dict, null, err := in.Repack(context)
 	if err != nil {
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
 }
-func (p packageType) RepackCustomSub(context global.Context, root global.Root, stack global.Stack, in CustomSub) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackCustomSub(context global.DataContext, in CustomSub) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, null, err := in.Repack(context, root, stack)
+	out, dict, null, err := in.Repack(context)
 	if err != nil {
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
 }
-func (p packageType) RepackEmbedNatives(context global.Context, root global.Root, stack global.Stack, in EmbedNatives) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackEmbedNatives(context global.DataContext, in EmbedNatives) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Natives
 		Int int
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in Natives) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in Natives) (value interface{}, dict bool, null bool, err error) {
 			// localRepacker
-			out, dict, null, err := p.RepackNatives(context, root, stack, in)
+			out, dict, null, err := p.RepackNatives(context, in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, null, nil
-		}(context, root, stack, in.Natives); err != nil {
+		}(context, in.Natives); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3540,10 +3540,10 @@ func (p packageType) RepackEmbedNatives(context global.Context, root global.Root
 				out["Natives"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3552,37 +3552,37 @@ func (p packageType) RepackEmbedNatives(context global.Context, root global.Root
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Natives
 		Int int
 	})(in))
 }
-func (p packageType) RepackEmbedPointer(context global.Context, root global.Root, stack global.Stack, in EmbedPointer) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackEmbedPointer(context global.DataContext, in EmbedPointer) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		*Natives
 		Int int
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *Natives) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *Natives) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in Natives) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in Natives) (value interface{}, dict bool, null bool, err error) {
 				// localRepacker
-				out, dict, null, err := p.RepackNatives(context, root, stack, in)
+				out, dict, null, err := p.RepackNatives(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Natives); err != nil {
+		}(context, in.Natives); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3590,10 +3590,10 @@ func (p packageType) RepackEmbedPointer(context global.Context, root global.Root
 				out["Natives"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3602,27 +3602,27 @@ func (p packageType) RepackEmbedPointer(context global.Context, root global.Root
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		*Natives
 		Int int
 	})(in))
 }
-func (p packageType) RepackEmbedQual(context global.Context, root global.Root, stack global.Stack, in EmbedQual) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackEmbedQual(context global.DataContext, in EmbedQual) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		sub.Sub
 		Int int
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// selectorRepacker
-			out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+			out, dict, null, err := sub.Package.RepackSub(context, in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, null, nil
-		}(context, root, stack, in.Sub); err != nil {
+		}(context, in.Sub); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3630,10 +3630,10 @@ func (p packageType) RepackEmbedQual(context global.Context, root global.Root, s
 				out["Sub"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3642,37 +3642,37 @@ func (p packageType) RepackEmbedQual(context global.Context, root global.Root, s
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		sub.Sub
 		Int int
 	})(in))
 }
-func (p packageType) RepackEmbedQualPointer(context global.Context, root global.Root, stack global.Stack, in EmbedQualPointer) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackEmbedQualPointer(context global.DataContext, in EmbedQualPointer) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		*sub.Sub
 		Int int
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+				out, dict, null, err := sub.Package.RepackSub(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Sub); err != nil {
+		}(context, in.Sub); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3680,10 +3680,10 @@ func (p packageType) RepackEmbedQualPointer(context global.Context, root global.
 				out["Sub"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3692,28 +3692,28 @@ func (p packageType) RepackEmbedQualPointer(context global.Context, root global.
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		*sub.Sub
 		Int int
 	})(in))
 }
-func (p packageType) RepackFloat64(context global.Context, root global.Root, stack global.Stack, in Float64) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in float64) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackFloat64(context global.DataContext, in Float64) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in float64) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
 		return pack.RepackNumber(in)
-	}(context, root, stack, (float64)(in))
+	}(context, (float64)(in))
 }
-func (p packageType) RepackImpi(context global.Context, root global.Root, stack global.Stack, in Impi) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackImpi(context global.DataContext, in Impi) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Int int
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3722,21 +3722,21 @@ func (p packageType) RepackImpi(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Int int
 	})(in))
 }
-func (p packageType) RepackImps(context global.Context, root global.Root, stack global.Stack, in Imps) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackImps(context global.DataContext, in Imps) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		String string
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackString(in)
-		}(context, root, stack, in.String); err != nil {
+		}(context, in.String); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3745,28 +3745,28 @@ func (p packageType) RepackImps(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		String string
 	})(in))
 }
-func (p packageType) RepackInt(context global.Context, root global.Root, stack global.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackInt(context global.DataContext, in Int) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
 		return pack.RepackNumber(in)
-	}(context, root, stack, (int)(in))
+	}(context, (int)(in))
 }
-func (p packageType) RepackInterface(context global.Context, root global.Root, stack global.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in interface {
+func (p packageType) RepackInterface(context global.DataContext, in Interface) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in interface {
 		Foo() string
 	}) (value interface{}, dict bool, null bool, err error) {
 		// interfaceRepacker
-		return pack.RepackInterface(context, root, stack, false, in)
-	}(context, root, stack, (interface {
+		return pack.RepackInterface(context, false, in)
+	}(context, (interface {
 		Foo() string
 	})(in))
 }
-func (p packageType) RepackInterfaceField(context global.Context, root global.Root, stack global.Stack, in InterfaceField) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackInterfaceField(context global.DataContext, in InterfaceField) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Iface Interface
 		Slice []Interface
 		Array [3]Interface
@@ -3775,14 +3775,14 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 		// structRepacker
 		out := make(map[string]interface{}, 5)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in Interface) (value interface{}, dict bool, null bool, err error) {
 			// localRepacker
-			out, dict, null, err := p.RepackInterface(context, root, stack, in)
+			out, dict, null, err := p.RepackInterface(context, in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, null, nil
-		}(context, root, stack, in.Iface); err != nil {
+		}(context, in.Iface); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3790,19 +3790,19 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 				out["Iface"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []Interface) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []Interface) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in Interface) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, null, err := p.RepackInterface(context, root, stack, in)
+					out, dict, null, err := p.RepackInterface(context, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -3812,7 +3812,7 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Slice); err != nil {
+		}(context, in.Slice); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3820,19 +3820,19 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 				out["Slice"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in [3]Interface) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in [3]Interface) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in Interface) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, null, err := p.RepackInterface(context, root, stack, in)
+					out, dict, null, err := p.RepackInterface(context, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -3842,7 +3842,7 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Array); err != nil {
+		}(context, in.Array); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3850,25 +3850,25 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 				out["Array"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]Interface) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string]Interface) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in Interface) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in Interface) (value interface{}, dict bool, null bool, err error) {
 					// localRepacker
-					out, dict, null, err := p.RepackInterface(context, root, stack, in)
+					out, dict, null, err := p.RepackInterface(context, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Map); err != nil {
+		}(context, in.Map); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3877,21 +3877,21 @@ func (p packageType) RepackInterfaceField(context global.Context, root global.Ro
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Iface Interface
 		Slice []Interface
 		Array [3]Interface
 		Map   map[string]Interface
 	})(in))
 }
-func (p packageType) RepackInterfaceValidator(context global.Context, root global.Root, stack global.Stack, in InterfaceValidator) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackInterfaceValidator(context global.DataContext, in InterfaceValidator) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
 		return pack.RepackString(in)
-	}(context, root, stack, (string)(in))
+	}(context, (string)(in))
 }
-func (p packageType) RepackMaps(context global.Context, root global.Root, stack global.Stack, in Maps) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackMaps(context global.DataContext, in Maps) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Ints    map[string]int
 		Strings map[string]string
 		Slices  map[string][]string
@@ -3901,21 +3901,21 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 		// structRepacker
 		out := make(map[string]interface{}, 6)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string]int) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackNumber(in)
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Ints); err != nil {
+		}(context, in.Ints); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3923,21 +3923,21 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 				out["Ints"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string]string) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackString(in)
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Strings); err != nil {
+		}(context, in.Strings); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3945,19 +3945,19 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 				out["Strings"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string][]string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string][]string) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in []string) (value interface{}, dict bool, null bool, err error) {
 					// sliceRepacker
 					out := make([]interface{}, len(in))
 					empty := true
 					for i, item := range in {
-						v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+						v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
 							return pack.RepackString(in)
-						}(context, root, stack, item)
+						}(context, item)
 						if err != nil {
 							return nil, false, false, err
 						}
@@ -3967,14 +3967,14 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 						out[i] = v
 					}
 					return out, false, empty, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Slices); err != nil {
+		}(context, in.Slices); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -3982,19 +3982,19 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 				out["Slices"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string][2]int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string][2]int) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in [2]int) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in [2]int) (value interface{}, dict bool, null bool, err error) {
 					// sliceRepacker
 					out := make([]interface{}, len(in))
 					empty := true
 					for i, item := range in {
-						v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+						v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
 							return pack.RepackNumber(in)
-						}(context, root, stack, item)
+						}(context, item)
 						if err != nil {
 							return nil, false, false, err
 						}
@@ -4004,14 +4004,14 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 						out[i] = v
 					}
 					return out, false, empty, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Arrays); err != nil {
+		}(context, in.Arrays); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4019,32 +4019,32 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 				out["Arrays"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]map[string]string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string]map[string]string) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]string) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in map[string]string) (value interface{}, dict bool, null bool, err error) {
 					// mapRepacker
 					out := make(map[string]interface{}, len(in))
 					for k, item := range in {
-						v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+						v, _, _, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
 							return pack.RepackString(in)
-						}(context, root, stack, item)
+						}(context, item)
 						if err != nil {
 							return nil, false, false, err
 						}
 						out[k] = v
 					}
 					return out, true, len(in) == 0, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Maps); err != nil {
+		}(context, in.Maps); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4053,7 +4053,7 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Ints    map[string]int
 		Strings map[string]string
 		Slices  map[string][]string
@@ -4061,8 +4061,8 @@ func (p packageType) RepackMaps(context global.Context, root global.Root, stack 
 		Maps    map[string]map[string]string
 	})(in))
 }
-func (p packageType) RepackNatives(context global.Context, root global.Root, stack global.Stack, in Natives) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackNatives(context global.DataContext, in Natives) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Bool      bool
 		Byte      byte
 		Float32   float32
@@ -4087,10 +4087,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 		// structRepacker
 		out := make(map[string]interface{}, 21)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in bool) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackBool(in)
-		}(context, root, stack, in.Bool); err != nil {
+		}(context, in.Bool); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4098,10 +4098,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Bool"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in byte) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in byte) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Byte); err != nil {
+		}(context, in.Byte); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4109,10 +4109,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Byte"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in float32) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in float32) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Float32); err != nil {
+		}(context, in.Float32); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4120,10 +4120,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Float32"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in float64) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in float64) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Float64); err != nil {
+		}(context, in.Float64); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4131,10 +4131,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Float64"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4142,10 +4142,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Int"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int8) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int8) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int8); err != nil {
+		}(context, in.Int8); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4153,10 +4153,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Int8"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int16) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int16) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int16); err != nil {
+		}(context, in.Int16); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4164,10 +4164,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Int16"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int32) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int32) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int32); err != nil {
+		}(context, in.Int32); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4175,10 +4175,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Int32"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int64) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int64) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Int64); err != nil {
+		}(context, in.Int64); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4186,10 +4186,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Int64"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in uint) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in uint) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Uint); err != nil {
+		}(context, in.Uint); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4197,10 +4197,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Uint"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in uint8) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in uint8) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Uint8); err != nil {
+		}(context, in.Uint8); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4208,10 +4208,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Uint8"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in uint16) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in uint16) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Uint16); err != nil {
+		}(context, in.Uint16); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4219,10 +4219,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Uint16"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in uint32) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in uint32) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Uint32); err != nil {
+		}(context, in.Uint32); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4230,10 +4230,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Uint32"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in uint64) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in uint64) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.Uint64); err != nil {
+		}(context, in.Uint64); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4241,10 +4241,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Uint64"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in rune) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in rune) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackString(in)
-		}(context, root, stack, in.Rune); err != nil {
+		}(context, in.Rune); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4252,10 +4252,10 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["Rune"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackString(in)
-		}(context, root, stack, in.String); err != nil {
+		}(context, in.String); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4263,20 +4263,20 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["String"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *string) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackString(in)
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.PtrString); err != nil {
+		}(context, in.PtrString); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4284,20 +4284,20 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["PtrString"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackNumber(in)
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.PtrInt); err != nil {
+		}(context, in.PtrInt); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4305,20 +4305,20 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["PtrInt"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *bool) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *bool) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in bool) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackBool(in)
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.PtrBool); err != nil {
+		}(context, in.PtrBool); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4326,13 +4326,13 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 				out["PtrBool"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in json.Number) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in json.Number) (value interface{}, dict bool, null bool, err error) {
 			// selectorRepacker (json.Number)
 			if in == "" {
 				return value, false, true, nil
 			}
 			return in, false, false, nil
-		}(context, root, stack, in.Number); err != nil {
+		}(context, in.Number); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4341,7 +4341,7 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Bool      bool
 		Byte      byte
 		Float32   float32
@@ -4364,8 +4364,8 @@ func (p packageType) RepackNatives(context global.Context, root global.Root, sta
 		Number    json.Number
 	})(in))
 }
-func (p packageType) RepackPointers(context global.Context, root global.Root, stack global.Stack, in Pointers) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackPointers(context global.DataContext, in Pointers) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		String      *string
 		Int         *Int
 		Sub         *sub.Sub
@@ -4379,20 +4379,20 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 		// structRepacker
 		out := make(map[string]interface{}, 10)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *string) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackString(in)
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.String); err != nil {
+		}(context, in.String); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4400,24 +4400,24 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["String"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *Int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *Int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in Int) (value interface{}, dict bool, null bool, err error) {
 				// localRepacker
-				out, dict, null, err := p.RepackInt(context, root, stack, in)
+				out, dict, null, err := p.RepackInt(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Int); err != nil {
+		}(context, in.Int); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4425,24 +4425,24 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["Int"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 				// selectorRepacker
-				out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+				out, dict, null, err := sub.Package.RepackSub(context, in)
 				if err != nil {
 					return nil, false, false, err
 				}
 				return out, dict, null, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Sub); err != nil {
+		}(context, in.Sub); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4450,20 +4450,20 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["Sub"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *[3]int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *[3]int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in [3]int) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in [3]int) (value interface{}, dict bool, null bool, err error) {
 				// sliceRepacker
 				out := make([]interface{}, len(in))
 				empty := true
 				for i, item := range in {
-					v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+					v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
 						return pack.RepackNumber(in)
-					}(context, root, stack, item)
+					}(context, item)
 					if err != nil {
 						return nil, false, false, err
 					}
@@ -4473,12 +4473,12 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 					out[i] = v
 				}
 				return out, false, empty, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Array); err != nil {
+		}(context, in.Array); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4486,20 +4486,20 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["Array"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *[]string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *[]string) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in []string) (value interface{}, dict bool, null bool, err error) {
 				// sliceRepacker
 				out := make([]interface{}, len(in))
 				empty := true
 				for i, item := range in {
-					v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+					v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
 						return pack.RepackString(in)
-					}(context, root, stack, item)
+					}(context, item)
 					if err != nil {
 						return nil, false, false, err
 					}
@@ -4509,12 +4509,12 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 					out[i] = v
 				}
 				return out, false, empty, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Slice); err != nil {
+		}(context, in.Slice); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4522,31 +4522,31 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["Slice"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *map[string]int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in *map[string]int) (value interface{}, dict bool, null bool, err error) {
 			// pointerRepacker
 			if in == nil {
 				return nil, false, true, nil
 			}
-			out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]int) (value interface{}, dict bool, null bool, err error) {
+			out, dict, null, err := func(context global.DataContext, in map[string]int) (value interface{}, dict bool, null bool, err error) {
 				// mapRepacker
 				out := make(map[string]interface{}, len(in))
 				for k, item := range in {
-					v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+					v, _, _, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
 						return pack.RepackNumber(in)
-					}(context, root, stack, item)
+					}(context, item)
 					if err != nil {
 						return nil, false, false, err
 					}
 					out[k] = v
 				}
 				return out, true, len(in) == 0, nil
-			}(context, root, stack, *in)
+			}(context, *in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, false, nil
-		}(context, root, stack, in.Map); err != nil {
+		}(context, in.Map); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4554,25 +4554,25 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["Map"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []*string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []*string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *string) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in *string) (value interface{}, dict bool, null bool, err error) {
 					// pointerRepacker
 					if in == nil {
 						return nil, false, true, nil
 					}
-					out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+					out, dict, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
 						return pack.RepackString(in)
-					}(context, root, stack, *in)
+					}(context, *in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, false, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4582,7 +4582,7 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.SliceString); err != nil {
+		}(context, in.SliceString); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4590,29 +4590,29 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["SliceString"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []*Int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []*Int) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *Int) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in *Int) (value interface{}, dict bool, null bool, err error) {
 					// pointerRepacker
 					if in == nil {
 						return nil, false, true, nil
 					}
-					out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in Int) (value interface{}, dict bool, null bool, err error) {
+					out, dict, null, err := func(context global.DataContext, in Int) (value interface{}, dict bool, null bool, err error) {
 						// localRepacker
-						out, dict, null, err := p.RepackInt(context, root, stack, in)
+						out, dict, null, err := p.RepackInt(context, in)
 						if err != nil {
 							return nil, false, false, err
 						}
 						return out, dict, null, nil
-					}(context, root, stack, *in)
+					}(context, *in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, false, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4622,7 +4622,7 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.SliceInt); err != nil {
+		}(context, in.SliceInt); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4630,29 +4630,29 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out["SliceInt"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []*sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []*sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in *sub.Sub) (value interface{}, dict bool, null bool, err error) {
 					// pointerRepacker
 					if in == nil {
 						return nil, false, true, nil
 					}
-					out, dict, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+					out, dict, null, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 						// selectorRepacker
-						out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+						out, dict, null, err := sub.Package.RepackSub(context, in)
 						if err != nil {
 							return nil, false, false, err
 						}
 						return out, dict, null, nil
-					}(context, root, stack, *in)
+					}(context, *in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, false, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4662,7 +4662,7 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.SliceSub); err != nil {
+		}(context, in.SliceSub); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4671,7 +4671,7 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		String      *string
 		Int         *Int
 		Sub         *sub.Sub
@@ -4683,18 +4683,18 @@ func (p packageType) RepackPointers(context global.Context, root global.Root, st
 		SliceSub    []*sub.Sub
 	})(in))
 }
-func (p packageType) RepackPrivate(context global.Context, root global.Root, stack global.Stack, in Private) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackPrivate(context global.DataContext, in Private) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		i int
 		s string
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackNumber(in)
-		}(context, root, stack, in.i); err != nil {
+		}(context, in.i); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4702,10 +4702,10 @@ func (p packageType) RepackPrivate(context global.Context, root global.Root, sta
 				out["i"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 			// nativeRepacker
 			return pack.RepackString(in)
-		}(context, root, stack, in.s); err != nil {
+		}(context, in.s); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4714,26 +4714,26 @@ func (p packageType) RepackPrivate(context global.Context, root global.Root, sta
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		i int
 		s string
 	})(in))
 }
-func (p packageType) RepackQual(context global.Context, root global.Root, stack global.Stack, in Qual) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackQual(context global.DataContext, in Qual) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Sub sub.Sub
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// selectorRepacker
-			out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+			out, dict, null, err := sub.Package.RepackSub(context, in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, null, nil
-		}(context, root, stack, in.Sub); err != nil {
+		}(context, in.Sub); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4742,12 +4742,12 @@ func (p packageType) RepackQual(context global.Context, root global.Root, stack 
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Sub sub.Sub
 	})(in))
 }
-func (p packageType) RepackSlices(context global.Context, root global.Root, stack global.Stack, in Slices) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackSlices(context global.DataContext, in Slices) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Ints      []int
 		Strings   []string
 		ArrayLit  [5]string
@@ -4760,15 +4760,15 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 		// structRepacker
 		out := make(map[string]interface{}, 7)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []int) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackNumber(in)
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4778,7 +4778,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Ints); err != nil {
+		}(context, in.Ints); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4786,15 +4786,15 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out["Ints"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackString(in)
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4804,7 +4804,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Strings); err != nil {
+		}(context, in.Strings); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4812,15 +4812,15 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out["Strings"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in [5]string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in [5]string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackString(in)
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4830,7 +4830,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.ArrayLit); err != nil {
+		}(context, in.ArrayLit); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4838,15 +4838,15 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out["ArrayLit"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in [2 * N]int) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in [2 * N]int) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackNumber(in)
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4856,7 +4856,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.ArrayExpr); err != nil {
+		}(context, in.ArrayExpr); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4864,23 +4864,23 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out["ArrayExpr"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []struct {
+		if v, _, null, err := func(context global.DataContext, in []struct {
 			Int int
 		}) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in struct {
+				v, _, null, err := func(context global.DataContext, in struct {
 					Int int
 				}) (value interface{}, dict bool, null bool, err error) {
 					// structRepacker
 					out := make(map[string]interface{}, 2)
 					empty := true
-					if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+					if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 						// nativeRepacker
 						return pack.RepackNumber(in)
-					}(context, root, stack, in.Int); err != nil {
+					}(context, in.Int); err != nil {
 						return nil, false, false, err
 					} else {
 						if !null {
@@ -4889,7 +4889,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 						}
 					}
 					return out, false, empty, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4899,7 +4899,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Structs); err != nil {
+		}(context, in.Structs); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4907,20 +4907,20 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out["Structs"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in [][]string) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in [][]string) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []string) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in []string) (value interface{}, dict bool, null bool, err error) {
 					// sliceRepacker
 					out := make([]interface{}, len(in))
 					empty := true
 					for i, item := range in {
-						v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+						v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 							// nativeRepacker
 							return pack.RepackString(in)
-						}(context, root, stack, item)
+						}(context, item)
 						if err != nil {
 							return nil, false, false, err
 						}
@@ -4930,7 +4930,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 						out[i] = v
 					}
 					return out, false, empty, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -4940,7 +4940,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Arrays); err != nil {
+		}(context, in.Arrays); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -4949,7 +4949,7 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Ints      []int
 		Strings   []string
 		ArrayLit  [5]string
@@ -4960,14 +4960,14 @@ func (p packageType) RepackSlices(context global.Context, root global.Root, stac
 		Arrays [][]string
 	})(in))
 }
-func (p packageType) RepackString(context global.Context, root global.Root, stack global.Stack, in String) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackString(context global.DataContext, in String) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
 		return pack.RepackString(in)
-	}(context, root, stack, (string)(in))
+	}(context, (string)(in))
 }
-func (p packageType) RepackStructs(context global.Context, root global.Root, stack global.Stack, in Structs) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackStructs(context global.DataContext, in Structs) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Simple struct {
 			Int  int
 			Bool bool
@@ -4982,17 +4982,17 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 		// structRepacker
 		out := make(map[string]interface{}, 3)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in struct {
+		if v, _, null, err := func(context global.DataContext, in struct {
 			Int  int
 			Bool bool
 		}) (value interface{}, dict bool, null bool, err error) {
 			// structRepacker
 			out := make(map[string]interface{}, 3)
 			empty := true
-			if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in int) (value interface{}, dict bool, null bool, err error) {
+			if v, _, null, err := func(context global.DataContext, in int) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackNumber(in)
-			}(context, root, stack, in.Int); err != nil {
+			}(context, in.Int); err != nil {
 				return nil, false, false, err
 			} else {
 				if !null {
@@ -5000,10 +5000,10 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 					out["Int"] = v
 				}
 			}
-			if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in bool) (value interface{}, dict bool, null bool, err error) {
+			if v, _, null, err := func(context global.DataContext, in bool) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackBool(in)
-			}(context, root, stack, in.Bool); err != nil {
+			}(context, in.Bool); err != nil {
 				return nil, false, false, err
 			} else {
 				if !null {
@@ -5012,7 +5012,7 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 				}
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Simple); err != nil {
+		}(context, in.Simple); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -5020,7 +5020,7 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 				out["Simple"] = v
 			}
 		}
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in struct {
+		if v, _, null, err := func(context global.DataContext, in struct {
 			String string
 			Inner  struct {
 				Float32 float32
@@ -5029,10 +5029,10 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 			// structRepacker
 			out := make(map[string]interface{}, 3)
 			empty := true
-			if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in string) (value interface{}, dict bool, null bool, err error) {
+			if v, _, null, err := func(context global.DataContext, in string) (value interface{}, dict bool, null bool, err error) {
 				// nativeRepacker
 				return pack.RepackString(in)
-			}(context, root, stack, in.String); err != nil {
+			}(context, in.String); err != nil {
 				return nil, false, false, err
 			} else {
 				if !null {
@@ -5040,16 +5040,16 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 					out["String"] = v
 				}
 			}
-			if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in struct {
+			if v, _, null, err := func(context global.DataContext, in struct {
 				Float32 float32
 			}) (value interface{}, dict bool, null bool, err error) {
 				// structRepacker
 				out := make(map[string]interface{}, 2)
 				empty := true
-				if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in float32) (value interface{}, dict bool, null bool, err error) {
+				if v, _, null, err := func(context global.DataContext, in float32) (value interface{}, dict bool, null bool, err error) {
 					// nativeRepacker
 					return pack.RepackNumber(in)
-				}(context, root, stack, in.Float32); err != nil {
+				}(context, in.Float32); err != nil {
 					return nil, false, false, err
 				} else {
 					if !null {
@@ -5058,7 +5058,7 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 					}
 				}
 				return out, false, empty, nil
-			}(context, root, stack, in.Inner); err != nil {
+			}(context, in.Inner); err != nil {
 				return nil, false, false, err
 			} else {
 				if !null {
@@ -5067,7 +5067,7 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 				}
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Complex); err != nil {
+		}(context, in.Complex); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -5076,7 +5076,7 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Simple struct {
 			Int  int
 			Bool bool
@@ -5089,21 +5089,21 @@ func (p packageType) RepackStructs(context global.Context, root global.Root, sta
 		}
 	})(in))
 }
-func (p packageType) RepackSubInterface(context global.Context, root global.Root, stack global.Stack, in SubInterface) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackSubInterface(context global.DataContext, in SubInterface) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		SubInterface sub.SubInterface
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.SubInterface) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in sub.SubInterface) (value interface{}, dict bool, null bool, err error) {
 			// selectorRepacker
-			out, dict, null, err := sub.Package.RepackSubInterface(context, root, stack, in)
+			out, dict, null, err := sub.Package.RepackSubInterface(context, in)
 			if err != nil {
 				return nil, false, false, err
 			}
 			return out, dict, null, nil
-		}(context, root, stack, in.SubInterface); err != nil {
+		}(context, in.SubInterface); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -5112,36 +5112,36 @@ func (p packageType) RepackSubInterface(context global.Context, root global.Root
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		SubInterface sub.SubInterface
 	})(in))
 }
-func (p packageType) RepackSubMap(context global.Context, root global.Root, stack global.Stack, in SubMap) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackSubMap(context global.DataContext, in SubMap) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Map map[string]sub.Sub
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in map[string]sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in map[string]sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// mapRepacker
 			out := make(map[string]interface{}, len(in))
 			for k, item := range in {
-				v, _, _, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+				v, _, _, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 					// selectorRepacker
-					out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+					out, dict, null, err := sub.Package.RepackSub(context, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
 				out[k] = v
 			}
 			return out, true, len(in) == 0, nil
-		}(context, root, stack, in.Map); err != nil {
+		}(context, in.Map); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -5150,30 +5150,30 @@ func (p packageType) RepackSubMap(context global.Context, root global.Root, stac
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Map map[string]sub.Sub
 	})(in))
 }
-func (p packageType) RepackSubSlice(context global.Context, root global.Root, stack global.Stack, in SubSlice) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in struct {
+func (p packageType) RepackSubSlice(context global.DataContext, in SubSlice) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in struct {
 		Slice []sub.Sub
 	}) (value interface{}, dict bool, null bool, err error) {
 		// structRepacker
 		out := make(map[string]interface{}, 2)
 		empty := true
-		if v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in []sub.Sub) (value interface{}, dict bool, null bool, err error) {
+		if v, _, null, err := func(context global.DataContext, in []sub.Sub) (value interface{}, dict bool, null bool, err error) {
 			// sliceRepacker
 			out := make([]interface{}, len(in))
 			empty := true
 			for i, item := range in {
-				v, _, null, err := func(context global.Context, root global.Root, stack global.Stack, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
+				v, _, null, err := func(context global.DataContext, in sub.Sub) (value interface{}, dict bool, null bool, err error) {
 					// selectorRepacker
-					out, dict, null, err := sub.Package.RepackSub(context, root, stack, in)
+					out, dict, null, err := sub.Package.RepackSub(context, in)
 					if err != nil {
 						return nil, false, false, err
 					}
 					return out, dict, null, nil
-				}(context, root, stack, item)
+				}(context, item)
 				if err != nil {
 					return nil, false, false, err
 				}
@@ -5183,7 +5183,7 @@ func (p packageType) RepackSubSlice(context global.Context, root global.Root, st
 				out[i] = v
 			}
 			return out, false, empty, nil
-		}(context, root, stack, in.Slice); err != nil {
+		}(context, in.Slice); err != nil {
 			return nil, false, false, err
 		} else {
 			if !null {
@@ -5192,27 +5192,27 @@ func (p packageType) RepackSubSlice(context global.Context, root global.Root, st
 			}
 		}
 		return out, false, empty, nil
-	}(context, root, stack, (struct {
+	}(context, (struct {
 		Slice []sub.Sub
 	})(in))
 }
-func (p packageType) RepackType(context global.Context, root global.Root, stack global.Stack, in Type) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackType(context global.DataContext, in Type) (value interface{}, dict bool, null bool, err error) {
 	// customRepacker
-	out, dict, null, err := in.Repack(context, root, stack)
+	out, dict, null, err := in.Repack(context)
 	if err != nil {
 		return nil, false, false, err
 	}
 	return out, dict, null, nil
 }
-func (p packageType) RepackUint(context global.Context, root global.Root, stack global.Stack, in Uint) (value interface{}, dict bool, null bool, err error) {
-	return func(context global.Context, root global.Root, stack global.Stack, in uint) (value interface{}, dict bool, null bool, err error) {
+func (p packageType) RepackUint(context global.DataContext, in Uint) (value interface{}, dict bool, null bool, err error) {
+	return func(context global.DataContext, in uint) (value interface{}, dict bool, null bool, err error) {
 		// nativeRepacker
 		return pack.RepackNumber(in)
-	}(context, root, stack, (uint)(in))
+	}(context, (uint)(in))
 }
-func (p packageType) Get(name string) string {
+func (p packageType) GetType(name string) string {
 	return ""
 }
-func (p packageType) Add(packages map[string]global.Package) {
+func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/tests/packer"] = Package
 }

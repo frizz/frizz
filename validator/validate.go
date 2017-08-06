@@ -8,17 +8,17 @@ import (
 	"frizz.io/global"
 	"frizz.io/system"
 	"github.com/pkg/errors"
+	"frizz.io/pack"
 )
 
-func Validate(v interface{}, local global.Package) (valid bool, message string, err error) {
-	packages := map[string]global.Package{}
-	local.Add(packages)
-	return validate(global.NewStack("root"), reflect.ValueOf(v), local, packages)
+func Validate(p global.PackageContext, v interface{}) (valid bool, message string, err error) {
+	context := pack.NewValidationContext(p, global.NewStack("root"))
+	return validate(context, reflect.ValueOf(v))
 }
 
-func validate(stack global.Stack, value reflect.Value, local global.Package, packages map[string]global.Package) (valid bool, message string, err error) {
+func validate(context global.ValidationContext, value reflect.Value) (valid bool, message string, err error) {
 
-	if valid, message, err := validateType(stack, value, local, packages); err != nil || !valid {
+	if valid, message, err := validateType(context, value); err != nil || !valid {
 		return valid, message, err
 	}
 
@@ -28,7 +28,7 @@ func validate(stack global.Stack, value reflect.Value, local global.Package, pac
 
 	if value.Kind() == reflect.Interface {
 		// interface: recurse with elem
-		return validate(stack, value.Elem(), local, packages)
+		return validate(context, value.Elem())
 	}
 
 	switch value.Kind() {
@@ -37,8 +37,8 @@ func validate(stack global.Stack, value reflect.Value, local global.Package, pac
 		for i := 0; i < value.Type().NumField(); i++ {
 			name := value.Type().Field(i).Name
 			field := value.Field(i)
-			inner := stack.Append(global.FieldItem(name))
-			if valid, message, err := validate(inner, field, local, packages); err != nil || !valid {
+			inner := pack.NewValidationContext(context.Package(), context.Location().Child(global.FieldItem(name)))
+			if valid, message, err := validate(inner, field); err != nil || !valid {
 				return valid, message, err
 			}
 		}
@@ -46,16 +46,16 @@ func validate(stack global.Stack, value reflect.Value, local global.Package, pac
 		// validate items
 		for i := 0; i < value.Len(); i++ {
 			var item reflect.Value
-			var inner global.Stack
+			var inner global.ValidationContext
 			if value.Kind() == reflect.Map {
 				key := value.MapKeys()[i]
 				item = value.MapIndex(key)
-				inner = stack.Append(global.MapItem(key.Interface().(string)))
+				inner = pack.NewValidationContext(context.Package(), context.Location().Child(global.MapItem(key.Interface().(string))))
 			} else {
 				item = value.Index(i)
-				inner = stack.Append(global.ArrayItem(i))
+				inner = pack.NewValidationContext(context.Package(), context.Location().Child(global.ArrayItem(i)))
 			}
-			if valid, message, err := validate(inner, item, local, packages); err != nil || !valid {
+			if valid, message, err := validate(inner, item); err != nil || !valid {
 				return valid, message, err
 			}
 		}
@@ -63,7 +63,7 @@ func validate(stack global.Stack, value reflect.Value, local global.Package, pac
 	return true, "", nil
 }
 
-func validateType(stack global.Stack, value reflect.Value, local global.Package, packages map[string]global.Package) (valid bool, message string, err error) {
+func validateType(context global.ValidationContext, value reflect.Value) (valid bool, message string, err error) {
 
 	if (value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface) && value.IsNil() {
 		// it is not possible to validate a nil value by it's type -> return valid
@@ -80,13 +80,13 @@ func validateType(stack global.Stack, value reflect.Value, local global.Package,
 		return true, "", nil
 	}
 
-	pkg, ok := packages[t.PkgPath()]
-	if !ok {
+	pkg := context.Package().Get(t.PkgPath())
+	if pkg == nil {
 		// no typer -> return valid
 		return true, "", nil
 	}
 
-	typebase64 := pkg.Get(t.Name())
+	typebase64 := pkg.GetType(t.Name())
 	if typebase64 == "" {
 		// no type in typer -> return valid
 		return true, "", nil
@@ -94,21 +94,20 @@ func validateType(stack global.Stack, value reflect.Value, local global.Package,
 
 	typebytes, err := base64.StdEncoding.DecodeString(typebase64)
 	if err != nil {
-		return false, "", errors.Wrapf(err, "%s: decoding base64 of type", stack)
+		return false, "", errors.Wrapf(err, "%s: decoding base64 of type", context.Location())
 	}
 
-	c := frizz.New(local)
-	typeiface, err := c.Unmarshal(typebytes)
+	typeiface, err := frizz.Unmarshal(context.Package(), typebytes)
 	if err != nil {
-		return false, "", errors.Wrapf(err, "%s: unmarshaling type", stack)
+		return false, "", errors.Wrapf(err, "%s: unmarshaling type", context.Location())
 	}
 
 	typ, ok := typeiface.(system.Type)
 	if !ok {
-		return false, "", errors.Errorf("%s: type should system.Type, got %T", stack, typeiface)
+		return false, "", errors.Errorf("%s: type should system.Type, got %T", context.Location(), typeiface)
 	}
 
-	if valid, message, err := typ.ValidateValue(stack, value); err != nil || !valid {
+	if valid, message, err := typ.ValidateValue(context, value); err != nil || !valid {
 		return valid, message, err
 	}
 	return true, "", nil
