@@ -126,7 +126,7 @@ func (p packageType) UnpackIsNull(context global.DataContext, in interface{}) (v
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -151,7 +151,7 @@ func (p packageType) UnpackItems(context global.DataContext, in interface{}) (va
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -196,7 +196,7 @@ func (p packageType) UnpackKeys(context global.DataContext, in interface{}) (val
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -241,7 +241,7 @@ func (p packageType) UnpackLength(context global.DataContext, in interface{}) (v
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -334,7 +334,7 @@ func (p packageType) UnpackNotNull(context global.DataContext, in interface{}) (
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -362,7 +362,7 @@ func (p packageType) UnpackRegex(context global.DataContext, in interface{}) (va
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -430,7 +430,7 @@ func (p packageType) UnpackStruct(context global.DataContext, in interface{}) (v
 		// mapUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+			return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -445,7 +445,7 @@ func (p packageType) UnpackStruct(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -725,9 +725,47 @@ func (p packageType) RepackStruct(context global.DataContext, in Struct) (value 
 		return out, true, len(in) == 0, nil
 	}(context, (map[string][]common.Validator)(in))
 }
+func (p packageType) GetData(filename string) string {
+	return ""
+}
 func (p packageType) GetType(name string) string {
+	switch name {
+	case "Equal":
+		return ""
+	case "GreaterThan":
+		return ""
+	case "GreaterThanOrEqual":
+		return ""
+	case "IsNull":
+		return ""
+	case "Items":
+		return ""
+	case "Keys":
+		return ""
+	case "Length":
+		return ""
+	case "LessThan":
+		return ""
+	case "LessThanOrEqual":
+		return ""
+	case "NotNull":
+		return ""
+	case "Regex":
+		return ""
+	case "Struct":
+		return ""
+	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/validators"] = Package
+}
+func (p packageType) Loader(loader global.Loader) dataType {
+	return dataType{loader}
+}
+
+var Data = Package.Loader(pack.DefaultLoader)
+
+type dataType struct {
+	loader global.Loader
 }

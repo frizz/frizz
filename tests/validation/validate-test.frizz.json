@@ -1,0 +1,20 @@
+{
+	"_import": {
+		"sys": "frizz.io/system",
+		"val": "frizz.io/validators"
+	},
+	"_type": "sys.Type",
+	"Validators": [
+		{
+			"_type": "val.Struct",
+			"_value": {
+				"Int": [
+					{
+						"_type": "val.GreaterThan",
+						"_value": 2
+					}
+				]
+			}
+		}
+	]
+}

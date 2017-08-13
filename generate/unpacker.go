@@ -249,7 +249,7 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into map, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into map, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -274,8 +274,9 @@ func (f *fileDef) mapUnpacker(g *Group, spec *ast.MapType) {
 			Id("value"),
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("unpacking into map, value should be a map"),
+				Lit("unpacking into map, value should be a map, found: %#v"),
 				Id("context").Dot("Location").Call(),
+				Id("in"),
 			),
 		),
 	)
@@ -307,7 +308,7 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 	/*
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -339,8 +340,9 @@ func (f *fileDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 			Id("value"),
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("%s: unpacking into slice, value should be an array"),
+				Lit("%s: unpacking into slice, value should be an array, found: %#v"),
 				Id("context").Dot("Location").Call(),
+				Id("in"),
 			),
 		),
 	)
@@ -405,7 +407,7 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -432,8 +434,9 @@ func (f *fileDef) structUnpacker(g *Group, spec *ast.StructType) {
 			Id("value"),
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
-				Lit("%s: unpacking into struct, value should be a map"),
+				Lit("%s: unpacking into struct, value should be a map, found: %#v"),
 				Id("context").Dot("Location").Call(),
+				Id("in"),
 			),
 		),
 	)

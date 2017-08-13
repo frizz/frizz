@@ -19,6 +19,8 @@ import (
 
 	"sort"
 
+	"regexp"
+
 	"frizz.io/utils"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
@@ -62,14 +64,13 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 	f := NewFilePath(path)
 
 	prog := &progDef{
-		fset:      token.NewFileSet(),
-		path:      path,
-		pcache:    patsy.NewCache(env),
-		dir:       dir,
-		types:     map[string]*typeDef{},
-		typeFiles: map[string][]byte{},
-		stubs:     map[string]*stub{},
-		imports:   map[string]bool{},
+		fset:    token.NewFileSet(),
+		path:    path,
+		pcache:  patsy.NewCache(env),
+		dir:     dir,
+		types:   map[string]*typeDef{},
+		stubs:   map[string]*stub{},
+		imports: map[string]bool{},
 	}
 
 	if err := scanData(prog); err != nil {
@@ -80,14 +81,16 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 		return false, err
 	}
 
-	if len(prog.types) == 0 && len(prog.typeFiles) == 0 && len(prog.imports) == 0 {
+	if len(prog.types) == 0 && len(prog.stubs) == 0 && len(prog.imports) == 0 {
 		return false, nil
 	}
 
 	generatePackage(prog, f)
 	generatePackers(prog, f)
-	generateTypeFiles(prog, f)
+	generateStubs(prog, f)
+	generateTypes(prog, f)
 	generateImports(prog, f)
+	generateData(prog, f)
 
 	if err := f.Render(writer); err != nil {
 		return false, errors.Wrap(err, "error saving generated file")
@@ -105,7 +108,7 @@ func scanData(prog *progDef) error {
 	}
 
 	for _, fpath := range files {
-		s, err := decodeStub(fpath)
+		s, err := decodeStub(fpath, prog.path)
 		if err != nil {
 			return errors.Wrapf(err, "decoding %s", fpath)
 		}
@@ -311,17 +314,11 @@ func scanSource(prog *progDef) error {
 						return false
 					}
 
-					tpath, tname, err := utils.ParseReference(s.Type, prog.path, s.Import)
-					if err != nil {
-						outer = err
-						return false
+					if s.typePackage != "frizz.io/system" || s.typeName != "Type" {
+						outer = errors.Errorf("expected system.Type, got: %s", s.Type)
 					}
 
-					if tpath != "frizz.io/system" || tname != "Type" {
-						outer = errors.Errorf("expected frizz.Type, got: %s", s.Type)
-					}
-
-					prog.typeFiles[ts.Name.Name] = s.bytes
+					prog.types[ts.Name.Name].typeFilename = a
 
 				}
 			}
@@ -376,8 +373,8 @@ func generatePackers(prog *progDef, f *File) {
 			<types...>
 			case "<name>":
 				return p.Unpack<name>(context, in)
-			}
 			</types>
+			}
 			return nil, false, errors.Errorf("%s: type %s not found", context.Location(), "<name>")
 		}
 	*/
@@ -389,18 +386,20 @@ func generatePackers(prog *progDef, f *File) {
 		Id("value").Interface(),
 		Id("null").Bool(),
 		Err().Error(),
-	).Block(
-		Switch(Id("name")).BlockFunc(func(g *Group) {
-			for _, t := range sorted {
-				g.Case(Lit(t.name)).Block(
-					Return(Id("p").Dot("Unpack"+t.name).Call(
-						Id("context"),
-						Id("in"),
-					)),
-				)
-			}
-		}),
-		Return(
+	).BlockFunc(func(g *Group) {
+		if len(sorted) > 0 {
+			g.Switch(Id("name")).BlockFunc(func(g *Group) {
+				for _, t := range sorted {
+					g.Case(Lit(t.name)).Block(
+						Return(Id("p").Dot("Unpack"+t.name).Call(
+							Id("context"),
+							Id("in"),
+						)),
+					)
+				}
+			})
+		}
+		g.Return(
 			Nil(),
 			False(),
 			Qual("github.com/pkg/errors", "Errorf").Call(
@@ -408,8 +407,8 @@ func generatePackers(prog *progDef, f *File) {
 				Id("context").Dot("Location").Call(),
 				Id("name"),
 			),
-		),
-	)
+		)
+	})
 
 	for _, t := range sorted {
 		f.Add(t.unpacker(t.spec, t.name, true, t.packable))
@@ -435,18 +434,20 @@ func generatePackers(prog *progDef, f *File) {
 		Id("dict").Bool(),
 		Id("null").Bool(),
 		Err().Error(),
-	).Block(
-		Switch(Id("name")).BlockFunc(func(g *Group) {
-			for _, t := range sorted {
-				g.Case(Lit(t.name)).Block(
-					Return(Id("p").Dot("Repack"+t.name).Call(
-						Id("context"),
-						Id("in").Assert(Id(t.name)),
-					)),
-				)
-			}
-		}),
-		Return(
+	).BlockFunc(func(g *Group) {
+		if len(sorted) > 0 {
+			g.Switch(Id("name")).BlockFunc(func(g *Group) {
+				for _, t := range sorted {
+					g.Case(Lit(t.name)).Block(
+						Return(Id("p").Dot("Repack"+t.name).Call(
+							Id("context"),
+							Id("in").Assert(Id(t.name)),
+						)),
+					)
+				}
+			})
+		}
+		g.Return(
 			Nil(),
 			False(),
 			False(),
@@ -455,23 +456,69 @@ func generatePackers(prog *progDef, f *File) {
 				Id("context").Dot("Location").Call(),
 				Id("name"),
 			),
-		),
-	)
+		)
+	})
 
 	for _, t := range sorted {
 		f.Add(t.repacker(t.spec, t.name, true, t.packable))
 	}
 }
 
-func generateTypeFiles(prog *progDef, f *File) {
+func generateStubs(prog *progDef, f *File) {
 
 	type def struct {
-		name string
-		data []byte
+		filename string
+		stub     *stub
 	}
 	var sorted []def
-	for name, data := range prog.typeFiles {
-		sorted = append(sorted, def{name, data})
+	for fpath, stub := range prog.stubs {
+		_, fname := filepath.Split(fpath)
+		sorted = append(sorted, def{fname, stub})
+	}
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].filename < sorted[j].filename })
+
+	/*
+		func (p packageType) GetData(filename string) string {
+			switch filename {
+			<stubs...>
+			case <filename>:
+				return <bytes>
+			</types>
+			}
+			return ""
+		}
+	*/
+	f.Func().Params(
+		Id("p").Id("packageType"),
+	).Id("GetData").Params(
+		Id("filename").String(),
+	).String().BlockFunc(func(g *Group) {
+		if len(sorted) > 0 {
+			g.Switch(Id("filename")).BlockFunc(func(g *Group) {
+				for _, d := range sorted {
+					g.Case(Lit(d.filename)).Block(
+						Return(Lit(base64.StdEncoding.EncodeToString([]byte(d.stub.bytes)))),
+					)
+				}
+			})
+		}
+		g.Return(Lit(""))
+	})
+
+}
+
+func generateTypes(prog *progDef, f *File) {
+
+	type def struct {
+		name     string
+		filename string
+	}
+	var sorted []def
+	for name, td := range prog.types {
+		if td.typeFilename == "" {
+			continue
+		}
+		sorted = append(sorted, def{name, td.typeFilename})
 	}
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 
@@ -480,7 +527,7 @@ func generateTypeFiles(prog *progDef, f *File) {
 			switch name {
 			<types...>
 			case <name>:
-				return <bytes>
+				return <filename>
 			</types>
 			}
 			return ""
@@ -495,7 +542,7 @@ func generateTypeFiles(prog *progDef, f *File) {
 			g.Switch(Id("name")).BlockFunc(func(g *Group) {
 				for _, d := range sorted {
 					g.Case(Lit(d.name)).Block(
-						Return(Lit(base64.StdEncoding.EncodeToString([]byte(d.data)))),
+						Return(Lit(d.filename)),
 					)
 				}
 			})
@@ -524,9 +571,7 @@ func generateImports(prog *progDef, f *File) {
 	f.Func().Params(Id("p").Id("packageType")).Id("GetImportedPackages").Params(
 		Id("packages").Map(String()).Qual("frizz.io/global", "Package"),
 	).BlockFunc(func(g *Group) {
-		if len(prog.types) > 0 || len(prog.typeFiles) > 0 {
-			g.Id("packages").Index(Lit(prog.path)).Op("=").Id("Package")
-		}
+		g.Id("packages").Index(Lit(prog.path)).Op("=").Id("Package")
 		for _, pkg := range sorted {
 			g.Qual(pkg, "Package").Dot("GetImportedPackages").Call(Id("packages"))
 		}
@@ -534,13 +579,84 @@ func generateImports(prog *progDef, f *File) {
 
 }
 
-type stub struct {
-	Import map[string]string `json:"_import"`
-	Type   string            `json:"_type"`
-	bytes  []byte
+func generateData(prog *progDef, f *File) {
+	/*
+		func (p packageType) Loader(loader pack.Loader) dataType {
+			return dataType{loader}
+		}
+
+		var Data = Package.Loader(pack.DefaultLoader)
+
+		type dataType struct {
+			loader pack.Loader
+		}
+
+		<stubs...>
+		func (d dataType)<name>() (out <type>) {
+			return d.loader.Load(Package, <filename>).(<type>)
+		}
+		<stubs>
+	*/
+	f.Func().Params(
+		Id("p").Id("packageType"),
+	).Id("Loader").Params(
+		Id("loader").Qual("frizz.io/global", "Loader"),
+	).Id("dataType").Block(
+		Return(Id("dataType").Values(Id("loader"))),
+	)
+	f.Var().Id("Data").Op("=").Id("Package").Dot("Loader").Call(
+		Qual("frizz.io/pack", "DefaultLoader"),
+	)
+	f.Type().Id("dataType").Struct(
+		Id("loader").Qual("frizz.io/global", "Loader"),
+	)
+	type def struct {
+		filename string
+		stub     *stub
+	}
+	var sorted []def
+	for fpath, stub := range prog.stubs {
+		_, fname := filepath.Split(fpath)
+		sorted = append(sorted, def{fname, stub})
+	}
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].filename < sorted[j].filename })
+	for _, d := range sorted {
+		name := getName(d.filename)
+		f.Func().Params(Id("d").Id("dataType")).Id(name).Params().Qual(d.stub.typePackage, d.stub.typeName).Block(
+			Return(Id("d").Dot("loader").Dot("Load").Call(
+				Id("Package"),
+				Lit(d.filename),
+			).Assert(Qual(d.stub.typePackage, d.stub.typeName))),
+		)
+	}
+
 }
 
-func decodeStub(fpath string) (*stub, error) {
+var nameRegex = regexp.MustCompile(`[^a-z0-9\-_ ]`)
+var initRegex = regexp.MustCompile(`^[^a-z]+`)
+var sepRegex = regexp.MustCompile(`[\-_ ]+`)
+
+func getName(filename string) string {
+	name := filename
+	name = strings.TrimSuffix(name, ".frizz.json")
+	name = strings.ToLower(name)
+	name = nameRegex.ReplaceAllString(name, "") // replace all illegal characters, leaving separators intact
+	name = initRegex.ReplaceAllString(name, "") // replace all illegal starting characters
+	name = sepRegex.ReplaceAllString(name, " ") // replaces separators with spaces
+	name = strings.Title(name)                  // upper cases first char of each word
+	name = strings.Replace(name, " ", "", -1)   // removes spaces
+	return name
+}
+
+type stub struct {
+	Import      map[string]string `json:"_import"`
+	Type        string            `json:"_type"`
+	bytes       []byte
+	typePackage string
+	typeName    string
+}
+
+func decodeStub(fpath string, packagePath string) (*stub, error) {
 	b, err := ioutil.ReadFile(fpath)
 	if err != nil {
 		return nil, err
@@ -551,6 +667,12 @@ func decodeStub(fpath string) (*stub, error) {
 	if err := d.Decode(v); err != nil {
 		return nil, err
 	}
+	tpath, tname, err := utils.ParseReference(v.Type, packagePath, v.Import)
+	if err != nil {
+		return nil, err
+	}
+	v.typePackage = tpath
+	v.typeName = tname
 	v.bytes = b
 	return v, nil
 }

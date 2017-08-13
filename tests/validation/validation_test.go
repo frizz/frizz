@@ -12,9 +12,50 @@ import (
 	"frizz.io/pack"
 	"frizz.io/system"
 	"frizz.io/tests/packer"
+	"frizz.io/tests/validation"
 	"frizz.io/validator"
 	"frizz.io/validators"
 )
+
+func TestGeneration(t *testing.T) {
+	f := frizz.New(validation.Package)
+	vt, err := frizz.Unmarshal(f, []byte(`{
+		"_type": "ValidateTest",
+		"Int": 3
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	valid, message, err := frizz.Validate(f, vt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !valid {
+		t.Fatal("Should be valid")
+	}
+	if message != "" {
+		t.Fatal("Message should be empty")
+	}
+
+	vt, err = frizz.Unmarshal(f, []byte(`{
+		"_type": "ValidateTest",
+		"Int": 2
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	valid, message, err = frizz.Validate(f, vt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if valid {
+		t.Fatal("Should not be valid")
+	}
+	expected := `root.Int: value 2 must be greater than 2`
+	if message != expected {
+		t.Fatalf("Message should be %#v. Found %#v", expected, message)
+	}
+}
 
 type msss map[string]map[string]string
 type mss map[string]string
@@ -328,6 +369,10 @@ func (m mockPackage) Repack(context global.DataContext, in interface{}, name str
 }
 
 func (m mockPackage) GetType(name string) string {
+	return name
+}
+
+func (m mockPackage) GetData(name string) string {
 	return base64.StdEncoding.EncodeToString([]byte(m.types[name]))
 }
 

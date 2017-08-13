@@ -4,11 +4,10 @@ import (
 	"encoding/base64"
 	"reflect"
 
-	"frizz.io/frizz"
 	"frizz.io/global"
+	"frizz.io/pack"
 	"frizz.io/system"
 	"github.com/pkg/errors"
-	"frizz.io/pack"
 )
 
 func Validate(p global.PackageContext, v interface{}) (valid bool, message string, err error) {
@@ -86,7 +85,7 @@ func validateType(context global.ValidationContext, value reflect.Value) (valid 
 		return true, "", nil
 	}
 
-	typebase64 := pkg.GetType(t.Name())
+	typebase64 := pkg.GetData(pkg.GetType(t.Name()))
 	if typebase64 == "" {
 		// no type in typer -> return valid
 		return true, "", nil
@@ -97,7 +96,7 @@ func validateType(context global.ValidationContext, value reflect.Value) (valid 
 		return false, "", errors.Wrapf(err, "%s: decoding base64 of type", context.Location())
 	}
 
-	typeiface, err := frizz.Unmarshal(context.Package(), typebytes)
+	typeiface, err := pack.Unmarshal(context.Package(), typebytes)
 	if err != nil {
 		return false, "", errors.Wrapf(err, "%s: unmarshaling type", context.Location())
 	}

@@ -36,7 +36,7 @@ func (p packageType) UnpackSub(context global.DataContext, in interface{}) (valu
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -137,9 +137,27 @@ func (p packageType) RepackSubInterface(context global.DataContext, in SubInterf
 		return pack.RepackInterface(context, false, in)
 	}(context, (interface{})(in))
 }
+func (p packageType) GetData(filename string) string {
+	return ""
+}
 func (p packageType) GetType(name string) string {
+	switch name {
+	case "Sub":
+		return ""
+	case "SubInterface":
+		return ""
+	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/tests/packer/sub"] = Package
+}
+func (p packageType) Loader(loader global.Loader) dataType {
+	return dataType{loader}
+}
+
+var Data = Package.Loader(pack.DefaultLoader)
+
+type dataType struct {
+	loader global.Loader
 }

@@ -133,7 +133,7 @@ func (p packageType) UnpackAliasArray(context global.DataContext, in interface{}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -181,7 +181,7 @@ func (p packageType) UnpackAliasMap(context global.DataContext, in interface{}) 
 		// mapUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+			return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -267,7 +267,7 @@ func (p packageType) UnpackAliasSlice(context global.DataContext, in interface{}
 		// sliceUnpacker
 		a, ok := in.([]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 		}
 		if len(a) == 0 {
 			return value, true, nil
@@ -372,7 +372,7 @@ func (p packageType) UnpackEmbedNatives(context global.DataContext, in interface
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -443,7 +443,7 @@ func (p packageType) UnpackEmbedPointer(context global.DataContext, in interface
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -524,7 +524,7 @@ func (p packageType) UnpackEmbedQual(context global.DataContext, in interface{})
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -595,7 +595,7 @@ func (p packageType) UnpackEmbedQualPointer(context global.DataContext, in inter
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -696,7 +696,7 @@ func (p packageType) UnpackImpi(context global.DataContext, in interface{}) (val
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -745,7 +745,7 @@ func (p packageType) UnpackImps(context global.DataContext, in interface{}) (val
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -850,7 +850,7 @@ func (p packageType) UnpackInterfaceField(context global.DataContext, in interfa
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -890,7 +890,7 @@ func (p packageType) UnpackInterfaceField(context global.DataContext, in interfa
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -934,7 +934,7 @@ func (p packageType) UnpackInterfaceField(context global.DataContext, in interfa
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -981,7 +981,7 @@ func (p packageType) UnpackInterfaceField(context global.DataContext, in interfa
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -1062,7 +1062,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -1083,7 +1083,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -1127,7 +1127,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -1171,7 +1171,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -1186,7 +1186,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 						// sliceUnpacker
 						a, ok := in.([]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 						}
 						if len(a) == 0 {
 							return value, true, nil
@@ -1239,7 +1239,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -1254,7 +1254,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 						// sliceUnpacker
 						a, ok := in.([]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 						}
 						if len(a) == 0 {
 							return value, true, nil
@@ -1310,7 +1310,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -1325,7 +1325,7 @@ func (p packageType) UnpackMaps(context global.DataContext, in interface{}) (val
 						// mapUnpacker
 						m, ok := in.(map[string]interface{})
 						if !ok {
-							return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+							return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 						}
 						if len(m) == 0 {
 							return value, true, nil
@@ -1409,7 +1409,7 @@ func (p packageType) UnpackNatives(context global.DataContext, in interface{}) (
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -1898,7 +1898,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2018,7 +2018,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 					}
 					if len(a) == 0 {
 						return value, true, nil
@@ -2075,7 +2075,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 					// sliceUnpacker
 					a, ok := in.([]interface{})
 					if !ok {
-						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+						return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 					}
 					if len(a) == 0 {
 						return value, true, nil
@@ -2129,7 +2129,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 					// mapUnpacker
 					m, ok := in.(map[string]interface{})
 					if !ok {
-						return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+						return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 					}
 					if len(m) == 0 {
 						return value, true, nil
@@ -2178,7 +2178,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2232,7 +2232,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2286,7 +2286,7 @@ func (p packageType) UnpackPointers(context global.DataContext, in interface{}) 
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2353,7 +2353,7 @@ func (p packageType) UnpackPrivate(context global.DataContext, in interface{}) (
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2423,7 +2423,7 @@ func (p packageType) UnpackQual(context global.DataContext, in interface{}) (val
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2479,7 +2479,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2503,7 +2503,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2547,7 +2547,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2591,7 +2591,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2638,7 +2638,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2687,7 +2687,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2706,7 +2706,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 						// structUnpacker
 						m, ok := in.(map[string]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 						}
 						if len(m) == 0 {
 							return value, true, nil
@@ -2761,7 +2761,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -2776,7 +2776,7 @@ func (p packageType) UnpackSlices(context global.DataContext, in interface{}) (v
 						// sliceUnpacker
 						a, ok := in.([]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+							return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 						}
 						if len(a) == 0 {
 							return value, true, nil
@@ -2871,7 +2871,7 @@ func (p packageType) UnpackStructs(context global.DataContext, in interface{}) (
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -2900,7 +2900,7 @@ func (p packageType) UnpackStructs(context global.DataContext, in interface{}) (
 				// structUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -2972,7 +2972,7 @@ func (p packageType) UnpackStructs(context global.DataContext, in interface{}) (
 				// structUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -3014,7 +3014,7 @@ func (p packageType) UnpackStructs(context global.DataContext, in interface{}) (
 						// structUnpacker
 						m, ok := in.(map[string]interface{})
 						if !ok {
-							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+							return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 						}
 						if len(m) == 0 {
 							return value, true, nil
@@ -3081,7 +3081,7 @@ func (p packageType) UnpackSubInterface(context global.DataContext, in interface
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -3130,7 +3130,7 @@ func (p packageType) UnpackSubMap(context global.DataContext, in interface{}) (v
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -3147,7 +3147,7 @@ func (p packageType) UnpackSubMap(context global.DataContext, in interface{}) (v
 				// mapUnpacker
 				m, ok := in.(map[string]interface{})
 				if !ok {
-					return value, false, errors.Errorf("unpacking into map, value should be a map", context.Location())
+					return value, false, errors.Errorf("unpacking into map, value should be a map, found: %#v", context.Location(), in)
 				}
 				if len(m) == 0 {
 					return value, true, nil
@@ -3203,7 +3203,7 @@ func (p packageType) UnpackSubSlice(context global.DataContext, in interface{}) 
 		// structUnpacker
 		m, ok := in.(map[string]interface{})
 		if !ok {
-			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map", context.Location())
+			return value, false, errors.Errorf("%s: unpacking into struct, value should be a map, found: %#v", context.Location(), in)
 		}
 		if len(m) == 0 {
 			return value, true, nil
@@ -3220,7 +3220,7 @@ func (p packageType) UnpackSubSlice(context global.DataContext, in interface{}) 
 				// sliceUnpacker
 				a, ok := in.([]interface{})
 				if !ok {
-					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array", context.Location())
+					return value, false, errors.Errorf("%s: unpacking into slice, value should be an array, found: %#v", context.Location(), in)
 				}
 				if len(a) == 0 {
 					return value, true, nil
@@ -5210,9 +5210,91 @@ func (p packageType) RepackUint(context global.DataContext, in Uint) (value inte
 		return pack.RepackNumber(in)
 	}(context, (uint)(in))
 }
+func (p packageType) GetData(filename string) string {
+	return ""
+}
 func (p packageType) GetType(name string) string {
+	switch name {
+	case "Ages":
+		return ""
+	case "Alias":
+		return ""
+	case "AliasArray":
+		return ""
+	case "AliasMap":
+		return ""
+	case "AliasPointer":
+		return ""
+	case "AliasSlice":
+		return ""
+	case "AliasSub":
+		return ""
+	case "Csv":
+		return ""
+	case "Custom":
+		return ""
+	case "CustomSub":
+		return ""
+	case "EmbedNatives":
+		return ""
+	case "EmbedPointer":
+		return ""
+	case "EmbedQual":
+		return ""
+	case "EmbedQualPointer":
+		return ""
+	case "Float64":
+		return ""
+	case "Impi":
+		return ""
+	case "Imps":
+		return ""
+	case "Int":
+		return ""
+	case "Interface":
+		return ""
+	case "InterfaceField":
+		return ""
+	case "InterfaceValidator":
+		return ""
+	case "Maps":
+		return ""
+	case "Natives":
+		return ""
+	case "Pointers":
+		return ""
+	case "Private":
+		return ""
+	case "Qual":
+		return ""
+	case "Slices":
+		return ""
+	case "String":
+		return ""
+	case "Structs":
+		return ""
+	case "SubInterface":
+		return ""
+	case "SubMap":
+		return ""
+	case "SubSlice":
+		return ""
+	case "Type":
+		return ""
+	case "Uint":
+		return ""
+	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/tests/packer"] = Package
+}
+func (p packageType) Loader(loader global.Loader) dataType {
+	return dataType{loader}
+}
+
+var Data = Package.Loader(pack.DefaultLoader)
+
+type dataType struct {
+	loader global.Loader
 }
