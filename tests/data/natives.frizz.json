@@ -1,0 +1,7 @@
+{
+	"_import": {
+		"packer": "frizz.io/tests/packer"
+	},
+	"_type": "packer.Natives",
+	"Int": 2
+}

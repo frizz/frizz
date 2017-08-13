@@ -22,7 +22,8 @@ var packages = []string{
 	"frizz.io/validators",
 	"frizz.io/tests/packer",
 	"frizz.io/tests/packer/sub",
-	"frizz.io/tests/packer/data",
+	"frizz.io/tests/data",
+	"frizz.io/tests/validation",
 }
 
 // Regenerate generates the packages that are comprahensively tested, and

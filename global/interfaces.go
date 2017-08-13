@@ -10,6 +10,7 @@ type Package interface {
 	Unpack(context DataContext, in interface{}, name string) (value interface{}, null bool, err error)
 	Repack(context DataContext, in interface{}, name string) (value interface{}, dict bool, null bool, err error)
 	GetType(name string) string
+	GetData(name string) string
 	GetImportedPackages(packages map[string]Package)
 }
 
@@ -44,4 +45,8 @@ type DataContext interface {
 type Location interface {
 	String() string
 	Child(item stackItem) Location
+}
+
+type Loader interface {
+	Load(pkg Package, filename string) interface{}
 }

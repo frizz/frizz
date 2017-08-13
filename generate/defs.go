@@ -12,14 +12,13 @@ import (
 )
 
 type progDef struct {
-	fset      *token.FileSet
-	path      string
-	pcache    *patsy.Cache
-	dir       string
-	types     map[string]*typeDef // Type name: type def
-	typeFiles map[string][]byte   // Type name: bytes
-	stubs     map[string]*stub    // File name: stub
-	imports   map[string]bool
+	fset    *token.FileSet
+	path    string
+	pcache  *patsy.Cache
+	dir     string
+	types   map[string]*typeDef // Type name: type def
+	stubs   map[string]*stub    // File name: stub
+	imports map[string]bool
 }
 
 type fileDef struct {
@@ -30,9 +29,10 @@ type fileDef struct {
 
 type typeDef struct {
 	*fileDef
-	packable bool
-	spec     ast.Expr
-	name     string
+	packable     bool
+	spec         ast.Expr
+	name         string
+	typeFilename string
 }
 
 type typeInfo struct {

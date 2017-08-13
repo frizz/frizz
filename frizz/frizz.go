@@ -4,11 +4,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bytes"
-
 	"frizz.io/global"
 	"frizz.io/pack"
 	"frizz.io/utils"
+	"frizz.io/validator"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
 	"github.com/pkg/errors"
@@ -62,16 +61,9 @@ func Package(p global.Package) (map[string]interface{}, error) {
 }
 
 func Unmarshal(context global.PackageContext, in []byte) (interface{}, error) {
-	data, err := utils.DecodeReader(bytes.NewBuffer(in))
-	if err != nil {
-		return nil, err
-	}
-	v, null, err := pack.Unpack(context, data)
-	if err != nil || null {
-		return nil, err
-	}
-	if null {
-		return nil, nil
-	}
-	return v, nil
+	return pack.Unmarshal(context, in)
+}
+
+func Validate(context global.PackageContext, v interface{}) (valid bool, message string, err error) {
+	return validator.Validate(context, v)
 }
