@@ -73,21 +73,8 @@ func (p packageType) GetData(filename string) string {
 	return ""
 }
 func (p packageType) GetType(name string) string {
-	switch name {
-	case "Validator":
-		return ""
-	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/common"] = Package
-}
-func (p packageType) Loader(loader global.Loader) dataType {
-	return dataType{loader}
-}
-
-var Data = Package.Loader(pack.DefaultLoader)
-
-type dataType struct {
-	loader global.Loader
 }

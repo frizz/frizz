@@ -3,7 +3,6 @@ package system
 import (
 	common "frizz.io/common"
 	global "frizz.io/global"
-	pack "frizz.io/pack"
 	errors "github.com/pkg/errors"
 )
 
@@ -171,23 +170,8 @@ func (p packageType) GetData(filename string) string {
 	return ""
 }
 func (p packageType) GetType(name string) string {
-	switch name {
-	case "Raw":
-		return ""
-	case "Type":
-		return ""
-	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/system"] = Package
-}
-func (p packageType) Loader(loader global.Loader) dataType {
-	return dataType{loader}
-}
-
-var Data = Package.Loader(pack.DefaultLoader)
-
-type dataType struct {
-	loader global.Loader
 }

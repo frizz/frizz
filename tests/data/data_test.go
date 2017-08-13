@@ -1,16 +1,17 @@
-package data
+package data_test
 
 import (
 	"testing"
 
 	"frizz.io/frizz"
+	"frizz.io/tests/data"
 	"frizz.io/tests/packer"
 	"frizz.io/tests/packer/sub"
 )
 
 // TestImports checks that a data-only package (without type definitions) works properly.
 func TestImports(t *testing.T) {
-	obs, err := frizz.Package(Package)
+	obs, err := frizz.Package(data.Package)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,8 +33,8 @@ func TestImports(t *testing.T) {
 }
 
 func TestData(t *testing.T) {
-	n := Data.Natives()
+	n := data.Data.Natives()
 	if n.Int != 2 {
-		t.Fail()
+		t.Fatalf("Expected 2, got %v", n.Int)
 	}
 }

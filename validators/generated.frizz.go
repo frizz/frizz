@@ -729,43 +729,8 @@ func (p packageType) GetData(filename string) string {
 	return ""
 }
 func (p packageType) GetType(name string) string {
-	switch name {
-	case "Equal":
-		return ""
-	case "GreaterThan":
-		return ""
-	case "GreaterThanOrEqual":
-		return ""
-	case "IsNull":
-		return ""
-	case "Items":
-		return ""
-	case "Keys":
-		return ""
-	case "Length":
-		return ""
-	case "LessThan":
-		return ""
-	case "LessThanOrEqual":
-		return ""
-	case "NotNull":
-		return ""
-	case "Regex":
-		return ""
-	case "Struct":
-		return ""
-	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/validators"] = Package
-}
-func (p packageType) Loader(loader global.Loader) dataType {
-	return dataType{loader}
-}
-
-var Data = Package.Loader(pack.DefaultLoader)
-
-type dataType struct {
-	loader global.Loader
 }

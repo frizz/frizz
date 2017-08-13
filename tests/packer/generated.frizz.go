@@ -5214,87 +5214,8 @@ func (p packageType) GetData(filename string) string {
 	return ""
 }
 func (p packageType) GetType(name string) string {
-	switch name {
-	case "Ages":
-		return ""
-	case "Alias":
-		return ""
-	case "AliasArray":
-		return ""
-	case "AliasMap":
-		return ""
-	case "AliasPointer":
-		return ""
-	case "AliasSlice":
-		return ""
-	case "AliasSub":
-		return ""
-	case "Csv":
-		return ""
-	case "Custom":
-		return ""
-	case "CustomSub":
-		return ""
-	case "EmbedNatives":
-		return ""
-	case "EmbedPointer":
-		return ""
-	case "EmbedQual":
-		return ""
-	case "EmbedQualPointer":
-		return ""
-	case "Float64":
-		return ""
-	case "Impi":
-		return ""
-	case "Imps":
-		return ""
-	case "Int":
-		return ""
-	case "Interface":
-		return ""
-	case "InterfaceField":
-		return ""
-	case "InterfaceValidator":
-		return ""
-	case "Maps":
-		return ""
-	case "Natives":
-		return ""
-	case "Pointers":
-		return ""
-	case "Private":
-		return ""
-	case "Qual":
-		return ""
-	case "Slices":
-		return ""
-	case "String":
-		return ""
-	case "Structs":
-		return ""
-	case "SubInterface":
-		return ""
-	case "SubMap":
-		return ""
-	case "SubSlice":
-		return ""
-	case "Type":
-		return ""
-	case "Uint":
-		return ""
-	}
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/tests/packer"] = Package
-}
-func (p packageType) Loader(loader global.Loader) dataType {
-	return dataType{loader}
-}
-
-var Data = Package.Loader(pack.DefaultLoader)
-
-type dataType struct {
-	loader global.Loader
 }

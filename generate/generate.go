@@ -580,6 +580,11 @@ func generateImports(prog *progDef, f *File) {
 }
 
 func generateData(prog *progDef, f *File) {
+
+	if len(prog.stubs) == 0 {
+		return
+	}
+
 	/*
 		func (p packageType) Loader(loader pack.Loader) dataType {
 			return dataType{loader}
