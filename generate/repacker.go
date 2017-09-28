@@ -214,22 +214,72 @@ func (f *fileDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 		g.Return(Id("in"), False(), False(), Nil())
 		return
 	}
+
 	/*
-		out, dict, null, err := <spec.pkg>.Package.Repack<spec.name>(context, in)
-		if err != nil {
-			return nil, false, false, err
+		p := context.Package().Get("<pkg>")
+		if p != nil {
+			out, dict, null, err := p.Repack(context, in, "<spec.name>")
+			if err != nil {
+				return nil, false, false, err
+			}
+			return out, dict, null, nil
 		}
-		return out, dict, null, nil
 	*/
 	g.Comment("selectorRepacker")
-	g.List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Qual(pkg, "Package").Dot("Repack"+spec.Sel.Name).Call(
-		Id("context"),
-		Id("in"),
+	g.Id("p").Op(":=").Id("context").Dot("Package").Call().Dot("Get").Call(Lit(pkg))
+	g.If(Id("p").Op("!=").Nil()).Block(
+		List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Id("p").Dot("Repack").Call(
+			Id("context"),
+			Id("in"),
+			Lit(spec.Sel.Name),
+		),
+		If(Err().Op("!=").Nil()).Block(
+			Return(Nil(), False(), False(), Err()),
+		),
+		Return(Id("out"), Id("dict"), Id("null"), Nil()),
 	)
-	g.If(Err().Op("!=").Nil()).Block(
-		Return(Nil(), False(), False(), Err()),
+
+	/*
+		var vi interface{} = &in
+		if vu, ok := vi.(json.Marshaler); ok {
+			b, err := vu.MarshalJSON()
+			if err != nil {
+				return value, false, false, err
+			}
+			if err := json.Unmarshal(b, &value); err != nil {
+				return value, false, false, err
+			}
+			return value, b[0] == '{', len(b) == 4 && string(b) == "null", nil
+		}
+		return value, false, false, errors.Errorf("%s: can't repack %s.%s", context.Location(), "<pkg>", "<spec.Sel.Name>")
+	*/
+	g.Var().Id("vi").Interface().Op("=").Op("&").Id("in")
+	g.If(List(Id("vu"), Id("ok")).Op(":=").Id("vi").Assert(Qual("encoding/json", "Marshaler")), Id("ok")).Block(
+		List(Id("b"), Err()).Op(":=").Id("vu").Dot("MarshalJSON").Call(),
+		If(Err().Op("!=").Nil()).Block(
+			Return(Nil(), False(), False(), Err()),
+		),
+		If(Err().Op(":=").Qual("encoding/json", "Unmarshal").Call(Id("b"), Op("&").Id("value")), Err().Op("!=").Nil()).Block(
+			Return(Nil(), False(), False(), Err()),
+		),
+		Return(
+			Id("value"),
+			Id("b").Index(Lit(0)).Op("==").LitRune('{'),
+			Len(Id("b")).Op("==").Lit(4).Op("&&").String().Parens(Id("b")).Op("==").Lit("null"),
+			Nil(),
+		),
 	)
-	g.Return(Id("out"), Id("dict"), Id("null"), Nil())
+	g.Return(
+		Id("value"),
+		False(),
+		False(),
+		Qual("github.com/pkg/errors", "Errorf").Call(
+			Lit("%s: can't repack %s.%s"),
+			Id("context").Dot("Location").Call(),
+			Lit(pkg),
+			Lit(spec.Sel.Name),
+		),
+	)
 }
 
 func (f *fileDef) localRepacker(g *Group, spec *ast.Ident) {

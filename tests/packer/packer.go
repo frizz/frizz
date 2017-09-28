@@ -19,9 +19,29 @@ import (
 
 	"encoding/json"
 
+	"time"
+
 	"frizz.io/global"
+	"frizz.io/tests/packer/silent"
 	"frizz.io/tests/packer/sub"
 )
+
+// frizz
+type HasTime struct {
+	Time time.Time
+}
+
+// frizz-import: "frizz.io/tests/packer/silent"
+
+// frizz
+type Silent struct {
+	Silent silent.Silent
+}
+
+// frizz
+type ImpSilent int
+
+func (i ImpSilent) Silent() {}
 
 // frizz
 type SubInterface struct {
@@ -212,6 +232,12 @@ type InterfaceField struct {
 	Array [3]Interface
 	Map   map[string]Interface
 }
+
+// frizz
+type InterfaceSlice []Interface
+
+// frizz
+type SubInterfaceSlice []sub.SubInterface
 
 // frizz
 type Impi struct {
