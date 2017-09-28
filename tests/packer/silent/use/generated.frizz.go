@@ -1,4 +1,4 @@
-package usessilent
+package use
 
 import (
 	json "encoding/json"
@@ -13,7 +13,7 @@ const Package packageType = 0
 type packageType int
 
 func (p packageType) Path() string {
-	return "frizz.io/tests/packer/usessilent"
+	return "frizz.io/tests/packer/silent/use"
 }
 func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
 	switch name {
@@ -162,6 +162,6 @@ func (p packageType) GetType(name string) string {
 	return ""
 }
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
-	packages["frizz.io/tests/packer/usessilent"] = Package
+	packages["frizz.io/tests/packer/silent/use"] = Package
 	silent.Package.GetImportedPackages(packages)
 }
