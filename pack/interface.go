@@ -110,7 +110,9 @@ func RepackInterface(context global.DataContext, isroot bool, in interface{}) (v
 		for a, p := range context.Root().Imports() {
 			imports[a] = p
 		}
-		out["_import"] = imports
+		if len(imports) > 0 {
+			out["_import"] = imports
+		}
 	}
 
 	return out, false, false, nil

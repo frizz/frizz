@@ -21,6 +21,8 @@ import (
 
 	"regexp"
 
+	"strconv"
+
 	"frizz.io/utils"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
@@ -159,6 +161,19 @@ func scanSource(prog *progDef) error {
 	for fname, f := range pkg.Files {
 		var file *fileDef // lazy init because not all files need action
 		var outer error
+
+		for _, cg := range f.Comments {
+			for _, c := range cg.List {
+				if strings.HasPrefix(c.Text, "// frizz-import: ") {
+					s, err := strconv.Unquote(strings.TrimPrefix(c.Text, "// frizz-import: "))
+					if err != nil {
+						return errors.Wrap(err, "parsing frizz-import annotation")
+					}
+					prog.imports[s] = true
+				}
+			}
+		}
+
 		ast.Inspect(f, func(n ast.Node) bool {
 			if err != nil {
 				// as soon as error is detected, stop processing

@@ -13,10 +13,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func New(local global.Package, more ...global.Package) global.PackageContext {
+func New(local global.Package, imports ...global.Package) global.PackageContext {
 	all := map[string]global.Package{}
 	local.GetImportedPackages(all)
-	for _, p := range more {
+	for _, p := range imports {
 		p.GetImportedPackages(all)
 	}
 	return pack.NewPackageContext(local.Path(), all)

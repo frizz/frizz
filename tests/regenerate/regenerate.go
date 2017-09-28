@@ -21,6 +21,8 @@ var packages = []string{
 	"frizz.io/common",
 	"frizz.io/validators",
 	"frizz.io/tests/packer",
+	"frizz.io/tests/packer/silent",
+	"frizz.io/tests/packer/usessilent",
 	"frizz.io/tests/packer/sub",
 	"frizz.io/tests/data",
 	"frizz.io/tests/validation",

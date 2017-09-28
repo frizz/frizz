@@ -190,21 +190,66 @@ func (f *fileDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 	}
 
 	/*
-		out, null, err := <spec.X>.Package.Unpack<spec.Sel.Name>(context, in)
-		if err != nil || null {
-			return value, null, err
+		p := context.Package().Get("<pkg>")
+		if p != nil {
+			out, null, err := p.Unpack(context, in, "<spec.Sel.Name>")
+			if err != nil || null {
+				return value, null, err
+			}
+			return out.(<type>), false, nil
 		}
-		return out, false, nil
 	*/
 	g.Comment("selectorUnpacker")
-	g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(pkg, "Package").Dot("Unpack"+spec.Sel.Name).Call(
-		Id("context"),
-		Id("in"),
+	g.Id("p").Op(":=").Id("context").Dot("Package").Call().Dot("Get").Call(Lit(pkg))
+	g.If(Id("p").Op("!=").Nil()).Block(
+		List(Id("out"), Id("null"), Err()).Op(":=").Id("p").Dot("Unpack").Call(Id("context"), Id("in"), Lit(spec.Sel.Name)),
+		If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+			Return(Id("value"), Id("null"), Err()),
+		),
+		Return(Id("out").Assert(Qual(pkg, spec.Sel.Name)), False(), Nil()),
 	)
-	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
-		Return(Id("value"), Id("null"), Err()),
+
+	/*
+		var vi interface{} = &value
+		if vu, ok := vi.(json.Unmarshaler); ok {
+			b, err := json.Marshal(in)
+			if err != nil {
+				return value, false, err
+			}
+			if err := vu.UnmarshalJSON(b); err != nil {
+				return value, false, err
+			}
+			return value, false, nil
+		}
+		return value, false, errors.Errorf("%s: can't unpack %s.%s", context.Location(), "<pkg>", "<spec.Sel.Name>")
+	*/
+	g.Var().Id("vi").Interface().Op("=").Op("&").Id("value")
+	g.If(
+		List(Id("vu"), Id("ok")).Op(":=").Id("vi").Assert(Qual("encoding/json", "Unmarshaler")),
+		Id("ok"),
+	).Block(
+		List(Id("b"), Err()).Op(":=").Qual("encoding/json", "Marshal").Call(Id("in")),
+		If(Err().Op("!=").Nil()).Block(
+			Return(Id("value"), False(), Err()),
+		),
+		If(
+			Err().Op(":=").Id("vu").Dot("UnmarshalJSON").Call(Id("b")),
+			Err().Op("!=").Nil(),
+		).Block(
+			Return(Id("value"), False(), Err()),
+		),
+		Return(Id("value"), False(), Nil()),
 	)
-	g.Return(Id("out"), False(), Nil())
+	g.Return(
+		Id("value"),
+		False(),
+		Qual("github.com/pkg/errors", "Errorf").Call(
+			Lit("%s: can't unpack %s.%s"),
+			Id("context").Dot("Location").Call(),
+			Lit(pkg),
+			Lit(spec.Sel.Name),
+		),
+	)
 }
 
 func (f *fileDef) localUnpacker(g *Group, spec *ast.Ident) {

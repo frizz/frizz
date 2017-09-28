@@ -12,8 +12,13 @@ import (
 
 	"go/ast"
 
+	"time"
+
+	"frizz.io/common"
 	"frizz.io/global"
 	"frizz.io/pack"
+	"frizz.io/system"
+	"frizz.io/validators"
 	"github.com/pkg/errors"
 )
 
@@ -25,6 +30,205 @@ type test struct {
 	dict  bool        // should the repacked output be a dict?
 	unull bool        // should the unpacked output be null?
 	rnull bool        // should the repacked output be null?
+}
+
+func TestSilent(t *testing.T) {
+	tests := map[string]test{
+		"silent": {
+			js: `{
+				"_type": "Silent",
+				"Silent": {
+					"_type": "ImpSilent",
+					"_value": 1
+				}
+			}`,
+			ex: Silent{Silent: ImpSilent(1)},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
+func TestHasTime(t *testing.T) {
+	tests := map[string]test{
+		"sub interface slice": {
+			js: `{
+				"_type": "HasTime",
+				"Time": "2017-01-01T00:00:00Z"
+			}`,
+			ex: HasTime{Time: time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC)},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package, sub.Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
+func TestSubInterfaceSlice(t *testing.T) {
+	tests := map[string]test{
+		"sub interface slice": {
+			js: `{
+				"_import": {
+					"sub": "frizz.io/tests/packer/sub" 
+				},
+				"_type": "SubInterfaceSlice",
+				"_value": [
+					{"_type": "sub.Sub", "String": "a"}
+				]
+			}`,
+			ex: SubInterfaceSlice{sub.Sub{String: "a"}},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package, sub.Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
+func TestInterfaceSlice(t *testing.T) {
+	tests := map[string]test{
+		"interface slice": {
+			js: `{
+				"_type": "InterfaceSlice",
+				"_value": [
+					{"_type": "Impi", "Int": 1},
+					{"_type": "Imps", "String": "a"}
+				]
+			}`,
+			ex: InterfaceSlice{Impi{Int: 1}, Imps{String: "a"}},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
+func TestValGreaterThanUnpack(t *testing.T) {
+	tests := map[string]test{
+		"val greater than unpack": {
+			js: `{
+				"_import": {
+					"validators": "frizz.io/validators"
+				},
+				"_type": "validators.GreaterThan",
+				"_value": 2
+			}`,
+			ex: validators.GreaterThan("2"),
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package, validators.Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
+func TestValStructUnpack(t *testing.T) {
+	tests := map[string]test{
+		"val struct unpack": {
+			js: `{
+				"_import": {
+					"validators": "frizz.io/validators"
+				},
+				"_type": "validators.Struct",
+				"_value": {
+					"Int": [
+						{
+							"_type": "validators.GreaterThan",
+							"_value": 2
+						}
+					]
+				}
+			}`,
+			ex: validators.Struct{
+				"Int": []common.Validator{
+					validators.GreaterThan("2"),
+				},
+			},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package, validators.Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
+func TestValidatorsUnpack(t *testing.T) {
+	tests := map[string]test{
+		"validators unpack": {
+			js: `{
+				"_import": {
+					"system": "frizz.io/system",
+					"validators": "frizz.io/validators"
+				},
+				"_type": "system.Type",
+				"Validators": [
+					{
+						"_type": "validators.Struct",
+						"_value": {
+							"Int": [
+								{
+									"_type": "validators.GreaterThan",
+									"_value": 2
+								}
+							]
+						}
+					}
+				]
+			}`,
+			ex: system.Type{
+				Validators: []common.Validator{
+					validators.Struct{
+						"Int": []common.Validator{
+							validators.GreaterThan("2"),
+						},
+					},
+				},
+			},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package, system.Package, validators.Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
 }
 
 func TestCustomSub(t *testing.T) {
@@ -324,6 +528,7 @@ func TestAliasSub(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		context := getContext()
+		context.Package().Register(sub.Package)
 		unpacked, null1, err1 := Package.UnpackAliasSub(context, v)
 		repacked, dict, null2, err2 := Package.RepackAliasSub(context, unpacked)
 
@@ -377,6 +582,7 @@ func TestAliasMap(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		context := getContext()
+		context.Package().Register(sub.Package)
 		unpacked, null1, err1 := Package.UnpackAliasMap(context, v)
 		repacked, dict, null2, err2 := Package.RepackAliasMap(context, unpacked)
 
@@ -452,6 +658,7 @@ func TestQual(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		context := getContext()
+		context.Package().Register(sub.Package)
 		unpacked, null1, err1 := Package.UnpackQual(context, v)
 		repacked, dict, null2, err2 := Package.RepackQual(context, unpacked)
 
@@ -490,6 +697,7 @@ func TestPointers(t *testing.T) {
 		v := decode(t, name, test.js)
 
 		context := getContext()
+		context.Package().Register(sub.Package)
 		unpacked, null1, err1 := Package.UnpackPointers(context, v)
 		repacked, dict, null2, err2 := Package.RepackPointers(context, unpacked)
 
@@ -721,6 +929,7 @@ func getContext() global.DataContext {
 }
 
 func decode(t *testing.T, name, s string) interface{} {
+	t.Helper()
 	var v interface{}
 	d := json.NewDecoder(bytes.NewBuffer([]byte(s)))
 	d.UseNumber()
@@ -731,6 +940,7 @@ func decode(t *testing.T, name, s string) interface{} {
 }
 
 func ensure(t *testing.T, name string, test test, unpacked interface{}, null1 bool, err1 error, repacked interface{}, dict bool, null2 bool, err2 error) {
+	t.Helper()
 	if test.err != "" {
 		if err1 == nil && err2 == nil {
 			t.Fatalf("%s: expected error '%s', got nil", name, test.err)

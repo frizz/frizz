@@ -7,11 +7,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"frizz.io/common"
 	"frizz.io/frizz"
 	"frizz.io/global"
 	"frizz.io/pack"
 	"frizz.io/system"
 	"frizz.io/tests/packer"
+	"frizz.io/tests/packer/sub"
 	"frizz.io/tests/validation"
 	"frizz.io/validator"
 	"frizz.io/validators"
@@ -254,9 +256,10 @@ func TestStructs(t *testing.T) {
 }
 
 func run(t *testing.T, name string, vals map[string]valDef) {
+	t.Helper()
 	for valName, val := range vals {
 		for testName, test := range val.tests {
-			iface, err := frizz.Unmarshal(frizz.New(packer.Package), []byte(test.data))
+			iface, err := frizz.Unmarshal(frizz.New(packer.Package, sub.Package), []byte(test.data))
 			if err != nil {
 				t.Fatalf("%s - %s - %s: %s", name, valName, testName, err.Error())
 			}
@@ -274,6 +277,7 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 						packer.Package.Path():     mockPackage{path: packer.Package.Path(), inner: packer.Package},
 						system.Package.Path():     mockPackage{path: system.Package.Path(), inner: system.Package},
 						validators.Package.Path(): mockPackage{path: validators.Package.Path(), inner: validators.Package},
+						common.Package.Path():     mockPackage{path: common.Package.Path(), inner: common.Package},
 					},
 					types: map[string]string{},
 					inner: packer.Package,
@@ -313,6 +317,7 @@ func run(t *testing.T, name string, vals map[string]valDef) {
 }
 
 func unmarshalType(t *testing.T, name, val, test, in string) system.Type {
+	t.Helper()
 	// packer.Imports does not automatically import system or validators, so we must register manually
 	c := frizz.New(packer.Package, system.Package, validators.Package)
 	r := pack.NewRootContext(c)
