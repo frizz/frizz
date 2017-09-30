@@ -23,6 +23,7 @@ import (
 
 	"strconv"
 
+	"frizz.io/generate/scanner"
 	"frizz.io/utils"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
@@ -130,6 +131,11 @@ func scanData(prog *progDef) error {
 }
 
 func scanSource(prog *progDef) error {
+
+	prog.scanner = scanner.New(prog.path, vos.Os())
+	if err := prog.scanner.Scan(); err != nil {
+		return err
+	}
 
 	// scan all .go files for packers and type files referenced by annotations
 
