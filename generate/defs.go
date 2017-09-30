@@ -7,12 +7,14 @@ import (
 
 	"frizz.io/generate/jast"
 
+	"frizz.io/generate/scanner"
 	"github.com/dave/patsy"
 	"github.com/pkg/errors"
 )
 
 type progDef struct {
 	fset    *token.FileSet
+	scanner *scanner.Scanner
 	path    string
 	pcache  *patsy.Cache
 	dir     string

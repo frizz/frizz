@@ -16,7 +16,8 @@ import (
 // TODO: Maybe we can use go/types and scan all imports. However, this is slow, requires the source
 // TODO: of all imports, and we have a problem regenerating when the signature of a type changes
 // TODO: and the previously generated source becomes invalid. This will cause go/types to fail.
-// TODO: Perhaps there's a way to provide a custom loader that ignores the generated files?
+// TODO: Perhaps there's a way to provide a custom loader that ignores the generated files? It 
+// TODO: would improve performance to ignore the complex generated code...
 
 // frizz-import: "frizz.io/tests/packer/silent"
 
