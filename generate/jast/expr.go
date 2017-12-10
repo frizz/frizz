@@ -3,6 +3,8 @@ package jast
 import (
 	"go/ast"
 
+	"go/types"
+
 	"github.com/dave/jennifer/jen"
 )
 
@@ -50,8 +52,18 @@ func (c *Cache) Expr(spec ast.Expr) *jen.Statement {
 		return jen.Op(spec.Value)
 	case *ast.SelectorExpr:
 		if x, ok := spec.X.(*ast.Ident); ok && x.Obj == nil {
-			if path, ok := c.imports[x.Name]; ok {
-				return jen.Qual(path, spec.Sel.Name)
+			if c.uses != nil {
+				if use, ok := c.uses[x]; ok {
+					if pn, ok := use.(*types.PkgName); ok {
+						return jen.Qual(pn.Imported().Path(), spec.Sel.Name)
+					}
+				}
+			} else if c.imports != nil {
+				if path, ok := c.imports[x.Name]; ok {
+					return jen.Qual(path, spec.Sel.Name)
+				}
+			} else {
+				panic("imports or uses must be specified")
 			}
 		}
 		return c.Expr(spec.X).Dot(spec.Sel.Name)

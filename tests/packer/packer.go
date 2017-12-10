@@ -31,8 +31,6 @@ type HasTime struct {
 	Time time.Time
 }
 
-// frizz-import: "frizz.io/tests/packer/silent"
-
 // frizz
 type Silent struct {
 	Silent silent.Silent

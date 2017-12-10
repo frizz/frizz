@@ -5920,4 +5920,5 @@ func (p packageType) GetType(name string) string {
 func (p packageType) GetImportedPackages(packages map[string]global.Package) {
 	packages["frizz.io/tests/packer"] = Package
 	silent.Package.GetImportedPackages(packages)
+	sub.Package.GetImportedPackages(packages)
 }
