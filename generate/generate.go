@@ -2,8 +2,6 @@ package generate
 
 import (
 	"bytes"
-	"go/ast"
-	"go/parser"
 	"go/token"
 	"io"
 	"io/ioutil"
@@ -21,8 +19,7 @@ import (
 
 	"regexp"
 
-	"strconv"
-
+	"frizz.io/generate/jast"
 	"frizz.io/generate/scanner"
 	"frizz.io/utils"
 	. "github.com/dave/jennifer/jen"
@@ -71,7 +68,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 		path:    path,
 		pcache:  patsy.NewCache(env),
 		dir:     dir,
-		types:   map[string]*typeDef{},
+		types:   map[string]*scanner.TypeDef{},
 		stubs:   map[string]*stub{},
 		imports: map[string]bool{},
 	}
@@ -83,6 +80,9 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 	if err := scanSource(prog); err != nil {
 		return false, err
 	}
+
+	// now we have scanned the source, se can create the jast
+	prog.jast = jast.New(nil, prog.info.Uses)
 
 	if len(prog.types) == 0 && len(prog.stubs) == 0 && len(prog.imports) == 0 {
 		return false, nil
@@ -132,230 +132,15 @@ func scanData(prog *progDef) error {
 
 func scanSource(prog *progDef) error {
 
-	prog.scanner = scanner.New(prog.path, vos.Os())
-	if err := prog.scanner.Scan(); err != nil {
+	s := scanner.New(prog.path, vos.Os())
+	if err := s.Scan(); err != nil {
 		return err
 	}
 
-	// scan all .go files for packers and type files referenced by annotations
-
-	pkgs, err := parser.ParseDir(prog.fset, prog.dir, nil, parser.ParseComments)
-	if err != nil {
-		return errors.Wrapf(err, "parsing Go code in package %s", prog.path)
-	}
-	// ignore any test package
-	var filtered []*ast.Package
-	for name, pkg := range pkgs {
-		if strings.HasSuffix(name, "_test") {
-			// notest
-			continue
-		}
-		filtered = append(filtered, pkg)
-	}
-	if len(filtered) == 0 {
-		// data only package?
-		return nil
-	}
-	if len(filtered) > 1 {
-		// notest
-		return errors.Errorf("found more than one package in %s", prog.path)
-	}
-	pkg := filtered[0]
-
-	var unpackers = map[string]bool{}
-	var repackers = map[string]bool{}
-	for fname, f := range pkg.Files {
-		var file *fileDef // lazy init because not all files need action
-		var outer error
-
-		for _, cg := range f.Comments {
-			for _, c := range cg.List {
-				if strings.HasPrefix(c.Text, "// frizz-import: ") {
-					s, err := strconv.Unquote(strings.TrimPrefix(c.Text, "// frizz-import: "))
-					if err != nil {
-						return errors.Wrap(err, "parsing frizz-import annotation")
-					}
-					prog.imports[s] = true
-				}
-			}
-		}
-
-		ast.Inspect(f, func(n ast.Node) bool {
-			if err != nil {
-				// as soon as error is detected, stop processing
-				return false
-			}
-			if strings.HasSuffix(fname, ".frizz.go") {
-				// ignore everything in the generated files
-				return false
-			}
-			switch n := n.(type) {
-			case nil:
-				return true
-			case *ast.FuncDecl:
-				if n.Name.Name != "Unpack" && n.Name.Name != "Repack" {
-					return true
-				}
-				if n.Recv == nil {
-					// function not method
-					return true
-				}
-				if len(n.Recv.List) != 1 {
-					return true // impossible?
-				}
-				s, ok := n.Recv.List[0].Type.(*ast.StarExpr)
-				if !ok {
-					return true
-				}
-				id, ok := s.X.(*ast.Ident)
-				if !ok {
-					return true
-				}
-				receiverType := id.Name
-
-				if file == nil {
-					file, err = prog.newFileDef(f)
-					if err != nil {
-						outer = err
-						return false
-					}
-				}
-				// We check the signature of "Unpack" and "Repack" methods to work out if the receiver implements the
-				// frizz.Packable interface.
-				switch n.Name.Name {
-				case "Unpack":
-					if len(n.Type.Params.List) != 2 {
-						return true
-					}
-					param0 := file.getTypeInfo(n.Type.Params.List[0].Type)
-					if param0 != (typeInfo{false, "frizz.io/global", "DataContext"}) {
-						return true
-					}
-					if ift, ok := n.Type.Params.List[1].Type.(*ast.InterfaceType); !ok || len(ift.Methods.List) != 0 {
-						return true
-					}
-					// check return is bool, error
-					if len(n.Type.Results.List) != 2 {
-						return true
-					}
-					if ide, ok := n.Type.Results.List[0].Type.(*ast.Ident); !ok || ide.Name != "bool" {
-						return true
-					}
-					if ide, ok := n.Type.Results.List[1].Type.(*ast.Ident); !ok || ide.Name != "error" {
-						return true
-					}
-					// Unpack method is the correct signature.
-					unpackers[receiverType] = true
-				case "Repack":
-					if len(n.Type.Params.List) != 1 {
-						return true
-					}
-					param0 := file.getTypeInfo(n.Type.Params.List[0].Type)
-					if param0 != (typeInfo{false, "frizz.io/global", "DataContext"}) {
-						return true
-					}
-					// check return is error
-					if len(n.Type.Results.List) != 4 {
-						return true
-					}
-					if ift, ok := n.Type.Results.List[0].Type.(*ast.InterfaceType); !ok || len(ift.Methods.List) != 0 {
-						return true
-					}
-					if ide, ok := n.Type.Results.List[1].Type.(*ast.Ident); !ok || ide.Name != "bool" {
-						return true
-					}
-					if ide, ok := n.Type.Results.List[2].Type.(*ast.Ident); !ok || ide.Name != "bool" {
-						return true
-					}
-					if ide, ok := n.Type.Results.List[3].Type.(*ast.Ident); !ok || ide.Name != "error" {
-						return true
-					}
-					// Repack method is the correct signature.
-					repackers[receiverType] = true
-				}
-
-			case *ast.GenDecl:
-				var found bool
-				var annotation interface{}
-				if n.Doc == nil {
-					return true
-				}
-				for _, c := range n.Doc.List {
-					if c.Text == "// frizz" {
-						found = true
-						break
-					}
-					if strings.HasPrefix(c.Text, "// frizz: ") {
-						s := strings.TrimPrefix(c.Text, "// frizz: ")
-						if err := json.Unmarshal([]byte(s), &annotation); err != nil {
-							outer = errors.Wrapf(err, "annotation %s must be well formed json", s)
-							return false
-						}
-						found = true
-						break
-					}
-				}
-				if !found {
-					return true
-				}
-				if n.Tok != token.TYPE {
-					outer = errors.Errorf("unsupported token tagged with frizz comment at %s", prog.fset.Position(n.TokPos))
-					return false
-				}
-				if len(n.Specs) != 1 {
-					outer = errors.Errorf("must be a single spec in type definition at %s", prog.fset.Position(n.TokPos))
-					return false
-				}
-				ts, ok := n.Specs[0].(*ast.TypeSpec)
-				if !ok {
-					outer = errors.Errorf("must be type spec at %s", prog.fset.Position(n.TokPos))
-					return false
-				}
-				if file == nil {
-					file, err = prog.newFileDef(f)
-					if err != nil {
-						outer = err
-						return false
-					}
-				}
-				prog.types[ts.Name.Name] = &typeDef{
-					fileDef: file,
-					name:    ts.Name.Name,
-					spec:    ts.Type,
-				}
-				if a, ok := annotation.(string); ok {
-
-					// for now, only support annotations as strings
-
-					fpath := filepath.Join(prog.dir, a)
-
-					s, ok := prog.stubs[fpath]
-					if !ok {
-						outer = errors.Errorf("can't find type file %s in annotation", s)
-						return false
-					}
-
-					if s.typePackage != "frizz.io/system" || s.typeName != "Type" {
-						outer = errors.Errorf("expected system.Type, got: %s", s.Type)
-					}
-
-					prog.types[ts.Name.Name].typeFilename = a
-
-				}
-			}
-
-			return true
-		})
-		if outer != nil {
-			return errors.WithMessage(outer, "error parsing Go source")
-		}
-		for _, td := range prog.types {
-			_, unpacker := unpackers[td.name]
-			_, repacker := repackers[td.name]
-			if unpacker && repacker {
-				td.packable = true
-			}
-		}
+	prog.types = s.Types
+	prog.info = s.Info
+	for _, i := range s.Imports {
+		prog.imports[i] = true
 	}
 
 	return nil
@@ -382,11 +167,11 @@ func generatePackage(prog *progDef, f *File) {
 
 func generatePackers(prog *progDef, f *File) {
 
-	var sorted []*typeDef
+	var sorted []*scanner.TypeDef
 	for _, t := range prog.types {
 		sorted = append(sorted, t)
 	}
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Name < sorted[j].Name })
 
 	/*
 		func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
@@ -411,8 +196,8 @@ func generatePackers(prog *progDef, f *File) {
 		if len(sorted) > 0 {
 			g.Switch(Id("name")).BlockFunc(func(g *Group) {
 				for _, t := range sorted {
-					g.Case(Lit(t.name)).Block(
-						Return(Id("p").Dot("Unpack"+t.name).Call(
+					g.Case(Lit(t.Name)).Block(
+						Return(Id("p").Dot("Unpack"+t.Name).Call(
 							Id("context"),
 							Id("in"),
 						)),
@@ -432,7 +217,7 @@ func generatePackers(prog *progDef, f *File) {
 	})
 
 	for _, t := range sorted {
-		f.Add(t.unpacker(t.spec, t.name, true, t.packable))
+		f.Add(prog.unpacker(t.Spec, t.Name, true, t.Packable))
 	}
 
 	/*
@@ -459,10 +244,10 @@ func generatePackers(prog *progDef, f *File) {
 		if len(sorted) > 0 {
 			g.Switch(Id("name")).BlockFunc(func(g *Group) {
 				for _, t := range sorted {
-					g.Case(Lit(t.name)).Block(
-						Return(Id("p").Dot("Repack"+t.name).Call(
+					g.Case(Lit(t.Name)).Block(
+						Return(Id("p").Dot("Repack"+t.Name).Call(
 							Id("context"),
-							Id("in").Assert(Id(t.name)),
+							Id("in").Assert(Id(t.Name)),
 						)),
 					)
 				}
@@ -481,7 +266,7 @@ func generatePackers(prog *progDef, f *File) {
 	})
 
 	for _, t := range sorted {
-		f.Add(t.repacker(t.spec, t.name, true, t.packable))
+		f.Add(prog.repacker(t.Spec, t.Name, true, t.Packable))
 	}
 }
 
@@ -536,10 +321,10 @@ func generateTypes(prog *progDef, f *File) {
 	}
 	var sorted []def
 	for name, td := range prog.types {
-		if td.typeFilename == "" {
+		if td.Annotation == "" {
 			continue
 		}
-		sorted = append(sorted, def{name, td.typeFilename})
+		sorted = append(sorted, def{name, td.Annotation})
 	}
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 

@@ -3,9 +3,10 @@ package generate
 import (
 	"fmt"
 	"go/ast"
+	"go/types"
 )
 
-func (f *fileDef) pathFromSelector(spec *ast.SelectorExpr) string {
+func (p *progDef) pathFromSelector(spec *ast.SelectorExpr) string {
 	x, ok := spec.X.(*ast.Ident)
 	if !ok {
 		panic("spec.X must be *ast.Ident")
@@ -13,11 +14,15 @@ func (f *fileDef) pathFromSelector(spec *ast.SelectorExpr) string {
 	if x.Obj != nil {
 		panic("x.Obj must be nil")
 	}
-	path, ok := f.imports[x.Name]
+	u, ok := p.info.Uses[x]
 	if !ok {
-		panic(fmt.Sprintf("%s not found in imports", x.Name))
+		panic("x not found in uses")
 	}
-	return path
+	pn, ok := u.(*types.PkgName)
+	if !ok {
+		panic("u not *ast.PkgName")
+	}
+	return pn.Imported().Path()
 }
 
 func fieldName(field *ast.Field) string {

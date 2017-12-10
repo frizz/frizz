@@ -336,28 +336,6 @@ func TestCustom(t *testing.T) {
 	}
 }
 
-func TestImportsFail(t *testing.T) {
-	tests := map[string]test{
-		"imports": {
-			js: `{
-				"_import": {"sub": "frizz.io/tests/packer/sub"},
-				"_type": "sub.Sub",
-				"String": "a"
-			}`,
-			err: "packer for frizz.io/tests/packer not registered",
-		},
-	}
-	for name, test := range tests {
-		v := decode(t, name, test.js)
-
-		c := frizz.New(Package)
-		unpacked, null1, err1 := pack.Unpack(c, v)
-		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
-
-		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
-	}
-}
-
 func TestImports(t *testing.T) {
 	tests := map[string]test{
 		"imports": {

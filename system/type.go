@@ -8,8 +8,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// frizz-import: "frizz.io/common"
-
 // frizz
 type Type struct {
 	Validators []common.Validator
