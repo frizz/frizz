@@ -65,6 +65,7 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 
 	prog := &progDef{
 		fset:    token.NewFileSet(),
+		env:     env,
 		path:    path,
 		pcache:  patsy.NewCache(env),
 		dir:     dir,
@@ -132,7 +133,7 @@ func scanData(prog *progDef) error {
 
 func scanSource(prog *progDef) error {
 
-	s := scanner.New(prog.path, vos.Os())
+	s := scanner.New(prog.path, prog.env)
 	if err := s.Scan(); err != nil {
 		return err
 	}
