@@ -9,10 +9,12 @@ import (
 
 	"frizz.io/generate/scanner"
 	"github.com/dave/patsy"
+	"github.com/dave/patsy/vos"
 )
 
 type progDef struct {
 	fset    *token.FileSet
+	env     vos.Env
 	path    string
 	pcache  *patsy.Cache
 	dir     string

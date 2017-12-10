@@ -51,7 +51,7 @@ type TypeDef struct {
 func (s *Scanner) Scan() error {
 	conf := loader.Config{}
 	conf.Import(s.pkg)
-	conf.Import("frizz.io/global") // contains UnpackInterface and RepackInterface
+	conf.Import("frizz.io/global") // contains Packable interface
 	conf.Build = &build.Default
 	conf.Build.GOPATH = s.env.Getenv("GOPATH")
 
@@ -130,16 +130,18 @@ func (s *Scanner) Scan() error {
 
 Package:
 	for _, p := range pkg.Pkg.Imports() {
-		if !strings.Contains(p.Path(), "/") {
-			// package paths not containing a slash are standard library packages and can be ignored
-			// TODO: better way of doing this?
-			continue
-		}
 		if p.Path() == s.pkg {
 			// ignore the local package
 			continue
 		}
 		pi := prog.Package(p.Path())
+
+		if len(pi.Files) == 0 {
+			continue // virtual stdlib package
+		}
+		if strings.HasPrefix(prog.Fset.File(pi.Files[0].Pos()).Name(), conf.Build.GOROOT) {
+			continue // stdlib package
+		}
 
 		// first search for a generated.frizz.go file
 		for _, f := range pi.Files {
