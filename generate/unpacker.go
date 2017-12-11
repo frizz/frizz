@@ -8,7 +8,7 @@ import (
 	. "github.com/dave/jennifer/jen"
 )
 
-func (p *progDef) unpacker(spec ast.Expr, name string, method bool, custom bool) *Statement {
+func (p *packageDef) unpacker(spec ast.Expr, name string, method bool, custom bool) *Statement {
 	/**
 	func <if method>(p packageType) Unpack<name></if>(context global.DataContext, in interface{}) (value <named or spec>, null bool, err error) {
 		<...>
@@ -74,7 +74,7 @@ func (p *progDef) unpacker(spec ast.Expr, name string, method bool, custom bool)
 	})
 }
 
-func (p *progDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
+func (p *packageDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	/*
 		out, null, err := <unpacker>(context, root, stack, in)
 		if err != nil || null {
@@ -93,7 +93,7 @@ func (p *progDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	g.Return(Id(name).Parens(Id("out")), False(), Nil())
 }
 
-func (p *progDef) customUnpacker(g *Group, name string) {
+func (p *packageDef) customUnpacker(g *Group, name string) {
 	/*
 		out := new(<name>)
 		null, err = out.Unpack(context, in)
@@ -114,7 +114,7 @@ func (p *progDef) customUnpacker(g *Group, name string) {
 	g.Return(Op("*").Id("out"), False(), Nil())
 }
 
-func (p *progDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
+func (p *packageDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 	/*
 		out, null, err := pack.UnpackInterface(context, in)
 		if err != nil {
@@ -155,7 +155,7 @@ func (p *progDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 	g.Return(Id("iface"), False(), Nil())
 }
 
-func (p *progDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
+func (p *packageDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 	pkg := p.pathFromSelector(spec)
 	if pkg == "encoding/json" && spec.Sel.Name == "Number" {
 		// special case for json.Number
@@ -252,7 +252,7 @@ func (p *progDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 	)
 }
 
-func (p *progDef) localUnpacker(g *Group, spec *ast.Ident) {
+func (p *packageDef) localUnpacker(g *Group, spec *ast.Ident) {
 	/*
 		out, null, err := p.Unpack<spec name>(context, in)
 		if err != nil || null {
@@ -271,7 +271,7 @@ func (p *progDef) localUnpacker(g *Group, spec *ast.Ident) {
 	g.Return(Id("out"), False(), Nil())
 }
 
-func (p *progDef) pointerUnpacker(g *Group, spec *ast.StarExpr) {
+func (p *packageDef) pointerUnpacker(g *Group, spec *ast.StarExpr) {
 	/*
 		out, null, err := <unpacker>(context, in)
 		if err != nil || null {
@@ -290,7 +290,7 @@ func (p *progDef) pointerUnpacker(g *Group, spec *ast.StarExpr) {
 	g.Return(Op("&").Id("out"), False(), Nil())
 }
 
-func (p *progDef) mapUnpacker(g *Group, spec *ast.MapType) {
+func (p *packageDef) mapUnpacker(g *Group, spec *ast.MapType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
@@ -349,7 +349,7 @@ func (p *progDef) mapUnpacker(g *Group, spec *ast.MapType) {
 	g.Return(Id("out"), False(), Nil())
 }
 
-func (p *progDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
+func (p *packageDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 	/*
 		a, ok := in.([]interface{})
 		if !ok {
@@ -448,7 +448,7 @@ func (p *progDef) sliceUnpacker(g *Group, spec *ast.ArrayType) {
 	)
 }
 
-func (p *progDef) structUnpacker(g *Group, spec *ast.StructType) {
+func (p *packageDef) structUnpacker(g *Group, spec *ast.StructType) {
 	/*
 		m, ok := in.(map[string]interface{})
 		if !ok {
@@ -511,7 +511,7 @@ func (p *progDef) structUnpacker(g *Group, spec *ast.StructType) {
 	g.Return(Id("out"), False(), Nil())
 }
 
-func (p *progDef) nativeUnpacker(g *Group, spec *ast.Ident) {
+func (p *packageDef) nativeUnpacker(g *Group, spec *ast.Ident) {
 	/*
 		out, null, err := pack.Unpack<strings.Title(spec.Name)>(context.Location(), in)
 		if err != nil || null {

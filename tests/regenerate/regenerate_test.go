@@ -3,12 +3,15 @@ package regenerate
 import (
 	"testing"
 
+	"bytes"
+
 	"github.com/dave/patsy/vos"
 )
 
 func TestRegenerate(t *testing.T) {
 	env := vos.Os()
-	now, err := Regenerate(env, false)
+	buf := &bytes.Buffer{}
+	now, err := Regenerate(env, buf, false)
 	if err != nil {
 		t.Fatal(err)
 	}
