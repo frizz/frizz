@@ -6,7 +6,7 @@ import (
 	"go/types"
 )
 
-func (p *progDef) pathFromSelector(spec *ast.SelectorExpr) string {
+func (p *packageDef) pathFromSelector(spec *ast.SelectorExpr) string {
 	x, ok := spec.X.(*ast.Ident)
 	if !ok {
 		panic("spec.X must be *ast.Ident")

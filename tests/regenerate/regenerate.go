@@ -1,16 +1,19 @@
 package regenerate
 
 import (
-	"bytes"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
+	"github.com/pkg/errors"
 
+	"bytes"
 	"crypto/sha1"
 
-	"os"
+	"fmt"
+	"io"
 
 	"frizz.io/generate"
 	"github.com/dave/jennifer/jen"
@@ -32,38 +35,50 @@ var packages = []string{
 // writes the SHA1 hash of the generated code to a source file in this package.
 // The test runs the regeneration (without saving the source) and checks these
 // hashes to ensure that the tests are running with the correct generated files.
-func Regenerate(env vos.Env, save bool) (map[string][20]byte, error) {
+func Regenerate(env vos.Env, out io.Writer, save bool) (map[string][20]byte, error) {
 	hashes := map[string][20]byte{}
-	for _, path := range packages {
 
-		dir, err := patsy.Dir(env, path)
+	scan, err := generate.Scan(env, packages...)
+	if err != nil {
+		return nil, err
+	}
+
+	for path, def := range scan.Packages {
+		generated := &bytes.Buffer{}
+		hasContent, err := def.Generate(generated)
 		if err != nil {
 			return nil, err
 		}
+		hashes[path] = sha1.Sum(generated.Bytes())
 
-		buf := &bytes.Buffer{}
-		hasContents, err := generate.Generate(buf, env, path, dir)
-		if err != nil {
-			return nil, err
-		}
+		if save {
+			fname := filepath.Join(def.Dir, "generated.frizz.go")
 
-		hashes[path] = sha1.Sum(buf.Bytes())
+			// notest
 
-		if !save {
-			continue
-		}
-
-		fname := filepath.Join(dir, "generated.frizz.go")
-
-		// notest
-		if hasContents {
-			if err := ioutil.WriteFile(fname, buf.Bytes(), 0777); err != nil {
-				return nil, err
-			}
-		} else {
+			var existing []byte
 			if _, err := os.Stat(fname); err == nil {
-				if err := os.Remove(fname); err != nil {
-					return nil, err
+				existing, err = ioutil.ReadFile(fname)
+				if err != nil {
+					return nil, errors.WithMessage(err, "reading existing source")
+				}
+			}
+
+			if hasContent {
+				if bytes.Equal(existing, generated.Bytes()) {
+					fmt.Fprintf(out, "unchanged: %s\n", def.Path)
+				} else {
+					if err := ioutil.WriteFile(fname, generated.Bytes(), 0777); err != nil {
+						return nil, errors.Wrap(err, "saving source")
+					}
+					fmt.Fprintf(out, "updated: %s\n", def.Path)
+				}
+			} else {
+				if _, err := os.Stat(fname); err == nil {
+					if err := os.Remove(fname); err != nil {
+						return nil, errors.Wrap(err, "removing source")
+					}
+					fmt.Fprintf(out, "removed: %s\n", def.Path)
 				}
 			}
 		}

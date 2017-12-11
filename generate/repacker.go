@@ -7,7 +7,7 @@ import (
 	. "github.com/dave/jennifer/jen"
 )
 
-func (p *progDef) repacker(spec ast.Expr, name string, method bool, custom bool) *Statement {
+func (p *packageDef) repacker(spec ast.Expr, name string, method bool, custom bool) *Statement {
 	/*
 		func <if method>(p packageType) Repack<name></if>(context global.DataContext, in <name or spec>) (value interface{}, dict bool, null bool, err error) {
 			<...>
@@ -66,7 +66,7 @@ func (p *progDef) repacker(spec ast.Expr, name string, method bool, custom bool)
 	})
 }
 
-func (p *progDef) aliasRepacker(g *Group, spec ast.Expr, name string) {
+func (p *packageDef) aliasRepacker(g *Group, spec ast.Expr, name string) {
 	/*
 		return <repacker>(context, (<spec>)(in))
 	*/
@@ -79,7 +79,7 @@ func (p *progDef) aliasRepacker(g *Group, spec ast.Expr, name string) {
 	)
 }
 
-func (p *progDef) customRepacker(g *Group, spec ast.Expr, name string) {
+func (p *packageDef) customRepacker(g *Group, spec ast.Expr, name string) {
 	/*
 		out, dict, null, err := in.Repack(context)
 		if err != nil {
@@ -97,7 +97,7 @@ func (p *progDef) customRepacker(g *Group, spec ast.Expr, name string) {
 	g.Return(Id("out"), Id("dict"), Id("null"), Nil())
 }
 
-func (p *progDef) interfaceRepacker(g *Group, spec *ast.InterfaceType) {
+func (p *packageDef) interfaceRepacker(g *Group, spec *ast.InterfaceType) {
 	/*
 		return pack.RepackInterface(context, false, in)
 	*/
@@ -111,7 +111,7 @@ func (p *progDef) interfaceRepacker(g *Group, spec *ast.InterfaceType) {
 	)
 }
 
-func (p *progDef) pointerRepacker(g *Group, spec *ast.StarExpr) {
+func (p *packageDef) pointerRepacker(g *Group, spec *ast.StarExpr) {
 	/*
 		if in = nil {
 			return nil, false, true, nil
@@ -136,7 +136,7 @@ func (p *progDef) pointerRepacker(g *Group, spec *ast.StarExpr) {
 	g.Return(Id("out"), Id("dict"), False(), Nil())
 }
 
-func (p *progDef) mapRepacker(g *Group, spec *ast.MapType) {
+func (p *packageDef) mapRepacker(g *Group, spec *ast.MapType) {
 	/*
 		out := make(map[string]interface{}, <len>)
 		for k, item := range in {
@@ -163,7 +163,7 @@ func (p *progDef) mapRepacker(g *Group, spec *ast.MapType) {
 	g.Return(Id("out"), True(), Len(Id("in")).Op("==").Lit(0), Nil())
 }
 
-func (p *progDef) sliceRepacker(g *Group, spec *ast.ArrayType) {
+func (p *packageDef) sliceRepacker(g *Group, spec *ast.ArrayType) {
 	/*
 		out := make([]interface{}, <len>)
 		empty := true
@@ -198,7 +198,7 @@ func (p *progDef) sliceRepacker(g *Group, spec *ast.ArrayType) {
 	g.Return(Id("out"), False(), Id("empty"), Nil())
 }
 
-func (p *progDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
+func (p *packageDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 	pkg := p.pathFromSelector(spec)
 	if pkg == "encoding/json" && spec.Sel.Name == "Number" {
 		g.Comment("selectorRepacker (json.Number)")
@@ -282,7 +282,7 @@ func (p *progDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 	)
 }
 
-func (p *progDef) localRepacker(g *Group, spec *ast.Ident) {
+func (p *packageDef) localRepacker(g *Group, spec *ast.Ident) {
 	/*
 		out, dict, null, err := p.Repack<spec name>(context, in)
 		if err != nil {
@@ -301,7 +301,7 @@ func (p *progDef) localRepacker(g *Group, spec *ast.Ident) {
 	g.Return(Id("out"), Id("dict"), Id("null"), Nil())
 }
 
-func (p *progDef) nativeRepacker(g *Group, spec *ast.Ident) {
+func (p *packageDef) nativeRepacker(g *Group, spec *ast.Ident) {
 	/*
 		return pack.Repack<type>(in), false, nil
 	*/
@@ -318,7 +318,7 @@ func (p *progDef) nativeRepacker(g *Group, spec *ast.Ident) {
 	g.Return(Qual("frizz.io/pack", repackFunction).Call(Id("in")))
 }
 
-func (p *progDef) structRepacker(g *Group, spec *ast.StructType) {
+func (p *packageDef) structRepacker(g *Group, spec *ast.StructType) {
 	/*
 		out := make(map[string]interface{}, <fields len>)
 		empty := true

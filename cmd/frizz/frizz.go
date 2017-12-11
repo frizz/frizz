@@ -5,6 +5,8 @@ import (
 
 	"log"
 
+	"os"
+
 	"frizz.io/generate"
 	"github.com/pkg/errors"
 )
@@ -15,7 +17,7 @@ func main() {
 	if packagePath == "" {
 		log.Fatal(errors.New("must specify package path"))
 	}
-	if err := generate.Save(packagePath); err != nil {
+	if err := generate.Save(os.Stdout, packagePath); err != nil {
 		log.Fatal(err)
 	}
 }

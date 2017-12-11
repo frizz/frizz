@@ -19,8 +19,8 @@ import (
 
 	"regexp"
 
-	"frizz.io/generate/jast"
-	"frizz.io/generate/scanner"
+	"fmt"
+
 	"frizz.io/utils"
 	. "github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
@@ -28,73 +28,98 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Save(path string) error {
+func Save(out io.Writer, paths ...string) error {
 	// notest
 	env := vos.Os()
 
-	dir, err := patsy.Dir(env, path)
+	def, err := Scan(env, paths...)
 	if err != nil {
-		return errors.Wrapf(err, "can't find dir for package %s", path)
+		return errors.WithMessage(err, "scanning")
 	}
 
-	buf := &bytes.Buffer{}
-	hasContent, err := Generate(buf, env, path, dir)
-	if err != nil {
-		return errors.WithMessage(err, "error generating source")
-	}
+	for _, def := range def.Packages {
+		generated := &bytes.Buffer{}
+		fname := filepath.Join(def.Dir, "generated.frizz.go")
 
-	fname := filepath.Join(dir, "generated.frizz.go")
-	if hasContent {
-		if err := ioutil.WriteFile(fname, buf.Bytes(), 0777); err != nil {
-			return errors.Wrap(err, "saving source")
+		hasContent, err := def.Generate(generated)
+		if err != nil {
+			return errors.WithMessage(err, "generating source")
 		}
-	} else {
+
+		var existing []byte
 		if _, err := os.Stat(fname); err == nil {
-			if err := os.Remove(fname); err != nil {
-				return errors.Wrap(err, "removing source")
+			existing, err = ioutil.ReadFile(fname)
+			if err != nil {
+				return errors.WithMessage(err, "reading existing source")
+			}
+		}
+
+		if hasContent {
+			if bytes.Equal(existing, generated.Bytes()) {
+				fmt.Fprintf(out, "unchanged: %s\n", def.Path)
+			} else {
+				if err := ioutil.WriteFile(fname, generated.Bytes(), 0777); err != nil {
+					return errors.Wrap(err, "saving source")
+				}
+				fmt.Fprintf(out, "updated: %s\n", def.Path)
+			}
+		} else {
+			if _, err := os.Stat(fname); err == nil {
+				if err := os.Remove(fname); err != nil {
+					return errors.Wrap(err, "removing source")
+				}
+				fmt.Fprintf(out, "removed: %s\n", def.Path)
 			}
 		}
 	}
-
 	return nil
 }
 
-func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, error) {
-
-	f := NewFilePath(path)
-
-	prog := &progDef{
-		fset:    token.NewFileSet(),
-		env:     env,
-		path:    path,
-		pcache:  patsy.NewCache(env),
-		dir:     dir,
-		types:   map[string]*scanner.TypeDef{},
-		stubs:   map[string]*stub{},
-		imports: map[string]bool{},
+func Scan(env vos.Env, paths ...string) (*scanDef, error) {
+	def := &scanDef{
+		fset:     token.NewFileSet(),
+		env:      env,
+		input:    []struct{ path, dir string }{},
+		pcache:   patsy.NewCache(env),
+		Packages: map[string]*packageDef{},
 	}
 
-	if err := scanData(prog); err != nil {
-		return false, err
+	for _, p := range paths {
+		d, err := patsy.Dir(env, p)
+		if err != nil {
+			return nil, err
+		}
+		def.input = append(def.input, struct{ path, dir string }{path: p, dir: d})
 	}
 
-	if err := scanSource(prog); err != nil {
-		return false, err
+	// first scan the data recoding stubs and recursively scanning imported packages
+	for _, p := range def.input {
+		if err := scanData(p.path, def); err != nil {
+			return nil, err
+		}
 	}
 
-	// now we have scanned the source, se can create the jast
-	prog.jast = jast.New(nil, prog.info.Uses)
+	// then scan all source files
+	if err := scanSource(def); err != nil {
+		return nil, err
+	}
 
-	if len(prog.types) == 0 && len(prog.stubs) == 0 && len(prog.imports) == 0 {
+	return def, nil
+}
+
+func (p *packageDef) Generate(writer io.Writer) (bool, error) {
+
+	if len(p.types) == 0 && len(p.stubs) == 0 && len(p.imports) == 0 {
 		return false, nil
 	}
 
-	generatePackage(prog, f)
-	generatePackers(prog, f)
-	generateStubs(prog, f)
-	generateTypes(prog, f)
-	generateImports(prog, f)
-	generateData(prog, f)
+	f := NewFilePath(p.Path)
+	generatePackage(p, f)
+	generatePackers(p, f)
+	generateStubs(p, f)
+	generateTypes(p, f)
+	generateImports(p, f)
+	generateData(p, f)
 
 	if err := f.Render(writer); err != nil {
 		return false, errors.Wrap(err, "error saving generated file")
@@ -102,52 +127,55 @@ func Generate(writer io.Writer, env vos.Env, path string, dir string) (bool, err
 	return true, nil
 }
 
-func scanData(prog *progDef) error {
+func scanData(path string, prog *scanDef) error {
 
-	// scan all .frizz.json files for stubs
+	if _, ok := prog.Packages[path]; ok {
+		// already scanned
+		return nil
+	}
 
-	files, err := filepath.Glob(filepath.Join(prog.dir, "*.frizz.json"))
+	dir, err := patsy.Dir(prog.env, path)
 	if err != nil {
-		return errors.Wrapf(err, "finding files in %s", prog.dir)
-	}
-
-	for _, fpath := range files {
-		s, err := decodeStub(fpath, prog.path)
-		if err != nil {
-			return errors.Wrapf(err, "decoding %s", fpath)
-		}
-		prog.stubs[fpath] = s
-	}
-
-	for _, stub := range prog.stubs {
-		if stub.Import == nil {
-			continue
-		}
-		for _, pkg := range stub.Import {
-			prog.imports[pkg] = true
-		}
-	}
-
-	return nil
-}
-
-func scanSource(prog *progDef) error {
-
-	s := scanner.New(prog.path, prog.env)
-	if err := s.Scan(); err != nil {
 		return err
 	}
 
-	prog.types = s.Types
-	prog.info = s.Info
-	for _, i := range s.Imports {
-		prog.imports[i] = true
+	pkg := &packageDef{
+		scan:    prog,
+		Path:    path,
+		Dir:     dir,
+		types:   map[string]*typeDef{},
+		stubs:   map[string]*stub{},
+		imports: map[string]bool{},
+	}
+
+	prog.Packages[path] = pkg
+
+	// scan all .frizz.json files for stubs
+	files, err := filepath.Glob(filepath.Join(dir, "*.frizz.json"))
+	if err != nil {
+		return errors.Wrapf(err, "finding files in %s", dir)
+	}
+
+	for _, fpath := range files {
+		s, err := decodeStub(fpath, pkg.Path)
+		if err != nil {
+			return errors.Wrapf(err, "decoding %s", fpath)
+		}
+		pkg.stubs[fpath] = s
+		if s.Import != nil {
+			for _, importPath := range s.Import {
+				pkg.imports[importPath] = true
+				if err := scanData(importPath, prog); err != nil {
+					return err
+				}
+			}
+		}
 	}
 
 	return nil
 }
 
-func generatePackage(prog *progDef, f *File) {
+func generatePackage(p *packageDef, f *File) {
 
 	/*
 		const Package packageType = 0
@@ -161,18 +189,18 @@ func generatePackage(prog *progDef, f *File) {
 	f.Const().Id("Package").Id("packageType").Op("=").Lit(0)
 	f.Type().Id("packageType").Int()
 	f.Func().Params(Id("p").Id("packageType")).Id("Path").Params().String().Block(
-		Return(Lit(prog.path)),
+		Return(Lit(p.Path)),
 	)
 
 }
 
-func generatePackers(prog *progDef, f *File) {
+func generatePackers(p *packageDef, f *File) {
 
-	var sorted []*scanner.TypeDef
-	for _, t := range prog.types {
+	var sorted []*typeDef
+	for _, t := range p.types {
 		sorted = append(sorted, t)
 	}
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Name < sorted[j].Name })
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 
 	/*
 		func (p packageType) Unpack(context global.DataContext, in interface{}, name string) (value interface{}, null bool, err error) {
@@ -197,8 +225,8 @@ func generatePackers(prog *progDef, f *File) {
 		if len(sorted) > 0 {
 			g.Switch(Id("name")).BlockFunc(func(g *Group) {
 				for _, t := range sorted {
-					g.Case(Lit(t.Name)).Block(
-						Return(Id("p").Dot("Unpack"+t.Name).Call(
+					g.Case(Lit(t.name)).Block(
+						Return(Id("p").Dot("Unpack"+t.name).Call(
 							Id("context"),
 							Id("in"),
 						)),
@@ -218,7 +246,7 @@ func generatePackers(prog *progDef, f *File) {
 	})
 
 	for _, t := range sorted {
-		f.Add(prog.unpacker(t.Spec, t.Name, true, t.Packable))
+		f.Add(p.unpacker(t.spec, t.name, true, t.packable))
 	}
 
 	/*
@@ -245,10 +273,10 @@ func generatePackers(prog *progDef, f *File) {
 		if len(sorted) > 0 {
 			g.Switch(Id("name")).BlockFunc(func(g *Group) {
 				for _, t := range sorted {
-					g.Case(Lit(t.Name)).Block(
-						Return(Id("p").Dot("Repack"+t.Name).Call(
+					g.Case(Lit(t.name)).Block(
+						Return(Id("p").Dot("Repack"+t.name).Call(
 							Id("context"),
-							Id("in").Assert(Id(t.Name)),
+							Id("in").Assert(Id(t.name)),
 						)),
 					)
 				}
@@ -267,18 +295,18 @@ func generatePackers(prog *progDef, f *File) {
 	})
 
 	for _, t := range sorted {
-		f.Add(prog.repacker(t.Spec, t.Name, true, t.Packable))
+		f.Add(p.repacker(t.spec, t.name, true, t.packable))
 	}
 }
 
-func generateStubs(prog *progDef, f *File) {
+func generateStubs(p *packageDef, f *File) {
 
 	type def struct {
 		filename string
 		stub     *stub
 	}
 	var sorted []def
-	for fpath, stub := range prog.stubs {
+	for fpath, stub := range p.stubs {
 		_, fname := filepath.Split(fpath)
 		sorted = append(sorted, def{fname, stub})
 	}
@@ -314,18 +342,18 @@ func generateStubs(prog *progDef, f *File) {
 
 }
 
-func generateTypes(prog *progDef, f *File) {
+func generateTypes(p *packageDef, f *File) {
 
 	type def struct {
 		name     string
 		filename string
 	}
 	var sorted []def
-	for name, td := range prog.types {
-		if td.Annotation == "" {
+	for name, td := range p.types {
+		if td.annotation == "" {
 			continue
 		}
-		sorted = append(sorted, def{name, td.Annotation})
+		sorted = append(sorted, def{name, td.annotation})
 	}
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 
@@ -359,10 +387,10 @@ func generateTypes(prog *progDef, f *File) {
 
 }
 
-func generateImports(prog *progDef, f *File) {
+func generateImports(p *packageDef, f *File) {
 
 	var sorted []string
-	for pkg := range prog.imports {
+	for pkg := range p.imports {
 		sorted = append(sorted, pkg)
 	}
 	sort.Strings(sorted)
@@ -378,7 +406,7 @@ func generateImports(prog *progDef, f *File) {
 	f.Func().Params(Id("p").Id("packageType")).Id("GetImportedPackages").Params(
 		Id("packages").Map(String()).Qual("frizz.io/global", "Package"),
 	).BlockFunc(func(g *Group) {
-		g.Id("packages").Index(Lit(prog.path)).Op("=").Id("Package")
+		g.Id("packages").Index(Lit(p.Path)).Op("=").Id("Package")
 		for _, pkg := range sorted {
 			g.Qual(pkg, "Package").Dot("GetImportedPackages").Call(Id("packages"))
 		}
@@ -386,9 +414,9 @@ func generateImports(prog *progDef, f *File) {
 
 }
 
-func generateData(prog *progDef, f *File) {
+func generateData(p *packageDef, f *File) {
 
-	if len(prog.stubs) == 0 {
+	if len(p.stubs) == 0 {
 		return
 	}
 
@@ -427,7 +455,7 @@ func generateData(prog *progDef, f *File) {
 		stub     *stub
 	}
 	var sorted []def
-	for fpath, stub := range prog.stubs {
+	for fpath, stub := range p.stubs {
 		_, fname := filepath.Split(fpath)
 		sorted = append(sorted, def{fname, stub})
 	}
