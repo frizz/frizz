@@ -3,6 +3,7 @@ package generate
 import (
 	"fmt"
 	"go/ast"
+	"go/types"
 
 	. "github.com/dave/jennifer/jen"
 )
@@ -199,15 +200,19 @@ func (p *packageDef) sliceRepacker(g *Group, spec *ast.ArrayType) {
 }
 
 func (p *packageDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
-	pkg := p.pathFromSelector(spec)
-	if pkg == "encoding/json" && spec.Sel.Name == "Number" {
-		g.Comment("selectorRepacker (json.Number)")
+
+	ob := p.info.Uses[spec.Sel]
+	pkg := ob.Pkg().Path()
+	name := ob.Name()
+
+	if pkg == "encoding/json" && name == "Number" {
 		/*
 			if in == "" {
 				return nil, false, true, nil
 			}
 			return in, false, false, nil
 		*/
+		g.Comment("selectorRepacker (json.Number)")
 		g.If(Id("in").Op("==").Lit("")).Block(
 			Return(Id("value"), False(), True(), Nil()),
 		)
@@ -215,34 +220,33 @@ func (p *packageDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 		return
 	}
 
-	/*
-		p := context.Package().Get("<pkg>")
-		if p != nil {
-			out, dict, null, err := p.Repack(context, in, "<spec.name>")
-			if err != nil {
-				return nil, false, false, err
-			}
-			return out, dict, null, nil
+	if fpkg, ok := p.scan.Packages[pkg]; ok {
+		if _, ok := fpkg.types[name]; ok {
+			// current type is a frizz type
+			/*
+				out, dict, null, err := <pkg>.Package.Repack<name>(context, in)
+				if err != nil {
+					return nil, false, false, err
+				}
+				return out, dict, null, nil
+			*/
+			g.Comment("selectorRepacker (frizz type)")
+			g.List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Qual(pkg, "Package").Dot("Repack"+name).Call(
+				Id("context"),
+				Id("in"),
+			)
+			g.If(Err().Op("!=").Nil()).Block(
+				Return(Nil(), False(), False(), Err()),
+			)
+			g.Return(Id("out"), Id("dict"), Id("null"), Nil())
+			return
 		}
-	*/
-	g.Comment("selectorRepacker")
-	g.Id("p").Op(":=").Id("context").Dot("Package").Call().Dot("Get").Call(Lit(pkg))
-	g.If(Id("p").Op("!=").Nil()).Block(
-		List(Id("out"), Id("dict"), Id("null"), Err()).Op(":=").Id("p").Dot("Repack").Call(
-			Id("context"),
-			Id("in"),
-			Lit(spec.Sel.Name),
-		),
-		If(Err().Op("!=").Nil()).Block(
-			Return(Nil(), False(), False(), Err()),
-		),
-		Return(Id("out"), Id("dict"), Id("null"), Nil()),
-	)
+	}
 
-	/*
-		var vi interface{} = &in
-		if vu, ok := vi.(json.Marshaler); ok {
-			b, err := vu.MarshalJSON()
+	if types.Implements(types.NewPointer(ob.Type()), p.scan.marshaler) {
+		// type implements json.Marshaler
+		/*
+			b, err := in.MarshalJSON()
 			if err != nil {
 				return value, false, false, err
 			}
@@ -250,36 +254,32 @@ func (p *packageDef) selectorRepacker(g *Group, spec *ast.SelectorExpr) {
 				return value, false, false, err
 			}
 			return value, b[0] == '{', len(b) == 4 && string(b) == "null", nil
-		}
-		return value, false, false, errors.Errorf("%s: can't repack %s.%s", context.Location(), "<pkg>", "<spec.Sel.Name>")
-	*/
-	g.Var().Id("vi").Interface().Op("=").Op("&").Id("in")
-	g.If(List(Id("vu"), Id("ok")).Op(":=").Id("vi").Assert(Qual("encoding/json", "Marshaler")), Id("ok")).Block(
-		List(Id("b"), Err()).Op(":=").Id("vu").Dot("MarshalJSON").Call(),
-		If(Err().Op("!=").Nil()).Block(
+		*/
+		g.Comment("selectorRepacker (json.Marshaler)")
+		g.List(Id("b"), Err()).Op(":=").Id("in").Dot("MarshalJSON").Call()
+		g.If(Err().Op("!=").Nil()).Block(
 			Return(Nil(), False(), False(), Err()),
-		),
-		If(Err().Op(":=").Qual("encoding/json", "Unmarshal").Call(Id("b"), Op("&").Id("value")), Err().Op("!=").Nil()).Block(
+		)
+		g.If(Err().Op(":=").Qual("encoding/json", "Unmarshal").Call(Id("b"), Op("&").Id("value")), Err().Op("!=").Nil()).Block(
 			Return(Nil(), False(), False(), Err()),
-		),
-		Return(
+		)
+		g.Return(
 			Id("value"),
 			Id("b").Index(Lit(0)).Op("==").LitRune('{'),
 			Len(Id("b")).Op("==").Lit(4).Op("&&").String().Parens(Id("b")).Op("==").Lit("null"),
 			Nil(),
-		),
-	)
-	g.Return(
-		Id("value"),
-		False(),
-		False(),
-		Qual("github.com/pkg/errors", "Errorf").Call(
-			Lit("%s: can't repack %s.%s"),
-			Id("context").Dot("Location").Call(),
-			Lit(pkg),
-			Lit(spec.Sel.Name),
-		),
-	)
+		)
+		return
+	}
+
+	if b, ok := ob.Type().Underlying().(*types.Basic); ok {
+		// underlying type is basic, so can use aliasRepacker
+		g.Comment("selectorRepacker (basic type)")
+		p.aliasRepacker(g, &ast.Ident{Name: b.String()}, ob.Name())
+		return
+	}
+
+	panic(fmt.Sprintf("Can't repack %s.%s", pkg, name))
 }
 
 func (p *packageDef) localRepacker(g *Group, spec *ast.Ident) {

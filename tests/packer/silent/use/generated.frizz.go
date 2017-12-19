@@ -33,27 +33,15 @@ func (p packageType) UnpackTime(context global.DataContext, in interface{}) (val
 		if in == nil {
 			return value, true, nil
 		}
-		// selectorUnpacker
-		p := context.Package().Get("time")
-		if p != nil {
-			out, null, err := p.Unpack(context, in, "Time")
-			if err != nil || null {
-				return value, null, err
-			}
-			return out.(time.Time), false, nil
+		// selectorUnpacker (json.Unmarshaler)
+		b, err := json.Marshal(in)
+		if err != nil {
+			return value, false, err
 		}
-		var vi interface{} = &value
-		if vu, ok := vi.(json.Unmarshaler); ok {
-			b, err := json.Marshal(in)
-			if err != nil {
-				return value, false, err
-			}
-			if err := vu.UnmarshalJSON(b); err != nil {
-				return value, false, err
-			}
-			return value, false, nil
+		if err := value.UnmarshalJSON(b); err != nil {
+			return value, false, err
 		}
-		return value, false, errors.Errorf("%s: can't unpack %s.%s", context.Location(), "time", "Time")
+		return value, false, nil
 	}(context, in)
 	if err != nil || null {
 		return value, null, err
@@ -69,27 +57,12 @@ func (p packageType) UnpackUses(context global.DataContext, in interface{}) (val
 		if in == nil {
 			return value, true, nil
 		}
-		// selectorUnpacker
-		p := context.Package().Get("frizz.io/tests/packer/silent")
-		if p != nil {
-			out, null, err := p.Unpack(context, in, "Silent")
-			if err != nil || null {
-				return value, null, err
-			}
-			return out.(silent.Silent), false, nil
+		// selectorUnpacker (frizz type)
+		out, null, err := silent.Package.UnpackSilent(context, in)
+		if err != nil || null {
+			return value, null, err
 		}
-		var vi interface{} = &value
-		if vu, ok := vi.(json.Unmarshaler); ok {
-			b, err := json.Marshal(in)
-			if err != nil {
-				return value, false, err
-			}
-			if err := vu.UnmarshalJSON(b); err != nil {
-				return value, false, err
-			}
-			return value, false, nil
-		}
-		return value, false, errors.Errorf("%s: can't unpack %s.%s", context.Location(), "frizz.io/tests/packer/silent", "Silent")
+		return out, false, nil
 	}(context, in)
 	if err != nil || null {
 		return value, null, err
@@ -107,52 +80,25 @@ func (p packageType) Repack(context global.DataContext, in interface{}, name str
 }
 func (p packageType) RepackTime(context global.DataContext, in Time) (value interface{}, dict bool, null bool, err error) {
 	return func(context global.DataContext, in time.Time) (value interface{}, dict bool, null bool, err error) {
-		// selectorRepacker
-		p := context.Package().Get("time")
-		if p != nil {
-			out, dict, null, err := p.Repack(context, in, "Time")
-			if err != nil {
-				return nil, false, false, err
-			}
-			return out, dict, null, nil
+		// selectorRepacker (json.Marshaler)
+		b, err := in.MarshalJSON()
+		if err != nil {
+			return nil, false, false, err
 		}
-		var vi interface{} = &in
-		if vu, ok := vi.(json.Marshaler); ok {
-			b, err := vu.MarshalJSON()
-			if err != nil {
-				return nil, false, false, err
-			}
-			if err := json.Unmarshal(b, &value); err != nil {
-				return nil, false, false, err
-			}
-			return value, b[0] == '{', len(b) == 4 && string(b) == "null", nil
+		if err := json.Unmarshal(b, &value); err != nil {
+			return nil, false, false, err
 		}
-		return value, false, false, errors.Errorf("%s: can't repack %s.%s", context.Location(), "time", "Time")
+		return value, b[0] == '{', len(b) == 4 && string(b) == "null", nil
 	}(context, (time.Time)(in))
 }
 func (p packageType) RepackUses(context global.DataContext, in Uses) (value interface{}, dict bool, null bool, err error) {
 	return func(context global.DataContext, in silent.Silent) (value interface{}, dict bool, null bool, err error) {
-		// selectorRepacker
-		p := context.Package().Get("frizz.io/tests/packer/silent")
-		if p != nil {
-			out, dict, null, err := p.Repack(context, in, "Silent")
-			if err != nil {
-				return nil, false, false, err
-			}
-			return out, dict, null, nil
+		// selectorRepacker (frizz type)
+		out, dict, null, err := silent.Package.RepackSilent(context, in)
+		if err != nil {
+			return nil, false, false, err
 		}
-		var vi interface{} = &in
-		if vu, ok := vi.(json.Marshaler); ok {
-			b, err := vu.MarshalJSON()
-			if err != nil {
-				return nil, false, false, err
-			}
-			if err := json.Unmarshal(b, &value); err != nil {
-				return nil, false, false, err
-			}
-			return value, b[0] == '{', len(b) == 4 && string(b) == "null", nil
-		}
-		return value, false, false, errors.Errorf("%s: can't repack %s.%s", context.Location(), "frizz.io/tests/packer/silent", "Silent")
+		return out, dict, null, nil
 	}(context, (silent.Silent)(in))
 }
 func (p packageType) GetData(filename string) string {

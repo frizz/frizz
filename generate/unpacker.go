@@ -3,6 +3,7 @@ package generate
 import (
 	"fmt"
 	"go/ast"
+	"go/types"
 	"strings"
 
 	. "github.com/dave/jennifer/jen"
@@ -45,7 +46,7 @@ func (p *packageDef) unpacker(spec ast.Expr, name string, method bool, custom bo
 			return
 		}
 		if name != "" {
-			p.aliasUnpacker(g, spec, name)
+			p.aliasUnpacker(g, spec, p.Path, name)
 			return
 		}
 		switch spec := spec.(type) {
@@ -74,7 +75,7 @@ func (p *packageDef) unpacker(spec ast.Expr, name string, method bool, custom bo
 	})
 }
 
-func (p *packageDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
+func (p *packageDef) aliasUnpacker(g *Group, spec ast.Expr, pkg, name string) {
 	/*
 		out, null, err := <unpacker>(context, root, stack, in)
 		if err != nil || null {
@@ -90,7 +91,7 @@ func (p *packageDef) aliasUnpacker(g *Group, spec ast.Expr, name string) {
 	g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
 		Return(Id("value"), Id("null"), Err()),
 	)
-	g.Return(Id(name).Parens(Id("out")), False(), Nil())
+	g.Return(Qual(pkg, name).Parens(Id("out")), False(), Nil())
 }
 
 func (p *packageDef) customUnpacker(g *Group, name string) {
@@ -156,8 +157,12 @@ func (p *packageDef) interfaceUnpacker(g *Group, spec *ast.InterfaceType) {
 }
 
 func (p *packageDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
-	pkg := p.pathFromSelector(spec)
-	if pkg == "encoding/json" && spec.Sel.Name == "Number" {
+
+	ob := p.info.Uses[spec.Sel]
+	pkg := ob.Pkg().Path()
+	name := ob.Name()
+
+	if pkg == "encoding/json" && name == "Number" {
 		// special case for json.Number
 		/*
 			out, ok := in.(json.Number)
@@ -189,67 +194,61 @@ func (p *packageDef) selectorUnpacker(g *Group, spec *ast.SelectorExpr) {
 		return
 	}
 
-	/*
-		p := context.Package().Get("<pkg>")
-		if p != nil {
-			out, null, err := p.Unpack(context, in, "<spec.Sel.Name>")
-			if err != nil || null {
-				return value, null, err
-			}
-			return out.(<type>), false, nil
+	if fpkg, ok := p.scan.Packages[pkg]; ok {
+		if _, ok := fpkg.types[name]; ok {
+			// current type is a frizz type
+			/*
+				out, null, err := <pkg>.Unpack<name>(context, in)
+				if err != nil || null {
+					return value, null, err
+				}
+				return out, false, nil
+			*/
+			g.Comment("selectorUnpacker (frizz type)")
+			g.List(Id("out"), Id("null"), Err()).Op(":=").Qual(pkg, "Package").Dot("Unpack"+name).Call(Id("context"), Id("in"))
+			g.If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
+				Return(Id("value"), Id("null"), Err()),
+			)
+			g.Return(Id("out"), False(), Nil())
+			return
 		}
-	*/
-	g.Comment("selectorUnpacker")
-	g.Id("p").Op(":=").Id("context").Dot("Package").Call().Dot("Get").Call(Lit(pkg))
-	g.If(Id("p").Op("!=").Nil()).Block(
-		List(Id("out"), Id("null"), Err()).Op(":=").Id("p").Dot("Unpack").Call(Id("context"), Id("in"), Lit(spec.Sel.Name)),
-		If(Err().Op("!=").Nil().Op("||").Id("null")).Block(
-			Return(Id("value"), Id("null"), Err()),
-		),
-		Return(Id("out").Assert(Qual(pkg, spec.Sel.Name)), False(), Nil()),
-	)
+	}
 
-	/*
-		var vi interface{} = &value
-		if vu, ok := vi.(json.Unmarshaler); ok {
+	if types.Implements(types.NewPointer(ob.Type()), p.scan.unmarshaler) {
+		// type implements json.Unmarshaler
+		/*
 			b, err := json.Marshal(in)
 			if err != nil {
 				return value, false, err
 			}
-			if err := vu.UnmarshalJSON(b); err != nil {
+			if err := value.UnmarshalJSON(b); err != nil {
 				return value, false, err
 			}
 			return value, false, nil
-		}
-		return value, false, errors.Errorf("%s: can't unpack %s.%s", context.Location(), "<pkg>", "<spec.Sel.Name>")
-	*/
-	g.Var().Id("vi").Interface().Op("=").Op("&").Id("value")
-	g.If(
-		List(Id("vu"), Id("ok")).Op(":=").Id("vi").Assert(Qual("encoding/json", "Unmarshaler")),
-		Id("ok"),
-	).Block(
-		List(Id("b"), Err()).Op(":=").Qual("encoding/json", "Marshal").Call(Id("in")),
-		If(Err().Op("!=").Nil()).Block(
+		*/
+		g.Comment("selectorUnpacker (json.Unmarshaler)")
+		g.List(Id("b"), Err()).Op(":=").Qual("encoding/json", "Marshal").Call(Id("in"))
+		g.If(Err().Op("!=").Nil()).Block(
 			Return(Id("value"), False(), Err()),
-		),
-		If(
-			Err().Op(":=").Id("vu").Dot("UnmarshalJSON").Call(Id("b")),
+		)
+		g.If(
+			Err().Op(":=").Id("value").Dot("UnmarshalJSON").Call(Id("b")),
 			Err().Op("!=").Nil(),
 		).Block(
 			Return(Id("value"), False(), Err()),
-		),
-		Return(Id("value"), False(), Nil()),
-	)
-	g.Return(
-		Id("value"),
-		False(),
-		Qual("github.com/pkg/errors", "Errorf").Call(
-			Lit("%s: can't unpack %s.%s"),
-			Id("context").Dot("Location").Call(),
-			Lit(pkg),
-			Lit(spec.Sel.Name),
-		),
-	)
+		)
+		g.Return(Id("value"), False(), Nil())
+		return
+	}
+
+	if b, ok := ob.Type().Underlying().(*types.Basic); ok {
+		// underlying type is basic, so can use aliasUnpacker?
+		g.Comment("selectorUnpacker (basic type)")
+		p.aliasUnpacker(g, &ast.Ident{Name: b.String()}, ob.Pkg().Path(), ob.Name())
+		return
+	}
+
+	panic(fmt.Sprintf("Can't unpack %s.%s", pkg, name))
 }
 
 func (p *packageDef) localUnpacker(g *Group, spec *ast.Ident) {
