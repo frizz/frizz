@@ -3,6 +3,7 @@ package generate
 import (
 	"go/ast"
 	"go/token"
+	"go/types"
 
 	"frizz.io/generate/jast"
 
@@ -12,12 +13,15 @@ import (
 )
 
 type scanDef struct {
-	fset     *token.FileSet
-	env      vos.Env
-	input    []struct{ path, dir string }
-	pcache   *patsy.Cache
-	loaded   *loader.Program
-	Packages map[string]*packageDef // Package path: package def
+	fset        *token.FileSet
+	env         vos.Env
+	input       []struct{ path, dir string }
+	pcache      *patsy.Cache
+	loaded      *loader.Program
+	packable    *types.Interface
+	unmarshaler *types.Interface
+	marshaler   *types.Interface
+	Packages    map[string]*packageDef // Package path: package def
 }
 
 type packageDef struct {

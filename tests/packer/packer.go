@@ -27,6 +27,15 @@ import (
 )
 
 // frizz
+type HasNotFrizz struct {
+	String sub.StringNotFrizz
+	Int    sub.IntNotFrizz
+	Float  sub.FloatNotFrizz
+	Bool   sub.BoolNotFrizz
+	Uint64 sub.Uint64NotFrizz
+}
+
+// frizz
 type HasTime struct {
 	Time time.Time
 }

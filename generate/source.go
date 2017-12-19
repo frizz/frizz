@@ -20,7 +20,7 @@ import (
 func scanSource(prog *scanDef) error {
 
 	conf := loader.Config{}
-	conf.Import("frizz.io/global") // contains Packable interface
+	conf.Import("frizz.io/generate/helper") // contains references to useful interfaces
 	for _, input := range prog.input {
 		// Import all the input packages
 		conf.Import(input.path)
@@ -62,16 +62,17 @@ func scanSource(prog *scanDef) error {
 	}
 	prog.loaded = loaded
 
-	global := loaded.Package("frizz.io/global")
-	var packable *types.Interface
-	for i, v := range global.Defs {
-		if i.Name == "Packable" {
-			packable = v.Type().Underlying().(*types.Interface)
-			break
+	helper := loaded.Package("frizz.io/generate/helper")
+
+	for i, v := range helper.Defs {
+		switch i.Name {
+		case "packable":
+			prog.packable = v.Type().Underlying().(*types.Interface)
+		case "unmarshaler":
+			prog.unmarshaler = v.Type().Underlying().(*types.Interface)
+		case "marshaler":
+			prog.marshaler = v.Type().Underlying().(*types.Interface)
 		}
-	}
-	if packable == nil {
-		return errors.New("can't find frizz.io/global.Packable")
 	}
 
 	for pa, pi := range loaded.AllPackages {
@@ -85,7 +86,7 @@ func scanSource(prog *scanDef) error {
 		packables := map[string]bool{}
 		for i, v := range pi.Defs {
 			if v, ok := v.(*types.TypeName); ok {
-				if types.Implements(types.NewPointer(v.Type()), packable) {
+				if types.Implements(types.NewPointer(v.Type()), prog.packable) {
 					packables[i.Name] = true
 				}
 			}

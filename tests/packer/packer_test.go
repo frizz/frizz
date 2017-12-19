@@ -32,6 +32,37 @@ type test struct {
 	rnull bool        // should the repacked output be null?
 }
 
+func TestNotFrizz(t *testing.T) {
+	tests := map[string]test{
+		"not frizz": {
+			js: `{
+				"_type": "HasNotFrizz",
+				"String": "a",
+				"Int": 1,
+				"Float": 2.2,
+				"Bool": true,
+				"Uint64": 3
+			}`,
+			ex: HasNotFrizz{
+				String: sub.StringNotFrizz("a"),
+				Int:    sub.IntNotFrizz(1),
+				Float:  sub.FloatNotFrizz(2.2),
+				Bool:   sub.BoolNotFrizz(true),
+				Uint64: sub.Uint64NotFrizz(3),
+			},
+		},
+	}
+	for name, test := range tests {
+		v := decode(t, name, test.js)
+
+		c := frizz.New(Package, sub.Package)
+		unpacked, null1, err1 := pack.Unpack(c, v)
+		repacked, dict, null2, err2 := pack.Repack(c, unpacked)
+
+		ensure(t, name, test, unpacked, null1, err1, repacked, dict, null2, err2)
+	}
+}
+
 func TestSilent(t *testing.T) {
 	tests := map[string]test{
 		"silent": {

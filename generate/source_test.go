@@ -1,12 +1,10 @@
-package scanner
+package generate
 
 import (
-	"testing"
-
 	"fmt"
 	"go/ast"
-
 	"reflect"
+	"testing"
 
 	"frizz.io/generate/jast"
 	"github.com/dave/jennifer/jen"
@@ -54,14 +52,13 @@ type Time time.Time
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := New(packagePathUse, env)
-	err = s.Scan()
+	s, err := Scan(env, packagePathUse)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(s.Imports, []string{"a.b/silent"}) {
-		t.Fatal("Unexpected:", s.Imports)
+	if !reflect.DeepEqual(s.Packages[packagePathUse].imports, map[string]bool{"a.b/silent": true}) {
+		t.Fatal("Unexpected:", s.Packages[packagePathUse].imports)
 	}
 
 }
@@ -87,16 +84,15 @@ type Foo struct {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := New(packagePath, env)
-	err = s.Scan()
+	s, err := Scan(env, packagePath)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// find the SelectorExpr corresponding to "ggg.Packable"
-	se := s.Types["Foo"].Spec.(*ast.StructType).Fields.List[0].Type.(*ast.SelectorExpr)
+	se := s.Packages[packagePath].types["Foo"].spec.(*ast.StructType).Fields.List[0].Type.(*ast.SelectorExpr)
 
-	j := jast.New(nil, s.Info.Uses)
+	j := jast.New(nil, s.Packages[packagePath].info.Uses)
 	jf := jen.NewFile("a")
 	jf.Func().Id("bar").Params().Block(
 		jen.Var().Id("g").Add(j.Expr(se)),
@@ -148,9 +144,7 @@ func TestFoo(t *testing.T) {}`,
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := New(packagePath, env)
-	err = s.Scan()
-	if err != nil {
+	if _, err := Scan(env, packagePath); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -168,9 +162,7 @@ func TestScan_ignores_generated_file(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := New(packagePath, env)
-	err = s.Scan()
-	if err != nil {
+	if _, err := Scan(env, packagePath); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -187,9 +179,7 @@ func TestScan_ignores_errors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := New(packagePath, env)
-	err = s.Scan()
-	if err != nil {
+	if _, err := Scan(env, packagePath); err != nil {
 		t.Fatal(err)
 	}
 }
