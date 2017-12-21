@@ -2,11 +2,13 @@ package edit
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
+	"frizz.io/edit/common"
 	"frizz.io/edit/static"
 
 	"time"
@@ -18,6 +20,10 @@ import (
 	"go/parser"
 	"go/token"
 
+	"encoding/base64"
+	"encoding/gob"
+
+	"frizz.io/edit/auther"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
 	"github.com/gopherjs/gopherjs/build"
@@ -33,6 +39,8 @@ const debug = true
 func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Writer, path string) error {
 
 	fail := make(chan error)
+
+	auth := auther.New()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if strings.HasSuffix(req.URL.Path, "/favicon.ico") {
@@ -57,7 +65,7 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 				return
 			}
 		}
-		if err := root(ctx, w, req); err != nil {
+		if err := root(ctx, auth, w, req); err != nil {
 			fail <- err
 			return
 		}
@@ -97,7 +105,7 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	}
 }
 
-func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
+func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
 	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
 		if strings.HasSuffix(req.URL.Path, ".css") {
@@ -114,13 +122,28 @@ func root(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 		path = path[0 : len(path)-1]
 	}
 
+	id := make([]byte, 64)
+	if _, err := rand.Read(id); err != nil {
+		return errors.WithStack(err)
+	}
+	info := common.RequestInfo{
+		Id:   id,
+		Hash: auth.Sign(id),
+	}
+	buf := bytes.NewBuffer([]byte{})
+	if err := gob.NewEncoder(buf).Encode(info); err != nil {
+		return errors.WithStack(err)
+	}
+	attrib := base64.StdEncoding.EncodeToString(buf.Bytes())
+
 	source := []byte(`
 		<html>
 			<head>
 				<meta charset="utf-8">
 				<script src="/jquery-2.2.4.min.js"></script>
+				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
-			<body id="body">Hello, world!</body>
+			<body id="body" info="` + attrib + `"></body>
 			<script src="/bootstrap.js"></script>
 		</html>`)
 
