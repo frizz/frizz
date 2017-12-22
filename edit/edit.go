@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
+	"frizz.io/edit/assets"
 	"frizz.io/edit/common"
-	"frizz.io/edit/static"
 
 	"time"
 
@@ -23,6 +24,14 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 
+	"io/ioutil"
+
+	"path/filepath"
+
+	"mime"
+	"path"
+
+	"frizz.io/config"
 	"frizz.io/edit/auther"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
@@ -31,10 +40,10 @@ import (
 	"github.com/neelance/sourcemap"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
+	"github.com/shurcooL/httpgzip"
 )
 
 const writeTimeout = time.Second * 2
-const debug = true
 
 func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Writer, path string) error {
 
@@ -47,7 +56,7 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 			w.WriteHeader(404)
 			return
 		}
-		if debug {
+		if config.DEV {
 			// Only generate bootstrap dynamically in debug mode. Non debug mode delivers
 			// bootstrap.js from static files (minified, without source map).
 			if strings.HasSuffix(req.URL.Path, "/bootstrap.js") {
@@ -64,6 +73,13 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 				}
 				return
 			}
+		}
+		if strings.HasSuffix(req.URL.Path, "/blob.bin") {
+			if err := blob(ctx, env, auth, w, req); err != nil {
+				fail <- err
+				return
+			}
+			return
 		}
 		if err := root(ctx, auth, w, req); err != nil {
 			fail <- err
@@ -105,21 +121,75 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	}
 }
 
-func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
+func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
-	if b, err := static.Asset(req.URL.Path[1:]); err == nil {
-		if strings.HasSuffix(req.URL.Path, ".css") {
-			w.Header().Set("Content-Type", "text/css")
-		}
-		if err := writeWithTimeout(w, b); err != nil {
-			return err
-		}
-		return nil
+	info, err := common.NewRequestInfo(req.URL.Query().Get("info"))
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if !auth.Auth(info.Id, info.Hash) {
+		return errors.New("auth error")
 	}
 
-	path := req.URL.Path[1:]
-	if strings.HasSuffix(path, "/") {
-		path = path[0 : len(path)-1]
+	pathAndName := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/blob.bin")
+
+	dir, err := patsy.Dir(env, pathAndName)
+	if err != nil {
+		return err
+	}
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	blob := &common.Blob{Files: map[string][]byte{}}
+	for _, file := range files {
+		if (strings.HasSuffix(file.Name(), ".go") && !strings.HasSuffix(file.Name(), "_test.go")) || strings.HasSuffix(file.Name(), ".frizz.json") {
+			b, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
+			if err != nil {
+				return err
+			}
+			blob.Files[file.Name()] = b
+		}
+	}
+
+	buf := &bytes.Buffer{}
+	if err := gob.NewEncoder(buf).Encode(blob); err != nil {
+		return errors.WithStack(err)
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
+	if _, err := io.Copy(w, buf); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
+
+	pathAndName := strings.TrimPrefix(req.URL.Path, "/")
+
+	if file, err := assets.Assets.Open(pathAndName); err == nil {
+		defer file.Close()
+
+		w.Header().Set("Content-Type", mime.TypeByExtension(path.Ext(pathAndName)))
+
+		_, noCompress := file.(httpgzip.NotWorthGzipCompressing)
+		gzb, isGzb := file.(httpgzip.GzipByter)
+
+		if isGzb && !noCompress && strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
+			w.Header().Set("Content-Encoding", "gzip")
+			if err := writeWithTimeout(w, gzb.GzipBytes()); err != nil {
+				return err
+			}
+		} else {
+			if err := streamWithTimeout(w, file); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
 	id := make([]byte, 64)
@@ -130,7 +200,7 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 		Id:   id,
 		Hash: auth.Sign(id),
 	}
-	buf := bytes.NewBuffer([]byte{})
+	buf := &bytes.Buffer{}
 	if err := gob.NewEncoder(buf).Encode(info); err != nil {
 		return errors.WithStack(err)
 	}
@@ -154,10 +224,10 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 	return nil
 }
 
-func writeWithTimeout(w io.Writer, b []byte) error {
+func streamWithTimeout(w io.Writer, r io.Reader) error {
 	c := make(chan error, 1)
 	go func() {
-		_, err := w.Write(b)
+		_, err := io.Copy(w, r)
 		c <- err
 	}()
 	select {
@@ -169,6 +239,10 @@ func writeWithTimeout(w io.Writer, b []byte) error {
 	case <-time.After(writeTimeout):
 		return errors.New("timeout")
 	}
+}
+
+func writeWithTimeout(w io.Writer, b []byte) error {
+	return streamWithTimeout(w, bytes.NewBuffer(b))
 }
 
 func serve(ctx context.Context, path string, out io.Writer) error {
