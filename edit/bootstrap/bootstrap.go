@@ -5,9 +5,13 @@ import (
 
 	"frizz.io/edit/common"
 
-	"bytes"
-	"encoding/base64"
-	"encoding/gob"
+	"strings"
+
+	"net/http"
+
+	"io/ioutil"
+
+	"net/url"
 
 	"github.com/gopherjs/gopherjs/js"
 	"honnef.co/go/js/dom"
@@ -20,25 +24,26 @@ func main() {
 }
 
 func start() error {
-	info, err := getInfo(getRawInfo())
+	info, err := common.NewRequestInfo(getRawInfo())
 	if err != nil {
 		return err
 	}
-	js.Global.Get("document").Call("write", fmt.Sprintf("%#v\n", info))
-	return nil
-}
-
-func getInfo(infoBase64 string) (info *common.RequestInfo, err error) {
-	info = &common.RequestInfo{}
-	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
+	info.Id = []byte{0}
+	path := strings.TrimPrefix(strings.TrimSuffix(js.Global.Get("window").Get("location").Get("pathname").String(), "/"), "/")
+	blobResponse, err := http.Get("/" + path + "/blob.bin?info=" + url.QueryEscape(getRawInfo()))
 	if err != nil {
-		return nil, err
+		return err
 	}
-	buf := bytes.NewBuffer(infoBytes)
-	if err := gob.NewDecoder(buf).Decode(info); err != nil {
-		return nil, err
+	blobBytes, err := ioutil.ReadAll(blobResponse.Body)
+	if err != nil {
+		return err
 	}
-	return info, nil
+	blob, err := common.NewBlob(blobBytes)
+	for n, f := range blob.Files {
+		js.Global.Get("document").Call("write", fmt.Sprintf("%s:%d<br>", n, len(f)))
+	}
+
+	return nil
 }
 
 func getRawInfo() string {
