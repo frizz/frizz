@@ -32,7 +32,6 @@ type Bootstrap struct {
 	Source   map[string]common.Package
 	Archives map[string]*compiler.Archive
 	Packages map[string]*types.Package
-	Lib      map[string][]byte
 }
 
 func (b *Bootstrap) Start() error {
@@ -77,7 +76,6 @@ func (b *Bootstrap) Init() error {
 	b.Source = make(map[string]common.Package)
 	b.Archives = make(map[string]*compiler.Archive)
 	b.Packages = make(map[string]*types.Package)
-	b.Lib = make(map[string][]byte)
 
 	response, err := get("/" + b.Path + "/blob.bin?info=" + url.QueryEscape(b.RawInfo))
 	if err != nil {
@@ -92,39 +90,26 @@ func (b *Bootstrap) Init() error {
 	b.Source = blob.Source
 
 	// Get the standard library package archives from the server in parallel
-	if err := b.standard(blob.Lib); err != nil {
+	archives, err := b.standard(blob.Lib)
+	if err != nil {
 		return err
 	}
-	//b.Lib = archives
-
-	/*
-		for path, raw := range archives {
-			fmt.Println("Reading", path)
-			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
-			if err != nil {
-				return err
-			}
-			b.Archives[path] = archive
-		}*/
-
-	/*
-		preload := []string{"runtime", "github.com/gopherjs/gopherjs/js", "runtime/internal/sys"}
-		for _, path := range preload {
-			fmt.Println("Preloading", path)
-			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(archives[path]), b.Packages)
-			if err != nil {
-				return err
-			}
-			b.Archives[path] = archive
+	for path, raw := range archives {
+		fmt.Println("Reading", path)
+		archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
+		if err != nil {
+			return err
 		}
-	*/
+		b.Archives[path] = archive
+	}
 
 	return nil
 }
 
-func (b *Bootstrap) standard(paths []string) error {
+func (b *Bootstrap) standard(paths []string) (map[string][]byte, error) {
 	parallel := NewParallel(20)
 	mutex := &sync.Mutex{}
+	archives := map[string][]byte{}
 	paths = append(paths, "github.com/gopherjs/gopherjs/js", "github.com/gopherjs/gopherjs/nosync")
 	for _, path := range paths {
 		path := path
@@ -139,22 +124,16 @@ func (b *Bootstrap) standard(paths []string) error {
 			if len(response) == 0 {
 				return nil
 			}
-
-			fmt.Println("Reading", path)
-			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(response), b.Packages)
-			if err != nil {
-				return err
-			}
 			mutex.Lock()
-			b.Archives[path] = archive
+			archives[path] = response
 			mutex.Unlock()
 			return nil
 		}
 	}
 	if err := parallel.Finish(); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return archives, nil
 }
 
 func get(url string) ([]byte, error) {
