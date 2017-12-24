@@ -25,7 +25,14 @@ func NewRequestInfo(infoBase64 string) (*RequestInfo, error) {
 }
 
 type Blob struct {
-	Files map[string][]byte
+	Data   map[string][]byte  // all .frizz.json data files in this package
+	Source map[string]Package // go source of all local packages needed to compile this package
+	Lib    []string           // list of all standard library packages needed to compile this package
+}
+
+type Package struct {
+	Hash   uint64
+	Source map[string][]byte
 }
 
 func NewBlob(in []byte) (*Blob, error) {
@@ -35,4 +42,12 @@ func NewBlob(in []byte) (*Blob, error) {
 		return nil, err
 	}
 	return blob, nil
+}
+
+func (b *Blob) ToBytes() ([]byte, error) {
+	buf := bytes.NewBuffer([]byte{})
+	if err := gob.NewEncoder(buf).Encode(b); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

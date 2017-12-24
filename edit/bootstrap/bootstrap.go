@@ -1,55 +1,194 @@
-package main
+package bootstrap
 
 import (
 	"fmt"
+	"go/types"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
+	"sync"
+
+	"bytes"
+
+	"os"
 
 	"frizz.io/edit/common"
-
-	"strings"
-
-	"net/http"
-
-	"io/ioutil"
-
-	"net/url"
-
-	"github.com/gopherjs/gopherjs/js"
+	"frizz.io/edit/wcache"
+	"github.com/dave/jennifer/jen"
+	"github.com/gopherjs/gopherjs/compiler"
 	"honnef.co/go/js/dom"
 )
 
-func main() {
-	if err := start(); err != nil {
-		js.Global.Get("document").Call("write", err.Error())
-	}
+type Bootstrap struct {
+	Doc     dom.HTMLDocument
+	Body    *dom.HTMLBodyElement
+	Path    string
+	RawInfo string
+	Info    *common.RequestInfo
+	Cache   *wcache.Cache
+
+	Data     map[string][]byte
+	Source   map[string]common.Package
+	Archives map[string]*compiler.Archive
+	Packages map[string]*types.Package
+	Lib      map[string][]byte
 }
 
-func start() error {
-	info, err := common.NewRequestInfo(getRawInfo())
-	if err != nil {
+func (b *Bootstrap) Start() error {
+
+	if err := b.Init(); err != nil {
 		return err
 	}
-	info.Id = []byte{0}
-	path := strings.TrimPrefix(strings.TrimSuffix(js.Global.Get("window").Get("location").Get("pathname").String(), "/"), "/")
-	blobResponse, err := http.Get("/" + path + "/blob.bin?info=" + url.QueryEscape(getRawInfo()))
-	if err != nil {
+
+	if err := b.Compile(); err != nil {
 		return err
 	}
-	blobBytes, err := ioutil.ReadAll(blobResponse.Body)
-	if err != nil {
-		return err
-	}
-	blob, err := common.NewBlob(blobBytes)
-	for n, f := range blob.Files {
-		js.Global.Get("document").Call("write", fmt.Sprintf("%s:%d<br>", n, len(f)))
-	}
+
+	//for name, pkg := range b.Source {
+	//	for fname, contents := range pkg {
+	//		b.Doc.Underlying().Call("write", fmt.Sprintf("%s - %s - %d<br>", name, fname, len(contents)))
+	//	}
+	//}
 
 	return nil
 }
 
-func getRawInfo() string {
-	return dom.
-		GetWindow().
-		Document().(dom.HTMLDocument).
-		GetElementByID("body").(*dom.HTMLBodyElement).
-		GetAttribute("info")
+func (b *Bootstrap) Init() error {
+
+	csh, err := wcache.New("v1")
+	if err != nil {
+		return err
+	}
+	b.Cache = csh
+	b.Doc = dom.GetWindow().Document().(dom.HTMLDocument)
+	b.Body = b.Doc.GetElementByID("body").(*dom.HTMLBodyElement)
+	b.Path = strings.TrimPrefix(strings.TrimSuffix(dom.GetWindow().Location().Pathname, "/"), "/")
+
+	b.RawInfo = b.Body.GetAttribute("info")
+
+	info, err := common.NewRequestInfo(b.RawInfo)
+	if err != nil {
+		return err
+	}
+	b.Info = info
+
+	b.Data = make(map[string][]byte)
+	b.Source = make(map[string]common.Package)
+	b.Archives = make(map[string]*compiler.Archive)
+	b.Packages = make(map[string]*types.Package)
+	b.Lib = make(map[string][]byte)
+
+	response, err := get("/" + b.Path + "/blob.bin?info=" + url.QueryEscape(b.RawInfo))
+	if err != nil {
+		return err
+	}
+	blob, err := common.NewBlob(response)
+	if err != nil {
+		return err
+	}
+
+	b.Data = blob.Data
+	b.Source = blob.Source
+
+	// Get the standard library package archives from the server in parallel
+	if err := b.standard(blob.Lib); err != nil {
+		return err
+	}
+	//b.Lib = archives
+
+	/*
+		for path, raw := range archives {
+			fmt.Println("Reading", path)
+			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
+			if err != nil {
+				return err
+			}
+			b.Archives[path] = archive
+		}*/
+
+	/*
+		preload := []string{"runtime", "github.com/gopherjs/gopherjs/js", "runtime/internal/sys"}
+		for _, path := range preload {
+			fmt.Println("Preloading", path)
+			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(archives[path]), b.Packages)
+			if err != nil {
+				return err
+			}
+			b.Archives[path] = archive
+		}
+	*/
+
+	return nil
+}
+
+func (b *Bootstrap) standard(paths []string) error {
+	parallel := NewParallel(20)
+	mutex := &sync.Mutex{}
+	paths = append(paths, "github.com/gopherjs/gopherjs/js", "github.com/gopherjs/gopherjs/nosync")
+	for _, path := range paths {
+		path := path
+		parallel.In <- func() error {
+			response, err := get(fmt.Sprintf("/data/pkg/%s.a.js", path))
+			if err != nil {
+				if os.IsNotExist(err) {
+					return nil
+				}
+				return err
+			}
+			if len(response) == 0 {
+				return nil
+			}
+
+			fmt.Println("Reading", path)
+			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(response), b.Packages)
+			if err != nil {
+				return err
+			}
+			mutex.Lock()
+			b.Archives[path] = archive
+			mutex.Unlock()
+			return nil
+		}
+	}
+	if err := parallel.Finish(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func get(url string) ([]byte, error) {
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode == 404 {
+		return nil, os.ErrNotExist
+	}
+	if response.StatusCode != 200 {
+		return nil, fmt.Errorf("error %s", response.Status)
+	}
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func (b *Bootstrap) GenStub() ([]byte, error) {
+	f := jen.NewFile("main")
+	/*
+		func main() {
+			editor.Edit(<pkg>.Package)
+		}
+	*/
+	f.Func().Id("main").Params().Block(
+		jen.Qual("frizz.io/edit/editor", "Edit").Call(jen.Qual(b.Path, "Package")),
+	)
+	buf := &bytes.Buffer{}
+	if err := f.Render(buf); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+
 }

@@ -72,6 +72,7 @@ func Save(out io.Writer, paths ...string) error {
 			}
 		}
 	}
+
 	return nil
 }
 

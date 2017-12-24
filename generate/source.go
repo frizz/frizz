@@ -29,7 +29,7 @@ func scanSource(prog *scanDef) error {
 		// Manually import all the packages that have been found while scanning data
 		conf.Import(path)
 	}
-	conf.Build = &build.Default
+	conf.Build = func() *build.Context { c := build.Default; return &c }() // make a copy of build.Default
 	conf.Build.GOPATH = prog.env.Getenv("GOPATH")
 
 	// We must exclude all generated files from the scan. This is because when a user makes changes
