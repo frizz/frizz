@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	mathrand "math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,16 +32,22 @@ import (
 	"mime"
 	"path"
 
+	gobuild "go/build"
+
+	"os"
+
 	"frizz.io/config"
 	"frizz.io/edit/auther"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
 	"github.com/gopherjs/gopherjs/build"
 	"github.com/gopherjs/gopherjs/compiler"
+	"github.com/leemcloughlin/gofarmhash"
 	"github.com/neelance/sourcemap"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
 	"github.com/shurcooL/httpgzip"
+	"golang.org/x/tools/go/loader"
 )
 
 const writeTimeout = time.Second * 2
@@ -76,6 +83,13 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 		}
 		if strings.HasSuffix(req.URL.Path, "/blob.bin") {
 			if err := blob(ctx, env, auth, w, req); err != nil {
+				fail <- err
+				return
+			}
+			return
+		}
+		if strings.HasPrefix(req.URL.Path, "/data/") {
+			if err := data(ctx, auth, w, req); err != nil {
 				fail <- err
 				return
 			}
@@ -131,9 +145,9 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 		return errors.New("auth error")
 	}
 
-	pathAndName := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/blob.bin")
+	packagePath := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/blob.bin")
 
-	dir, err := patsy.Dir(env, pathAndName)
+	dir, err := patsy.Dir(env, packagePath)
 	if err != nil {
 		return err
 	}
@@ -142,15 +156,64 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 	if err != nil {
 		return err
 	}
-	blob := &common.Blob{Files: map[string][]byte{}}
+	blob := &common.Blob{
+		Data:   map[string][]byte{},
+		Source: map[string]common.Package{},
+	}
 	for _, file := range files {
-		if (strings.HasSuffix(file.Name(), ".go") && !strings.HasSuffix(file.Name(), "_test.go")) || strings.HasSuffix(file.Name(), ".frizz.json") {
+		if strings.HasSuffix(file.Name(), ".frizz.json") {
 			b, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
 			if err != nil {
 				return err
 			}
-			blob.Files[file.Name()] = b
+			blob.Data[file.Name()] = b
 		}
+	}
+
+	conf := loader.Config{}
+	conf.Import(packagePath)
+	conf.Import("frizz.io/edit/editor")
+	conf.ParserMode = parser.ImportsOnly
+	conf.Build = func() *gobuild.Context { c := gobuild.Default; return &c }() // make a copy of gobuild.Default
+	conf.Build.GOPATH = env.Getenv("GOPATH")
+	conf.Build.BuildTags = []string{"js"}
+	conf.AllowErrors = true
+	conf.TypeChecker.Error = func(e error) {}
+	loaded, err := conf.Load()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for p, pi := range loaded.AllPackages {
+
+		// Some system packages don't have any files (e.g. unsafe) - we can skip them.
+		if len(pi.Files) == 0 {
+			continue
+		}
+
+		// Packages under GOROOT are in the standard library - we skip them
+		dir, _ := filepath.Split(loaded.Fset.File(pi.Files[0].Pos()).Name())
+		if strings.HasPrefix(dir, conf.Build.GOROOT) {
+			blob.Lib = append(blob.Lib, p.Path())
+			continue
+		}
+
+		cp := common.Package{Source: map[string][]byte{}}
+		for _, f := range pi.Files {
+			fpath := loaded.Fset.File(f.Pos()).Name()
+			b, err := ioutil.ReadFile(fpath)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			_, fname := filepath.Split(fpath)
+			cp.Source[fname] = b
+		}
+		hash, err := hashPackage(cp.Source)
+		if err != nil {
+			return nil
+		}
+		cp.Hash = hash
+		blob.Source[p.Path()] = cp
+
 	}
 
 	buf := &bytes.Buffer{}
@@ -167,30 +230,58 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 	return nil
 }
 
-func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
+func hashPackage(in map[string][]byte) (uint64, error) {
+	buf := &bytes.Buffer{}
+	if err := gob.NewEncoder(buf).Encode(in); err != nil {
+		return 0, err
+	}
+	return farmhash.Hash64(buf.Bytes()), nil
+}
 
-	pathAndName := strings.TrimPrefix(req.URL.Path, "/")
+func data(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
-	if file, err := assets.Assets.Open(pathAndName); err == nil {
-		defer file.Close()
-
-		w.Header().Set("Content-Type", mime.TypeByExtension(path.Ext(pathAndName)))
-
-		_, noCompress := file.(httpgzip.NotWorthGzipCompressing)
-		gzb, isGzb := file.(httpgzip.GzipByter)
-
-		if isGzb && !noCompress && strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
-			w.Header().Set("Content-Encoding", "gzip")
-			if err := writeWithTimeout(w, gzb.GzipBytes()); err != nil {
-				return err
+	var file http.File
+	var err error
+	file, err = assets.Assets.Open(strings.TrimPrefix(req.URL.Path, "/data/"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			// Special case: in /data/pkg/ we don't want 404 errors because we can't stop them from
+			// popping up in the js console. Instead, deiver a 200 with a zero lenth body.
+			if strings.HasPrefix(req.URL.Path, "/data/pkg/") {
+				if err := writeWithTimeout(w, []byte{}); err != nil {
+					return err
+				}
+				return nil
 			}
-		} else {
-			if err := streamWithTimeout(w, file); err != nil {
-				return err
-			}
+			http.NotFound(w, req)
+			return nil
 		}
+		http.Error(w, err.Error(), 500)
 		return nil
 	}
+	defer file.Close()
+
+	w.Header().Set("Cache-Control", "max-age=31536000")
+	w.Header().Set("Content-Type", mime.TypeByExtension(path.Ext(req.URL.Path)))
+
+	_, noCompress := file.(httpgzip.NotWorthGzipCompressing)
+	gzb, isGzb := file.(httpgzip.GzipByter)
+
+	if isGzb && !noCompress && strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
+		w.Header().Set("Content-Encoding", "gzip")
+		if err := writeWithTimeout(w, gzb.GzipBytes()); err != nil {
+			return err
+		}
+	} else {
+		if err := streamWithTimeout(w, file); err != nil {
+			return err
+		}
+	}
+	return nil
+
+}
+
+func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
 	id := make([]byte, 64)
 	if _, err := rand.Read(id); err != nil {
@@ -210,11 +301,12 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 		<html>
 			<head>
 				<meta charset="utf-8">
-				<script src="/jquery-2.2.4.min.js"></script>
+				<script src="/data/jquery-2.2.4.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
 			<body id="body" info="` + attrib + `"></body>
-			<script src="/bootstrap.js"></script>
+			<!--<script src="/data/bootstrap.js?v=` + fmt.Sprint(mathrand.Uint64()) + `"></script>-->
+			<script src="/data/bootstrap.js"></script>
 		</html>`)
 
 	if err := writeWithTimeout(w, source); err != nil {
@@ -316,7 +408,7 @@ func script(ctx context.Context, env vos.Env, w http.ResponseWriter, sourceMap b
 
 func Compile(env vos.Env, mapping bool, addMappingComment bool, minify bool) ([]byte, error) {
 
-	dir, err := patsy.Dir(env, "frizz.io/edit/bootstrap")
+	dir, err := patsy.Dir(env, "frizz.io/edit/bootstrap/main")
 	if err != nil {
 		return nil, err
 	}
@@ -375,7 +467,7 @@ func Compile(env vos.Env, mapping bool, addMappingComment bool, minify bool) ([]
 		return nil, errors.WithStack(err)
 	}
 	if addMappingComment {
-		if _, err := bufCode.WriteString("//# sourceMappingURL=/bootstrap.js.map\n"); err != nil {
+		if _, err := bufCode.WriteString("//# sourceMappingURL=/data/bootstrap.js.map\n"); err != nil {
 			return nil, errors.WithStack(err)
 		}
 	}

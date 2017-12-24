@@ -4,13 +4,12 @@ import (
 	"log"
 	"os"
 
-	"frizz.io/generate"
-
 	"context"
 
 	"os/signal"
 
 	"frizz.io/edit"
+	"frizz.io/generate"
 	"github.com/dave/patsy/vos"
 	"github.com/spf13/cobra"
 )

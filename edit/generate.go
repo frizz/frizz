@@ -1,4 +1,5 @@
 package edit
 
-//go:generate go run bootstrap/builder/builder.go
-//go:generate go run assets/builder/builder.go
+//go:generate ./update.sh
+//go:generate go run builders/bootstrap/builder.go
+//go:generate go run builders/assets/builder.go
