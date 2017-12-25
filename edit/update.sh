@@ -137,5 +137,5 @@ gopherjs install -m \
 cp -a "$GOROOT"/pkg/*_js_min/* assets/data/pkg/
 cp -a "$GOROOT"/pkg/*_amd64_js_min/* assets/data/pkg/
 
-# Rename all *.a files in pkg/ to *.a.js.
-find assets/data/pkg -name "*.a" -exec sh -c 'mv $0 $0.js' {} \;
+# Rename all *.a files in pkg/ to *.a.
+# find assets/data/pkg -name "*.a" -exec sh -c 'mv $0 $0.js' {} \;

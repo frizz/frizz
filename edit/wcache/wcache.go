@@ -10,7 +10,6 @@ type Cache struct {
 	*js.Object
 }
 
-// NewCacheAPI returns a new instance of the CacheAPI.
 func NewCache(o *js.Object) *Cache {
 	var c Cache
 	c.Object = o
@@ -18,7 +17,14 @@ func NewCache(o *js.Object) *Cache {
 }
 
 func New(name string) (*Cache, error) {
-	openReq := js.Global.Get("caches").Call("open", name)
+	caches := js.Global.Get("caches")
+
+	if caches == js.Undefined {
+		// Caches not supported on some browsers (e.g. Safari)
+		return NewCache(nil), nil
+	}
+
+	openReq := caches.Call("open", name)
 
 	type response struct {
 		cache *Cache
@@ -27,9 +33,13 @@ func New(name string) (*Cache, error) {
 	ch := make(chan response)
 
 	openReq.Call("then", func(o *js.Object) {
-		ch <- response{cache: NewCache(o)}
+		go func() {
+			ch <- response{cache: NewCache(o)}
+		}()
 	}, func(err *js.Object) {
-		ch <- response{err: errors.New(err.String())}
+		go func() {
+			ch <- response{err: errors.New(err.String())}
+		}()
 	})
 
 	val := <-ch
@@ -37,6 +47,11 @@ func New(name string) (*Cache, error) {
 }
 
 func (c *Cache) Get(name string) (bool, []byte, error) {
+
+	if c.Object == nil {
+		// Caches not supported on some browsers (e.g. Safari)
+		return false, nil, nil
+	}
 
 	req := js.Global.Get("Request").New(name)
 
@@ -49,14 +64,18 @@ func (c *Cache) Get(name string) (bool, []byte, error) {
 
 	c.Call("match", req).Call("then", func(val *js.Object) {
 
-		if val == nil || val == js.Undefined {
-			ch <- response{found: false}
+		if val == js.Undefined {
+			go func() {
+				ch <- response{found: false}
+			}()
 			return
 		}
 
 		bch := make(chan []byte)
 		val.Call("arrayBuffer").Call("then", func(ob *js.Object) {
-			bch <- js.Global.Get("Uint8Array").New(ob).Interface().([]byte)
+			go func() {
+				bch <- js.Global.Get("Uint8Array").New(ob).Interface().([]byte)
+			}()
 		})
 
 		go func() {
@@ -65,16 +84,26 @@ func (c *Cache) Get(name string) (bool, []byte, error) {
 		}()
 
 	}).Call("catch", func(err *js.Object) {
-		func() {
+		go func() {
 			ch <- response{found: false, err: errors.New(err.String())}
 		}()
 	})
 
 	val := <-ch
-	return val.found, val.body, val.err
+
+	if val.err != nil {
+		return false, nil, val.err
+	}
+
+	return val.found, val.body, nil
 }
 
 func (c *Cache) Put(name string, data []byte) error {
+
+	if c.Object == nil {
+		// Caches not supported on some browsers (e.g. Safari)
+		return nil
+	}
 
 	ch := make(chan error)
 
@@ -89,10 +118,18 @@ func (c *Cache) Put(name string, data []byte) error {
 	)
 
 	c.Call("put", req, rsp).Call("then", func() {
-		close(ch)
+		go func() {
+			close(ch)
+		}()
 	}).Call("catch", func(err *js.Object) {
-		ch <- errors.New(err.String())
+		go func() {
+			ch <- errors.New(err.String())
+		}()
 	})
 
-	return <-ch
+	if err := <-ch; err != nil {
+		return err
+	}
+
+	return nil
 }
