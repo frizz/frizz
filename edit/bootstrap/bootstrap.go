@@ -90,12 +90,13 @@ func (b *Bootstrap) Init() error {
 	b.Source = blob.Source
 
 	// Get the standard library package archives from the server in parallel
+	fmt.Println("Loading standard library")
 	archives, err := b.standard(blob.Lib)
 	if err != nil {
 		return err
 	}
+	fmt.Println("Importing standard library")
 	for path, raw := range archives {
-		fmt.Println("Reading", path)
 		archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
 		if err != nil {
 			return err
@@ -114,7 +115,7 @@ func (b *Bootstrap) standard(paths []string) (map[string][]byte, error) {
 	for _, path := range paths {
 		path := path
 		parallel.In <- func() error {
-			response, err := get(fmt.Sprintf("/data/pkg/%s.a.js", path))
+			response, err := get(fmt.Sprintf("/data/pkg/%s.a", path))
 			if err != nil {
 				if os.IsNotExist(err) {
 					return nil

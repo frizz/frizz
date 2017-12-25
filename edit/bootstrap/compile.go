@@ -9,6 +9,8 @@ import (
 
 	"bytes"
 
+	"strings"
+
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/gopherjs/gopherjs/js"
 )
@@ -38,7 +40,7 @@ func (b *Bootstrap) Compile() error {
 					return nil, err
 				}
 				if found {
-					fmt.Println("Found in cache", path)
+					fmt.Println("Found in cache:", path)
 					archive, err := compiler.ReadArchive(path+".a", path, bytes.NewBuffer(resp), b.Packages)
 					if err != nil {
 						return nil, err
@@ -47,62 +49,58 @@ func (b *Bootstrap) Compile() error {
 					return archive, nil
 				}
 
-				fmt.Println("Parsing", path)
+				fmt.Println("Compiling:", path)
 				files, err := parseFiles(fset, source.Source)
 				if err != nil {
 					return nil, err
 				}
-				fmt.Println("Compiling", path)
 				archive, err := compiler.Compile(path, files, fset, importContext, false)
 				if err != nil {
 					return nil, err
 				}
-				fmt.Println("Finished compiling", path)
 
 				buf := &bytes.Buffer{}
 				if err := compiler.WriteArchive(archive, buf); err != nil {
 					return nil, err
 				}
-
 				if err := b.Cache.Put(name, buf.Bytes()); err != nil {
 					return nil, err
 				}
-				fmt.Println("Stored as", name)
 
 				b.Archives[path] = archive
 				return archive, nil
 			}
-			panic(fmt.Sprintf("can't find %s", path))
-			return &compiler.Archive{}, nil
+			return nil, fmt.Errorf("can't find %s", path)
 		},
 	}
 
-	fmt.Println("Parsing main")
+	fmt.Println("Compiling main")
 	files, err := parseFiles(fset, map[string][]byte{"prog.go": src})
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Compiling main")
-	mainArchive, err := compiler.Compile("main", files, fset, importContext, false)
+	archive, err := compiler.Compile("main", files, fset, importContext, false)
+	if err != nil {
+		if strings.Contains(err.Error(), "Package not declared by") {
+			fmt.Println("Not a frizz package")
+			return nil
+		}
+		return err
+	}
+	b.Archives["main"] = archive
+
+	archives, err := compiler.ImportDependencies(archive, importContext.Import)
 	if err != nil {
 		return err
 	}
-	b.Archives["main"] = mainArchive
 
-	fmt.Println("Importing dependancies")
-	allArchives, err := compiler.ImportDependencies(mainArchive, importContext.Import)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Writing program code")
+	fmt.Println("Running editor...")
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("try{\n")
-	compiler.WriteProgramCode(allArchives, &compiler.SourceMapFilter{Writer: buf})
+	compiler.WriteProgramCode(archives, &compiler.SourceMapFilter{Writer: buf})
 	buf.WriteString("} catch (err) {\ngoPanicHandler(err.message);\n}\n")
 
-	fmt.Println("Running js, length", buf.Len())
 	js.Global.Set("$checkForDeadlock", true)
 	js.Global.Call("eval", js.InternalObject(buf.String()))
 

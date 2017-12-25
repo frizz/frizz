@@ -36,6 +36,8 @@ import (
 
 	"os"
 
+	"encoding/json"
+
 	"frizz.io/config"
 	"frizz.io/edit/auther"
 	"github.com/dave/patsy"
@@ -231,11 +233,11 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 }
 
 func hashPackage(in map[string][]byte) (uint64, error) {
-	buf := &bytes.Buffer{}
-	if err := gob.NewEncoder(buf).Encode(in); err != nil {
+	b, err := json.Marshal(in)
+	if err != nil {
 		return 0, err
 	}
-	return farmhash.Hash64(buf.Bytes()), nil
+	return farmhash.Hash64(b), nil
 }
 
 func data(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
