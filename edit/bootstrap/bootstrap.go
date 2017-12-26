@@ -82,8 +82,11 @@ func (b *Bootstrap) Init() error {
 	if err != nil {
 		return err
 	}
-	blob, err := common.NewBlob(response)
-	if err != nil {
+
+	blob := &common.Blob{}
+
+	buf := bytes.NewBuffer(response)
+	if err := gob.NewDecoder(buf).Decode(blob); err != nil {
 		return err
 	}
 

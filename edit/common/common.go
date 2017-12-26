@@ -34,20 +34,3 @@ type Bundle struct {
 	Hash  uint64
 	Files map[string][]byte
 }
-
-func NewBlob(in []byte) (*Blob, error) {
-	blob := &Blob{}
-	buf := bytes.NewBuffer(in)
-	if err := gob.NewDecoder(buf).Decode(blob); err != nil {
-		return nil, err
-	}
-	return blob, nil
-}
-
-func (b *Blob) ToBytes() ([]byte, error) {
-	buf := bytes.NewBuffer([]byte{})
-	if err := gob.NewEncoder(buf).Encode(b); err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}

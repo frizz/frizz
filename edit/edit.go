@@ -151,11 +151,17 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	}
 }
 
+func sourceFilter(fpath string) bool {
+	return strings.HasSuffix(fpath, ".go") && !strings.HasSuffix(fpath, "_test.go")
+}
+
+func dataFilter(fpath string) bool {
+	return strings.HasSuffix(fpath, ".frizz.json")
+}
+
 func src(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
 	pkg := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/src/"), ".bin")
-	err := bundle(ctx, env, w, req, pkg, func(fpath string) bool {
-		return strings.HasSuffix(fpath, ".go") && !strings.HasSuffix(fpath, "_test.go")
-	})
+	err := bundle(ctx, env, w, req, pkg, sourceFilter)
 	if err != nil {
 		return err
 	}
@@ -164,9 +170,7 @@ func src(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Requ
 
 func data(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
 	pkg := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/data/"), ".bin")
-	err := bundle(ctx, env, w, req, pkg, func(fpath string) bool {
-		return strings.HasSuffix(fpath, ".frizz.json")
-	})
+	err := bundle(ctx, env, w, req, pkg, dataFilter)
 	if err != nil {
 		return err
 	}
@@ -185,31 +189,11 @@ func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.R
 		return err
 	}
 
-	fia, err := ioutil.ReadDir(dir)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	bundle := common.Bundle{Files: make(map[string][]byte)}
-	for _, fi := range fia {
-		if !filter(fi.Name()) {
-			continue
-		}
-		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		bundle.Files[fi.Name()] = b
-	}
-	hash, err := hashFiles(bundle.Files)
-	if err != nil {
-		return errors.WithStack(err)
-	}
+	bundle, err := getBundle(dir, filter, false)
 
-	if hash != hashFromRequest {
+	if bundle.Hash != hashFromRequest {
 		return fmt.Errorf("incorrect hash for %s", req.URL)
 	}
-
-	bundle.Hash = hash
 
 	buf := &bytes.Buffer{}
 	if err := gob.NewEncoder(buf).Encode(bundle); err != nil {
@@ -224,6 +208,32 @@ func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.R
 	}
 
 	return nil
+}
+
+func getBundle(dir string, filter func(string) bool, justhash bool) (*common.Bundle, error) {
+	fia, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	files := make(map[string][]byte)
+	for _, fi := range fia {
+		if !filter(fi.Name()) {
+			continue
+		}
+		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		files[fi.Name()] = b
+	}
+	hash, err := hashFiles(files)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if justhash {
+		return &common.Bundle{Hash: hash}, nil
+	}
+	return &common.Bundle{Hash: hash, Files: files}, nil
 }
 
 func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
@@ -243,26 +253,13 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 		return err
 	}
 
-	files, err := filepath.Glob(filepath.Join(dir, "*.frizz.json"))
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	dataFiles := make(map[string][]byte)
-	for _, fpath := range files {
-		b, err := ioutil.ReadFile(fpath)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		_, fname := filepath.Split(fpath)
-		dataFiles[fname] = b
-	}
-	hash, err := hashFiles(dataFiles)
+	bundle, err := getBundle(dir, dataFilter, true)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	blob := &common.Blob{
-		Hash:   hash,
+		Hash:   bundle.Hash,
 		Source: map[string]uint64{},
 	}
 
@@ -293,21 +290,12 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 			continue
 		}
 
-		files := make(map[string][]byte)
-		for _, f := range pi.Files {
-			fpath := loaded.Fset.File(f.Pos()).Name()
-			b, err := ioutil.ReadFile(fpath)
-			if err != nil {
-				return errors.WithStack(err)
-			}
-			_, fname := filepath.Split(fpath)
-			files[fname] = b
-		}
-		hash, err := hashFiles(files)
+		bundle, err := getBundle(dir, sourceFilter, true)
 		if err != nil {
-			return nil
+			return errors.WithStack(err)
 		}
-		blob.Source[p.Path()] = hash
+
+		blob.Source[p.Path()] = bundle.Hash
 
 	}
 
@@ -433,15 +421,18 @@ func writeWithTimeout(w io.Writer, b []byte) error {
 
 func serve(ctx context.Context, path string, out io.Writer) error {
 
-	// Starting with port zero chooses a random open port
-	listner, err := net.Listen("tcp", ":0")
-	if err != nil {
-		return errors.WithStack(err)
+	// Try with port 8080, but use a random open port (0) if that doesn't work.
+	var listener net.Listener
+	var err error
+	if listener, err = net.Listen("tcp", ":8080"); err != nil {
+		if listener, err = net.Listen("tcp", ":0"); err != nil {
+			return errors.WithStack(err)
+		}
 	}
-	defer listner.Close()
+	defer listener.Close()
 
 	// Here we get the address we're serving on
-	address, ok := listner.Addr().(*net.TCPAddr)
+	address, ok := listener.Addr().(*net.TCPAddr)
 	if !ok {
 		return errors.New("Can't find address (l.Addr() is not *net.TCPAddr)")
 	}
@@ -456,7 +447,7 @@ func serve(ctx context.Context, path string, out io.Writer) error {
 	browser.OpenURL(url)
 
 	withCancel(ctx, func() {
-		err = http.Serve(listner, nil)
+		err = http.Serve(listener, nil)
 	})
 	if err != nil {
 		return errors.WithStack(err)
