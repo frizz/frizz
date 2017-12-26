@@ -83,15 +83,29 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 				return
 			}
 		}
-		if strings.HasSuffix(req.URL.Path, "/blob.bin") {
+		if strings.HasPrefix(req.URL.Path, "/blob/") {
 			if err := blob(ctx, env, auth, w, req); err != nil {
 				fail <- err
 				return
 			}
 			return
 		}
+		if strings.HasPrefix(req.URL.Path, "/static/") {
+			if err := static(ctx, auth, w, req); err != nil {
+				fail <- err
+				return
+			}
+			return
+		}
+		if strings.HasPrefix(req.URL.Path, "/src/") {
+			if err := src(ctx, env, w, req); err != nil {
+				fail <- err
+				return
+			}
+			return
+		}
 		if strings.HasPrefix(req.URL.Path, "/data/") {
-			if err := data(ctx, auth, w, req); err != nil {
+			if err := data(ctx, env, w, req); err != nil {
 				fail <- err
 				return
 			}
@@ -137,6 +151,81 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	}
 }
 
+func src(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
+	pkg := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/src/"), ".bin")
+	err := bundle(ctx, env, w, req, pkg, func(fpath string) bool {
+		return strings.HasSuffix(fpath, ".go") && !strings.HasSuffix(fpath, "_test.go")
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func data(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
+	pkg := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/data/"), ".bin")
+	err := bundle(ctx, env, w, req, pkg, func(fpath string) bool {
+		return strings.HasSuffix(fpath, ".frizz.json")
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request, path string, filter func(string) bool) error {
+
+	hashFromRequest, err := strconv.ParseUint(req.URL.Query().Get("hash"), 10, 64)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	dir, err := patsy.Dir(env, path)
+	if err != nil {
+		return err
+	}
+
+	fia, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	bundle := common.Bundle{Files: make(map[string][]byte)}
+	for _, fi := range fia {
+		if !filter(fi.Name()) {
+			continue
+		}
+		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		bundle.Files[fi.Name()] = b
+	}
+	hash, err := hashFiles(bundle.Files)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if hash != hashFromRequest {
+		return fmt.Errorf("incorrect hash for %s", req.URL)
+	}
+
+	bundle.Hash = hash
+
+	buf := &bytes.Buffer{}
+	if err := gob.NewEncoder(buf).Encode(bundle); err != nil {
+		return errors.WithStack(err)
+	}
+
+	w.Header().Set("Cache-Control", "max-age=31536000")
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
+	if _, err := io.Copy(w, buf); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
 	info, err := common.NewRequestInfo(req.URL.Query().Get("info"))
@@ -147,29 +236,34 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 		return errors.New("auth error")
 	}
 
-	packagePath := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/blob.bin")
+	packagePath := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/blob/"), ".bin")
 
 	dir, err := patsy.Dir(env, packagePath)
 	if err != nil {
 		return err
 	}
 
-	files, err := ioutil.ReadDir(dir)
+	files, err := filepath.Glob(filepath.Join(dir, "*.frizz.json"))
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
-	blob := &common.Blob{
-		Data:   map[string][]byte{},
-		Source: map[string]common.Package{},
-	}
-	for _, file := range files {
-		if strings.HasSuffix(file.Name(), ".frizz.json") {
-			b, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
-			if err != nil {
-				return err
-			}
-			blob.Data[file.Name()] = b
+	dataFiles := make(map[string][]byte)
+	for _, fpath := range files {
+		b, err := ioutil.ReadFile(fpath)
+		if err != nil {
+			return errors.WithStack(err)
 		}
+		_, fname := filepath.Split(fpath)
+		dataFiles[fname] = b
+	}
+	hash, err := hashFiles(dataFiles)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	blob := &common.Blob{
+		Hash:   hash,
+		Source: map[string]uint64{},
 	}
 
 	conf := loader.Config{}
@@ -199,7 +293,7 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 			continue
 		}
 
-		cp := common.Package{Source: map[string][]byte{}}
+		files := make(map[string][]byte)
 		for _, f := range pi.Files {
 			fpath := loaded.Fset.File(f.Pos()).Name()
 			b, err := ioutil.ReadFile(fpath)
@@ -207,14 +301,13 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 				return errors.WithStack(err)
 			}
 			_, fname := filepath.Split(fpath)
-			cp.Source[fname] = b
+			files[fname] = b
 		}
-		hash, err := hashPackage(cp.Source)
+		hash, err := hashFiles(files)
 		if err != nil {
 			return nil
 		}
-		cp.Hash = hash
-		blob.Source[p.Path()] = cp
+		blob.Source[p.Path()] = hash
 
 	}
 
@@ -232,7 +325,7 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 	return nil
 }
 
-func hashPackage(in map[string][]byte) (uint64, error) {
+func hashFiles(in map[string][]byte) (uint64, error) {
 	b, err := json.Marshal(in)
 	if err != nil {
 		return 0, err
@@ -240,16 +333,16 @@ func hashPackage(in map[string][]byte) (uint64, error) {
 	return farmhash.Hash64(b), nil
 }
 
-func data(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
+func static(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
 	var file http.File
 	var err error
-	file, err = assets.Assets.Open(strings.TrimPrefix(req.URL.Path, "/data/"))
+	file, err = assets.Assets.Open(strings.TrimPrefix(req.URL.Path, "/static/"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			// Special case: in /data/pkg/ we don't want 404 errors because we can't stop them from
+			// Special case: in /static/pkg/ we don't want 404 errors because we can't stop them from
 			// popping up in the js console. Instead, deiver a 200 with a zero lenth body.
-			if strings.HasPrefix(req.URL.Path, "/data/pkg/") {
+			if strings.HasPrefix(req.URL.Path, "/static/pkg/") {
 				if err := writeWithTimeout(w, []byte{}); err != nil {
 					return err
 				}
@@ -303,12 +396,11 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 		<html>
 			<head>
 				<meta charset="utf-8">
-				<script src="/data/jquery-2.2.4.min.js"></script>
+				<script src="/static/jquery-2.2.4.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
 			<body id="body" info="` + attrib + `"></body>
-			<!--<script src="/data/bootstrap.js?v=` + fmt.Sprint(mathrand.Uint64()) + `"></script>-->
-			<script src="/data/bootstrap.js"></script>
+			<script src="/static/bootstrap.js?v=` + fmt.Sprint(mathrand.Uint64()) + `"></script>
 		</html>`)
 
 	if err := writeWithTimeout(w, source); err != nil {
@@ -469,7 +561,7 @@ func Compile(env vos.Env, mapping bool, addMappingComment bool, minify bool) ([]
 		return nil, errors.WithStack(err)
 	}
 	if addMappingComment {
-		if _, err := bufCode.WriteString("//# sourceMappingURL=/data/bootstrap.js.map\n"); err != nil {
+		if _, err := bufCode.WriteString("//# sourceMappingURL=/static/bootstrap.js.map\n"); err != nil {
 			return nil, errors.WithStack(err)
 		}
 	}

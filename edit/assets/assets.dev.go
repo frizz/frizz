@@ -11,7 +11,7 @@ import (
 
 // Assets contains project assets.
 var Assets = func() http.FileSystem {
-	dir, err := patsy.Dir(vos.Os(), "frizz.io/edit/assets/data")
+	dir, err := patsy.Dir(vos.Os(), "frizz.io/edit/assets/static")
 	if err != nil {
 		panic(err.Error())
 	}

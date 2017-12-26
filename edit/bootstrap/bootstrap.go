@@ -13,6 +13,9 @@ import (
 
 	"os"
 
+	"encoding/gob"
+	"io"
+
 	"frizz.io/edit/common"
 	"frizz.io/edit/wcache"
 	"github.com/dave/jennifer/jen"
@@ -28,8 +31,7 @@ type Bootstrap struct {
 	Info    *common.RequestInfo
 	Cache   *wcache.Cache
 
-	Data     map[string][]byte
-	Source   map[string]common.Package
+	Source   map[string]common.Bundle
 	Archives map[string]*compiler.Archive
 	Packages map[string]*types.Package
 }
@@ -72,12 +74,11 @@ func (b *Bootstrap) Init() error {
 	}
 	b.Info = info
 
-	b.Data = make(map[string][]byte)
-	b.Source = make(map[string]common.Package)
+	b.Source = make(map[string]common.Bundle)
 	b.Archives = make(map[string]*compiler.Archive)
 	b.Packages = make(map[string]*types.Package)
 
-	response, err := get("/" + b.Path + "/blob.bin?info=" + url.QueryEscape(b.RawInfo))
+	response, err := get("/blob/" + b.Path + ".bin?info=" + url.QueryEscape(b.RawInfo))
 	if err != nil {
 		return err
 	}
@@ -86,15 +87,15 @@ func (b *Bootstrap) Init() error {
 		return err
 	}
 
-	b.Data = blob.Data
-	b.Source = blob.Source
-
 	// Get the standard library package archives from the server in parallel
-	fmt.Println("Loading standard library")
-	archives, err := b.standard(blob.Lib)
+	fmt.Println("Loading code")
+	archives, source, err := b.standard(blob.Lib, blob.Source)
 	if err != nil {
 		return err
 	}
+
+	b.Source = source
+
 	fmt.Println("Importing standard library")
 	for path, raw := range archives {
 		archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
@@ -107,15 +108,38 @@ func (b *Bootstrap) Init() error {
 	return nil
 }
 
-func (b *Bootstrap) standard(paths []string) (map[string][]byte, error) {
-	parallel := NewParallel(20)
-	mutex := &sync.Mutex{}
+func (b *Bootstrap) standard(std []string, local map[string]uint64) (map[string][]byte, map[string]common.Bundle, error) {
+	parallel := NewParallel(50)
+
+	sourceM := &sync.Mutex{}
+	source := map[string]common.Bundle{}
+	for path, hash := range local {
+		path := path
+		hash := hash
+		parallel.In <- func() error {
+			body, err := getReader(fmt.Sprintf("/src/%s.bin?hash=%d", path, hash))
+			if err != nil {
+				if os.IsNotExist(err) {
+					return nil
+				}
+				return err
+			}
+			var pack common.Bundle
+			gob.NewDecoder(body).Decode(&pack)
+			sourceM.Lock()
+			source[path] = pack
+			sourceM.Unlock()
+			return nil
+		}
+	}
+
+	std = append(std, "github.com/gopherjs/gopherjs/js", "github.com/gopherjs/gopherjs/nosync")
+	archivesM := &sync.Mutex{}
 	archives := map[string][]byte{}
-	paths = append(paths, "github.com/gopherjs/gopherjs/js", "github.com/gopherjs/gopherjs/nosync")
-	for _, path := range paths {
+	for _, path := range std {
 		path := path
 		parallel.In <- func() error {
-			response, err := get(fmt.Sprintf("/data/pkg/%s.a", path))
+			response, err := get(fmt.Sprintf("/static/pkg/%s.a", path))
 			if err != nil {
 				if os.IsNotExist(err) {
 					return nil
@@ -125,19 +149,33 @@ func (b *Bootstrap) standard(paths []string) (map[string][]byte, error) {
 			if len(response) == 0 {
 				return nil
 			}
-			mutex.Lock()
+			archivesM.Lock()
 			archives[path] = response
-			mutex.Unlock()
+			archivesM.Unlock()
 			return nil
 		}
 	}
+
 	if err := parallel.Finish(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return archives, nil
+
+	return archives, source, nil
 }
 
 func get(url string) ([]byte, error) {
+	reader, err := getReader(url)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func getReader(url string) (io.Reader, error) {
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -148,11 +186,7 @@ func get(url string) ([]byte, error) {
 	if response.StatusCode != 200 {
 		return nil, fmt.Errorf("error %s", response.Status)
 	}
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
+	return response.Body, nil
 }
 
 func (b *Bootstrap) GenStub() ([]byte, error) {
