@@ -6,22 +6,30 @@ import (
 	"encoding/gob"
 )
 
-type RequestInfo struct {
+type Auth struct {
 	Id   []byte
 	Hash []byte
 }
 
-func NewRequestInfo(infoBase64 string) (*RequestInfo, error) {
-	info := &RequestInfo{}
-	infoBytes, err := base64.StdEncoding.DecodeString(infoBase64)
+func DecodeAuth(in string) (*Auth, error) {
+	a := &Auth{}
+	infoBytes, err := base64.StdEncoding.DecodeString(in)
 	if err != nil {
 		return nil, err
 	}
 	buf := bytes.NewBuffer(infoBytes)
-	if err := gob.NewDecoder(buf).Decode(info); err != nil {
+	if err := gob.NewDecoder(buf).Decode(a); err != nil {
 		return nil, err
 	}
-	return info, nil
+	return a, nil
+}
+
+func (a Auth) Encode() (string, error) {
+	buf := &bytes.Buffer{}
+	if err := gob.NewEncoder(buf).Encode(a); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
 
 type Blob struct {

@@ -24,12 +24,12 @@ import (
 )
 
 type Bootstrap struct {
-	Doc     dom.HTMLDocument
-	Body    *dom.HTMLBodyElement
-	Path    string
-	RawInfo string
-	Info    *common.RequestInfo
-	Cache   *wcache.Cache
+	Doc           dom.HTMLDocument
+	Body          *dom.HTMLBodyElement
+	Path          string
+	AuthAttribute string
+	Auth          *common.Auth
+	Cache         *wcache.Cache
 
 	Source   map[string]common.Bundle
 	Archives map[string]*compiler.Archive
@@ -66,19 +66,19 @@ func (b *Bootstrap) Init() error {
 	b.Body = b.Doc.GetElementByID("body").(*dom.HTMLBodyElement)
 	b.Path = strings.TrimPrefix(strings.TrimSuffix(dom.GetWindow().Location().Pathname, "/"), "/")
 
-	b.RawInfo = b.Body.GetAttribute("info")
+	b.AuthAttribute = b.Body.GetAttribute("auth")
 
-	info, err := common.NewRequestInfo(b.RawInfo)
+	auth, err := common.DecodeAuth(b.AuthAttribute)
 	if err != nil {
 		return err
 	}
-	b.Info = info
+	b.Auth = auth
 
 	b.Source = make(map[string]common.Bundle)
 	b.Archives = make(map[string]*compiler.Archive)
 	b.Packages = make(map[string]*types.Package)
 
-	response, err := get("/blob/" + b.Path + ".bin?info=" + url.QueryEscape(b.RawInfo))
+	response, err := get("/blob/" + b.Path + ".bin?info=" + url.QueryEscape(b.AuthAttribute))
 	if err != nil {
 		return err
 	}

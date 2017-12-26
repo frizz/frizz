@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	mathrand "math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,7 +21,6 @@ import (
 	"go/parser"
 	"go/token"
 
-	"encoding/base64"
 	"encoding/gob"
 
 	"io/ioutil"
@@ -62,7 +60,10 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if strings.HasSuffix(req.URL.Path, "/favicon.ico") {
-			w.WriteHeader(404)
+			if err := serveStatic("favicon.ico", w, req); err != nil {
+				fail <- err
+				return
+			}
 			return
 		}
 		if config.DEV {
@@ -91,7 +92,7 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 			return
 		}
 		if strings.HasPrefix(req.URL.Path, "/static/") {
-			if err := static(ctx, auth, w, req); err != nil {
+			if err := static(w, req); err != nil {
 				fail <- err
 				return
 			}
@@ -238,7 +239,7 @@ func getBundle(dir string, filter func(string) bool, justhash bool) (*common.Bun
 
 func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
-	info, err := common.NewRequestInfo(req.URL.Query().Get("info"))
+	info, err := common.DecodeAuth(req.URL.Query().Get("info"))
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -321,11 +322,14 @@ func hashFiles(in map[string][]byte) (uint64, error) {
 	return farmhash.Hash64(b), nil
 }
 
-func static(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
+func static(w http.ResponseWriter, req *http.Request) error {
+	return serveStatic(strings.TrimPrefix(req.URL.Path, "/static/"), w, req)
+}
 
+func serveStatic(name string, w http.ResponseWriter, req *http.Request) error {
 	var file http.File
 	var err error
-	file, err = assets.Assets.Open(strings.TrimPrefix(req.URL.Path, "/static/"))
+	file, err = assets.Assets.Open(name)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Special case: in /static/pkg/ we don't want 404 errors because we can't stop them from
@@ -370,15 +374,10 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 	if _, err := rand.Read(id); err != nil {
 		return errors.WithStack(err)
 	}
-	info := common.RequestInfo{
-		Id:   id,
-		Hash: auth.Sign(id),
-	}
-	buf := &bytes.Buffer{}
-	if err := gob.NewEncoder(buf).Encode(info); err != nil {
+	attribute, err := common.Auth{Id: id, Hash: auth.Sign(id)}.Encode()
+	if err != nil {
 		return errors.WithStack(err)
 	}
-	attrib := base64.StdEncoding.EncodeToString(buf.Bytes())
 
 	source := []byte(`
 		<html>
@@ -387,8 +386,8 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 				<script src="/static/jquery-2.2.4.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
-			<body id="body" info="` + attrib + `"></body>
-			<script src="/static/bootstrap.js?v=` + fmt.Sprint(mathrand.Uint64()) + `"></script>
+			<body id="body" auth="` + attribute + `"></body>
+			<script src="/static/bootstrap.js"></script>
 		</html>`)
 
 	if err := writeWithTimeout(w, source); err != nil {
