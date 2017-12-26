@@ -50,7 +50,7 @@ func (b *Bootstrap) Compile() error {
 				}
 
 				fmt.Println("Compiling:", path)
-				files, err := parseFiles(fset, source.Source)
+				files, err := parseFiles(fset, source.Files)
 				if err != nil {
 					return nil, err
 				}

@@ -20,7 +20,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	dataDir := filepath.Join(dir, "data")
+	staticDir := filepath.Join(dir, "static")
 	assetFilepath := filepath.Join(dir, "assets.go")
 	tempFilepath := filepath.Join(dir, "assets.go.tmp")
 
@@ -30,7 +30,7 @@ func main() {
 		VariableName: "Assets",
 		Filename:     tempFilepath,
 	}
-	if err := vfsgen.Generate(http.Dir(dataDir), options); err != nil {
+	if err := vfsgen.Generate(http.Dir(staticDir), options); err != nil {
 		log.Fatalln(err)
 	}
 	if err := os.Remove(assetFilepath); err != nil && !os.IsNotExist(err) {
