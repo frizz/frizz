@@ -15,7 +15,7 @@ import (
 // compiles frizz.io/edit/bootstrap to javascript and saves the output to frizz.io/edit/assets/static/bootstrap.js
 
 func main() {
-	dir, err := patsy.Dir(vos.Os(), "frizz.io/edit/assets/static")
+	dir, err := patsy.Dir(vos.Os(), "frizz.io/edit/assets/assets/static")
 	if err != nil {
 		log.Fatal(err)
 	}

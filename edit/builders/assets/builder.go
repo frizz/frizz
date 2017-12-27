@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	dir, err := patsy.Dir(vos.Os(), "frizz.io/edit/assets")
+	dir, err := patsy.Dir(vos.Os(), "frizz.io/edit/assets/assets")
 	if err != nil {
 		log.Fatalln(err)
 	}

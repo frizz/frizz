@@ -60,62 +60,37 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	auth := auther.New()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if strings.HasSuffix(req.URL.Path, "/favicon.ico") {
+		switch {
+		case strings.HasSuffix(req.URL.Path, "/favicon.ico"):
 			if err := serveStatic("favicon.ico", w, req); err != nil {
 				fail <- err
-				return
 			}
-			return
-		}
-		if config.DEV {
+		case config.DEV && (req.URL.Path == "/static/bootstrap.js" || req.URL.Path == "/static/bootstrap.js.map"):
 			// Only generate bootstrap dynamically in debug mode. Non debug mode delivers
 			// bootstrap.js from static files (minified, without source map).
-			if strings.HasSuffix(req.URL.Path, "/bootstrap.js") {
-				if err := script(ctx, env, w, false); err != nil {
-					fail <- err
-					return
-				}
-				return
-			}
-			if strings.HasSuffix(req.URL.Path, "/bootstrap.js.map") {
-				if err := script(ctx, env, w, true); err != nil {
-					fail <- err
-					return
-				}
-				return
-			}
-		}
-		if strings.HasPrefix(req.URL.Path, "/blob/") {
-			if err := blob(ctx, env, auth, w, req); err != nil {
+			if err := script(ctx, env, w, req.URL.Path == "/static/bootstrap.js.map"); err != nil {
 				fail <- err
-				return
 			}
-			return
-		}
-		if strings.HasPrefix(req.URL.Path, "/static/") {
+		case strings.HasPrefix(req.URL.Path, "/static/"):
 			if err := static(w, req); err != nil {
 				fail <- err
-				return
 			}
-			return
-		}
-		if strings.HasPrefix(req.URL.Path, "/src/") {
+		case strings.HasPrefix(req.URL.Path, "/blob/"):
+			if err := blob(ctx, env, auth, w, req); err != nil {
+				fail <- err
+			}
+		case strings.HasPrefix(req.URL.Path, "/src/"):
 			if err := src(ctx, env, w, req); err != nil {
 				fail <- err
-				return
 			}
-			return
-		}
-		if strings.HasPrefix(req.URL.Path, "/data/") {
+		case strings.HasPrefix(req.URL.Path, "/data/"):
 			if err := data(ctx, env, w, req); err != nil {
 				fail <- err
-				return
 			}
-			return
-		}
-		if err := root(ctx, auth, w, req); err != nil {
-			fail <- err
-			return
+		default:
+			if err := root(ctx, auth, w, req); err != nil {
+				fail <- err
+			}
 		}
 	})
 
