@@ -16,6 +16,8 @@ import (
 
 	"net"
 
+	pkg_path "path"
+
 	"bytes"
 	"go/ast"
 	"go/parser"
@@ -28,7 +30,6 @@ import (
 	"path/filepath"
 
 	"mime"
-	"path"
 
 	gobuild "go/build"
 
@@ -182,22 +183,30 @@ func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.R
 
 	hashFromRequest, err := strconv.ParseUint(req.URL.Query().Get("hash"), 10, 64)
 	if err != nil {
+		http.Error(w, fmt.Sprintf("error parsing hash for %s", req.URL), 500)
 		return errors.WithStack(err)
 	}
 
 	dir, err := patsy.Dir(env, path)
 	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting dir for %s", path), 500)
 		return err
 	}
 
 	bundle, err := getBundle(dir, filter, false)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting bundle for %s", path), 500)
+		return errors.WithStack(err)
+	}
 
 	if bundle.Hash != hashFromRequest {
-		return fmt.Errorf("incorrect hash for %s", req.URL)
+		http.Error(w, fmt.Sprintf("incorrect hash %d for %s", hashFromRequest, path), 401)
+		return fmt.Errorf("incorrect hash %d for %s", hashFromRequest, path)
 	}
 
 	buf := &bytes.Buffer{}
 	if err := gob.NewEncoder(buf).Encode(bundle); err != nil {
+		http.Error(w, fmt.Sprintf("error encoding buddle for %s", path), 500)
 		return errors.WithStack(err)
 	}
 
@@ -205,7 +214,8 @@ func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.R
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
 	if _, err := io.Copy(w, buf); err != nil {
-		return err
+		http.Error(w, fmt.Sprintf("error streaming bundle for %s", path), 500)
+		return errors.WithStack(err)
 	}
 
 	return nil
@@ -239,23 +249,27 @@ func getBundle(dir string, filter func(string) bool, justhash bool) (*common.Bun
 
 func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
 
-	info, err := common.DecodeAuth(req.URL.Query().Get("info"))
+	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/blob/"), ".bin")
+
+	a, err := common.DecodeAuth(req.URL.Query().Get("auth"))
 	if err != nil {
+		http.Error(w, fmt.Sprintf("error decoding auth for %s", path), 500)
 		return errors.WithStack(err)
 	}
-	if !auth.Auth(info.Id, info.Hash) {
-		return errors.New("auth error")
+	if !auth.Auth(a.Id, a.Hash) {
+		http.Error(w, fmt.Sprintf("auth error for %s", path), 401)
+		return fmt.Errorf("auth error for %s", path)
 	}
 
-	packagePath := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/blob/"), ".bin")
-
-	dir, err := patsy.Dir(env, packagePath)
+	dir, err := patsy.Dir(env, path)
 	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting dir for for %s", path), 500)
 		return err
 	}
 
 	bundle, err := getBundle(dir, dataFilter, true)
 	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting bundle for %s", path), 500)
 		return errors.WithStack(err)
 	}
 
@@ -265,7 +279,7 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 	}
 
 	conf := loader.Config{}
-	conf.Import(packagePath)
+	conf.Import(path)
 	conf.Import("frizz.io/edit/editor")
 	conf.ParserMode = parser.ImportsOnly
 	conf.Build = func() *gobuild.Context { c := gobuild.Default; return &c }() // make a copy of gobuild.Default
@@ -275,6 +289,7 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 	conf.TypeChecker.Error = func(e error) {}
 	loaded, err := conf.Load()
 	if err != nil {
+		http.Error(w, fmt.Sprintf("error loading code for %s", path), 500)
 		return errors.WithStack(err)
 	}
 	for p, pi := range loaded.AllPackages {
@@ -293,6 +308,7 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 
 		bundle, err := getBundle(dir, sourceFilter, true)
 		if err != nil {
+			http.Error(w, fmt.Sprintf("error getting bundle hash for %s", p.Path()), 500)
 			return errors.WithStack(err)
 		}
 
@@ -302,12 +318,14 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 
 	buf := &bytes.Buffer{}
 	if err := gob.NewEncoder(buf).Encode(blob); err != nil {
+		http.Error(w, fmt.Sprintf("error encoding blob for %s", path), 500)
 		return errors.WithStack(err)
 	}
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
 	if _, err := io.Copy(w, buf); err != nil {
+		http.Error(w, fmt.Sprintf("error streaming blob for %s", path), 500)
 		return err
 	}
 
@@ -343,13 +361,13 @@ func serveStatic(name string, w http.ResponseWriter, req *http.Request) error {
 			http.NotFound(w, req)
 			return nil
 		}
-		http.Error(w, err.Error(), 500)
+		http.Error(w, fmt.Sprintf("error opening %s", name), 500)
 		return nil
 	}
 	defer file.Close()
 
 	w.Header().Set("Cache-Control", "max-age=31536000")
-	w.Header().Set("Content-Type", mime.TypeByExtension(path.Ext(req.URL.Path)))
+	w.Header().Set("Content-Type", mime.TypeByExtension(pkg_path.Ext(req.URL.Path)))
 
 	_, noCompress := file.(httpgzip.NotWorthGzipCompressing)
 	gzb, isGzb := file.(httpgzip.GzipByter)
@@ -357,10 +375,12 @@ func serveStatic(name string, w http.ResponseWriter, req *http.Request) error {
 	if isGzb && !noCompress && strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 		w.Header().Set("Content-Encoding", "gzip")
 		if err := writeWithTimeout(w, gzb.GzipBytes()); err != nil {
+			http.Error(w, fmt.Sprintf("error streaming gzipped %s", name), 500)
 			return err
 		}
 	} else {
 		if err := streamWithTimeout(w, file); err != nil {
+			http.Error(w, fmt.Sprintf("error streaming %s", name), 500)
 			return err
 		}
 	}
@@ -372,12 +392,16 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 
 	id := make([]byte, 64)
 	if _, err := rand.Read(id); err != nil {
+		http.Error(w, "error reading rand", 500)
 		return errors.WithStack(err)
 	}
 	attribute, err := common.Auth{Id: id, Hash: auth.Sign(id)}.Encode()
 	if err != nil {
+		http.Error(w, "error encoding auth", 500)
 		return errors.WithStack(err)
 	}
+
+	packagePath := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/")
 
 	source := []byte(`
 		<html>
@@ -386,11 +410,17 @@ func root(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *h
 				<script src="/static/jquery-2.2.4.min.js"></script>
 				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 			</head>
-			<body id="body" auth="` + attribute + `"></body>
+			<body id="body" auth="` + attribute + `">
+				<input type="text" id="path" value="` + packagePath + `">
+				<button id="load">Load</button>
+				<span id="log">Loading...</span>
+				<div id="editor"></div>
+			</body>
 			<script src="/static/bootstrap.js"></script>
 		</html>`)
 
 	if err := writeWithTimeout(w, source); err != nil {
+		http.Error(w, "error streaming homepage", 500)
 		return err
 	}
 

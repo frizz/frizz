@@ -4,6 +4,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/gob"
+
+	"fmt"
+
+	"frizz.io/edit/wcache"
+	"honnef.co/go/js/dom"
 )
 
 type Auth struct {
@@ -41,4 +46,57 @@ type Blob struct {
 type Bundle struct {
 	Hash  uint64
 	Files map[string][]byte
+}
+
+func NewClient() (*Client, error) {
+	c := &Client{}
+
+	csh, err := wcache.New("v1")
+	if err != nil {
+		return nil, err
+	}
+	c.Cache = csh
+	c.Doc = dom.GetWindow().Document().(dom.HTMLDocument)
+	c.Body = c.Doc.GetElementByID("body").(*dom.HTMLBodyElement)
+	c.Log = NewLogger(c.Doc.GetElementByID("log").(*dom.HTMLSpanElement))
+
+	c.AuthAttribute = c.Body.GetAttribute("auth")
+	auth, err := DecodeAuth(c.AuthAttribute)
+	if err != nil {
+		return nil, err
+	}
+	c.Auth = auth
+	return c, nil
+}
+
+type Client struct {
+	Doc           dom.HTMLDocument
+	Body          *dom.HTMLBodyElement
+	AuthAttribute string
+	Auth          *Auth
+	Cache         *wcache.Cache
+	Log           Logger
+}
+
+func NewLogger(span *dom.HTMLSpanElement) Logger {
+	return Logger{span: span}
+}
+
+type Logger struct {
+	span *dom.HTMLSpanElement
+}
+
+func (l Logger) Printf(format string, a ...interface{}) (int, error) {
+	l.span.SetInnerHTML(fmt.Sprintf(format, a...))
+	return fmt.Printf(format, a...)
+}
+
+func (l Logger) Println(a ...interface{}) (int, error) {
+	l.span.SetInnerHTML(fmt.Sprintln(a...))
+	return fmt.Println(a...)
+}
+
+func (l Logger) Print(a ...interface{}) (int, error) {
+	l.span.SetInnerHTML(fmt.Sprint(a...))
+	return fmt.Print(a...)
 }

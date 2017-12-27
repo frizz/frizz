@@ -3,10 +3,7 @@ package bootstrap
 import (
 	"fmt"
 	"go/types"
-	"io/ioutil"
-	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 
 	"bytes"
@@ -14,26 +11,55 @@ import (
 	"os"
 
 	"encoding/gob"
-	"io"
 
 	"frizz.io/edit/common"
-	"frizz.io/edit/wcache"
+	"frizz.io/edit/util"
 	"github.com/dave/jennifer/jen"
 	"github.com/gopherjs/gopherjs/compiler"
+	"github.com/gopherjs/gopherjs/js"
 	"honnef.co/go/js/dom"
 )
 
+func Start(c *common.Client) error {
+
+	fail := make(chan error)
+	go func() {
+		for err := range fail {
+			c.Log.Println(err.Error())
+		}
+	}()
+
+	button := c.Doc.GetElementByID("load").(*dom.HTMLButtonElement)
+	textbox := c.Doc.GetElementByID("path").(*dom.HTMLInputElement)
+	button.AddEventListener("click", false, func(event dom.Event) {
+		go func() {
+			event.PreventDefault()
+			b := &Bootstrap{
+				Client: c,
+				Path:   textbox.GetAttribute("value"),
+			}
+			if err := b.Start(); err != nil {
+				fail <- err
+				return
+			}
+		}()
+	})
+
+	c.Log.Println("Ready.")
+
+	return nil
+}
+
 type Bootstrap struct {
-	Doc           dom.HTMLDocument
-	Body          *dom.HTMLBodyElement
-	Path          string
-	AuthAttribute string
-	Auth          *common.Auth
-	Cache         *wcache.Cache
+	*common.Client
+	Path string
+	Hash uint64
 
 	Source   map[string]common.Bundle
 	Archives map[string]*compiler.Archive
 	Packages map[string]*types.Package
+
+	Code string
 }
 
 func (b *Bootstrap) Start() error {
@@ -46,39 +72,37 @@ func (b *Bootstrap) Start() error {
 		return err
 	}
 
-	//for name, pkg := range b.Source {
-	//	for fname, contents := range pkg {
-	//		b.Doc.Underlying().Call("write", fmt.Sprintf("%s - %s - %d<br>", name, fname, len(contents)))
-	//	}
-	//}
+	if err := b.Open(); err != nil {
+		return err
+	}
 
+	return nil
+}
+
+func (b *Bootstrap) Open() error {
+
+	js.Global.Set("$checkForDeadlock", true)
+	js.Global.Call("eval", js.InternalObject(b.Code))
+	/*
+		win := dom.GetWindow().Open("", b.Path, "")
+		doc := win.Document()
+		body := doc.GetElementsByTagName("body")[0]
+		scr := doc.CreateElement("script")
+		body.AppendChild(scr)
+		scr.SetInnerHTML(b.Code)
+	*/
 	return nil
 }
 
 func (b *Bootstrap) Init() error {
 
-	csh, err := wcache.New("v1")
-	if err != nil {
-		return err
-	}
-	b.Cache = csh
-	b.Doc = dom.GetWindow().Document().(dom.HTMLDocument)
-	b.Body = b.Doc.GetElementByID("body").(*dom.HTMLBodyElement)
-	b.Path = strings.TrimPrefix(strings.TrimSuffix(dom.GetWindow().Location().Pathname, "/"), "/")
-
-	b.AuthAttribute = b.Body.GetAttribute("auth")
-
-	auth, err := common.DecodeAuth(b.AuthAttribute)
-	if err != nil {
-		return err
-	}
-	b.Auth = auth
-
 	b.Source = make(map[string]common.Bundle)
 	b.Archives = make(map[string]*compiler.Archive)
 	b.Packages = make(map[string]*types.Package)
 
-	response, err := get("/blob/" + b.Path + ".bin?info=" + url.QueryEscape(b.AuthAttribute))
+	b.Log.Println("Loading blob:", b.Path)
+
+	response, err := util.Get("/blob/" + b.Path + ".bin?auth=" + url.QueryEscape(b.AuthAttribute))
 	if err != nil {
 		return err
 	}
@@ -90,17 +114,17 @@ func (b *Bootstrap) Init() error {
 		return err
 	}
 
-	// Get the standard library package archives from the server in parallel
-	fmt.Println("Loading code")
-	archives, source, err := b.standard(blob.Lib, blob.Source)
+	b.Hash = blob.Hash
+
+	archives, source, err := b.loadSource(blob.Lib, blob.Source)
 	if err != nil {
 		return err
 	}
 
 	b.Source = source
 
-	fmt.Println("Importing standard library")
 	for path, raw := range archives {
+		b.Log.Println("Importing archive:", path)
 		archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
 		if err != nil {
 			return err
@@ -111,7 +135,7 @@ func (b *Bootstrap) Init() error {
 	return nil
 }
 
-func (b *Bootstrap) standard(std []string, local map[string]uint64) (map[string][]byte, map[string]common.Bundle, error) {
+func (b *Bootstrap) loadSource(std []string, local map[string]uint64) (map[string][]byte, map[string]common.Bundle, error) {
 	parallel := NewParallel(50)
 
 	sourceM := &sync.Mutex{}
@@ -120,7 +144,8 @@ func (b *Bootstrap) standard(std []string, local map[string]uint64) (map[string]
 		path := path
 		hash := hash
 		parallel.In <- func() error {
-			body, err := getReader(fmt.Sprintf("/src/%s.bin?hash=%d", path, hash))
+			b.Log.Println("Loading source:", path)
+			body, err := util.GetReader(fmt.Sprintf("/src/%s.bin?hash=%d", path, hash))
 			if err != nil {
 				if os.IsNotExist(err) {
 					return nil
@@ -142,7 +167,8 @@ func (b *Bootstrap) standard(std []string, local map[string]uint64) (map[string]
 	for _, path := range std {
 		path := path
 		parallel.In <- func() error {
-			response, err := get(fmt.Sprintf("/static/pkg/%s.a", path))
+			b.Log.Println("Loading archive:", path)
+			response, err := util.Get(fmt.Sprintf("/static/pkg/%s.a", path))
 			if err != nil {
 				if os.IsNotExist(err) {
 					return nil
@@ -166,41 +192,15 @@ func (b *Bootstrap) standard(std []string, local map[string]uint64) (map[string]
 	return archives, source, nil
 }
 
-func get(url string) ([]byte, error) {
-	reader, err := getReader(url)
-	if err != nil {
-		return nil, err
-	}
-	body, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
-}
-
-func getReader(url string) (io.Reader, error) {
-	response, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode == 404 {
-		return nil, os.ErrNotExist
-	}
-	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("error %s", response.Status)
-	}
-	return response.Body, nil
-}
-
 func (b *Bootstrap) GenStub() ([]byte, error) {
 	f := jen.NewFile("main")
 	/*
 		func main() {
-			editor.Edit(<pkg>.Package)
+			editor.Edit(<pkg>.Package, <hash>)
 		}
 	*/
 	f.Func().Id("main").Params().Block(
-		jen.Qual("frizz.io/edit/editor", "Edit").Call(jen.Qual(b.Path, "Package")),
+		jen.Qual("frizz.io/edit/editor", "Edit").Call(jen.Qual(b.Path, "Package"), jen.Lit(b.Hash)),
 	)
 	buf := &bytes.Buffer{}
 	if err := f.Render(buf); err != nil {
