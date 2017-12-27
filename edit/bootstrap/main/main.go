@@ -4,12 +4,15 @@ import (
 	"fmt"
 
 	"frizz.io/edit/bootstrap"
+	"frizz.io/edit/common"
 )
 
 func main() {
-	b := &bootstrap.Bootstrap{}
-	if err := b.Start(); err != nil {
-		fmt.Println("Error...")
-		fmt.Println(err.Error())
+	c, err := common.NewClient()
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err := bootstrap.Start(c); err != nil {
+		c.Log.Println(err)
 	}
 }

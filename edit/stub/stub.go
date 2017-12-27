@@ -8,5 +8,5 @@ import (
 )
 
 func main() {
-	editor.Edit(system.Package)
+	editor.Edit(system.Package, 0)
 }

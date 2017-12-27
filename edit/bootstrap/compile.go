@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gopherjs/gopherjs/compiler"
-	"github.com/gopherjs/gopherjs/js"
 )
 
 func (b *Bootstrap) Compile() error {
@@ -40,7 +39,7 @@ func (b *Bootstrap) Compile() error {
 					return nil, err
 				}
 				if found {
-					fmt.Println("Found in cache:", path)
+					b.Log.Println("Found in cache:", path)
 					archive, err := compiler.ReadArchive(path+".a", path, bytes.NewBuffer(resp), b.Packages)
 					if err != nil {
 						return nil, err
@@ -49,7 +48,7 @@ func (b *Bootstrap) Compile() error {
 					return archive, nil
 				}
 
-				fmt.Println("Compiling:", path)
+				b.Log.Println("Compiling:", path)
 				files, err := parseFiles(fset, source.Files)
 				if err != nil {
 					return nil, err
@@ -74,7 +73,7 @@ func (b *Bootstrap) Compile() error {
 		},
 	}
 
-	fmt.Println("Compiling main")
+	b.Log.Println("Compiling main")
 	files, err := parseFiles(fset, map[string][]byte{"prog.go": src})
 	if err != nil {
 		return err
@@ -83,7 +82,7 @@ func (b *Bootstrap) Compile() error {
 	archive, err := compiler.Compile("main", files, fset, importContext, false)
 	if err != nil {
 		if strings.Contains(err.Error(), "Package not declared by") {
-			fmt.Println("Not a frizz package")
+			b.Log.Println("Not a frizz package")
 			return nil
 		}
 		return err
@@ -95,14 +94,13 @@ func (b *Bootstrap) Compile() error {
 		return err
 	}
 
-	fmt.Println("Running editor...")
+	b.Log.Println("Running editor...")
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("try{\n")
 	compiler.WriteProgramCode(archives, &compiler.SourceMapFilter{Writer: buf})
 	buf.WriteString("} catch (err) {\ngoPanicHandler(err.message);\n}\n")
 
-	js.Global.Set("$checkForDeadlock", true)
-	js.Global.Call("eval", js.InternalObject(buf.String()))
+	b.Code = buf.String()
 
 	return nil
 }
