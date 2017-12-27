@@ -9,8 +9,8 @@ import (
 
 	"bytes"
 
-	"strings"
-
+	"frizz.io/edit/common"
+	"frizz.io/edit/hasher"
 	"github.com/gopherjs/gopherjs/compiler"
 )
 
@@ -39,7 +39,7 @@ func (b *Bootstrap) Compile() error {
 					return nil, err
 				}
 				if found {
-					b.Log.Println("Found in cache:", path)
+					b.Log.Println("Found archive in cache:", path)
 					archive, err := compiler.ReadArchive(path+".a", path, bytes.NewBuffer(resp), b.Packages)
 					if err != nil {
 						return nil, err
@@ -73,21 +73,17 @@ func (b *Bootstrap) Compile() error {
 		},
 	}
 
-	b.Log.Println("Compiling main")
-	files, err := parseFiles(fset, map[string][]byte{"prog.go": src})
+	// create a bundle for main
+	files := map[string][]byte{"main.go": src}
+	hash, err := hasher.Hash(files)
 	if err != nil {
 		return err
 	}
-
-	archive, err := compiler.Compile("main", files, fset, importContext, false)
+	b.Source["main"] = common.Bundle{Hash: hash, Files: files}
+	archive, err := importContext.Import("main")
 	if err != nil {
-		if strings.Contains(err.Error(), "Package not declared by") {
-			b.Log.Println("Not a frizz package")
-			return nil
-		}
 		return err
 	}
-	b.Archives["main"] = archive
 
 	archives, err := compiler.ImportDependencies(archive, importContext.Import)
 	if err != nil {

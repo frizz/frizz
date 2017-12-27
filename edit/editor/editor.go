@@ -30,7 +30,6 @@ type Editor struct {
 }
 
 func (e *Editor) Start() error {
-
 	e.Client.Log.Println("Loading data:", e.Package.Path())
 	r, err := util.GetReader(fmt.Sprintf("/data/%s.bin?hash=%d", e.Package.Path(), e.Hash))
 	if err != nil {

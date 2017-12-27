@@ -35,15 +35,13 @@ import (
 
 	"os"
 
-	"encoding/json"
-
 	"frizz.io/config"
 	"frizz.io/edit/auther"
+	"frizz.io/edit/hasher"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
 	"github.com/gopherjs/gopherjs/build"
 	"github.com/gopherjs/gopherjs/compiler"
-	"github.com/leemcloughlin/gofarmhash"
 	"github.com/neelance/sourcemap"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
@@ -212,7 +210,7 @@ func getBundle(dir string, filter func(string) bool, justhash bool) (*common.Bun
 		}
 		files[fi.Name()] = b
 	}
-	hash, err := hashFiles(files)
+	hash, err := hasher.Hash(files)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -305,14 +303,6 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 	}
 
 	return nil
-}
-
-func hashFiles(in map[string][]byte) (uint64, error) {
-	b, err := json.Marshal(in)
-	if err != nil {
-		return 0, err
-	}
-	return farmhash.Hash64(b), nil
 }
 
 func static(w http.ResponseWriter, req *http.Request) error {
