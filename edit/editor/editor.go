@@ -6,8 +6,11 @@ import (
 	"encoding/gob"
 
 	"frizz.io/edit/common"
+	"frizz.io/edit/editor/views"
 	"frizz.io/edit/util"
 	"frizz.io/global"
+	"github.com/gopherjs/vecty"
+	"honnef.co/go/js/dom"
 )
 
 func Edit(p global.Package, hash uint64) {
@@ -27,6 +30,7 @@ type Editor struct {
 	Client  *common.Client
 	Hash    uint64
 	Package global.Package
+	Div     *dom.HTMLDivElement
 }
 
 func (e *Editor) Start() error {
@@ -40,5 +44,8 @@ func (e *Editor) Start() error {
 		return err
 	}
 	e.Client.Log.Printf("Got %d data files", len(bundle.Files))
+
+	vecty.RenderBody(views.NewPage())
+
 	return nil
 }
