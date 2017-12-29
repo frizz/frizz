@@ -126,18 +126,13 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	}
 }
 
-func sourceFilter(fpath string) bool {
-	return strings.HasSuffix(fpath, ".go") && !strings.HasSuffix(fpath, "_test.go")
-}
-
-func dataFilter(fpath string) bool {
-	return strings.HasSuffix(fpath, ".frizz.json")
-}
-
 func src(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
 	pkg := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/src/"), ".bin")
-	err := bundle(ctx, env, w, req, pkg, sourceFilter)
+	files, err := getSourceFiles(env, pkg)
 	if err != nil {
+		return err
+	}
+	if err := bundle(ctx, env, w, req, pkg, files); err != nil {
 		return err
 	}
 	return nil
@@ -145,14 +140,21 @@ func src(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Requ
 
 func data(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
 	pkg := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/data/"), ".bin")
-	err := bundle(ctx, env, w, req, pkg, dataFilter)
+	dir, err := patsy.Dir(env, pkg)
 	if err != nil {
+		return err
+	}
+	files, err := getDataFiles(dir)
+	if err != nil {
+		return err
+	}
+	if err := bundle(ctx, env, w, req, pkg, files); err != nil {
 		return err
 	}
 	return nil
 }
 
-func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request, path string, filter func(string) bool) error {
+func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request, path string, files map[string][]byte) error {
 
 	hashFromRequest, err := strconv.ParseUint(req.URL.Query().Get("hash"), 10, 64)
 	if err != nil {
@@ -160,13 +162,7 @@ func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.R
 		return errors.WithStack(err)
 	}
 
-	dir, err := patsy.Dir(env, path)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("error getting dir for %s", path), 500)
-		return err
-	}
-
-	bundle, err := getBundle(dir, filter, false)
+	bundle, err := getBundle(files)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error getting bundle for %s", path), 500)
 		return errors.WithStack(err)
@@ -194,14 +190,22 @@ func bundle(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.R
 	return nil
 }
 
-func getBundle(dir string, filter func(string) bool, justhash bool) (*common.Bundle, error) {
+func getBundle(files map[string][]byte) (*common.Bundle, error) {
+	hash, err := hasher.Hash(files)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return &common.Bundle{Hash: hash, Files: files}, nil
+}
+
+func getDataFiles(dir string) (map[string][]byte, error) {
 	fia, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	files := make(map[string][]byte)
 	for _, fi := range fia {
-		if !filter(fi.Name()) {
+		if !strings.HasSuffix(fi.Name(), ".frizz.json") {
 			continue
 		}
 		b, err := ioutil.ReadFile(filepath.Join(dir, fi.Name()))
@@ -210,14 +214,34 @@ func getBundle(dir string, filter func(string) bool, justhash bool) (*common.Bun
 		}
 		files[fi.Name()] = b
 	}
-	hash, err := hasher.Hash(files)
+	return files, nil
+}
+
+func getSourceFiles(env vos.Env, path string) (map[string][]byte, error) {
+	conf := loader.Config{}
+	conf.Import(path)
+	conf.ParserMode = parser.PackageClauseOnly
+	conf.Build = func() *gobuild.Context { c := gobuild.Default; return &c }() // make a copy of gobuild.Default
+	conf.Build.GOPATH = env.Getenv("GOPATH")
+	conf.Build.BuildTags = []string{"js"}
+	conf.AllowErrors = true
+	conf.TypeChecker.Error = func(e error) {}
+	loaded, err := conf.Load()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	if justhash {
-		return &common.Bundle{Hash: hash}, nil
+	pi := loaded.Package(path)
+	files := map[string][]byte{}
+	for _, f := range pi.Files {
+		fpath := loaded.Fset.File(f.Pos()).Name()
+		b, err := ioutil.ReadFile(fpath)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		_, name := filepath.Split(fpath)
+		files[name] = b
 	}
-	return &common.Bundle{Hash: hash, Files: files}, nil
+	return files, nil
 }
 
 func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
@@ -240,14 +264,20 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 		return err
 	}
 
-	bundle, err := getBundle(dir, dataFilter, true)
+	files, err := getDataFiles(dir)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error getting bundle for %s", path), 500)
+		http.Error(w, fmt.Sprintf("error getting data files for %s", path), 500)
+		return errors.WithStack(err)
+	}
+
+	hash, err := hasher.Hash(files)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting data files hash for %s", path), 500)
 		return errors.WithStack(err)
 	}
 
 	blob := &common.Blob{
-		Hash:   bundle.Hash,
+		Hash:   hash,
 		Source: map[string]uint64{},
 	}
 
@@ -279,13 +309,25 @@ func blob(ctx context.Context, env vos.Env, auth auther.Auther, w http.ResponseW
 			continue
 		}
 
-		bundle, err := getBundle(dir, sourceFilter, true)
+		files := map[string][]byte{}
+		for _, f := range pi.Files {
+			fpath := loaded.Fset.File(f.Pos()).Name()
+			_, fname := filepath.Split(fpath)
+			b, err := ioutil.ReadFile(fpath)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("error reading %s in %s", fname, p.Path()), 500)
+				return errors.WithStack(err)
+			}
+			files[fname] = b
+		}
+
+		hash, err := hasher.Hash(files)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("error getting bundle hash for %s", p.Path()), 500)
+			http.Error(w, fmt.Sprintf("error getting source files hash for %s", p.Path()), 500)
 			return errors.WithStack(err)
 		}
 
-		blob.Source[p.Path()] = bundle.Hash
+		blob.Source[p.Path()] = hash
 
 	}
 
