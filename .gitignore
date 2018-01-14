@@ -2,7 +2,6 @@
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
-*.a
 *.so
 
 # Folders
@@ -33,3 +32,7 @@ coverage.out
 frizz.github.io/
 .localke/
 .coverage/
+docker/fish/config/fishd.*
+docker/fish/local/fish_history
+docker/fish/local/generated_completions
+docker/bin
