@@ -27,7 +27,7 @@ func main() {
 func bootstrap(dir string) error {
 	fpath := filepath.Join(dir, "bootstrap.js")
 	fmt.Println("writing " + fpath)
-	b, err := edit.Compile(vos.Os(), false, false, true)
+	b, err := edit.Compile(vos.Os(), false, false, false)
 	if err != nil {
 		return err
 	}

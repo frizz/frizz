@@ -43,9 +43,14 @@ func (e *Editor) Start() error {
 	if err := gob.NewDecoder(r).Decode(bundle); err != nil {
 		return err
 	}
-	e.Client.Log.Printf("Got %d data files", len(bundle.Files))
 
 	vecty.RenderBody(views.NewPage())
+
+	if err := e.Client.Init(); err != nil {
+		return err
+	}
+
+	e.Client.Log.Printf("Got %d data files\n", len(bundle.Files))
 
 	return nil
 }

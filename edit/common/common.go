@@ -51,22 +51,31 @@ type Bundle struct {
 func NewClient() (*Client, error) {
 	c := &Client{}
 
-	csh, err := wcache.New("v1")
-	if err != nil {
+	if err := c.Init(); err != nil {
 		return nil, err
 	}
+
+	return c, nil
+}
+
+func (c *Client) Init() error {
+	csh, err := wcache.New("v1")
+	if err != nil {
+		return err
+	}
 	c.Cache = csh
+
 	c.Doc = dom.GetWindow().Document().(dom.HTMLDocument)
-	c.Body = c.Doc.GetElementByID("body").(*dom.HTMLBodyElement)
+	c.Body = c.Doc.GetElementByID("wrapper").(*dom.HTMLBodyElement)
 	c.Log = NewLogger(c.Doc.GetElementByID("log").(*dom.HTMLSpanElement))
 
 	c.AuthAttribute = c.Body.GetAttribute("auth")
 	auth, err := DecodeAuth(c.AuthAttribute)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	c.Auth = auth
-	return c, nil
+	return nil
 }
 
 type Client struct {

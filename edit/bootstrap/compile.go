@@ -21,6 +21,8 @@ func (b *Bootstrap) Compile() error {
 		return err
 	}
 
+	var compiled, cached int
+
 	var importContext *compiler.ImportContext
 	fset := token.NewFileSet()
 
@@ -39,7 +41,7 @@ func (b *Bootstrap) Compile() error {
 					return nil, err
 				}
 				if found {
-					b.Log.Println("Found archive in cache:", path)
+					cached++
 					archive, err := compiler.ReadArchive(path+".a", path, bytes.NewBuffer(resp), b.Packages)
 					if err != nil {
 						return nil, err
@@ -48,7 +50,7 @@ func (b *Bootstrap) Compile() error {
 					return archive, nil
 				}
 
-				b.Log.Println("Compiling:", path)
+				compiled++
 				files, err := parseFiles(fset, source.Files)
 				if err != nil {
 					return nil, err
@@ -73,7 +75,8 @@ func (b *Bootstrap) Compile() error {
 		},
 	}
 
-	// create a bundle for main
+	b.Log.Println("Compiling...")
+
 	files := map[string][]byte{"main.go": src}
 	hash, err := hasher.Hash(files)
 	if err != nil {
@@ -89,6 +92,8 @@ func (b *Bootstrap) Compile() error {
 	if err != nil {
 		return err
 	}
+
+	b.Log.Printf("Finished compiling: %d compiled, %d found in cache.\n", compiled, cached)
 
 	b.Log.Println("Running editor...")
 	buf := bytes.NewBuffer(nil)

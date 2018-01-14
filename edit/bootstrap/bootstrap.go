@@ -31,18 +31,25 @@ func Start(c *common.Client) error {
 
 	button := c.Doc.GetElementByID("load").(*dom.HTMLButtonElement)
 	textbox := c.Doc.GetElementByID("path").(*dom.HTMLInputElement)
-	button.AddEventListener("click", false, func(event dom.Event) {
+	js.Global.Set("bootstrap", func(path string) {
 		go func() {
-			event.PreventDefault()
+			if err := c.Init(); err != nil {
+				fail <- err
+				return
+			}
 			b := &Bootstrap{
 				Client: c,
-				Path:   textbox.GetAttribute("value"),
+				Path:   path,
 			}
 			if err := b.Start(); err != nil {
 				fail <- err
 				return
 			}
 		}()
+	})
+	button.AddEventListener("click", false, func(event dom.Event) {
+		event.PreventDefault()
+		js.Global.Call("bootstrap", textbox.GetAttribute("value"))
 	})
 
 	c.Log.Println("Ready.")
@@ -123,8 +130,8 @@ func (b *Bootstrap) Init() error {
 
 	b.Source = source
 
+	b.Log.Println("Importing archives...")
 	for path, raw := range archives {
-		b.Log.Println("Importing archive:", path)
 		archive, err := compiler.ReadArchive(path+".a", path, bytes.NewReader(raw), b.Packages)
 		if err != nil {
 			return err
@@ -138,13 +145,14 @@ func (b *Bootstrap) Init() error {
 func (b *Bootstrap) loadSource(std []string, local map[string]uint64) (map[string][]byte, map[string]common.Bundle, error) {
 	parallel := NewParallel(50)
 
+	b.Log.Printf("Loading %d source packages and %d standard library archives\n", len(local), len(std))
+
 	sourceM := &sync.Mutex{}
 	source := map[string]common.Bundle{}
 	for path, hash := range local {
 		path := path
 		hash := hash
 		parallel.In <- func() error {
-			b.Log.Println("Loading source:", path)
 			body, err := util.GetReader(fmt.Sprintf("/src/%s.bin?hash=%d", path, hash))
 			if err != nil {
 				if os.IsNotExist(err) {
@@ -162,12 +170,12 @@ func (b *Bootstrap) loadSource(std []string, local map[string]uint64) (map[strin
 	}
 
 	std = append(std, "github.com/gopherjs/gopherjs/js", "github.com/gopherjs/gopherjs/nosync")
+
 	archivesM := &sync.Mutex{}
 	archives := map[string][]byte{}
 	for _, path := range std {
 		path := path
 		parallel.In <- func() error {
-			b.Log.Println("Loading archive:", path)
 			response, err := util.Get(fmt.Sprintf("/static/pkg/%s.a", path))
 			if err != nil {
 				if os.IsNotExist(err) {
