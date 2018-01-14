@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  frizz:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    #ports:
+    #  - "6070:6070"
+    volumes:
+      - "./gcloud:/root/.config/gcloud"
+      - "/Users/dave/src/:/root/src"
+      - "./bin:/root/bin"
+      # Fish:
+      - "./fish/local:/root/.local/share/fish"
+      - "./fish/config:/root/.config/fish"
+      # Docker:
+      #- "/var/run/docker.sock:/var/run/docker.sock"
+    entrypoint: 'sh -c'
+    command: ['tail -f /dev/null']
