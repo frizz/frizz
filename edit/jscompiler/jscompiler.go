@@ -15,6 +15,7 @@ import (
 
 	"go/token"
 
+	"frizz.io/config"
 	"github.com/cskr/pubsub"
 	"github.com/dave/patsy/vos"
 	"github.com/gopherjs/gopherjs/compiler"
@@ -59,17 +60,15 @@ func (j *JsCompiler) Main(path string, source []byte) (*loader.Program, error) {
 
 	go j.BuildMain(path, source)
 
-	fset := token.NewFileSet()
-
 	conf := loader.Config{}
-	conf.Fset = fset
+	conf.Fset = token.NewFileSet()
 	conf.ParserMode = parser.ImportsOnly
 	conf.Build = func() *build.Context { c := build.Default; return &c }() // make a copy of build.Default
 	conf.Build.GOPATH = j.env.Getenv("GOPATH")
 	conf.Build.BuildTags = []string{"js"}
 	conf.AllowErrors = true
 	conf.TypeChecker.Error = func(e error) {}
-	f, err := parser.ParseFile(fset, "main.go", source, parser.ImportsOnly)
+	f, err := parser.ParseFile(conf.Fset, "main.go", source, parser.ImportsOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -85,22 +84,18 @@ func (j *JsCompiler) Main(path string, source []byte) (*loader.Program, error) {
 
 func (j *JsCompiler) BuildMain(path string, source []byte) {
 
-	fset := token.NewFileSet()
-
 	conf := loader.Config{}
-	conf.Fset = fset
+	conf.Fset = token.NewFileSet()
 	conf.ParserMode = parser.ParseComments
 	conf.Build = func() *build.Context { c := build.Default; return &c }() // make a copy of build.Default
 	conf.Build.GOPATH = j.env.Getenv("GOPATH")
 	conf.Build.BuildTags = []string{"js"}
 	conf.AllowErrors = true
 	conf.TypeChecker.Error = func(e error) {}
-
-	f, err := parser.ParseFile(fset, "main.go", source, parser.ParseComments)
+	f, err := parser.ParseFile(conf.Fset, "main.go", source, parser.ParseComments)
 	if err != nil {
 		panic(err.Error())
 	}
-
 	conf.CreateFromFiles(path+"$main", f)
 	prog, err := conf.Load()
 	if err != nil {
@@ -131,7 +126,7 @@ func (j *JsCompiler) BuildMain(path string, source []byte) {
 			}
 
 			// compile package
-			a, err = compiler.Compile(path, pi.Files, prog.Fset, importContext, false)
+			a, err = compiler.Compile(path, pi.Files, prog.Fset, importContext, !config.DEV)
 			if err != nil {
 				return nil, err
 			}
@@ -207,7 +202,7 @@ func (j *JsCompiler) Build(paths ...string) {
 			}
 
 			// compile package
-			a, err = compiler.Compile(path, pi.Files, prog.Fset, importContext, false)
+			a, err = compiler.Compile(path, pi.Files, prog.Fset, importContext, !config.DEV)
 			if err != nil {
 				return nil, err
 			}
@@ -225,7 +220,15 @@ func (j *JsCompiler) Build(paths ...string) {
 }
 
 func openArchive(path string) (*compiler.Archive, error) {
-	f, err := assets.Assets.Open(fmt.Sprintf("pkg/%s.a", path))
+
+	var filename string
+	if config.DEV {
+		filename = fmt.Sprintf("pkg/%s.a", path)
+	} else {
+		filename = fmt.Sprintf("pkg_min/%s.a", path)
+	}
+
+	f, err := assets.Assets.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
