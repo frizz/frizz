@@ -14,6 +14,7 @@ import (
 type Auth struct {
 	Id   []byte
 	Hash []byte
+	Data uint64
 }
 
 func DecodeAuth(in string) (*Auth, error) {

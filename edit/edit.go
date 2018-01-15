@@ -19,10 +19,7 @@ import (
 	pkg_path "path"
 
 	"bytes"
-	"go/ast"
 	"go/parser"
-	"go/token"
-	"go/types"
 
 	"encoding/gob"
 
@@ -38,6 +35,8 @@ import (
 
 	"encoding/json"
 
+	"go/printer"
+
 	"frizz.io/config"
 	"frizz.io/edit/auther"
 	"frizz.io/edit/hasher"
@@ -45,10 +44,8 @@ import (
 	"github.com/dave/jennifer/jen"
 	"github.com/dave/patsy"
 	"github.com/dave/patsy/vos"
-	"github.com/gopherjs/gopherjs/build"
 	"github.com/gopherjs/gopherjs/compiler"
 	"github.com/gopherjs/gopherjs/compiler/prelude"
-	"github.com/neelance/sourcemap"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
 	"github.com/shurcooL/httpgzip"
@@ -56,7 +53,7 @@ import (
 )
 
 const writeTimeout = time.Second * 2
-const JS_VER = "17"
+const JS_VER = "19"
 
 func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Writer, path string) error {
 
@@ -70,12 +67,6 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 		switch {
 		case strings.HasSuffix(req.URL.Path, "/favicon.ico"):
 			if err := serveStatic("favicon.ico", w, req); err != nil {
-				fail <- err
-			}
-		case config.DEV && (req.URL.Path == "/static/bootstrap.js" || req.URL.Path == "/static/bootstrap.js.map"):
-			// Only generate bootstrap dynamically in debug mode. Non debug mode delivers
-			// bootstrap.js from static files (minified, without source map).
-			if err := script(ctx, env, w, req.URL.Path == "/static/bootstrap.js.map"); err != nil {
 				fail <- err
 			}
 		case strings.HasPrefix(req.URL.Path, "/static/"):
@@ -96,10 +87,6 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 			}
 		case strings.HasPrefix(req.URL.Path, "/js/"):
 			if err := js(ctx, env, jsc, w, req); err != nil {
-				fail <- err
-			}
-		case strings.HasPrefix(req.URL.Path, "/main/"):
-			if err := jsMain(ctx, env, w, req); err != nil {
 				fail <- err
 			}
 		case strings.HasPrefix(req.URL.Path, "/root/"):
@@ -151,129 +138,7 @@ func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Wr
 	}
 }
 
-func jsMain(ctx context.Context, env vos.Env, w http.ResponseWriter, req *http.Request) error {
-	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/main/"), ".js")
-
-	dir, err := patsy.Dir(env, path)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("error getting dir for for %s", path), 500)
-		return err
-	}
-
-	files, err := getDataFiles(dir)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("error getting data files for %s", path), 500)
-		return errors.WithStack(err)
-	}
-
-	hash, err := hasher.Hash(files)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("error getting data files hash for %s", path), 500)
-		return errors.WithStack(err)
-	}
-
-	/*
-		package main
-
-		func main() {
-			editor.Edit(<pkg>.Package, <hash>)
-		}
-	*/
-	f := jen.NewFile("main")
-	f.Func().Id("main").Params().Block(
-		jen.Qual("frizz.io/edit/editor", "Edit").Call(jen.Qual(path, "Package"), jen.Lit(hash)),
-	)
-	buf := &bytes.Buffer{}
-	if err := f.Render(buf); err != nil {
-		return err
-	}
-
-	fset := token.NewFileSet()
-	parsed, err := parser.ParseFile(fset, "main.go", buf.Bytes(), parser.ParseComments)
-	if err != nil {
-		return err
-	}
-
-	conf := loader.Config{}
-	conf.Fset = fset
-	conf.CreateFromFiles("main", parsed)
-	conf.ParserMode = parser.ParseComments
-	conf.Build = func() *gobuild.Context { c := gobuild.Default; return &c }() // make a copy of gobuild.Default
-	conf.Build.GOPATH = env.Getenv("GOPATH")
-	conf.Build.BuildTags = []string{"js"}
-	conf.AllowErrors = true
-	conf.TypeChecker.Error = func(e error) {}
-	loaded, err := conf.Load()
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	archives := make(map[string]*compiler.Archive)
-	var importContext *compiler.ImportContext
-	importContext = &compiler.ImportContext{
-		Packages: make(map[string]*types.Package),
-		Import: func(path string) (*compiler.Archive, error) {
-
-			// find in local cache
-			if a, ok := archives[path]; ok {
-				return a, nil
-			}
-
-			pi := loaded.Package(path)
-			importContext.Packages[path] = pi.Pkg
-
-			// find in standard library cache
-			archive, err := openArchive(path)
-			if err != nil {
-				return nil, err
-			}
-			if archive != nil {
-				archives[path] = archive
-				return archive, nil
-			}
-
-			// compile package
-			archive, err = compiler.Compile(path, pi.Files, loaded.Fset, importContext, false)
-			if err != nil {
-				return nil, err
-			}
-			archives[path] = archive
-			return archive, nil
-		},
-	}
-
-	// compile package
-	archive, err := compiler.Compile("main", []*ast.File{parsed}, loaded.Fset, importContext, false)
-	if err != nil {
-		return err
-	}
-
-	if err := servePackage(w, archive); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func js(ctx context.Context, env vos.Env, jsc *jscompiler.JsCompiler, w http.ResponseWriter, req *http.Request) error {
-
-	// TODO: Add caching
-	/*
-		name := fmt.Sprintf("v4/%s?%d", path, source.Hash)
-		found, resp, err := b.Cache.Get(name)
-		if err != nil {
-			return nil, err
-		}
-		if found {
-			cached++
-			archive, err := compiler.ReadArchive(path+".a", path, bytes.NewBuffer(resp), b.Packages)
-			if err != nil {
-				return nil, err
-			}
-			b.Archives[path] = archive
-			return archive, nil
-		}
-	*/
 
 	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/js/"), ".js")
 
@@ -288,51 +153,6 @@ func js(ctx context.Context, env vos.Env, jsc *jscompiler.JsCompiler, w http.Res
 		return nil
 	}
 
-	/*
-		loaded, err := loadProg(env, path, parser.ParseComments)
-		if err != nil {
-			return err
-		}
-
-		archives := make(map[string]*compiler.Archive)
-		var importContext *compiler.ImportContext
-		importContext = &compiler.ImportContext{
-			Packages: make(map[string]*types.Package),
-			Import: func(path string) (*compiler.Archive, error) {
-
-				// find in local cache
-				if a, ok := archives[path]; ok {
-					return a, nil
-				}
-
-				pi := loaded.Package(path)
-				importContext.Packages[path] = pi.Pkg
-
-				// find in standard library cache
-				archive, err := openArchive(path)
-				if err != nil {
-					return nil, err
-				}
-				if archive != nil {
-					archives[path] = archive
-					return archive, nil
-				}
-
-				// compile package
-				archive, err = compiler.Compile(path, pi.Files, loaded.Fset, importContext, false)
-				if err != nil {
-					return nil, err
-				}
-				archives[path] = archive
-				return archive, nil
-			},
-		}
-
-		archive, err = importContext.Import(path)
-		if err != nil {
-			return err
-		}*/
-
 	archive = jsc.Get(path)
 
 	if err := servePackage(w, archive); err != nil {
@@ -343,7 +163,15 @@ func js(ctx context.Context, env vos.Env, jsc *jscompiler.JsCompiler, w http.Res
 }
 
 func openArchive(path string) (*compiler.Archive, error) {
-	f, err := assets.Assets.Open(fmt.Sprintf("pkg/%s.a", path))
+
+	var filename string
+	if config.DEV {
+		filename = fmt.Sprintf("pkg/%s.a", path)
+	} else {
+		filename = fmt.Sprintf("pkg_min/%s.a", path)
+	}
+
+	f, err := assets.Assets.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -683,18 +511,36 @@ func serveStatic(name string, w http.ResponseWriter, req *http.Request) error {
 
 func root(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompiler.JsCompiler, w http.ResponseWriter, req *http.Request) error {
 
+	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/")
+
+	dir, err := patsy.Dir(env, path)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting dir for for %s", path), 500)
+		return err
+	}
+
+	files, err := getDataFiles(dir)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting data files for %s", path), 500)
+		return errors.WithStack(err)
+	}
+
+	data, err := hasher.Hash(files)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting data files hash for %s", path), 500)
+		return errors.WithStack(err)
+	}
+
 	id := make([]byte, 64)
 	if _, err := rand.Read(id); err != nil {
 		http.Error(w, "error reading rand", 500)
 		return errors.WithStack(err)
 	}
-	attribute, err := common.Auth{Id: id, Hash: auth.Sign(id)}.Encode()
+	attribute, err := common.Auth{Id: id, Hash: auth.Sign(id), Data: data}.Encode()
 	if err != nil {
 		http.Error(w, "error encoding auth", 500)
 		return errors.WithStack(err)
 	}
-
-	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/")
 
 	source := []byte(`
 		<html>
@@ -722,7 +568,28 @@ func root(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompiler.
 func rootjs(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompiler.JsCompiler, w http.ResponseWriter, req *http.Request) error {
 	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/root/"), ".js")
 
-	prog, err := jsc.Hint(path, "frizz.io/edit/editor")
+	/*
+		package main
+
+		import (
+			"frizz.io/edit/editor"
+			"<pkg>"
+		)
+
+		func main() {
+			editor.Edit(<pkg>.Package)
+		}
+	*/
+	f := jen.NewFile("main")
+	f.Func().Id("main").Params().Block(
+		jen.Qual("frizz.io/edit/editor", "Edit").Call(jen.Qual(path, "Package")),
+	)
+	buf := &bytes.Buffer{}
+	if err := f.Render(buf); err != nil {
+		return err
+	}
+
+	prog, err := jsc.Main(path, buf.Bytes())
 	if err != nil {
 		return err
 	}
@@ -764,12 +631,21 @@ func rootjs(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompile
 			imports := map[string]uint64{}
 			for _, f := range pi.Files {
 				fpath := prog.Fset.File(f.Pos()).Name()
-				b, err := ioutil.ReadFile(fpath)
-				if err != nil {
-					return err
+				fdir, fname := filepath.Split(fpath)
+				if fdir == "" {
+					// generated files have no dir, so let's print them
+					buf := &bytes.Buffer{}
+					if err := printer.Fprint(buf, prog.Fset, f); err != nil {
+						return err
+					}
+					files[fname] = buf.Bytes()
+				} else {
+					b, err := ioutil.ReadFile(fpath)
+					if err != nil {
+						return err
+					}
+					files[fname] = b
 				}
-				_, name := filepath.Split(fpath)
-				files[name] = b
 			}
 			for _, child := range pi.Pkg.Imports() {
 				if hash, ok := hashes[child.Path()]; ok {
@@ -787,10 +663,7 @@ func rootjs(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompile
 		done[local] = struct{}{}
 		return nil
 	}
-	if err := orderImports(path); err != nil {
-		return err
-	}
-	if err := orderImports("frizz.io/edit/editor"); err != nil {
+	if err := orderImports(path + "$main"); err != nil {
 		return err
 	}
 
@@ -820,8 +693,7 @@ var finished = function() {
 	$pkgs.forEach(function(path){
 		$initialisers[path]();
 	});
-	$initialisers["main"]();
-	$mainPkg = $packages["main"];
+	$mainPkg = $packages[$path+"$main"];
 	$synthesizeMethods();
 	$packages["runtime"].$init();
 	$go($mainPkg.$init, []);
@@ -843,7 +715,6 @@ var load = function(url) {
     document.body.appendChild(tag);
 }
 load("/prelude.js");
-load("/main/" + $path + ".js?v="+$ver);
 $pkgs.forEach(function(path){
 	var hash = $hashes[path] ? "&hash="+$hashes[path] : "";
 	load("/js/" + path + ".js?v="+$ver+hash);
@@ -852,92 +723,6 @@ $pkgs.forEach(function(path){
 
 	if err := writeWithTimeout(w, src.Bytes()); err != nil {
 		http.Error(w, "error streaming data", 500)
-		return err
-	}
-
-	return nil
-
-	/*
-			initialisers := "\n"
-			imports := "\n"
-			for _, p := range orderedPackages {
-				hash := ""
-				if h, ok := hashes[p]; ok {
-					hash = fmt.Sprintf("&hash=%d", h)
-				}
-				imports += fmt.Sprintf("\t\t\t<script src=\"/js/%s.js?v="+JS_VER+hash+"\"></script>\n", p)
-				initialisers += fmt.Sprintf("\t\t\t\t$initialisers[\"%s\"]();\n", p)
-			}
-
-			source := []byte(`
-				<html>
-					<head>
-						<meta charset="utf-8">
-						<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
-					</head>
-					<body id="wrapper" auth="` + attribute + `">
-						<span id="log">Loading...</span>
-					</body>
-					<script>
-						var $progressCount = 0;
-						var $progressTotal = ` + fmt.Sprint(len(orderedPackages)) + `;
-					</script>
-					<script src="/prelude.js?v=` + PRELUDE_VER + `"></script>
-					` + imports + `
-					<script src="/main/` + path + `.js?v=` + MAIN_VER + `"></script>
-					<script>
-						"use strict";
-						` + initialisers + `
-						$initialisers["main"]();
-						var $mainPkg = $packages["main"];
-						$synthesizeMethods();
-						$packages["runtime"].$init();
-						$go($mainPkg.$init, []);
-						$flushConsole();
-					</script>
-				</html>`)
-
-		if err := writeWithTimeout(w, source); err != nil {
-			http.Error(w, "error streaming homepage", 500)
-			return err
-		}
-
-		return nil*/
-}
-
-func rootOld(ctx context.Context, auth auther.Auther, w http.ResponseWriter, req *http.Request) error {
-
-	id := make([]byte, 64)
-	if _, err := rand.Read(id); err != nil {
-		http.Error(w, "error reading rand", 500)
-		return errors.WithStack(err)
-	}
-	attribute, err := common.Auth{Id: id, Hash: auth.Sign(id)}.Encode()
-	if err != nil {
-		http.Error(w, "error encoding auth", 500)
-		return errors.WithStack(err)
-	}
-
-	packagePath := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/")
-
-	source := []byte(`
-		<html>
-			<head>
-				<meta charset="utf-8">
-				<script src="/static/jquery-2.2.4.min.js"></script>
-				<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
-			</head>
-			<body id="wrapper" auth="` + attribute + `">
-				<input type="text" id="path" value="` + packagePath + `">
-				<button id="load">Load</button>
-				<span id="log">Loading...</span>
-				<div id="editor"></div>
-			</body>
-			<script src="/static/bootstrap.js"></script>
-		</html>`)
-
-	if err := writeWithTimeout(w, source); err != nil {
-		http.Error(w, "error streaming homepage", 500)
 		return err
 	}
 
@@ -1011,94 +796,4 @@ func withCancel(ctx context.Context, op func()) {
 	case <-c:
 	case <-ctx.Done():
 	}
-}
-
-func script(ctx context.Context, env vos.Env, w http.ResponseWriter, sourceMap bool) error {
-
-	var out []byte
-	var err error
-
-	withCancel(ctx, func() {
-		out, err = Compile(env, sourceMap, true, false)
-	})
-	if err != nil {
-		return err
-	}
-
-	withCancel(ctx, func() {
-		err = writeWithTimeout(w, out)
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func Compile(env vos.Env, mapping bool, addMappingComment bool, minify bool) ([]byte, error) {
-
-	dir, err := patsy.Dir(env, "frizz.io/edit/bootstrap/main")
-	if err != nil {
-		return nil, err
-	}
-
-	options := &build.Options{
-		GOROOT:        env.Getenv("GOROOT"),
-		GOPATH:        env.Getenv("GOPATH"),
-		CreateMapFile: mapping,
-	}
-	s := build.NewSession(options)
-	packages := make(map[string]*compiler.Archive)
-	importContext := &compiler.ImportContext{
-		Packages: s.Types,
-		Import:   s.BuildImportPath,
-	}
-
-	fset := token.NewFileSet()
-
-	parsed, err := parser.ParseDir(fset, dir, nil, parser.ParseComments)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	var files []*ast.File
-	for _, f := range parsed["main"].Files {
-		files = append(files, f)
-	}
-
-	mainPkg, err := compiler.Compile("main", files, fset, importContext, minify)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	packages["main"] = mainPkg
-
-	bufCode := bytes.NewBuffer(nil)
-	filter := &compiler.SourceMapFilter{Writer: bufCode}
-	allPkgs, err := compiler.ImportDependencies(mainPkg, importContext.Import)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	if mapping {
-		bufMap := bytes.NewBuffer(nil)
-		smap := &sourcemap.Map{File: "script.js"}
-		filter.MappingCallback = build.NewMappingCallback(smap, options.GOROOT, options.GOPATH, false)
-		if err := compiler.WriteProgramCode(allPkgs, filter); err != nil {
-			return nil, errors.WithStack(err)
-		}
-		if err := smap.WriteTo(bufMap); err != nil {
-			return nil, errors.WithStack(err)
-		}
-		return bufMap.Bytes(), nil
-	}
-
-	if err := compiler.WriteProgramCode(allPkgs, filter); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	if addMappingComment {
-		if _, err := bufCode.WriteString("//# sourceMappingURL=/static/bootstrap.js.map\n"); err != nil {
-			return nil, errors.WithStack(err)
-		}
-	}
-	return bufCode.Bytes(), nil
 }

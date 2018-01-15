@@ -13,6 +13,8 @@ import (
 
 	"sync"
 
+	"go/token"
+
 	"github.com/cskr/pubsub"
 	"github.com/dave/patsy/vos"
 	"github.com/gopherjs/gopherjs/compiler"
@@ -50,6 +52,98 @@ func (j *JsCompiler) setCache(path string, a *compiler.Archive) {
 	defer j.cacheM.Unlock()
 	j.cache[path] = a
 	j.ps.Pub(a, path)
+}
+
+// Hint provides a hint that a cascade of requests for packages is coming soon...
+func (j *JsCompiler) Main(path string, source []byte) (*loader.Program, error) {
+
+	go j.BuildMain(path, source)
+
+	fset := token.NewFileSet()
+
+	conf := loader.Config{}
+	conf.Fset = fset
+	conf.ParserMode = parser.ImportsOnly
+	conf.Build = func() *build.Context { c := build.Default; return &c }() // make a copy of build.Default
+	conf.Build.GOPATH = j.env.Getenv("GOPATH")
+	conf.Build.BuildTags = []string{"js"}
+	conf.AllowErrors = true
+	conf.TypeChecker.Error = func(e error) {}
+	f, err := parser.ParseFile(fset, "main.go", source, parser.ImportsOnly)
+	if err != nil {
+		return nil, err
+	}
+	conf.CreateFromFiles(path+"$main", f)
+
+	prog, err := conf.Load()
+	if err != nil {
+		return nil, err
+	}
+
+	return prog, nil
+}
+
+func (j *JsCompiler) BuildMain(path string, source []byte) {
+
+	fset := token.NewFileSet()
+
+	conf := loader.Config{}
+	conf.Fset = fset
+	conf.ParserMode = parser.ParseComments
+	conf.Build = func() *build.Context { c := build.Default; return &c }() // make a copy of build.Default
+	conf.Build.GOPATH = j.env.Getenv("GOPATH")
+	conf.Build.BuildTags = []string{"js"}
+	conf.AllowErrors = true
+	conf.TypeChecker.Error = func(e error) {}
+
+	f, err := parser.ParseFile(fset, "main.go", source, parser.ParseComments)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	conf.CreateFromFiles(path+"$main", f)
+	prog, err := conf.Load()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var importContext *compiler.ImportContext
+	importContext = &compiler.ImportContext{
+		Packages: make(map[string]*types.Package),
+		Import: func(path string) (*compiler.Archive, error) {
+
+			// find in local cache
+			if a, ok := j.getCache(path); ok {
+				return a, nil
+			}
+
+			pi := prog.Package(path)
+			importContext.Packages[path] = pi.Pkg
+
+			// find in standard library cache
+			a, err := openArchive(path)
+			if err != nil {
+				return nil, err
+			}
+			if a != nil {
+				j.setCache(path, a)
+				return a, nil
+			}
+
+			// compile package
+			a, err = compiler.Compile(path, pi.Files, prog.Fset, importContext, false)
+			if err != nil {
+				return nil, err
+			}
+			j.setCache(path, a)
+			return a, nil
+		},
+	}
+
+	if _, err := importContext.Import(path + "$main"); err != nil {
+		panic(err.Error())
+	}
+
 }
 
 // Hint provides a hint that a cascade of requests for packages is coming soon...
