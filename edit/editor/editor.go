@@ -13,12 +13,12 @@ import (
 	"honnef.co/go/js/dom"
 )
 
-func Edit(p global.Package, hash uint64) {
+func Edit(p global.Package) {
 	c, err := common.NewClient()
 	if err != nil {
 		fmt.Println(err)
 	}
-	e := &Editor{Client: c, Package: p, Hash: hash}
+	e := &Editor{Client: c, Package: p}
 	go func() {
 		if err := e.Start(); err != nil {
 			c.Log.Println(err)
@@ -28,14 +28,13 @@ func Edit(p global.Package, hash uint64) {
 
 type Editor struct {
 	Client  *common.Client
-	Hash    uint64
 	Package global.Package
 	Div     *dom.HTMLDivElement
 }
 
 func (e *Editor) Start() error {
 	e.Client.Log.Println("Loading data:", e.Package.Path())
-	r, err := util.GetReader(fmt.Sprintf("/data/%s.bin?hash=%d", e.Package.Path(), e.Hash))
+	r, err := util.GetReader(fmt.Sprintf("/data/%s.bin?hash=%d", e.Package.Path(), e.Client.Auth.Data))
 	if err != nil {
 		return err
 	}
