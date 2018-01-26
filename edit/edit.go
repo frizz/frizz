@@ -53,7 +53,8 @@ import (
 )
 
 const writeTimeout = time.Second * 2
-const JS_VER = "19"
+
+var JS_VER = fmt.Sprint("20", config.DEV)
 
 func Open(ctx context.Context, cancel context.CancelFunc, env vos.Env, out io.Writer, path string) error {
 
@@ -551,9 +552,6 @@ func root(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompiler.
 			<body id="wrapper" auth="` + attribute + `">
 				<span id="log">Parsing project...</span>
 			</body>
-			<script>
-				var $progressCount = 0;
-			</script>
 			<script src="/root/` + path + `.js"></script>
 		</html>`)
 
@@ -613,9 +611,11 @@ func rootjs(ctx context.Context, env vos.Env, auth auther.Auther, jsc *jscompile
 		std := strings.HasPrefix(prog.Fset.File(pi.Files[0].Pos()).Name(), gobuild.Default.GOROOT)
 		if std {
 			// stdlib package. make sure it's valid:
-			if _, err := assets.Assets.Open(fmt.Sprintf("pkg/%s.a", local)); os.IsNotExist(err) {
+			if f, err := assets.Assets.Open(fmt.Sprintf("pkg/%s.a", local)); os.IsNotExist(err) {
 				done[local] = struct{}{}
 				return nil
+			} else if err == nil {
+				f.Close()
 			}
 		}
 
